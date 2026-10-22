@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T21:23:25.338Z",
+  "asOf": "2026-10-22T21:35:52.405Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3752,8 +3752,85 @@
           "scripts/minion.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "31538dd079d6a3f129dad7b55d76b380f5e9e514",
+          "runs": [
+            {
+              "id": 39856931128,
+              "name": "Checkpoint",
+              "sha": "31538dd079d6a3f129dad7b55d76b380f5e9e514",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/guardian-angel-movement-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:23:58Z",
+              "completedAt": "2026-10-22T21:29:30Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39856931128"
+            },
+            {
+              "id": 39857870318,
+              "name": "Lint",
+              "sha": "31538dd079d6a3f129dad7b55d76b380f5e9e514",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:30:52Z",
+              "completedAt": "2026-10-22T21:31:44Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39857870318"
+            },
+            {
+              "id": 39857870254,
+              "name": "Dashboard",
+              "sha": "31538dd079d6a3f129dad7b55d76b380f5e9e514",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:30:52Z",
+              "completedAt": "2026-10-22T21:34:04Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39857870254"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Dog/cat tame guardian and petless untamed control match live C; 219 focused/affected tests, 12 timeline tests and lint passed. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "monster-missile-showdamage",
+      "kind": "parity-repair",
+      "title": "Allow monster missile hits with showdamage",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mthrowu.c",
+          "nethack-c/upstream/src/hack.c",
+          "js/mthrowu.js",
+          "js/hack.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/mthrowu.c/monster-missile-showdamage-hit.session.json",
+          "recipes/mthrowu.c/monster-missile-showdamage-terse.session.json",
+          "recipes/mthrowu.c/monster-missile-showdamage-off-control.session.json"
+        ],
+        "test": [
+          "scripts/monster-missile-showdamage.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/hack.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C Astral arrival produces a tame guardian without edog after prior pet conduct. Dog/cat witnesses stopped at the preflight gate on original source; petless untamed control passed. Admit source-defined guardian Angels through existing null-edog dog_move path, including unchanged Conflict loss; preserve non-Angel guard. 219 focused/affected tests passed. Hosted gates pending; investigation start time not captured."
+      "note": "Live C goblin dagger hit prints HP loss with showdamage; verbose and terse witnesses failed before removing obsolete preflight refusal, option-off control passed. Shared thitu/losehp message owner already isolates planning output. All three complete replays and 294 focused/affected tests pass. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

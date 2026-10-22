@@ -1287,8 +1287,6 @@ function monsterMissileEnv(monster, env) {
             actionEnv,
         ),
         hitHero: (hitv, damage, obj, actionEnv) => {
-            if (actionEnv.planning && actionEnv.state.iflags?.showdamage)
-                unsupported('monster missile hit with showdamage');
             return thitu(hitv, damage, obj, null, actionEnv.state, {
                 ...actionEnv,
                 exercise: (index, increase, state) => exercise(

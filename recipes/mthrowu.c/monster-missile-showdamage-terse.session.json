@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent showdamage option variation: C mthrowu.c thitu calls hack.c losehp/showdamage for a goblin dagger hit; terse.",
+  "segments": [
+    {
+      "seed": 9240024,
+      "datetime": "20260901130000",
+      "nethackrc": "OPTIONS=name:FreshLethal,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\nOPTIONS=pettype:none,rest_on_space,!safe_wait\nOPTIONS=showdamage\nOPTIONS=!verbose\n",
+      "moves": " #wizwish\nspeed boots\nWe\u0007goblin\nlll    "
+    }
+  ]
+}
