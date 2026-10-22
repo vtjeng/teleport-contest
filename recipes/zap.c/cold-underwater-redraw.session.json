@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent live C witness: Wizard wears magical breathing and cold resistance, deliberately enters a wished pool with m-prefix, then zaps cold downward. C docrt flushes the freeze message and redraws after leaving underwater mode; JS skipped that call.",
+  "segments": [
+    {
+      "seed": 840261,
+      "datetime": "20541022093500",
+      "nethackrc": "OPTIONS=name:ColdSurface,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": ".\u0017amulet of magical breathing\n    Po    \u0017wand of cold\n    \u0017ring of cold resistance\n    Pql    \u0017pool\n    lmh          zp>    "
+    }
+  ]
+}

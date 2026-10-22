@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T09:13:56.730Z",
+  "asOf": "2026-10-22T09:39:21.464Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2554,8 +2554,82 @@
           "scripts/trap-generation.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "1023ff11170eace596bd81dd352b9225760bdf35",
+          "committedAt": "2026-10-22T09:14:59Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39753976676,
+              "name": "Checkpoint",
+              "sha": "1023ff11170eace596bd81dd352b9225760bdf35",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/sokoban-trap-replacement-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T09:15:13Z",
+              "completedAt": "2026-10-22T09:21:35Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39753976676"
+            },
+            {
+              "id": 39755342157,
+              "name": "Lint",
+              "sha": "1023ff11170eace596bd81dd352b9225760bdf35",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T09:25:46Z",
+              "completedAt": "2026-10-22T09:26:38Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39755342157"
+            },
+            {
+              "id": 39755342193,
+              "name": "Dashboard",
+              "sha": "1023ff11170eace596bd81dd352b9225760bdf35",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T09:25:46Z",
+              "completedAt": "2026-10-22T09:28:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39755342193"
+            }
+          ]
+        }
+      ],
+      "note": "Public C final-pit replacement witness matches3407 RNG,454 screens/cursors,6 frames; remaining-pits control matches.61 focused,2690 local shard,64 register/startup tests and lint passed. Exact Checkpoint and push Lint/Pages passed attempt1; fixed44 and synthetic98/2055 unchanged. Promotion denial had no effect; one retry succeeded after ongoing authorization was reaffirmed. Accepted synthetic evidence recorded and carried in this ordinary commit."
+    },
+    {
+      "id": "cold-underwater-redraw",
+      "kind": "parity-repair",
+      "title": "Redraw when a cold ray freezes the water around the hero",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/zap.c",
+          "js/zap.js",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/zap.c/cold-underwater-redraw.session.json"
+        ],
+        "test": [
+          "scripts/cold-underwater-redraw.test.mjs",
+          "scripts/zap-ray.test.mjs",
+          "scripts/zap-command.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Public C wizard trap replacement of all ten pits permits the next diagonal boulder push; JS retained rules because maketrap skipped the existing completion helper. Live witness fails before and matches after:3407 RNG,454 screens/cursors,6 frames. Investigation timestamps unknown. Acceptance gates pending; not accepted."
+      "note": "Live C submerged cold-ray witness fails before omitted docrt call and matches after awaited existing redraw:3661 RNG,125 screens/cursors,1 frame. Non-submerged control matches. Investigation timestamps unknown. Full acceptance gates pending; not accepted."
     }
   ]
 }
