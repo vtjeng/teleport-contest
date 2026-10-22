@@ -148,7 +148,7 @@ import {
     S_VORTEX,
 } from './monsters.js';
 import { killed, monkilled } from './mon.js';
-import { adjalign } from './attrib.js';
+import { acurr, adjalign } from './attrib.js';
 import { greatest_erosion, isMetallic, mksobj } from './obj.js';
 import { BOULDER, SADDLE } from './objects.js';
 import { an } from './objnam.js';
@@ -424,8 +424,8 @@ export async function use_saddle(otmp, state = game, env = {}) {
         return ECMD_TIME;
     }
 
-    let chance = (state.u.acurr?.a?.[A_DEX] ?? 0)
-        + Math.trunc((state.u.acurr?.a?.[A_CHA] ?? 0) / 2)
+    let chance = acurr(state, A_DEX)
+        + Math.trunc(acurr(state, A_CHA) / 2)
         + 2 * (mtmp.mtame ?? 0);
     chance += (state.u.ulevel ?? 0) * (mtmp.mtame ? 20 : 5);
     if (!mtmp.mtame)

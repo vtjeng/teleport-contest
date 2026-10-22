@@ -1547,13 +1547,13 @@ test('single engineer renders and refreshes in the existing timeline without ena
     const timeline = rendered.get('timeline');
     assert.match(timeline.innerHTML, /CI validation for Dismiss/);
     assert.doesNotMatch(timeline.innerHTML, /activity-label">Work lead/);
-    assert.match(rendered.get('timelineReadout').innerHTML, /Investigation timestamps unknown/);
     // The visible range advances as real repairs are recorded. Select this
     // exact historical run instead of assuming it remains the initial selection.
     const stages = singleWorkerActivity(createTrialMonitor(snapshot).summarize()).stages;
     const index = stages.findIndex(stage => stage.links?.some(link => link.url.includes('/39705972360/')));
     assert.ok(index >= 0);
     timeline.listeners.click[0]({target: {classList: {contains: name => name === 'activity-bar'}, dataset: {segment: String(index)}}});
+    assert.match(rendered.get('timelineReadout').innerHTML, /Investigation timestamps unknown/);
     assert.match(rendered.get('timelineReadout').innerHTML, /actions\/runs\/39705972360\/attempts\/1/);
     assert.equal(rendered.get('activityMetrics').hidden, true);
     snapshot.register.repairs.at(-1).investigations = [{start: '2026-10-22T02:10:00Z', end: '2026-10-22T02:15:00Z', note: 'C witness'}];

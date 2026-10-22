@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T08:00:18.259Z",
+  "asOf": "2026-10-22T08:33:58.395Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2382,6 +2382,34 @@
         }
       ],
       "note": "Three live C witnesses match after the current-level Sokoban correction. Active-rule and rock-mole countercases match before/after. 234 focused tests, 68 register/dashboard tests and lint passed; local shard had only known missing clang. Full exact hosted Checkpoint and push Lint/Pages passed attempt 1. Fixed44 and synthetic98/2055 unchanged."
+    },
+    {
+      "id": "saddle-effective-attributes",
+      "kind": "parity-repair",
+      "title": "Use effective attributes for saddle application chance",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/steed.c",
+          "js/steed.js",
+          "js/attrib.js"
+        ],
+        "witness": [
+          "recipes/steed.c/saddle-effective-dexterity.session.json"
+        ],
+        "test": [
+          "scripts/saddle-attributes.test.mjs",
+          "scripts/mount-steed.test.mjs",
+          "scripts/apply.test.mjs",
+          "scripts/hero-attributes.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Live C gauntlets/cursed-saddle witness fails before raw-attribute calculation and matches after using acurr for Dexterity and Charisma:2828 RNG,74 screens/cursors. No-bonus countercase matches. Investigation timestamps unknown. Full gates pending; not accepted."
     }
   ]
 }

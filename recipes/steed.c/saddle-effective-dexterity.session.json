@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent steed.c use_saddle live C witness: Knight wears +20 gauntlets of dexterity (effective Dexterity25), creates a tame pony, and applies a cursed saddle. Source chance uses ACURR, including worn bonuses, rather than base attributes. Seed840230 and fixed clock20541022082500 independently chosen; C succeeds where raw-attribute JS refuses.",
+  "segments": [
+    {
+      "seed": 840230,
+      "datetime": "20541022082500",
+      "nethackrc": "OPTIONS=name:SaddleAttrs,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".Tf\u0017blessed +20 gauntlets of dexterity\nWi.\u0017cursed saddle\n \u0007tame pony\najk "
+    }
+  ]
+}
