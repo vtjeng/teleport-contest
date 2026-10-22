@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first completed-Sokoban diagonal witness. Fill all18holes via public wizard wishes and pushes, then verify boulder behavior after current-level Sokoban rules end. Earlier occupied-destination attempts and active-rule countercase retained separately.",
+  "segments": [
+    {
+      "seed": 840191,
+      "datetime": "20541022075000",
+      "nethackrc": "OPTIONS=name:TrapChange,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizlevelport\n?\n>B\n   \u0014   lkkkkkkk.   #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    \u0014hhhhhhhhhhhhhhjjjjjjj.    #wizwish\nboulder\n    hju    "
+    }
+  ]
+}

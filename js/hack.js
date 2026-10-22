@@ -1944,7 +1944,8 @@ async function cannot_push_msg(otmp, sx, sy, state, env) {
 // results are consumed by moverock_core() to decide whether movement proceeds.
 async function cannot_push(otmp, sx, sy, state, env) {
     if (throws_rocks(state.youmonst?.data)) {
-        const canpickup = !In_sokoban(state.u?.uz)
+        // C's Sokoban flag ends when this level's puzzle is completed.
+        const canpickup = !state.level?.flags?.sokoban_rules
             && (inv_cnt(false, state) < INVLET_BASIC
                 || !carrying(BOULDER, state));
         const willpickup = canpickup
@@ -2491,7 +2492,7 @@ async function moverock_core(sx, sy, state, env) {
 
         // 443-448. Sokoban's diagonal rule is local to moverock_core(); the
         // result of cannot_push() remains the source return value.
-        if (In_sokoban(state.u?.uz) && u.dx && u.dy) {
+        if (state.level?.flags?.sokoban_rules && u.dx && u.dy) {
             if (heroIsBlind(state)) feel_location(sx, sy, state);
             await message(
                 `${The(xnameFresh(otmp, state), state)} won't roll diagonally `
@@ -2992,7 +2993,7 @@ export async function test_move(
     // return-valued push transaction; its unsupported trap/liquid/pile arms
     // remain named in hack.js rather than being replaced with a guessed result.
     if (sobj_at(BOULDER, x, y, state)
-        && (In_sokoban(state.u?.uz) || !passesWalls)) {
+        && (state.level?.flags?.sokoban_rules || !passesWalls)) {
         if (mode !== TEST_TRAV && run >= 2
             && !(heroIsBlind(state) || heroHallucinating(state))
             && !could_move_onto_boulder(
@@ -3011,7 +3012,7 @@ export async function test_move(
             return false;
         }
         if (mode === TEST_TRAV) {
-            if (In_sokoban(state.u?.uz)) return false;
+            if (state.level?.flags?.sokoban_rules) return false;
             if (sobj_at(BOULDER, ux, uy, state)
                 && !passesWalls
                 && !could_move_onto_boulder(
@@ -3033,7 +3034,7 @@ export async function test_move(
         }
         if (mode === DO_MOVE) {
             if (tunnels(species) && !needspick(species)
-                && !In_sokoban(state.u?.uz)) {
+                && !state.level?.flags?.sokoban_rules) {
                 if (await chewBoulder(x, y)) return false;
             } else if (await pushBoulder() < 0) {
                 return false;

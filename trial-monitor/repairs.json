@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T07:09:30.648Z",
+  "asOf": "2026-10-22T07:28:38.696Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2300,6 +2300,41 @@
         }
       ],
       "note": "Blindfold/towel C witnesses match;241 existing focused tests,6 additional tests and3096 affected local shard tests pass. Full exact Checkpoint and push Lint/Pages passed first attempts. Imported fixed44 and synthetic98/2055 unchanged. Initial local promotion denial retained in continuation; explicit user approval resolved it before one successful retry."
+    },
+    {
+      "id": "completed-sokoban-boulder-rules",
+      "kind": "parity-repair",
+      "title": "Release boulder restrictions after completing a Sokoban level",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T07:25:44.878Z",
+          "end": "2026-10-22T07:28:38.696Z",
+          "note": "Recorded implementation and focused C/test validation. Earlier read-only probe timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c",
+          "js/hack.js"
+        ],
+        "witness": [
+          "recipes/hack.c/completed-sokoban-diagonal.session.json",
+          "recipes/hack.c/completed-sokoban-xorn.session.json",
+          "recipes/hack.c/completed-sokoban-giant.session.json"
+        ],
+        "test": [
+          "scripts/completed-sokoban.test.mjs",
+          "scripts/hero-boulder-push.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/diagonal-doorway.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Three live C witnesses fail before geographic boulder checks and match after using current-level Sokoban rules. Geographic wall resistance remains source-correct. Active-rule and rock-mole countercases match before/after, not fixes. Full gates pending; not accepted."
     }
   ]
 }
