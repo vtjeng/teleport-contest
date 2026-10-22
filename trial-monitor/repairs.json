@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T10:34:06.392Z",
+  "asOf": "2026-10-22T10:50:18.466Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2853,8 +2853,81 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d0a42da659d516fda0bd820fb6e4bd4138493bda",
+          "committedAt": "2026-10-22T10:36:28Z",
+          "runs": [
+            {
+              "id": 39764388042,
+              "name": "Checkpoint",
+              "sha": "d0a42da659d516fda0bd820fb6e4bd4138493bda",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/kop-random-return-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:36:38Z",
+              "completedAt": "2026-10-22T10:42:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39764388042"
+            },
+            {
+              "id": 39765346204,
+              "name": "Lint",
+              "sha": "d0a42da659d516fda0bd820fb6e4bd4138493bda",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:44:22Z",
+              "completedAt": "2026-10-22T10:45:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39765346204"
+            },
+            {
+              "id": 39765346048,
+              "name": "Dashboard",
+              "sha": "d0a42da659d516fda0bd820fb6e4bd4138493bda",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:44:22Z",
+              "completedAt": "2026-10-22T10:47:38Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39765346048"
+            }
+          ]
+        }
+      ],
+      "note": "Live C Kop-return witness matches10985 RNG149screens/cursors4frames; setup control matches.3070 affected local shard tests,173 corrected creation tests,98 register/startup and lint passed. Old mkswamp refusal expectation corrected before hosted CI with terrain/marker-independence assertions retained. Exact Checkpoint and push Lint/Pages passed attempt1; fixed44 and synthetic98/2055 unchanged. Accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "level-teleport-escape-message",
+      "kind": "parity-repair",
+      "title": "Restore the level-teleport escape message prefix",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/teleport.c",
+          "js/teleport.js"
+        ],
+        "witness": [
+          "recipes/teleport.c/level-teleport-escape-fall.session.json",
+          "recipes/teleport.c/level-teleport-escape-levitate.session.json"
+        ],
+        "test": [
+          "scripts/level-teleport-escape-message.test.mjs",
+          "scripts/wizard-level-tele.test.mjs",
+          "scripts/teleport.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent live C Kop death/return witness exposes explicit-species random-coordinate creation refusal. Existing placement/runtime tail used without changing RNG algorithm. Investigation timestamps unknown; validation and acceptance pending."
+      "note": "Independent falling and levitation C witnesses expose omitted You prefix in shared escape message, with matching RNG and differing text/cursors before correction. Nowhere message-flush probe matched C and is not a fix. Investigation timestamps unknown; validation and acceptance pending."
     }
   ]
 }

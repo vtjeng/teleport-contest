@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840301,
+      "datetime": "20541022104000",
+      "nethackrc": "OPTIONS=name:LevelMessage,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": ".\u0017ring of levitation\n    Ppl    #wizlevelport\n-9\n  "
+    }
+  ],
+  "comment": "Independent live C variation: wear levitation, level teleport to Cloud 9, and observe You float gently down to earth."
+}

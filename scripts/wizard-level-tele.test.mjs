@@ -367,7 +367,7 @@ test('a negative level lets a levitating hero return to the surface',
         assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 0 });
         assert.equal(state.gd.dfr_post_msg,
             'You materialize on a different level!');
-        assert.equal(game.nhDisplay.topMessage, 'float gently down to earth.');
+        assert.equal(game.nhDisplay.topMessage, 'You float gently down to earth.');
     });
 
 test('the endgame arm translates a negative offset to its bottom level',

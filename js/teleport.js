@@ -2534,7 +2534,7 @@ export async function level_tele(state = game) {
     }
 
     if (escape_by_flying) {
-        await ttyPline(`${escape_by_flying}.`, state);
+        await ttyPline(`You ${escape_by_flying}.`, state);
         newlevel = { dnum: 0, dlevel: 0 };
     } else if (!force_dest
         && u.uz.dnum === state.medusa_level?.dnum
