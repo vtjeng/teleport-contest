@@ -22,10 +22,10 @@ async function setupSokobanLevitationFall() {
             + 'pettype:none',
         moves: '',
     });
-    // The branch depends on dungeon identity and a trap at the landing
+    // The branch depends on active Sokoban rules and a trap at the landing
     // square. Sokoban level definitions place pits; both probes die before
     // later trap activation.
-    game.sokoban_dnum = game.u.uz.dnum;
+    game.level.flags.sokoban_rules = true;
     game.level.traps = [{
         tx: game.u.ux, ty: game.u.uy, ttyp: PIT,
         tseen: true, madeby_u: false,

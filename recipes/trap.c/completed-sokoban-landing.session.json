@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public-input C witness: complete all 18 Sokoban holes, then exercise trap.c current-level rules for landing.",
+  "segments": [
+    {
+      "seed": 840191,
+      "datetime": "20541022075000",
+      "nethackrc": "OPTIONS=name:TrapChange,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizlevelport\n?\n>B\n   \u0014   lkkkkkkk.   #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    #wizwish\nboulder\n    hl    l    \u0014hhhhhhhhhhhhhhjjjjjjj.    #wizwish\nring of levitation\n    PHl    #wizwish\npit\n    RH    "
+    }
+  ]
+}

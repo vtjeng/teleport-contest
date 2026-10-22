@@ -1,0 +1,698 @@
+{
+  "version": 1,
+  "batch": "v61",
+  "manifestPath": "challenges/manifests/v61.json",
+  "sha": "3bd8d5f384116d177208117fa31b2f43ee69b984",
+  "utc": "2026-10-22T08:37:27.508Z",
+  "status": "complete",
+  "manifestSha256": "febc3833cd1f31a86f513e8cc8c95a24b3d97bb5d80a16cd588b66d86fa8e0f8",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "680aec3c3675567eef21171247290d92d623a0d1e2e274205a8e82f52ee2de2d",
+  "inputFiles": [
+    "challenges/cases/v61/v61-apply-novel-flip-action2.recipe.session.json",
+    "challenges/cases/v61/v61-apply-novel-flip-action2.session.json",
+    "challenges/cases/v61/v61-blind-lucky-throne-ornaments-action2.recipe.session.json",
+    "challenges/cases/v61/v61-blind-lucky-throne-ornaments-action2.session.json",
+    "challenges/cases/v61/v61-confused-magic-harp-mundane-action2.recipe.session.json",
+    "challenges/cases/v61/v61-confused-magic-harp-mundane-action2.session.json",
+    "challenges/cases/v61/v61-fire-horn-self-fire-resist-action4.recipe.session.json",
+    "challenges/cases/v61/v61-fire-horn-self-fire-resist-action4.session.json",
+    "challenges/cases/v61/v61-frost-horn-self-cold-resist-action4.recipe.session.json",
+    "challenges/cases/v61/v61-frost-horn-self-cold-resist-action4.session.json",
+    "challenges/cases/v61/v61-gain-energy-negative-clamp-action2.recipe.session.json",
+    "challenges/cases/v61/v61-gain-energy-negative-clamp-action2.session.json",
+    "challenges/cases/v61/v61-marker-recharge-again-action5.recipe.session.json",
+    "challenges/cases/v61/v61-marker-recharge-again-action5.session.json",
+    "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.recipe.session.json",
+    "challenges/cases/v61/v61-pet-bee-eats-floor-jelly-action2.session.json",
+    "challenges/cases/v61/v61-piranha-water-spawn-action2.recipe.session.json",
+    "challenges/cases/v61/v61-piranha-water-spawn-action2.session.json",
+    "challenges/cases/v61/v61-strangled-dragon-breath-refusal-action2.recipe.session.json",
+    "challenges/cases/v61/v61-strangled-dragon-breath-refusal-action2.session.json",
+    "challenges/cases/v61/v61-undead-holy-water-burn-action2.recipe.session.json",
+    "challenges/cases/v61/v61-undead-holy-water-burn-action2.session.json",
+    "challenges/cases/v61/v61-undead-unholy-water-heal-action2.recipe.session.json",
+    "challenges/cases/v61/v61-undead-unholy-water-heal-action2.session.json",
+    "challenges/cases/v61/v61-underwater-bugle-refusal-action5.recipe.session.json",
+    "challenges/cases/v61/v61-underwater-bugle-refusal-action5.session.json",
+    "challenges/cases/v61/v61-web-muffles-squeaky-board-action2.recipe.session.json",
+    "challenges/cases/v61/v61-web-muffles-squeaky-board-action2.session.json",
+    "challenges/cases/v61/v61-wooden-flute-snake-charm-action2.recipe.session.json",
+    "challenges/cases/v61/v61-wooden-flute-snake-charm-action2.session.json",
+    "challenges/cases/v61/v61-wooden-harp-nymph-calm-action2.recipe.session.json",
+    "challenges/cases/v61/v61-wooden-harp-nymph-calm-action2.session.json",
+    "challenges/cases/v61/v61-wrapped-invisibility-timeout-action2.recipe.session.json",
+    "challenges/cases/v61/v61-wrapped-invisibility-timeout-action2.session.json",
+    "challenges/manifests/v61.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/alloc.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/earth_level_data.js",
+    "js/earth_levels.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/knox_level_data.js",
+    "js/knox_levels.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon_loca_level_data.js",
+    "js/mon_strt_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlsel.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/ran_strt_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rnd.js",
+    "js/rng.js",
+    "js/rog_goal_level_data.js",
+    "js/rog_loca_level_data.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_filb_level_data.js",
+    "js/sam_goal_level_data.js",
+    "js/sam_loca_level_data.js",
+    "js/sam_strt_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout_property_data.js",
+    "js/timeout.js",
+    "js/topl.js",
+    "js/topten.js",
+    "js/tou_goal_level_data.js",
+    "js/tou_loca_level_data.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/utf8map.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/val_strt_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/water_levels.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wiz_goal_level_data.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v61-pet-bee-eats-floor-jelly-action2",
+      "recordingSha256": "9c93c0cdf03fac3293dc5ffaac961ca64c858ee6d5148548e3829f6fb7f6bc87",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 737,
+          "total": 737
+        },
+        "rng": {
+          "matched": 3440,
+          "total": 3440
+        },
+        "cursors": {
+          "matched": 737,
+          "total": 737
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-blind-lucky-throne-ornaments-action2",
+      "recordingSha256": "d0a3c851f7ebb18374e81514a087f4b9efc4b08cd0f578400d42396359f6577b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 549,
+          "total": 549
+        },
+        "rng": {
+          "matched": 2528,
+          "total": 2528
+        },
+        "cursors": {
+          "matched": 549,
+          "total": 549
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-strangled-dragon-breath-refusal-action2",
+      "recordingSha256": "f283851b0d488bab80255ef15cbc7eb1d77314826801102ffb5e6af3490d8bfb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 202,
+          "total": 202
+        },
+        "rng": {
+          "matched": 2515,
+          "total": 2515
+        },
+        "cursors": {
+          "matched": 202,
+          "total": 202
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-web-muffles-squeaky-board-action2",
+      "recordingSha256": "2152c009e6a337bc11e6f7645057d7d21ab7a49fbd3646d995e8acb3bc1146d8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 224,
+          "total": 224
+        },
+        "rng": {
+          "matched": 2404,
+          "total": 2404
+        },
+        "cursors": {
+          "matched": 224,
+          "total": 224
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-piranha-water-spawn-action2",
+      "recordingSha256": "11605c9aaae44b7f4185a8d1eb6e4f012861fbf755b4cf5c20ed0e2116b7b578",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 275,
+          "total": 275
+        },
+        "rng": {
+          "matched": 2437,
+          "total": 2437
+        },
+        "cursors": {
+          "matched": 275,
+          "total": 275
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-marker-recharge-again-action5",
+      "recordingSha256": "c9856dc0be325e479a06655a35a25ceef7c017c6eb81a6f3a33c4c347029e779",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 340,
+          "total": 340
+        },
+        "rng": {
+          "matched": 3057,
+          "total": 3057
+        },
+        "cursors": {
+          "matched": 340,
+          "total": 340
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-apply-novel-flip-action2",
+      "recordingSha256": "123450f09d616500c81b1440c60e25cd2841d58ace4a15409ac54ba020e036a3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 93,
+          "total": 93
+        },
+        "rng": {
+          "matched": 2579,
+          "total": 2579
+        },
+        "cursors": {
+          "matched": 93,
+          "total": 93
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-wooden-flute-snake-charm-action2",
+      "recordingSha256": "0bdc892e064435ae52c079f6befa88cb846f0e55d79c961596851de4da955fcd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 300,
+          "total": 300
+        },
+        "rng": {
+          "matched": 2302,
+          "total": 2302
+        },
+        "cursors": {
+          "matched": 300,
+          "total": 300
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-wooden-harp-nymph-calm-action2",
+      "recordingSha256": "72f014969ce11fc6ad7c55fe5934e1d09aac88e2e489b625d05aeadd34e7f24f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 305,
+          "total": 305
+        },
+        "rng": {
+          "matched": 2894,
+          "total": 2894
+        },
+        "cursors": {
+          "matched": 305,
+          "total": 305
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-confused-magic-harp-mundane-action2",
+      "recordingSha256": "c3ed19deb619a42164379c1a4393d70b9219e8a9aa9f5cf0b4d7aea017234281",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 232,
+          "total": 232
+        },
+        "rng": {
+          "matched": 2297,
+          "total": 2297
+        },
+        "cursors": {
+          "matched": 232,
+          "total": 232
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-undead-holy-water-burn-action2",
+      "recordingSha256": "b85a7f76b1332530374fab1fbcba978a9cdfe4815df771acd8b46d69a2b05898",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 195,
+          "total": 195
+        },
+        "rng": {
+          "matched": 2628,
+          "total": 2628
+        },
+        "cursors": {
+          "matched": 195,
+          "total": 195
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-undead-unholy-water-heal-action2",
+      "recordingSha256": "b7c02a208722a120e8cc3617d88270e8545beaef32993992d969b3a15b5c2750",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 194,
+          "total": 194
+        },
+        "rng": {
+          "matched": 2550,
+          "total": 2550
+        },
+        "cursors": {
+          "matched": 194,
+          "total": 194
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-wrapped-invisibility-timeout-action2",
+      "recordingSha256": "363bca3c92a110e2203f384a29c5c772428c4a402b5baacbf60abb359e973cd4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 253,
+          "total": 253
+        },
+        "rng": {
+          "matched": 2961,
+          "total": 2961
+        },
+        "cursors": {
+          "matched": 253,
+          "total": 253
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-gain-energy-negative-clamp-action2",
+      "recordingSha256": "fe3ca2b54ab67077fb2f2e06d9779ad810832db8a269c995a7ed3ea9b67e8a61",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 210,
+          "total": 210
+        },
+        "rng": {
+          "matched": 2201,
+          "total": 2201
+        },
+        "cursors": {
+          "matched": 210,
+          "total": 210
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-frost-horn-self-cold-resist-action4",
+      "recordingSha256": "d2e981d54e760c00d4b927b1f01e1d967c294c91a30bbd0c346371d872c8e183",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 250,
+          "total": 250
+        },
+        "rng": {
+          "matched": 3141,
+          "total": 3141
+        },
+        "cursors": {
+          "matched": 250,
+          "total": 250
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-fire-horn-self-fire-resist-action4",
+      "recordingSha256": "e754609f8a6506f9f583ab15e1ef1ff50faffd36c9e7acdcaab121e3a6900c20",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 259,
+          "total": 259
+        },
+        "rng": {
+          "matched": 2949,
+          "total": 2949
+        },
+        "cursors": {
+          "matched": 259,
+          "total": 259
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v61-underwater-bugle-refusal-action5",
+      "recordingSha256": "f5199b67c27d5b7b9a66b5e94d590f24c3c2e024a828aa509474e7da1dd2e8fa",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 304,
+          "total": 304
+        },
+        "rng": {
+          "matched": 2508,
+          "total": 2508
+        },
+        "cursors": {
+          "matched": 304,
+          "total": 304
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 17,
+      "total": 17
+    },
+    "screens": {
+      "matched": 4922,
+      "total": 4922
+    },
+    "rng": {
+      "matched": 45391,
+      "total": 45391
+    },
+    "cursors": {
+      "matched": 4922,
+      "total": 4922
+    }
+  }
+}

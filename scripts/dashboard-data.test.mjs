@@ -1545,6 +1545,9 @@ test('single engineer renders and refreshes in the existing timeline without ena
         buildSha: 'f'.repeat(40), builtAt: '2026-10-22T03:00:00Z'};
     const rendered = renderDashboard(sourceDashboardData(), null, {showHistorical: false, singleWorkerData: snapshot});
     const timeline = rendered.get('timeline');
+    // Historical assertions must not depend on the latest six-hour window.
+    rendered.get('activityWindow').value = 'all';
+    rendered.get('activityWindow').listeners.change[0]();
     assert.match(timeline.innerHTML, /CI validation for Dismiss/);
     assert.doesNotMatch(timeline.innerHTML, /activity-label">Work lead/);
     // The visible range advances as real repairs are recorded. Select this
@@ -1556,7 +1559,7 @@ test('single engineer renders and refreshes in the existing timeline without ena
     assert.match(rendered.get('timelineReadout').innerHTML, /Investigation timestamps unknown/);
     assert.match(rendered.get('timelineReadout').innerHTML, /actions\/runs\/39705972360\/attempts\/1/);
     assert.equal(rendered.get('activityMetrics').hidden, true);
-    snapshot.register.repairs.at(-1).investigations = [{start: '2026-10-22T02:10:00Z', end: '2026-10-22T02:15:00Z', note: 'C witness'}];
+    snapshot.register.repairs.find(repair => repair.id === 'vault-silent-guard').investigations = [{start: '2026-10-22T02:10:00Z', end: '2026-10-22T02:15:00Z', note: 'C witness'}];
     rendered.refreshSnapshot(snapshot);
     assert.match(timeline.innerHTML, /Recorded investigation for Dismiss/);
     assert.equal((timeline.innerHTML.match(/activity-row/g) || []).length, 1);

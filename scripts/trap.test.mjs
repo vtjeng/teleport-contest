@@ -620,7 +620,7 @@ test('climb_pit keeps the complete source branch and caller order', () => {
         'if (Passes_walls(state))',
         'else if (!rn2(2) && sobj_at(BOULDER, u.ux, u.uy, state))',
         'else if ((Flying(state) || is_clinger(state.youmonst.data))',
-        '&& !In_sokoban(u.uz))',
+        '&& !state.level?.flags?.sokoban_rules)',
         'else if (!(--u.utrap) || m_easy_escape_pit(state.youmonst, state))',
         'else if (u.dz || state.flags?.verbose)',
     ].map((source) => jsClimbPit.indexOf(source));

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T08:33:58.395Z",
+  "asOf": "2026-10-22T08:55:56.781Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2408,8 +2408,82 @@
           "scripts/hero-attributes.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "3bd8d5f384116d177208117fa31b2f43ee69b984",
+          "committedAt": "2026-10-22T08:36:07Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39748978104,
+              "name": "Checkpoint",
+              "sha": "3bd8d5f384116d177208117fa31b2f43ee69b984",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/saddle-effective-attributes-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T08:36:17Z",
+              "completedAt": "2026-10-22T08:42:25Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39748978104"
+            },
+            {
+              "id": 39749939037,
+              "name": "Lint",
+              "sha": "3bd8d5f384116d177208117fa31b2f43ee69b984",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T08:43:56Z",
+              "completedAt": "2026-10-22T08:44:41Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39749939037"
+            },
+            {
+              "id": 39749939004,
+              "name": "Dashboard",
+              "sha": "3bd8d5f384116d177208117fa31b2f43ee69b984",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T08:43:56Z",
+              "completedAt": "2026-10-22T08:46:30Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39749939004"
+            }
+          ]
+        }
+      ],
+      "note": "Live C saddle witness and no-bonus control match. 139 focused, 52 related, 2583 local shard and 69 dashboard/register tests passed. Exact Checkpoint and push Lint/Pages passed attempt 1. Fixed44 and synthetic98/2055 unchanged. Accepted synthetic reports recorded using the existing checker; carried in this ordinary repair commit."
+    },
+    {
+      "id": "completed-sokoban-trap-rules",
+      "kind": "parity-repair",
+      "title": "End landing and pit escape restrictions on completed Sokoban levels",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/trap.c",
+          "js/trap.js"
+        ],
+        "witness": [
+          "recipes/trap.c/completed-sokoban-landing.session.json",
+          "recipes/trap.c/completed-sokoban-flying-escape.session.json"
+        ],
+        "test": [
+          "scripts/completed-sokoban-traps.test.mjs",
+          "scripts/trap.test.mjs",
+          "scripts/trap-float-selftouch.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C gauntlets/cursed-saddle witness fails before raw-attribute calculation and matches after using acurr for Dexterity and Charisma:2828 RNG,74 screens/cursors. No-bonus countercase matches. Investigation timestamps unknown. Full gates pending; not accepted."
+      "note": "Independent live C landing and flying pit-escape witnesses fail before the current-level rules correction. Investigation timestamps unknown. Full acceptance gates pending; not accepted."
     }
   ]
 }
