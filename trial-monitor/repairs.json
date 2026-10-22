@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T18:07:08.959Z",
+  "asOf": "2026-10-22T18:23:32.828Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3298,8 +3298,82 @@
           "scripts/monmove.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "a62544e419a0e9e46b609451e40a18169faa9967",
+          "committedAt": "2026-10-22T18:09:00Z",
+          "runs": [
+            {
+              "id": 39830150292,
+              "name": "Lint",
+              "sha": "a62544e419a0e9e46b609451e40a18169faa9967",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T18:18:16Z",
+              "completedAt": "2026-10-22T18:19:16Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39830150292"
+            },
+            {
+              "id": 39830150403,
+              "name": "Dashboard",
+              "sha": "a62544e419a0e9e46b609451e40a18169faa9967",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T18:18:16Z",
+              "completedAt": "2026-10-22T18:20:54Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39830150403"
+            },
+            {
+              "id": 39828859702,
+              "name": "Checkpoint",
+              "sha": "a62544e419a0e9e46b609451e40a18169faa9967",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-door-unlock-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T18:09:17Z",
+              "completedAt": "2026-10-22T18:15:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39828859702"
+            }
+          ]
+        }
+      ],
+      "note": "Death/Famine live C witnesses and closed-door control fully match;351 focused and70 register/startup tests plus lint passed. Local affected shard3033pass, one missing-clang environment failure; full hosted Checkpoint and push Lint/Pages passed attempt1. Fixed44 and synthetic98/2055 unchanged. Complete accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "particular-creation-terrain",
+      "kind": "parity-repair",
+      "title": "Place wizard-created monsters near inaccessible hero terrain",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/makemon.c",
+          "nethack-c/upstream/src/read.c",
+          "js/makemon_create.js"
+        ],
+        "witness": [
+          "recipes/makemon.c/particular-creation-terrain-mole.session.json",
+          "recipes/makemon.c/particular-creation-terrain-xorn.session.json"
+        ],
+        "test": [
+          "scripts/particular-creation-terrain.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/wizard-genesis.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent Death/Famine C witnesses unlock doors where JavaScript admission stopped. Pass captured canUnlock into ordinary movement admission and isolate planned terrain/vision. Closed-door control matched; earlier shopkeeper probe did not establish unlocking. Pet path remains outside qualified scope. Investigation timestamps unknown; exact validation and acceptance pending."
+      "note": "Independent rock mole/xorn creation on secret-door hero terrain stopped in JavaScript preflight before source nearby placement. Exact caller exemption restores existing placement; accessible-door control matched. Later secret-door movement boundary remains separate. Investigation timestamps unknown; validation and acceptance pending."
     }
   ]
 }

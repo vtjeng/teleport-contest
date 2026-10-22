@@ -1577,7 +1577,9 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     // monsters; level templates position eels on water and other species on
     // terrain the template chose.  Guards are placed at wall positions that
     // invault() converts to doors immediately after creation.
-    if (!state.in_mklev && !startingPetCall && !deadbookCall
+    // read.c particular creation passes the hero square as a request for
+    // nearby placement; makemon.c selects that square before checking it.
+    if (!state.in_mklev && !createParticularCall && !startingPetCall && !deadbookCall
         && !familiarCall && !wereSummonCall
         && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !explicitInventorylessHeroCall && !randomCoordinates

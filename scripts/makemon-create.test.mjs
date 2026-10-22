@@ -49,6 +49,7 @@ import {
     ROOM,
     ROOMOFFSET,
     ROWNO,
+    SDOOR,
     SHOPBASE,
     STONE,
     TRAPDOOR,
@@ -3038,6 +3039,32 @@ test('particular creation requires its runtime owner for source flag variants',
             assert.equal(state.level.monlist, null, scenario.name);
         }
     });
+
+test('particular creation chooses a nearby square from inaccessible hero terrain', () => {
+    for (const terrain of [SDOOR, STONE, ROOM]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        state.level.at(MON_X, MON_Y).typ = terrain;
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                if (dx || dy) state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+            }
+        }
+        const random = recordingRandom();
+        const runtimeContinuation = { claimed: false };
+        const monster = makemon(state.mons[PM_NEWT], MON_X, MON_Y, MM_NOEXCLAM, {
+            state, random: random.random, runtimeContinuation, _createParticular: true,
+        });
+        assert.ok(monster);
+        assert.notDeepEqual([monster.mx, monster.my], [MON_X, MON_Y]);
+        assert.equal(state.level.at(monster.mx, monster.my).typ, ROOM);
+        assert.equal(state.level.at(MON_X, MON_Y).typ, terrain);
+        assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+        assert.equal(runtimeContinuation.claimed, true);
+    }
+});
 
 test('explicit runtime red-dragon creation reaches makemon without a species '
     + 'refusal', () => {
