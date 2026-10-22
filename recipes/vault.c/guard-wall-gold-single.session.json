@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first wallify_vault move_gold: xorn places gold on a different vault boundary square, returns inside for guard escort, then teleports to the ordinary room with no carried gold.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021124500",
+      "nethackrc": "OPTIONS=name:VaultCroesus,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #polyself\nxorn\n    hk#wizwish\n100 gold pieces\nd$lj ........................................ VaultGold\n   zn.  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh.   ........   "
+    }
+  ]
+}

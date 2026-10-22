@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T03:53:43.827Z",
+  "asOf": "2026-10-22T04:04:25.340Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1443,8 +1443,86 @@
           "scripts/drop-solid-rock.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "a4aec99c5717eee7aa8468532b7beea06229cde3",
+          "committedAt": "2026-10-22T03:54:06Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39719388959,
+              "name": "Checkpoint",
+              "sha": "a4aec99c5717eee7aa8468532b7beea06229cde3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/solid-rock-drop-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:54:14Z",
+              "completedAt": "2026-10-22T03:59:41Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39719388959"
+            },
+            {
+              "id": 39719992380,
+              "name": "Lint",
+              "sha": "a4aec99c5717eee7aa8468532b7beea06229cde3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T04:00:56Z",
+              "completedAt": "2026-10-22T04:01:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39719992380"
+            },
+            {
+              "id": 39719992362,
+              "name": "Dashboard",
+              "sha": "a4aec99c5717eee7aa8468532b7beea06229cde3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T04:00:56Z",
+              "completedAt": "2026-10-22T04:02:50Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39719992362"
+            }
+          ]
+        }
+      ],
+      "note": "Automatic boulder drops in wall/stone and explicit quarterstaff drop in a wall failed before the terrain admission correction and now match C completely. Exact-SHA Checkpoint and Main push Lint/Pages passed on attempt 1; fixed and synthetic results unchanged."
+    },
+    {
+      "id": "vault-wall-gold",
+      "kind": "parity-repair",
+      "title": "Move wall gold back into the vault",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T04:03:29.855Z",
+          "end": "2026-10-22T04:04:25.340Z",
+          "note": "Recorded implementation and focused/C checks; earlier scratch qualification timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c",
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-wall-gold-single.session.json",
+          "recipes/vault.c/guard-wall-gold-multiple.session.json"
+        ],
+        "test": [
+          "scripts/vault-wall-gold.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Automatic boulder drops in wall/stone and an explicit quarterstaff drop in a wall failed before the terrain admission correction and now match C completely. Candidate identity and final gates not yet recorded; acceptance unknown."
+      "note": "Single/two-pile fresh C witnesses match after fail-before move_gold refusal. The first setup omitted an item-pile acknowledgement and did not reach the guard; corrected setup reaches actual wall repair. Candidate identity and final gates not yet recorded; acceptance unknown."
     }
   ]
 }

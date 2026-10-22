@@ -60,7 +60,7 @@ import { mungspaces } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import { nomul } from './hack.js';
-import { add_to_minv, money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
+import { add_to_minv, money_cnt, obj_extract_self, obfree, sobj_at, stackobj } from './invent.js';
 import { set_malign } from './makemon.js';
 import { gender, is_silent, mhe, noit_mhis, sticks } from './mondata.js';
 import { PM_CROESUS, PM_GUARD } from './monsters.js';
@@ -81,7 +81,7 @@ import {
 } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { adjalign } from './attrib.js';
-import { carried, g_at, hasContents } from './obj.js';
+import { carried, g_at, hasContents, place_object, remove_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { BOULDER, GOLD_PIECE, ROCK, TIN_WHISTLE } from './objects.js';
 import { an, mimic_obj_name, simpleonames } from './objnam.js';
@@ -376,6 +376,20 @@ export async function grddead(grd, state = game, rawEnv = {}) {
     return dispose;
 }
 
+// C ref: vault.c move_gold(). Redraw the old location before choosing the
+// destination; stackobj preserves this moved pile while absorbing old gold.
+async function move_gold(gold, vroom, state, env) {
+    const objectEnv = objectGenerationEnv({ ...env, state });
+    remove_object(gold, objectEnv);
+    newsym(gold.ox, gold.oy, state);
+    const room = state.level.rooms[vroom];
+    const nx = room.lx + env.random.rn2(2);
+    const ny = room.ly + env.random.rn2(2);
+    await place_object(gold, nx, ny, objectEnv);
+    stackobj(gold, objectEnv);
+    newsym(nx, ny, state);
+}
+
 // C ref: vault.c wallify_vault() (645-731). Restore the vault walls after the
 // guard escort is done. Gold at wall positions moves into the vault, rocks and
 // boulders are subsumed into walls, traps are destroyed, and the vault
@@ -411,9 +425,8 @@ async function wallify_vault(grd, state, env) {
                 // Gold at wall position: move into vault
                 const gold = g_at(x, y, state);
                 if (gold) {
-                    throw new UnsupportedVaultGuardError(
-                        'wallify_vault() move_gold into vault',
-                    );
+                    await move_gold(gold, EGD(grd).vroom, state, env);
+                    movedgold = true;
                 }
                 // Destroy rocks and boulders (subsume them into the walls);
                 // other objects present stay intact and become embedded.
@@ -460,21 +473,21 @@ async function wallify_vault(grd, state, env) {
 
     if (movedgold || fixed) {
         if (in_fcorridor(grd, grd.mx, grd.my) || cansee(grd.mx, grd.my, state))
-            env.message(
+            await env.message(
                 `${capitalizedAlwaysVisibleMonsterName(grd, state)} whispers an incantation.`,
                 state, env,
             );
         else {
             const heard = youHear('a distant chant.', state);
-            if (heard) env.message(heard, state, env);
+            if (heard) await env.message(heard, state, env);
         }
         if (movedgold)
-            env.message(
+            await env.message(
                 'A mysterious force moves the gold into the vault.',
                 state, env,
             );
         if (fixed)
-            env.message(
+            await env.message(
                 "The damaged vault's walls are magically restored!",
                 state, env,
             );

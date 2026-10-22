@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first wallify_vault multiple wall piles and audible cleanup: xorn places two independent gold piles on the upper/lower left vault corners before escort cleanup.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021124500",
+      "nethackrc": "OPTIONS=name:VaultCroesus,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #polyself\nxorn\n    hk#wizwish\n100 gold pieces\nd$jj#wizwish\n200 gold pieces\nd$lk ........................................ VaultGold\n   zn.  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh.   ........   "
+    }
+  ]
+}
