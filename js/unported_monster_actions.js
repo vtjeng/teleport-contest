@@ -133,6 +133,7 @@ import {
 } from './monsters.js';
 import {
     INERT_DOOR_MASKS,
+    can_fog,
     dochug,
     dochugw,
     m_avoid_kicked_loc,
@@ -1029,11 +1030,12 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     // selects locked doors for monmove.c postmov() to smash.
     const breaksDoor = location?.typ === DOOR
         && is_giant(monster.data) && (doorMask & D_LOCKED);
-    // C mon.c mfndpos() admits amorphous passage unless the monster is
-    // engulfing the hero. That selection check already ran; postmov() flows
-    // under the closed/locked door without opening or breaking it.
+    // C mon.c mfndpos() admits amorphous passage or a vampire that can_fog,
+    // unless engulfing the hero. That selection check already ran; postmov()
+    // changes the vampire's form before flowing under the intact door.
     const flowsUnderDoor = location?.typ === DOOR
-        && amorphous(monster.data) && (doorMask & (D_CLOSED | D_LOCKED));
+        && (amorphous(monster.data) || can_fog(monster, state))
+        && (doorMask & (D_CLOSED | D_LOCKED));
     // mon.c:mfndpos() sets `thrudoor` when ALLOW_WALL is present, so a
     // wall-walker may follow its target through a closed doorway. postmov()
     // skips the ordinary door-opening block for that monster.

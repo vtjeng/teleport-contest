@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T17:37:29.842Z",
+  "asOf": "2026-10-22T17:52:36.137Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3148,8 +3148,83 @@
           "scripts/monmove.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "ffcf7b899a07ec8d9448158efe0564a26b732129",
+          "committedAt": "2026-10-22T17:38:50Z",
+          "runs": [
+            {
+              "id": 39825599615,
+              "name": "Lint",
+              "sha": "ffcf7b899a07ec8d9448158efe0564a26b732129",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T17:46:23Z",
+              "completedAt": "2026-10-22T17:47:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39825599615"
+            },
+            {
+              "id": 39825599474,
+              "name": "Dashboard",
+              "sha": "ffcf7b899a07ec8d9448158efe0564a26b732129",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T17:46:23Z",
+              "completedAt": "2026-10-22T17:48:46Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39825599474"
+            },
+            {
+              "id": 39824569670,
+              "name": "Checkpoint",
+              "sha": "ffcf7b899a07ec8d9448158efe0564a26b732129",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/amorphous-door-passage-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T17:39:09Z",
+              "completedAt": "2026-10-22T17:45:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39824569670"
+            }
+          ]
+        }
+      ],
+      "note": "Closed/locked fog-cloud C witnesses match2806RNG174screens each; open control matches2806RNG172screens.344 focused tests plus updated150-test movement run,3013 affected local shard,70 register/startup and lint passed. Source engulfing restriction and unchanged door state tested. Exact Checkpoint and push Lint/Pages passed attempt1; fixed44 and synthetic98/2055 unchanged. Accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "vampire-door-passage",
+      "kind": "parity-repair",
+      "title": "Admit vampire fog-form doorway passage",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/monmove.c",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/vampire-door-passage-vampire.session.json",
+          "recipes/monmove.c/vampire-door-passage-closed.session.json",
+          "recipes/monmove.c/vampire-door-passage-lord.session.json"
+        ],
+        "test": [
+          "scripts/vampire-door-passage.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent fog-cloud C witnesses expose admission refusal under closed/locked doors; open-door control matched. Preserve existing mfndpos engulfing restriction and leave door flags/vision unchanged. Short fog and cube probes matched without establishing passage. Investigation timestamps unknown; exact validation and acceptance pending."
+      "note": "Independent vampire/vampire-lord C recordings start in bat form and expose admission refusal before existing door-triggered fog form change. Open-door control matched. Preserve can_fog blockers, source sequence and planning isolation. Investigation timestamps unknown; exact validation and acceptance pending."
     }
   ]
 }

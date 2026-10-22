@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840321,
+      "datetime": "20541022110000",
+      "nethackrc": "OPTIONS=name:DoorGiant,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": ".#wizmap\n    \u0017blessed +50 ring of protection\n    Pol    \u0014hhhj.    oh    hh\u0017locked door\n    #wizgenesis\nhostile vampire lord\n    \u0014hh.    m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ],
+  "comment": "Independent public-input C witness: a vampire pursues the hero through a doorway, with source can_fog form change for closed/locked doors. Prior JavaScript admission stopped before the existing form-change branch."
+}

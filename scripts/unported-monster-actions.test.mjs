@@ -137,6 +137,7 @@ import {
     PM_RUST_MONSTER,
     PM_QUANTUM_MECHANIC,
     PM_VAMPIRE_BAT,
+    PM_VAMPIRE,
     PM_TENGU,
     PM_WATER_MOCCASIN,
     PM_WATER_NYMPH,
@@ -3138,6 +3139,46 @@ for (const mask of [D_CLOSED, D_LOCKED]) {
         assert.equal(doorLetsLightThrough(target), 0);
     });
 }
+
+async function prepareVampireDoorArrival() {
+    const target = await prepareSelectedAction({ pmidx: PM_VAMPIRE });
+    target.monster.cham = PM_VAMPIRE;
+    const location = game.level.at(target.destinationX, target.heroY);
+    location.typ = DOOR;
+    location.flags = location.doormask = D_LOCKED;
+    recalc_block_point(target.destinationX, target.heroY, game);
+    return { ...target, location };
+}
+
+test('vampire door passage changes form only in the live action', async () => {
+    const target = await prepareVampireDoorArrival();
+    const before = preflightSnapshot();
+    const vision = visionSnapshot();
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(preflightSnapshot(), before);
+        assert.deepEqual(visionSnapshot(), vision);
+        assert.equal(target.monster.data, game.mons[PM_VAMPIRE]);
+    }
+    await runSimpleMonsterAction(target.monster, { state: game });
+    assert.deepEqual([target.monster.mx, target.monster.my],
+        [target.destinationX, target.heroY]);
+    assert.equal(target.monster.data, game.mons[PM_FOG_CLOUD]);
+    assert.equal(target.monster.cham, PM_VAMPIRE);
+    assert.equal(target.location.flags, D_LOCKED);
+    assert.equal(target.location.doormask, D_LOCKED);
+    assert.equal(doorLetsLightThrough(target), 0);
+});
+
+test('planned vampire door form change writes nothing to frozen live state', async () => {
+    const target = await prepareVampireDoorArrival();
+    const guard = freezeLiveState(game);
+    assertDetectorReachedTheGraph(guard);
+    await preflightSimpleMonsterActions(game);
+    guard.assertNoLeak(assert);
+    assert.equal(target.monster.data, game.mons[PM_VAMPIRE]);
+    assert.equal(target.location.flags, D_LOCKED);
+});
 
 test('giant locked-door planning preserves live terrain and vision before smashing', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_HILL_GIANT });
