@@ -1156,14 +1156,14 @@ export async function invault(state, env = {}) {
 
     if (u.uswallow) {
         if (!Deaf(state)) {
-            await message('"What\'s going on here?"');
+            set_voice(guard, 0, 80, 0, state);
+            await verbalize("What's going on here?", state, { message });
         }
         if (!spotted) {
             await message('The other presence vanishes.');
         }
-        throw new UnsupportedVaultGuardError(
-            'invault() removing guard while hero is swallowed',
-        );
+        await mongone(guard, { state, random });
+        return;
     }
     const uApType = state.youmonst?.m_ap_type ?? 0;
     if (uApType === M_AP_OBJECT || u.uundetected) {

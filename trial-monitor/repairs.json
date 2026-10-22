@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T02:15:01.227794Z",
+  "asOf": "2026-10-22T02:44:38.958Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1157,6 +1157,37 @@
         }
       ],
       "note": "Three C witnesses matched. Fixed 44 sessions and 98 synthetic batches / 2055 cases unchanged. Investigation timestamps were not recorded."
+    },
+    {
+      "id": "vault-swallowed-guard",
+      "kind": "parity-repair",
+      "title": "Dismiss the guard when the hero is swallowed",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T02:41:06.218Z",
+          "end": "2026-10-22T02:44:38.958Z",
+          "note": "Live C hearing/deaf qualification, source repair and focused regression checks. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c",
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-swallowed-hearing.session.json",
+          "recipes/vault.c/guard-swallowed-deaf.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-swallowed.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Fresh C hearing/deaf witnesses each match 6413 RNG calls and 250 screens/cursors after fail-before unsupported-boundary evidence. Candidate SHA and final gates are not yet recorded; this entry cannot count as accepted. Initial C setup failed because level-up prompts consumed the summon input; that probe was rejected."
     }
   ]
 }

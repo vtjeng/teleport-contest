@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first vault.c invault swallowed-hero branch: after vault entry, raise experience with explicit prompt acknowledgements, summon a hostile fog cloud, and force rest until swallowed when the guard enters. The hero is not available for interrogation; the guard leaves.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021191000",
+      "nethackrc": "OPTIONS=name:VaultDeafName,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #levelchange\n20\n                              \u0007hostile fog cloud\n m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m"
+    }
+  ]
+}
