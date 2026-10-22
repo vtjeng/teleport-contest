@@ -104,6 +104,7 @@ import {
 } from './mon.js';
 import {
     defended,
+    amorphous,
     is_giant,
     is_swimmer,
     likes_lava,
@@ -1028,6 +1029,11 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     // selects locked doors for monmove.c postmov() to smash.
     const breaksDoor = location?.typ === DOOR
         && is_giant(monster.data) && (doorMask & D_LOCKED);
+    // C mon.c mfndpos() admits amorphous passage unless the monster is
+    // engulfing the hero. That selection check already ran; postmov() flows
+    // under the closed/locked door without opening or breaking it.
+    const flowsUnderDoor = location?.typ === DOOR
+        && amorphous(monster.data) && (doorMask & (D_CLOSED | D_LOCKED));
     // mon.c:mfndpos() sets `thrudoor` when ALLOW_WALL is present, so a
     // wall-walker may follow its target through a closed doorway. postmov()
     // skips the ordinary door-opening block for that monster.
@@ -1073,6 +1079,7 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             || inertDoorway
             || opensDoor
             || breaksDoor
+            || flowsUnderDoor
             || passWallDoorway
             || trappedDoor
             || passwallDestination

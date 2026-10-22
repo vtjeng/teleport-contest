@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T11:19:20.350Z",
+  "asOf": "2026-10-22T17:37:29.842Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3074,8 +3074,82 @@
           "scripts/monmove.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "65262e1c4542e329dd89c94670b232c7ab212617",
+          "committedAt": "2026-10-22T11:20:51Z",
+          "runs": [
+            {
+              "id": 39823406818,
+              "name": "Dashboard",
+              "sha": "65262e1c4542e329dd89c94670b232c7ab212617",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T17:31:08Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39823406818",
+              "completedAt": null
+            },
+            {
+              "id": 39823406827,
+              "name": "Lint",
+              "sha": "65262e1c4542e329dd89c94670b232c7ab212617",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T17:31:08Z",
+              "completedAt": "2026-10-22T17:32:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39823406827"
+            },
+            {
+              "id": 39769933193,
+              "name": "Checkpoint",
+              "sha": "65262e1c4542e329dd89c94670b232c7ab212617",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/giant-locked-door-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T11:21:15Z",
+              "completedAt": "2026-10-22T11:26:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39769933193"
+            }
+          ]
+        }
+      ],
+      "note": "Hill/stone giant C witnesses match2685RNG143screens and2682RNG144screens; closed-door control matches.342 focused,3056 affected shard,70 register/startup tests and lint passed. Exact Checkpoint and push Lint/Pages workflows succeeded attempt1; publication checker passed. Pages job completion timestamp is unavailable despite successful workflow; kept unknown. Prior401 import blocker resolved via normal access; no duplicate CI. Fixed44 and synthetic98/2055 unchanged; accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "amorphous-door-passage",
+      "kind": "parity-repair",
+      "title": "Admit amorphous passage under closed doors",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/monmove.c",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/amorphous-door-passage-locked.session.json",
+          "recipes/monmove.c/amorphous-door-passage-closed.session.json"
+        ],
+        "test": [
+          "scripts/amorphous-door-passage.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent hill/stone giant C witnesses smash locked doors where JS admission stopped. Closed-door opening control already matched. Keep planning terrain/vision isolated; source postmov smashing behavior unchanged. Investigation timestamps unknown; exact validation and acceptance pending."
+      "note": "Independent fog-cloud C witnesses expose admission refusal under closed/locked doors; open-door control matched. Preserve existing mfndpos engulfing restriction and leave door flags/vision unchanged. Short fog and cube probes matched without establishing passage. Investigation timestamps unknown; exact validation and acceptance pending."
     }
   ]
 }

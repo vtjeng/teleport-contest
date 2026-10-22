@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-22T11:19:20.350Z",
+  "asOf": "2026-10-22T17:37:29.842Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "wished-door-flags",
-      "sha": "11575b715e6b15f37eae3eb40920194e3bc79c23",
+      "repairId": "giant-locked-door",
+      "sha": "65262e1c4542e329dd89c94670b232c7ab212617",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-22T11:19:20.350Z"
+    "asOf": "2026-10-22T17:37:29.842Z"
   }
 }

@@ -3118,6 +3118,27 @@ test('simple movement opens a closed door and names the opener', async () => {
     assert.deepEqual(messages, ['The gnome opens a door.']);
 });
 
+for (const mask of [D_CLOSED, D_LOCKED]) {
+    test('amorphous passage keeps door mask ' + mask + ' and live planning state', async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
+        const location = game.level.at(target.destinationX, target.heroY);
+        location.typ = DOOR;
+        location.flags = location.doormask = mask;
+        recalc_block_point(target.destinationX, target.heroY, game);
+        const before = preflightSnapshot();
+        const vision = visionSnapshot();
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(preflightSnapshot(), before);
+        assert.deepEqual(visionSnapshot(), vision);
+        await runSimpleMonsterAction(target.monster, { state: game });
+        assert.deepEqual([target.monster.mx, target.monster.my],
+            [target.destinationX, target.heroY]);
+        assert.equal(location.flags, mask);
+        assert.equal(location.doormask, mask);
+        assert.equal(doorLetsLightThrough(target), 0);
+    });
+}
+
 test('giant locked-door planning preserves live terrain and vision before smashing', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_HILL_GIANT });
     const location = game.level.at(target.destinationX, target.heroY);

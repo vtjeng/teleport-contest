@@ -4219,6 +4219,25 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
         cleanData.info.slice(0, cleanData.cnt));
 });
 
+test('mfndpos prevents amorphous door passage while engulfing the hero', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    const door = { typ: DOOR, flags: D_CLOSED, wall_info: 0 };
+    locations.set('3,4', door);
+    const cloud = newMonster({ data: state.mons[PM_FOG_CLOUD], mx: 4, my: 4 });
+    const env = { state, onScary: () => false };
+    for (const mask of [D_CLOSED, D_LOCKED]) {
+        door.flags = mask;
+        state.u.uswallow = 0;
+        state.u.ustuck = null;
+        assert.equal(mfndpos(cloud, {}, 0, env), 1);
+        state.u.uswallow = 1;
+        state.u.ustuck = cloud;
+        state.u.ux = state.u.uy = 4;
+        assert.equal(mfndpos(cloud, {}, 0, env), 0);
+    }
+});
+
 test('mfndpos applies door and digging tools before candidate metadata', () => {
     const { locations, state } = makeState();
     sealNeighborhood(locations, 4, 4);
