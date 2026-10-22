@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent vault.c:invault live C witness: deaf hero enters a vault and becomes a silent floating eye before guard arrival. Guard leaves instead of requesting a name. Existing deterministic vault-entry recipe reused; polymorph changes the reached source branch.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021191000",
+      "nethackrc": "OPTIONS=name:VaultDeafName,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n\nOPTIONS=permadeaf\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........zn.  . #polyself\nfloating eye\n   .. ."
+    }
+  ]
+}

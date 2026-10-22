@@ -1172,14 +1172,16 @@ export async function invault(state, env = {}) {
     if (Strangled(state) || is_silent(state.youmonst?.data ?? u.umonster)
         || state.multi < 0) {
         if (Deaf(state)) {
-            throw new UnsupportedVaultGuardError(
-                'invault() guard leaves deaf+strangled hero',
+            await message(`${noit_Monnam(guard, state)} huffs and turns to leave.`);
+        } else {
+            set_voice(guard, 0, 80, 0, state);
+            await verbalize(
+                "I'll be back when you're ready to speak to me!",
+                state, { message },
             );
         }
-        await message('"I\'ll be back when you\'re ready to speak to me!"');
-        throw new UnsupportedVaultGuardError(
-            'invault() guard leaves strangled/silent hero (mongone)',
-        );
+        await mongone(guard, { state });
+        return;
     }
 
     await env.stopOccupation?.();
