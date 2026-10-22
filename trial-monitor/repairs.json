@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T06:12:56.507Z",
+  "asOf": "2026-10-22T06:30:31.834Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2088,8 +2088,90 @@
           "scripts/unported-monster-actions.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "2f37736466ff622bcc4040138f20baa69076000c",
+          "committedAt": "2026-10-22T06:13:14Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39732607054,
+              "name": "Checkpoint",
+              "sha": "2f37736466ff622bcc4040138f20baa69076000c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/hero-postmove-gas-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T06:13:22Z",
+              "completedAt": "2026-10-22T06:18:54Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39732607054"
+            },
+            {
+              "id": 39733386567,
+              "name": "Lint",
+              "sha": "2f37736466ff622bcc4040138f20baa69076000c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T06:21:03Z",
+              "completedAt": "2026-10-22T06:21:57Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39733386567"
+            },
+            {
+              "id": 39733386575,
+              "name": "Dashboard",
+              "sha": "2f37736466ff622bcc4040138f20baa69076000c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T06:21:03Z",
+              "completedAt": "2026-10-22T06:24:35Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39733386575"
+            }
+          ]
+        }
+      ],
+      "note": "Both C witnesses match; existing targeted tests and affected local shard passed without fixture changes. Full exact Checkpoint and push Lint/Pages passed on first attempts. Imported fixed44 and synthetic98/2055 unchanged. Transient executor disconnect recovered before import/publication; no duplicate CI."
+    },
+    {
+      "id": "displacer-monster-initiated-swap",
+      "kind": "parity-repair",
+      "title": "Use the monster-initiated displacer-beast swap sequence",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T06:26:10.866Z",
+          "end": "2026-10-22T06:30:31.834Z",
+          "note": "Recorded implementation, live C comparisons, existing affected tests and local shard. Earlier read-only probe timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c",
+          "js/hack.js"
+        ],
+        "witness": [
+          "recipes/hack.c/displacer-swap-tame.session.json",
+          "recipes/hack.c/displacer-swap-peaceful.session.json"
+        ],
+        "test": [
+          "scripts/displacer-swap.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/apply.test.mjs",
+          "scripts/pet-doorway-displacement.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Hezrou and steam-vortex C witnesses fail before missing hero caller, match after using existing helper. 423 targeted tests and 3247 affected local shard tests pass without fixture changes. Full candidate gates pending; not accepted."
+      "note": "Tame/peaceful live C witnesses fail before omitted displaceu branch and match after whole relocation/message/monster-owned liquid-trap sequence. Existing trap operations shared with pet swaps. 426 existing targeted tests,2 new tests and3106 affected local shard tests pass. First seed matched and remains negative evidence, not a repair. Full gates pending; not accepted."
     }
   ]
 }

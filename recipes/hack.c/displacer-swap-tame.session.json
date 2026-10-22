@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first displacer-beast swap caller probe, starting with a tame beast.",
+  "segments": [
+    {
+      "seed": 840102,
+      "datetime": "20541022061500",
+      "nethackrc": "OPTIONS=name:BeastStep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+      "moves": " #wizgenesis\ntame displacer beast\n    l   "
+    }
+  ]
+}
