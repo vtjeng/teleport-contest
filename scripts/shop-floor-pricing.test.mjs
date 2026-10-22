@@ -73,7 +73,8 @@ async function generatedShopPile({ excludedSecond = false } = {}) {
         nethackrc: 'OPTIONS=name:PricePile,role:Valkyrie,race:human,'
             + 'gender:female,align:lawful,!legacy,!tutorial,!splash_screen,'
             + 'pettype:none,!acoustics,!autopickup',
-        moves: '',
+        // Finish welcome/preamble so direct movement uses same-level state.
+        moves: ' ',
     });
     const state = game;
     const start = { x: state.u.ux, y: state.u.uy };
