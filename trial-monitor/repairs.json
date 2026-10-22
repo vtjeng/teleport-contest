@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T22:46:14.632799Z",
+  "asOf": "2026-10-22T22:54:56.577562Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4133,11 +4133,31 @@
         "test": [
           "scripts/periodic-teleport.test.mjs",
           "scripts/allmain-turn.test.mjs",
-          "scripts/teleport.test.mjs"
+          "scripts/teleport.test.mjs",
+          "scripts/apply.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Replace skipped tele() with live teleport and destination-based tail planning. C same-square, relocation and cancellation cases fail on baseline; nonzero control passes. Four complete C replays, 258 affected tests and planning isolation check pass. Hosted gates pending; investigation start time not captured."
+      "candidates": [
+        {
+          "sha": "b5f7397b530592a9350fbea230ffae83b0dddd61",
+          "runs": [
+            {
+              "id": 39867425539,
+              "name": "Checkpoint",
+              "sha": "b5f7397b530592a9350fbea230ffae83b0dddd61",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/periodic-teleport-20261022",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-22T22:47:08Z",
+              "completedAt": "2026-10-22T22:52:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39867425539"
+            }
+          ]
+        }
+      ],
+      "note": "Initial Checkpoint passed fixed sessions, all recording groups and all synthetic groups but failed test shard 4. Local reproduction identified a stale leash wiring assertion requiring the removed tele() placeholder; correction now asserts actual tele -> changed coordinates -> next_to_u -> check_leash order. All 31 apply tests pass. Hosted job-log retrieval was Forbidden; not retried or bypassed. Corrected candidate awaits full gates."
     }
   ]
 }
