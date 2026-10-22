@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T20:44:29.978Z",
+  "asOf": "2026-10-22T20:55:33.358Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3523,8 +3523,87 @@
           "scripts/unported-monster-actions.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "af5e20c4751b03ddb6a4b8cb5c0748c8e6231685",
+          "runs": [
+            {
+              "id": 39851528263,
+              "name": "Checkpoint",
+              "sha": "af5e20c4751b03ddb6a4b8cb5c0748c8e6231685",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-secret-corridor-tunneling-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T20:45:02Z",
+              "completedAt": "2026-10-22T20:50:34Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39851528263"
+            },
+            {
+              "id": 39852419950,
+              "name": "Lint",
+              "sha": "af5e20c4751b03ddb6a4b8cb5c0748c8e6231685",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T20:51:23Z",
+              "completedAt": "2026-10-22T20:52:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39852419950"
+            },
+            {
+              "id": 39852419920,
+              "name": "Dashboard",
+              "sha": "af5e20c4751b03ddb6a4b8cb5c0748c8e6231685",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T20:51:23Z",
+              "completedAt": "2026-10-22T20:53:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39852419920"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Normal/quiet corridor witnesses and ordinary control match C; 199 focused/affected tests, 12 timeline tests and lint passed. Complete cohort recorded for the next ordinary repair."
+    },
+    {
+      "id": "sleeping-tame-pet-actions",
+      "kind": "parity-repair",
+      "title": "Allow sleeping tame pets to reach source wakeup logic",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c",
+          "nethack-c/upstream/src/mon.c",
+          "js/monmove.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/sleeping-tame-pet-kitten.session.json",
+          "recipes/monmove.c/sleeping-tame-pet-dog.session.json",
+          "recipes/monmove.c/sleeping-tame-pet-newt.session.json",
+          "recipes/monmove.c/sleeping-tame-pet-stealth.session.json",
+          "recipes/monmove.c/sleeping-tame-pet-awake-control.session.json"
+        ],
+        "test": [
+          "scripts/sleeping-tame-pet.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/dogmove.test.mjs",
+          "scripts/wizard-genesis.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Source-selected SCORR destination stopped at movement admission. Live C witnesses establish conversion and unconditional draft in normal and quiet mode; ordinary corridor control passes on original source. Existing terrain/vision isolation covers conversion. Hosted validation and publication pending; investigation start time not captured."
+      "note": "Original movement adapter refused all sleeping tame pets before dochug/disturb. Four C witnesses pin random continued sleep, dog and newt wakeup, and Stealth suppression; awake control passed originally. Remove the obsolete guard and route through existing cloned wakeup logic. Hosted validation and publication pending; investigation start time not captured."
     }
   ]
 }

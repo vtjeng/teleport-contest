@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840725,
+      "datetime": "20541022140000",
+      "nethackrc": "OPTIONS=name:SleepPet,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": "#wizgenesis\ntame sleeping kitten\n...."
+    }
+  ]
+}
