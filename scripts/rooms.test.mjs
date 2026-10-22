@@ -230,6 +230,9 @@ test('move_update preserves bytes beyond the first NUL like fixed C buffers', ()
 
 test('domove updates room membership after entering the destination', async () => {
     const state = initializedState();
+    // C domove_core calls invocation_message after movement; Invocation_lev
+    // reads the initialized dungeon table even on this ordinary level.
+    state.dungeons = [{ flags: { hellish: false } }];
     const origin = ROOMOFFSET;
     const destination = ROOMOFFSET + 1;
     defineRoom(state, origin, OROOM);

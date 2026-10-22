@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T05:34:58.217Z",
+  "asOf": "2026-10-22T05:42:27.459Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1882,8 +1882,29 @@
           "scripts/invocation-walk.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Grounded and flying live C witnesses fail before the missing domove_core call, fully match after. Bat probe rejected because encumbrance prevented arrival. Candidate SHA/full gates not yet recorded; not accepted."
+      "candidates": [
+        {
+          "sha": "e73a638ea85050de3fb5ed5ee9c238fd0dd131ef",
+          "committedAt": "2026-10-22T05:35:41Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39728930323,
+              "name": "Checkpoint",
+              "sha": "e73a638ea85050de3fb5ed5ee9c238fd0dd131ef",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/invocation-walk-20261022",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-22T05:35:49Z",
+              "completedAt": "2026-10-22T05:41:33Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39728930323"
+            }
+          ]
+        }
+      ],
+      "note": "Grounded/flying C witnesses match after the missing walk call. First Checkpoint failed shard4: local reproduction found rooms movement fixture without initialized dungeon table; corrected to its intended ordinary non-Hell level without changing room assertions or game predicates. Corrected candidate pending full gates; not accepted."
     }
   ]
 }
