@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent potion.c:potion_dip Chronicle witness: female. Female case dips twice to verify first-only conduct logging; male case varies the original hero gender; Book of the Dead is the unpolymorphable control.",
+  "segments": [
+    {
+      "seed": 8411112,
+      "datetime": "20261022160000",
+      "nethackrc": "OPTIONS=name:PolyDipLog,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\n2 uncursed potions of polymorph\n#dip\nam    #dip\nam    #chronicle\n    "
+    }
+  ]
+}

@@ -38,6 +38,7 @@
 
 import {
     A_CHAOTIC,
+    LL_CONDUCT,
     ACID_RES,
     ANTIMAGIC,
     A_CON,
@@ -293,6 +294,7 @@ import {
 } from './objects.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { livelog_printf } from './pline.js';
 import {
     GLYPH_INVISIBLE, map_invisible, map_invisible_planning, unmap_object,
 } from './display.js';
@@ -3474,7 +3476,8 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             state.u.uconduct ??= {};
             state.u.uconduct.polypiles ??= 0;
             if (!state.u.uconduct.polypiles++)
-                note_unported('log.c livelog_printf polymorphed first item');
+                livelog_printf(LL_CONDUCT,
+                    `polymorphed ${state.flags?.female ? 'her' : 'his'} first item`, state);
             obj = await poly_obj(obj, STRANGE_OBJECT, state, random, env);
             if (!obj) {
                 discover_object(POT_POLYMORPH, true, true, true, state, env);

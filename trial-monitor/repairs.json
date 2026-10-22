@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T23:40:34.942418Z",
+  "asOf": "2026-10-22T23:54:25.669485Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4383,8 +4383,83 @@
           "scripts/were-you-were.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c00b9f16e9bb2ec7a062ea1f1994b76903a05f98",
+          "runs": [
+            {
+              "id": 39873421836,
+              "name": "Checkpoint",
+              "sha": "c00b9f16e9bb2ec7a062ea1f1994b76903a05f98",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/delayed-lycanthropy-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:41:17Z",
+              "completedAt": "2026-10-22T23:47:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39873421836"
+            },
+            {
+              "id": 39874136661,
+              "name": "Lint",
+              "sha": "c00b9f16e9bb2ec7a062ea1f1994b76903a05f98",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:48:05Z",
+              "completedAt": "2026-10-22T23:48:45Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39874136661"
+            },
+            {
+              "id": 39874136437,
+              "name": "Dashboard",
+              "sha": "c00b9f16e9bb2ec7a062ea1f1994b76903a05f98",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:48:05Z",
+              "completedAt": "2026-10-22T23:50:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39874136437"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with preserved Checkpoint and exact-SHA Main push Lint and Dashboard success on attempt 1. Executor disconnected before watcher creation; recovered connection, verified clean candidate/process state and matching held lease, then resumed the existing run without rerun. Fixed 44 and synthetic 98/2055 unchanged. Three live C replays, 157 focused/affected tests, 12 timeline tests and lint passed. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "polydip-chronicle",
+      "kind": "parity-repair",
+      "title": "Record first potion-dip polymorph in the Chronicle",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/potion.c",
+          "nethack-c/upstream/include/you.h",
+          "js/potion.js",
+          "js/pline.js"
+        ],
+        "witness": [
+          "recipes/potion.c/polydip-chronicle-female.session.json",
+          "recipes/potion.c/polydip-chronicle-male.session.json",
+          "recipes/potion.c/polydip-chronicle-unpolymorphable.session.json"
+        ],
+        "test": [
+          "scripts/polydip-chronicle.test.mjs",
+          "scripts/potion.test.mjs",
+          "scripts/pline.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C burdened infection transforms naturally into a wererat; polymorph-control variation declines repeated prompts; Unchanging control suppresses transformation. Baseline stops at the planning refusal in the first two and passes the control. Generalize the delayed-change live handoff without consuming input on clones. Hosted gates pending; investigation start time not captured."
+      "note": "Live C Chronicle shows the first-item event with original hero gender. Baseline matches RNG/cursors but omits the line for both genders; unpolymorphable Book of the Dead control passes. Replace the skipped livelog call at the existing first-only conduct increment. Female repeat-dip case transforms twice with exactly one event. Hosted gates pending; investigation start time not captured."
     }
   ]
 }
