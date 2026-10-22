@@ -62,6 +62,7 @@ import {
     SEARCHING,
     TELEPORT,
     POLYMORPH,
+    POLYMORPH_CONTROL,
     DOOR,
     SLT_ENCUMBER,
     SV0,
@@ -4346,7 +4347,34 @@ test('delayed polymorph planning preserves live state before the form change', a
             rn2: bound => bound === 100 ? 0 : random.rn2(bound),
         }, { planning: true }),
     });
-    assert.equal(plan.beforePolymorph, true);
+    assert.equal(plan.beforeChange, true);
     assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
         'planning must not spend live RNG, announce a change, or change the live form');
+});
+
+test('controlled delayed lycanthropy planning preserves live state before input', async () => {
+    const replay = await runSegment(firstTurnInput({
+        seed: 2026102211, datetime: '20261022120000', name: 'LycanthropyPlan',
+        role: 'Healer', race: 'human', gender: 'female', align: 'neutral', command: '',
+    }));
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.level.regions = [];
+    clearTtyMessageWindow(game);
+    game.u.ulycn = PM_WERERAT;
+    game.u.uprops[POLYMORPH_CONTROL] = { intrinsic: FROMOUTSIDE, extrinsic: 0, blocked: 0 };
+    game.u.umovement = 0;
+    game.context.seer_turn = 100000;
+    game.context.next_attrib_check = 100000;
+    const snapshot = completeSecondTurnSnapshot(game, replay);
+    const plan = await preflightSimpleMonsterActions(game, {
+        consumeHeroRation: false,
+        advanceRound: (planned, random) => finishElapsedTurn(planned, {
+            ...random,
+            rn2: bound => bound === 80 ? 0 : random.rn2(bound),
+        }, { planning: true }),
+    });
+    assert.equal(plan.beforeChange, true);
+    assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
+        'planning must not read confirmation, spend live RNG, or change the live form');
 });
