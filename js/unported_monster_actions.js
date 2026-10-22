@@ -32,6 +32,7 @@ import {
     NORMAL_SPEED,
     OBJ_MINVENT,
     SLEEP_RES,
+    SDOOR,
     SLP_GAS_TRAP,
     STEALTH,
     FIRE_TRAP,
@@ -985,10 +986,11 @@ function admitTerrainChange(x, y, env) {
 // Admit ordinary doors as well as walls and trees: postmov() skips opening
 // a door when can_tunnel is true, then mdig_tunnel() breaks it. The same
 // planning isolation is needed for that terrain and vision change.
-// Secret doors and corridors remain outside this movement adapter's scope.
+// mdig_tunnel first converts a secret door, then uses that same door arm.
+// Secret corridors remain outside this movement adapter's scope.
 function digsDestination(location, x, y, env) {
     if (!env.canTunnel || !location) return false;
-    if (location.typ !== DOOR
+    if (location.typ !== DOOR && location.typ !== SDOOR
         && !IS_STWALL(location.typ) && !IS_TREE(location.typ, env.state))
         return false;
     return may_dig(x, y, env.state);

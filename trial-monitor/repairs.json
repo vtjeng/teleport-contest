@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T18:23:32.828Z",
+  "asOf": "2026-10-22T20:31:48.608Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3372,8 +3372,84 @@
           "scripts/wizard-genesis.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d185105ae0cc34a6c34af61eb6d74d91b0bb1b12",
+          "runs": [
+            {
+              "id": 39831217618,
+              "name": "Checkpoint",
+              "sha": "d185105ae0cc34a6c34af61eb6d74d91b0bb1b12",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/particular-creation-terrain-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T18:25:22Z",
+              "completedAt": "2026-10-22T18:31:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39831217618"
+            },
+            {
+              "id": 39832364521,
+              "name": "Lint",
+              "sha": "d185105ae0cc34a6c34af61eb6d74d91b0bb1b12",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T18:32:52Z",
+              "completedAt": "2026-10-22T18:33:47Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39832364521"
+            },
+            {
+              "id": 39832364421,
+              "name": "Dashboard",
+              "sha": "d185105ae0cc34a6c34af61eb6d74d91b0bb1b12",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T18:32:52Z",
+              "completedAt": "2026-10-22T18:35:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39832364421"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success. Archived comparison preserves all fixed 44 and synthetic 98 batches / 2055 cases. Synthetic recording recovered locally after stale job metadata cleared; complete evidence carried in the next ordinary repair."
+    },
+    {
+      "id": "monster-secret-door-tunneling",
+      "kind": "parity-repair",
+      "title": "Admit monster tunneling through secret doors",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/monmove.c",
+          "nethack-c/upstream/src/dig.c",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/monster-secret-door-locked.session.json",
+          "recipes/monmove.c/monster-secret-door-closed.session.json",
+          "recipes/monmove.c/monster-secret-door-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/monster-secret-door.test.mjs",
+          "scripts/monster-door-tunneling.test.mjs",
+          "scripts/dig.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent rock mole/xorn creation on secret-door hero terrain stopped in JavaScript preflight before source nearby placement. Exact caller exemption restores existing placement; accessible-door control matched. Later secret-door movement boundary remains separate. Investigation timestamps unknown; validation and acceptance pending."
+      "note": "Locked and unlocked secret-door live C witnesses stop at the movement adapter on original source; ordinary-door control matches. Admit the source-selected SDOOR through existing terrain/vision isolation and mdig_tunnel conversion. 196 focused/affected and 18 doorway tests pass; full hosted validation and publication pending. Investigation start time not captured."
     }
   ]
 }
