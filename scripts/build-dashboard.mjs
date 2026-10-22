@@ -11,6 +11,7 @@ import { workerWork } from './worker-backlog.mjs';
 import { createChartTimeRange } from './dashboard-time-range.mjs';
 import { aggregateExplorationYield } from './exploration-yield.mjs';
 import { renderExplorationYield } from './dashboard-exploration.mjs';
+import { singleWorkerActivity } from './single-worker-activity.mjs';
 import { createTrialMonitor } from './trial-monitor.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -41,6 +42,7 @@ export function injectDashboardData(template, data, queueData, commit, trialData
     .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData))
     .replace('/*TRIAL_PLACEHOLDER*/null', () => escapeJsonForScript(trialData))
     .replace('/*TRIAL_MODEL_PLACEHOLDER*/null', () => createTrialMonitor.toString())
+    .replace('/*SINGLE_WORKER_PLACEHOLDER*/null', () => singleWorkerActivity.toString())
     .replace('/*UTILIZATION_PLACEHOLDER*/null', () => activityUtilization.toString())
     .replace('/*TIME_RANGE_PLACEHOLDER*/null', () => createChartTimeRange.toString())
     .replace('/*EXPLORATION_AGGREGATE_PLACEHOLDER*/null', () => aggregateExplorationYield.toString())

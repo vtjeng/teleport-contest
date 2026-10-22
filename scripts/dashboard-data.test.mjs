@@ -81,7 +81,7 @@ function scoreRow(fields) {
 }
 
 // Historical fixtures opt in so their existing interaction coverage remains useful.
-function renderDashboard(data, queue = null, {showHistorical = true} = {}) {
+function renderDashboard(data, queue = null, {showHistorical = true, singleWorkerData = null} = {}) {
     const elements = new Map();
     // Every canvas call lands in canvasOps, and also in the drawn element's
     // own ops, so a test can ask what one canvas drew.
@@ -143,6 +143,7 @@ function renderDashboard(data, queue = null, {showHistorical = true} = {}) {
             setPointerCapture() { this.pointerCaptured = true; },
             hasPointerCapture() { return Boolean(this.pointerCaptured); },
             releasePointerCapture() { this.pointerCaptured = false; },
+            append(...nodes) { this.children.push(...nodes); },
             appendChild(child) { this.children.push(child); return child; },
             replaceChildren(...nodes) { this.children = nodes; },
         };
@@ -152,7 +153,7 @@ function renderDashboard(data, queue = null, {showHistorical = true} = {}) {
         return elements.get(id);
     };
     const template = readFileSync(TEMPLATE, 'utf8');
-    const source = injectDashboardData(template, JSON.stringify(data), JSON.stringify(queue))
+    const source = injectDashboardData(template, JSON.stringify(data), JSON.stringify(queue), undefined, JSON.stringify(singleWorkerData))
         .match(/<script>([\s\S]*?)<\/script>/u)[1];
     const document = {
         documentElement: {},
@@ -161,14 +162,17 @@ function renderDashboard(data, queue = null, {showHistorical = true} = {}) {
         querySelectorAll: () => [],
     };
     const window = {
-        addEventListener: () => {},
+        listeners: {},
+        addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); },
+        dispatchEvent(event) { for (const handler of this.listeners[event.type] || []) handler(event); },
         matchMedia: () => ({ addEventListener() {} }),
         devicePixelRatio: 1,
         innerWidth: 1200,
     };
-    runInNewContext(source, {
+    const sandbox = {
         document,
-        window,
+        window, Event,
+        fetch: async () => { throw new Error('Offline fixture'); },
         getComputedStyle: () => ({
             getPropertyValue: (property) => property,
         }),
@@ -176,7 +180,9 @@ function renderDashboard(data, queue = null, {showHistorical = true} = {}) {
         // across it; neither happens here.
         setTimeout() {},
         sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
-    });
+    };
+    runInNewContext(source + '\nglobalThis.refreshFixture = value => { singleWorkerSnapshot = singleWorkerActivity(createTrialMonitor(value).summarize()); window.dispatchEvent(new Event("single-worker-status")); };', sandbox);
+    elements.refreshSnapshot = sandbox.refreshFixture;
     elements.canvasOps = canvasOps;
     return elements;
 }
@@ -792,10 +798,11 @@ test('worker activity hides historical lanes and their utilization until request
     ]};
     const rendered = renderDashboard(data, null, {showHistorical: false});
     assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">(?:A|P1)</u);
-    assert.match(rendered.get('timeline').innerHTML, /activity-label">Worker 1</u);
-    assert.match(rendered.get('timeline').innerHTML, /activity-label">Work lead</u);
+    assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">Worker 1</u);
+    assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">Work lead</u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">Standard engineer</u);
     assert.doesNotMatch(rendered.get('activityMetrics').innerHTML, /A\/B\/C|Prep lanes/u);
-    assert.match(rendered.get('activityMetrics').innerHTML, /Workers[\s\S]*50%/u);
+    assert.equal(rendered.get('activityMetrics').hidden, true);
     const toggle = rendered.get('activityHistorical');
     toggle.checked = true;
     toggle.listeners.change[0]();
@@ -972,8 +979,8 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
     assert.match(rendered.get('activityMetrics').innerHTML, /A\/B\/C[\s\S]*Challenge lead[\s\S]*Work lead/u);
     assert.doesNotMatch(rendered.get('activityMetrics').innerHTML, /Ready → integration|activity-metric|Longest block/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
-    // Only the recorded workers A and B, plus Main, need lanes.
-    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
+    // Standard lane remains alongside retired A, B and Main history.
+    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
     const firstBarTop = lane => rendered.get('timeline').innerHTML.match(new RegExp(
         `activity-label">${lane}<\\/div><div class="activity-track"><div class="activity-bar[^>]*top:([^;]+);`, 'u'))?.[1];
     assert.equal(firstBarTop('A'), '13px');
@@ -989,7 +996,7 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
     assert.match(rendered.get('timelineReadout').innerHTML, /Delivery pending/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Task lifespan/u);
     // Group worker stages separately from Main's ordered acceptance lifecycle.
-    assert.match(rendered.get('timelineLegend').innerHTML, /Workers[\s\S]*phase-working[\s\S]*phase-rework[\s\S]*phase-parked[\s\S]*Work lead[\s\S]*phase-review[\s\S]*phase-integrating[\s\S]*phase-acceptance[\s\S]*phase-publication[\s\S]*Availability[\s\S]*phase-blocked[\s\S]*phase-idle[\s\S]*phase-unrecorded/u);
+    assert.match(rendered.get('timelineLegend').innerHTML, /Retired workers[\s\S]*phase-working[\s\S]*phase-rework[\s\S]*phase-parked[\s\S]*Work lead[\s\S]*phase-review[\s\S]*phase-integrating[\s\S]*phase-acceptance[\s\S]*phase-publication[\s\S]*Availability[\s\S]*phase-blocked[\s\S]*phase-idle[\s\S]*phase-unrecorded/u);
     const mainIndex = data.activity.stages.findIndex(row => row.task === 'B1'
         && row.phase === 'integrating');
     const timeline = rendered.get('timeline');
@@ -1020,7 +1027,7 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
     assert.notEqual(rendered.get('activityMetrics').innerHTML, shortUtilization,
         'percentage shares follow the panned window, not whole-history stage durations');
     assert.match(rendered.get('timeline').innerHTML, /B0/u);
-    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
+    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
     timeline.listeners.keydown[0]({key: 'End', target: timeline, preventDefault() {}});
     assert.equal(rendered.get('activityWindowLabel').textContent, shortWindow);
     const select = rendered.get('activityWindow');
@@ -1080,8 +1087,8 @@ test('Prep exploration has separate agent rows, pooled lane utilization and batc
     const rendered = renderDashboard(data), timeline = rendered.get('timeline');
     assert.match(timeline.innerHTML, /activity-label">Challenge lead/u);
     for (let n = 1; n <= 6; n++) assert.match(timeline.innerHTML, new RegExp(`activity-label">P${n}<`, 'u'));
-    assert.equal((timeline.innerHTML.match(/class="activity-row(?: main)?"/gu) || []).length, 8,
-        'one lead, six explorers and Main, without parallel task subrows');
+    assert.equal((timeline.innerHTML.match(/class="activity-row(?: main)?"/gu) || []).length, 9,
+        'current Standard lane plus one retired lead, six explorers and Main');
     assert.match(rendered.get('activityMetrics').innerHTML, /Challenge lead[\s\S]*Prep lanes/u);
     const index = data.activity.stages.findIndex(row => row.lane === 'Prep-1');
     timeline.listeners.click[0]({target: {classList: {contains: value => value === 'activity-bar'}, dataset: {segment: String(index)}}});
@@ -1207,7 +1214,7 @@ test('activity keeps one row per agent across panning and zooming', () => {
     }
     // Queue history can overlap, but an agent's displayed activity cannot.
     assert.equal(new Set([...taskPositions.values()].map(row => row.position[0])).size, 1);
-    assert.equal((timeline.innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
+    assert.equal((timeline.innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
     const initialWindow = rendered.get('activityWindowLabel').textContent;
     // A short drag shifts the window while keeping all three assignments visible.
     timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1, target: timeline });
@@ -1556,4 +1563,23 @@ test('recorded preparation waits have explicit stage and lifespan labels',()=>{
     assert.match(html,/<dt>Stage<\/dt><dd>Work lead · Waiting \(reported\)<\/dd>/);
     assert.match(html,/Reported wait: /);assert.match(html,/prep-v96-source/);
     assert.doesNotMatch(html,/undefined|<dt>Stage<\/dt><dd><\/dd>/);
+});
+
+
+test('single engineer renders and refreshes in the existing timeline without enabling retired lanes', () => {
+    const load = file => JSON.parse(readFileSync(join(PROJECT_ROOT, 'trial-monitor', file), 'utf8'));
+    const snapshot = {manifest: load('manifest.json'), register: load('repairs.json'),
+        buildSha: 'f'.repeat(40), builtAt: '2026-10-22T03:00:00Z'};
+    const rendered = renderDashboard(sourceDashboardData(), null, {showHistorical: false, singleWorkerData: snapshot});
+    const timeline = rendered.get('timeline');
+    assert.match(timeline.innerHTML, /CI validation for Dismiss/);
+    assert.doesNotMatch(timeline.innerHTML, /activity-label">Work lead/);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Investigation timestamps unknown/);
+    assert.match(rendered.get('timelineReadout').innerHTML, /actions\/runs\/39705972360\/attempts\/1/);
+    assert.equal(rendered.get('activityMetrics').hidden, true);
+    snapshot.register.repairs.at(-1).investigations = [{start: '2026-10-22T02:10:00Z', end: '2026-10-22T02:15:00Z', note: 'C witness'}];
+    rendered.refreshSnapshot(snapshot);
+    assert.match(timeline.innerHTML, /Recorded investigation for Dismiss/);
+    assert.equal((timeline.innerHTML.match(/activity-row/g) || []).length, 1);
+    assert.equal(timeline.listeners.click.length, 1, 'refresh does not duplicate handlers');
 });

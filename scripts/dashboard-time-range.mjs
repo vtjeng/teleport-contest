@@ -2,7 +2,7 @@
 export function createChartTimeRange({start, end, asOf = end, minimum, duration, presetUnit, presets,
     prefix, document: doc, onChange = () => {}}) {
     const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
-    const minSpan = Math.min(minimum, end - start);
+    let minSpan = Math.min(minimum, end - start);
     let requested = duration, kind = 'preset', ending = 'now', fixedEnd = end;
     let draft = false;
     const bounds = () => {
@@ -69,6 +69,12 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
     function update(change) {change(); draft = false; sync();}
     const api = {
         bounds, selection,
+        setDomain(first, last, captured = last) {
+            if (![first, last, captured].every(Number.isFinite) || last <= first)
+                throw new Error('Invalid time domain');
+            update(() => { start = first; end = last; asOf = captured;
+                minSpan = Math.min(minimum, end - start); });
+        },
         setDuration(value, nextKind = 'preset') {
             if (value !== 'all' && !validDuration(value)) throw new Error('Enter a positive duration.');
             update(() => {requested = value; kind = value === 'all' ? 'all' : nextKind;});

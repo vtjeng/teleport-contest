@@ -185,3 +185,13 @@ test('opening a mobile picker uses stable layout width and visual viewport heigh
     picker.listeners.toggle();
     assert.equal(form.style.left,'-340px','popover shares the summary/section right edge');
 });
+
+test('public status refresh advances Now but preserves a fixed selected endpoint', () => {
+    const range = createChartTimeRange({start: 0, end: 100, minimum: 1, duration: 10, presetUnit: 1, presets: []});
+    range.setDomain(0, 200, 180);
+    assert.deepEqual(range.bounds(), {start: 190, end: 200});
+    range.setEnd(150);
+    range.setDomain(0, 300);
+    assert.deepEqual(range.bounds(), {start: 140, end: 150});
+    assert.throws(() => range.setDomain(100, 50), /Invalid time domain/);
+});

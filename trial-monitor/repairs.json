@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-21T17:18:47.566Z",
+  "asOf": "2026-10-22T02:15:01.227794Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -964,6 +964,199 @@
           ]
         }
       ]
+    },
+    {
+      "id": "vault-silent-guard",
+      "kind": "parity-repair",
+      "title": "Dismiss the guard when the hero cannot speak",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c",
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-silent-deaf.session.json",
+          "recipes/vault.c/guard-silent-hearing.session.json",
+          "recipes/vault.c/guard-silent-mimic-deaf.session.json",
+          "recipes/vault.c/guard-silent-mimic-hearing.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-silent.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "724ed98a40cc6c6b8c3166c4b0029843a1791935",
+          "committedAt": "2026-10-22T01:29:17Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39705972360,
+              "name": "Checkpoint",
+              "sha": "724ed98a40cc6c6b8c3166c4b0029843a1791935",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-silent-guard-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T01:29:29Z",
+              "completedAt": "2026-10-22T01:35:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39705972360"
+            },
+            {
+              "id": 39706791097,
+              "name": "Lint",
+              "sha": "724ed98a40cc6c6b8c3166c4b0029843a1791935",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T01:37:50Z",
+              "completedAt": "2026-10-22T01:38:49Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39706791097"
+            },
+            {
+              "id": 39706791004,
+              "name": "Dashboard",
+              "sha": "724ed98a40cc6c6b8c3166c4b0029843a1791935",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T01:37:50Z",
+              "completedAt": "2026-10-22T01:40:29Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39706791004"
+            }
+          ]
+        },
+        {
+          "sha": "92b448e0937a044c1b28a63d4fb4c408821ea62c",
+          "committedAt": "2026-10-22T01:58:32Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39708782496,
+              "name": "Checkpoint",
+              "sha": "92b448e0937a044c1b28a63d4fb4c408821ea62c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-silent-planning-rng-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T01:58:50Z",
+              "completedAt": "2026-10-22T02:04:32Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39708782496"
+            },
+            {
+              "id": 39709496807,
+              "name": "Lint",
+              "sha": "92b448e0937a044c1b28a63d4fb4c408821ea62c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T02:06:07Z",
+              "completedAt": "2026-10-22T02:06:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39709496807"
+            },
+            {
+              "id": 39709496978,
+              "name": "Dashboard",
+              "sha": "92b448e0937a044c1b28a63d4fb4c408821ea62c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T02:06:07Z",
+              "completedAt": "2026-10-22T02:07:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39709496978"
+            }
+          ]
+        }
+      ],
+      "note": "Two hearing/deaf C witnesses matched; correction covers silent mimic planning RNG. Correction remains this same repair. Loadstone/floating-eye probe matched before correction: negative evidence, not another repair."
+    },
+    {
+      "id": "vault-hidden-guard",
+      "kind": "parity-repair",
+      "title": "Dismiss the guard for disguised or hidden heroes",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c",
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-mimic-hero.session.json",
+          "recipes/vault.c/guard-deaf-mimic-hero.session.json",
+          "recipes/vault.c/guard-hidden-hero.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-hidden.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "df82dc9f9c4d0ff5bb5f6e05c42b66feb8f0ada3",
+          "committedAt": "2026-10-22T01:46:17Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39707608257,
+              "name": "Checkpoint",
+              "sha": "df82dc9f9c4d0ff5bb5f6e05c42b66feb8f0ada3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-hidden-guard-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T01:46:27Z",
+              "completedAt": "2026-10-22T01:51:50Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39707608257"
+            },
+            {
+              "id": 39708213870,
+              "name": "Lint",
+              "sha": "df82dc9f9c4d0ff5bb5f6e05c42b66feb8f0ada3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T01:52:49Z",
+              "completedAt": "2026-10-22T01:53:41Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39708213870"
+            },
+            {
+              "id": 39708213896,
+              "name": "Dashboard",
+              "sha": "df82dc9f9c4d0ff5bb5f6e05c42b66feb8f0ada3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T01:52:49Z",
+              "completedAt": "2026-10-22T01:54:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39708213896"
+            }
+          ]
+        }
+      ],
+      "note": "Three C witnesses matched. Fixed 44 sessions and 98 synthetic batches / 2055 cases unchanged. Investigation timestamps were not recorded."
     }
   ]
 }

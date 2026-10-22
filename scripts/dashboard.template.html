@@ -535,7 +535,8 @@ canvas {
   color: var(--ink-secondary);
   padding-right: 8px;
   text-align: right;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .activity-track {
   flex: 1;
@@ -564,9 +565,11 @@ canvas {
   padding: 0 3px;
   white-space: nowrap;
 }
+.phase-investigation { --bar: var(--stage-working); }
 .phase-working { --bar: var(--stage-working); }
 .phase-rework { --bar: var(--stage-rework); }
 .phase-review { --bar: var(--stage-review); }
+.phase-validation { --bar: var(--stage-integrating); }
 .phase-integrating { --bar: var(--stage-integrating); }
 .phase-acceptance { --bar: var(--stage-acceptance); }
 .phase-publication { --bar: var(--stage-publication); }
@@ -962,6 +965,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 .yield-plot-note { color:var(--ink-secondary); font-size:12px; line-height:1.6; margin:0 0 8px; }
 #yieldReadout { min-height:3em; margin-top:8px; font-size:12px; line-height:1.6; }
 .yield-markers { font-size:12px; color:var(--ink-secondary); padding-left:20px; line-height:1.6; }
+.worker-status { min-width:0; overflow-wrap:anywhere; margin-bottom:12px; }
 .trial-monitor { background:var(--surface-card); border:1px solid var(--border); border-radius:8px; padding:16px; }
 .trial-monitor .section-toolbar { margin-bottom:8px; flex-wrap:wrap; }
 .trial-refresh { border:1px solid var(--border); border-radius:5px; background:var(--surface-chart); color:var(--ink-primary); padding:7px 10px; cursor:pointer; }
@@ -999,29 +1003,6 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 
 <div class="stats" id="stats"></div>
 
-<section class="section trial-monitor" aria-labelledby="trialMonitorTitle">
-  <div class="section-toolbar">
-    <h2 class="section-title" id="trialMonitorTitle">Repair trial monitor</h2>
-    <button type="button" class="trial-refresh" id="trialRefresh">Refresh public status</button>
-  </div>
-  <p class="trial-headline" id="trialHeadline" aria-live="polite">Loading saved trial snapshot…</p>
-  <div class="trial-tiles">
-    <div class="trial-tile"><span class="trial-tile-label">Historical baseline · Oct 21, 11:50–15:50 UTC</span><strong id="trialBaselineCount">—</strong><small id="trialBaselineRate">Audited four-hour window</small></div>
-    <div class="trial-tile"><span class="trial-tile-label">Four-hour investigator trial</span><strong id="trialCurrentCount">Not started</strong><small id="trialCurrentRate">Clock begins only at the recorded start</small></div>
-  </div>
-  <div class="trial-details">
-    <div><b>Current candidate</b><span id="trialCandidate">Unknown</span><div class="trial-gates" id="trialGates"></div></div>
-    <div><b>Investigators and handoff</b><span id="trialInvestigators">Unknown</span><br><span id="trialHandoff">Waiting handoff: unknown</span></div>
-  </div>
-  <div class="trial-freshness">
-    <span id="trialBuildFresh">Page source: unknown</span>
-    <span id="trialManifestFresh">Manifest: unknown</span>
-    <span id="trialApiFresh">Public API: not checked</span>
-  </div>
-  <p class="trial-note" id="trialNote">Accepted repairs require exact-SHA Checkpoint, push Lint, and push Dashboard success. Rates use elapsed wall time; they do not measure compute time or replay-score gain.</p>
-  <details class="trial-history"><summary>Evidence and run history</summary><ul class="trial-history-list" id="trialHistory"></ul></details>
-</section>
-
 <section class="section" aria-labelledby="yieldTitle">
   <div class="section-toolbar">
     <h2 class="section-title" id="yieldTitle">Exploration yield</h2>
@@ -1049,7 +1030,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
   </div>
 </section>
 
-<p class="trial-legacy-note">The activity and queue sections below retain historical Work-lead ledger data. They are separate from the trial monitor above.</p>
+<p class="trial-legacy-note">The queue, backlog and exploration yield retain historical records from retired worker roles.</p>
 <section class="section" id="assignmentQueueSection" hidden aria-labelledby="assignmentQueueTitle">
   <h3 class="section-title" id="assignmentQueueTitle">Shared work queue</h3>
   <p class="snapshot-status" id="assignmentQueueSnapshotTime" role="note"></p>
@@ -1065,9 +1046,9 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 
 <section class="section" aria-labelledby="workerActivityTitle">
   <div class="section-toolbar">
-    <h3 class="section-title" id="workerActivityTitle">Worker activity</h3>
+    <h3 class="section-title" id="workerActivityTitle">Worker timeline · single Standard engineer</h3>
     <div class="section-toolbar-controls">
-      <label><input id="activityHistorical" type="checkbox"> Show historical workers</label>
+      <label><input id="activityHistorical" type="checkbox"> Show retired worker history</label>
       <details class="time-range-picker" id="activityRangePicker"><summary id="activityRangeSummary">6 hours · Now</summary>
     <form class="time-range-selector" id="activityRangeForm" aria-label="Worker activity time selection">
     <label class="time-range-part"><span>Duration</span><select id="activityWindow" aria-label="Activity duration">
@@ -1081,19 +1062,29 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
     </div>
   </div>
   <div class="section-context"><span class="chart-range" id="activityWindowLabel"></span><span class="time-range-note" id="activityRangeAsOf"></span></div>
+  <div class="worker-status">
+    <button type="button" class="trial-refresh" id="trialRefresh">Refresh public status</button>
+    <p class="trial-headline" id="trialHeadline" aria-live="polite">Loading recorded activity…</p>
+    <p><b>Latest recorded candidate:</b> <span id="trialCandidate">Unknown</span></p>
+    <div class="trial-gates" id="trialGates"></div>
+    <div class="trial-freshness"><span id="trialBuildFresh"></span><span id="trialManifestFresh"></span><span id="trialApiFresh"></span></div>
+    <p class="trial-note">Page open and Refresh public status read the latest register and CI for the selected candidate. Investigation events and candidate IDs require recorded updates in ordinary work commits. No continuous polling. Missing records mean unknown activity, never idle or measured compute.</p>
+    <details class="trial-history"><summary>Repair evidence and missing intervals</summary><ul class="trial-history-list" id="workerEvidence"></ul></details>
+    <details class="trial-history"><summary>Audited historical baseline</summary><p><strong id="trialBaselineCount"></strong> · Oct 21, 11:50–15:50 UTC. <span id="trialBaselineRate"></span> The unused parallel trial remains shelved.</p></details>
+  </div>
   <p class="snapshot-status" id="activitySnapshotTime" role="note"></p>
 
   <div class="chart-wrap">
     <div id="activityMetrics" aria-label="Recorded worker utilization for visible lanes in the selected time window"></div>
 
-    <details class="activity-help"><summary>Stage key and definitions</summary><div class="legend" id="timelineLegend"></div><p>Bars show elapsed stages, including waits. Work means assigned time, not CPU use. Unknown time is unrecorded, not idle. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
-    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Work lead activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
-    <canvas id="activityMinimap" tabindex="0" aria-label="Work lead activity across the full history. Drag the range or its edges; plus and minus zoom, arrow keys pan, Home and End jump to the earliest and latest dates."></canvas>
+    <details class="activity-help"><summary>Stage key and definitions</summary><div class="legend" id="timelineLegend"></div><p>Bars show recorded investigation and CI/publication elapsed spans, including queue time. They do not measure active work, idle time or compute. Missing investigation timestamps stay unknown. Retired roles appear only when selected. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
+    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Single Standard engineer and optional retired worker activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
+    <canvas id="activityMinimap" tabindex="0" aria-label="Recorded activity across the full history. Drag the range or its edges; plus and minus zoom, arrow keys pan, Home and End jump to the earliest and latest dates."></canvas>
     <div class="activity-details">
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
     </div>
     <details class="integration-duration dashboard-disclosure" id="integrationDisclosure" open>
-      <summary>Work lead integration time</summary>
+      <summary>Retired Work lead integration time</summary>
       <div class="integration-scale section-subtoolbar"><span>Elapsed time, including CI waits</span><div class="section-toolbar-controls"><div class="history-controls" role="group" aria-label="Integration time scale"><button class="chart-reset" id="integrationTypicalRange" type="button" aria-pressed="true">0–30 min</button><button class="chart-reset" id="integrationFullRange" type="button" aria-pressed="false">All durations</button></div></div></div>
       <div class="integration-duration-summary">
         <p class="integration-duration-series"><span class="integration-duration-key" aria-hidden="true"></span><strong>Implementation</strong>: <span id="integrationDurationSummary"></span></p>
@@ -1190,18 +1181,20 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 const DATA = /*DATA_PLACEHOLDER*/null;
 const TRIAL_DATA = /*TRIAL_PLACEHOLDER*/null;
 const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
+const singleWorkerActivity = /*SINGLE_WORKER_PLACEHOLDER*/null;
+let singleWorkerSnapshot = null;
 // Page-open public reads are read-only. There is no timer, credential, or
 // background observer; the button is the only subsequent refresh.
 (function() {
   const node = id => document.getElementById(id);
   if (!TRIAL_DATA || !createTrialMonitor) {
-    node('trialHeadline').textContent = 'Trial snapshot unavailable';
+    node('trialHeadline').textContent = 'Activity register unavailable';
     return;
   }
   let monitor;
   try { monitor = createTrialMonitor(TRIAL_DATA); }
   catch (error) {
-    node('trialHeadline').textContent = 'Trial snapshot invalid: ' + error.message;
+    node('trialHeadline').textContent = 'Activity register invalid: ' + error.message;
     return;
   }
   const stamp = value => value ? new Date(value).toLocaleString('en-US',
@@ -1231,28 +1224,27 @@ const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
     text('trialBaselineRate', rate(baseline.rate) + ' wall time · '
       + (baseline.carryInCount ?? 'unknown') + ' carry-in; '
       + rate(baseline.withoutCarryInRate) + ' excluding carry-in. Observational.');
-    const trial = view.trial;
-    if (trial.status === 'not-started') {
-      text('trialHeadline', 'Four-hour trial not started. Historical baseline is frozen.');
-      text('trialCurrentCount', 'Not started');
-      text('trialCurrentRate', 'No trial start or elapsed rate recorded.');
-    } else {
-      const duration = trial.elapsedHours == null ? 'unknown elapsed time'
-        : trial.elapsedHours.toFixed(2) + ' elapsed wall hours';
-      text('trialHeadline', 'Trial ' + trial.status + ' · started ' + stamp(trial.start)
-        + ' · ' + duration);
-      text('trialCurrentCount', trial.acceptedCount == null
-        ? 'Unknown' : trial.acceptedCount + ' accepted');
-      text('trialCurrentRate', rate(trial.rate) + ' wall time · '
-        + (trial.carryInCount ?? 'unknown') + ' carry-in'
-        + (trial.coverage === 'unknown' ? ' · register coverage unknown' : ''));
+    singleWorkerSnapshot = singleWorkerActivity(view);
+    text('trialHeadline', 'Single Standard engineer · ' + singleWorkerSnapshot.acceptedCount
+      + ' accepted repairs in the recorded continuation. Coverage is partial; earlier repairs are not all registered. Investigation intervals without events are unknown.');
+    const evidence = node('workerEvidence');
+    evidence.replaceChildren();
+    for (const task of singleWorkerSnapshot.tasks) {
+      const item = document.createElement('li');
+      item.append(task.label + ' · ' + task.status + '. ' + task.investigation + '. ' + (task.outcome ?? ''));
+      for (const ref of task.links) {
+        const a = document.createElement('a');
+        a.href = ref.url; a.textContent = ref.label; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        item.append(' · ', a);
+      }
+      evidence.append(item);
     }
+    window.dispatchEvent(new Event('single-worker-status'));
     const candidate = view.currentCandidate;
     const gates = node('trialGates');
     gates.replaceChildren();
     if (!candidate) {
-      text('trialCandidate', trial.status === 'not-started'
-        ? 'No trial candidate yet' : 'Unknown — no candidate recorded in manifest');
+      text('trialCandidate', 'Unknown — no candidate recorded in manifest');
       gates.textContent = 'Checkpoint · Lint · Dashboard: unknown';
     } else {
       text('trialCandidate', candidate.sha.slice(0, 12) + ' · '
@@ -1268,22 +1260,12 @@ const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
         gates.append(span);
       }
     }
-    text('trialInvestigators', view.investigators == null ? 'Status unknown'
-      : view.investigators.length === 0 ? 'No investigators recorded'
-        : view.investigators.map(item =>
-          (item.id ?? 'unnamed') + ': ' + (item.status ?? 'unknown')).join(' · '));
-    text('trialHandoff', view.waitingHandoffs == null
-      ? 'Waiting handoff: unknown (cap one)'
-      : 'Waiting handoff: ' + view.waitingHandoffs.length + ' of 1'
-        + (view.waitingHandoffs[0]?.repairId
-          ? ' · ' + view.waitingHandoffs[0].repairId : ''));
     text('trialBuildFresh', 'Page source ' + view.buildSha.slice(0, 8)
       + ' · commit ' + stamp(view.buildAt) + ' (' + age(view.buildAt) + ')');
-    text('trialManifestFresh', 'Manifest ' + stamp(view.manifestAsOf)
-      + ' (' + age(view.manifestAsOf) + ')'
-      + (trial.status === 'running'
-        && Date.now() - Date.parse(view.manifestAsOf) > 15 * 60000
-        ? ' · stale status' : ''));
+    text('trialManifestFresh', 'Register ' + stamp(view.registerAsOf)
+      + ' (' + age(view.registerAsOf) + ')'
+      + (Date.now() - Date.parse(view.registerAsOf) > 60 * 60000 ? ' · stale recorded activity' : '')
+      + ' · manifest ' + stamp(view.manifestAsOf));
     text('trialApiFresh', view.api.status === 'fresh'
       ? 'Public API checked ' + stamp(view.api.checkedAt)
         + ' · page deployment ' + view.pageDeployment
@@ -1291,20 +1273,7 @@ const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
         ? 'Public API unavailable: ' + view.api.error
           + '. Last-known snapshot; this build cannot observe its own Dashboard completion.'
         : 'Build snapshot only; this build cannot observe its own Dashboard completion.');
-    const history = node('trialHistory');
-    history.replaceChildren();
-    for (const result of [...view.results].reverse()) {
-      const item = document.createElement('li');
-      item.append(result.repair.id + ' · '
-        + (result.accepted ? 'accepted ' + stamp(result.accepted.closureAt) : 'not accepted'));
-      for (const candidateRow of result.candidates) {
-        for (const run of candidateRow.candidate.runs) {
-          item.append(' · ', link(run, run.name + ' #' + run.attempt
-            + ' ' + (run.conclusion ?? run.status)));
-        }
-      }
-      history.append(item);
-    }
+
   }
   render(monitor.summarize());
   const button = node('trialRefresh');
@@ -2147,10 +2116,10 @@ document.getElementById('stats').innerHTML = [
   const windowLabel = document.getElementById('activityWindowLabel');
   const historicalToggle = document.getElementById('activityHistorical');
   try { sessionStorage.removeItem('activityWindow'); } catch { /* Storage is optional. */ }
-  const isHistorical = lane => /^(?:A|A2|B|C|P[1-6]|Prep-[1-6])$/.test(lane);
+  const isHistorical = lane => lane !== 'Standard engineer';
   const laneVisible = lane => historicalToggle.checked || !isHistorical(lane);
   const activity = DATA.activity || { segments: [], tasks: [] };
-  const history = activity.segments || [];
+  const history = [...(activity.segments || []), ...(singleWorkerSnapshot?.segments || [])];
   const durationPoints = integrationDurations(activity);
   const durationSeries = [['implementation', 'integrationDuration', 'Implementation', '--integration-blue'],
     ['preparation', 'prepIntegrationDuration', 'Challenge batches', '--integration-orange']].map(([group, prefix, label, color]) => ({
@@ -2160,22 +2129,23 @@ document.getElementById('stats').innerHTML = [
   let plottedDurations = [], pinnedDuration = null, fullDurationRange = false;
   const fullRangeButton = document.getElementById('integrationFullRange');
   const minimap = document.getElementById('activityMinimap');
-  const segments = activity.stages || history.filter(row => row.phase !== 'queued');
+  const segments = [...(activity.stages || (activity.segments || []).filter(row => row.phase !== 'queued')), ...(singleWorkerSnapshot?.stages || [])];
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const snapshotTime = document.getElementById('activitySnapshotTime');
-  snapshotTime.textContent = workerSnapshotText(activity.capturedAt);
+  snapshotTime.textContent = 'Retired worker history: ' + workerSnapshotText(activity.capturedAt);
   snapshotTime.title = activity.capturedAt ? new Date(activity.capturedAt).toLocaleString('en-US', {timeZoneName: 'short'}) : '';
-  const taskById = new Map((activity.tasks || []).map(task => [task.id, task]));
-  const phaseNames = { working: 'Assigned task', queued: 'Delivery pending', pending: 'Delivery pending',
+  const taskById = new Map([...(activity.tasks || []), ...(singleWorkerSnapshot?.tasks || [])].map(task => [task.id, task]));
+  const phaseNames = { validation: 'CI validation', investigation: 'Recorded investigation', working: 'Assigned task', queued: 'Delivery pending', pending: 'Delivery pending',
     integrating: 'Integration and checks', acceptance: 'Acceptance',
     publication: 'Publication', review: 'Pre-merge inspection', rework: 'Rework', parked: 'Parked (task paused)',
     admission: 'Batch admission', baseline: 'Batch baseline',
     waiting: 'Waiting (reported)', blocked: 'Blocked', idle: 'Idle (worker report)', unrecorded: 'Unrecorded time' };
   const phaseName=phase=>phaseNames[phase]||(phase?'Recorded stage: '+phase:'Unrecorded stage');
   const legendGroups = [
-    ['Workers', ['working', 'rework', 'parked']],
-    ['Work lead', ['review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']],
+    ['Standard engineer · elapsed spans', ['investigation', 'validation', 'publication']],
+    ['Retired workers', ['working', 'rework', 'parked']],
+    ['Retired Work lead', ['review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']],
     ['Availability', ['waiting', 'blocked', 'idle', 'unrecorded']],
   ];
   document.getElementById('timelineLegend').innerHTML = legendGroups.map(([label, phases]) =>
@@ -2184,9 +2154,11 @@ document.getElementById('stats').innerHTML = [
       + phaseNames[phase] + '</div>').join('') + '</div></div>').join('');
   function utilization(start, end) {
     const percent = value => value == null ? '—' : Math.round(value * 100) + '%';
-    const rows = activityUtilization(segments.filter(row => laneVisible(row.lane)), start, end)
+    const rows = activityUtilization(segments.filter(row => isHistorical(row.lane) && laneVisible(row.lane)), start, end)
       .filter(row => historicalToggle.checked || !['A/B/C', 'Prep lanes'].includes(row.role));
-    metrics.innerHTML = '<table class="activity-utilization"><caption>Workers shown in this time range</caption><thead><tr><th scope="col">Workers</th>'
+    metrics.hidden = !historicalToggle.checked;
+    document.getElementById('integrationDisclosure').hidden = !historicalToggle.checked;
+    metrics.innerHTML = '<table class="activity-utilization"><caption>Retired workers shown in this time range</caption><thead><tr><th scope="col">Workers</th>'
       + '<th scope="col">Work</th><th scope="col">Blocked</th><th scope="col">Idle</th><th scope="col">Unknown</th></tr></thead><tbody>'
       + rows.map(row => '<tr><th scope="row" title="' + esc(row.workers.map(worker =>
         displayLane(worker.lane) + ': ' + percent(worker.utilization) + ' work').join(' · ')) + '">' + row.role + '</th>'
@@ -2204,20 +2176,20 @@ document.getElementById('stats').innerHTML = [
     return;
   }
   const hourMs = 3600000;
-  const captured = Date.parse(activity.capturedAt);
-  const first = Math.min(...history.map(segment => Date.parse(segment.start)));
-  const latest = Math.min(captured, Math.max(...history.map(segment => Date.parse(segment.end))));
+  let captured = Math.max(Date.parse(activity.capturedAt) || 0, Date.parse(singleWorkerSnapshot?.capturedAt) || 0);
+  let first = Math.min(...history.map(segment => Date.parse(segment.start)));
+  let latest = Math.max(captured, Math.max(...history.map(segment => Date.parse(segment.end))));
   // A2 replaced A. Share the display row only while their histories do not overlap.
   const aEnd = Math.max(...segments.filter(row => row.lane === 'A').map(row => Date.parse(row.end)));
   const a2Start = Math.min(...segments.filter(row => row.lane === 'A2').map(row => Date.parse(row.start)));
   const displayLane = lane => lane === 'A2' && aEnd <= a2Start ? 'A'
     : agentName(lane.replace(/^Prep-([1-6])$/u, 'P$1'));
-  const lanes = [...new Set(history.map(segment => segment.lane).filter(lane => lane !== 'Main')
+  const lanes = [...new Set(['Standard engineer', ...history.map(segment => segment.lane).filter(lane => lane !== 'Main')]
     .sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(displayLane))];
   lanes.push('Work lead');
-  const historicalLabels = new Set(history.filter(row => isHistorical(row.lane)).map(row => displayLane(row.lane)));
+  const historicalLabels = new Set(lanes.filter(lane => lane !== 'Standard engineer'));
   const minSpan = Math.min(20 * 60000, latest - first || hourMs);
-  const domainEnd = Math.max(latest, first + minSpan);
+  let domainEnd = Math.max(latest, first + minSpan);
   let hours = Math.min(6, (domainEnd - first) / hourMs);
   let viewEnd = domainEnd;
   const timeRange = createChartTimeRange({start:first,end:domainEnd,asOf:latest,minimum:minSpan,duration:6*hourMs,
@@ -2415,6 +2387,7 @@ document.getElementById('stats').innerHTML = [
       + '<dt>Worker</dt><dd>' + esc(worker) + '</dd>'
       + '<dt>Stage</dt><dd>' + (actor === worker ? '' : esc(actor) + ' · ') + esc(phaseName(segment.phase)) + '</dd>'
       + (task ? '<dt>Status</dt><dd>' + esc(task.status) + '</dd>' : '')
+      + (task?.investigation ? '<dt>Investigation coverage</dt><dd>' + esc(task.investigation) + '</dd>' : '')
       + (task?.goal ? '<dt>Goal</dt><dd>' + esc(task.goal) + '</dd>' : '')
       + (task?.parentTask ? '<dt>Batch task</dt><dd>' + esc(taskById.get(task.parentTask)?.label || task.parentTask) + '</dd>' : '')
       + (task?.source ? '<dt>C target</dt><dd>' + esc(task.source) + '</dd>' : '')
@@ -2425,6 +2398,7 @@ document.getElementById('stats').innerHTML = [
       + (task?.publishedAt ? '<dt>Published</dt><dd>' + stamp(task.publishedAt) + '</dd>'
         : task?.publicationKnownBy ? '<dt>Published by</dt><dd>' + stamp(task.publicationKnownBy) + ' · exact time unknown</dd>' : '') + '</dl>'
       + (segment.reason ? '<p><strong>' + reasonLabel + '</strong>' + esc(segment.reason) + '</p>' : '')
+      + ((segment.links || task?.links)?.length ? '<p class="trial-gates">' + (segment.links || task.links).map(link => '<a href="' + esc(link.url) + '" target="_blank" rel="noopener noreferrer">' + esc(link.label) + '</a>').join(' · ') + '</p>' : '')
       + '</section><section><h4>' + (task ? 'Task lifespan' : 'Reported interval') + '</h4><ol class="activity-history">'
       + lifespan.map(({ row, sourceIndex }) => {
         const selected = selectedSource === undefined ? row.phase === segment.phase && row.start === segment.start
@@ -2529,10 +2503,10 @@ document.getElementById('stats').innerHTML = [
     const x = time => 8 + (time - first) / (domainEnd - first) * (width - 16);
     ctx.fillStyle = style.getPropertyValue('--surface-chart').trim(); ctx.fillRect(0, 0, width, height);
     const stageStyle = getComputedStyle(document.getElementById('timelineLegend'));
-    const stageColors = {review: '--stage-review', integrating: '--stage-integrating', acceptance: '--stage-acceptance',
+    const stageColors = {investigation: '--stage-working', validation: '--stage-integrating', review: '--stage-review', integrating: '--stage-integrating', acceptance: '--stage-acceptance',
       publication: '--stage-publication', admission: '--stage-admission', baseline: '--stage-baseline', blocked: '--stage-waiting'};
     for (const stage of segments) {
-      if (stage.lane !== 'Main' || stage.phase === 'unrecorded') continue;
+      if (!laneVisible(stage.lane) || !['Main', 'Standard engineer'].includes(stage.lane) || stage.phase === 'unrecorded') continue;
       ctx.fillStyle = stageStyle.getPropertyValue(stageColors[stage.phase] || '--ink-muted').trim();
       ctx.fillRect(x(Date.parse(stage.start)), 12, Math.max(1, x(Date.parse(stage.end)) - x(Date.parse(stage.start))), 18);
     }
@@ -2611,6 +2585,21 @@ document.getElementById('stats').innerHTML = [
   document.getElementById('integrationDisclosure').addEventListener('toggle', () => drawDurations(viewEnd - hours * hourMs, viewEnd));
   fullRangeButton.addEventListener('click', () => { fullDurationRange = true; drawDurations(viewEnd - hours * hourMs, viewEnd); });
   document.getElementById('integrationTypicalRange').addEventListener('click', () => { fullDurationRange = false; drawDurations(viewEnd - hours * hourMs, viewEnd); });
+  window.addEventListener('single-worker-status', () => {
+    for (const rows of [history, segments]) {
+      for (let i = rows.length - 1; i >= 0; i--) if (!isHistorical(rows[i].lane)) rows.splice(i, 1);
+      rows.push(...(singleWorkerSnapshot?.segments || []));
+    }
+    for (const [id, task] of taskById) if (task.worker === 'Standard engineer') taskById.delete(id);
+    for (const task of singleWorkerSnapshot?.tasks || []) taskById.set(task.id, task);
+    captured = Math.max(Date.parse(activity.capturedAt) || 0, Date.parse(singleWorkerSnapshot?.capturedAt) || 0);
+    first = Math.min(...history.map(row => Date.parse(row.start)));
+    latest = Math.max(captured, ...history.map(row => Date.parse(row.end)));
+    domainEnd = Math.max(latest, first + minSpan);
+    timeRange.setDomain(first, domainEnd, latest);
+    pinnedStage = null; selectedIndex = null;
+    applyRange(); render();
+  });
   window.addEventListener('resize', render);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
   container.addEventListener('pointerdown', event => {

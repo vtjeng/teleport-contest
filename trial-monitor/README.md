@@ -1,32 +1,57 @@
-# Trial monitor records
+# Single Standard engineer timeline records
 
-`manifest.json` fixes the audited 11:50–15:50 UTC historical baseline and holds
-the trial clock and current operational state. `repairs.json` records one stable
-ID per parity repair. The static dashboard reads both files at build time and,
-when opened, makes read-only requests to the public GitHub API. No credential,
-background observer, or separate status publisher is involved.
+The existing `manifest.json` and `repairs.json` feed the worker timeline. Their
+paths are retained for compatibility; the parallel trial is shelved, with its
+status `not-started` and start/end null. The audited Oct 21 11:50–15:50 UTC
+baseline remains frozen: 13 accepted repairs, one carry-in, 3.25/hour including
+it and 3.00/hour excluding it. These are elapsed wall-time observations.
 
-**Open tabs are snapshots.** Refresh the page or press **Refresh public status**
-to check again. The public CI read enriches only the manifest's current
-candidate with exact final job completion times. Persist all three final gate
-records in `repairs.json` before moving `currentCandidate` to the next repair;
-otherwise the old candidate's live completion data is no longer fetched.
+The current lane selects repairs with `window: "single-worker"`. This register
+has partial historical coverage: the two recent repairs and their correction
+are recorded, not the whole earlier single-worker history. Retired worker
+ledger lanes and their metrics remain separately selectable. Neither missing
+records nor elapsed spans measure active work, idle time or compute.
 
-At the **explicit** trial start, record its UTC `start`, set `status` to
-`running`, and record known investigator statuses. Set `coverage` to `complete`
-only when the register covers every repair in the window; otherwise leave it
-`unknown`. Record `currentCandidate` as `{ "repairId": "…", "sha": "<full SHA>",
-"origin": "…", "investigator": "…" }`. `waitingHandoffs` is an array of at
-most one item. Update `asOf` on changed records. At the agreed four-hour cutoff,
-record the UTC `end` and set `status` to `completed`. Record interruptions as
-facts, without treating task-span gaps as measured downtime or compute savings.
+## Small recording path
 
-For each repair, retain its source, C witness, and focused test evidence. Append
-correction candidate SHAs and every required gate attempt to the same repair ID.
-Include run ID, exact SHA, event, branch, conclusion, and final job completion
-time. Checkpoint may be an integration-branch push or dispatch; Lint and
-Dashboard acceptance require Main push runs. A retry or correction is never a
-second repair. Dashboard-only changes are excluded. The panel counts a repair
-only after all three gates have passed for one candidate SHA, at the time the
-last required job finished. Do not publish a dashboard-only commit just to
-refresh status; opening the page refreshes public GitHub metadata.
+Maintain these JSON files in ordinary source-backed work commits; do not make
+status-only dashboard commits. Use one stable repair `id`, `kind:
+"parity-repair"`, title, source/C-witness/test paths and a `candidates` array.
+Append corrections to that same ID. Dashboard work and matched-C probes are
+not accepted parity repairs. A `note` can retain rejected leads and limitations.
+
+When an investigation actually begins/ends, record its UTC timestamps in
+`investigations: [{ "start": "…", "end": "…", "note": "…" }]`. Use null for an
+open end and update the register's `asOf` at that observation. Open spans stop
+at that saved observation, never at the viewer's clock. If timestamps were not
+recorded, leave the array empty; commits are not investigation start times.
+
+Record known candidate SHAs and every required gate attempt under `candidates`.
+Include run ID/name, exact SHA, attempt, event, branch, status/conclusion,
+`createdAt` and final job `completedAt`. Preserve failures. Before moving
+`manifest.operations.currentCandidate` to another SHA, persist the previous
+candidate's final gate records. This is the latest **recorded** candidate,
+which can lag the actual worker. A newly created SHA and its final gates can be
+recorded in the next normal work commit; there is no self-referential commit
+rewrite or separate publication loop. Update the affected files' `asOf`.
+
+## What refreshes automatically
+
+At build time, the existing dashboard embeds both files. Page open and
+**Refresh public status** read their latest Main versions and public GitHub CI.
+They refresh the existing timeline without polling or credentials. Only the
+selected candidate is enriched with exact final job times. Investigation
+activity, repair identity, correction grouping, evidence paths and candidate
+selection require recorded events; GitHub cannot infer them. API failure keeps
+the last-known snapshot and displays the error. Register age is always shown,
+and activity older than one hour is labeled stale even if the API read worked.
+
+Checkpoint accepts integration-branch push/dispatch; Lint and Dashboard require
+Main **push** success, all on one exact SHA. All three successful gate completion
+times plus source/witness/test evidence establish an accepted repair; correction
+candidates and reruns cannot increment that repair count. CI bars span run
+creation through final job completion, including queue time. Publication is one
+elapsed span over that candidate's Lint/Pages runs. Missing final times do not
+create completed spans. The actual acceptance process still imports and
+compares the saved checkpoint evidence before publication; this timeline is a
+presentation of its recorded results, not a replacement gate.

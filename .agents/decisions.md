@@ -1216,3 +1216,19 @@ returned undefined/targetCalls1 and restored handler/reference identities with
 no other errors. The real bubble movement legitimately moves hero25,8 to24,8
 atHP13. Normal hosted group acceptance/publication remain pending here; no
 public C replay, global family adoption or source certification is asserted.
+
+## 2026-10-22 — Single Standard engineer in the existing worker timeline
+
+Vincent requested that the worker timeline reflect the resumed single-worker
+flow instead of a separate trial section. Reuse the existing repair register
+and public CI reader, map recorded investigation and candidate gate spans into
+the existing timeline, and hide retired lanes behind the history toggle.
+Corrections and reruns retain one repair ID; unknown investigation times remain
+unknown. Preserve the audited baseline and all publication gates, including
+attempt-specific Pages artifacts. The trial stays not-started with null times.
+
+Recording is manual in ordinary work commits; page open/button refresh enriches
+the selected candidate's CI only. This keeps the change bounded without a new
+publisher, service, or status-only commit loop, at the cost of potentially late
+activity records. Follow-up usefulness is unmeasured. Implementation is the
+commit containing this entry; recording details are in trial-monitor/README.md.
