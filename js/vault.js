@@ -84,7 +84,7 @@ import { adjalign } from './attrib.js';
 import { carried, g_at, hasContents } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { BOULDER, GOLD_PIECE, ROCK, TIN_WHISTLE } from './objects.js';
-import { mimic_obj_name } from './objnam.js';
+import { an, mimic_obj_name, simpleonames } from './objnam.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
 import { relobj } from './steal.js';
@@ -102,6 +102,7 @@ import {
 import { getlin } from './windows.js';
 import { canspotmon, mon_visible } from './display.js';
 import { set_voice } from './sounds.js';
+import { fracture_rock } from './zap.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -1137,11 +1138,19 @@ export async function invault(state, env = {}) {
     // wakes the hero only when that callback is eat.c:unfaint().
     await reset_faint(state, { ...env, message });
 
-    // Boulder destruction at guard's position
-    if (sobj_at(BOULDER, guard.mx, guard.my, state)) {
-        throw new UnsupportedVaultGuardError(
-            'invault() destroying boulders at guard entry point',
-        );
+    // C vault.c invault clears every boulder before announcing the guard.
+    let boulder = sobj_at(BOULDER, guard.mx, guard.my, state);
+    if (boulder) {
+        const bname = simpleonames(boulder, state);
+        let count = 0;
+        do {
+            ++count;
+            await fracture_rock(boulder, state, random, { ...env, message });
+            boulder = sobj_at(BOULDER, guard.mx, guard.my, state);
+        } while (boulder);
+        const suffix = `${count === 1 ? an(bname) : makeplural(bname)} shatter.`;
+        const line = Blind(state) ? youHear(suffix, state) : `You see ${suffix}`;
+        if (line) await message(line);
     }
 
     const spotted = canspotmon(guard, state);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first vault.c invault witness: dig the entrance, place a boulder on ordinary floor, return inside and wait for guard entry. Qualify the boulder fracture and visible message before interrogation.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021124500",
+      "nethackrc": "OPTIONS=name:VaultCroesus,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #wizwish\nwand of digging\nzoh h#wizwish\nboulder\n l........................................ Croesus\n   "
+    }
+  ]
+}

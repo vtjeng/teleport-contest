@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T03:24:46.016Z",
+  "asOf": "2026-10-22T03:37:54.293Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1284,8 +1284,87 @@
           "scripts/vault-dead-croesus.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "a09509ceaeebd25e724da2ef5e26f7673a1281e3",
+          "committedAt": "2026-10-22T03:25:17Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39716771534,
+              "name": "Checkpoint",
+              "sha": "a09509ceaeebd25e724da2ef5e26f7673a1281e3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-dead-croesus-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:25:43Z",
+              "completedAt": "2026-10-22T03:31:34Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39716771534"
+            },
+            {
+              "id": 39717456427,
+              "name": "Lint",
+              "sha": "a09509ceaeebd25e724da2ef5e26f7673a1281e3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:33:07Z",
+              "completedAt": "2026-10-22T03:33:51Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39717456427"
+            },
+            {
+              "id": 39717456321,
+              "name": "Dashboard",
+              "sha": "a09509ceaeebd25e724da2ef5e26f7673a1281e3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:33:07Z",
+              "completedAt": "2026-10-22T03:35:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39717456321"
+            }
+          ]
+        }
+      ],
+      "note": "Hearing/deaf fresh C witnesses each match 6396 RNG calls and 182 screens/cursors. The first setup created a named doppelganger and was rejected; explicit unique-monster confirmation reaches actual Croesus death. Exact-SHA Checkpoint and Main push Lint/Pages passed, with fixed and synthetic results unchanged."
+    },
+    {
+      "id": "vault-guard-boulders",
+      "kind": "parity-repair",
+      "title": "Fracture boulders at the vault guard entry",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T03:36:15.740Z",
+          "end": "2026-10-22T03:37:54.293Z",
+          "note": "Recorded source implementation and focused/C checks; earlier scratch qualification timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c",
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-boulder-single.session.json",
+          "recipes/vault.c/guard-boulder-multiple.session.json",
+          "recipes/vault.c/guard-boulder-blind.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-boulder.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Fresh hearing/deaf C witnesses each match 6396 RNG calls and 182 screens/cursors after fail-before named refusal. First setup created a named doppelganger and was rejected; explicit unique-monster confirmation reaches actual Croesus death. Candidate identity and final gates are not yet recorded; acceptance remains unknown."
+      "note": "Single, multiple and blind/hearing fresh C comparisons match after fail-before guard-entry refusal. The solid-rock drop setup was rejected for an earlier unrelated refusal; a dug entrance isolates this branch. Candidate identity and final gates are not yet recorded; acceptance remains unknown."
     }
   ]
 }
