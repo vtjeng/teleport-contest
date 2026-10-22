@@ -1597,7 +1597,7 @@ document.getElementById('stats').innerHTML = [
     batchPanel.style.left=(Math.max(16,Math.min(box.left,width-panel.width-16))-box.left)+'px';
     batchPanel.style.top=((down?group.bottom+6:group.top-6-panel.height)-box.top)+'px';
   }
-  const datePickers=['yield','activity','progress'].map(prefix=>document.getElementById(prefix+'RangePicker'));
+  const datePickers=['activity','progress'].map(prefix=>document.getElementById(prefix+'RangePicker'));
   batchPicker.addEventListener('toggle',()=>{
     if(batchPicker.open){for(const picker of datePickers)picker.open=false;positionBatches();}
   });

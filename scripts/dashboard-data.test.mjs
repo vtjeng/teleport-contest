@@ -83,6 +83,11 @@ function scoreRow(fields) {
 // Historical fixtures opt in so their existing interaction coverage remains useful.
 function renderDashboard(data, queue = null, {showHistorical = true, singleWorkerData = null, fetchPublic = async () => { throw new Error('Offline fixture'); }} = {}) {
     const elements = new Map();
+    const template = readFileSync(TEMPLATE, 'utf8');
+    // A browser returns null for removed controls. Do not manufacture them:
+    // doing so masked the retired yieldRangePicker startup exception.
+    // Chart canvases created by innerHTML become available only on insertion.
+    const ids = new Set([...template.split('<script>')[0].matchAll(/\bid="([^"]+)"/gu)].map(match => match[1]));
     // Every canvas call lands in canvasOps, and also in the drawn element's
     // own ops, so a test can ask what one canvas drew.
     const canvasOps = [];
@@ -114,7 +119,10 @@ function renderDashboard(data, queue = null, {showHistorical = true, singleWorke
         return {
             id,
             get innerHTML() { return markup; },
-            set innerHTML(value) { markup = String(value); text = markup.replace(/<[^>]*>/gu, ''); },
+            set innerHTML(value) {
+                markup = String(value); text = markup.replace(/<[^>]*>/gu, '');
+                for (const match of markup.matchAll(/\bid="([^"]+)"/gu)) ids.add(match[1]);
+            },
             outerHTML: '',
             get textContent() { return text; },
             set textContent(value) { text = String(value); markup = text; },
@@ -149,10 +157,10 @@ function renderDashboard(data, queue = null, {showHistorical = true, singleWorke
         };
     };
     const element = (id) => {
+        if (!ids.has(id)) return null;
         if (!elements.has(id)) elements.set(id, makeElement(id));
         return elements.get(id);
     };
-    const template = readFileSync(TEMPLATE, 'utf8');
     const source = injectDashboardData(template, JSON.stringify(data), JSON.stringify(queue), undefined, JSON.stringify(singleWorkerData))
         .match(/<script>([\s\S]*?)<\/script>/u)[1];
     const document = {
@@ -1545,6 +1553,29 @@ test('single engineer renders and refreshes in the existing timeline without ena
     assert.match(timeline.innerHTML, /Recorded investigation for Dismiss/);
     assert.equal((timeline.innerHTML.match(/activity-row/g) || []).length, 1);
     assert.equal(timeline.listeners.click.length, 1, 'refresh does not duplicate handlers');
+});
+
+test('full startup renders scores, charts, worker evidence and final history with only real DOM IDs', () => {
+    const load = file => JSON.parse(readFileSync(join(PROJECT_ROOT, 'trial-monitor', file), 'utf8'));
+    const snapshot = {manifest: load('manifest.json'), register: load('repairs.json'),
+        buildSha: 'f'.repeat(40), builtAt: '2026-10-22T03:00:00Z'};
+    const data = sourceDashboardData();
+    data.scoreHistory[0].points = [{utc: '2026-10-22T03:00:00Z', screens: 44, screensTotal: 44}];
+    const rendered = renderDashboard(data, null, {singleWorkerData: snapshot, showHistorical: false});
+    assert.equal(rendered.has('yieldRangePicker'), false);
+    assert.match(rendered.get('stats').innerHTML, /Development set/);
+    assert.match(rendered.get('progressReadout').textContent, /44\/44/);
+    assert.ok(rendered.get('developmentChart').ops.some(([operation]) => operation === 'stroke'));
+    assert.match(rendered.get('timeline').innerHTML, /Standard engineer/);
+    assert.ok(rendered.get('workerEvidence').children.length > 0);
+    assert.match(rendered.get('goalTable').innerHTML, /Synthetic Δ/);
+    for (const id of ['activityRangePicker', 'progressRangePicker']) {
+        const picker = rendered.get(id), batches = rendered.get('historyBatchPicker');
+        picker.open = true;
+        batches.open = true;
+        for (const listener of picker.listeners.toggle) listener();
+        assert.equal(batches.open, false, `${id} closes the batch selector`);
+    }
 });
 
 function refreshTestSnapshot() {

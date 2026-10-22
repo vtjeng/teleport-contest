@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T06:47:27.229Z",
+  "asOf": "2026-10-22T07:09:30.648Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2251,8 +2251,55 @@
           "scripts/cmd.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Blindfold/towel live C witnesses fail before unsupported unseen-terrain boundary and match after source branch restoration. Existing refusal test changed to assert C message and unchanged terrain knowledge; no weakened acceptance. Full gates pending; not accepted."
+      "candidates": [
+        {
+          "sha": "6d36c2072e45a8f972ff400f7de8e2ba1cbe5e7d",
+          "committedAt": "2026-10-22T06:48:21Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39737867931,
+              "name": "Dashboard",
+              "sha": "6d36c2072e45a8f972ff400f7de8e2ba1cbe5e7d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T07:03:16Z",
+              "completedAt": "2026-10-22T07:05:54Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39737867931"
+            },
+            {
+              "id": 39737867901,
+              "name": "Lint",
+              "sha": "6d36c2072e45a8f972ff400f7de8e2ba1cbe5e7d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T07:03:16Z",
+              "completedAt": "2026-10-22T07:04:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39737867901"
+            },
+            {
+              "id": 39736273060,
+              "name": "Checkpoint",
+              "sha": "6d36c2072e45a8f972ff400f7de8e2ba1cbe5e7d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/unseen-obstacle-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T06:48:29Z",
+              "completedAt": "2026-10-22T06:58:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39736273060"
+            }
+          ]
+        }
+      ],
+      "note": "Blindfold/towel C witnesses match;241 existing focused tests,6 additional tests and3096 affected local shard tests pass. Full exact Checkpoint and push Lint/Pages passed first attempts. Imported fixed44 and synthetic98/2055 unchanged. Initial local promotion denial retained in continuation; explicit user approval resolved it before one successful retry."
     }
   ]
 }
