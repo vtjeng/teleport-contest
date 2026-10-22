@@ -98,6 +98,7 @@ import {
     MELT_ICE_AWAY,
     MIGR_RANDOM,
     M_AP_FURNITURE,
+    M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_TYPE,
     M_AP_TYPMASK,
@@ -4596,6 +4597,14 @@ async function domove_core(state = game) {
         || state.youmonst.data.mlet === S_EEL
         || u.dx || u.dy) {
         hideunder(state.youmonst, { state });
+    }
+
+    // C hack.c:2954-2960. Directional movement exposes an imitation of
+    // something stationary, including an attempted swap that left us in place.
+    if ((u.dx || u.dy)
+        && (M_AP_TYPE(state.youmonst) === M_AP_OBJECT
+            || M_AP_TYPE(state.youmonst) === M_AP_FURNITURE)) {
+        state.youmonst.m_ap_type = M_AP_NOTHING;
     }
 
     // C ref: hack.c domove_core():2962. The leash response precedes redraw,

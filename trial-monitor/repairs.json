@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T05:42:27.459Z",
+  "asOf": "2026-10-22T05:53:40.173Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1902,9 +1902,87 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39728930323"
             }
           ]
+        },
+        {
+          "sha": "df4bea8845d59c928ebd48d65c2341dbd19d1ff8",
+          "committedAt": "2026-10-22T05:42:53Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39729609104,
+              "name": "Checkpoint",
+              "sha": "df4bea8845d59c928ebd48d65c2341dbd19d1ff8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/invocation-walk-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:43:02Z",
+              "completedAt": "2026-10-22T05:48:31Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39729609104"
+            },
+            {
+              "id": 39730222824,
+              "name": "Lint",
+              "sha": "df4bea8845d59c928ebd48d65c2341dbd19d1ff8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:49:27Z",
+              "completedAt": "2026-10-22T05:50:19Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39730222824"
+            },
+            {
+              "id": 39730222929,
+              "name": "Dashboard",
+              "sha": "df4bea8845d59c928ebd48d65c2341dbd19d1ff8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:49:27Z",
+              "completedAt": "2026-10-22T05:51:33Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39730222929"
+            }
+          ]
         }
       ],
-      "note": "Grounded/flying C witnesses match after the missing walk call. First Checkpoint failed shard4: local reproduction found rooms movement fixture without initialized dungeon table; corrected to its intended ordinary non-Hell level without changing room assertions or game predicates. Corrected candidate pending full gates; not accepted."
+      "note": "Grounded/flying C witnesses match. Failed first candidate retained; corrected room fixture supplies the initialized ordinary dungeon table. Exact corrected Checkpoint and push Lint/Pages passed; imported fixed44 and synthetic98/2055 unchanged."
+    },
+    {
+      "id": "mimic-movement-disguise",
+      "kind": "parity-repair",
+      "title": "Reveal stationary mimic disguises during directional movement",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T05:52:23.654Z",
+          "end": "2026-10-22T05:53:40.173Z",
+          "note": "Recorded implementation and focused checks after qualified read-only C probes; earlier probe timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c",
+          "js/hack.js"
+        ],
+        "witness": [
+          "recipes/hack.c/mimic-movement-giant.session.json",
+          "recipes/hack.c/mimic-movement-large.session.json",
+          "recipes/hack.c/mimic-movement-wait.session.json"
+        ],
+        "test": [
+          "scripts/mimic-movement.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Giant/large mimic movement fails before missing appearance-clear branch, matches C after. Waiting countercase matches before/after and is not another repair. Full candidate gates not yet recorded; not accepted."
     }
   ]
 }
