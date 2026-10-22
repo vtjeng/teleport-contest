@@ -1911,6 +1911,7 @@ export async function preflightSimpleMonsterActions(
     let beforeUnmul = false;
     let beforeTimeout = false;
     let beforeHunger = false;
+    let beforeTeleport = false;
     try {
         try {
             const scan = await planSimpleMonsterTurn(
@@ -1921,6 +1922,7 @@ export async function preflightSimpleMonsterActions(
                     beforeUnmul = Boolean(result?.beforeUnmul);
                     beforeTimeout = Boolean(result?.beforeTimeout);
                     beforeHunger = Boolean(result?.beforeHunger);
+                    beforeTeleport = Boolean(result?.beforeTeleport);
                     return result;
                 } : null,
                 afterMonsterScan,
@@ -1979,6 +1981,7 @@ export async function preflightSimpleMonsterActions(
         beforeUnmul,
         beforeTimeout,
         beforeHunger,
+        beforeTeleport,
         inputBoundary,
     };
 }

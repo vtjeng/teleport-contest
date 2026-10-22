@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T22:28:30.285183Z",
+  "asOf": "2026-10-22T22:46:14.632799Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4060,8 +4060,84 @@
           "scripts/twoweapon-melee.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "203c78bc869a9738c9da342ea27ac631ff3fbeae",
+          "runs": [
+            {
+              "id": 39865367182,
+              "name": "Checkpoint",
+              "sha": "203c78bc869a9738c9da342ea27ac631ff3fbeae",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/second-strike-interruption-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T22:29:44Z",
+              "completedAt": "2026-10-22T22:36:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39865367182"
+            },
+            {
+              "id": 39866292846,
+              "name": "Lint",
+              "sha": "203c78bc869a9738c9da342ea27ac631ff3fbeae",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T22:37:25Z",
+              "completedAt": "2026-10-22T22:38:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39866292846"
+            },
+            {
+              "id": 39866292895,
+              "name": "Dashboard",
+              "sha": "203c78bc869a9738c9da342ea27ac631ff3fbeae",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T22:37:25Z",
+              "completedAt": "2026-10-22T22:40:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39866292895"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Six live C replays, 172 affected tests, 12 timeline tests and lint passed. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "periodic-teleport",
+      "kind": "parity-repair",
+      "title": "Execute periodic teleportation before resuming elapsed-turn upkeep",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c",
+          "nethack-c/upstream/src/teleport.c",
+          "js/allmain.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/allmain.c/periodic-teleport-same-square.session.json",
+          "recipes/allmain.c/periodic-teleport-relocate.session.json",
+          "recipes/allmain.c/periodic-teleport-cancel.session.json",
+          "recipes/allmain.c/periodic-teleport-nonzero-control.session.json"
+        ],
+        "test": [
+          "scripts/periodic-teleport.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/teleport.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C witnesses expose extra offhand attacks after paralysis and life-saving, and erroneous peaceful displacement with Stormbringer. Restore source guards and verbose override announcement. Six complete replays including free-action and single-weapon controls, plus 172 affected tests pass. Hosted gates pending; investigation start time not captured."
+      "note": "Replace skipped tele() with live teleport and destination-based tail planning. C same-square, relocation and cancellation cases fail on baseline; nonzero control passes. Four complete C replays, 258 affected tests and planning isolation check pass. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

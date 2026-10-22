@@ -4303,3 +4303,29 @@ test('moveloop_core resumes a pending wish before reading the next command', asy
     assert.equal(prompts[0], 'For what do you wish?');
     assert.equal(game.u.uconduct.wishes, 0); // Explicit nothing retains wishless conduct.
 });
+
+test('periodic teleport planning stops before live input and preserves the live game', async () => {
+    const replay = await runSegment(firstTurnInput({
+        seed: 2026102207, datetime: '20261022120000', name: 'TeleportPlan',
+        role: 'Healer', race: 'human', gender: 'female', align: 'neutral', command: '',
+    }));
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.level.regions = [];
+    clearTtyMessageWindow(game);
+    game.u.uprops[TELEPORT] = { intrinsic: FROMOUTSIDE, extrinsic: 0, blocked: 0 };
+    game.u.umovement = 0;
+    game.context.seer_turn = 100000;
+    game.context.next_attrib_check = 100000;
+    const snapshot = completeSecondTurnSnapshot(game, replay);
+    const plan = await preflightSimpleMonsterActions(game, {
+        consumeHeroRation: false,
+        advanceRound: (planned, random) => finishElapsedTurn(planned, {
+            ...random,
+            rn2: bound => bound === 85 ? 0 : random.rn2(bound),
+        }, { planning: true }),
+    });
+    assert.equal(plan.beforeTeleport, true);
+    assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
+        'planning must not read a destination, spend live RNG, or change the live map');
+});

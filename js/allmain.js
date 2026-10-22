@@ -133,7 +133,7 @@ import {
 import { emitGlyphUpdateNotices, emitStartupA11yNotices } from './startup_a11y.js';
 import { u_wipe_engr } from './engrave.js';
 import { check_special_room } from './rooms.js';
-import { rloc } from './teleport.js';
+import { rloc, tele } from './teleport.js';
 import {
     block_point,
     cansee,
@@ -998,47 +998,40 @@ async function finishElapsedTurnAfterTimeout(
     }
     await regen_pw(wtcap, state, regenEnv);
 
-    // C ref: allmain.c:307-340. Prayer invulnerability suppresses both
-    // periodic teleportation and every delayed-change check, including
-    // invalidating an existing pending change.
-    if (!state.u.uinvulnerable) {
-        // C ref: allmain.c moveloop_core():307-320. Teleportation is the union of
-        // the intrinsic and extrinsic property bits. Keep invulnerability as the
-        // outer short-circuit so it suppresses rn2(85), and consume that draw
-        // before delayed polymorph, searching, warning, hunger, and engraving.
-        if (propertyActive(state, TELEPORT)
-            && !random.rn2(85)) {
-            const oldUx = state.u.ux;
-            const oldUy = state.u.uy;
-
-            // teleport.c:tele() is a discarded void call. Its current
-            // scrolltele()/safe_teleds() path bypasses this cloned turn's random
-            // context and uses shared display/input, so it cannot run safely from
-            // the allmain planning pass. Record the exact gap instead of inventing
-            // draws, messages, or a destination. The zero-result recipe under
-            // recipes/allmain.c/ documents the first blocked source entry.
-            note_unported('teleport.c tele');
-
-            // Keep the source's moved-square aftermath in order for when tele()
-            // is plan-safe: unchanged coordinates leave both queues untouched.
-            if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
-                if (!(await next_to_u(state, {
-                    random,
-                    message: turnMessage,
-                }))) {
-                    // C ref: allmain.c moveloop_core():314, after a changed
-                    // teleport leaves an attached pet unable to stay adjacent.
-                    await check_leash(oldUx, oldUy, {
-                        state,
-                        random,
-                        message: turnMessage,
-                    });
-                }
-                cmdq_clear(CQ_CANNED, state);
-                cmdq_clear(CQ_REPEAT, state);
-            }
+    // C allmain.c:307-320. A periodic teleport may read a destination and
+    // change the map owning the remaining upkeep. Stop the clone before that
+    // call, run it live, then plan the tail from the actual destination.
+    if (!state.u.uinvulnerable && propertyActive(state, TELEPORT)
+        && !random.rn2(85)) {
+        if (planning) return { beforeTeleport: true };
+        const oldUx = state.u.ux;
+        const oldUy = state.u.uy;
+        await tele(state, { random, message: turnMessage });
+        if (state.program_state?.gameover) return { afterTeleport: true };
+        if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
+            if (!(await next_to_u(state, { random, message: turnMessage })))
+                await check_leash(oldUx, oldUy, { state, random, message: turnMessage });
+            cmdq_clear(CQ_CANNED, state);
+            cmdq_clear(CQ_REPEAT, state);
         }
+        const tailPlan = await preflightElapsedTurnTail(state,
+            (planned, planningRandom) => finishElapsedTurnAfterTeleport(
+                planned, planningRandom, { planning: true },
+            ));
+        const result = await finishElapsedTurnAfterTeleport(state, random);
+        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
+            throw new Error('elapsed-turn teleport tail disagreed with live delayed action');
+        return { ...result, afterTeleport: true };
+    }
+    return finishElapsedTurnAfterTeleport(state, random, { planning });
+}
 
+// C allmain.c moveloop_core(), immediately after periodic teleportation.
+// The live destination determines delayed changes and the remaining upkeep.
+async function finishElapsedTurnAfterTeleport(state, random, { planning = false } = {}) {
+    const turnMessage = planning ? async () => {} : ttyPline;
+    const turnStatusRefresh = planning ? async () => {} : () => bot();
+    if (!state.u.uinvulnerable) {
         // C ref: allmain.c moveloop_core():322-339. `mvl_change` is a C static,
         // so keep its per-game, nonsaved value on the game object. planningState()
         // shallow-copies top-level scalars, giving the dry run its own pending
@@ -1537,11 +1530,13 @@ async function advanceElapsedTurn(state) {
             let afterUnmul;
             let afterTimeout;
             let afterHunger;
+            let afterTeleport;
             try {
                 const result = await finishElapsedTurn(state, random);
                 afterUnmul = result?.afterUnmul;
                 afterTimeout = result?.afterTimeout;
                 afterHunger = result?.afterHunger;
+                afterTeleport = result?.afterTeleport;
             } catch (error) {
                 // A live-only timeout and its fresh tail can reach existing
                 // command or upkeep refusals after the prefix has completed.
@@ -1570,12 +1565,16 @@ async function advanceElapsedTurn(state) {
                     'elapsed-turn preflight disagreed with live timeout',
                 );
             }
+            if (preflight.beforeTeleport
+                && upkeepCount === preflight.upkeepCount && !afterTeleport) {
+                throw new Error('elapsed-turn preflight disagreed with live teleport');
+            }
             if (preflight.beforeHunger
                 && upkeepCount === preflight.upkeepCount && !afterHunger) {
                 throw new Error('elapsed-turn preflight disagreed with live hunger');
             }
             if (!pendingDeathReplan
-                && (afterUnmul || afterTimeout || afterHunger)
+                && (afterUnmul || afterTimeout || afterHunger || afterTeleport)
                 && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,
