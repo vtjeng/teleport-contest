@@ -13,7 +13,6 @@
 import {
     BURN,
     CORR,
-    CONFLICT,
     DOOR,
     D_CLOSED,
     D_LOCKED,
@@ -268,7 +267,7 @@ function assertSimpleScanState(monster, state) {
     return true;
 }
 
-function assertSimpleActionState(monster, state) {
+function assertSimpleActionState(monster) {
     if (!monster.mcanmove) return;
     // STRAT_ARRIVE needs no guard: dog.c mon_arrive() is the only writer, and
     // monmove.c dochug() answers it at 704-708 by calling m_arrival(), which
@@ -294,15 +293,13 @@ function assertSimpleActionState(monster, state) {
         return;
     }
 
-    // monmove.c:m_move() sends tame monsters, including the Astral guardian,
-    // through dogmove.c:dog_move(). Admit only its Conflict loss branch here;
-    // the guardian's other tame-minion movement remains behind this guard.
-    const conflict = state.u?.uprops?.[CONFLICT];
-    const losingGuardian = monster.mtame
+    // C m_move() sends the tame Astral guardian through dog_move(), whose
+    // null-edog path follows the hero without ordinary pet hunger/fetching.
+    // Its Conflict loss branch remains owned by dog_move() as well.
+    const guardian = monster.mtame
         && monster.isminion
-        && monster.data?.pmidx === PM_ANGEL
-        && Boolean(conflict?.intrinsic || conflict?.extrinsic);
-    if (monster.mtame && !losingGuardian)
+        && monster.data?.pmidx === PM_ANGEL;
+    if (monster.mtame && !guardian)
         unsupported('tame minion movement');
     // isgd is admitted: m_move() dispatches to gd_move() which handles the
     // peaceful escort path and throws on unported branches.

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T21:10:11.808Z",
+  "asOf": "2026-10-22T21:23:25.338Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3676,8 +3676,84 @@
           "scripts/monmove.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c70bcb7031345bb45e8d09e8c570762d31b550dc",
+          "runs": [
+            {
+              "id": 39855119135,
+              "name": "Checkpoint",
+              "sha": "c70bcb7031345bb45e8d09e8c570762d31b550dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/sleeping-killer-bee-actions-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:10:50Z",
+              "completedAt": "2026-10-22T21:16:48Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39855119135"
+            },
+            {
+              "id": 39856046415,
+              "name": "Lint",
+              "sha": "c70bcb7031345bb45e8d09e8c570762d31b550dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:17:33Z",
+              "completedAt": "2026-10-22T21:18:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39856046415"
+            },
+            {
+              "id": 39856046590,
+              "name": "Dashboard",
+              "sha": "c70bcb7031345bb45e8d09e8c570762d31b550dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:17:33Z",
+              "completedAt": "2026-10-22T21:20:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39856046590"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Visible sleeping-bee witness matches through wakeup and combat; Stealth and awake controls match. 312 focused/affected tests, 12 timeline tests and lint passed. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "guardian-angel-movement",
+      "kind": "parity-repair",
+      "title": "Admit ordinary tame guardian Angel movement",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/minion.c",
+          "nethack-c/upstream/src/monmove.c",
+          "nethack-c/upstream/src/dogmove.c",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/guardian-angel-movement-dog.session.json",
+          "recipes/monmove.c/guardian-angel-movement-cat.session.json",
+          "recipes/monmove.c/guardian-angel-movement-petless-control.session.json"
+        ],
+        "test": [
+          "scripts/guardian-angel-movement.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/dogmove.test.mjs",
+          "scripts/minion.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Visible sleeping-bee live C witness stopped at obsolete preflight guard before disturb; Stealth and awake controls already matched. Remove guard now that wakeup and jelly-at-square paths are ported. Existing planning test now checks live state/RNG preservation instead of expecting refusal. Initial equipment and wait probes missed target; final C routes verify wakeup, forced rests and message acknowledgement. Hosted gates pending; investigation start time not captured."
+      "note": "Live C Astral arrival produces a tame guardian without edog after prior pet conduct. Dog/cat witnesses stopped at the preflight gate on original source; petless untamed control passed. Admit source-defined guardian Angels through existing null-edog dog_move path, including unchanged Conflict loss; preserve non-Angel guard. 219 focused/affected tests passed. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

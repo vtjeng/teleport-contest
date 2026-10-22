@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-22T21:10:11.808Z",
+  "asOf": "2026-10-22T21:23:25.338Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "sleeping-tame-pet-actions",
-      "sha": "b7e545ab6166450ab6e2af0cf4c6449427653d15",
+      "repairId": "sleeping-killer-bee-actions",
+      "sha": "c70bcb7031345bb45e8d09e8c570762d31b550dc",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-22T21:10:11.808Z"
+    "asOf": "2026-10-22T21:23:25.338Z"
   }
 }

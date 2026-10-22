@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 24100921,
+      "datetime": "20461011130917",
+      "nethackrc": "OPTIONS=name:GuardianConflict,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>J                                             amulet of reflection\nm.  m.  m.  "
+    }
+  ]
+}
