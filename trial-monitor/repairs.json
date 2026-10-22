@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T21:35:52.405Z",
+  "asOf": "2026-10-22T21:49:28.247Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3829,8 +3829,82 @@
           "scripts/hack.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "bd18f8f81cd30db53ac89b97855c732caae594dc",
+          "runs": [
+            {
+              "id": 39858677737,
+              "name": "Checkpoint",
+              "sha": "bd18f8f81cd30db53ac89b97855c732caae594dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-missile-showdamage-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:36:50Z",
+              "completedAt": "2026-10-22T21:42:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39858677737"
+            },
+            {
+              "id": 39859553830,
+              "name": "Lint",
+              "sha": "bd18f8f81cd30db53ac89b97855c732caae594dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:43:34Z",
+              "completedAt": "2026-10-22T21:44:21Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39859553830"
+            },
+            {
+              "id": 39859553892,
+              "name": "Dashboard",
+              "sha": "bd18f8f81cd30db53ac89b97855c732caae594dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:43:34Z",
+              "completedAt": "2026-10-22T21:46:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39859553892"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Verbose/terse missile hits and showdamage-off control match live C; 294 focused/affected tests, 12 timeline tests and lint passed. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "polymorph-overexert-hp",
+      "kind": "parity-repair",
+      "title": "Charge overexertion to the current form HP",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c",
+          "nethack-c/upstream/src/allmain.c",
+          "js/hack.js"
+        ],
+        "witness": [
+          "recipes/hack.c/polymorph-overexert-hp-stone.session.json",
+          "recipes/hack.c/polymorph-overexert-hp-iron.session.json",
+          "recipes/hack.c/polymorph-overexert-hp-human-control.session.json"
+        ],
+        "test": [
+          "scripts/polymorph-overexert-hp.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C goblin dagger hit prints HP loss with showdamage; verbose and terse witnesses failed before removing obsolete preflight refusal, option-off control passed. Shared thitu/losehp message owner already isolates planning output. All three complete replays and 294 focused/affected tests pass. Hosted gates pending; investigation start time not captured."
+      "note": "Live C stone/iron golem heavy movement spends form HP and preserves human HP through rehumanization; both failed before selecting the source-defined HP pointer, human control passed. 154 focused/affected tests passed; additional active-form threshold test covers inactive low HP. Existing fainting boundary retained. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

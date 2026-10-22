@@ -810,8 +810,8 @@ export async function check_capacity(str, state = game) {
 // C ref: hack.c overexert_hp() (3035-3047). What working while overloaded
 // costs: one hit point, or consciousness when there is not one to spare.
 //
-// Upolyd is constantly false in this port, so C's `int *hp` is always
-// &u.uhp. Only the `*hp <= 1` arm (3042-3046) stops, and no longer for want of
+// C selects the current form's HP for both the loss and fainting threshold.
+// Only the `*hp <= 1` arm (3042-3046) stops, and no longer for want of
 // the three statements it runs: You("pass out from exertion!"), attrib.c
 // exercise(A_CON, FALSE) and timeout.c fall_asleep(-10, FALSE) are all ported.
 // What stops it is the state it would leave behind. Both callers reach this
@@ -830,8 +830,9 @@ export async function check_capacity(str, state = game) {
 export function overexert_hp(state, refuse) {
     if (typeof refuse !== 'function')
         throw new TypeError('overexert_hp requires a refusal');
-    if (state.u.uhp > 1) {
-        state.u.uhp -= 1;
+    const hp = Upolyd(state.u) ? 'mh' : 'uhp';
+    if (state.u[hp] > 1) {
+        state.u[hp] -= 1;
         state.disp.botl = true;
     } else {
         refuse();

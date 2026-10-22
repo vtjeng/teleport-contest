@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C hack.c overexert_hp witness: heavy movement spends the current form HP; iron. Polymorphed cases continue through rehumanization to verify human HP was preserved.",
+  "segments": [
+    {
+      "seed": 8410931,
+      "datetime": "20261022120000",
+      "nethackrc": "OPTIONS=name:Exert,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\niron golem\n   #wizwish\n210 rocks\n,y   lhlhlhlhlhlhlhlhlhlhlhlh"
+    }
+  ]
+}
