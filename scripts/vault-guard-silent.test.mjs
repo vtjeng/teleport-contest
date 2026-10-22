@@ -26,3 +26,26 @@ for (const hearing of ['deaf', 'hearing']) {
             : /I'll be back when you're ready to speak to me!/u);
     });
 }
+
+for (const hearing of ['deaf', 'hearing']) {
+    test(`silent ${hearing} mimic cleanup preserves C RNG during burdened planning`, async () => {
+        const recording = JSON.parse(readFileSync(new URL(
+            `../recordings/vault.c/guard-silent-mimic-${hearing}.session.json`, import.meta.url,
+        ), 'utf8')).segments[0];
+        const expected = recording.steps.flatMap(step => step.rng)
+            .map(entry => entry.split(' @ ')[0]);
+        let boundary;
+        const replayed = await runSegment({
+            seed: recording.seed, datetime: recording.datetime,
+            nethackrc: recording.nethackrc, moves: recording.moves,
+            recorderIsDst: recording.recorderIsDst,
+        }, { onBoundary: error => { boundary = error; } });
+        assert.equal(boundary, undefined);
+        const actual = replayed.getRngLog();
+        const first = expected.findIndex((entry, index) => actual[index] !== entry);
+        assert.equal(first, -1, `first differing C RNG call: ${first}`);
+        assert.equal(actual.length, expected.length, 'no extra planning draws');
+        assert.ok(is_silent(game.youmonst.data));
+        assert.equal(findgd(game), null);
+    });
+}

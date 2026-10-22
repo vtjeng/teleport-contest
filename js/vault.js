@@ -1190,7 +1190,7 @@ export async function invault(state, env = {}) {
                 state, { message },
             );
         }
-        await mongone(guard, { state });
+        await mongone(guard, { state, random });
         return;
     }
 
