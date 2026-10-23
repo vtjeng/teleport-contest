@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T09:19:52.330Z",
+  "asOf": "2026-10-23T09:39:01.108Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6633,8 +6633,101 @@
           "scripts/end.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "6b2fe3ae3771c75e4a589b2eb7056801f912bc57",
+          "runs": [
+            {
+              "id": 39931142794,
+              "name": "Checkpoint",
+              "sha": "6b2fe3ae3771c75e4a589b2eb7056801f912bc57",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/holder-status-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:20:27Z",
+              "completedAt": "2026-10-23T09:31:49Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39931142794"
+            },
+            {
+              "id": 39932712266,
+              "name": "Lint",
+              "sha": "6b2fe3ae3771c75e4a589b2eb7056801f912bc57",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:33:19Z",
+              "completedAt": "2026-10-23T09:34:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39932712266"
+            },
+            {
+              "id": 39932712297,
+              "name": "Dashboard",
+              "sha": "6b2fe3ae3771c75e4a589b2eb7056801f912bc57",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:33:19Z",
+              "completedAt": "2026-10-23T09:35:11Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39932712297"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c1164-1188 holder family chooses swallowed Held, sticky polymorphed UHold, otherwise enabled eel Grab or Held fallback; source tables define ranks, abbreviations and enabled defaults. JS status renderer omitted all3. Add whole related pure predicate family and table entries, preserving existing combat/state owners. Public kraken continuation first missedGrab boundary367; configured !cond_grab,cond_held missedHeld atsameboundary; each645704rng/373screens/cursors nowmatches. Barbeddevil AD_STCK witness firstmissedUHold111;2790rng/120screens/cursors nowmatches. DisabledGrab/UHold controlsremainpassing. Slowermimic probes either killedopponent or rehumanized beforecapturedholdingstatus; nofalsecoverage claim. FivefreshC and41focused/affected tests pluslint pass. Carries complete124 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed. Accepted after exact-SHA Checkpoint39931142794/MainLint39932712266/Dashboard39932712297 success, all first attempts. Complete44 fixed and98 synthetic batches/2055cases compare unchanged. Distinct accepted125; existing checker recorded complete98 cohort against6a8ce0cf."
+    },
+    {
+      "id": "submerged-status-condition",
+      "kind": "parity-repair",
+      "title": "Render optional submerged status through water transitions",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T09:22:17.654Z",
+          "end": "2026-10-23T09:24:20.674Z",
+          "note": "Observed source and independent witness/control interval during frozen holder candidate CI; not active-work time. Edits began after125 Main gates and complete98 receipt."
+        },
+        {
+          "start": "2026-10-23T09:31:49.023Z",
+          "end": "2026-10-23T09:31:49.023Z",
+          "note": "C exit recording completion observed from retained recorder-log modification time; instant observation, no active duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/include/youprop.h",
+          "nethack-c/upstream/src/hack.c",
+          "nethack-c/upstream/src/trap.c",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/botl.c/submerged-status-pool.session.json",
+          "recipes/botl.c/submerged-status-variant.session.json",
+          "recipes/botl.c/submerged-status-disabled.session.json",
+          "recipes/botl.c/submerged-status-exit.session.json"
+        ],
+        "test": [
+          "scripts/submerged-status.test.mjs",
+          "scripts/holder-status.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs",
+          "scripts/trap-drown.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c1164-1188 holder family chooses swallowed Held, sticky polymorphed UHold, otherwise enabled eel Grab or Held fallback; source tables define ranks, abbreviations and enabled defaults. JS status renderer omitted all3. Add whole related pure predicate family and table entries, preserving existing combat/state owners. Public kraken continuation first missedGrab boundary367; configured !cond_grab,cond_held missedHeld atsameboundary; each645704rng/373screens/cursors nowmatches. Barbeddevil AD_STCK witness firstmissedUHold111;2790rng/120screens/cursors nowmatches. DisabledGrab/UHold controlsremainpassing. Slowermimic probes either killedopponent or rehumanized beforecapturedholdingstatus; nofalsecoverage claim. FivefreshC and41focused/affected tests pluslint pass. Carries complete124 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed."
+      "note": "C botl.c1203 reads Underwater=u.uinwater; source table uses Submrg/Subm/Sm, rank15, disabled by default. Add missing table entry and pure predicate, retaining existing liquid transition and redraw owners. Public breathing/pool seeds8420174/175 formerly missedSubmrg at38/32; now match3074/4924rng and42screens/cursors. Disabledoptioncontrol remains3074/42; exit lifecycle3089rng/49screens/cursors retainsSubmrg through back_on_ground More and clears afteracknowledgement. Four freshC comparisons,38focused/affected tests andlint pass. Carries complete125 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed."
     }
   ]
 }

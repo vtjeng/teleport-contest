@@ -4845,6 +4845,8 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Strngl', 'Stngl', 'Str'] },
     { option: 'stun', rank: 10, enabled: true,
         forms: ['Stun', 'Stun', 'St'] },
+    { option: 'submerged', rank: 15, enabled: false,
+        forms: ['Submrg', 'Subm', 'Sm'] },
     { option: 'termill', rank: 6, enabled: true,
         forms: ['TermIll', 'Ill', 'Ill'] },
 ]);
@@ -4908,6 +4910,8 @@ export function statusConditionActive(option, u) {
     case 'stone': return _propertyIntrinsic(u, STONED);
     case 'strngl': return _propertyIntrinsic(u, STRANGLED);
     case 'stun': return _propertyIntrinsic(u, STUNNED);
+    // botl.c:1203 uses Underwater, defined as u.uinwater in youprop.h.
+    case 'submerged': return Boolean(u.uinwater);
     case 'termill':
         return _propertyIntrinsic(u, SICK)
             && Boolean((u.usick_type ?? 0) & SICK_NONVOMITABLE);

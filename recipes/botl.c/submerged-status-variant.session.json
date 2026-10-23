@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C optional submerged-status variant witness/control. botl.c1203 reads Underwater=u.uinwater; source table uses Submrg/Subm/Sm, rank15, disabled by default. Intrinsic menu supplies magical breathing before terrain-pool entry; exit checks status is retained through back_on_ground output and cleared after acknowledgement.",
+  "segments": [
+    {
+      "seed": 8420175,
+      "datetime": "20261024023000",
+      "nethackrc": "OPTIONS=name:SubmergedStatus,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,cond_submerged\n",
+      "moves": " #wizintrinsic\n>g\n \u0017pool\n.      \u0012m.      "
+    }
+  ]
+}
