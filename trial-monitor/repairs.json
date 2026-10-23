@@ -5702,8 +5702,94 @@
           "scripts/apply-whistle.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "9b12fad7bde5e1d0d0c404e93c267da1dd2905d0",
+          "runs": [
+            {
+              "id": 39901332773,
+              "name": "Checkpoint",
+              "sha": "9b12fad7bde5e1d0d0c404e93c267da1dd2905d0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/elemental-clog-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:37:47Z",
+              "completedAt": "2026-10-23T04:43:45Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39901332773"
+            },
+            {
+              "id": 39901926660,
+              "name": "Lint",
+              "sha": "9b12fad7bde5e1d0d0c404e93c267da1dd2905d0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:44:26Z",
+              "completedAt": "2026-10-23T04:45:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39901926660"
+            },
+            {
+              "id": 39901926668,
+              "name": "Dashboard",
+              "sha": "9b12fad7bde5e1d0d0c404e93c267da1dd2905d0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:44:26Z",
+              "completedAt": "2026-10-23T04:46:36Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39901926668"
+            }
+          ]
+        }
+      ],
+      "note": "C elemental_clog function-static msgmv initializes per process. JS module variable survived independent runSegment games and suppressed the second game besieged message. Store the same timer on per-game state; resetGame discards it and save serialization excludes it, matching C. Independent public Earth/magic-whistle C runs reach overcrowding in two seeds; first replay passes before, repeated same-runtime replay fails at boundary191, while a non-full-plane control passes. Three fresh C comparisons and six independent-game replays pass after.22 focused tests plus7 affected whistle tests and12 timeline tests pass. Carries complete115 publication receipts for98 synthetic batches. Combined-debug-session attempt hit wizard-lock startup failure; save/restore attempt hit missing compressor, neither claimed as gameplay evidence. Hosted gates pending; no measured score gain claimed. Accepted after exact-SHA Checkpoint39901332773/MainLint39901926660/Dashboard39901926668 success, all first attempts. Complete44 fixed and98 synthetic batches/2055cases compare unchanged. Distinct accepted count116. Existing publication checker recorded complete98 cohort against08ae4eb5."
+    },
+    {
+      "id": "elemental-level-upkeep",
+      "kind": "parity-repair",
+      "title": "Run elemental level effects during turn upkeep",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T04:38:37.870Z",
+          "end": "2026-10-23T04:51:35.267Z",
+          "note": "Recorded source-reading/C-witness interval, not active-work time. Investigation overlapped frozen timer candidate CI; implementation began only after its exact-SHA Main gates and complete98 receipt."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c",
+          "nethack-c/upstream/src/mkmaze.c",
+          "nethack-c/upstream/include/rm.h",
+          "js/allmain.js",
+          "js/mkmaze.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/allmain.c/level-effects-water-rest.session.json",
+          "recipes/allmain.c/level-effects-water-variant-rest.session.json",
+          "recipes/allmain.c/level-effects-fire-rest.session.json",
+          "recipes/allmain.c/level-effects-earth-control-rest.session.json"
+        ],
+        "test": [
+          "scripts/elemental-level-upkeep.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mkmaze-span.test.mjs",
+          "scripts/wizard-fire-level-tele.test.mjs",
+          "scripts/do-goto-level-travelcc.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C elemental_clog function-static msgmv initializes per process. JS module variable survived independent runSegment games and suppressed the second game besieged message. Store the same timer on per-game state; resetGame discards it and save serialization excludes it, matching C. Independent public Earth/magic-whistle C runs reach overcrowding in two seeds; first replay passes before, repeated same-runtime replay fails at boundary191, while a non-full-plane control passes. Three fresh C comparisons and six independent-game replays pass after.22 focused tests plus7 affected whistle tests and12 timeline tests pass. Carries complete115 publication receipts for98 synthetic batches. Combined-debug-session attempt hit wizard-lock startup failure; save/restore attempt hit missing compressor, neither claimed as gameplay evidence. Hosted gates pending; no measured score gain claimed."
+      "note": "Restore allmain.c374-377 movebubbles/fumaroles calls after engraving wear and before negative-multi completion. Stop planning before live terrain/occupant/vision changes, validate remaining upkeep from the real result, and replan later allocations. C movebubbles also clears vision before relocation and resets vacated Water cells unlit; preserve those owner semantics to prevent stale visible monsters/terrain. Two independent Water seeds and Fire fail before, then pass full RNG/screens/cursors; Earth control passes. Four fresh C comparisons,5 new tests including clone nonmutation,108 affected tests pass;12 timeline tests, lint and diff-check pass. Carries complete116 publication receipts. Separate Air do_storms prerequisite and later Water mfndpos movement blocker are preserved as blocked recipes, not passing evidence. No measured score gain claimed; hosted gates pending."
     }
   ]
 }

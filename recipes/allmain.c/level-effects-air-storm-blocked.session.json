@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked before elemental level upkeep by missing timeout.c do_storms(): first mismatch rn2(8) in do_storms, before allmain.c movebubbles. Independent public Air forced-rest input; not passing evidence.",
+  "segments": [
+    {
+      "seed": 8420158,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>M               blessed ring of levitation\n     m.          "
+    }
+  ]
+}

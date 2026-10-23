@@ -1914,6 +1914,7 @@ export async function preflightSimpleMonsterActions(
     let beforeTeleport = false;
     let beforeSearch = false;
     let beforeChange = false;
+    let beforeLevelEffects = false;
     try {
         try {
             const scan = await planSimpleMonsterTurn(
@@ -1927,6 +1928,7 @@ export async function preflightSimpleMonsterActions(
                     beforeTeleport = Boolean(result?.beforeTeleport);
                     beforeSearch = Boolean(result?.beforeSearch);
                     beforeChange = Boolean(result?.beforeChange);
+                    beforeLevelEffects = Boolean(result?.beforeLevelEffects);
                     return result;
                 } : null,
                 afterMonsterScan,
@@ -1988,6 +1990,7 @@ export async function preflightSimpleMonsterActions(
         beforeTeleport,
         beforeSearch,
         beforeChange,
+        beforeLevelEffects,
         inputBoundary,
     };
 }

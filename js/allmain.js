@@ -72,7 +72,8 @@ import { you_were } from './were.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
-import { depth, init_dungeons } from './dungeon.js';
+import { depth, init_dungeons, on_level } from './dungeon.js';
+import { movebubbles, fumaroles } from './mkmaze.js';
 import { init_artifacts, mkot_trap_warn } from './artifacts.js';
 import { role_init, welcomeIdentity, welcomeMessage } from './role_init.js';
 import { livelog_printf } from './pline.js';
@@ -1175,11 +1176,28 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         await amulet(state, { random, message: turnMessage });
     maybeWipeHeroEngraving(state, random);
 
-    // C ref: allmain.c moveloop_core() (379-388), the last statement of the
-    // once-per-turn block. C's two intervening blocks -- the u.uevent.udemigod
-    // countdown into intervene(), and movebubbles()/fumaroles() -- have no port
-    // and could not act on this level anyway, so this stays last here too.
-    //
+    // C allmain.c:374-377. These owners move terrain and occupants, update
+    // shared vision, and can emit messages. Stop the speculative pass before
+    // them, then validate the remaining upkeep from their live result.
+    const bubbles = on_level(state.u.uz, state.water_level)
+        || on_level(state.u.uz, state.air_level);
+    if (bubbles || state.level.flags.fumaroles) {
+        if (planning) return { beforeLevelEffects: true };
+        if (bubbles) await movebubbles(state);
+        else await fumaroles(state);
+        if (state.program_state?.gameover) return { afterLevelEffects: true };
+        const tailPlan = await preflightElapsedTurnTail(state,
+            planned => finishElapsedTurnAfterLevelEffects(planned, { planning: true }));
+        const result = await finishElapsedTurnAfterLevelEffects(state);
+        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
+            throw new Error('elapsed-turn level effects disagreed with live delayed action');
+        return { ...result, afterLevelEffects: true };
+    }
+    return finishElapsedTurnAfterLevelEffects(state, { planning });
+}
+
+// C allmain.c:379-388, after the elemental level's per-turn effects.
+async function finishElapsedTurnAfterLevelEffects(state, { planning = false } = {}) {
     // "when immobile, count is in turns": nomul() with a negative value buys
     // that many turns during which moveloop_core() reads no key, and this is
     // what spends them. runmode_delay_output() draws one animation frame per
@@ -1535,6 +1553,7 @@ async function advanceElapsedTurn(state) {
             let afterTeleport;
             let afterSearch;
             let afterChange;
+            let afterLevelEffects;
             try {
                 const result = await finishElapsedTurn(state, random);
                 afterUnmul = result?.afterUnmul;
@@ -1543,6 +1562,7 @@ async function advanceElapsedTurn(state) {
                 afterTeleport = result?.afterTeleport;
                 afterSearch = result?.afterSearch;
                 afterChange = result?.afterChange;
+                afterLevelEffects = result?.afterLevelEffects;
             } catch (error) {
                 // A live-only timeout and its fresh tail can reach existing
                 // command or upkeep refusals after the prefix has completed.
@@ -1587,8 +1607,12 @@ async function advanceElapsedTurn(state) {
                 && upkeepCount === preflight.upkeepCount && !afterHunger) {
                 throw new Error('elapsed-turn preflight disagreed with live hunger');
             }
+            if (preflight.beforeLevelEffects
+                && upkeepCount === preflight.upkeepCount && !afterLevelEffects) {
+                throw new Error('elapsed-turn preflight disagreed with live level effects');
+            }
             if (!pendingDeathReplan
-                && (afterUnmul || afterTimeout || afterHunger || afterTeleport || afterSearch || afterChange)
+                && (afterLevelEffects || afterUnmul || afterTimeout || afterHunger || afterTeleport || afterSearch || afterChange)
                 && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,

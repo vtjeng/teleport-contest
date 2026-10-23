@@ -131,6 +131,7 @@ import {
     block_point,
     cansee,
     recalc_block_point,
+    vision_recalc,
     unblock_point,
 } from './vision.js';
 import { cmap_to_glyph, newsym } from './display.js';
@@ -284,10 +285,10 @@ function airBubbleBounds(state = game) {
 }
 
 function resetAirLocation(location, typ = AIR) {
-    // C's assignment from the static air_pos rm record resets the terrain
-    // fields but does not touch objects, traps, or the level-wide indices.
+    // C assigns a static water_pos or air_pos rm record: Water is unlit,
+    // Air is lit. Objects, traps, and level-wide indices are separate.
     location.typ = typ;
-    location.lit = true;
+    location.lit = typ === AIR;
     location.flags = 0;
     location.doormask = 0;
     location.seenv = 0;
@@ -479,15 +480,14 @@ export function setup_waterlevel(state = game, random = rn2) {
     }
 }
 
-// C ref: mkmaze.c movebubbles() (1539-1646, 1660-1727), Air-level arm.
-// Called once when arriving on Air; the per-turn caller remains outside this
-// candidate until a development session exercises cloud movement after an
-// action on the plane.
+// C ref: mkmaze.c movebubbles(). Arrival and per-turn movement clear
+// the previous line of sight before relocating bubble contents and terrain.
 export async function movebubbles(state = game, random = rn2) {
     const waterLevel = on_level(state.u?.uz, state.water_level);
     const airLevel = on_level(state.u?.uz, state.air_level);
     if (!waterLevel && !airLevel) return;
     if (!state.waterlevel_portal) set_wportal(state);
+    vision_recalc(2, { state });
     const bounds = airBubbleBounds(state);
 
     if (waterLevel) {

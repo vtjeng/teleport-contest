@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "First Water upkeep matches C after repair. Later forced rest is blocked by monmove.c mfndpos special-terrain movement: UnsupportedTurnBoundaryError simple monster action requires mfndpos() door or special terrain movement. Not a passing regression recording.",
+  "segments": [
+    {
+      "seed": 8420158,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>K               blessed ring of levitation\n     m.          m.          m.          "
+    }
+  ]
+}
