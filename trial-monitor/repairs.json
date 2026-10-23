@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T01:27:20.573Z",
+  "asOf": "2026-10-23T05:40:50.363Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -5956,8 +5956,92 @@
           "scripts/trial-monitor.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "ad42b62b04de16f87c2cc0810c2a004baa38d8c7",
+          "runs": [
+            {
+              "id": 39906049384,
+              "name": "Checkpoint",
+              "sha": "ad42b62b04de16f87c2cc0810c2a004baa38d8c7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/dashboard-links-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:29:37Z",
+              "completedAt": "2026-10-23T05:35:36Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39906049384"
+            },
+            {
+              "id": 39906686961,
+              "name": "Lint",
+              "sha": "ad42b62b04de16f87c2cc0810c2a004baa38d8c7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:36:23Z",
+              "completedAt": "2026-10-23T05:37:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39906686961"
+            },
+            {
+              "id": 39906686981,
+              "name": "Dashboard",
+              "sha": "ad42b62b04de16f87c2cc0810c2a004baa38d8c7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:36:23Z",
+              "completedAt": "2026-10-23T05:39:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39906686981"
+            }
+          ]
+        }
+      ],
+      "note": "Requested UI maintenance, not a parity repair; distinct count remains118. Explicit normal, visited, hover/focus colors, underlines and keyboard focus outline scoped to Revision/CI evidence links. Actual card backgrounds #ffffff and #161b22 yield minimum contrast5.19:1 light and8.88:1 dark. Generated dashboard preserves stylesheet. Rendered verification unavailable: local file denied by browser organization policy; public page ERR_TUNNEL_CONNECTION_FAILED. No bypass attempted. Carries complete118 publication receipts and98 synthetic evaluations. Full hosted gates pending. Accepted after exact-SHA Checkpoint39906049384/Lint39906686961/Dashboard39906686981, all first attempts. Complete44/98 comparison unchanged; checker recorded complete98 receipts. Direct served HTML read failed DNS EAI_AGAIN; no independent served-byte verification. Distinct count118 unchanged."
+    },
+    {
+      "id": "stranded-eel-water-movement",
+      "kind": "parity-repair",
+      "title": "Admit a stranded eel returning to water",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T05:30:04.374Z",
+          "end": "2026-10-23T05:42:14.169Z",
+          "note": "Observed source/witness interval, not active-work time. Investigation overlapped frozen UI CI; implementation began after its Main gates and complete98 receipts."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/monmove.c",
+          "js/monmove.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/mon.c/stranded-eel-water.session.json",
+          "recipes/mon.c/stranded-eel-water-variant.session.json",
+          "recipes/mon.c/stranded-eel-water-control.session.json"
+        ],
+        "test": [
+          "scripts/stranded-eel-movement.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/monster-hiding.test.mjs",
+          "scripts/elemental-level-upkeep.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Requested UI maintenance, not a parity repair; distinct count remains118. Explicit normal, visited, hover/focus colors, underlines and keyboard focus outline scoped to Revision/CI evidence links. Actual card backgrounds #ffffff and #161b22 yield minimum contrast5.19:1 light and8.88:1 dark. Generated dashboard preserves stylesheet. Rendered verification unavailable: local file denied by browser organization policy; public page ERR_TUNNEL_CONNECTION_FAILED. No bypass attempted. Carries complete118 publication receipts and98 synthetic evaluations. Full hosted gates pending."
+      "note": "C mfndpos keeps wantpool true for a stranded eel until a complete scan finds no candidates, then retries land. JS mfndpos matches, but preflight incorrectly reset its local preference whenever the eel started outside water and rejected selected water destinations. Remove that premature fallback; ordinary terrain already admits selected land. Two public Water continuations stopped before screen82/87 and now match all104 screens/RNG/cursors. First-turn independent control retains80 matching screens. New unit reproduces rejection before and passes after; land fallback and pool-to-moat cases retained. Three fresh C comparisons and401 focused/affected tests pass. Carries complete UI maintenance publication receipts/98 evaluations; UI remains excluded from distinct parity count. Bubble collection traversal order remains separate unqualified lead. Hosted gates pending; no measured aggregate gain claimed."
     }
   ]
 }

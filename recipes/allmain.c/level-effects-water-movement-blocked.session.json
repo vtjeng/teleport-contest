@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "First Water upkeep matches C after repair. Later forced rest is blocked by monmove.c mfndpos special-terrain movement: UnsupportedTurnBoundaryError simple monster action requires mfndpos() door or special terrain movement. Not a passing regression recording.",
+  "_comment": "Historical Water continuation blocker resolved by stranded-eel movement preflight repair. First upkeep matched already; later selected water destination was incorrectly refused when an eel started on land. Inputs preserved; full C regression now lives in recordings/mon.c/stranded-eel-water.session.json.",
   "segments": [
     {
       "seed": 8420158,

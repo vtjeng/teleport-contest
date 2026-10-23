@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C witness for mon.c mfndpos water-first eel selection; preflight must admit selected water even when eel starts on land. Control ends before the later blocked movement.",
+  "segments": [
+    {
+      "seed": 8420159,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>K               blessed ring of levitation\n     m.          m.          m.          "
+    }
+  ]
+}

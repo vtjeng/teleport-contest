@@ -2953,6 +2953,23 @@ test('simple movement admits a swimmer into a moat', async () => {
     );
 });
 
+// C mon.c mfndpos() tries water first for a stranded eel; only a scan
+// with no candidates retries land. The selected destination already passed
+// that source-owned scan before the preflight admission callback sees it.
+for (const [label, destination] of [['return to water', MOAT], ['land fallback', ROOM]]) {
+    test('stranded eel movement admits ' + label, async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
+        game.level.at(target.monsterX, target.heroY).typ = ROOM;
+        game.level.at(target.destinationX, target.heroY).typ = destination;
+        const before = preflightSnapshot();
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(preflightSnapshot(), before);
+        await runSimpleMonsterAction(target.monster, { state: game });
+        assert.deepEqual([target.monster.mx, target.monster.my],
+            [target.destinationX, target.heroY]);
+    });
+}
+
 // C ref: mon.c mfndpos() :2160-2163. ALLOW_WALL plus may_passwall() admits
 // an obstructed square for a wall-walking monster; the movement preflight must
 // pass that candidate through to postmov() rather than classify it as terrain.
