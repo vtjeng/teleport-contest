@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first storm investigation: one forced-rest turn on Air after wizard levelport and granted wish.",
+  "segments": [
+    {
+      "seed": 8420187,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>M               blessed ring of levitation\n     m.          "
+    }
+  ]
+}

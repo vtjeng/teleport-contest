@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C terrain inspection placed the levitating hero beside a cloud to the east; step east, then force rest to qualify inside-cloud thunder.",
+  "segments": [
+    {
+      "seed": 8420166,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>M               blessed ring of levitation\n     Pml          l          m.          m.          m.          m.          m.          "
+    }
+  ]
+}

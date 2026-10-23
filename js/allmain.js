@@ -186,6 +186,7 @@ import { note_unported } from './unported.js';
 import {
     UnsupportedHeroTimeoutBoundaryError,
     nh_timeout,
+    do_storms,
     nh_timeout_requires_live_state,
     preflight_nh_timeout_elapsed_turn,
 } from './timeout.js';
@@ -1104,7 +1105,6 @@ async function finishElapsedTurnAfterChange(state, random, { planning = false } 
 // C allmain.c moveloop_core(), after automatic searching and before warning.
 async function finishElapsedTurnAfterSearch(state, random, { planning = false } = {}) {
     const turnMessage = planning ? async () => {} : ttyPline;
-    const turnStatusRefresh = planning ? async () => {} : () => bot();
     const searchEnv = {
         state, random, planning,
         newSym: planning ? () => {} : (x, y) => newsym(x, y),
@@ -1121,6 +1121,29 @@ async function finishElapsedTurnAfterSearch(state, random, { planning = false } 
         random: random.rn2,
         pline: turnMessage,
     });
+    // C allmain.c:353. Storm rays and thunder can change the live hero,
+    // monsters, and movement state; plan hunger only after they settle.
+    const liveStorms = Boolean(state.level.flags.stormy);
+    if (planning && liveStorms) return { beforeStorms: true };
+    await do_storms(state);
+    if (liveStorms) {
+        if (state.program_state?.gameover) return { afterStorms: true };
+        const tailPlan = await preflightElapsedTurnTail(state,
+            (planned, planningRandom) => finishElapsedTurnAfterStorms(
+                planned, planningRandom, { planning: true },
+            ));
+        const result = await finishElapsedTurnAfterStorms(state, random);
+        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
+            throw new Error('elapsed-turn storms disagreed with live delayed action');
+        return { ...result, afterStorms: true };
+    }
+    return finishElapsedTurnAfterStorms(state, random, { planning });
+}
+
+// C allmain.c:354, after storms and before hunger.
+async function finishElapsedTurnAfterStorms(state, random, { planning = false } = {}) {
+    const turnMessage = planning ? async () => {} : ttyPline;
+    const turnStatusRefresh = planning ? async () => {} : () => bot();
     const hungerEnv = {
         random, planning,
         // C reads capacity before newuhs can change temporary strength.
@@ -1554,6 +1577,7 @@ async function advanceElapsedTurn(state) {
             let afterSearch;
             let afterChange;
             let afterLevelEffects;
+            let afterStorms;
             try {
                 const result = await finishElapsedTurn(state, random);
                 afterUnmul = result?.afterUnmul;
@@ -1563,6 +1587,7 @@ async function advanceElapsedTurn(state) {
                 afterSearch = result?.afterSearch;
                 afterChange = result?.afterChange;
                 afterLevelEffects = result?.afterLevelEffects;
+                afterStorms = result?.afterStorms;
             } catch (error) {
                 // A live-only timeout and its fresh tail can reach existing
                 // command or upkeep refusals after the prefix has completed.
@@ -1611,8 +1636,12 @@ async function advanceElapsedTurn(state) {
                 && upkeepCount === preflight.upkeepCount && !afterLevelEffects) {
                 throw new Error('elapsed-turn preflight disagreed with live level effects');
             }
+            if (preflight.beforeStorms
+                && upkeepCount === preflight.upkeepCount && !afterStorms) {
+                throw new Error('elapsed-turn preflight disagreed with live storms');
+            }
             if (!pendingDeathReplan
-                && (afterLevelEffects || afterUnmul || afterTimeout || afterHunger || afterTeleport || afterSearch || afterChange)
+                && (afterStorms || afterLevelEffects || afterUnmul || afterTimeout || afterHunger || afterTeleport || afterSearch || afterChange)
                 && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,

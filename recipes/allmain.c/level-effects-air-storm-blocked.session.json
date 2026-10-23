@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Blocked before elemental level upkeep by missing timeout.c do_storms(): first mismatch rn2(8) in do_storms, before allmain.c movebubbles. Independent public Air forced-rest input; not passing evidence.",
+  "_comment": "Historical independent Air forced-rest prerequisite, blocked at creation by timeout.c do_storms. Resolved by the storm-upkeep repair: a fresh C comparison now matches all RNG, screens and cursors. Dedicated regression witnesses live under recipes/timeout.c/storm-*.session.json.",
   "segments": [
     {
       "seed": 8420158,

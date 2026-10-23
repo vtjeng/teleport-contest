@@ -5788,8 +5788,100 @@
           "scripts/do-goto-level-travelcc.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c39ab48aa14fdd50696443841e17f5ac312ea25e",
+          "runs": [
+            {
+              "id": 39902682869,
+              "name": "Checkpoint",
+              "sha": "c39ab48aa14fdd50696443841e17f5ac312ea25e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/elemental-upkeep-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:52:51Z",
+              "completedAt": "2026-10-23T04:58:49Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39902682869"
+            },
+            {
+              "id": 39903284331,
+              "name": "Lint",
+              "sha": "c39ab48aa14fdd50696443841e17f5ac312ea25e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:59:37Z",
+              "completedAt": "2026-10-23T05:00:33Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39903284331"
+            },
+            {
+              "id": 39903284272,
+              "name": "Dashboard",
+              "sha": "c39ab48aa14fdd50696443841e17f5ac312ea25e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:59:37Z",
+              "completedAt": "2026-10-23T05:03:08Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39903284272"
+            }
+          ]
+        }
+      ],
+      "note": "Restore allmain.c374-377 movebubbles/fumaroles calls after engraving wear and before negative-multi completion. Stop planning before live terrain/occupant/vision changes, validate remaining upkeep from the real result, and replan later allocations. C movebubbles also clears vision before relocation and resets vacated Water cells unlit; preserve those owner semantics to prevent stale visible monsters/terrain. Two independent Water seeds and Fire fail before, then pass full RNG/screens/cursors; Earth control passes. Four fresh C comparisons,5 new tests including clone nonmutation,108 affected tests pass;12 timeline tests, lint and diff-check pass. Carries complete116 publication receipts. Separate Air do_storms prerequisite and later Water mfndpos movement blocker are preserved as blocked recipes, not passing evidence. No measured score gain claimed; hosted gates pending. Accepted after exact-SHA Checkpoint39902682869/MainLint39903284331/Dashboard39903284272 success, all first attempts. Complete44 fixed and98 synthetic batches/2055cases compare unchanged. Distinct accepted count117. Existing publication checker recorded complete98 cohort against9b12fad7."
+    },
+    {
+      "id": "storm-upkeep",
+      "kind": "parity-repair",
+      "title": "Run canonical storm strikes and thunder during upkeep",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T04:53:14.573Z",
+          "end": "2026-10-23T05:08:42.670Z",
+          "note": "Recorded C qualification/source interval, not active-work time. Investigation overlapped frozen level-upkeep candidate and Main gates. Implementation began after complete117 evidence recording."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/timeout.c",
+          "nethack-c/upstream/src/allmain.c",
+          "nethack-c/upstream/src/zap.c",
+          "js/timeout.js",
+          "js/allmain.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/timeout.c/storm-lightning.session.json",
+          "recipes/timeout.c/storm-variant.session.json",
+          "recipes/timeout.c/storm-silent.session.json",
+          "recipes/timeout.c/storm-no-strike.session.json",
+          "recipes/timeout.c/storm-control.session.json",
+          "recipes/timeout.c/storm-thunder.session.json"
+        ],
+        "test": [
+          "scripts/storm-upkeep.test.mjs",
+          "scripts/elemental-level-upkeep.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/timeout.test.mjs",
+          "scripts/zap-ray.test.mjs",
+          "scripts/zap-zhitu.test.mjs",
+          "scripts/zap-exclam.test.mjs",
+          "scripts/zap-floor-hearing.test.mjs",
+          "scripts/storm-spell.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Restore allmain.c374-377 movebubbles/fumaroles calls after engraving wear and before negative-multi completion. Stop planning before live terrain/occupant/vision changes, validate remaining upkeep from the real result, and replan later allocations. C movebubbles also clears vision before relocation and resets vacated Water cells unlit; preserve those owner semantics to prevent stale visible monsters/terrain. Two independent Water seeds and Fire fail before, then pass full RNG/screens/cursors; Earth control passes. Four fresh C comparisons,5 new tests including clone nonmutation,108 affected tests pass;12 timeline tests, lint and diff-check pass. Carries complete116 publication receipts. Separate Air do_storms prerequisite and later Water mfndpos movement blocker are preserved as blocked recipes, not passing evidence. No measured score gain claimed; hosted gates pending."
+      "note": "Port complete timeout.c do_storms and restore allmain.c call after dosounds/before hunger. Preserve strike count doubling,100-coordinate bound,zero-direction skip,unspecified attacker,canonical monster lightning ray,unconditional inside-cloud thunder/deafness and conditional immobility,otherwise acoustics/deafness-filtered hearing. Stop planning before live rays; validate hunger tail from real result and replan allocations. Two public lightning seeds,disabled-acoustics variation,no-strike Air and nonstormy Earth controls,plus levitating cloud-entry thunder continuation all match fresh C. Cloud continuation reaches Kaboom and three-turn immobility release,including wizard death refusal/recovery. Seven fresh C comparisons including original117 Air prerequisite pass.277 focused/affected tests,12 timeline tests,lint and diff-check pass. Carries complete117 exact-SHA gates and98-batch receipts. No score gain claimed; hosted gates pending."
     }
   ]
 }

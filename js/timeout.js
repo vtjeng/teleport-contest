@@ -10,6 +10,11 @@ import { you_unwere } from './were.js';
 import { memoryLayout } from './wizcmds_data.js';
 import {
     ACCESSIBLE,
+    BZ_M_SPELL,
+    BZ_OFS_AD,
+    CLOUD,
+    COLNO,
+    ROWNO,
     ACID_RES,
     A_CON,
     A_DEX,
@@ -205,7 +210,9 @@ import {
 } from './obj.js';
 import { m_at } from './monst.js';
 import { cansee } from './vision.js';
-import { heroDeaf, verbalize } from './pline.js';
+import { heroDeaf, verbalize, youHear } from './pline.js';
+import { AD_ELEC } from './monsters.js';
+import { buzz } from './zap.js';
 import { cry_sound, set_voice } from './sounds.js';
 import {
     createCoreRandom, d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnz,
@@ -2875,4 +2882,46 @@ export function timer_stats(headerFormat, state = game) {
         size += memoryLayout.timer_element;
     }
     return { header: headerFormat.replace('%ld', String(memoryLayout.timer_element)), count, size };
+}
+
+// C ref: timeout.c do_storms() (1847-1896). This runs live: lightning can
+// hit monsters or the hero and thunder can interrupt an occupation.
+export async function do_storms(state = game) {
+    if (!state.level.flags.stormy || rn2(8)) return;
+
+    for (let nstrike = rnd(64); nstrike <= 64; nstrike *= 2) {
+        let count = 0;
+        let x;
+        let y;
+        do {
+            x = rnd(COLNO - 1);
+            y = rn2(ROWNO);
+        } while (++count < 100 && state.level.at(x, y).typ !== CLOUD);
+        if (count < 100) {
+            const dx = rn2(3) - 1;
+            const dy = rn2(3) - 1;
+            if (dx || dy) {
+                state.gb ??= {};
+                state.gb.buzzer = null;
+                await buzz(BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)), 8, x, y, dx, dy, state);
+                // C death terminates nonlocally; a JS ended game returns.
+                if (state.program_state?.gameover) return;
+            }
+        }
+    }
+    if (state.level.at(state.u.ux, state.u.uy).typ === CLOUD) {
+        // Soundeffect is a no-op in the recorder's nosound backend.
+        await ttyPline('Kaboom!!!  Boom!!  Boom!!', state);
+        incr_itimeout(state.u.uprops[DEAF], rn1(20, 30));
+        state.disp.botl = true;
+        if (!state.u.uinvulnerable) {
+            await stop_occupation(state, { message: ttyPline });
+            nomul(-3, state);
+            state.multi_reason = 'hiding from thunderstorm';
+            state.nomovemsg = null;
+        }
+    } else {
+        const heard = youHear('a rumbling noise.', state);
+        if (heard) await ttyPline(heard, state);
+    }
 }
