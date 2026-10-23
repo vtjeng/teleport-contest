@@ -3108,6 +3108,7 @@ function formatReflectionMessage(format, values) {
 }
 
 export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
+    const objectEnv = { ...rawEnv, state };
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const reflectMessage = (kind) => formatReflectionMessage(str, [
@@ -3120,7 +3121,7 @@ export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
         if (str) {
             await message(reflectMessage('shield'), state, rawEnv);
             // makeknown(SHIELD_OF_REFLECTION)
-            discover_object(O.SHIELD_OF_REFLECTION, true, true, true, state);
+            discover_object(O.SHIELD_OF_REFLECTION, true, true, true, state, objectEnv);
         }
         return true;
     }
@@ -3136,7 +3137,7 @@ export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
     if (orefl && orefl.otyp === O.AMULET_OF_REFLECTION) {
         if (str) {
             await message(reflectMessage('amulet'), state, rawEnv);
-            discover_object(O.AMULET_OF_REFLECTION, true, true, true, state);
+            discover_object(O.AMULET_OF_REFLECTION, true, true, true, state, objectEnv);
         }
         return true;
     }

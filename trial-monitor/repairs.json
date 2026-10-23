@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T22:36:08.017Z",
+  "asOf": "2026-10-23T22:56:59.777Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9138,8 +9138,90 @@
           "scripts/muse.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "e8b51852dc94afd6710895b57121d0133096b847",
+          "runs": [
+            {
+              "id": 40034791104,
+              "name": "Checkpoint",
+              "sha": "e8b51852dc94afd6710895b57121d0133096b847",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mswings-display-owner-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:37:19Z",
+              "completedAt": "2026-10-23T22:49:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40034791104"
+            },
+            {
+              "id": 40036414435,
+              "name": "Lint",
+              "sha": "e8b51852dc94afd6710895b57121d0133096b847",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:53:12Z",
+              "completedAt": "2026-10-23T22:54:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40036414435"
+            },
+            {
+              "id": 40036414421,
+              "name": "Dashboard",
+              "sha": "e8b51852dc94afd6710895b57121d0133096b847",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:53:12Z",
+              "completedAt": "2026-10-23T22:55:35Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40036414421"
+            }
+          ]
+        }
+      ],
+      "note": "C mswings evaluates the monster name once during the actual swing. JavaScript planning supplies cloned state/display RNG and a silent message, but mswings omitted that environment when calling capitalizedMonsterName. Nested x_monnam/priestname naming therefore fell back to live display RNG and consumed the future live poultrygeist name before the actual wield message. Forward the existing rawEnv third argument; no attack, text, pronoun, or RNG selection algorithm changes. Output-only trace pinned the global display draw to the planned mswings call with state!=game and a supplied display owner. Actual frozen152 baseline6dbc9246 first differs at screen/cursor126 and animation146; later core mismatch7567/155 follows shifted input history. Fresh normal/monochrome C replays now strictly match all29555 RNG calls,833 screens/cursors,52 animations each. The before-trigger control matches6805 RNG,119 screens/cursors,0 animations on both versions. Two native initialized-game/canonical mattacku/planningState cases prove the baseline planned attack advances live display RNG, while the fix advances only the supplied owner, leaves native core untouched, keeps planning silent, and retains live swing output.5 focused+664 affected=669 tests pass including3 C replays; lint/diff checks pass. Private longer continuation strictly passes76361 RNG/2153 screens/cursors/248 animations; a30-turn hallucination variation passes30865/834/77. An independent ninth seed exposes a separate reflection-discovery exercise owner leak before the target swing, preserved privately; no passing cross-seed claim for this repair. Complete accepted152 receipt included; full hosted gates pending, no aggregate score gain claimed. Accepted as distinct repair153 after full Checkpoint40034791104 and exact Main Lint40036414435 / Dashboard40036414421 passed. Exact archived44-fixed /98-batch /2055-case comparison against6dbc9246 found no regressions, missing evidence, or aggregate changes. Complete98 receipt recorded with the existing publication checker and carried in this ordinary repair."
+    },
+    {
+      "id": "reflection-discovery-owner",
+      "kind": "parity-repair",
+      "title": "Keep monster reflection discovery on the caller RNG",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T22:15:22.205Z",
+          "end": "2026-10-23T22:15:22.205Z",
+          "note": "Instantaneous preserved source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/muse.c:mon_reflects2797-2833",
+          "js/muse.js:mon_reflects3123",
+          "js/o_init.js:discover_object",
+          "js/attrib.js:exerciseAttribute967"
+        ],
+        "witness": [
+          "recipes/muse.c/reflection-discovery-owner-reflection.session.json",
+          "recipes/muse.c/reflection-discovery-owner-monochrome.session.json",
+          "recipes/muse.c/reflection-discovery-owner-before-control.session.json"
+        ],
+        "test": [
+          "scripts/reflection-discovery-owner.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/o_init-discoveries.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mswings evaluates the monster name once during the actual swing. JavaScript planning supplies cloned state/display RNG and a silent message, but mswings omitted that environment when calling capitalizedMonsterName. Nested x_monnam/priestname naming therefore fell back to live display RNG and consumed the future live poultrygeist name before the actual wield message. Forward the existing rawEnv third argument; no attack, text, pronoun, or RNG selection algorithm changes. Output-only trace pinned the global display draw to the planned mswings call with state!=game and a supplied display owner. Actual frozen152 baseline6dbc9246 first differs at screen/cursor126 and animation146; later core mismatch7567/155 follows shifted input history. Fresh normal/monochrome C replays now strictly match all29555 RNG calls,833 screens/cursors,52 animations each. The before-trigger control matches6805 RNG,119 screens/cursors,0 animations on both versions. Two native initialized-game/canonical mattacku/planningState cases prove the baseline planned attack advances live display RNG, while the fix advances only the supplied owner, leaves native core untouched, keeps planning silent, and retains live swing output.5 focused+664 affected=669 tests pass including3 C replays; lint/diff checks pass. Private longer continuation strictly passes76361 RNG/2153 screens/cursors/248 animations; a30-turn hallucination variation passes30865/834/77. An independent ninth seed exposes a separate reflection-discovery exercise owner leak before the target swing, preserved privately; no passing cross-seed claim for this repair. Complete accepted152 receipt included; full hosted gates pending, no aggregate score gain claimed."
+      "note": "C mon_reflects identifies shield/amulet reflection after the formatted message. JavaScript passed the cloned state but omitted the discovery environment, so planned discovery wisdom credit consumed live core RNG through the default exercise owner. Forward the existing object environment on both discovery calls, matching ureflects; no reflection, discovery, or planning algorithm changes. Actual frozen153 baseline fails both fresh normal and monochrome witnesses at core6588/boundary114; control passes. All19575 RNG calls,833 screens/cursors,151 animations now match each witness; control6587/113/0 matches. Eight native shield/amulet x live/planning x formatted/null cases verify caller core advancement, clone-local discovery/credit, no live planning mutation, and query no-op. The fixture supplies a separate cloned core through the environment as the real planner does; planningState coreCtx intentionally retains its live pointer, with no production clone change.11 focused+565 affected=576 tests pass; lint/diff checks pass. Private extended continuation39998/2153/297 and independent tenth-seed control110630/2153/47 strictly pass, without corpus admission or score claims. Complete accepted153 receipt included; full hosted gates pending."
     }
   ]
 }

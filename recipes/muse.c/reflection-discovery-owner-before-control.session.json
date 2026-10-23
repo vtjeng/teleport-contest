@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Before the first public beam/reflection event, same hallucination setup; pending movement direction has not elapsed a turn.",
+  "segments": [
+    {
+      "seed": 8432009,
+      "datetime": "20261106133000",
+      "nethackrc": "OPTIONS=name:DifferentHalluc,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       #wizintrinsic\n8h\n    m"
+    }
+  ]
+}
