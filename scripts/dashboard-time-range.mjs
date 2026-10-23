@@ -30,12 +30,16 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
         // viewport also accounts for the mobile keyboard reducing usable space.
         const height=win.visualViewport?.height||win.innerHeight;
         const top=win.visualViewport?.offsetTop||0;
-        elements.RangeForm.style.maxHeight=Math.max(0,height-32)+'px';
+        // Choose a side before clamping: a bottom-of-page disclosure must not
+        // place its form over the summary that closes it.
+        const below=top+height-16-box.bottom-6,above=box.top-top-16-6;
+        const down=below>=180||below>=above;
+        elements.RangeForm.style.maxHeight=Math.max(0,Math.min(height-32,down?below:above))+'px';
         const panel=elements.RangeForm.getBoundingClientRect();
         // Anchor to the same right edge as the toolbar's last control, then
         // clamp only when the viewport (including a mobile keyboard) needs it.
         elements.RangeForm.style.left=(clamp(box.right-panel.width,16,Math.max(16,width-panel.width-16))-box.left)+'px';
-        elements.RangeForm.style.top=(clamp(box.bottom+6,top+16,Math.max(top+16,top+height-panel.height-16))-box.top)+'px';
+        elements.RangeForm.style.top=(clamp(down?box.bottom+6:box.top-6-panel.height,top+16,Math.max(top+16,top+height-panel.height-16))-box.top)+'px';
     }
     function sync() {
         if (!elements) return;
@@ -172,6 +176,7 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
             if(elements.RangePicker.open&&event.relatedTarget&&!elements.RangePicker.contains(event.relatedTarget))close();
         });
         doc.defaultView?.addEventListener('resize',position);
+        doc.defaultView?.addEventListener('scroll',position);
         doc.defaultView?.visualViewport?.addEventListener('resize',position);
         doc.defaultView?.visualViewport?.addEventListener('scroll',position);
         doc.addEventListener?.('pointerdown',event=>{

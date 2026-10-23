@@ -814,8 +814,8 @@ test('worker activity hides historical lanes and their utilization until request
 
 test('Work lead backlog distinguishes unmerged deliveries, accepted reserve batches, and parked records', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
-    assert.ok(template.includes('<section class="section" aria-labelledby="pendingMainWorkTitle">'),
-        'pending work has its own named section');
+    assert.ok(template.includes('<details class="section dashboard-disclosure" id="legacyBacklog">'),
+        'historical backlog is collapsed by default');
     assert.ok(template.includes('<h3 class="section-title" id="pendingMainWorkTitle">Work lead backlog</h3>'),
         'pending work uses the same heading level and style as Worker activity');
     // Keep the original compact summary size; only the section title is a heading.
@@ -865,11 +865,11 @@ test('prepared submissions remain visible separately from accepted batches await
     assert.doesNotMatch(html, /Ready batches awaiting admission/u);
 });
 
-test('primary dashboard sections put the queue and activity before sessions and score history', () => {
+test('primary dashboard prioritizes current status, scores and distinct repairs over diagnostics', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
-    const positions = ['id="stats"', 'id="pendingMainWorkTitle"', 'id="workerActivityTitle"',
+    const positions = ['id="currentStatusTitle"', 'id="stats"', 'id="recentRepairsTitle"', 'id="workerActivityTitle"',
         'id="timeline"', 'id="integrationDisclosure"', 'id="challengeTitle"', 'id="scoreHistoryTitle"',
-        'class="diagnostics"', 'id="goalTable"']
+        'class="diagnostics dashboard-disclosure"', 'id="pendingMainWorkTitle"', 'id="goalTable"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
@@ -1579,6 +1579,13 @@ test('full startup renders scores, charts, worker evidence and final history wit
     assert.ok(rendered.get('developmentChart').ops.some(([operation]) => operation === 'stroke'));
     assert.match(rendered.get('timeline').innerHTML, /Standard engineer/);
     assert.ok(rendered.get('workerEvidence').children.length > 0);
+    const accepted = singleWorkerActivity(createTrialMonitor(snapshot).summarize()).tasks
+        .filter(task => task.publishedAt).sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+    const rows = rendered.get('recentRepairs').children;
+    assert.equal(rows.length, Math.min(5, accepted.length));
+    assert.deepEqual(rows.map(row => row.children[0].textContent), accepted.slice(0, 5).map(task => task.label));
+    assert.match(rendered.get('repairCount').textContent, new RegExp('^' + accepted.length + ' registered'));
+    assert.match(rendered.get('trialFreshness').textContent, /CI: last-known snapshot/);
     assert.match(rendered.get('goalTable').innerHTML, /Synthetic Δ/);
     for (const id of ['activityRangePicker', 'progressRangePicker']) {
         const picker = rendered.get(id), batches = rendered.get('historyBatchPicker');

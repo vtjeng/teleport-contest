@@ -59,3 +59,17 @@ test('dashboard generation preserves the provenance styles and link markup', () 
     assert.match(html, /<div class="score-source"><a href="https:\/\/github.com\/vtjeng\/teleport-contest\/commit\//);
     assert.match(html, /CI evidence<\/a>/);
 });
+
+
+test('overview links share accessible states on the page surface', () => {
+    for (const selector of ['.recent-repairs a', '.trial-gates a', '.trial-history-list a', '.diagnostics a']) {
+        assert.match(rules.get(selector), /color:\s*var\(--score-link\)/);
+        assert.match(rules.get(selector + ':visited'), /color:\s*var\(--score-link-visited\)/);
+        for (const state of ['hover', 'focus'])
+            assert.match(rules.get(selector + ':' + state), /color:\s*var\(--score-link-hover\)/);
+        assert.match(rules.get(selector + ':focus-visible'), /outline:\s*2px solid currentColor/);
+    }
+    for (const palette of palettes)
+        for (const state of ['--score-link', '--score-link-visited', '--score-link-hover'])
+            assert.ok(contrast(palette[state], palette['--surface']) >= 4.5);
+});

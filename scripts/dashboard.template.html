@@ -1015,28 +1015,89 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
   .trial-tiles,.trial-details { grid-template-columns:minmax(0,1fr); }
   .trial-tile strong { font-size:21px; }
 }
+
+/* Compact operational overview; detailed history is opt-in. */
+body { padding:20px 24px; }
+.header { margin-bottom:16px; }
+h1 { font-size:22px; }
+.section { margin-bottom:20px; }
+.section-toolbar { margin-bottom:8px; }
+.section-title { margin-bottom:8px; }
+.current-status { border-left:3px solid var(--integration-blue); padding:0 0 0 14px; }
+.trial-headline { margin-bottom:6px; font-size:13px; }
+.candidate-line { margin:4px 0 8px; overflow-wrap:anywhere; }
+.candidate-line b { margin-right:8px; font-size:12px; color:var(--ink-secondary); }
+.trial-gates { gap:6px 20px; font-size:13px; }
+.trial-freshness { border:0; padding-top:6px; }
+.trial-note:empty { display:none; }
+.stats { margin-bottom:6px; gap:12px; }
+.stat { padding:12px 14px; }
+.stat-value { font-size:22px; }
+.stat-unmatched { min-height:0; font-size:12px; }
+.score-source { margin-top:6px; font-family:inherit; }
+.score-metrics,.score-provenance { margin-top:6px; font-size:12px; color:var(--ink-secondary); }
+.cohort-size,.compact-note { color:var(--ink-secondary); font-size:12px; }
+.recent-repairs { list-style:none; border-top:1px solid var(--border); }
+.recent-repairs li { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 16px; border-bottom:1px solid var(--border); padding:7px 0; }
+.recent-repairs a { font-size:13px; font-weight:500; overflow-wrap:anywhere; }
+.recent-repairs time { font-size:12px; color:var(--ink-secondary); }
+.repair-detail:empty { display:none; }
+.repair-detail { grid-column:1/-1; color:var(--ink-secondary); font-size:12px; overflow-wrap:anywhere; }
+.recent-repairs + p { margin-top:6px; }
+.activity-details { margin-top:10px; padding-top:8px; }
+.activity-inspection { margin-top:8px; }
+.activity-inspection > section { height:150px; }
+.activity-timeline { min-height:0; }
+#activityMinimap { height:64px; margin-top:8px; }
+.dashboard-disclosure { border-top:1px solid var(--border); padding-top:10px; }
+.dashboard-disclosure > .section-toolbar { margin-top:12px; }
+summary { cursor:pointer; }
+summary:focus-visible { outline:2px solid var(--integration-blue); outline-offset:3px; }
+.recent-repairs a,.trial-gates a,.trial-history-list a,.diagnostics a { color:var(--score-link); text-decoration:underline; text-underline-offset:3px; }
+.recent-repairs a:visited,.trial-gates a:visited,.trial-history-list a:visited,.diagnostics a:visited { color:var(--score-link-visited); }
+.recent-repairs a:hover,.trial-gates a:hover,.trial-history-list a:hover,.diagnostics a:hover,
+.recent-repairs a:focus,.trial-gates a:focus,.trial-history-list a:focus,.diagnostics a:focus { color:var(--score-link-hover); }
+.recent-repairs a:focus-visible,.trial-gates a:focus-visible,.trial-history-list a:focus-visible,.diagnostics a:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+@media (max-width:600px) {
+  body { padding:14px 12px; }
+  .recent-repairs li { grid-template-columns:minmax(0,1fr); gap:2px; }
+  .trial-tiles,.trial-details { grid-template-columns:minmax(0,1fr); }
+}
 </style>
 
 <div class="header">
   <h1>NetHack Port Progress</h1>
-  <span class="updated" id="updated"></span>
 </div>
 
-<a class="process-changes" href="https://github.com/vtjeng/teleport-contest/blob/main/.agents/decisions.md">Process changes</a>
-
-<div class="stats" id="stats"></div>
-
-<p class="trial-legacy-note">The backlog retains historical records from retired worker roles.</p>
-<section class="section" aria-labelledby="pendingMainWorkTitle">
-  <h3 class="section-title" id="pendingMainWorkTitle">Work lead backlog</h3>
-  <div class="activity-backlog" id="pendingMainWork"></div>
+<section class="section current-status" aria-labelledby="currentStatusTitle">
+  <div class="section-toolbar"><h2 class="section-title" id="currentStatusTitle">Current work</h2><button type="button" class="trial-refresh" id="trialRefresh">Refresh public status</button></div>
+  <p class="trial-headline" id="trialHeadline" aria-live="polite">Loading recorded activity…</p>
+  <p class="candidate-line"><b>Latest recorded candidate</b> <span id="trialCandidate">Unknown</span></p>
+  <div class="trial-gates" id="trialGates"></div>
+  <p class="trial-freshness" id="trialFreshness"></p>
+  <p class="trial-note" id="trialRefreshStatus" role="status" aria-live="polite"></p>
+  <details class="trial-history"><summary>Freshness and evidence</summary>
+    <span class="updated" id="updated"></span>
+    <p>Candidate and investigation records update in ordinary commits. Refresh checks the register and candidate CI; it does not refresh scores. The page reloads every 30 minutes.</p>
+    <p class="snapshot-status" id="activitySnapshotTime" role="note"></p>
+    <ul class="trial-history-list" id="workerEvidence"></ul>
+  </details>
+</section>
+<section class="section" aria-labelledby="scoreSummaryTitle">
+  <h2 class="section-title" id="scoreSummaryTitle">Latest complete scores</h2>
+  <div class="stats" id="stats"></div>
+  <p class="compact-note">Last complete cohort stays visible during validation. Source-backed repairs can leave these scores unchanged.</p>
+</section>
+<section class="section" aria-labelledby="recentRepairsTitle">
+  <div class="section-toolbar"><h2 class="section-title" id="recentRepairsTitle">Recent accepted repairs</h2><span class="compact-note" id="repairCount"></span></div>
+  <ol class="recent-repairs" id="recentRepairs"></ol>
+  <p class="compact-note">Distinct repairs; corrections stay with their original repair. Register coverage is partial.</p>
 </section>
 
 <section class="section" aria-labelledby="workerActivityTitle">
   <div class="section-toolbar">
-    <h3 class="section-title" id="workerActivityTitle">Worker timeline · single Standard engineer</h3>
+    <h3 class="section-title" id="workerActivityTitle">Worker timeline</h3>
     <div class="section-toolbar-controls">
-      <label><input id="activityHistorical" type="checkbox"> Show retired worker history</label>
       <details class="time-range-picker" id="activityRangePicker"><summary id="activityRangeSummary">6 hours · Now</summary>
     <form class="time-range-selector" id="activityRangeForm" aria-label="Worker activity time selection">
     <label class="time-range-part"><span>Duration</span><select id="activityWindow" aria-label="Activity duration">
@@ -1049,30 +1110,18 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
       </form></details>
     </div>
   </div>
+  <p class="compact-note">Recorded elapsed spans, including CI waits; gaps are unknown, not measured active work or compute.</p>
   <div class="section-context"><span class="chart-range" id="activityWindowLabel"></span><span class="time-range-note" id="activityRangeAsOf"></span></div>
-  <div class="worker-status">
-    <button type="button" class="trial-refresh" id="trialRefresh">Refresh public status</button>
-    <p class="trial-headline" id="trialHeadline" aria-live="polite">Loading recorded activity…</p>
-    <p><b>Latest recorded candidate:</b> <span id="trialCandidate">Unknown</span></p>
-    <div class="trial-gates" id="trialGates"></div>
-    <p class="trial-freshness" id="trialFreshness"></p>
-    <p class="trial-note" id="trialRefreshStatus" role="status" aria-live="polite"></p>
-    <p class="trial-note">Page open and Refresh public status read the latest register and CI for the selected candidate. Investigation events and candidate IDs require recorded updates in ordinary work commits. The page also reloads every 30 minutes; there is no continuous status polling. Missing records mean unknown activity, never idle or measured compute.</p>
-    <details class="trial-history"><summary>Repair evidence and missing intervals</summary><ul class="trial-history-list" id="workerEvidence"></ul></details>
-    <details class="trial-history"><summary>Audited historical baseline</summary><p><strong id="trialBaselineCount"></strong> · Oct 21, 11:50–15:50 UTC. <span id="trialBaselineRate"></span> The unused parallel trial remains shelved.</p></details>
-  </div>
-  <p class="snapshot-status" id="activitySnapshotTime" role="note"></p>
-
   <div class="chart-wrap">
     <div id="activityMetrics" aria-label="Recorded worker utilization for visible lanes in the selected time window"></div>
 
-    <details class="activity-help"><summary>Stage key and definitions</summary><div class="legend" id="timelineLegend"></div><p>Bars show recorded investigation and CI/publication elapsed spans, including queue time. They do not measure active work, idle time or compute. Missing investigation timestamps stay unknown. Retired roles appear only when selected. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
+    <details class="activity-help"><summary>Stage key and definitions</summary><label><input id="activityHistorical" type="checkbox"> Show retired worker history</label><div class="legend" id="timelineLegend"></div><p>Bars show recorded investigation and CI/publication elapsed spans, including queue time. They do not measure active work, idle time or compute. Missing investigation timestamps stay unknown. Retired roles appear only when selected. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Single Standard engineer and optional retired worker activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <canvas id="activityMinimap" tabindex="0" aria-label="Recorded activity across the full history. Drag the range or its edges; plus and minus zoom, arrow keys pan, Home and End jump to the earliest and latest dates."></canvas>
-    <div class="activity-details">
+    <details class="activity-details"><summary>Selected stage details</summary>
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
-    </div>
-    <details class="integration-duration dashboard-disclosure" id="integrationDisclosure" open>
+    </details>
+    <details class="integration-duration dashboard-disclosure" id="integrationDisclosure">
       <summary>Retired Work lead integration time</summary>
       <div class="integration-scale section-subtoolbar"><span>Elapsed time, including CI waits</span><div class="section-toolbar-controls"><div class="history-controls" role="group" aria-label="Integration time scale"><button class="chart-reset" id="integrationTypicalRange" type="button" aria-pressed="true">0–30 min</button><button class="chart-reset" id="integrationFullRange" type="button" aria-pressed="false">All durations</button></div></div></div>
       <div class="integration-duration-summary">
@@ -1088,7 +1137,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
   </div>
 </section>
 
-<section class="section" aria-labelledby="challengeTitle">
+<details class="section dashboard-disclosure" id="sessionDisclosure"><summary>Session diagnostics</summary>
   <div class="section-toolbar">
     <h2 class="section-title" id="challengeTitle">Sessions</h2>
     <div class="section-toolbar-controls"><label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="sessionShowAll">Show all sessions</label></div>
@@ -1103,9 +1152,9 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
     </div>
     <details class="session-measurements"><summary>Measurement details</summary><p id="sessionMeasurementInfo"></p><p>Development initial scores start at zero; synthetic initial scores come from each case’s first admitted evaluation. Excluded cases remain in raw scores and appear under Show all sessions.</p></details>
   </div>
-</section>
+</details>
 
-<section class="section" aria-labelledby="scoreHistoryTitle">
+<details class="section dashboard-disclosure" id="scoreHistoryDisclosure"><summary>Score history by batch</summary>
   <div class="section-toolbar">
     <h2 class="section-title" id="scoreHistoryTitle">Screen matches over time</h2>
     <div class="section-toolbar-controls">
@@ -1147,9 +1196,15 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
     </div>
     <p class="history-help">Synthetic axes start near each batch’s lowest recorded match.</p>
   </div>
-</section>
+</details>
 
-<section class="diagnostics">
+<details class="diagnostics dashboard-disclosure"><summary>Historical diagnostics</summary>
+<details class="section dashboard-disclosure" id="legacyBacklog"><summary>Historical work lead backlog</summary>
+  <h3 class="section-title" id="pendingMainWorkTitle">Work lead backlog</h3>
+  <div class="activity-backlog" id="pendingMainWork"></div>
+</details>
+
+<details class="section dashboard-disclosure"><summary>Historical baseline and process</summary><p><strong id="trialBaselineCount"></strong> · Oct 21, 11:50–15:50 UTC. <span id="trialBaselineRate"></span></p><a class="process-changes" href="https://github.com/vtjeng/teleport-contest/blob/main/.agents/decisions.md">Process changes</a></details>
 
 <details class="section dashboard-disclosure" id="parkedTaskHistory"><summary id="parkedTaskSummary"><span>Paused worker tasks</span><span class="disclosure-count" id="parkedTaskCount"></span></summary><div class="activity-backlog" id="parkedTasks"></div></details>
 
@@ -1162,7 +1217,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
   </div>
 </details>
 
-</section>
+</details>
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -1219,13 +1274,33 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       + rate(baseline.withoutCarryInRate) + ' excluding carry-in. Observational.');
     syntheticMonitorView = view;
     singleWorkerSnapshot = singleWorkerActivity(view);
-    text('trialHeadline', 'Single Standard engineer · ' + singleWorkerSnapshot.acceptedCount
-      + ' accepted repairs in the recorded continuation. Coverage is partial; earlier repairs are not all registered. Investigation intervals without events are unknown.');
+    text('trialHeadline', 'Single Standard engineer · investigation may overlap CI; edits and publication stay sequential.');
+    const accepted = singleWorkerSnapshot.tasks.filter(task => task.publishedAt)
+      .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+    text('repairCount', accepted.length + ' registered · latest ' + Math.min(5, accepted.length) + ' shown');
+    const recent = node('recentRepairs');
+    recent.replaceChildren();
+    if (!accepted.length) {
+      const item = document.createElement('li'); item.textContent = 'No accepted repairs in this register.'; recent.append(item);
+    }
+    for (const task of accepted.slice(0, 5)) {
+      const item = document.createElement('li');
+      const title = document.createElement('a'); title.textContent = task.label;
+      const result = view.results.find(result => result.repair.id === task.id);
+      title.href = 'https://github.com/vtjeng/teleport-contest/commit/' + result.accepted.candidate.sha;
+      const time = document.createElement('time'); time.dateTime = task.publishedAt;
+      time.textContent = stamp(task.publishedAt);
+      const detail = document.createElement('span'); detail.className = 'repair-detail';
+      detail.textContent = task.status.includes('correction')
+        ? task.status.split(' · ')[1] : '';
+      item.append(title, time, detail); recent.append(item);
+    }
     const evidence = node('workerEvidence');
     evidence.replaceChildren();
     for (const task of singleWorkerSnapshot.tasks) {
       const item = document.createElement('li');
-      item.append(task.label + ' · ' + task.status + '. ' + task.investigation + '. ' + (task.outcome ?? ''));
+      item.append(task.label + ' · ' + task.status + '. ' + task.investigation + '. ' + (task.outcome ?? '')
+        + ' Source: ' + (task.source || 'not recorded') + '.');
       for (const ref of task.links) {
         const a = document.createElement('a');
         a.href = ref.url; a.textContent = ref.label; a.target = '_blank'; a.rel = 'noopener noreferrer';
@@ -1241,10 +1316,8 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       text('trialCandidate', 'Unknown — no candidate recorded in manifest');
       gates.textContent = 'Checkpoint · Lint · Dashboard: unknown';
     } else {
-      text('trialCandidate', candidate.sha.slice(0, 12) + ' · '
-        + (candidate.repairId ?? 'unregistered repair') + ' · '
-        + (candidate.investigator ?? candidate.origin ?? 'origin unknown')
-        + (candidate.registered ? '' : ' · evidence not registered'));
+      text('trialCandidate', (view.results.find(result => result.repair.id === candidate.repairId)?.repair.title
+        ?? candidate.repairId ?? 'Unregistered candidate') + ' · ' + candidate.sha.slice(0, 12));
       for (const name of ['Checkpoint', 'Lint', 'Dashboard']) {
         const gate = candidate.gates[name];
         const span = document.createElement('span');
@@ -1259,7 +1332,7 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
     text('trialFreshness', 'Recorded activity: ' + stamp(view.registerAsOf)
       + (!Number.isFinite(recorded) ? '' : age < 0 ? ' · age unknown (clock ahead)'
         : age > 60 * 60000 ? ' · stale' : '')
-      + (view.api.status === 'fresh' ? '' : ' · last-known snapshot'));
+      + (view.api.status === 'fresh' ? ' · CI checked ' + stamp(view.api.checkedAt) : ' · CI: last-known snapshot'));
   }
   // Compare evidence, not the successful check's timestamp or elapsed clock.
   const signature = view => JSON.stringify({
@@ -1346,7 +1419,7 @@ function workerSnapshotText(iso) {
     + ' · ' + age + '. Not live: workers and claims may have changed.';
 }
 document.getElementById('updated').textContent = activityAsOf
-  ? 'Activity snapshot ' + relativeTime(activityAsOf) : 'Activity snapshot unavailable';
+  ? 'Historical worker snapshot · ' + relativeTime(activityAsOf) : 'Historical worker snapshot unavailable';
 document.getElementById('updated').title = (activityAsOf ? 'Activity as of ' + activityAsOf + '. ' : '')
   + 'Page built ' + DATA.summary.generatedAt + '. Activity updates on publication.';
 
@@ -1366,6 +1439,10 @@ function drawRangeSelector(ctx, left, right, height, ink) {
     }
     ctx.stroke();
   }
+}
+
+for (const id of ['scoreHistoryDisclosure']) {
+  document.getElementById(id).addEventListener('toggle', () => window.dispatchEvent(new Event('resize')));
 }
 
 // --- Stat tiles ---
@@ -1405,7 +1482,7 @@ document.getElementById('stats').innerHTML = [
     ? fmtN(score.screens.matched) + '/' + fmtN(score.screens.total) + ' screens matched'
     : ['stale', 'incomplete'].includes(score.status) ? 'Current screen total unavailable' : 'No screen measurement';
   const age = score.publication
-    ? 'Measured ' + new Date(score.publication.measuredThrough).toLocaleString('en-GB', { timeZone: 'UTC' }) + ' UTC'
+    ? 'Measured ' + new Date(score.publication.measuredThrough).toLocaleString('en-GB', { timeZone: 'UTC' }) + ' UTC · ' + relativeTime(score.publication.measuredThrough)
     : score.commitUtc
     ? (score.commitAgeLabel || 'Commit') + ' ' + relativeTime(score.commitUtc) : 'Commit age unavailable';
   const metrics = [['Sessions', 'sessions'], ['RNG', 'rng'], ['Cursors', 'cursors']]
@@ -1414,17 +1491,18 @@ document.getElementById('stats').innerHTML = [
   return '<div class="stat"><div class="score-card-title">' + title + '</div>'
     + '<div class="stat-value">' + value + '</div>'
     + '<div class="stat-detail">' + screens + '</div>'
+    + (score.publication ? '<div class="cohort-size">' + score.publication.batches + ' batches · ' + fmtN(score.sessions?.total) + ' cases</div>' : '')
     + '<div class="stat-unmatched">' + (score.screens
       ? score.screens.matched === score.screens.total ? 'All screens match'
         : fmtN(score.screens.total - score.screens.matched) + (score.screens.total - score.screens.matched === 1 ? ' screen unmatched' : ' screens unmatched') : 'Unmeasured') + '</div>'
-    + '<div class="score-breakdown">' + metrics + '</div>'
+    + '<details class="score-metrics"><summary>Sessions, RNG and cursors</summary><div class="score-breakdown">' + metrics + '</div></details>'
     + '<div class="score-source">' + escScoreText(age) + '</div>'
     + (score.publication ? '<div class="score-source" id="syntheticScoreStatus">'
       + escScoreText(syntheticPublicationStatus(score.publication, syntheticMonitorView)) + '</div>'
-      + '<div class="score-source"><a href="https://github.com/vtjeng/teleport-contest/commit/'
+      + '<details class="score-provenance"><summary>Score provenance</summary><div class="score-source"><a href="https://github.com/vtjeng/teleport-contest/commit/'
       + escScoreText(score.publication.sha) + '">Revision ' + escScoreText(score.publication.sha.slice(0, 8))
       + '</a> · <a href="https://github.com/vtjeng/teleport-contest/actions/runs/'
-      + Number(score.publication.checkpoint.id) + '">CI evidence</a></div>' : '')
+      + Number(score.publication.checkpoint.id) + '">CI evidence</a></div></details>' : '')
     + (!score.publication && score.status === 'stale' ? '<div class="score-source">Earlier measurement; reassessment required.</div>' : '')
     + (score.error && (title !== 'Synthetic local holdout' || !challengeErrorShownInBatches)
       ? '<div class="score-source">' + escScoreText(score.error) + '</div>' : '')
