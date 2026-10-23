@@ -10603,3 +10603,21 @@ test('display_self maps the hero appearance before the normal hero species', asy
     display_self();
     assert.equal(game.level.at(ux,uy).disp_glyph.glyph,objnum_to_glyph(STRANGE_OBJECT));
 });
+
+test('full map repaint preserves blank glyph color and attributes', async () => {
+    const state = statusRenderingState();
+    const loc = state.level.at(12, 8);
+    loc.disp_ch = ' ';
+    loc.disp_color = CLR_RED;
+    loc.disp_attr = ATR_INVERSE;
+    await flush_screen(1);
+    assert.deepEqual(state.nhDisplay.grid[9][11], {
+        ch: ' ', color: CLR_RED, attr: ATR_INVERSE,
+    });
+    loc.disp_attr = 0;
+    loc.disp_color = NO_COLOR;
+    await flush_screen(1);
+    assert.deepEqual(state.nhDisplay.grid[9][11], {
+        ch: ' ', color: NO_COLOR, attr: 0,
+    });
+});

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-23T03:15:13.062Z",
+  "asOf": "2026-10-23T03:32:00.033Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "vision-reset-stale-sight",
-      "sha": "45c4844b7e12a26c6dd6827c7173b47ec77f842d",
+      "repairId": "forced-arrival-planning",
+      "sha": "24afc95a212cf4776e1ee615a7ff95f925b5681f",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T03:15:13.062Z"
+    "asOf": "2026-10-23T03:32:00.033Z"
   }
 }

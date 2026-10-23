@@ -5341,8 +5341,94 @@
           "scripts/teleport.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "24afc95a212cf4776e1ee615a7ff95f925b5681f",
+          "runs": [
+            {
+              "id": 39894379328,
+              "name": "Checkpoint",
+              "sha": "24afc95a212cf4776e1ee615a7ff95f925b5681f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/forced-arrival-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:19:19Z",
+              "completedAt": "2026-10-23T03:25:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39894379328"
+            },
+            {
+              "id": 39895093181,
+              "name": "Lint",
+              "sha": "24afc95a212cf4776e1ee615a7ff95f925b5681f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:27:13Z",
+              "completedAt": "2026-10-23T03:28:01Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39895093181"
+            },
+            {
+              "id": 39895093135,
+              "name": "Dashboard",
+              "sha": "24afc95a212cf4776e1ee615a7ff95f925b5681f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:27:13Z",
+              "completedAt": "2026-10-23T03:29:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39895093135"
+            }
+          ]
+        }
+      ],
+      "note": "The dry arrival pass invoked live rloc and deltrap, altering selection inputs and consuming live RNG before replay. C exhausts 200 coordinate pairs then uses the first viable sweep square, relocating its monster or removing its trap. Plan trap membership through an isolated level view and defer relocation to the live pass. Continue hero placement after forced relocation rather than returning false; await limbo completion. Two monster counts and a separate trap-at-sweep-origin witness fail before and match C after; one-monster control matches. The smaller west-shifted setup leaves an open square and is retained privately as control evidence, not claimed as forced trap removal. Four fresh C differentials and 136 focused/affected tests pass. Frozen live trap/monster checks cover accepted and refused preflights; undestroyable portal remains excluded. Public witnesses exercise successful relocation, not limbo fallback. Hosted gates pending; no measured score gain claimed. Twelve timeline tests, lint and diff-check pass. Accepted with exact-SHA full Checkpoint and Main Lint/Dashboard success. Watcher metadata failure recovered by reading/resuming the existing run, without CI rerun. All 44 fixed and 98 synthetic batches/2055 cases compare unchanged; existing checker recorded the complete cohort against 45c4844b7e12a26c6dd6827c7173b47ec77f842d. Accepted distinct count 112."
+    },
+    {
+      "id": "detected-blank-glyphs",
+      "kind": "parity-repair",
+      "title": "Preserve detected blank monster glyphs",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": null,
+          "end": "2026-10-23T03:44:00.132Z",
+          "note": "Observed continuation interval, not measured active work. Investigation began earlier during unresolved Valley arrival analysis; exact earlier start was not recorded. Independent non-migration witnesses isolate detection display."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/detect.c",
+          "nethack-c/upstream/include/mondata.h",
+          "nethack-c/upstream/win/tty/wintty.c",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/display.c/detected-space-blessed.session.json",
+          "recipes/display.c/detected-space-uncursed.session.json",
+          "recipes/display.c/detected-space-control.session.json"
+        ],
+        "test": [
+          "scripts/detected-space.test.mjs",
+          "scripts/display-symbols.test.mjs",
+          "scripts/detect.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/display-visibility.test.mjs",
+          "scripts/display-newsym-suppression.test.mjs",
+          "scripts/game-display.test.mjs",
+          "scripts/wintty.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "The dry arrival pass invoked live rloc and deltrap, altering selection inputs and consuming live RNG before replay. C exhausts 200 coordinate pairs then uses the first viable sweep square, relocating its monster or removing its trap. Plan trap membership through an isolated level view and defer relocation to the live pass. Continue hero placement after forced relocation rather than returning false; await limbo completion. Two monster counts and a separate trap-at-sweep-origin witness fail before and match C after; one-monster control matches. The smaller west-shifted setup leaves an open square and is retained privately as control evidence, not claimed as forced trap removal. Four fresh C differentials and 136 focused/affected tests pass. Frozen live trap/monster checks cover accepted and refused preflights; undestroyable portal remains excluded. Public witnesses exercise successful relocation, not limbo fallback. Hosted gates pending; no measured score gain claimed. Twelve timeline tests, lint and diff-check pass."
+      "note": "Canonical map_monst selects detected glyphs when monsym is a blank, not when class index is zero. Canonical tty_print_glyph prints attributed spaces. Preserve both glyph selection and full repaint. Independent blessed and uncursed Valley detection each lose inverse ghost attributes before; all RNG and cursor values match. Inverse-disabled control passes before. All three match after. A different seed and nearby ghost probe pass before, so neither is claimed as failing evidence. Initial invalid !inverse option probe excluded; valid control uses !use_inverse. 322 focused/affected tests pass. Hosted gates pending; no score gain claimed. Carries complete accepted repair112 evidence. Three strengthened recording assertions and all 12 timeline tests pass; lint and diff-check pass."
     }
   ]
 }

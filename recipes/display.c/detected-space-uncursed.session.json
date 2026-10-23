@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent display.c flush_screen / wintty.c tty_print_glyph witness: Valley ghosts detected with a blessed or uncursed potion; use_inverse disabled is the boundary control. Preserves styled blank glyphs during full map repaint.",
+  "segments": [
+    {
+      "seed": 8420141,
+      "datetime": "20261023210000",
+      "nethackrc": "OPTIONS=name:GhostSight,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\nvalley\n   \u0017uncursed potion of monster detection\n   ql   "
+    }
+  ]
+}

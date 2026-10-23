@@ -314,6 +314,7 @@ import {
     NUMMONS,
     PM_LONG_WORM_TAIL,
     PM_TENGU,
+    monsterClassSymbol,
 } from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
 import { heroIsBlind, noteGlyphBufferMutation, queueGlyphUpdateNotice } from './startup_a11y.js';
@@ -1083,7 +1084,8 @@ export function map_monster_glyph_info(monster, state = game) {
     // C's detected_mon_to_glyph()/pet_to_glyph()/mon_to_glyph() all pass
     // through what_mon(), so hallucination replaces the displayed species and
     // consumes one display-RNG draw even during a temporary detector frame.
-    if (monster.data.mlet === 0)
+    // mondata.h monsym() reads the default class symbol, not its index.
+    if (monsterClassSymbol(monster.data.mlet) === ' ')
         return detectedMonsterGlyphInfo(monster, state);
     return presentedMonsterGlyphInfo(
         monster, state, false, Boolean(monster.mtame),
@@ -6475,7 +6477,9 @@ function _buildScreenOutput(cursorOnHero = true) {
                     : (loc.disp_decgfx
                         ? decMap[loc.disp_ch] || loc.disp_ch
                         : loc.disp_ch);
-                if (!ch || (!bufferedOnly && ch === ' ')) continue;
+                // wintty.c tty_print_glyph() prints spaces too: detected
+                // ghosts carry inverse video on their otherwise blank glyph.
+                if (!ch) continue;
                 display.setCell(
                     x - 1,
                     offset + 1,
