@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "natural-random-species",
-      "sha": "2905464b6538e5adbebc4ad0fabd4210b644da6a",
+      "repairId": "mimic-object-lifecycle",
+      "sha": "6605cad8b1b97688a74e976f0fbffb3e65ce1589",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T17:13:35.082Z"
+    "asOf": "2026-10-23T17:32:12.669043+00:00"
   }
 }

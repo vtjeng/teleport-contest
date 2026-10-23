@@ -1,0 +1,544 @@
+{
+  "version": 1,
+  "batch": "v76",
+  "manifestPath": "challenges/manifests/v76.json",
+  "sha": "6605cad8b1b97688a74e976f0fbffb3e65ce1589",
+  "utc": "2026-10-23T17:17:47.029Z",
+  "status": "complete",
+  "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "a2e7cbe27df79391ac34619d5d5ee860c44d408ae8e4f90ebacde5f322c05341",
+  "inputFiles": [
+    "challenges/cases/v76/v76-cancel-troll-timer-action1.recipe.session.json",
+    "challenges/cases/v76/v76-cancel-troll-timer-action1.session.json",
+    "challenges/cases/v76/v76-cornuthaum-clairvoyance-action2.recipe.session.json",
+    "challenges/cases/v76/v76-cornuthaum-clairvoyance-action2.session.json",
+    "challenges/cases/v76/v76-monster-earth-mold-action3.recipe.session.json",
+    "challenges/cases/v76/v76-monster-earth-mold-action3.session.json",
+    "challenges/cases/v76/v76-mounted-holy-water-action3.recipe.session.json",
+    "challenges/cases/v76/v76-mounted-holy-water-action3.session.json",
+    "challenges/cases/v76/v76-oil-snuff-merge-action2.recipe.session.json",
+    "challenges/cases/v76/v76-oil-snuff-merge-action2.session.json",
+    "challenges/cases/v76/v76-shop-chest-force-action2.recipe.session.json",
+    "challenges/cases/v76/v76-shop-chest-force-action2.session.json",
+    "challenges/cases/v76/v76-statue-search-action2.recipe.session.json",
+    "challenges/cases/v76/v76-statue-search-action2.session.json",
+    "challenges/cases/v76/v76-swallowed-bell-opening-action3.recipe.session.json",
+    "challenges/cases/v76/v76-swallowed-bell-opening-action3.session.json",
+    "challenges/cases/v76/v76-swallowed-explicit-search-action2.recipe.session.json",
+    "challenges/cases/v76/v76-swallowed-explicit-search-action2.session.json",
+    "challenges/cases/v76/v76-touchstone-liquid-venom-action2.recipe.session.json",
+    "challenges/cases/v76/v76-touchstone-liquid-venom-action2.session.json",
+    "challenges/manifests/v76.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/alloc.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/earth_level_data.js",
+    "js/earth_levels.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/knox_level_data.js",
+    "js/knox_levels.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon_loca_level_data.js",
+    "js/mon_strt_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlsel.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/ran_strt_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rnd.js",
+    "js/rng.js",
+    "js/rog_goal_level_data.js",
+    "js/rog_loca_level_data.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_filb_level_data.js",
+    "js/sam_goal_level_data.js",
+    "js/sam_loca_level_data.js",
+    "js/sam_strt_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout_property_data.js",
+    "js/timeout.js",
+    "js/topl.js",
+    "js/topten.js",
+    "js/tou_goal_level_data.js",
+    "js/tou_loca_level_data.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/utf8map.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/val_strt_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/water_levels.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wiz_goal_level_data.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v76-oil-snuff-merge-action2",
+      "recordingSha256": "60e06d0f1a21b0e6426c4efeb068c15a0630a796657f43810a23d8ff1e1bbb2c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 225,
+          "total": 225
+        },
+        "rng": {
+          "matched": 2378,
+          "total": 2378
+        },
+        "cursors": {
+          "matched": 225,
+          "total": 225
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-swallowed-explicit-search-action2",
+      "recordingSha256": "6395e34ca8446a3ebca27ee67abff04b0b24b52252447c16a4916e105349046c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 1096,
+          "total": 1096
+        },
+        "rng": {
+          "matched": 3118,
+          "total": 3118
+        },
+        "cursors": {
+          "matched": 1096,
+          "total": 1096
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-statue-search-action2",
+      "recordingSha256": "37e96364c06c400997f3759bbe66bf332410dde8e85deb5fedc353b89f7d6838",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 751,
+          "total": 751
+        },
+        "rng": {
+          "matched": 2772,
+          "total": 2772
+        },
+        "cursors": {
+          "matched": 751,
+          "total": 751
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-shop-chest-force-action2",
+      "recordingSha256": "762c86aa3ebae36e75a0038a8d900b71e58064b8d4be36adbfb9ecc8d167c32d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 507,
+          "total": 507
+        },
+        "rng": {
+          "matched": 4015,
+          "total": 4015
+        },
+        "cursors": {
+          "matched": 507,
+          "total": 507
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-monster-earth-mold-action3",
+      "recordingSha256": "aced37fce26f192d075714a64392fbd87d74b16018f4a6eff2b8becd4bdc45b9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 584,
+          "total": 584
+        },
+        "rng": {
+          "matched": 2567,
+          "total": 2567
+        },
+        "cursors": {
+          "matched": 584,
+          "total": 584
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-cancel-troll-timer-action1",
+      "recordingSha256": "d141d3a929093c4c1ce681332a7094105649a10cd13a2f7926c0aa4b925db242",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 298,
+          "total": 298
+        },
+        "rng": {
+          "matched": 2483,
+          "total": 2483
+        },
+        "cursors": {
+          "matched": 298,
+          "total": 298
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-cornuthaum-clairvoyance-action2",
+      "recordingSha256": "2fe51aad3f602e229319efa1d771e3e87b638b46797a6160e31c6c60d7381e0a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 215,
+          "total": 215
+        },
+        "rng": {
+          "matched": 2862,
+          "total": 2862
+        },
+        "cursors": {
+          "matched": 215,
+          "total": 215
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-touchstone-liquid-venom-action2",
+      "recordingSha256": "dd0bd938d185fddb54b5ba8c4461477fcee419bb96540cfc308de6a266ab26c0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 244,
+          "total": 244
+        },
+        "rng": {
+          "matched": 3162,
+          "total": 3162
+        },
+        "cursors": {
+          "matched": 244,
+          "total": 244
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-swallowed-bell-opening-action3",
+      "recordingSha256": "e5d7886a37fcce0f7e4b2a8dc263c916df00a92749def8ae9ec3036c4bca8344",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 702,
+          "total": 702
+        },
+        "rng": {
+          "matched": 4434,
+          "total": 4434
+        },
+        "cursors": {
+          "matched": 702,
+          "total": 702
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v76-mounted-holy-water-action3",
+      "recordingSha256": "f926675f96dff0b481372692479a65ab5872f7cd690c406a832e300404c9dbaf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 452,
+          "total": 452
+        },
+        "rng": {
+          "matched": 3077,
+          "total": 3077
+        },
+        "cursors": {
+          "matched": 452,
+          "total": 452
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 10,
+      "total": 10
+    },
+    "screens": {
+      "matched": 5074,
+      "total": 5074
+    },
+    "rng": {
+      "matched": 30868,
+      "total": 30868
+    },
+    "cursors": {
+      "matched": 5074,
+      "total": 5074
+    }
+  }
+}

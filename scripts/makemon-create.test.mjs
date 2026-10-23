@@ -162,6 +162,7 @@ import {
     PM_GNOME_RULER,
     PM_GNOMISH_WIZARD,
     PM_JACKAL,
+    PM_RAVEN,
     PM_KOBOLD,
     PM_KOBOLD_MUMMY,
     PM_KOBOLD_ZOMBIE,
@@ -8565,5 +8566,42 @@ test('runtime random-coordinate creation admits explicit species without extra f
         assert.equal(state.level.monlist, monster);
         assert.deepEqual(random.calls.slice(0, 2).map(({ kind, args }) => [kind, ...args]),
             [['rn1', COLNO - 3, 2], ['rn2', ROWNO]]);
+    }
+});
+
+
+test('raven creation respects the wielded bec de corbin in runtime and level generation', async () => {
+    for (const inMklev of [true, false]) {
+        for (const flags of [MM_NOMSG, MM_NOMSG | MM_ANGRY]) {
+            let ordinaryCalls;
+            for (const weapon of [null, LONG_SWORD, BEC_DE_CORBIN]) {
+                const state = initialLevelState();
+                state.in_mklev = inMklev;
+                if (inMklev) {
+                    state.u.uz.dnum = 1;
+                    state.dungeons[1] = { depth_start: 1, flags: {}, num_dunlevs: 20 };
+                }
+                state.uwep = weapon === null ? null : { otyp: weapon };
+                const random = recordingRandom();
+                const monster = await (inMklev ? makemon : makemon_runtime)(state.mons[PM_RAVEN], MON_X,
+                    MON_Y, flags, { state, random: random.random, hooks: { newsym() {} } });
+                assert.equal(monster.mpeaceful, weapon === BEC_DE_CORBIN);
+                assert.ok(!monster.mtame, 'peaceful does not imply tame');
+                if (ordinaryCalls) assert.deepEqual(random.calls, ordinaryCalls,
+                    'the wielded-weapon override consumes no additional random values');
+                else ordinaryCalls = random.calls;
+            }
+            const state = initialLevelState();
+            state.in_mklev = inMklev;
+            if (inMklev) {
+                state.u.uz.dnum = 1;
+                state.dungeons[1] = { depth_start: 1, flags: {}, num_dunlevs: 20 };
+            }
+            state.uwep = { otyp: BEC_DE_CORBIN };
+            const random = recordingRandom();
+            const jackal = await (inMklev ? makemon : makemon_runtime)(state.mons[PM_JACKAL], MON_X,
+                MON_Y, flags, { state, random: random.random, hooks: { newsym() {} } });
+            assert.equal(jackal.mpeaceful, false, 'the override applies only to ravens');
+        }
     }
 });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public wizard wish, shield removal and polearm wield before raven creation. C makemon.c1403-1404 makes the raven peaceful when uwep is BEC_DE_CORBIN; earlier wrong-slot/shield-blocked probes are retained as non-covering setup.",
+  "segments": [
+    {
+      "seed": 8420500,
+      "datetime": "20261024123000",
+      "nethackrc": "OPTIONS=name:RavenWeapon,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 bec de corbin\n  Tc    we  \u0007raven\n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    \u0012"
+    }
+  ]
+}

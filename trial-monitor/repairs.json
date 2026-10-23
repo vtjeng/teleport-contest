@@ -6237,7 +6237,7 @@
           ]
         }
       ],
-      "note": "User-requested UI cleanup from stopped dashboard worker commit3ee8b337ce6e01bf48cf9afb787b6e126cf4cd2b, based on9c23db7b. Integrated after accepted120 gates/complete98 receipt. Preserves intervening gameplay/evidence and dark-mode link contrast. Current candidate/CI, complete scores with separate freshness, five recent distinct repairs; historical diagnostics/backlog/provenance collapsed and empty timeline space removed. Worker reported126tests and rendered light/dark320–1440px coverage; integrator verification and hosted gates pending. UI does not increment parity count. Completed by replacement dashboard worker while Standard was paused. Existing exact-SHA Checkpoint39920924678/Lint39921745592/Dashboard39921745582 verified; no reruns. Archived44/98 comparison unchanged; complete98 receipt recorded. Distinct parity remains120. Paused local integration preserved in recovery stash; only evidence restored on current Main."
+      "note": "User-requested UI cleanup from stopped dashboard worker commit3ee8b337ce6e01bf48cf9afb787b6e126cf4cd2b, based on9c23db7b. Integrated after accepted120 gates/complete98 receipt. Preserves intervening gameplay/evidence and dark-mode link contrast. Current candidate/CI, complete scores with separate freshness, five recent distinct repairs; historical diagnostics/backlog/provenance collapsed and empty timeline space removed. Worker reported126tests and rendered light/dark320\u20131440px coverage; integrator verification and hosted gates pending. UI does not increment parity count. Completed by replacement dashboard worker while Standard was paused. Existing exact-SHA Checkpoint39920924678/Lint39921745592/Dashboard39921745582 verified; no reruns. Archived44/98 comparison unchanged; complete98 receipt recorded. Distinct parity remains120. Paused local integration preserved in recovery stash; only evidence restored on current Main."
     },
     {
       "id": "water-punishment-restriction",
@@ -7613,7 +7613,7 @@
           ]
         }
       ],
-      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320–1440px. Hosted gates pending; no aggregate gain claimed. Accepted as distinct135 after exact-SHA Checkpoint39988667786, MainLint39989706718 andDashboard39989706788 passed. Requested viewer-local-time UI deployed in the same SHA and excluded from parity count. Complete98batch receipt against847bc654 recorded;44fixed and2055synthetic cases have no changed results or missing evidence."
+      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320\u20131440px. Hosted gates pending; no aggregate gain claimed. Accepted as distinct135 after exact-SHA Checkpoint39988667786, MainLint39989706718 andDashboard39989706788 passed. Requested viewer-local-time UI deployed in the same SHA and excluded from parity count. Complete98batch receipt against847bc654 recorded;44fixed and2055synthetic cases have no changed results or missing evidence."
     },
     {
       "id": "natural-random-species",
@@ -7737,8 +7737,89 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "6605cad8b1b97688a74e976f0fbffb3e65ce1589",
+          "runs": [
+            {
+              "id": 39995308498,
+              "name": "Lint",
+              "sha": "6605cad8b1b97688a74e976f0fbffb3e65ce1589",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:28:10Z",
+              "completedAt": "2026-10-23T17:29:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39995308498"
+            },
+            {
+              "id": 39995308508,
+              "name": "Dashboard",
+              "sha": "6605cad8b1b97688a74e976f0fbffb3e65ce1589",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:28:10Z",
+              "completedAt": "2026-10-23T17:30:15Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39995308508"
+            },
+            {
+              "id": 39993708513,
+              "name": "Checkpoint",
+              "sha": "6605cad8b1b97688a74e976f0fbffb3e65ce1589",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mimic-object-dashboard-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:16:23Z",
+              "completedAt": "2026-10-23T17:22:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39993708513"
+            }
+          ]
+        }
+      ],
+      "note": "C set_mimic_sym assigns an object disguise by constructing a complete temporary mkobj, saving its type and obfreeing it before a separate rndmonnum species overlay. Runtime calls lacked canonical monsterObject and cleanup callbacks. Compose the existing objectGenerationEnv only for that mkobj/obfree pair, preserving state/RNG and injected hooks. Independent natural statue disguise stopped at61378RNG/11587screens; removing unused padding while retaining both movement commands reproduces the same source stop at3235screens. Four fresh C replays now pass; exact constructor species/gender/identity/overlay draw order and callback override tests plus284affected tests pass. Full original13303screen/73203RNG/2animation continuation matches. Additional seed8420303 matches28361RNG/3403screens/3animations; longer unacknowledged More inputs add no gameplay coverage and remain private. Complete136gates/98receipt included. Requested removal of entire Freshness and evidence section is cherry-pickedb0b61cd45 from588f3197, preserves underlying evidence/local-time semantics and is excluded from parity count. Integrated validation and hosted publication pending; no aggregate gain claimed. Integrated288gameplay and142dashboard/startup/timeline tests,lint,diffcheck andgenerateddashboardbuild pass. Removedsection DOM/render dependencies are absent; author-reported browser checks retained as provenance, no new rendered verification claimed. Acknowledged second-seed continuation also matches101408RNG/15503screens/cursors/15animations. Accepted as distinct137 after Checkpoint39993708513, MainLint39995308498 and Dashboard39995308508 success. Watcher annotations401 was not retried; parent verified final status and normal exact archive import passed. Complete44fixed/98batch2055case comparison unchanged. Complete98publication receipt recorded against2905464b6. Requested dashboard section removal deployed in this SHA, excluded from repair count."
+    },
+    {
+      "id": "raven-wielded-polearm",
+      "kind": "parity-repair",
+      "title": "Make ravens peaceful when the hero wields a bec de corbin",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T17:16:43.323Z",
+          "end": "2026-10-23T17:16:43.323Z",
+          "note": "Instantaneous source observation while137wasfrozen; not elapsed active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/makemon.c",
+          "js/makemon_create.js"
+        ],
+        "witness": [
+          "recipes/makemon.c/raven-weapon-armed.session.json",
+          "recipes/makemon.c/raven-weapon-monochrome.session.json",
+          "recipes/makemon.c/raven-weapon-carried-control.session.json",
+          "recipes/makemon.c/raven-weapon-jackal-control.session.json"
+        ],
+        "test": [
+          "scripts/raven-weapon.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/makemon.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C set_mimic_sym assigns an object disguise by constructing a complete temporary mkobj, saving its type and obfreeing it before a separate rndmonnum species overlay. Runtime calls lacked canonical monsterObject and cleanup callbacks. Compose the existing objectGenerationEnv only for that mkobj/obfree pair, preserving state/RNG and injected hooks. Independent natural statue disguise stopped at61378RNG/11587screens; removing unused padding while retaining both movement commands reproduces the same source stop at3235screens. Four fresh C replays now pass; exact constructor species/gender/identity/overlay draw order and callback override tests plus284affected tests pass. Full original13303screen/73203RNG/2animation continuation matches. Additional seed8420303 matches28361RNG/3403screens/3animations; longer unacknowledged More inputs add no gameplay coverage and remain private. Complete136gates/98receipt included. Requested removal of entire Freshness and evidence section is cherry-pickedb0b61cd45 from588f3197, preserves underlying evidence/local-time semantics and is excluded from parity count. Integrated validation and hosted publication pending; no aggregate gain claimed. Integrated288gameplay and142dashboard/startup/timeline tests,lint,diffcheck andgenerateddashboardbuild pass. Removedsection DOM/render dependencies are absent; author-reported browser checks retained as provenance, no new rendered verification claimed. Acknowledged second-seed continuation also matches101408RNG/15503screens/cursors/15animations."
+      "note": "C makemon.c1403-1404 overrides initial raven hostility when uwep is BEC_DE_CORBIN before set_malign; carrying the weapon or wielding it near another species does not qualify. Source condition now runs in the same creation phase and consumes no RNG. Fresh armed/monochrome witnesses previously diverged at RNG2533 and screen60; after repair each matches3298RNG186screens/cursors. Carried control3096RNG186screens and jackal control2842RNG187screens pass. Initial wrong-slot and shield-blocked probes were noncovering and remain private. Four C replays plus316focused/affected tests pass; new fixture branch/wrapper setup corrected before passing, without production rework. Runtime and level-generation cases cover absent/different/matching weapon, angry flag, species control and unchanged RNG. Complete137receipt included; hosted validation pending. No aggregate gain claimed."
     }
   ]
 }

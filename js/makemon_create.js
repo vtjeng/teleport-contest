@@ -280,6 +280,7 @@ import {
     PM_LICHEN,
     PM_LITTLE_DOG,
     PM_LONG_WORM,
+    PM_RAVEN,
     PM_MANES,
     PM_MASTER_LICH,
     PM_NALFESHNEE,
@@ -3277,6 +3278,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             redrawSquare(monster.mx, monster.my, normalized);
             set_apparxy(monster, normalized);
         }
+        // C ref: makemon.c:1403-1404. A wielded beaked polearm pacifies ravens.
+        if (mndx === PM_RAVEN && state.uwep?.otyp === BEC_DE_CORBIN)
+            monster.mpeaceful = true;
         // C ref: makemon.c:1405-1408.
         if (mndx === PM_LONG_WORM) {
             monster.wormno = get_wormno(state);

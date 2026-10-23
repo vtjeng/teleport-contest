@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent makemon.c raven/BEC_DE_CORBIN source-rule carried-control; public wish, shield removal, wield and genesis inputs.",
+  "segments": [
+    {
+      "seed": 8420500,
+      "datetime": "20261024123000",
+      "nethackrc": "OPTIONS=name:RavenWeapon,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 bec de corbin\n  Tc    wa  \u0007raven\n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    \u0012"
+    }
+  ]
+}
