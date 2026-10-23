@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public runtime random-generation witness discovered during healing setup: at step1175 rndmonst selects baluchitherium, which C creates but JS initial-species gate refuses. Prefix stops after this creation turn; no HP-cap coverage claim. Color-disabled cheap variation preserves generation while testing monochrome rendering.",
+  "segments": [
+    {
+      "seed": 8420240,
+      "datetime": "20261024080000",
+      "nethackrc": "OPTIONS=name:HpCap,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\nOPTIONS=!color\n",
+      "moves": "  #levelchange\n30\n                                   Fh    ed        \u001720 blessed potions of full healing\n    #wizidentify\n_\n    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    \u001720 blessed potions of full healing\n    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    \u001720 blessed potions of full healing\n    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    \u001720 blessed potions of full healing\n    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    \u001720 blessed potions of full healing\n    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    \u001720 blessed potions of full healing\n    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    \u001720 blessed potions of full healing\n    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe    qe"
+    }
+  ]
+}

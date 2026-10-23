@@ -371,6 +371,7 @@ import {
     S_OGRE,
     S_ORC,
     S_QUANTMECH,
+    S_QUADRUPED,
     S_SNAKE,
     S_SPIDER,
     S_TROLL,
@@ -1130,6 +1131,12 @@ function assertSupportedSpecies(species, env = {}) {
             && !beehiveSpecies
             && !barracksSpecies
             && !morgueSpecies
+            // C makemon() uses the generic lifecycle for every quadruped.
+            // All seven are animals with no weapon initialization; m_initinv
+            // retains its ordinary RNG tail while defensive/misc item
+            // selection rejects animals. Runtime rndmonst() can select the
+            // larger members above the old D:5 reservoir ceiling.
+            && species.mlet !== S_QUADRUPED
             // C makemon has no species gate for ordinary true giants.
             // Their S_GIANT weapon and gem arms already share the canonical
             // lifecycle; unique quest nemeses retain their separate boundary.

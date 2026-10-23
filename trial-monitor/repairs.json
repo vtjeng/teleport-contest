@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T15:20:20.206Z",
+  "asOf": "2026-10-23T15:35:57.302Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -7281,8 +7281,98 @@
           "scripts/status-hilite-lifecycle.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "0f628c40b7ffc3933d92ec921ea5e0e9f3e91148",
+          "runs": [
+            {
+              "id": 39977468387,
+              "name": "Checkpoint",
+              "sha": "0f628c40b7ffc3933d92ec921ea5e0e9f3e91148",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/gold-status-cap-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T15:20:46Z",
+              "completedAt": "2026-10-23T15:27:24Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39977468387"
+            },
+            {
+              "id": 39978690932,
+              "name": "Lint",
+              "sha": "0f628c40b7ffc3933d92ec921ea5e0e9f3e91148",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T15:29:23Z",
+              "completedAt": "2026-10-23T15:30:21Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39978690932"
+            },
+            {
+              "id": 39978690805,
+              "name": "Dashboard",
+              "sha": "0f628c40b7ffc3933d92ec921ea5e0e9f3e91148",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T15:29:23Z",
+              "completedAt": "2026-10-23T15:32:41Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39978690805"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c1050-1072 stores nonnegative raw gold separately from displayed min(money,999999). Share one pure value computation across layout, two/three-line field rendering and highlight comparisons. Public leprechaun hero steals overloaded wished gold from fog-cloud engulfer:1000000 and1000001 cases first differ at171 before fix; exact999999 control passes. Three freshC recordings now fullymatch2756rng each,176/176/175screens/cursors,0animations. 31focused/affected tests,12timeline andlint pass. Direct-wish, sleeping-carrier, lowgold theft and incomplete engulf/levelup setups retained privately without target-coverage claims. HP/Pw caps remain unqualified/outside scope. Carries complete131 gates/98batch receipt. Hosted gates pending; no aggregate gain claimed. Accepted after exact-SHA Checkpoint39977468387/MainLint39978690932/Dashboard39978690805 success, first attempts. Full44fixed/98synthetic comparison unchanged; checker recorded complete98 cohort against2109c78e. Distinct accepted132."
+    },
+    {
+      "id": "runtime-quadruped-creation",
+      "kind": "parity-repair",
+      "title": "Admit runtime quadrupeds through the existing C creation lifecycle",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T15:30:51.636Z",
+          "end": "2026-10-23T15:30:51.636Z",
+          "note": "Observed runtime baluchitherium boundary investigation while132gold candidate frozen; instantaneous observation, not active-work duration."
+        },
+        {
+          "start": "2026-10-23T15:35:57.302Z",
+          "end": "2026-10-23T15:35:57.302Z",
+          "note": "Observed source-family review and local validation completion after132gates/receipt; no elapsed duration reported as effort."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/makemon.c",
+          "nethack-c/upstream/src/muse.c",
+          "nethack-c/upstream/include/monsters.h",
+          "js/makemon_create.js"
+        ],
+        "witness": [
+          "recipes/makemon.c/quadruped-runtime.session.json",
+          "recipes/makemon.c/quadruped-runtime-monochrome.session.json",
+          "recipes/makemon.c/quadruped-baluchitherium.session.json",
+          "recipes/makemon.c/quadruped-mastodon.session.json",
+          "recipes/makemon.c/quadruped-rothe.session.json"
+        ],
+        "test": [
+          "scripts/quadruped-creation.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/makemon.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/particular-creation-terrain.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c1050-1072 stores nonnegative raw gold separately from displayed min(money,999999). Share one pure value computation across layout, two/three-line field rendering and highlight comparisons. Public leprechaun hero steals overloaded wished gold from fog-cloud engulfer:1000000 and1000001 cases first differ at171 before fix; exact999999 control passes. Three freshC recordings now fullymatch2756rng each,176/176/175screens/cursors,0animations. 31focused/affected tests,12timeline andlint pass. Direct-wish, sleeping-carrier, lowgold theft and incomplete engulf/levelup setups retained privately without target-coverage claims. HP/Pw caps remain unqualified/outside scope. Carries complete131 gates/98batch receipt. Hosted gates pending; no aggregate gain claimed."
+      "note": "C makemon has no D5 species reservoir restriction for runtime rndmonst; all7quadrupeds use existing generic animal lifecycle. Admit S_QUADRUPED, preserving placement/birth/HP/gender/hostility/inventory RNG and other caller validation. Public healing setup independently exposed baluchitherium86 rejection; bounded1181screen color/monochrome witnesses fail1175 before and nowfullymatch4838rng/cursors. Explicitbaluchitherium2596rng42screens,mastodon2487/36,rothe2142/33 remainpassingcontrols. FivefreshC,321focused/affected tests including all3larger species runtime initialization,12timeline andlint pass. Long originalHPcap probe remainsunqualified andpreserved; no HP-cap coverageclaim. Complete132gates/98receipt included. Hosted gatespending; noaggregategainclaimed."
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public C generic quadruped creation witness/control. Explicit peaceful species requested through wiz_genesis; three forced turns exercise ordinary live placement/update.",
+  "segments": [
+    {
+      "seed": 8420292,
+      "datetime": "20261024083000",
+      "nethackrc": "OPTIONS=name:QuadCreate,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": "  \u0007peaceful rothe\n    m. m. m. \u0012"
+    }
+  ]
+}

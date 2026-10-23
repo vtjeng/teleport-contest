@@ -197,6 +197,9 @@ import {
     PM_FROST_GIANT,
     PM_STORM_GIANT,
     PM_ETTIN,
+    PM_TITANOTHERE,
+    PM_BALUCHITHERIUM,
+    PM_MASTODON,
     PM_TROLL,
     PM_UMBER_HULK,
     PM_VAMPIRE,
@@ -2511,6 +2514,37 @@ test('runtime random creation admits source-supported Ettins beyond D:5',
         const cMakemon = MAKEMON_C_SOURCE.slice(makemonStart, makemonEnd);
         assert.match(cMakemon, /ptr = rndmonst\(\)/u);
     });
+
+test('large runtime quadrupeds complete placement, birth and inventory initialization', async () => {
+    for (const mndx of [PM_TITANOTHERE, PM_BALUCHITHERIUM, PM_MASTODON]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.uz.dlevel = 20;
+        state.u.ulevel = 30;
+        leaveOnlyRandomSpecies(state, [mndx]);
+        state.level.at(17, 4).typ = ROOM;
+        let firstRow = true;
+        const random = recordingRandom({
+            rn1Result: (_range, base) => base + 15,
+            rn2Result: (bound) => {
+                if (firstRow) { firstRow = false; return 4; }
+                return bound - 1;
+            },
+        });
+        const monster = await makemon_runtime(null, 0, 0, NO_MM_FLAGS,
+            { state, random: random.random });
+        assert.equal(monster.data, state.mons[mndx]);
+        assert.equal(state.level.monsters[17][4], monster);
+        assert.equal(state.level.monlist, monster);
+        assert.equal(monster.nmon, null);
+        assert.equal(state.mvitals[mndx].born, 1);
+        assert.equal(monster.mgenmklev, false);
+        assert.ok(monster.mhp > 0);
+        // C muse.c rejects animals before selecting either optional item;
+        // these quadrupeds are unarmed and do not receive special inventory.
+        assert.equal(monster.minvent, null);
+    }
+});
 
 test('runtime random creation admits a non-main dungeon level', async () => {
     const state = initialLevelState();
