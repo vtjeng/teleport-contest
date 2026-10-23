@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T00:24:14.910536Z",
+  "asOf": "2026-10-23T00:37:04.060379Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4613,8 +4613,87 @@
           "scripts/wizcmds.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "2ffc7f5af0cb35ec9a9efbaa5d393d45c4d9a729",
+          "runs": [
+            {
+              "id": 39878025515,
+              "name": "Checkpoint",
+              "sha": "2ffc7f5af0cb35ec9a9efbaa5d393d45c4d9a729",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/longworm-migration-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:25:27Z",
+              "completedAt": "2026-10-23T00:31:19Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39878025515"
+            },
+            {
+              "id": 39878726091,
+              "name": "Lint",
+              "sha": "2ffc7f5af0cb35ec9a9efbaa5d393d45c4d9a729",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:32:31Z",
+              "completedAt": "2026-10-23T00:33:24Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39878726091"
+            },
+            {
+              "id": 39878726011,
+              "name": "Dashboard",
+              "sha": "2ffc7f5af0cb35ec9a9efbaa5d393d45c4d9a729",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:32:30Z",
+              "completedAt": "2026-10-23T00:34:25Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39878726011"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Three live C replays through destination arrival, 131 focused/affected tests, 12 timeline tests and lint passed. Existing supplied-state tail counting confirmed correct; only obsolete migration refusal removed. Complete cohort recorded and included in this ordinary repair commit."
+    },
+    {
+      "id": "holder-migration",
+      "kind": "parity-repair",
+      "title": "Release holding and engulfing monsters during migration",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dog.c",
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/uhitm.c",
+          "nethack-c/upstream/src/wizcmds.c",
+          "js/dog.js",
+          "js/mon.js"
+        ],
+        "witness": [
+          "recipes/dog.c/holder-migration-large.session.json",
+          "recipes/dog.c/holder-migration-giant.session.json",
+          "recipes/dog.c/holder-migration-small-control.session.json",
+          "recipes/dog.c/holder-migration-engulfer.session.json"
+        ],
+        "test": [
+          "scripts/holder-migration.test.mjs",
+          "scripts/dog-migrate.test.mjs",
+          "scripts/mon-kill.test.mjs",
+          "scripts/wizcmds.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C negative-count migration transfers long worms with initial tail rolls 1 and 4, followed by destination-level arrival. Baseline JS refuses both; baby-long-worm control passes. Remove the stale refusal and retain existing mon_leave/wormgone/relmon/mon_arrive lifecycle. All three full replays match; 131 focused/affected tests cover zero and nonzero tails, above-cap stored count, map/slot cleanup and supplied-state isolation. Hosted gates pending; investigation start time not captured."
+      "note": "Live C negative-count migration releases large/giant mimic contact and a fog cloud engulfing the hero; baseline JS refuses those three. Non-sticky small mimic control passes. Remove obsolete holder refusal; existing relmon -> mon_leaving_level awaits unstuck, preserving source cooldown and engulfing redraw ordering. All four full replays and 124 focused/affected tests pass, including active versus absent cooldown. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

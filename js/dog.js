@@ -1422,8 +1422,6 @@ export async function migrate_to_level(
                 rawEnv,
             );
     }
-    if (monster === state.u.ustuck)
-        throw new RangeError('stuck-monster migration is future work');
     const onWizardTowerLevel = [
         state.wiz1_level,
         state.wiz2_level,

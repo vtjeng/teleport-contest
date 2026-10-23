@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8411125,
+      "datetime": "20261023140000",
+      "nethackrc": "OPTIONS=name:HolderLeave,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup\n",
+      "moves": " #wizgenesis\nhostile fog cloud\nm. m. m. m. m. m. m. #migratemons\n -2\n   "
+    }
+  ],
+  "_comment": "Independent dog.c:migrate_to_level holder-release witness. Large/giant mimic m-prefix contact reaches AD_STCK; small mimic is non-sticky control. Engulfer case migrates a prior monster then the swallowing fog cloud; ordinary-input C captures release, cooldown RNG and map redraw."
+}

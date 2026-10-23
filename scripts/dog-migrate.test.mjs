@@ -46,6 +46,7 @@ import { mksobj_at, newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     PM_SMALL_MIMIC,
+    PM_LICHEN,
     PM_LONG_WORM,
     PM_LITTLE_DOG,
     PM_KITTEN,
@@ -304,32 +305,32 @@ test('shopkeeper migration clears its home resident and preserves its destinatio
     assert.deepEqual(monster.mtrack[1], destination);
 });
 
-test('migration rejects a stuck monster before item mutation', async () => {
-    const state = migrationState();
-    const { monster } = onMapMonster(state);
-    const carried = {
-        cobj: null,
-        nobj: null,
-        no_charge: true,
-        oclass: WEAPON_CLASS,
-    };
-    monster.minvent = carried;
-    state.u.ustuck = monster;
-
-    await assert.rejects(
-        () => migrate_to_level(
-            monster,
-            1,
-            MIGR_RANDOM,
-            null,
-            { newsym: () => {}, state },
-        ),
-        /stuck-monster migration/u,
-    );
-    assert.equal(carried.no_charge, true);
-    assert.deepEqual([monster.mx, monster.my], [MONSTER_X, MONSTER_Y]);
-    assert.equal(state.level.monlist, monster);
-});
+for (const cooldown of [0, 3]) {
+    test(`migration releases its holder and preserves cooldown ${cooldown}`, async () => {
+        const state = migrationState();
+        const { monster, follower } = onMapMonster(state, PM_LICHEN);
+        const carried = { cobj: null, nobj: null, no_charge: true,
+            oclass: WEAPON_CLASS };
+        monster.minvent = carried;
+        monster.mspec_used = cooldown;
+        state.u.ustuck = monster;
+        const rolls = [];
+        await migrate_to_level(monster, 1, MIGR_RANDOM, null, {
+            newsym: () => {}, state,
+            random: { rnd: bound => { rolls.push(bound); return 2; } },
+        });
+        assert.equal(state.u.ustuck, null);
+        assert.equal(state.u.uswallow, 0);
+        assert.equal(state.u.uswldtim, 0);
+        assert.deepEqual(rolls, cooldown ? [] : [2]);
+        assert.equal(monster.mspec_used, cooldown || 2);
+        assert.equal(carried.no_charge, false);
+        assert.deepEqual([monster.mx, monster.my], [0, 0]);
+        assert.equal(state.level.monlist, follower);
+        assert.equal(state.gm.migrating_mons, monster);
+        assert.equal(m_at(MONSTER_X, MONSTER_Y, state), null);
+    });
+}
 
 for (const tailCount of [0, 3, MAX_NUM_WORMS + 1]) {
     test(`worm migration preserves ${tailCount} tail segments subject to the source cap`, async () => {
