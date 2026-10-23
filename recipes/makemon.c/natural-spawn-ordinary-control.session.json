@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent D5 ordinary-reservoir natural-spawn control for allmain.c maybe_generate_rnd_mon and makemon.c selection.",
+  "segments": [
+    {
+      "seed": 8420302,
+      "datetime": "20261024094500",
+      "nethackrc": "OPTIONS=name:Deep,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\n",
+      "moves": "  #levelchange\n5\n                                   #wizlevelport\n5\n               O:debug_hunger\n\nm.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.  \u0012"
+    }
+  ]
+}

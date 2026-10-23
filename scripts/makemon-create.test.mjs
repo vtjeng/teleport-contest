@@ -194,6 +194,8 @@ import {
     PM_SHOPKEEPER,
     PM_STALKER,
     PM_STONE_GIANT,
+    PM_STONE_GOLEM,
+    PM_GLASS_GOLEM,
     PM_FROST_GIANT,
     PM_STORM_GIANT,
     PM_ETTIN,
@@ -6318,6 +6320,45 @@ test('runtime random true giants use the source group and inventory lifecycle',
                     && call.args[0] === bound).length >= 2);
         }
     });
+
+test('natural random spawns retain deep species HP and inventory draw order', async () => {
+    // C makemon.c:1209-1234 uses rndmonst's eligible reservoir directly,
+    // including the natural makemon(NULL, 0, 0, NO_MM_FLAGS) caller.
+    for (const species of [PM_STONE_GOLEM, PM_GLASS_GOLEM, PM_ORANGE_DRAGON]) {
+        for (const flags of [NO_MM_FLAGS, MM_NOMSG]) {
+            const state = initialLevelState();
+            state.in_mklev = false;
+            state.u.uz.dlevel = 20;
+            state.u.ulevel = 30;
+            leaveOnlyRandomSpecies(state, [species]);
+            for (let x = 1; x < COLNO; ++x)
+                for (let y = 0; y < ROWNO; ++y)
+                    state.level.at(x, y).typ = ROOM;
+            const random = recordingRandom();
+            const monster = await makemon_runtime(null, 0, 0, flags, {
+                state, random: random.random,
+                hooks: { newsym: () => {} },
+                message: async () => {}, norepMessage: async () => {},
+            });
+            assert.equal(monster.data, state.mons[species]);
+            assert.equal(state.mvitals[species].born, 1);
+            assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+            assert.equal(monster.mgenmklev, false);
+            const expectedHP = species === PM_STONE_GOLEM ? 100
+                : species === PM_GLASS_GOLEM ? 80 : 5 * monster.m_lev;
+            assert.deepEqual([monster.mhp, monster.mhpmax], [expectedHP, expectedHP]);
+            assert.deepEqual(random.calls.slice(0, 2).map(({ kind, args }) => [kind, args]),
+                [['rn1', [77, 2]], ['rn2', [21]]]);
+            assert.deepEqual(random.calls.filter(call => call.kind === 'd')
+                .map(call => call.args), species === PM_ORANGE_DRAGON ? [[monster.m_lev, 4]] : []);
+            // C m_initinv's defensive/misc gates precede the saddle roll.
+            // The dragon also takes the greedy-monster gold gate.
+            const tail = species === PM_ORANGE_DRAGON ? [50, 100, 5, 100] : [50, 100, 100];
+            assert.deepEqual(random.calls.slice(-tail.length).map(({ kind, args }) => [kind, args]),
+                tail.map(bound => ['rn2', [bound]]));
+        }
+    }
+});
 
 test('Sokoban retries a first random rock thrower before placement', async () => {
     const state = initialLevelState();

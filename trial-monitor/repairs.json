@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T16:34:27.129Z",
+  "asOf": "2026-10-23T16:55:02.565Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -7567,8 +7567,93 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "30102f68df7454545ac1004f9c372781a6868ba2",
+          "runs": [
+            {
+              "id": 39988667786,
+              "name": "Checkpoint",
+              "sha": "30102f68df7454545ac1004f9c372781a6868ba2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/teleport-context-local-time-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T16:40:00Z",
+              "completedAt": "2026-10-23T16:46:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39988667786"
+            },
+            {
+              "id": 39989706718,
+              "name": "Lint",
+              "sha": "30102f68df7454545ac1004f9c372781a6868ba2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T16:47:33Z",
+              "completedAt": "2026-10-23T16:48:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39989706718"
+            },
+            {
+              "id": 39989706788,
+              "name": "Dashboard",
+              "sha": "30102f68df7454545ac1004f9c372781a6868ba2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T16:47:33Z",
+              "completedAt": "2026-10-23T16:50:29Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39989706788"
+            }
+          ]
+        }
+      ],
+      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320–1440px. Hosted gates pending; no aggregate gain claimed. Accepted as distinct135 after exact-SHA Checkpoint39988667786, MainLint39989706718 andDashboard39989706788 passed. Requested viewer-local-time UI deployed in the same SHA and excluded from parity count. Complete98batch receipt against847bc654 recorded;44fixed and2055synthetic cases have no changed results or missing evidence."
+    },
+    {
+      "id": "natural-random-species",
+      "kind": "parity-repair",
+      "title": "Accept the source reservoir species for natural monster spawns",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T16:41:52.487Z",
+          "end": "2026-10-23T16:41:52.487Z",
+          "note": "Observed independent C natural-spawn failure and source trace during frozen135; instantaneous observation, not active-work duration."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c",
+          "nethack-c/upstream/src/makemon.c",
+          "js/makemon_create.js"
+        ],
+        "witness": [
+          "recipes/makemon.c/natural-spawn-deep.session.json",
+          "recipes/makemon.c/natural-spawn-monochrome.session.json",
+          "recipes/makemon.c/natural-spawn-explore.session.json",
+          "recipes/makemon.c/natural-spawn-before-control.session.json",
+          "recipes/makemon.c/natural-spawn-ordinary-control.session.json",
+          "recipes/makemon.c/natural-spawn-aleax-regression.session.json"
+        ],
+        "test": [
+          "scripts/natural-monster-spawn.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/makemon.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/teleport.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320–1440px. Hosted gates pending; no aggregate gain claimed."
+      "note": "C allmain.c maybe_generate_rnd_mon calls makemon(NULL,0,0,NO_MM_FLAGS); makemon.c1209-1234 accepts rndmonst selection without a finite initial-level species restriction. Remove only that obsolete post-selection gate, retaining source placement retries, caller validation and concrete initialization checks. New independent seed8420301 naturally selects stone golem and previously stops at730screens/10642rng; color,monochrome and public explore-mode runs now match11196rng and782/782/800screens respectively. Pretrigger control10642rng722screens and D5 control8644rng1502screens1animation match; D5 control exercises129 spawn-gate draws but no completed spawn. Fresh C refresh of unchanged historical Aleax regression matches3199rng67screens and turn22 instead of old refusal prefix. Six C replays and all373focused/affected tests pass; constructed deep golem/dragon cases cover fixedHP, ordered initialization draws and both ordinary/MM_NOMSG calls. Obsolete Aleax refusal expectation corrected in this same repair. Complete135gates/98batch receipt included; requested timezone UI already deployed30102f68d and excluded from count. Hosted gates pending; no aggregate gain claimed."
     }
   ]
 }

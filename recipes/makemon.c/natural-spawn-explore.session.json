@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Natural random creation after public wizard setup followed by #exploremode; isolates the source runtime spawn from wizard mode.",
+  "segments": [
+    {
+      "seed": 8420301,
+      "datetime": "20261024093000",
+      "nethackrc": "OPTIONS=name:Deep,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\n",
+      "moves": "  #levelchange\n30\n                                   #wizlevelport\n20\n               O:debug_hunger\n\n#exploremode\ny    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n \u0012"
+    }
+  ]
+}

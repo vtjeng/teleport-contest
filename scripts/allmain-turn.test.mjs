@@ -3229,22 +3229,16 @@ test('a planned blocking mimic birth restores live vision on every exit',
         }
     });
 
-// The same conversion reached from recorded keystrokes rather than from a
-// hand-built state, which is what shows the shape it protects: runSegment()
-// returns the screens the segment had already matched instead of discarding
-// them. Only wizard mode widens the reservoir far enough to reach a species
-// this port refuses. allmain.c:164-167 calls makemon(NULL, 0, 0, NO_MM_FLAGS)
-// once per turn, makemon.c rndmonst_adj() caps that draw at source difficulty
-// (level_difficulty() + u.ulevel) / 2, and on D:1 at experience level 1 that
-// ceiling is 1 -- narrow enough that every species left is one
-// js/makemon_create.js supports, so no ordinary D:1 game reaches this stop.
-test('a refused runtime monster keeps the segment prefix through runSegment',
+// allmain.c:164-167 calls makemon(NULL, 0, 0, NO_MM_FLAGS). Its
+// rndmonst reservoir uses (level_difficulty() + u.ulevel) / 2, without
+// a second initial-level species restriction after selection.
+test('a natural Aleax spawn completes the previously refused runtime prefix',
     async () => {
         let boundary = null;
         const replay = await runSegment({
             // The first of six seeds an independently chosen scan of 8150001
-            // through 8150060 found whose experience-level-30 rest run refuses
-            // a runtime species, and the earliest of the six to refuse.
+            // through 8150060 originally found at the obsolete species gate.
+            // Keep that input as a regression for the complete source turn.
             seed: 8150028,
             // Independently chosen. A datetime whose calendar prints its own
             // startup line shifts every key below by one and strands '#'
@@ -3261,7 +3255,7 @@ test('a refused runtime monster keeps the segment prefix through runSegment',
             // 30 raises the ceiling above to (1 + 30) / 2 = 15 without
             // spending a turn, and 29 spaces dismiss its welcome and intrinsic
             // chain. The searches then rest on D:1 until a turn generates a
-            // monster; twenty carry the C reference six keys past this stop.
+            // monster; twenty continue beyond the former refusal boundary.
             moves: `.#levelchange\n30\n${' '.repeat(29)}${'s'.repeat(20)}`,
         }, { onBoundary: (error) => { boundary = error; } });
 
@@ -3269,22 +3263,14 @@ test('a refused runtime monster keeps the segment prefix through runSegment',
         // a burdened hero would get the full one, which covers this call for a
         // different reason.
         assert.equal(projected_capacity(game), 0);
-        assert.ok(boundary instanceof UnsupportedTurnBoundaryError, 'boundary');
-        // js/monsters.js index 122 is the Aleax, source difficulty 12, above
-        // the difficulty-9 ceiling isOrdinaryD5ReservoirSpecies() admits.
-        assert.match(boundary.message, /monster creation: makemon\(\) monster 122$/u);
-        // Recorded with the C reference program for this exact input:
-        // `node scripts/diff-fresh.mjs` on it reports C=67 screens, C=67
-        // cursors and C=3199 PRNG calls, with the first screen mismatch at
-        // boundary 62 (kind js-missing) and the first PRNG mismatch at call
-        // 2929, C's rn2(70)=0 from maybe_generate_rnd_mon(allmain.c:166). So
-        // these three counts are the matching prefix, and the draw the port
-        // has not made is the one the refused turn would have spent.
-        assert.equal(replay.getScreens().length, 61);
-        assert.equal(replay.getCursors().length, 61);
-        assert.equal(replay.getRngLog().length, 2928);
-        // The refused turn is not spent: C reaches turn 17 on this key.
-        assert.equal(game.moves, 16);
+        assert.equal(boundary, null);
+        // Fresh C recording of this unchanged regression input:
+        // recordings/makemon.c/natural-spawn-aleax-regression.session.json.
+        // Aleax (index 122, difficulty 12) is a valid rndmonst choice.
+        assert.equal(replay.getScreens().length, 67);
+        assert.equal(replay.getCursors().length, 67);
+        assert.equal(replay.getRngLog().length, 3199);
+        assert.equal(game.moves, 22);
     });
 
 function fetchedFloorObject(x, y, otyp, o_id) {

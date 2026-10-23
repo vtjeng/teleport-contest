@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent natural random creation witness: allmain.c maybe_generate_rnd_mon -> makemon.c makemon/rndmonst; C chooses stone golem past the obsolete initial-level reservoir. monochrome",
+  "segments": [
+    {
+      "seed": 8420301,
+      "datetime": "20261024093000",
+      "nethackrc": "OPTIONS=name:Deep,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\nOPTIONS=!color\n",
+      "moves": "  #levelchange\n30\n                                   #wizlevelport\n20\n               O:debug_hunger\n\nm.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n \u0012"
+    }
+  ]
+}

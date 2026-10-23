@@ -3018,9 +3018,6 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
 export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const normalized = creationEnv(env);
     const { random, state } = normalized;
-    const runtimeExplicitRandomCall = isRuntimeExplicitRandomCall(
-        ptr, x, y, mmflags, state,
-    );
     preflightCreation(ptr, x, y, mmflags, normalized);
 
     if (state.iflags?.debug_mongen
@@ -3069,8 +3066,11 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         do {
             ptr = rndmonst(normalized);
             if (!ptr) return null;
-            if (!normalized._rndmonMklev && !runtimeExplicitRandomCall)
-                assertSupportedSpecies(ptr, normalized);
+            // C makemon.c accepts rndmonst's reservoir choice for every
+            // admitted null-species call, including natural runtime spawns.
+            // Placement retries below and concrete initialization helpers
+            // own their source restrictions; the initial-level species
+            // allowlist does not constrain this selection branch.
         } while (++attempts <= 50
             && ((attempts === 1
                 && throws_rocks(ptr)

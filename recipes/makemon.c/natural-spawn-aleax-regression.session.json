@@ -1,0 +1,12 @@
+{
+  "segments": [
+    {
+      "seed": 8150028,
+      "datetime": "20291112154500",
+      "nethackrc": "OPTIONS=name:RndMonXL,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": ".#levelchange\n30\n                             ssssssssssssssssssss"
+    }
+  ],
+  "version": 5,
+  "_comment": "Existing allmain-turn regression input, originally independently selected seed8150028: refresh C evidence now that natural Aleax creation no longer stops at the obsolete species restriction."
+}
