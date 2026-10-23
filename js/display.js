@@ -83,7 +83,7 @@ import {
     BC_BALL, BC_CHAIN,
     IS_DOOR, IS_OBSTRUCTED, IS_POOL, IS_ROOM, IS_STWALL, u_at, Ugender, Upolyd, M_AP_TYPE,
     BEAR_TRAP, NO_TRAP, WEB, is_pit, Is_waterlevel,
-    TT_LAVA,
+    TT_BURIEDBALL, TT_LAVA,
     In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level,
     MAXTCHARS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
@@ -4831,7 +4831,7 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['UHold', 'UHld', 'UHd'] },
     { option: 'ice', rank: 20, enabled: false,
         forms: ['Icy', 'Icy', 'Ic'] },
-    { option: 'inlava', rank: 8, enabled: true,
+    { option: 'lava', rank: 8, enabled: true,
         forms: ['InLava', 'Lav', 'La'] },
     { option: 'levitate', rank: 10, enabled: true,
         forms: ['Lev', 'Lev', 'Lv'] },
@@ -4849,6 +4849,10 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Submrg', 'Subm', 'Sm'] },
     { option: 'termill', rank: 6, enabled: true,
         forms: ['TermIll', 'Ill', 'Ill'] },
+    { option: 'tethered', rank: 20, enabled: false,
+        forms: ['Teth', 'Tth', 'Te'] },
+    { option: 'trap', rank: 20, enabled: false,
+        forms: ['Trap', 'Trp', 'Tr'] },
 ]);
 
 export function statusConditionActive(option, u) {
@@ -4898,12 +4902,20 @@ export function statusConditionActive(option, u) {
             && !_propertyActive(u, HALLUC_RES);
     case 'ice':
         return game.level?.at(u.ux, u.uy)?.typ === ICE;
-    // botl.c bl_inlava is enabled by default and is true only while the
-    // hero's holding-trap type is TT_LAVA. It is distinct from the terrain
-    // word: a fire-resistant hero can remain in lava while the tile itself
-    // is still classified as LAVAPOOL.
-    case 'inlava': return Boolean(u?.utrap)
-        && u.utraptype === TT_LAVA;
+    // botl.c:1154-1163: enabled specific conditions suppress generic Trap.
+    // The canonical option is lava; retain the historical predicate alias.
+    case 'inlava':
+    case 'lava':
+    case 'tethered':
+    case 'trap': {
+        if (!u?.utrap) return false;
+        const configured = game.iflags?.status_conditions ?? {};
+        const lava = (configured.lava ?? true) && u.utraptype === TT_LAVA;
+        const tethered = (configured.tethered ?? false)
+            && u.utraptype === TT_BURIEDBALL;
+        const selected = lava ? 'lava' : tethered ? 'tethered' : 'trap';
+        return (option === 'inlava' ? 'lava' : option) === selected;
+    }
     case 'levitate': return _propertyActiveUnblocked(u, LEVITATION);
     case 'ride': return Boolean(u.usteed);
     case 'slime': return _propertyIntrinsic(u, SLIMED);

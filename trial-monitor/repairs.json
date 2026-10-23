@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T09:39:01.108Z",
+  "asOf": "2026-10-23T09:57:31.307Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6726,8 +6726,98 @@
           "scripts/trap-drown.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d9e3aeddde393f582a36902e8693287d8edfce24",
+          "runs": [
+            {
+              "id": 39933452766,
+              "name": "Checkpoint",
+              "sha": "d9e3aeddde393f582a36902e8693287d8edfce24",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/submerged-status-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:39:31Z",
+              "completedAt": "2026-10-23T09:46:00Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39933452766"
+            },
+            {
+              "id": 39934593287,
+              "name": "Lint",
+              "sha": "d9e3aeddde393f582a36902e8693287d8edfce24",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:48:56Z",
+              "completedAt": "2026-10-23T09:49:42Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39934593287"
+            },
+            {
+              "id": 39934593273,
+              "name": "Dashboard",
+              "sha": "d9e3aeddde393f582a36902e8693287d8edfce24",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:48:56Z",
+              "completedAt": "2026-10-23T09:51:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39934593273"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c1203 reads Underwater=u.uinwater; source table uses Submrg/Subm/Sm, rank15, disabled by default. Add missing table entry and pure predicate, retaining existing liquid transition and redraw owners. Public breathing/pool seeds8420174/175 formerly missedSubmrg at38/32; now match3074/4924rng and42screens/cursors. Disabledoptioncontrol remains3074/42; exit lifecycle3089rng/49screens/cursors retainsSubmrg through back_on_ground More and clears afteracknowledgement. Four freshC comparisons,38focused/affected tests andlint pass. Carries complete125 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed. Accepted after exact-SHA Checkpoint39933452766, MainLint39934593287 and Dashboard39934593273 success, first attempts. Complete44 fixed/98 synthetic batches compare unchanged; existing checker recorded complete98 cohort against6b2fe3ae. Distinct accepted126."
+    },
+    {
+      "id": "trapped-status-family",
+      "kind": "parity-repair",
+      "title": "Render tethered and trapped status with canonical lava fallback",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T09:41:38.689Z",
+          "end": "2026-10-23T09:48:10.859Z",
+          "note": "Observed source and public C qualification interval during frozen126 CI; not active-work time. Code edits followed126 gates and complete98 receipt."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/src/dig.c",
+          "nethack-c/upstream/src/objnam.c",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/botl.c/trapped-status-tether.session.json",
+          "recipes/botl.c/trapped-status-tether-fallback.session.json",
+          "recipes/botl.c/trapped-status-tether-disabled.session.json",
+          "recipes/botl.c/trapped-status-pit.session.json",
+          "recipes/botl.c/trapped-status-lava-fallback.session.json",
+          "recipes/botl.c/trapped-status-lava-control.session.json"
+        ],
+        "test": [
+          "scripts/trapped-status.test.mjs",
+          "scripts/trap-lava-effects.test.mjs",
+          "scripts/holder-status.test.mjs",
+          "scripts/submerged-status.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c1203 reads Underwater=u.uinwater; source table uses Submrg/Subm/Sm, rank15, disabled by default. Add missing table entry and pure predicate, retaining existing liquid transition and redraw owners. Public breathing/pool seeds8420174/175 formerly missedSubmrg at38/32; now match3074/4924rng and42screens/cursors. Disabledoptioncontrol remains3074/42; exit lifecycle3089rng/49screens/cursors retainsSubmrg through back_on_ground More and clears afteracknowledgement. Four freshC comparisons,38focused/affected tests andlint pass. Carries complete125 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed."
+      "note": "C botl.c1154-1163 selects enabled InLava/Teth specifics and generic Trap fallback; table canonical option is lava, not inlava. Add missing tethered/trap entries and coupled pure predicate family with existing state owners. Public burial Teth/fallback/disabled cases each2691rng/98screens/cursors; ordinarypit2683/25; lavafallback/control2905/48. Six freshC recordings fully replay after fix;52 focused/affected tests andlint pass. Initial wrong inventory-selector setup preserved privately, not claimed as tethered coverage. Old inlava implementation predates current repair register. Carries complete126 gates/98batch receipt; hosted gatespending, no aggregate gainclaimed."
     }
   ]
 }

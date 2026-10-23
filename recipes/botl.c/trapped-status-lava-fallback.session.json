@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first lava trap status setup using source wizard fire-resistance intrinsic and lava terrain wish; qualify actual TT_LAVA entry before attribution.",
+  "segments": [
+    {
+      "seed": 8420182,
+      "datetime": "20261024030000",
+      "nethackrc": "OPTIONS=name:LavaStatus,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,!cond_lava,cond_trap\n",
+      "moves": " #wizintrinsic\n>i\n \u0017lava\nm.                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public ordinary-pit status variation. C initialmap shows dry floor west of hero; move west off stairs, wish pit, step east and force west into pit.",
+  "segments": [
+    {
+      "seed": 8420180,
+      "datetime": "20261024030000",
+      "nethackrc": "OPTIONS=name:TetherStatus,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,cond_tethered,cond_trap\n",
+      "moves": " h\u0017pit\nlmh      m.      "
+    }
+  ]
+}

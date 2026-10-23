@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-observed setup correction: this independent seed includes an extra initial item, so C assigns punishment scroll f and remove-curse g. Preserve original mismatched inventory selectors as setup evidence. Public punishment, burial and release with optional tether/trap status.",
+  "segments": [
+    {
+      "seed": 8420180,
+      "datetime": "20261024030000",
+      "nethackrc": "OPTIONS=name:TetherStatus,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,!cond_tethered,cond_trap\n",
+      "moves": "  \u0017uncursed scroll of punishment\nrf    #wizbury\n  \u0017uncursed scroll of remove curse\nrg        \u001b\nl."
+    }
+  ]
+}
