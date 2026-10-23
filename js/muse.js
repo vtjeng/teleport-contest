@@ -397,15 +397,11 @@ async function precheck(mon, obj, state, env = {}) {
                     state);
                 // SetVoice() is a no-op in the tty build.
                 if (random.rn2(2)) {
-                    // verbalize("You freed me!") is You_hear('"...')
-                    const freed = youHear('"You freed me!"', state);
-                    if (freed) await ttyPline(freed, state);
+                    await verbalize("You freed me!", state);
                     mtmp.mpeaceful = 1;
                     set_malign(mtmp, state);
                 } else {
-                    // verbalize("It is about time.")
-                    const about = youHear('"It is about time."', state);
-                    if (about) await ttyPline(about, state);
+                    await verbalize("It is about time.", state);
                     if (vis) {
                         await ttyPline(
                             `${capitalizedMonsterName(mtmp, state)} vanishes.`,

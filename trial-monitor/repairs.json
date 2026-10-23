@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T22:56:59.777Z",
+  "asOf": "2026-10-23T23:09:47.750Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9220,8 +9220,92 @@
           "scripts/unported-monster-actions.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "20aaed8241400a2704811d1c9d57e8d7c6cd5c7c",
+          "committedAt": "2026-10-23T22:57:14Z",
+          "runs": [
+            {
+              "id": 40036825147,
+              "name": "Checkpoint",
+              "sha": "20aaed8241400a2704811d1c9d57e8d7c6cd5c7c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/reflection-discovery-owner-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:57:26Z",
+              "completedAt": "2026-10-23T23:03:51Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40036825147"
+            },
+            {
+              "id": 40037595736,
+              "name": "Lint",
+              "sha": "20aaed8241400a2704811d1c9d57e8d7c6cd5c7c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:05:06Z",
+              "completedAt": "2026-10-23T23:06:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40037595736"
+            },
+            {
+              "id": 40037595690,
+              "name": "Dashboard",
+              "sha": "20aaed8241400a2704811d1c9d57e8d7c6cd5c7c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:05:06Z",
+              "completedAt": "2026-10-23T23:08:00Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40037595690"
+            }
+          ]
+        }
+      ],
+      "note": "C mon_reflects identifies shield/amulet reflection after the formatted message. JavaScript passed the cloned state but omitted the discovery environment, so planned discovery wisdom credit consumed live core RNG through the default exercise owner. Forward the existing object environment on both discovery calls, matching ureflects; no reflection, discovery, or planning algorithm changes. Actual frozen153 baseline fails both fresh normal and monochrome witnesses at core6588/boundary114; control passes. All19575 RNG calls,833 screens/cursors,151 animations now match each witness; control6587/113/0 matches. Eight native shield/amulet x live/planning x formatted/null cases verify caller core advancement, clone-local discovery/credit, no live planning mutation, and query no-op. The fixture supplies a separate cloned core through the environment as the real planner does; planningState coreCtx intentionally retains its live pointer, with no production clone change.11 focused+565 affected=576 tests pass; lint/diff checks pass. Private extended continuation39998/2153/297 and independent tenth-seed control110630/2153/47 strictly pass, without corpus admission or score claims. Complete accepted153 receipt included; full hosted gates pending. Accepted as distinct repair154 after full Checkpoint40036825147 and exact Main Lint40037595736 / Dashboard40037595690 passed. Exact archived44-fixed /98-batch /2055-case comparison againste8b51852 found no regressions, missing evidence, or aggregate changes. Complete98 receipt recorded by the existing checker and carried in this ordinary repair."
+    },
+    {
+      "id": "monster-djinni-verbalize",
+      "kind": "parity-repair",
+      "title": "Use quoted speech for monster-released djinn",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T22:55:11.407Z",
+          "end": "2026-10-23T22:55:11.407Z",
+          "note": "Instantaneous preserved source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/muse.c:113-126",
+          "nethack-c/upstream/src/pline.c:verbalize476-490",
+          "js/muse.js:precheck"
+        ],
+        "witness": [
+          "recipes/muse.c/monster-djinni-verbalize-quoted.session.json",
+          "recipes/muse.c/monster-djinni-verbalize-monochrome.session.json",
+          "recipes/muse.c/monster-djinni-verbalize-before-control.session.json"
+        ],
+        "test": [
+          "scripts/monster-djinni-verbalize.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/pline.test.mjs",
+          "scripts/potion.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mon_reflects identifies shield/amulet reflection after the formatted message. JavaScript passed the cloned state but omitted the discovery environment, so planned discovery wisdom credit consumed live core RNG through the default exercise owner. Forward the existing object environment on both discovery calls, matching ureflects; no reflection, discovery, or planning algorithm changes. Actual frozen153 baseline fails both fresh normal and monochrome witnesses at core6588/boundary114; control passes. All19575 RNG calls,833 screens/cursors,151 animations now match each witness; control6587/113/0 matches. Eight native shield/amulet x live/planning x formatted/null cases verify caller core advancement, clone-local discovery/credit, no live planning mutation, and query no-op. The fixture supplies a separate cloned core through the environment as the real planner does; planningState coreCtx intentionally retains its live pointer, with no production clone change.11 focused+565 affected=576 tests pass; lint/diff checks pass. Private extended continuation39998/2153/297 and independent tenth-seed control110630/2153/47 strictly pass, without corpus admission or score claims. Complete accepted153 receipt included; full hosted gates pending."
+      "note": "C precheck uses verbalize for both smoky-potion djinni release outcomes; JavaScript substituted youHear, adding a prefix or suppressing speech under deafness/acoustics. Use the existing canonical verbalize helper with identical lines and release RNG/monster semantics. Actual frozen154 baseline first differs screen427 for normal/monochrome, all18573 core RNG calls and428 cursors match. Repaired normal/monochrome strictly match18573 RNG/428 screens/cursors/4 animations; before-trigger control17879/414/3 passes both. Eight initialized-game cases cover both release outcomes x deafness x acoustics, checking exact quoted speech, potion consumption, creation and peaceful/detach outcomes. All8 fail baseline with the expected prefix/suppression and pass fixed.11focused+444affected=455 tests pass; lint/diff checks pass. Independent twelfth-seed control31116/833/170 strictly passes. Full eleventh833 probe30925/833/6 strictly passes; extended2153 retains separately preserved aklys message-throttle mismatch1699 despite84998 matching core RNG. No full extended pass or aggregate gain claimed. Complete accepted154 receipt included. Requested dashboard candidate/freshness correction cherry-picked from4b4f0f1f1 as90ed0ccb4; UI excluded from parity counts. Full hosted gates pending. Integrated dashboard validation passes152 relevant tests,69 post-register reducer/data checks,and Chromium candidate/overview/local-time suites on generated local data with mocked/disabled public APIs. Both themes,320–1440px,keyboard focus,and Los Angeles/Berlin/Kathmandu checks pass without page errors. Light/dark link contrast and stored UTC semantics are preserved."
     }
   ]
 }
