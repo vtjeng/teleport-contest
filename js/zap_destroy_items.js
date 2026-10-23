@@ -24,8 +24,7 @@ import {
 import { losehp } from './hack.js';
 import { makeplural } from './fruit.js';
 import {
-    obfree,
-    obj_extract_self,
+    delobj,
     useup,
     useupf,
 } from './invent.js';
@@ -169,8 +168,7 @@ async function removeObjectQuantity(obj, quantity, env) {
         obj.owt = weight(obj, lifecycleEnv);
         return;
     }
-    obj_extract_self(obj, lifecycleEnv);
-    obfree(obj, null, lifecycleEnv);
+    delobj(obj, lifecycleEnv);
 }
 
 function floorBurnMessageNames(obj, state) {

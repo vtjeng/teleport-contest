@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T23:42:19.480Z",
+  "asOf": "2026-10-23T23:58:25.697Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9478,8 +9478,96 @@
           "scripts/mon-break-armor.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d70f085375c43128ee1024bb1617472cc3b26526",
+          "committedAt": "2026-10-23T23:42:31Z",
+          "runs": [
+            {
+              "id": 40041193416,
+              "name": "Checkpoint",
+              "sha": "d70f085375c43128ee1024bb1617472cc3b26526",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/armor-light-redraw-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:42:50Z",
+              "completedAt": "2026-10-23T23:50:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40041193416"
+            },
+            {
+              "id": 40042029567,
+              "name": "Lint",
+              "sha": "d70f085375c43128ee1024bb1617472cc3b26526",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:52:09Z",
+              "completedAt": "2026-10-23T23:53:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40042029567"
+            },
+            {
+              "id": 40042029535,
+              "name": "Dashboard",
+              "sha": "d70f085375c43128ee1024bb1617472cc3b26526",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:52:09Z",
+              "completedAt": "2026-10-23T23:54:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40042029535"
+            }
+          ]
+        }
+      ],
+      "note": "C m_dowear_type begins an armor light then calls vision_recalc(1), which vision.c treats as ordinary recalculation with newsym map-memory writes. Both JavaScript construction/runtime paths supplied a no-op default redraw, allowing revealed seenv cells without their remembered glyphs. Use canonical newsym by default for the live game only; preserve explicit redraw ownership and the existing non-global no-op fallback. No lighting radius, vision algorithm, armor selection, text, or RNG changes. Actual frozen156 baseline c2bec first differs at screen69 for both fresh normal/monochrome witnesses while all5693 RNG calls and76 cursors match. Repaired witnesses strictly match5693 RNG/76screens/cursors/0animations; before-trigger control5693/68/0 passes both. Eight initialized dark-room cases cover construction/runtime x live/planning x default/explicit redraw, proving live memory repair, explicit-owner retention, clone-local light/map state and no globalcore draws.11focused including3C+8native plus494affected=505 tests pass;lint/diff pass. Initial native fixture assumed unseen display null rather than blank, and initial68-key control included trigger69; corrected fixture/control findings and original setup logs are preserved. Full independent833 probe29197/833/53 strictly passes; separate night-time and Healer2153-boundary continuations pass on repaired code. A Priest probe preserves a separately source-attributed floor-fire deletion-owner defect; no full Priest pass for this repair or aggregate score gain claimed. Complete accepted156 receipt included;full hosted gates pending. Accepted as distinct repair157 after Checkpoint40041193416 and exact Main Lint40042029567 / Dashboard40042029535 passed. Exact44-fixed /98-batch /2055-case archived comparison againstc2bec7433 found no regressions, missing evidence, or aggregate changes. Existing checker recorded complete98 receipt, carried in this ordinary repair."
+    },
+    {
+      "id": "floor-fire-delete",
+      "kind": "parity-repair",
+      "title": "Use normal deletion for burned floor stacks",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T23:33:56.005Z",
+          "end": "2026-10-23T23:33:56.005Z",
+          "note": "Instantaneous preserved source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/zap.c:burn_floor_objects4597-4657",
+          "nethack-c/upstream/src/invent.c:delobj/delobj_core1428-1462",
+          "js/zap_destroy_items.js:removeObjectQuantity165/burn_floor_objects521",
+          "js/invent.js:delobj_core3422"
+        ],
+        "witness": [
+          "recipes/zap.c/floor-fire-delete-burn.session.json",
+          "recipes/zap.c/floor-fire-delete-monochrome.session.json",
+          "recipes/zap.c/floor-fire-delete-before-control.session.json"
+        ],
+        "test": [
+          "scripts/floor-fire-delete.test.mjs",
+          "scripts/zap-destroy-items.test.mjs",
+          "scripts/shop-billing.test.mjs",
+          "scripts/zap.test.mjs",
+          "scripts/invent.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/muse.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C m_dowear_type begins an armor light then calls vision_recalc(1), which vision.c treats as ordinary recalculation with newsym map-memory writes. Both JavaScript construction/runtime paths supplied a no-op default redraw, allowing revealed seenv cells without their remembered glyphs. Use canonical newsym by default for the live game only; preserve explicit redraw ownership and the existing non-global no-op fallback. No lighting radius, vision algorithm, armor selection, text, or RNG changes. Actual frozen156 baseline c2bec first differs at screen69 for both fresh normal/monochrome witnesses while all5693 RNG calls and76 cursors match. Repaired witnesses strictly match5693 RNG/76screens/cursors/0animations; before-trigger control5693/68/0 passes both. Eight initialized dark-room cases cover construction/runtime x live/planning x default/explicit redraw, proving live memory repair, explicit-owner retention, clone-local light/map state and no globalcore draws.11focused including3C+8native plus494affected=505 tests pass;lint/diff pass. Initial native fixture assumed unseen display null rather than blank, and initial68-key control included trigger69; corrected fixture/control findings and original setup logs are preserved. Full independent833 probe29197/833/53 strictly passes; separate night-time and Healer2153-boundary continuations pass on repaired code. A Priest probe preserves a separately source-attributed floor-fire deletion-owner defect; no full Priest pass for this repair or aggregate score gain claimed. Complete accepted156 receipt included;full hosted gates pending."
+      "note": "C burn_floor_objects routes a fully consumed non-hero floor stack through delobj(), whose delobj_core guard spends obj_resists(obj,0,0) before extraction,unhiding,map redraw and freeing. JavaScript helper directly extracted/freed,skipping that source deletion owner. Call canonical delobj with the existing object environment;partial quantity/weight and hero-caused useupf/billing paths are unchanged. Output-only floor trace shows one teleport scroll,potion and corpse at36,19; the extra C roll belongs to deleting the consumed scroll,not a second pile item. Actual frozen157 d70f085 baseline normal/monochrome first differs core39277/boundary818 after the burn quantity roll. Repaired witnesses strictly match39738 RNG/821screens/cursors/33animations. The before-trigger control passes both; exact metrics are retained in the replay reports. Eight initialized-game cases cover live/planning x partial/whole x hero/non-hero,checking ordered resistance/deletion RNG,split-ID draw when appropriate,both floor links,quantity,redraw,ignition and no globalcore mutation.11focused including3C+8native plus513affected=524tests pass;lint/diff pass. Initial partial prototype lacked required unused random-interface members,and two first native hero-partial controls omitted source next_ident rnd(2); setup logs and source corrections are preserved without production ID changes. Private full Priest continuation strictly matches90190 RNG/2153screens/cursors/379animations; independent Ranger and Tourist continuations pass after the fix without corpus admission or score claims. Longer Monk input preserves a separately source-attributed psychic target eligibility correction,conservatively grouped under149 rather than a new repair. Complete accepted157 receipt included;full hosted gates pending. Before-trigger control exact totals:39274 RNG/817 screens/cursors/32 animations,strictly passing baseline and repaired code."
     }
   ]
 }
