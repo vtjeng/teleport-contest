@@ -68,7 +68,7 @@ import {
 } from './artifacts.js';
 import { game } from './gstate.js';
 import { see_wsegs } from './worm.js';
-import { newsym } from './display.js';
+import { newsym, canspotmon } from './display.js';
 import { Monnam, mon_nam, hcolor } from './do_name.js';
 import { obj_extract_self, update_inventory } from './invent.js';
 import { check_gear_next_turn } from './mon.js';
@@ -1260,8 +1260,14 @@ export function nxt_unbypassed_loot(lootarray, listhead, state = game) {
 // their source owners are not complete in this port.
 export function mon_break_armor(monster, polyspot, rawEnv = {}) {
     const env = wornEnv(rawEnv);
+    // C evaluates both pronouns even when no armor changes. Hallucination
+    // makes these entry lookups consume core RNG before the synchronous exit.
+    const namingEnv = { ...env, canSpotMonster: env.canSpotMonster
+        ?? (subject => canspotmon(subject, env.state)) };
+    const pronoun = mhim(monster, namingEnv);
+    const possessive = mhis(monster, namingEnv);
     if (!mon_break_armor_has_effect(monster, env.state)) return;
-    return mon_break_armor_effects(monster, polyspot, env);
+    return mon_break_armor_effects(monster, polyspot, env, pronoun, possessive);
 }
 
 // Read the same predicates and worn slots as mon_break_armor() without
@@ -1308,15 +1314,13 @@ function mon_break_armor_has_effect(monster, state) {
     return false;
 }
 
-async function mon_break_armor_effects(monster, polyspot, env) {
+async function mon_break_armor_effects(monster, polyspot, env, pronoun, possessive) {
     const { state } = env;
     const message = env.message ?? ttyPline;
     const random = { rnl, ...(env.random ?? {}) };
     const data = monster.data;
     const visible = cansee(monster.mx, monster.my, state);
     const handlessOrTiny = nohands(data) || verysmall(data);
-    const pronoun = mhim(monster, { ...env, state });
-    const possessive = mhis(monster, { ...env, state });
     const say = async (text) => message(
         messageAt(text, monster.mx, monster.my, state), state, env,
     );

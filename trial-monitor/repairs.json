@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T21:48:57.051Z",
+  "asOf": "2026-10-23T22:16:51.445Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8963,8 +8963,96 @@
           "scripts/mhitu.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "292fabd8cf6621d9e4ab8cc5368fb82cd766e433",
+          "runs": [
+            {
+              "id": 40029517447,
+              "name": "Checkpoint",
+              "sha": "292fabd8cf6621d9e4ab8cc5368fb82cd766e433",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/hallucinated-deity-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:49:28Z",
+              "completedAt": "2026-10-23T21:57:54Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40029517447"
+            },
+            {
+              "id": 40031618354,
+              "name": "Lint",
+              "sha": "292fabd8cf6621d9e4ab8cc5368fb82cd766e433",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:08:10Z",
+              "completedAt": "2026-10-23T22:09:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40031618354"
+            },
+            {
+              "id": 40031618399,
+              "name": "Dashboard",
+              "sha": "292fabd8cf6621d9e4ab8cc5368fb82cd766e433",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:08:10Z",
+              "completedAt": "2026-10-23T22:11:08Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40031618399"
+            }
+          ]
+        }
+      ],
+      "note": "Cpray.c halu_gname firstchoosespantheon throughrandrole(TRUE), rejectingmissingPriestpantheon, then9-waydisplaychoice forlawful/neutral/chaoticdeity,14entryhallugods,orMoloch; stripsleadingunderscore andfallsbackonmissingname. JSstubalwaysreturnednormalalign_gname. PortwholeCtable/function withexistingrandrole andrn2_on_display_rng boundto suppliedstate forbothrole andname draws; ordinary/resistedperception consumesnone. Existingpriestname/sounds/doturn callers alreadyforwardstate. Actualcf34baseline freshpublic8432008/date20261103154500 #wizintrinsic page1h count8firstscreen114humanmummyofSusanowo vsJSnormalMitra; all6805coreRNG/117screenandcursorcounts/0animations match butnamesdiffer. Repairednormal/monochrome eachstrictpass6805RNG117screens/cursors0animations; cancelintrinsic ordinarycontrol6805RNG115screens/cursors0animations passesboth. SixnativeISAACseedcases coverallpantheonarms/novelty/Moloch/repeatednullpantheonretry/underscoreandnextdraw; explicitstate leavesglobaldisplay/corelog untouched. Threeordinary/resistancecontrols forbidanydisplaycontextaccess.12focused+128initialaffected+273additionalaffected+509calleraffected=922tests including3Cpass, lint/diffcheckpass. Full833probe advancesearliestscreen114->126 butretainsseparateunconditionalarmorpronounfastpath mainRNG6821/122gap; preservedprivate, notclaimedfullstrictpass. Complete150receipt included; fullhostedgatespending, noaggregate gain claimed. Accepted as distinct repair 151 after Checkpoint 40029517447 and exact Main Lint 40031618354 / Dashboard 40031618399 passed. The first archive import was denied HTTP 401 on run metadata; one newly authorized retry using the same credentials and normal route succeeded. No CI rerun or credential change. Full 44-fixed / 98-batch / 2055-case comparison against cf34c1f0 had no regressions, missing evidence, or aggregate changes. Individual Dashboard run and deploy job confirmed success while the list summary lagged; the existing publication checker then recorded the complete 98-batch receipt. Carry that receipt in this next ordinary repair."
+    },
+    {
+      "id": "armor-pronoun-entry",
+      "kind": "parity-repair",
+      "title": "Evaluate monster armor-entry pronouns before the no-change return",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T21:40:33.574Z",
+          "end": "2026-10-23T21:40:33.574Z",
+          "note": "Instantaneous source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/worn.c:mon_break_armor1177-1184",
+          "nethack-c/upstream/src/mondata.c:pronoun_gender1191-1210",
+          "js/worn.js:mon_break_armor",
+          "js/mon.js:newcham"
+        ],
+        "witness": [
+          "recipes/worn.c/armor-pronoun-entry-shape.session.json",
+          "recipes/worn.c/armor-pronoun-entry-monochrome.session.json",
+          "recipes/worn.c/armor-pronoun-entry-before-control.session.json"
+        ],
+        "test": [
+          "scripts/armor-pronoun-entry.test.mjs",
+          "scripts/mon-break-armor.test.mjs",
+          "scripts/worn.test.mjs",
+          "scripts/mon-shape.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/mhitu.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Cpray.c halu_gname firstchoosespantheon throughrandrole(TRUE), rejectingmissingPriestpantheon, then9-waydisplaychoice forlawful/neutral/chaoticdeity,14entryhallugods,orMoloch; stripsleadingunderscore andfallsbackonmissingname. JSstubalwaysreturnednormalalign_gname. PortwholeCtable/function withexistingrandrole andrn2_on_display_rng boundto suppliedstate forbothrole andname draws; ordinary/resistedperception consumesnone. Existingpriestname/sounds/doturn callers alreadyforwardstate. Actualcf34baseline freshpublic8432008/date20261103154500 #wizintrinsic page1h count8firstscreen114humanmummyofSusanowo vsJSnormalMitra; all6805coreRNG/117screenandcursorcounts/0animations match butnamesdiffer. Repairednormal/monochrome eachstrictpass6805RNG117screens/cursors0animations; cancelintrinsic ordinarycontrol6805RNG115screens/cursors0animations passesboth. SixnativeISAACseedcases coverallpantheonarms/novelty/Moloch/repeatednullpantheonretry/underscoreandnextdraw; explicitstate leavesglobaldisplay/corelog untouched. Threeordinary/resistancecontrols forbidanydisplaycontextaccess.12focused+128initialaffected+273additionalaffected+509calleraffected=922tests including3Cpass, lint/diffcheckpass. Full833probe advancesearliestscreen114->126 butretainsseparateunconditionalarmorpronounfastpath mainRNG6821/122gap; preservedprivate, notclaimedfullstrictpass. Complete150receipt included; fullhostedgatespending, noaggregate gain claimed."
+      "note": "C mon_break_armor evaluates mhim(mon), then mhis(mon), on entry even when no equipment changes. JavaScript had both lookups inside the asynchronous effects body, after its synchronous no-change shortcut, so that shortcut skipped both hallucination-sensitive core RNG calls. Move the existing lookups into the wrapper, pass captured values to effects to avoid a second pair, and bind canonical canspotmon for default perception while preserving explicit state/random/message owners. The no-change path remains synchronous for level construction; armor behavior is unchanged. Actual frozen 151 baseline 292fabd8 fails both fresh public shape-change witnesses at core RNG 6821 / boundary122 and ends with 6917 calls versus C6919; the before-trigger control passes. Normal and monochrome repaired replays strictly match all 6919 RNG calls,125 screens/cursors,0 animations. The control matches6805 RNG,119 screens/cursors,0 animations. Empty and unchanged inventory cases in live/planning states verify exactly two entry draws and a synchronous return; ordinary perception tests cover canonical and explicit owners with no RNG; an actual native armor drop proves captured pronouns are not redrawn and verifies slot clearing, floor placement, and the sound line.784 unique tests pass:39 initial affected excluding the repeated construction case,8 construction/entry tests,3 C replays,734 caller tests. Lint and diff checks pass. Full833 continuation retains an independent weapon-swing planning display-owner leak at boundary126; no full833 strict pass claimed for this repair. Complete accepted151 receipt included; full hosted gates pending, no aggregate score gain claimed."
     }
   ]
 }
