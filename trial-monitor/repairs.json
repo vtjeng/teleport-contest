@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T21:21:56.832Z",
+  "asOf": "2026-10-23T21:35:23.921Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8782,8 +8782,94 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "f60fd101406ea2e1bebf44ac1389dea3efb6ea85",
+          "runs": [
+            {
+              "id": 40026262349,
+              "name": "Checkpoint",
+              "sha": "f60fd101406ea2e1bebf44ac1389dea3efb6ea85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mind-blast-target-chain-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:22:17Z",
+              "completedAt": "2026-10-23T21:29:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40026262349"
+            },
+            {
+              "id": 40027327241,
+              "name": "Lint",
+              "sha": "f60fd101406ea2e1bebf44ac1389dea3efb6ea85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:30:54Z",
+              "completedAt": "2026-10-23T21:31:51Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40027327241"
+            },
+            {
+              "id": 40027327131,
+              "name": "Dashboard",
+              "sha": "f60fd101406ea2e1bebf44ac1389dea3efb6ea85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:30:54Z",
+              "completedAt": "2026-10-23T21:33:43Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40027327131"
+            }
+          ]
+        }
+      ],
+      "note": "Cmind_blast traverses fmon (rm.h canonicalsvl.level.monlist), cachesnext beforewakeup/death, andprocessesopposed/nonmindless/livingtargets. JSiteratedobsolete state.fmon, skippingallothermonsters. Usecanonicallevel.monlist andcachednext; passfullstate/random/message/planningcontext tocanonicalwakeup instead ofstateonly. Herobranch unchanged. Actualworm-only4b3b563c baseline freshnormal firstmissingrn2(10)13779/317, horizontal6998/110; beforetriggercontrol passesboth. Three freshlyrecorded C replays strictlypass: normal24950RNG812screens/cursors162animations, horizontal8938/143/29, beforecontrol13309/309/150. Two canonicaldochug constructedlive/planning cases proveopposedtargetdamage, awakening/mealend, friend/mindless/deadskip, nexttarget traversal, exactRNG andplanningmessagesilence.381affected+64focused=445unique tests including3C pass; lint/diffcheck pass. Existing acoustics-off independentfull812probe passes25999RNG103animations; fifthseed8432005date20261030164500 full812probe passesbothbaseline/fix24737RNG24animations, privateunaffectedcontrol. Private2132continuationstrictpass52913RNG188animations; longer5732matchesall193781RNG/cursors394animations buthasindependentgreenslimepromptvisionfirstscreen4655, preservedsourcelead, notclaimedfullstrictpasshere. Complete148receipt included; fullhostedgatespending; noaggregatescoregainclaimed. Accepted as distinct149 afterfullCheckpoint40026262349 andexactMainLint40027327241/Dashboard40027327131 passed. Normal runAPI summaries verifiedexactSHA/repositories/attempt/triggers; full44fixed/98batch2055case comparison against4b3b563c clean, allaggregatedeltas0. Complete98publicationreceipt carried innextordinarypromptrepair."
+    },
+    {
+      "id": "prompt-deferred-vision",
+      "kind": "parity-repair",
+      "title": "Recalculate deferred vision before TTY input prompts",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T21:21:06.625Z",
+          "end": "2026-10-23T21:21:06.625Z",
+          "note": "Instantaneous preserved source-attribution/private-causal-trial observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/win/tty/topl.c:tty_yn_function417-425",
+          "nethack-c/upstream/src/pline.c:vpline266-274",
+          "js/topl.js:tty_yn_function",
+          "js/tty_message.js:ttyPlineCore"
+        ],
+        "witness": [
+          "recipes/topl.c/prompt-deferred-vision-slime.session.json",
+          "recipes/topl.c/prompt-deferred-vision-monochrome.session.json",
+          "recipes/topl.c/prompt-deferred-vision-between-turn-control.session.json"
+        ],
+        "test": [
+          "scripts/prompt-deferred-vision.test.mjs",
+          "scripts/topl.test.mjs",
+          "scripts/tty-message.test.mjs",
+          "scripts/hero-death.test.mjs",
+          "scripts/vision-blind-epilogue.test.mjs",
+          "scripts/tty-startup.test.mjs",
+          "scripts/legacy-startup.test.mjs",
+          "scripts/startup-windowtype.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Cmind_blast traverses fmon (rm.h canonicalsvl.level.monlist), cachesnext beforewakeup/death, andprocessesopposed/nonmindless/livingtargets. JSiteratedobsolete state.fmon, skippingallothermonsters. Usecanonicallevel.monlist andcachednext; passfullstate/random/message/planningcontext tocanonicalwakeup instead ofstateonly. Herobranch unchanged. Actualworm-only4b3b563c baseline freshnormal firstmissingrn2(10)13779/317, horizontal6998/110; beforetriggercontrol passesboth. Three freshlyrecorded C replays strictlypass: normal24950RNG812screens/cursors162animations, horizontal8938/143/29, beforecontrol13309/309/150. Two canonicaldochug constructedlive/planning cases proveopposedtargetdamage, awakening/mealend, friend/mindless/deadskip, nexttarget traversal, exactRNG andplanningmessagesilence.381affected+64focused=445unique tests including3C pass; lint/diffcheck pass. Existing acoustics-off independentfull812probe passes25999RNG103animations; fifthseed8432005date20261030164500 full812probe passesbothbaseline/fix24737RNG24animations, privateunaffectedcontrol. Private2132continuationstrictpass52913RNG188animations; longer5732matchesall193781RNG/cursors394animations buthasindependentgreenslimepromptvisionfirstscreen4655, preservedsourcelead, notclaimedfullstrictpasshere. Complete148receipt included; fullhostedgatespending; noaggregatescoregainclaimed."
+      "note": "Ctty_yn_function sendsboth restricted/unrestricted prompts throughcustompline OVERRIDE_MSGTYPE|SUPPRESS_HISTORY; vpline consumesvision_full_recalc beforeflush_screen/putmesg. JSmanualpromptflush skipped deferredvision. Eyelessgreenslimepolymorph setsflag andimmediate slimed_to_death Diequery leftoldmonster glyphs untilnextmessage. Recalculateatnormalinitializedlivepromptpreflush, sameowner as ttyPlineCore, preservingexisting u.ux/bonesrestoreguard. No input/history/RNG/outputstylechanges. Fresh public# wizintrinsic observedpage1c count1setsfatal slime andordinaryturn reachesDieprompt; normal/monochrome138boundaries7903RNG3animations strictlypass, actualf60baseline firstscreen122whileallRNG/cursors/framesmatch. Between-turncontrolled#polyself/quitcontrol125boundaries6635RNG0animationspassesboth. Two realinitializedgame restricted/unrestricted tests failbaselineatinputflag1 andpassfixflag0/sightcleared; bonesrestore/nonglobal guards remainpassing anddonotconsumeeitherownervision.7focused+363affected=370tests including3C+4constructedpass, lint/diffcheckpass. Originalnaturallyinfected5732boundarycase firstscreen4655 nowprivatecausaltrialstrictpass193781RNG5732screens/cursors394animations. Independentseed8432006date20261101124500 long5732probe passes306443RNG542animations; seed8432007date20261102153000 long5732passes205767RNG849animations, privatecontrolsnotaddedtoscore. Initial120boundaryshortsetupendedheldhelmetMore andwasnotawitness; extendedexplicitacknowledgementstoreachDieprompt. Complete149receipt included; fullhostedgatespending, noaggregategainclaimed."
     }
   ]
 }

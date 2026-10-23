@@ -550,6 +550,13 @@ export async function tty_yn_function(query, resp, def, state = game) {
         prompt = `${query} `;
     }
     if (state.u?.ux && !state._bonesRestorePrompt) {
+        // C custompline() enters vpline(): deferred vision precedes the map
+        // flush even for a restricted or unrestricted input prompt. Keep the
+        // same live owner as ttyPlineCore and the existing restore safeguard.
+        if (state === game && state.vision_full_recalc) {
+            const { vision_recalc } = await import('./vision.js');
+            vision_recalc(0);
+        }
         const { flush_screen } = await import('./display.js');
         await flush_screen(1);
     }

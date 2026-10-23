@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Monochrome variation of observed public #wizintrinsic count1 slime timeout and immediate death prompt.",
+  "segments": [
+    {
+      "seed": 8432004,
+      "datetime": "20261029153000",
+      "nethackrc": "OPTIONS=name:HearingAstral,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips,!color\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       #wizintrinsic\n1c\n.    n    \n            n    \n\u0012"
+    }
+  ]
+}
