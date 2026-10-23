@@ -34,7 +34,7 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
-import { MONSTER_TEMPLATES, PM_LONG_WORM } from '../js/monsters.js';
+import { MONSTER_TEMPLATES, PM_GIANT_RAT, PM_LONG_WORM } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -533,3 +533,39 @@ test('mkmaze.c mazexy() falls back in x-major, then y-major order', () => {
     assert.equal(draws.length, 200);
     assert.ok(draws.every((limit) => limit === 10));
 });
+
+// C movebubbles collects from the previous up direction, then reverses it
+// for movement. Overlap makes the first collector own a monster once.
+for (const up of [false, true]) {
+    test('overlapping Water bubbles collect in prior direction ' + up, async () => {
+        const state = resetGame();
+        initRng(710305);
+        state.level = new GameMap();
+        state.level.traps = [];
+        state.mons = MONSTER_TEMPLATES;
+        state.u = { ux: 40, uy: 10, uz: { dnum: 0, dlevel: 1 }, uswallow: 0, ustuck: null };
+        state.water_level = { ...state.u.uz };
+        state.waterlevel_bounds = { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
+        const monster = newMonster({ data: state.mons[PM_GIANT_RAT],
+            mnum: PM_GIANT_RAT, m_id: 901, mhp: 20 });
+        state.level.monlist = monster;
+        place_monster(monster, 25, 10, state);
+        const bubbles = [1, -1].map(dx => ({ x: 25, y: 10, dx, dy: 0,
+            mask: { width: 1, height: 1, rows: [1] }, cons: [] }));
+        state.air_bubbles = bubbles;
+        state.air_bubbles_up = up;
+        let draws = 0;
+        await movebubbles(state, () => {
+            if (draws++ === 0) {
+                assert.deepEqual(bubbles.map(b => b.cons.length), up ? [1, 0] : [0, 1]);
+                assert.equal(bubbles[up ? 0 : 1].cons[0].list, monster);
+                assert.equal(state.level.monsters[25][10], null);
+            }
+            return 1;
+        });
+        assert.deepEqual([monster.mx, monster.my], [up ? 26 : 24, 10]);
+        assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+        assert.ok(bubbles.every(b => b.cons.length === 0));
+        assert.equal(state.air_bubbles_up, !up);
+    });
+}

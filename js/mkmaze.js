@@ -492,7 +492,11 @@ export async function movebubbles(state = game, random = rn2) {
 
     if (waterLevel) {
         state.hero_bubble = null;
-        for (const bubble of state.air_bubbles ?? []) {
+        // C collects using the previous direction, before toggling it for
+        // movement below. The first overlapping bubble owns each monster or
+        // object, so collection order affects subsequent relocation.
+        const collection = state.air_bubbles ?? [];
+        for (const bubble of state.air_bubbles_up ? collection : [...collection].reverse()) {
             if (bubble.cons?.length)
                 throw new Error('movebubbles: cons != null');
             bubble.cons = [];
@@ -561,8 +565,8 @@ export async function movebubbles(state = game, random = rn2) {
       }
     }
 
-    // C's static `up` toggles before traversing the lists. New levels start
-    // false, so the first arrival walks the setup list in creation order.
+    // C's static `up` toggles between collection and movement. Its initial
+    // false value makes the first arrival move in creation order.
     state.air_bubbles_up = !state.air_bubbles_up;
     const bubbles = state.air_bubbles_up
         ? state.air_bubbles

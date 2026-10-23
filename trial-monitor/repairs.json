@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T05:40:50.363Z",
+  "asOf": "2026-10-23T05:53:08.054Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6040,8 +6040,90 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "9c23db7bf1dfb81c55752e7aaef086391fbe2e09",
+          "runs": [
+            {
+              "id": 39907266321,
+              "name": "Checkpoint",
+              "sha": "9c23db7bf1dfb81c55752e7aaef086391fbe2e09",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/stranded-eel-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:42:40Z",
+              "completedAt": "2026-10-23T05:48:35Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39907266321"
+            },
+            {
+              "id": 39907887095,
+              "name": "Lint",
+              "sha": "9c23db7bf1dfb81c55752e7aaef086391fbe2e09",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:49:21Z",
+              "completedAt": "2026-10-23T05:50:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39907887095"
+            },
+            {
+              "id": 39907887192,
+              "name": "Dashboard",
+              "sha": "9c23db7bf1dfb81c55752e7aaef086391fbe2e09",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:49:21Z",
+              "completedAt": "2026-10-23T05:51:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39907887192"
+            }
+          ]
+        }
+      ],
+      "note": "C mfndpos keeps wantpool true for a stranded eel until a complete scan finds no candidates, then retries land. JS mfndpos matches, but preflight incorrectly reset its local preference whenever the eel started outside water and rejected selected water destinations. Remove that premature fallback; ordinary terrain already admits selected land. Two public Water continuations stopped before screen82/87 and now match all104 screens/RNG/cursors. First-turn independent control retains80 matching screens. New unit reproduces rejection before and passes after; land fallback and pool-to-moat cases retained. Three fresh C comparisons and401 focused/affected tests pass. Carries complete UI maintenance publication receipts/98 evaluations; UI remains excluded from distinct parity count. Bubble collection traversal order remains separate unqualified lead. Hosted gates pending; no measured aggregate gain claimed. Accepted after exact-SHA Checkpoint39907266321/MainLint39907887095/Dashboard39907887192 success, all first attempts. Complete44 fixed and98 synthetic batches/2055 cases compare unchanged. Distinct accepted119. Existing checker recorded complete98 cohort againstad42b62b."
+    },
+    {
+      "id": "water-bubble-collection-order",
+      "kind": "parity-repair",
+      "title": "Collect Water bubble contents in the canonical alternating order",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T05:44:15.582Z",
+          "end": "2026-10-23T05:54:57.059Z",
+          "note": "Observed source/witness interval, not active-work time. Investigation overlapped frozen eel candidate CI; implementation began after its Main gates and complete98 receipt."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mkmaze.c",
+          "js/mkmaze.js"
+        ],
+        "witness": [
+          "recipes/mkmaze.c/bubble-order-water.session.json",
+          "recipes/mkmaze.c/bubble-order-water-variant.session.json",
+          "recipes/mkmaze.c/bubble-order-air-control.session.json"
+        ],
+        "test": [
+          "scripts/bubble-collection-order.test.mjs",
+          "scripts/mkmaze-span.test.mjs",
+          "scripts/stranded-eel-movement.test.mjs",
+          "scripts/elemental-level-upkeep.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/storm-upkeep.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mfndpos keeps wantpool true for a stranded eel until a complete scan finds no candidates, then retries land. JS mfndpos matches, but preflight incorrectly reset its local preference whenever the eel started outside water and rejected selected water destinations. Remove that premature fallback; ordinary terrain already admits selected land. Two public Water continuations stopped before screen82/87 and now match all104 screens/RNG/cursors. First-turn independent control retains80 matching screens. New unit reproduces rejection before and passes after; land fallback and pool-to-moat cases retained. Three fresh C comparisons and401 focused/affected tests pass. Carries complete UI maintenance publication receipts/98 evaluations; UI remains excluded from distinct parity count. Bubble collection traversal order remains separate unqualified lead. Hosted gates pending; no measured aggregate gain claimed."
+      "note": "C movebubbles collects using prior static up, then toggles direction for movement. JS always collected forward, changing which overlapping bubble owned monsters/objects. Traverse collection using prior direction without mutating the list; keep existing movement order. Two public six-rest Water witnesses had late RNG differences despite matching screens; now match6675/7066 RNG and140 screens/cursors each. Air control remains full match. New overlap ownership unit fails before for reverse collection; both directions pass after. Initial eel fixture had invalid dry-destination expectation, corrected to a terrestrial monster. Three fresh C comparisons,108 focused/affected tests pass. Carries accepted119 complete98 receipts. Hosted gates pending; no aggregate score gain claimed."
     }
   ]
 }
