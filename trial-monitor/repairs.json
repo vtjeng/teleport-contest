@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T20:49:52.785Z",
+  "asOf": "2026-10-23T21:09:34.537Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8619,9 +8619,87 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40019005577"
             }
           ]
+        },
+        {
+          "sha": "eeff045cf8c91108250839c8fb3ca764d44b4f3c",
+          "runs": [
+            {
+              "id": 40022339781,
+              "name": "Checkpoint",
+              "sha": "eeff045cf8c91108250839c8fb3ca764d44b4f3c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/topl-replacement-redraw-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-23T20:57:23Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40022339781"
+            },
+            {
+              "id": 40023598214,
+              "name": "Lint",
+              "sha": "eeff045cf8c91108250839c8fb3ca764d44b4f3c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-23T21:01:50Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40023598214"
+            },
+            {
+              "id": 40023598176,
+              "name": "Dashboard",
+              "sha": "eeff045cf8c91108250839c8fb3ca764d44b4f3c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-23T21:03:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40023598176"
+            }
+          ]
         }
       ],
-      "note": "Cupdate_topl249-302 ends every unsuppressed nonappend replacement with redotoplin, including after its ownmore acknowledgement. JS only painted when acknowledgedTopline was alreadytrue atentry; a More insideupdate_topl then remembers newtext but leaves oldphysicalMore until laterflush, observable in missile animation. Alwayspaint replacement after history update, remove unused acknowledgement plumbing, preserve suppression/history/input ownership. Actual accepted146baseline both freshnormal/monochrome matchall83632RNG2734screens/cursors577framecounts but firstanimation2179 shows oldOKdontdieMore instead ofItismissed; private stacks prove liveadvanceElapsedTurn, notplanning; mapframecells match. Repaired3C replays strictlypass allcontent, beforetriggercontrol67450RNG2158screens/cursors424animations passes both. Two constructed realttyPline/GameDisplay cases verify immediatephysicaltext/cursor afteronequeuedSpace More andemptylogical-line replacement, withnomapflush/extra input. Private initialunitpriorlinefitssame-lineappend; lengthened it toexerciseMore beforeproductionfixture.431focused/affected tests including3C pass, lint/diffcheck pass. Separate thirdseed extended123810RNG3454screens/cursors328animations passes baselineandprivatefix as unaffectedcontrol, not added toregressioncorpus orscore. New8432004movement discrepancy reproduces on146andwithacousticsoff, so independent ofthisrepair; preservedunqualified. Complete146receipt included; fullhostedgatespending, no aggregate gain claimed. Original147candidate7f3c4e13 failedCheckpoint40019005577 attempt1: testshards3job120638374019 and4job120638373958, combined120640902434 failed. Localreproduction found7fixturetests assuming the old deferredphysicalmessage: stethoscopefirstannouncement sampledaftercompletion instead ofactualMore, off-maplisten expectingunchangedmessage row/cursor, foreignwear display spreadlosingmethods, commanddiagnostics expectingblankgrid. Correctfixtures toobservefirstmessage/cursor at _preNhgetchHook More boundary, preservemap-only/queuedsentinel checks, assertfinalimmediate message/diagnostic/cursor includingterminaldefaultfg7 tail, anduseanindependentrealGameDisplay forforeignnamingstate. Production147gamecode unchanged. Initiallocalshard3 also lackedlockedfast-check; npmci --ignore-scripts restoredexactdependencies withnopackage/lock/config changes. Correctedlocalshard3 passes2524/2524 andshard4 passes3021/3021;7targetedfailurecases pass withsourceCapply.c/cmd.c outputorder checked. Correctiongroupedwithin147, notnewrepair; freshfullhosted gates required."
+      "note": "Cupdate_topl249-302 ends every unsuppressed nonappend replacement with redotoplin, including after its ownmore acknowledgement. JS only painted when acknowledgedTopline was alreadytrue atentry; a More insideupdate_topl then remembers newtext but leaves oldphysicalMore until laterflush, observable in missile animation. Alwayspaint replacement after history update, remove unused acknowledgement plumbing, preserve suppression/history/input ownership. Actual accepted146baseline both freshnormal/monochrome matchall83632RNG2734screens/cursors577framecounts but firstanimation2179 shows oldOKdontdieMore instead ofItismissed; private stacks prove liveadvanceElapsedTurn, notplanning; mapframecells match. Repaired3C replays strictlypass allcontent, beforetriggercontrol67450RNG2158screens/cursors424animations passes both. Two constructed realttyPline/GameDisplay cases verify immediatephysicaltext/cursor afteronequeuedSpace More andemptylogical-line replacement, withnomapflush/extra input. Private initialunitpriorlinefitssame-lineappend; lengthened it toexerciseMore beforeproductionfixture.431focused/affected tests including3C pass, lint/diffcheck pass. Separate thirdseed extended123810RNG3454screens/cursors328animations passes baselineandprivatefix as unaffectedcontrol, not added toregressioncorpus orscore. New8432004movement discrepancy reproduces on146andwithacousticsoff, so independent ofthisrepair; preservedunqualified. Complete146receipt included; fullhostedgatespending, no aggregate gain claimed. Original147candidate7f3c4e13 failedCheckpoint40019005577 attempt1: testshards3job120638374019 and4job120638373958, combined120640902434 failed. Localreproduction found7fixturetests assuming the old deferredphysicalmessage: stethoscopefirstannouncement sampledaftercompletion instead ofactualMore, off-maplisten expectingunchangedmessage row/cursor, foreignwear display spreadlosingmethods, commanddiagnostics expectingblankgrid. Correctfixtures toobservefirstmessage/cursor at _preNhgetchHook More boundary, preservemap-only/queuedsentinel checks, assertfinalimmediate message/diagnostic/cursor includingterminaldefaultfg7 tail, anduseanindependentrealGameDisplay forforeignnamingstate. Production147gamecode unchanged. Initiallocalshard3 also lackedlockedfast-check; npmci --ignore-scripts restoredexactdependencies withnopackage/lock/config changes. Correctedlocalshard3 passes2524/2524 andshard4 passes3021/3021;7targetedfailurecases pass withsourceCapply.c/cmd.c outputorder checked. Correctiongroupedwithin147, notnewrepair; freshfullhosted gates required. Accepted as distinct147 after corrected fullCheckpoint40022339781, exactMainLint40023598214 andDashboard40023598176 succeeded. Parent normal GitHub run-summary evidence supplied exact completion timestamps; no denied workflow endpoint retried. Existing publication checker independently completed required normal checks and complete98receipt. Full44/98comparison againstd921 unchanged, no regressions/missing evidence. Originalfailed7f3 andcorrectioneeff grouped asone147; complete147receipt included in nextordinarywormrepair."
+    },
+    {
+      "id": "worm-level-segment-reflection",
+      "kind": "parity-repair",
+      "title": "Reflect long-worm segments with the level",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T20:30:49.837Z",
+          "end": "2026-10-23T20:30:49.837Z",
+          "note": "Instantaneous source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/worm.c:flip_worm_segs_vertical",
+          "nethack-c/upstream/src/worm.c:flip_worm_segs_horizontal",
+          "nethack-c/upstream/src/sp_lev.c:flip_level",
+          "js/monmove.js:wormCross"
+        ],
+        "witness": [
+          "recipes/worm.c/worm-level-reflection-vertical.session.json",
+          "recipes/worm.c/worm-level-reflection-no-acoustics.session.json",
+          "recipes/worm.c/worm-level-reflection-before-control.session.json"
+        ],
+        "test": [
+          "scripts/worm-level-reflection.test.mjs",
+          "scripts/worm.test.mjs",
+          "scripts/wiz-flip-level.test.mjs",
+          "scripts/monmove.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Cworm.c968-987 reflects every stored segment including hiddenhead about supplied min/max bounds; Csp_lev.flip_level calls both helpers. JS previously only noted unported helpers, leaving stored chain behind alreadyreflected head/grid. Actualeeff baseline adds sixth Healer movement candidate at6643RNG (noacoustics6666) throughconsecutivewormsegments; wormCross reads stalechain. Implement wholehelpers inplace, wireexisting caller, preserve NULLchain withoutinitialization, RNG/output/grid/head/growtime unchanged. Three fresh public C replays strictlypass: vertical7157RNG97screens/cursors2animations, acoustics-off7161/97/22, beforecontrol6631/92/0. Baselinefailsbothwitnesses andpassescontrol.27focused+589affected=616tests including3C pass; directnonzerobounds/involution/hiddenhead/other-slot andcanonicalflip_level masks1/2/3 towormCross consumer coverbothaxes. Long812boundarycase and publichorizontalextension reachindependentpsychicblast mismatch, retainedprivately, no fullstrictpass/livehorizontalclaim. Complete147receipt included; fullhostedgatespending; noaggregate gain claimed."
     }
   ]
 }

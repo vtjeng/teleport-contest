@@ -7,6 +7,8 @@ import {
     create_worm_tail,
     cutworm,
     get_wormno,
+    flip_worm_segs_vertical,
+    flip_worm_segs_horizontal,
     initworm,
     redraw_worm,
     remove_worm,
@@ -425,4 +427,33 @@ test('wormhitu propagates attacker death and stops before another nearby tail', 
     });
     assert.equal(result, 1, 'C propagates the first true mattacku result');
     assert.equal(calls, 2, 'the third qualifying tail is not attacked after death');
+});
+
+
+test('worm reflections transform every node with nonzero bounds and leave indexes to their caller', () => {
+    const state = wormState();
+    const segments = [{x: 0, y: 0}, {x: 4, y: 5}, {x: 8, y: 9}];
+    const worm = {wormno: 1, mx: 8, my: 9};
+    state.level.worms[1] = {segments, growtime: 27};
+    state.level.monsters[8][9] = worm;
+    state.level.worms[2] = {segments: [{x: 6, y: 7}], growtime: 35};
+    const before = structuredClone(state);
+    flip_worm_segs_vertical(worm, 2, 15, state);
+    assert.deepEqual(segments, [{x: 0, y: 17}, {x: 4, y: 12}, {x: 8, y: 8}]);
+    flip_worm_segs_horizontal(worm, 3, 20, state);
+    assert.deepEqual(segments, [{x: 23, y: 17}, {x: 19, y: 12}, {x: 15, y: 8}]);
+    assert.equal(state.level.worms[1].segments, segments, 'the chain is mutated in place');
+    assert.equal(state.level.worms[1].growtime, 27);
+    assert.equal(state.level.monsters[8][9], worm, 'C leaves grid and head movement to flip_level');
+    assert.deepEqual([worm.mx, worm.my], [8, 9]);
+    assert.deepEqual(state.level.worms[2], before.level.worms[2]);
+    flip_worm_segs_vertical(worm, 2, 15, state);
+    flip_worm_segs_horizontal(worm, 3, 20, state);
+    assert.deepEqual(state, before, 'each source reflection is an involution');
+});
+test('a null worm chain has no reflection side effects', () => {
+    const state = {level: {}};
+    flip_worm_segs_vertical({wormno: 1}, 1, 20, state);
+    flip_worm_segs_horizontal({wormno: 1}, 1, 78, state);
+    assert.deepEqual(state, {level: {}});
 });

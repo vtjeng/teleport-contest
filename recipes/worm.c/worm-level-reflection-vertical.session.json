@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Astral level-reflection witness. C sp_lev flip_level reflects every long-worm segment via worm.c vertical/horizontal helpers, keeping the indexed map and segment chain consistent before diagonal crossing checks. No state injection.",
+  "segments": [
+    {
+      "seed": 8432004,
+      "datetime": "20261029153000",
+      "nethackrc": "OPTIONS=name:HearingAstral,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       m.   \u0012"
+    }
+  ]
+}

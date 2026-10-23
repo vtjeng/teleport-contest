@@ -13,7 +13,7 @@ import { fix_wall_spines } from './mklev.js';
 import { placebc, unplacebc } from './ball.js';
 import { vision_reset } from './vision.js';
 import { rn2 } from './rng.js';
-import { note_unported } from './unported.js';
+import { flip_worm_segs_horizontal, flip_worm_segs_vertical } from './worm.js';
 
 // C ref: sp_lev.c flip_dbridge_horizontal(). A drawbridge facing west now
 // faces east, and the reverse.
@@ -232,8 +232,8 @@ export async function flip_level(flp, extras = false, state = game) {
             flipCoord(ESHK(mtmp).shk);
             flipCoord(ESHK(mtmp).shd);
         } else if (mtmp.wormno) {
-            if (flp & 1) note_unported('worm.c flip_worm_segs_vertical');
-            if (flp & 2) note_unported('worm.c flip_worm_segs_horizontal');
+            if (flp & 1) flip_worm_segs_vertical(mtmp, miny, maxy, state);
+            if (flp & 2) flip_worm_segs_horizontal(mtmp, minx, maxx, state);
         }
     }
     if (extras) {

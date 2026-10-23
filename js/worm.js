@@ -3,7 +3,8 @@
 // worm_move(),
 // wormgone(), cutworm(), place_wsegs(), remove_worm(),
 // place_worm_tail_randomly(), count_wsegs(), create_worm_tail(), worm_known(),
-// wseg_at(), redraw_worm().
+// wseg_at(), redraw_worm(), flip_worm_segs_vertical(),
+// flip_worm_segs_horizontal().
 
 import { memoryLayout } from './wizcmds_data.js';
 import {
@@ -156,6 +157,21 @@ export function create_worm_tail(num_segs) {
     for (let i = 0; i < num_segs; ++i)
         segments.push({ x: 0, y: 0 });
     return segments;
+}
+
+// C ref: worm.c flip_worm_segs_vertical() (968-976). Include the hidden
+// head node: sp_lev.c has already reflected the monster and coordinate grid.
+export function flip_worm_segs_vertical(worm, miny, maxy, state = game) {
+    const segments = state.level?.worms?.[worm.wormno]?.segments ?? [];
+    for (const segment of segments)
+        segment.y = maxy - segment.y + miny;
+}
+
+// C ref: worm.c flip_worm_segs_horizontal() (979-987).
+export function flip_worm_segs_horizontal(worm, minx, maxx, state = game) {
+    const segments = state.level?.worms?.[worm.wormno]?.segments ?? [];
+    for (const segment of segments)
+        segment.x = maxx - segment.x + minx;
 }
 
 // C ref: worm.c wseg_at(). Return the remaining tail-to-head chain length

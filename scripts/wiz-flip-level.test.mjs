@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { GameMap } from '../js/game.js';
-import { ECMD_OK, MELT_ICE_AWAY, ROOM } from '../js/const.js';
+import { ECMD_OK, MAX_NUM_WORMS, MELT_ICE_AWAY, ROOM } from '../js/const.js';
 import * as commands from '../js/wizcmds.js';
+import {wormCross} from '../js/monmove.js';
 
 function flipFixture() {
     const level = new GameMap();
@@ -127,3 +128,30 @@ test('wizcmds.c waits for docrt before its ECMD_OK return', async () => {
     release();
     assert.equal(await command, ECMD_OK);
 });
+
+
+for (const [mask, head, tail] of [
+    [1, {x: 10, y: 10}, {x: 11, y: 9}],
+    [2, {x: 20, y: 5}, {x: 19, y: 6}],
+    [3, {x: 20, y: 10}, {x: 19, y: 9}],
+]) {
+    test(`flip_level keeps worm chain and diagonal crossing consistent for mask${mask}`, async () => {
+        const {flip_level} = await import('../js/sp_lev.js');
+        const state = flipFixture();
+        state.level.at(11, 6).typ = ROOM;
+        const worm = {mx: 10, my: 5, wormno: 1, mgoal: {x: 0, y: 0}, nmon: null};
+        state.level.monlist = worm;
+        state.level.monsters[10][5] = worm;
+        state.level.monsters[11][6] = worm;
+        state.level.worms = Array(MAX_NUM_WORMS).fill(null);
+        state.level.worms[1] = {segments: [{x: 11, y: 6}, {x: 10, y: 5}], growtime: 19};
+        await flip_level(mask, true, state);
+        assert.deepEqual([worm.mx, worm.my], [head.x, head.y]);
+        assert.deepEqual(state.level.worms[1].segments, [tail, head]);
+        assert.equal(state.level.monsters[tail.x][tail.y], worm);
+        assert.equal(state.level.monsters[head.x][head.y], worm);
+        assert.equal(wormCross(tail.x, head.y, head.x, tail.y, state), true,
+            'the source consecutive-segment consumer sees the reflected chain');
+        assert.equal(state.level.worms[1].growtime, 19);
+    });
+}
