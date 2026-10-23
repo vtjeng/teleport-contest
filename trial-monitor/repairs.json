@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T19:17:51.536Z",
+  "asOf": "2026-10-23T19:38:56.982Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8249,8 +8249,92 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "6050f40c242b3c4ee2ff8e49437050af15217d2d",
+          "runs": [
+            {
+              "id": 40010340363,
+              "name": "Checkpoint",
+              "branch": "integration-checkpoint/thrown-boulder-vision-20261023",
+              "completedAt": "2026-10-23T19:24:50Z",
+              "sha": "6050f40c242b3c4ee2ff8e49437050af15217d2d",
+              "attempt": 1,
+              "event": "push",
+              "status": "completed",
+              "conclusion": "success",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40010340363",
+              "provenance": "Authorized parent normal workflow/job summary evidence. Lint workflow metadata resolved after5m18s lag; cause unknown. No reruns or denied annotation reads."
+            },
+            {
+              "id": 40011867020,
+              "name": "Lint",
+              "branch": "main",
+              "completedAt": "2026-10-23T19:36:07Z",
+              "sha": "6050f40c242b3c4ee2ff8e49437050af15217d2d",
+              "attempt": 1,
+              "event": "push",
+              "status": "completed",
+              "conclusion": "success",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40011867020",
+              "provenance": "Authorized parent normal workflow/job summary evidence. Lint workflow metadata resolved after5m18s lag; cause unknown. No reruns or denied annotation reads."
+            },
+            {
+              "id": 40011867013,
+              "name": "Dashboard",
+              "branch": "main",
+              "completedAt": "2026-10-23T19:33:11Z",
+              "sha": "6050f40c242b3c4ee2ff8e49437050af15217d2d",
+              "attempt": 1,
+              "event": "push",
+              "status": "completed",
+              "conclusion": "success",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40011867013",
+              "provenance": "Authorized parent normal workflow/job summary evidence. Lint workflow metadata resolved after5m18s lag; cause unknown. No reruns or denied annotation reads."
+            }
+          ]
+        }
+      ],
+      "note": "C drop_throw places boulders through place_object; later mpickstuff removes them through remove_object. Common monster action environment omitted blockPoint and recalcBlockPoint hooks. Supply canonical vision callbacks with planning clone ownership and preserve explicit overrides. Old142 game code stops at22829RNG627screens; first missing22830. Fresh public landing and monochrome roundtrip witnesses each match24468RNG671screens/cursors53animations; pretrigger control22829RNG627screens/cursors52animations. Landing-only first trial reached missing removal hook; both transitions grouped as one repair.348focused/affected tests including3C pass on corrected142base; lint/diffcheck pass. Longer continuation matches58522RNG but later beam message differs at671; preserved privately, not claimed strict passing. No stacking occurs in the long trace; separate unexercised stacking guard not changed. Complete142receipt included. Hosted validation pending; not accepted; no aggregate gain claimed. Accepted as distinct143 after Checkpoint40010340363, exact MainLint40011867020 andDashboard40011867013 success. Workflow metadata lagged successfulLintjob by5m18s, resolved by authorized parent summary evidence; no rerun/denied annotation retry. Exact archive44fixed/98batch2055case comparison against6660 unchanged with no regressions/missing evidence. Complete98publication receipt carried into nextordinaryrepair."
+    },
+    {
+      "id": "lawful-minion-inventory-quality",
+      "kind": "parity-repair",
+      "title": "Normalize lawful minion inventory quality before insertion",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T19:10:21.496799+00:00",
+          "end": "2026-10-23T19:10:21.496799+00:00",
+          "note": "Instantaneous fresh Astral source exploration observation; not elapsed active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/makemon.c:mongets",
+          "nethack-c/upstream/include/monst.h:is_lminion",
+          "nethack-c/upstream/src/priest.c:mon_aligntyp",
+          "js/makemon_create.js"
+        ],
+        "witness": [
+          "recipes/makemon.c/lawful-minion-inventory-lawful.session.json",
+          "recipes/makemon.c/lawful-minion-inventory-monochrome.session.json",
+          "recipes/makemon.c/lawful-minion-inventory-before-control.session.json"
+        ],
+        "test": [
+          "scripts/lawful-minion-inventory.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/muse-offensive.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C drop_throw places boulders through place_object; later mpickstuff removes them through remove_object. Common monster action environment omitted blockPoint and recalcBlockPoint hooks. Supply canonical vision callbacks with planning clone ownership and preserve explicit overrides. Old142 game code stops at22829RNG627screens; first missing22830. Fresh public landing and monochrome roundtrip witnesses each match24468RNG671screens/cursors53animations; pretrigger control22829RNG627screens/cursors52animations. Landing-only first trial reached missing removal hook; both transitions grouped as one repair.348focused/affected tests including3C pass on corrected142base; lint/diffcheck pass. Longer continuation matches58522RNG but later beam message differs at671; preserved privately, not claimed strict passing. No stacking occurs in the long trace; separate unexercised stacking guard not changed. Complete142receipt included. Hosted validation pending; not accepted; no aggregate gain claimed."
+      "note": "C mongets removes curses, floors negative spe, proofs and clears erosion for lawful minions before mpickobj, then independently applies prince battle-gear floor. JS omitted lawful-minion branch and put prince floor only in non-demon arm. Use is_minion and canonical mon_aligntyp so individual alignment overrides species alignment, and preserve the independent source prince floor. Fresh seed8432001 date20261026113000 Astral Angel throws cursed blindness potion in oldJS, first12897drawrn2(7) instead ofCflight rn2(5); runtime stack attributes misfire to omitted item normalization. New lawful/monochrome C each match16873RNG313screens/cursors53animations; pretrigger control12885RNG159screens/cursors36animations passes. Six constructed cases exercise lawful/neutral Angel, ordinary monster, negative sword quality, proofing and demon-prince floor through real mksobj and minvent insertion.375focused/affected tests including3C pass, lint/diffcheck pass. Longer private32403RNG812screens180animations trace exposes independent planning-beam output leak at314, preserved separately; no full strictpass claimed for minion-only fix. Complete143receipt included; hosted validation pending; no aggregate gain claimed."
     }
   ]
 }

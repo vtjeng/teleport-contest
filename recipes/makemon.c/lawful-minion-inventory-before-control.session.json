@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Astral Angel inventory quality witness. C makemon.c mongets normalizes lawful minion items before insertion; new recording stops after completed potion-impact turn and before a later unrelated repeated-beam-message mismatch.",
+  "segments": [
+    {
+      "seed": 8432001,
+      "datetime": "20261026113000",
+      "nethackrc": "OPTIONS=name:FreshAstral,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n\u0012"
+    }
+  ]
+}
