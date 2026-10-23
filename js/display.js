@@ -121,7 +121,7 @@ import {
 } from './terminal.js';
 import { rankOf, roles } from './roles.js';
 import { pmname } from './do_name.js';
-import { is_flyer, monsndx } from './mondata.js';
+import { is_flyer, monsndx, sticks } from './mondata.js';
 import { m_at } from './monst.js';
 import {
     dist2,
@@ -314,6 +314,7 @@ import {
     NUMMONS,
     PM_LONG_WORM_TAIL,
     PM_TENGU,
+    S_EEL,
     monsterClassSymbol,
 } from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
@@ -4820,8 +4821,14 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Fly', 'Fly', 'Fl'] },
     { option: 'foodpois', rank: 6, enabled: true,
         forms: ['FoodPois', 'Fpois', 'Poi'] },
+    { option: 'grab', rank: 2, enabled: true,
+        forms: ['Grab', 'Grb', 'Gr'] },
     { option: 'hallucinat', rank: 10, enabled: true,
         forms: ['Hallu', 'Hal', 'Hl'] },
+    { option: 'held', rank: 20, enabled: false,
+        forms: ['Held', 'Hld', 'Hd'] },
+    { option: 'holding', rank: 20, enabled: false,
+        forms: ['UHold', 'UHld', 'UHd'] },
     { option: 'ice', rank: 20, enabled: false,
         forms: ['Icy', 'Icy', 'Ic'] },
     { option: 'inlava', rank: 8, enabled: true,
@@ -4870,6 +4877,20 @@ export function statusConditionActive(option, u) {
     case 'foodpois':
         return _propertyIntrinsic(u, SICK)
             && Boolean((u.usick_type ?? 0) & SICK_VOMITABLE);
+    // botl.c:1164-1188 treats these as one mutually exclusive family.
+    // Swallowing precedes sticky polymorph; a disabled Grab falls back to
+    // Held even for an eel, when that optional condition is enabled.
+    case 'grab':
+    case 'held':
+    case 'holding': {
+        if (!u.ustuck) return false;
+        if (u.uswallow) return option === 'held';
+        if (Upolyd(u) && sticks(game.youmonst.data))
+            return option === 'holding';
+        const grab = (game.iflags?.status_conditions?.grab ?? true)
+            && u.ustuck.data.mlet === S_EEL;
+        return option === (grab ? 'grab' : 'held');
+    }
     case 'hallucinat':
         return _propertyIntrinsic(u, HALLUC)
             && !_propertyActive(u, HALLUC_RES);

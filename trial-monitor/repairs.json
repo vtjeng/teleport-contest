@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T09:00:41.876Z",
+  "asOf": "2026-10-23T09:19:52.330Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6545,8 +6545,96 @@
           "scripts/unported-monster-actions.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "6a8ce0cf93c052967e195dc7b3e93d9674bcd1f1",
+          "runs": [
+            {
+              "id": 39928829617,
+              "name": "Checkpoint",
+              "sha": "6a8ce0cf93c052967e195dc7b3e93d9674bcd1f1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/cuss-planning-message-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:01:22Z",
+              "completedAt": "2026-10-23T09:07:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39928829617"
+            },
+            {
+              "id": 39930041983,
+              "name": "Lint",
+              "sha": "6a8ce0cf93c052967e195dc7b3e93d9674bcd1f1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:11:21Z",
+              "completedAt": "2026-10-23T09:12:16Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39930041983"
+            },
+            {
+              "id": 39930042058,
+              "name": "Dashboard",
+              "sha": "6a8ce0cf93c052967e195dc7b3e93d9674bcd1f1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:11:21Z",
+              "completedAt": "2026-10-23T09:14:24Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39930042058"
+            }
+          ]
+        }
+      ],
+      "note": "C dochug performs attack, quest_talk, then cuss and wake_nearto. JS planning caller passed no message owner, causing clone cuss/wake output to consume real keys before live attack and repeat afterward. Disposable diagnostic trace confirmed planning=true/global=false then live execution. Provide silent message owner only on planning caller, preserving cloned RNG and wake effects and canonical live message default. Previously preserved Water seed159 now fullymatches531831rng/325screens/cursors; accessiblemsg variation519071rng/325screens/cursors; seed158 control539103rng/325screens/cursors remains matching. Three freshC and385focused/affected tests plus lint pass; source-pinned Archon control preserves identical draws and wake state with no planned messages. Carries complete123 gates/98batch receipt. Hosted gates pending; no aggregate gain claimed. Accepted after exact-SHA Checkpoint39928829617/MainLint39930041983/Dashboard39930042058 success, all first attempts. Complete44 fixed and98 synthetic batches/2055cases compare unchanged. Distinct accepted124; existing checker recorded complete98 cohort againstb010eb71."
+    },
+    {
+      "id": "holder-status-family",
+      "kind": "parity-repair",
+      "title": "Render Grab, Held and UHold in source order",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T09:01:30.495Z",
+          "end": "2026-10-23T09:16:29.592Z",
+          "note": "Observed source/witness investigation interval, not active-work time; overlapped frozen cuss candidate CI. Edits began after124 Main gates and complete98 receipt."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/src/uhitm.c",
+          "js/display.js",
+          "js/mon.js"
+        ],
+        "witness": [
+          "recipes/botl.c/holder-status-grab.session.json",
+          "recipes/botl.c/holder-status-held.session.json",
+          "recipes/botl.c/holder-status-grab-disabled.session.json",
+          "recipes/botl.c/holder-status-holding.session.json",
+          "recipes/botl.c/holder-status-holding-disabled.session.json"
+        ],
+        "test": [
+          "scripts/holder-status.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs",
+          "scripts/mon-wakeup.test.mjs",
+          "scripts/end.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C dochug performs attack, quest_talk, then cuss and wake_nearto. JS planning caller passed no message owner, causing clone cuss/wake output to consume real keys before live attack and repeat afterward. Disposable diagnostic trace confirmed planning=true/global=false then live execution. Provide silent message owner only on planning caller, preserving cloned RNG and wake effects and canonical live message default. Previously preserved Water seed159 now fullymatches531831rng/325screens/cursors; accessiblemsg variation519071rng/325screens/cursors; seed158 control539103rng/325screens/cursors remains matching. Three freshC and385focused/affected tests plus lint pass; source-pinned Archon control preserves identical draws and wake state with no planned messages. Carries complete123 gates/98batch receipt. Hosted gates pending; no aggregate gain claimed."
+      "note": "C botl.c1164-1188 holder family chooses swallowed Held, sticky polymorphed UHold, otherwise enabled eel Grab or Held fallback; source tables define ranks, abbreviations and enabled defaults. JS status renderer omitted all3. Add whole related pure predicate family and table entries, preserving existing combat/state owners. Public kraken continuation first missedGrab boundary367; configured !cond_grab,cond_held missedHeld atsameboundary; each645704rng/373screens/cursors nowmatches. Barbeddevil AD_STCK witness firstmissedUHold111;2790rng/120screens/cursors nowmatches. DisabledGrab/UHold controlsremainpassing. Slowermimic probes either killedopponent or rehumanized beforecapturedholdingstatus; nofalsecoverage claim. FivefreshC and41focused/affected tests pluslint pass. Carries complete124 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed."
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C botl.c holder-condition family witness/control: holding-disabled. Source1164-1188 precedence is swallowed Held, sticky polymorphed UHold, otherwise enabled eel Grab or optional Held fallback. Recorded status updates use ordinary commands; no state injection.",
+  "segments": [
+    {
+      "seed": 8420170,
+      "datetime": "20261024020000",
+      "nethackrc": "OPTIONS=name:StickyStatus,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,!cond_holding\n",
+      "moves": "#polyself\nbarbed devil\n          #wizgenesis\nsleeping hostile iron golem\n          Fl          Fj          Fn          "
+    }
+  ]
+}

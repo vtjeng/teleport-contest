@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C botl.c holder-condition family witness/control: held. Source1164-1188 precedence is swallowed Held, sticky polymorphed UHold, otherwise enabled eel Grab or optional Held fallback. Recorded status updates use ordinary commands; no state injection.",
+  "segments": [
+    {
+      "seed": 8420159,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!cond_grab,cond_held,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>K               blessed ring of levitation\n     Pml          #wizgenesis\n1000 sleeping peaceful grid bug\n                              #wizgenesis\n1000 sleeping peaceful giant ant\n                              #wizgenesis\n1000 sleeping peaceful gnome\n                              m.          m.          m.          m.          m.          m.          "
+    }
+  ]
+}
