@@ -5513,8 +5513,27 @@
           "scripts/forced-arrival.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Move the complete canonical bound_digging owner to mkmaze.js. Preserve nondiggable boundary flags, add non-passwall only strictly beyond extents, and skip Earth. JS allowed ghost308 to arrive at57,1 in outer stone with only W_NONDIGGABLE, shifting subsequent migration placements despite identical early draw labels. 89/93-monster C witnesses fail before and pass after;88 control passes. Original100-monster Valley investigation also now matches all C outputs. Four fresh C comparisons and147 focused/affected tests pass. 97 additional generation tests,12 timeline tests, lint and diff-check pass. Carries complete repair113 receipts. Hosted gates pending; no measured score gain claimed."
+      "candidates": [
+        {
+          "sha": "c46ffb9024f875600626006f3f81aae87b0721d3",
+          "runs": [
+            {
+              "id": 39897703187,
+              "name": "Checkpoint",
+              "sha": "c46ffb9024f875600626006f3f81aae87b0721d3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/phase-boundary-20261023",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-23T03:57:00Z",
+              "completedAt": "2026-10-23T04:02:42Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39897703187"
+            }
+          ]
+        }
+      ],
+      "note": "Move the complete canonical bound_digging owner to mkmaze.js. Preserve nondiggable boundary flags, add non-passwall only strictly beyond extents, and skip Earth. JS allowed ghost308 to arrive at57,1 in outer stone with only W_NONDIGGABLE, shifting subsequent migration placements despite identical early draw labels. 89/93-monster C witnesses fail before and pass after;88 control passes. Original100-monster Valley investigation also now matches all C outputs. Four fresh C comparisons and147 focused/affected tests pass. 97 additional generation tests,12 timeline tests, lint and diff-check pass. Carries complete repair113 receipts. Hosted gates pending; no measured score gain claimed. Initial Checkpoint39897703187 failed test shards2/4; all non-test checks succeeded. Local reproduction identified stale Sanctum boundary assertions and17 second-turn state hashes. Clearing only new W_NONPASSWALL bits reproduces all17 prior hashes exactly; no other state changes. Fresh17-case C matrix and Sanctum replay pass, as do5 corrected tests. Local failed-shard runs add one unrelated missing-clang environment failure; hosted generated-data checks passed. Read of job120231851091 log was denied by redirected blob HTTPForbidden and was not retried. Correction changes only test expectations; gameplay remains unchanged and stays grouped with this repair."
     }
   ]
 }

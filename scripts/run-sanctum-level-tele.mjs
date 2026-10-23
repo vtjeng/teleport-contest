@@ -126,8 +126,14 @@ export async function verifySanctumSegment(segment) {
                 nonPasswall.push([x, y]);
         }
     }
-    assert.equal(nonPasswall.length, 60);
-    assert.deepEqual([...new Set(nonPasswall.map(([x]) => x))], [40, 41, 42]);
+    // sanctum.lua's explicit barrier remains 60 stone cells. Canonical
+    // mkmaze.c bound_digging also protects stone strictly outside the
+    // cleaned map extents (6..72, 2..19), adding 444 other cells.
+    const barrier = nonPasswall.filter(([x]) => x >= 40 && x <= 42);
+    assert.equal(barrier.length, 60);
+    assert.equal(nonPasswall.length, 504);
+    assert.ok(nonPasswall.every(([x, y]) => (x >= 40 && x <= 42)
+        || x < 6 || x > 72 || y < 2 || y > 19));
     assert.equal(
         game.level.at(3, 1).wall_info & W_NONDIGGABLE,
         W_NONDIGGABLE,

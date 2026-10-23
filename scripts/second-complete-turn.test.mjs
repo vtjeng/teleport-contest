@@ -274,6 +274,7 @@ test('all checked-in second-turn cases reach their exact prompt state',
                 // after its strict fresh C differential passed. Explicit
                 // fields explain the turn case; the digests pin the complete
                 // state, PRNG stream, and every 24x80 cell and attribute.
+                // State digests include mkmaze.c's outer W_NONPASSWALL flags.
                 // State digests store options.c's ATR_INVERSE (7), not the
                 // captured inverse bit (1). Clear cells use patch006's fg=7
                 // terminal default, represented as NO_COLOR in JS.
