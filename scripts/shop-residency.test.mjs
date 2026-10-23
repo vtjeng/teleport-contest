@@ -33,12 +33,18 @@ test('shop residency follows the persisted C room index and home-level guard', (
     assert.equal(parent.resident, null);
 });
 
-for (const kind of ['subrooms', 'quiet', 'control', 'subset']) {
+for (const kind of ['subrooms', 'quiet', 'control', 'subset',
+    'death-first-shop', 'death-second-shop', 'death-mimic-control']) {
     test(`Minetown shop residency ${kind} matches recorded C`, async () => {
         const root = createScoringWorkspace(process.cwd(), []);
         try {
             const recording = JSON.parse(readFileSync(new URL(
                 `../recordings/shk.c/shop-residency-${kind}.session.json`, import.meta.url)));
+            if (kind.startsWith('death-')) {
+                assert.ok(recording.segments[0].steps.some(step =>
+                    step.screen.includes('is killed.')),
+                'C target selection reaches monster death rather than a prompt');
+            }
             const result = compareSessionOutputs(recording, await runJsSession(recording, root));
             assert.equal(result.passed, true, formatReport(result));
         } finally {

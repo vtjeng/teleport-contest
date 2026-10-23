@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C source probe of shk.c shkgone: enter the already verified Minetown, select a resident by cursor movement, and use prefixed wizkill (no hero credit) to exercise mon.c m_detach. Coordinates come from the observed level, not a game-code special case.",
+  "segments": [
+    {
+      "seed": 8420131,
+      "datetime": "20261023190000",
+      "nethackrc": "OPTIONS=name:PriestAway,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n w m#wizkill\n hhhhhkkkkkkkkkkkk. \u001b   "
+    }
+  ]
+}

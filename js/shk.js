@@ -389,7 +389,7 @@ export async function money2u(monster, amount, state = game) {
 // shop-room record, clear floor charges, and settle its bill when applicable.
 export function shkgone(monster, state = game) {
     const eshk = monster.mextra.eshk;
-    const room = state.level.rooms[eshk.shoproom - ROOMOFFSET];
+    const room = mapseen_room(eshk.shoproom - ROOMOFFSET, state);
 
     if (on_level(eshk.shoplevel, state.u.uz)) {
         discard_damage_owned_by(monster, state);

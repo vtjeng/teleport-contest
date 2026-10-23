@@ -4984,7 +4984,7 @@
     {
       "id": "shop-residency-subrooms",
       "kind": "parity-repair",
-      "title": "Resolve shop residency in persisted subrooms",
+      "title": "Resolve shop ownership in persisted subrooms",
       "window": "single-worker",
       "origin": "sole-standard-engineer",
       "investigator": null,
@@ -4994,6 +4994,11 @@
           "start": "2026-10-23T01:28:28Z",
           "end": "2026-10-23T01:54:29.606Z",
           "note": "Observed source investigation and C-probe interval, not measured active work. Initial Valley priest setup was invalid (no priest); a separate relocation RNG probe remains unqualified. Minetown exposed the subroom residency crash while qualifying priest accessibility."
+        },
+        {
+          "start": "2026-10-23T02:08:30Z",
+          "end": "2026-10-23T02:22:04.847Z",
+          "note": "Grouped correction: source/probe investigation of shkgone exposed the same top-level-only index assumption through shopkeeper death. Initial unacknowledged targeting probe excluded. Observed interval, not active-work measurement; code edits followed accessibility publication and complete evidence recording."
         }
       ],
       "evidence": {
@@ -5002,18 +5007,26 @@
           "nethack-c/upstream/src/decl.c",
           "nethack-c/upstream/src/dog.c",
           "js/shk.js",
-          "js/dungeon.js"
+          "js/dungeon.js",
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/wizcmds.c",
+          "js/mon.js"
         ],
         "witness": [
           "recipes/shk.c/shop-residency-subrooms.session.json",
           "recipes/shk.c/shop-residency-quiet.session.json",
           "recipes/shk.c/shop-residency-control.session.json",
-          "recipes/shk.c/shop-residency-subset.session.json"
+          "recipes/shk.c/shop-residency-subset.session.json",
+          "recipes/shk.c/shop-residency-death-first-shop.session.json",
+          "recipes/shk.c/shop-residency-death-second-shop.session.json",
+          "recipes/shk.c/shop-residency-death-mimic-control.session.json"
         ],
         "test": [
           "scripts/shop-residency.test.mjs",
           "scripts/shk.test.mjs",
-          "scripts/dog-migrate.test.mjs"
+          "scripts/dog-migrate.test.mjs",
+          "scripts/mon-kill.test.mjs",
+          "scripts/monster-death-planning.test.mjs"
         ]
       },
       "candidates": [
@@ -5062,7 +5075,7 @@
           ]
         }
       ],
-      "note": "set_residency used top-level rooms alone despite C subroom aliasing. Reuse existing persisted-room lookup, preserving the home-level guard and zero_out assignment. Minetown resident migration crashes before repair and matches C after; quiet variation and non-migration control match. Public witnesses reach zero_out via mon_leave; supplemental checks cover restoration, stale generation-time subrooms, the foreign-level guard, and ordinary rooms. No synthetic score gain claimed. Hosted gates pending. Validation: three fresh C differentials, 175 focused/affected tests, 12 timeline tests, eslint js/ scripts/, and git diff --check pass. Accepted with exact-SHA Checkpoint, Main Lint and Dashboard success on attempt 1. Full archived fixed44 and synthetic98/2055 comparisons unchanged; check-published-ci recorded the complete cohort using accepted synthetic baseline. Added a stronger live C variation migrating only one subroom shopkeeper (plus one mimic); it passes and is grouped with this repair, not counted separately. Evidence ships in the next ordinary repair."
+      "note": "set_residency used top-level rooms alone despite C subroom aliasing. Reuse existing persisted-room lookup, preserving the home-level guard and zero_out assignment. Minetown resident migration crashes before repair and matches C after; quiet variation and non-migration control match. Public witnesses reach zero_out via mon_leave; supplemental checks cover restoration, stale generation-time subrooms, the foreign-level guard, and ordinary rooms. No synthetic score gain claimed. Hosted gates pending. Validation: three fresh C differentials, 175 focused/affected tests, 12 timeline tests, eslint js/ scripts/, and git diff --check pass. Accepted with exact-SHA Checkpoint, Main Lint and Dashboard success on attempt 1. Full archived fixed44 and synthetic98/2055 comparisons unchanged; check-published-ci recorded the complete cohort using accepted synthetic baseline. Added a stronger live C variation migrating only one subroom shopkeeper (plus one mimic); it passes and is grouped with this repair, not counted separately. Evidence ships in the next ordinary repair. Grouped follow-up extends the same persisted-room lookup to shkgone without changing source cleanup order or home-level condition. Two distinct subroom shopkeepers crash before repair and match C after; large-mimic death control passes. Three fresh C replays and 110 focused/affected tests pass. This is correction evidence for the original subroom ownership repair, not an additional distinct repair. Follow-up hosted gates pending. Follow-up timeline tests (12), lint and diff-check pass."
     },
     {
       "id": "special-monster-accessibility",
@@ -5095,8 +5108,53 @@
           "scripts/tower-keepdogs.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Extend keepdogs existing stable accessible-monster migration route to the three C mextra home-level owners, preserving exceptional-state checks. C full witness lists one priest and five shopkeepers at exact coordinates; smaller variation lists one shopkeeper. Both are missing before repair with matching RNG; all three live C differentials pass after repair, including home-level control. Supplemental guard branch remains source-pinned, not claimed as publicly witnessed. Existing exceptional Wizard tests retained. 103 focused/affected tests pass. No measured synthetic gain claimed. Hosted gates pending. Twelve timeline tests, lint and diff-check pass."
+      "candidates": [
+        {
+          "sha": "fa0bbb407f9573cc109a886962881867ecca3931",
+          "runs": [
+            {
+              "id": 39887948610,
+              "name": "Checkpoint",
+              "sha": "fa0bbb407f9573cc109a886962881867ecca3931",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/special-accessibility-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T02:08:37Z",
+              "completedAt": "2026-10-23T02:14:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39887948610"
+            },
+            {
+              "id": 39888592108,
+              "name": "Lint",
+              "sha": "fa0bbb407f9573cc109a886962881867ecca3931",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T02:15:36Z",
+              "completedAt": "2026-10-23T02:16:24Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39888592108"
+            },
+            {
+              "id": 39888592085,
+              "name": "Dashboard",
+              "sha": "fa0bbb407f9573cc109a886962881867ecca3931",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T02:15:36Z",
+              "completedAt": "2026-10-23T02:18:25Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39888592085"
+            }
+          ]
+        }
+      ],
+      "note": "Extend keepdogs existing stable accessible-monster migration route to the three C mextra home-level owners, preserving exceptional-state checks. C full witness lists one priest and five shopkeepers at exact coordinates; smaller variation lists one shopkeeper. Both are missing before repair with matching RNG; all three live C differentials pass after repair, including home-level control. Supplemental guard branch remains source-pinned, not claimed as publicly witnessed. Existing exceptional Wizard tests retained. 103 focused/affected tests pass. No measured synthetic gain claimed. Hosted gates pending. Twelve timeline tests, lint and diff-check pass. Accepted with exact-SHA Checkpoint, Main Lint and Dashboard success on attempt 1. A watcher annotation read returned 401; the independent run-status read succeeded, so observation resumed for the same run without rerunning CI or changing credentials. Full fixed44 and synthetic98/2055 archived comparisons unchanged. Complete evidence recorded by check-published-ci using the accepted synthetic baseline and carried in the next ordinary correction."
     }
   ]
 }
