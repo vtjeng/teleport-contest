@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T21:09:34.537Z",
+  "asOf": "2026-10-23T21:21:56.832Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8698,8 +8698,92 @@
           "scripts/monmove.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "4b3b563c7d81bca2d594d3ba4383d919d8a36d74",
+          "runs": [
+            {
+              "id": 40024739174,
+              "name": "Checkpoint",
+              "sha": "4b3b563c7d81bca2d594d3ba4383d919d8a36d74",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/worm-level-reflection-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:09:59Z",
+              "completedAt": "2026-10-23T21:16:32Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40024739174"
+            },
+            {
+              "id": 40025723360,
+              "name": "Lint",
+              "sha": "4b3b563c7d81bca2d594d3ba4383d919d8a36d74",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:17:52Z",
+              "completedAt": "2026-10-23T21:18:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40025723360"
+            },
+            {
+              "id": 40025723413,
+              "name": "Dashboard",
+              "sha": "4b3b563c7d81bca2d594d3ba4383d919d8a36d74",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:17:52Z",
+              "completedAt": "2026-10-23T21:20:32Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40025723413"
+            }
+          ]
+        }
+      ],
+      "note": "Cworm.c968-987 reflects every stored segment including hiddenhead about supplied min/max bounds; Csp_lev.flip_level calls both helpers. JS previously only noted unported helpers, leaving stored chain behind alreadyreflected head/grid. Actualeeff baseline adds sixth Healer movement candidate at6643RNG (noacoustics6666) throughconsecutivewormsegments; wormCross reads stalechain. Implement wholehelpers inplace, wireexisting caller, preserve NULLchain withoutinitialization, RNG/output/grid/head/growtime unchanged. Three fresh public C replays strictlypass: vertical7157RNG97screens/cursors2animations, acoustics-off7161/97/22, beforecontrol6631/92/0. Baselinefailsbothwitnesses andpassescontrol.27focused+589affected=616tests including3C pass; directnonzerobounds/involution/hiddenhead/other-slot andcanonicalflip_level masks1/2/3 towormCross consumer coverbothaxes. Long812boundarycase and publichorizontalextension reachindependentpsychicblast mismatch, retainedprivately, no fullstrictpass/livehorizontalclaim. Complete147receipt included; fullhostedgatespending; noaggregate gain claimed. Accepted as distinct148 afterfullCheckpoint40024739174 andexactMainLint40025723360/Dashboard40025723413 passed. Normal runAPI summaries verifiedrepository/headrepository/exactSHA/attempt/event/branches; full44fixed/98batch2055case comparison againsteeff clean withallaggregatedeltas0. Complete98publication receipt carried innextordinaryrepair."
+    },
+    {
+      "id": "mind-blast-target-chain",
+      "kind": "parity-repair",
+      "title": "Apply psychic blasts to the active monster chain",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T21:00:48.803Z",
+          "end": "2026-10-23T21:00:48.803Z",
+          "note": "Instantaneous preserved source/private-trial observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c:mind_blast625-649",
+          "nethack-c/upstream/include/rm.h:490",
+          "js/monmove.js:mind_blast",
+          "js/mon.js:wakeup"
+        ],
+        "witness": [
+          "recipes/monmove.c/mind-blast-target-chain-normal.session.json",
+          "recipes/monmove.c/mind-blast-target-chain-horizontal.session.json",
+          "recipes/monmove.c/mind-blast-target-chain-before-control.session.json"
+        ],
+        "test": [
+          "scripts/mind-blast-target-chain.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/mon-wakeup.test.mjs",
+          "scripts/mon-kill.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Cworm.c968-987 reflects every stored segment including hiddenhead about supplied min/max bounds; Csp_lev.flip_level calls both helpers. JS previously only noted unported helpers, leaving stored chain behind alreadyreflected head/grid. Actualeeff baseline adds sixth Healer movement candidate at6643RNG (noacoustics6666) throughconsecutivewormsegments; wormCross reads stalechain. Implement wholehelpers inplace, wireexisting caller, preserve NULLchain withoutinitialization, RNG/output/grid/head/growtime unchanged. Three fresh public C replays strictlypass: vertical7157RNG97screens/cursors2animations, acoustics-off7161/97/22, beforecontrol6631/92/0. Baselinefailsbothwitnesses andpassescontrol.27focused+589affected=616tests including3C pass; directnonzerobounds/involution/hiddenhead/other-slot andcanonicalflip_level masks1/2/3 towormCross consumer coverbothaxes. Long812boundarycase and publichorizontalextension reachindependentpsychicblast mismatch, retainedprivately, no fullstrictpass/livehorizontalclaim. Complete147receipt included; fullhostedgatespending; noaggregate gain claimed."
+      "note": "Cmind_blast traverses fmon (rm.h canonicalsvl.level.monlist), cachesnext beforewakeup/death, andprocessesopposed/nonmindless/livingtargets. JSiteratedobsolete state.fmon, skippingallothermonsters. Usecanonicallevel.monlist andcachednext; passfullstate/random/message/planningcontext tocanonicalwakeup instead ofstateonly. Herobranch unchanged. Actualworm-only4b3b563c baseline freshnormal firstmissingrn2(10)13779/317, horizontal6998/110; beforetriggercontrol passesboth. Three freshlyrecorded C replays strictlypass: normal24950RNG812screens/cursors162animations, horizontal8938/143/29, beforecontrol13309/309/150. Two canonicaldochug constructedlive/planning cases proveopposedtargetdamage, awakening/mealend, friend/mindless/deadskip, nexttarget traversal, exactRNG andplanningmessagesilence.381affected+64focused=445unique tests including3C pass; lint/diffcheck pass. Existing acoustics-off independentfull812probe passes25999RNG103animations; fifthseed8432005date20261030164500 full812probe passesbothbaseline/fix24737RNG24animations, privateunaffectedcontrol. Private2132continuationstrictpass52913RNG188animations; longer5732matchesall193781RNG/cursors394animations buthasindependentgreenslimepromptvisionfirstscreen4655, preservedsourcelead, notclaimedfullstrictpasshere. Complete148receipt included; fullhostedgatespending; noaggregatescoregainclaimed."
     }
   ]
 }

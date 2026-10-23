@@ -191,6 +191,7 @@ import {
     PM_LITTLE_DOG,
     PM_LONG_WORM,
     PM_MINOTAUR,
+    PM_MIND_FLAYER,
     PM_PURPLE_WORM,
     PM_QUEEN_BEE,
     PM_SALAMANDER,
@@ -6394,3 +6395,53 @@ test('find_pmmonst returns null when no monster of that species exists', () => {
     // Only a rat is on the level; no queen bee exists.
     assert.equal(find_pmmonst(PM_QUEEN_BEE, state), null);
 });
+
+// C monmove.c mind_blast: the active level chain owns psychic targets.
+for (const planning of [false, true]) {
+    test('dochug psychic blast walks canonical targets and owns wake messages, planning=' + planning, async () => {
+        const { state } = makeState();
+        const actor = ordinaryMonster(state, { data: state.mons[PM_MIND_FLAYER],
+            mnum: PM_MIND_FLAYER, mx: 9, my: 10, mpeaceful: true,
+            mcanmove: true, mhp: 30, mhpmax: 30, mspec_used: 1 });
+        const target = ordinaryMonster(state, { mx: 8, my: 10, mpeaceful: false,
+            mhp: 20, mhpmax: 20, msleeping: true, meating: 4 });
+        const friend = ordinaryMonster(state, { mpeaceful: true, mhp: 20, mhpmax: 20 });
+        const mindlessTarget = ordinaryMonster(state, { data: state.mons[PM_IRON_GOLEM],
+            mnum: PM_IRON_GOLEM, mpeaceful: false, mhp: 20, mhpmax: 20 });
+        const dead = ordinaryMonster(state, { mpeaceful: false, mhp: 0 });
+        const second = ordinaryMonster(state, { mx: 7, my: 10, mpeaceful: false,
+            mhp: 20, mhpmax: 20 });
+        const chain = [actor, friend, mindlessTarget, dead, target, second];
+        chain.forEach((m, i) => { m.nmon = chain[i + 1] ?? null; });
+        state.level.monlist = actor;
+        assert.equal(Object.hasOwn(state, 'fmon'), false);
+        for (const m of chain) seeSquare(state, m.mx, m.my);
+        const messages = [], draws = [];
+        await dochug(actor, {
+            state, planning,
+            random: { rn2(n) { draws.push(['rn2', n]); return 0; },
+                rnd(n) { draws.push(['rnd', n]); return 3; } },
+            message: line => { messages.push(line); },
+            preflight() {}, usePreMoveItems: () => false,
+            moveMonster: () => MMOVE_DONE, attackHero() { assert.fail('peaceful actor attacks'); },
+            wakeMessage() {}, monFlee() {}, monsterCanSeeHero: () => true,
+            unsupported: reason => assert.fail(reason), castUndirectedSpell: () => false,
+            distanceAndFear: () => ({ nearby: true, inrange: true, scared: false }),
+            setApparentHero() {}, wipeEngraving() {}, wieldPreMoveWeapon: () => false,
+            redraw() {}, questStatCheck() {}, questTalk() {},
+        });
+        assert.equal(target.mhp, 17);
+        assert.equal(second.mhp, 17);
+        assert.equal(target.msleeping, 0);
+        assert.equal(target.meating, 0);
+        assert.equal(friend.mhp, 20);
+        assert.equal(mindlessTarget.mhp, 20);
+        assert.equal(dead.mhp, 0);
+        assert.deepEqual(draws, [['rn2', 20], ['rn2', 10], ['rnd', 15], ['rn2', 10], ['rnd', 15]]);
+        if (planning) assert.deepEqual(messages, []);
+        else {
+            assert.ok(messages.some(line => line.includes('wakes up')));
+            assert.equal(messages.filter(line => line.includes('It locks on to')).length, 2);
+        }
+    });
+}

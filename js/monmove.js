@@ -783,7 +783,9 @@ async function mind_blast(mtmp, env = {}) {
         }
     }
     /* affect other monsters on the level */
-    for (let m2 = state.fmon; m2; m2 = m2.nmon) {
+    // C caches nmon before wakeup or a lethal blast can unlink the target.
+    for (let m2 = state.level.monlist, next = null; m2; m2 = next) {
+        next = m2.nmon;
         if (m2.mhp <= 0) continue; /* DEADMONSTER */
         if (m2.mpeaceful === mtmp.mpeaceful) continue;
         if (mindless(m2.data)) continue;
@@ -791,7 +793,7 @@ async function mind_blast(mtmp, env = {}) {
         if ((telepathic(m2.data) && (random.rn2(2) || m2.mblinded))
             || !random.rn2(10)) {
             /* wake it up first, to bring hidden monster out of hiding */
-            await wakeup(m2, false, { state });
+            await wakeup(m2, false, { ...env, state, random, message });
             if (cansee(m2.mx, m2.my, state)) {
                 await message(
                     `It locks on to ${monsterCommonName(m2, state)}.`,
