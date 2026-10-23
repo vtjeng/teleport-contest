@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public C botl.c gold display cap witness/control. Level30 survives fog-cloud engulfing; leprechaun polymorph, overloaded gold wish drops to engulfer, AD_SGLD theft adds whole stack. Exactly at the display boundary.",
+  "segments": [
+    {
+      "seed": 8420240,
+      "datetime": "20261024060000",
+      "nethackrc": "OPTIONS=name:GoldCap,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": "  #levelchange\n30\n                                   \u0007hostile fog cloud\n    m. m. m. m. m. m. m. m. m. m. m. m. m. m. #polyself\nleprechaun\n    \u0017999999 gold pieces\n    Fh    \u0012"
+    }
+  ]
+}

@@ -5161,8 +5161,16 @@ function _statusExperienceOrHD(u) {
         : `Xp:${u?.ulevel || 1}`;
 }
 
+// C ref: botl.c bot_via_windowport() BL_GOLD (1050-1072). Clamp the
+// displayed amount, retaining the raw nonnegative count for highlight changes.
+// Both layout measurement and field rendering must use the displayed value.
+export function botl_gold(money) {
+    const raw = Math.max(0, money);
+    return { value: Math.min(raw, 999999), compareValue: raw };
+}
+
 function _statusVitals(u) {
-    return `${_statusGoldSymbol()}:${money_cnt(game.invent)} HP:${_statusHitPoints(u)}(${_statusMaxHitPoints(u)}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} ${_statusExperienceOrHD(u)}`;
+    return `${_statusGoldSymbol()}:${botl_gold(money_cnt(game.invent)).value} HP:${_statusHitPoints(u)}(${_statusMaxHitPoints(u)}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} ${_statusExperienceOrHD(u)}`;
 }
 
 // C ref: botl.c bot_via_windowport()'s BL_GOLD value.  check_gold_symbol()
@@ -5389,7 +5397,7 @@ function _optionalStatusFieldList() {
 function _vitalStatusFields(u) {
     const poly = u && Upolyd(u);
     const fields = [
-        _statusField(`${_statusGoldSymbol()}:${money_cnt(game.invent)}`, _fieldOwner('gold')),
+        _statusField(`${_statusGoldSymbol()}:${botl_gold(money_cnt(game.invent)).value}`, _fieldOwner('gold')),
         _statusField(' '),
         _statusField(`HP:${_statusHitPoints(u)}`, _fieldOwner('hitpoints')),
         _statusField(`(${_statusMaxHitPoints(u)})`, _fieldOwner('hitpoints-max')),
@@ -5867,10 +5875,7 @@ function _statusFieldData(field, valueSnapshot = null) {
             text: enc_stat[capacity] ?? '',
         };
     }
-    case 'gold': {
-        const raw = money_cnt(game.invent);
-        return { value: Math.min(raw, 999999), compareValue: raw };
-    }
+    case 'gold': return botl_gold(money_cnt(game.invent));
     case 'power':
         {
             const raw = u?.uen ?? 0;

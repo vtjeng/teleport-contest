@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T14:47:55.800Z",
+  "asOf": "2026-10-23T15:20:20.206Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -7192,8 +7192,97 @@
           "scripts/wear-armor.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "2109c78e1533b7d0963d85ffd80422f5c301930e",
+          "runs": [
+            {
+              "id": 39972771335,
+              "name": "Checkpoint",
+              "sha": "2109c78e1533b7d0963d85ffd80422f5c301930e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/incapacitated-status-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T14:48:23Z",
+              "completedAt": "2026-10-23T14:54:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39972771335"
+            },
+            {
+              "id": 39974670810,
+              "name": "Lint",
+              "sha": "2109c78e1533b7d0963d85ffd80422f5c301930e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T15:01:31Z",
+              "completedAt": "2026-10-23T15:02:29Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39974670810"
+            },
+            {
+              "id": 39974670636,
+              "name": "Dashboard",
+              "sha": "2109c78e1533b7d0963d85ffd80422f5c301930e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T15:01:31Z",
+              "completedAt": "2026-10-23T15:04:51Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39974670636"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c923-951/1210-1235 caches unconscious/paralyzed classifications separately from four condition flags; negative multi can retain earlier flags, recovery clears flags only, condopt clears selectedtest. Add complete optionalOut/Parlyz/Zzz/Busy family and pergamecache; preserve mutable reasonbuffer offset fromexistingid:reason owner and namedmessagebuffers. Move existingcondopt settingbranch todisplay.js andresetcachedflag, no duplicateenabledowner. Publicparalysis/fallback/disabled2690rng/57screens/cursors/4animations; sleep2711/56/4; unconsciouswitness/control2487/67/3; samegame3-effectsequence/control2856/161/5 nowfullymatch. EightfreshC recordings plus745focused/affected tests andlint pass. Shortunconsciousness probes lackedcapturedstatus andwrongselector/identificationprompt probes are preservedprivately withoutfalsecoverageclaims. Carries complete130gates/98batch receipt. Onecoupledfamilyrepair; hostedgatespending, noaggregategainclaimed. Accepted after exact-SHA Checkpoint39972771335/MainLint39974670810/Dashboard39974670636 success, first attempts. Complete44fixed/98synthetic comparison unchanged; existing checker recorded complete98 cohort against d3392c421. Distinct accepted131."
+    },
+    {
+      "id": "gold-status-display-cap",
+      "kind": "parity-repair",
+      "title": "Cap displayed gold at the C status limit while retaining raw highlight values",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T14:50:41.425Z",
+          "end": "2026-10-23T14:50:41.425Z",
+          "note": "Observed initial source-cap investigation during frozen131 Checkpoint; instantaneous timestamp, not active-work duration."
+        },
+        {
+          "start": "2026-10-23T15:20:20.206Z",
+          "end": "2026-10-23T15:20:20.206Z",
+          "note": "Observed public above-limit witness/control and source review completed; intervening setup probes and unrelated investigations are not active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/src/do.c",
+          "nethack-c/upstream/src/uhitm.c",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/botl.c/gold-cap-million.session.json",
+          "recipes/botl.c/gold-cap-three-lines.session.json",
+          "recipes/botl.c/gold-cap-boundary-control.session.json"
+        ],
+        "test": [
+          "scripts/gold-status-cap.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c923-951/1210-1235 caches unconscious/paralyzed classifications separately from four condition flags; negative multi can retain earlier flags, recovery clears flags only, condopt clears selectedtest. Add complete optionalOut/Parlyz/Zzz/Busy family and pergamecache; preserve mutable reasonbuffer offset fromexistingid:reason owner and namedmessagebuffers. Move existingcondopt settingbranch todisplay.js andresetcachedflag, no duplicateenabledowner. Publicparalysis/fallback/disabled2690rng/57screens/cursors/4animations; sleep2711/56/4; unconsciouswitness/control2487/67/3; samegame3-effectsequence/control2856/161/5 nowfullymatch. EightfreshC recordings plus745focused/affected tests andlint pass. Shortunconsciousness probes lackedcapturedstatus andwrongselector/identificationprompt probes are preservedprivately withoutfalsecoverageclaims. Carries complete130gates/98batch receipt. Onecoupledfamilyrepair; hostedgatespending, noaggregategainclaimed."
+      "note": "C botl.c1050-1072 stores nonnegative raw gold separately from displayed min(money,999999). Share one pure value computation across layout, two/three-line field rendering and highlight comparisons. Public leprechaun hero steals overloaded wished gold from fog-cloud engulfer:1000000 and1000001 cases first differ at171 before fix; exact999999 control passes. Three freshC recordings now fullymatch2756rng each,176/176/175screens/cursors,0animations. 31focused/affected tests,12timeline andlint pass. Direct-wish, sleeping-carrier, lowgold theft and incomplete engulf/levelup setups retained privately without target-coverage claims. HP/Pw caps remain unqualified/outside scope. Carries complete131 gates/98batch receipt. Hosted gates pending; no aggregate gain claimed."
     }
   ]
 }

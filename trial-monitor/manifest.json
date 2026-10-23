@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "wounded-legs-status",
-      "sha": "d3392c42115f793517f45d17a73418c67959b67f",
+      "repairId": "incapacitated-status-family",
+      "sha": "2109c78e1533b7d0963d85ffd80422f5c301930e",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T14:43:09.786Z"
+    "asOf": "2026-10-23T15:06:46.682Z"
   }
 }
