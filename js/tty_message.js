@@ -389,7 +389,6 @@ async function ttyPlineCore(
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
     let stoppedAtEntry = Boolean(state._ttyMessageStopped);
-    const acknowledgedTopline = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY;
     // C ref: topl.c update_topl():262-279. Both the share-the-line arm and the
     // more() below it are gated on `ttyDisplay->toplin == TOPLINE_NEED_MORE`
     // (or WIN_STOP), not on the line merely being occupied. Every message the
@@ -472,7 +471,6 @@ async function ttyPlineCore(
         stoppedAtEntry,
         deathMessage,
         deathComparisonReached,
-        acknowledgedTopline,
         columns,
         normalizedMessage,
         resetLastMessage: () => {

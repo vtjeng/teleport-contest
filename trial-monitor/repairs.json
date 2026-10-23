@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T20:07:32.725Z",
+  "asOf": "2026-10-23T20:23:51.846Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8510,8 +8510,99 @@
           "scripts/mhitu.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d921fb6fcc02bfde1da555736d8a92f23b51873f",
+          "runs": [
+            {
+              "id": 40016869848,
+              "name": "Checkpoint",
+              "sha": "d921fb6fcc02bfde1da555736d8a92f23b51873f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/msummon-species-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T20:08:15Z",
+              "completedAt": "2026-10-23T20:15:04Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40016869848"
+            },
+            {
+              "id": 40018134467,
+              "name": "Lint",
+              "sha": "d921fb6fcc02bfde1da555736d8a92f23b51873f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T20:18:00Z",
+              "completedAt": "2026-10-23T20:19:01Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40018134467"
+            },
+            {
+              "id": 40018134584,
+              "name": "Dashboard",
+              "sha": "d921fb6fcc02bfde1da555736d8a92f23b51873f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T20:18:00Z",
+              "completedAt": "2026-10-23T20:21:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40018134584"
+            }
+          ]
+        }
+      ],
+      "note": "C minion.cmsummon creates each selected species at hero coordinates withMM_EMIN|MM_NOMSG and completes makemon before census/alignment/output effects; it has no initial-level species reservoir. JS already validates the complete shared msummon/summon_minion call shape and owns async runtime lifecycle, but species bypass admitted only divine summon_minion. Admit the existing full minionSummonCall without widening its marker/coordinate/flag conditions. Private constructor stacks confirm actualmsummon -> makemon_runtime -> preflight species reservoir refusal: seed8432001 horneddevil291 stops before32404RNG/814boundary; seed8432002 date20261027123000 barbeddevil293 stops before7944RNG/109boundary. Four fresh C replays pass: normal/monochrome each57533RNG1773screens/cursors348animations; beforecontrol32403RNG812screens/cursors180animations; independentcrossseed74356RNG2013screens/cursors15animations. Runtime constructed case completes actualhorneddevil inventory/EMIN/birth; three wrong-shape controls refuse beforeRNG.730unique focused/affected tests including4C pass:193initialfocused+422affected+114mhitu+1crossseed; lint/diffcheck pass. Original9path729test patch extended only with independentcrossseed recipe/recording and new replay case; no production rework. Longer private continuation exposes a separate source-attributed top-line replacement redraw defect, preserved privately, not claimed passed here. Complete145receipt included; full hosted gates pending; no aggregate gain claimed. Accepted as distinct146 after fullCheckpoint40016869848, exact MainLint40018134467 andDashboard40018134584 succeeded. Exact44fixed/98batch2055case comparison against4c0bca1e unchanged, no regressions/missing evidence. Complete98publication receipt carried in nextordinaryrepair."
+    },
+    {
+      "id": "topl-immediate-replacement-redraw",
+      "kind": "parity-repair",
+      "title": "Paint top-line replacements before later missile animation",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T19:47:16.094Z",
+          "end": "2026-10-23T19:47:16.094Z",
+          "note": "Instantaneous extended-C observation during144publication; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/win/tty/topl.c:update_topl",
+          "nethack-c/patches/006-nomux-capture.patch",
+          "js/topl.js:update_topl",
+          "js/tty_message.js:ttyPlineCore"
+        ],
+        "witness": [
+          "recipes/topl.c/topl-replacement-redraw-replacement.session.json",
+          "recipes/topl.c/topl-replacement-redraw-monochrome.session.json",
+          "recipes/topl.c/topl-replacement-redraw-before-control.session.json"
+        ],
+        "test": [
+          "scripts/topl-replacement-redraw.test.mjs",
+          "scripts/topl.test.mjs",
+          "scripts/tty-message.test.mjs",
+          "scripts/pline.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/display-newsym-suppression.test.mjs",
+          "scripts/game-display.test.mjs",
+          "scripts/tty-menu.test.mjs",
+          "scripts/pager.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/zap-ray.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C minion.cmsummon creates each selected species at hero coordinates withMM_EMIN|MM_NOMSG and completes makemon before census/alignment/output effects; it has no initial-level species reservoir. JS already validates the complete shared msummon/summon_minion call shape and owns async runtime lifecycle, but species bypass admitted only divine summon_minion. Admit the existing full minionSummonCall without widening its marker/coordinate/flag conditions. Private constructor stacks confirm actualmsummon -> makemon_runtime -> preflight species reservoir refusal: seed8432001 horneddevil291 stops before32404RNG/814boundary; seed8432002 date20261027123000 barbeddevil293 stops before7944RNG/109boundary. Four fresh C replays pass: normal/monochrome each57533RNG1773screens/cursors348animations; beforecontrol32403RNG812screens/cursors180animations; independentcrossseed74356RNG2013screens/cursors15animations. Runtime constructed case completes actualhorneddevil inventory/EMIN/birth; three wrong-shape controls refuse beforeRNG.730unique focused/affected tests including4C pass:193initialfocused+422affected+114mhitu+1crossseed; lint/diffcheck pass. Original9path729test patch extended only with independentcrossseed recipe/recording and new replay case; no production rework. Longer private continuation exposes a separate source-attributed top-line replacement redraw defect, preserved privately, not claimed passed here. Complete145receipt included; full hosted gates pending; no aggregate gain claimed."
+      "note": "Cupdate_topl249-302 ends every unsuppressed nonappend replacement with redotoplin, including after its ownmore acknowledgement. JS only painted when acknowledgedTopline was alreadytrue atentry; a More insideupdate_topl then remembers newtext but leaves oldphysicalMore until laterflush, observable in missile animation. Alwayspaint replacement after history update, remove unused acknowledgement plumbing, preserve suppression/history/input ownership. Actual accepted146baseline both freshnormal/monochrome matchall83632RNG2734screens/cursors577framecounts but firstanimation2179 shows oldOKdontdieMore instead ofItismissed; private stacks prove liveadvanceElapsedTurn, notplanning; mapframecells match. Repaired3C replays strictlypass allcontent, beforetriggercontrol67450RNG2158screens/cursors424animations passes both. Two constructed realttyPline/GameDisplay cases verify immediatephysicaltext/cursor afteronequeuedSpace More andemptylogical-line replacement, withnomapflush/extra input. Private initialunitpriorlinefitssame-lineappend; lengthened it toexerciseMore beforeproductionfixture.431focused/affected tests including3C pass, lint/diffcheck pass. Separate thirdseed extended123810RNG3454screens/cursors328animations passes baselineandprivatefix as unaffectedcontrol, not added toregressioncorpus orscore. New8432004movement discrepancy reproduces on146andwithacousticsoff, so independent ofthisrepair; preservedunqualified. Complete146receipt included; fullhostedgatespending, no aggregate gain claimed."
     }
   ]
 }

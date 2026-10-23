@@ -261,3 +261,25 @@ test('last_msg reset brackets wrapped output and explicit MSGTYPE stop input', a
         assert.equal(state.iflags.last_msg, PLNMSG_UNKNOWN);
     }
 });
+
+
+for (const [name, toplin] of [
+    ['after an in-function More acknowledgement', TOPLINE_NEED_MORE],
+    ['after an empty logical top line', TOPLINE_EMPTY],
+]) {
+    test('ttyPline paints a replacement immediately ' + name, async () => {
+        const prior = 'A previous message that occupies nearly all of the top line.';
+        const next = 'It is missed.';
+        const state = messageState(prior, toplin);
+        if (toplin === TOPLINE_NEED_MORE)
+            state.nhDisplay.pushKey(32);
+        await ttyPline(next, state);
+        // No map flush or subsequent input may be needed: C redotoplin()
+        // has already painted the bytes before later missile animation.
+        assert.equal(rowText(state), next);
+        assert.equal(state._pending_message, next);
+        assert.equal(state.nhDisplay.cursorCol, next.length);
+        assert.equal(state.nhDisplay.cursorRow, 0);
+        assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
+    });
+}

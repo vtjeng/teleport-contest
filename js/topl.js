@@ -229,7 +229,6 @@ export async function update_topl(message, state = game, context = {}) {
         stoppedAtEntry = Boolean(state._ttyMessageStopped),
         deathMessage = String(message).startsWith('You die'),
         deathComparisonReached = false,
-        acknowledgedTopline = false,
         columns = state.nhDisplay?.cols ?? 80,
         callbacks = {},
     } = context;
@@ -281,12 +280,13 @@ export async function update_topl(message, state = game, context = {}) {
         });
     }
     if (deathComparisonReached) state._ttyMessageStopped = false;
-    if (acknowledgedTopline) {
-        redrawTtyTopline(state, next, mixedFirstCell);
-    }
     if (state._ttyToplines) remember_topl(state);
     rememberPendingMessage(state, next, mixedFirstCell);
     state._ttyPreviousMessage = context.normalizedMessage ?? message;
+    // C update_topl() ends every unsuppressed replacement with redotoplin(),
+    // including after the more() above. Remembering it until the next map
+    // flush would leave the old physical line visible to missile animation.
+    redrawTtyTopline(state, next, mixedFirstCell);
     if (wrapTtyTopline(next, columns).length > 1) {
         await callbacks.dismissPendingTtyMessage?.(state, {
             preventEscapeStop: urgentMessage,
