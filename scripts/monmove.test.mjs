@@ -643,11 +643,14 @@ test('postmov admits the amorphous arm ahead of the door it could open',
         const fogCloud = ordinaryMonster(state, {
             data: state.mons[PM_FOG_CLOUD],
             mnum: PM_FOG_CLOUD,
+            cham: PM_VAMPIRE_LEADER,
             mx: 5,
             my: 4,
         });
         locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
-        const { env, messages } = postmovEnv(state);
+        const { env, messages } = postmovEnv(state, {
+            displayMessageWindow: () => assert.fail('an already-fog vampire does not shift or flush'),
+        });
 
         assert.equal(
             await postmov(fogCloud, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
@@ -661,54 +664,69 @@ test('postmov admits the amorphous arm ahead of the door it could open',
 // postmov() temporarily restores a visible or sensed vampire to its old square
 // around vamp_shift(). This direct source-order call pins the four redraws and
 // the final old/new-square updates while using the sensed-only bit, so no
-// shape-change message is expected.
+// shape-change message is expected; the live window boundary still runs.
 test('postmov brackets a vampire fog shift with the source positions', async () => {
-    const { locations, state } = makeState();
-    const vampire = ordinaryMonster(state, {
-        data: state.mons[PM_VAMPIRE_LEADER],
-        mnum: PM_VAMPIRE_LEADER,
-        cham: PM_VAMPIRE_LEADER,
-        mx: 5,
-        my: 4,
-        mhp: 10,
-        mhpmax: 10,
-    });
-    state.dungeons[0] = {
-        depth_start: 1,
-        num_dunlevs: 1,
-        entry_lev: 1,
-        ledger_start: 0,
-        flags: { hellish: false },
-    };
-    state.branches = [{
-        end1: { dnum: 0, dlevel: 1 },
-        end2: { dnum: 0, dlevel: 1 },
-        end1_up: false,
-    }];
-    state.youmonst.data = state.mons[PM_HUMAN];
-    state.youmonst.mnum = PM_HUMAN;
-    state.level.monsters[5][4] = vampire;
-    locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
-    const { env, redraws, messages } = postmovEnv(state, {
-        random: {
-            ...trapRandom(),
-            d(bound, sides) {
-                assert.equal(bound, 2);
-                assert.equal(sides, 8);
-                return 1;
-            },
-        },
-    });
+    for (const planning of [false, true]) {
+        for (const seenFlags of [1, 2]) {
+            const { locations, state } = makeState();
+            const vampire = ordinaryMonster(state, {
+                data: state.mons[PM_VAMPIRE_LEADER],
+                mnum: PM_VAMPIRE_LEADER,
+                cham: PM_VAMPIRE_LEADER,
+                mx: 5,
+                my: 4,
+                mhp: 10,
+                mhpmax: 10,
+            });
+            state.dungeons[0] = {
+                depth_start: 1,
+                num_dunlevs: 1,
+                entry_lev: 1,
+                ledger_start: 0,
+                flags: { hellish: false },
+            };
+            state.branches = [{
+                end1: { dnum: 0, dlevel: 1 },
+                end2: { dnum: 0, dlevel: 1 },
+                end1_up: false,
+            }];
+            state.youmonst.data = state.mons[PM_HUMAN];
+            state.youmonst.mnum = PM_HUMAN;
+            state.level.monsters[5][4] = vampire;
+            locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+            let displayed = 0;
+            const { env, redraws, messages } = postmovEnv(state, {
+                planning,
+                displayMessageWindow: async (currentState) => {
+                    assert.equal(currentState, state);
+                    assert.equal(vampire.data, state.mons[PM_FOG_CLOUD]);
+                    assert.deepEqual([vampire.mx, vampire.my], [4, 4],
+                        'the source displays before restoring the new square');
+                    await Promise.resolve();
+                    displayed++;
+                },
+                random: {
+                    ...trapRandom(),
+                    d(bound, sides) {
+                        assert.equal(bound, 2);
+                        assert.equal(sides, 8);
+                        return 1;
+                    },
+                },
+            });
 
-    assert.equal(
-        await postmov(vampire, 4, 4, MMOVE_MOVED, 2, false, false, true, env),
-        MMOVE_MOVED,
-    );
-    assert.equal(vampire.data, state.mons[PM_FOG_CLOUD]);
-    assert.deepEqual(redraws, [
-        [5, 4], [4, 4], [4, 4], [5, 4], [4, 4], [5, 4],
-    ]);
-    assert.deepEqual(messages, []);
+            assert.equal(
+                await postmov(vampire, 4, 4, MMOVE_MOVED, seenFlags, false, false, true, env),
+                MMOVE_MOVED,
+            );
+            assert.equal(vampire.data, state.mons[PM_FOG_CLOUD]);
+            assert.deepEqual(redraws, planning ? [] : [
+                [5, 4], [4, 4], [4, 4], [5, 4], [4, 4], [5, 4],
+            ]);
+            assert.equal(displayed, planning ? 0 : 1);
+            if (seenFlags === 2) assert.deepEqual(messages, []);
+        }
+    }
 });
 
 // A hero-visible square for cansee(); the fixture leaves viz_array unset,

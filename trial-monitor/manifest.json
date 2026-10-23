@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "helm-summon-furies",
-      "sha": "70b150e374b0454f816bb20e44d474191e7d1818",
+      "repairId": "monster-potion-occupant-lifecycle",
+      "sha": "b4843ccf9e8b4b1d19d79bbc1b66237cb167da7b",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T18:17:07.464765+00:00"
+    "asOf": "2026-10-23T18:33:09.368393+00:00"
   }
 }

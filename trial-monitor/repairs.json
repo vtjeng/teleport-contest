@@ -8073,8 +8073,90 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "b4843ccf9e8b4b1d19d79bbc1b66237cb167da7b",
+          "runs": [
+            {
+              "id": 40003332152,
+              "name": "Lint",
+              "sha": "b4843ccf9e8b4b1d19d79bbc1b66237cb167da7b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T18:26:46Z",
+              "completedAt": "2026-10-23T18:27:43Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40003332152"
+            },
+            {
+              "id": 40003332212,
+              "name": "Dashboard",
+              "sha": "b4843ccf9e8b4b1d19d79bbc1b66237cb167da7b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T18:26:46Z",
+              "completedAt": "2026-10-23T18:28:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40003332212"
+            },
+            {
+              "id": 40002082107,
+              "name": "Checkpoint",
+              "sha": "b4843ccf9e8b4b1d19d79bbc1b66237cb167da7b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-potion-occupant-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T18:17:28Z",
+              "completedAt": "2026-10-23T18:24:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40002082107"
+            }
+          ]
+        }
+      ],
+      "note": "C muse.cprecheck73-128 creates a ghost or djinni after a monster drinks the corresponding potion, finishing makemon before checking nullable result and emitting/paralyzing/freeing/peacefulness effects. JS still used bare synchronous creation in both branches. Await makemon_runtime with the complete currentstate/RNG/output context. Independent liveC extendedAstral seed8431003, originally recorded while qualifying Fury creation, reaches the next missing lifecycle after140fix; originalinput andC retained unmodified. Milky andmonochrome previously stop at7062RNG104screens2animations, firstmissing next_ident at7063step105; repaired fullreplays each match9798RNG147screens/cursors5animations. Public pretrigger control7013RNG103screens/cursors2animations passes. Bounded60additionalC probes include9smoky chance rolls, allmisses; no live smoke branch coverage claimed. Runtime constructed tests covermilky paralysis andbothsmoky release/vanish outcomes with RNG context; removed oldin_mklev workaround. New smoky fixture initially assumed immediate list deletion; corrected tosource deferred MON_DETACH/map removal, no production rework.348focused/affected tests including3C replays pass, lint/diffcheck pass. Complete140receipt included; full hosted gates pending. No aggregate gain claimed. Accepted as distinct141 after Checkpoint40002082107, MainLint40003332152 andDashboard40003332212 succeeded. Complete44fixed/98batch2055case comparison against70b150e3 unchanged, with no regressions/missing cases. Complete98publication receipt recorded for nextordinaryrepair."
+    },
+    {
+      "id": "vamp-shift-message-window",
+      "kind": "parity-repair",
+      "title": "Display pending messages after vampire fog shifts",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T18:25:33.842425+00:00",
+          "end": "2026-10-23T18:25:33.842425+00:00",
+          "note": "Instantaneous source attribution during141validation; not elapsed active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c",
+          "nethack-c/upstream/win/tty/wintty.c",
+          "js/monmove.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/vamp-shift-message-shift.session.json",
+          "recipes/monmove.c/vamp-shift-message-monochrome.session.json",
+          "recipes/monmove.c/vamp-shift-message-before-control.session.json"
+        ],
+        "test": [
+          "scripts/vamp-shift-message.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/mon.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/muse.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C muse.cprecheck73-128 creates a ghost or djinni after a monster drinks the corresponding potion, finishing makemon before checking nullable result and emitting/paralyzing/freeing/peacefulness effects. JS still used bare synchronous creation in both branches. Await makemon_runtime with the complete currentstate/RNG/output context. Independent liveC extendedAstral seed8431003, originally recorded while qualifying Fury creation, reaches the next missing lifecycle after140fix; originalinput andC retained unmodified. Milky andmonochrome previously stop at7062RNG104screens2animations, firstmissing next_ident at7063step105; repaired fullreplays each match9798RNG147screens/cursors5animations. Public pretrigger control7013RNG103screens/cursors2animations passes. Bounded60additionalC probes include9smoky chance rolls, allmisses; no live smoke branch coverage claimed. Runtime constructed tests covermilky paralysis andbothsmoky release/vanish outcomes with RNG context; removed oldin_mklev workaround. New smoky fixture initially assumed immediate list deletion; corrected tosource deferred MON_DETACH/map removal, no production rework.348focused/affected tests including3C replays pass, lint/diffcheck pass. Complete140receipt included; full hosted gates pending. No aggregate gain claimed."
+      "note": "C monmove.cvamp_shift2377-2397 calls newcham with source message flag then displays WIN_MESSAGE even after a silent attempted shift. JS omitted display as presumed no-op and simulated silent flag by suppressing a distress message. Use canonical newcham with NC_SHOW_MSG/NO_NC_FLAGS and await canonical pending-message-window display after the attempt. Planning skips livewindowinput; already-fog/non-shift branches do not display. Fresh independent public Astral continuation after141fix matches all20160RNG and43animations but previously differs atscreen/cursor262: CshowsOKdontdie More, JSappendswargbite. Csame-step newmonhp d4,8=15 identifies fog shift; source display boundary explains mismatch, notend.cdeathhandling. Monochrome reproducesexactmismatch. Pretrigger control12927RNG261screens/cursors16animations passes. All3C replays nowpass, including532screens/cursors and43animations forbothwitnesses.335focused/affected tests pass, plusfocusedrerun afterstrengtheningalready-fogcontrol. Constructed live/planning andvisible/sensed cases pinshape, sourcepositions andawaitedwindoweffect. Initialplanningassert expectedredraws even thoughplanning intentionally suppresses them; correctedfixtureonly. Lint/diffcheck pass. Complete141receipt included; hosted gates pending; no aggregategainclaimed."
     }
   ]
 }

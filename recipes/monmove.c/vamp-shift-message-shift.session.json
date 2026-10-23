@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Astral continuation: silent vampire fog shift in monmove.cvamp_shift must display pending messages before later monster speech. Source line2391 is omitted inJS. Qualification only.",
+  "segments": [
+    {
+      "seed": 8431003,
+      "datetime": "20261025101500",
+      "nethackrc": "OPTIONS=name:HelmFury,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    m.    n    \u0012"
+    }
+  ]
+}
