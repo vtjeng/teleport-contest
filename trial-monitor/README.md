@@ -27,28 +27,44 @@ at that saved observation, never at the viewer's clock. If timestamps were not
 recorded, leave the array empty; commits are not investigation start times.
 
 Record known candidate SHAs and every required gate attempt under `candidates`.
-Include run ID/name, exact SHA, attempt, event, branch, status/conclusion,
-`createdAt` and final job `completedAt`. Preserve failures. Before moving
-`manifest.operations.currentCandidate` to another SHA, persist the previous
-candidate's final gate records. This is the latest **recorded** candidate,
-which can lag the actual worker. A newly created SHA and its final gates can be
-recorded in the next normal work commit; there is no self-referential commit
-rewrite or separate publication loop. Update the affected files' `asOf`.
+Include the candidate's UTC `committedAt` when recording a new or pending SHA,
+plus run ID/name, exact SHA, attempt, event, branch, status/conclusion,
+`createdAt` and final job `completedAt`. Preserve failures and previous final
+gate records. Append corrections to the same repair; no separate pointer update
+is needed. Candidate SHAs and their evidence still land in ordinary work commits,
+without self-referential commit rewrites or a separate publication loop.
+
+The repair register is the source of truth for candidate selection. The reducer
+selects the newest dated candidate, independent of array order, using
+`committedAt`, then `startedAt`, then the earliest persisted exact-SHA CI
+`createdAt` as evidence that the candidate existed. These timestamps identify
+candidate evidence, not active work or investigation start. The manifest's
+legacy `operations.currentCandidate` is ignored for selection; a disagreement
+is shown rather than silently followed. It can be retired without affecting
+selection. Do not maintain it as another live pointer.
+
+A candidate without a date cannot establish chronology. The page marks undated
+entries, repairs with no candidate, and conflicting newest dates explicitly;
+it never infers a new SHA from investigation text or a successful API read.
+The displayed candidate is the latest dated evidence, not a claim about what
+the engineer is doing now. Candidate age is calculated only from that persisted
+candidate evidence, independently of register `asOf`, final gate times and
+API check time. Complete candidates stay labelled completed; old evidence stays
+stale even when unrelated history or CI checks are refreshed.
 
 ## What refreshes automatically
 
 At build time, the existing dashboard embeds both files. Page open and
-**Refresh public status** read their latest Main versions and public GitHub CI.
+**Refresh public status** resolve Main once, read both files at that exact revision, and read public GitHub CI.
 They refresh the existing timeline without status polling or credentials. The
 existing whole-page reload still runs every 30 minutes. Only the
 selected candidate is enriched with exact final job times. Investigation
 activity, repair identity, correction grouping, evidence paths and candidate
-selection require recorded events; GitHub cannot infer them. API failure keeps
+dates require recorded events; GitHub cannot infer them. API failure keeps
 the last-known snapshot and last successful check time, with a retry message.
 All required reads must succeed before data is applied. Refresh shows loading,
 updated or already-up-to-date feedback; overlapping clicks share no extra work.
-The concise recorded-activity timestamp stays stale after one hour even if the
-API read worked. Missing dates remain unknown. The outdated Exploration yield
+Candidate evidence stays stale after one hour even if the API read worked. Missing dates remain unknown. The outdated Exploration yield
 and Shared work queue panels are no longer rendered; historical data is retained.
 
 Checkpoint accepts integration-branch push/dispatch; Lint and Dashboard require
