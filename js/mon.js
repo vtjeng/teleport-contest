@@ -6535,7 +6535,9 @@ export function ok_to_obliterate(mtmp, state = game) {
 // boundary; callers may provide a synchronous message hook for tests, while
 // ordinary gameplay records the unported call. The source relocation itself
 // is awaited by mnexto() when overcrowding reaches this path.
-let elementalClogMessageMove = 0;
+// C's function-static msgmv starts at zero in each process. Keep it on
+// the game state so resetGame() also resets it between runSegment() calls.
+// It is not part of the saved game, matching the C function static.
 
 export function elemental_clog(mon, state = game, env = {}) {
     if (!In_endgame(state.u?.uz)) return;
@@ -6548,16 +6550,17 @@ export function elemental_clog(mon, state = game, env = {}) {
     let mLevel = 0;
     const random = env.random ?? { rn2 };
 
-    if (!elementalClogMessageMove
-        || (state.moves - elementalClogMessageMove) > 200) {
-        if (!elementalClogMessageMove || random.rn2(2)) {
+    const messageMove = state.elemental_clog_msgmv ?? 0;
+    if (!messageMove
+        || (state.moves - messageMove) > 200) {
+        if (!messageMove || random.rn2(2)) {
             if (typeof env.message === 'function') {
                 env.message('You feel besieged.', state, env);
             } else {
                 note_unported('pline.c You_feel');
             }
         }
-        elementalClogMessageMove = state.moves;
+        state.elemental_clog_msgmv = state.moves;
     }
 
     for (let mtmp = state.level?.monlist ?? null;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first setup for mon.c elemental_clog investigation; no branch attribution until recorded.",
+  "segments": [
+    {
+      "seed": 8420155,
+      "datetime": "20261023230000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>N               magic whistle\n     #wizgenesis\nsleeping tame kitten\n     #wizgenesis\n100 sleeping peaceful grid bug\n     #wizgenesis\n40 sleeping peaceful giant ant\n     am          "
+    }
+  ]
+}

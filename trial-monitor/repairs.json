@@ -5620,8 +5620,90 @@
           "scripts/phase-boundary.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "08ae4eb536a216b2f3b642d0494d877790de67bb",
+          "runs": [
+            {
+              "id": 39899906411,
+              "name": "Checkpoint",
+              "sha": "08ae4eb536a216b2f3b642d0494d877790de67bb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/authored-wall-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:21:44Z",
+              "completedAt": "2026-10-23T04:27:33Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39899906411"
+            },
+            {
+              "id": 39900596232,
+              "name": "Lint",
+              "sha": "08ae4eb536a216b2f3b642d0494d877790de67bb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:29:31Z",
+              "completedAt": "2026-10-23T04:30:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39900596232"
+            },
+            {
+              "id": 39900596207,
+              "name": "Dashboard",
+              "sha": "08ae4eb536a216b2f3b642d0494d877790de67bb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:29:31Z",
+              "completedAt": "2026-10-23T04:32:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39900596207"
+            }
+          ]
+        }
+      ],
+      "note": "Canonical solidify_map protects IS_STWALL cells only when SpLev_Map is clear. JS already maintains that mask but omitted it from the owner, incorrectly protecting every authored wall. Pass the existing frame through load finish and explicit finalization, and apply the C predicate. Independent xorn phasing in tower1 andtower2 fails before (blocked move/omitted turn RNG) and passes after. Adjacent floor control passes before and after. Both setups fully match C before the wall move. Three fresh C comparisons and47 focused/affected tests pass; the source-pinned finalizer test distinguishes neighboring painted/unpainted wall cells and ordinary floor. Carries accepted repair114 complete98-batch receipts. Hosted gates pending; no measured score gain claimed. Twelve timeline tests, lint and diff-check pass. Accepted after exact-SHA Checkpoint39899906411/MainLint39900596232/Dashboard39900596207 success. Complete44 fixed and98 synthetic batches/2055cases compare unchanged. Existing publication checker recorded complete98 cohort againstd50bbf13. Distinct accepted count115."
+    },
+    {
+      "id": "elemental-clog-game-state",
+      "kind": "parity-repair",
+      "title": "Reset elemental overcrowding message timer for each game",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": null,
+          "end": "2026-10-23T04:37:21.556Z",
+          "note": "Source reading and public C probes began while prior authored-wall gates ran. Exact start was not registered; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "js/mon.js",
+          "js/gstate.js",
+          "js/save.js"
+        ],
+        "witness": [
+          "recipes/mon.c/elemental-clog-crowded.session.json",
+          "recipes/mon.c/elemental-clog-variant.session.json",
+          "recipes/mon.c/elemental-clog-control.session.json"
+        ],
+        "test": [
+          "scripts/elemental-clog-reset.test.mjs",
+          "scripts/mon-overcrowding.test.mjs",
+          "scripts/mkmaze-span.test.mjs",
+          "scripts/apply-whistle.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Canonical solidify_map protects IS_STWALL cells only when SpLev_Map is clear. JS already maintains that mask but omitted it from the owner, incorrectly protecting every authored wall. Pass the existing frame through load finish and explicit finalization, and apply the C predicate. Independent xorn phasing in tower1 andtower2 fails before (blocked move/omitted turn RNG) and passes after. Adjacent floor control passes before and after. Both setups fully match C before the wall move. Three fresh C comparisons and47 focused/affected tests pass; the source-pinned finalizer test distinguishes neighboring painted/unpainted wall cells and ordinary floor. Carries accepted repair114 complete98-batch receipts. Hosted gates pending; no measured score gain claimed. Twelve timeline tests, lint and diff-check pass."
+      "note": "C elemental_clog function-static msgmv initializes per process. JS module variable survived independent runSegment games and suppressed the second game besieged message. Store the same timer on per-game state; resetGame discards it and save serialization excludes it, matching C. Independent public Earth/magic-whistle C runs reach overcrowding in two seeds; first replay passes before, repeated same-runtime replay fails at boundary191, while a non-full-plane control passes. Three fresh C comparisons and six independent-game replays pass after.22 focused tests plus7 affected whistle tests and12 timeline tests pass. Carries complete115 publication receipts for98 synthetic batches. Combined-debug-session attempt hit wizard-lock startup failure; save/restore attempt hit missing compressor, neither claimed as gameplay evidence. Hosted gates pending; no measured score gain claimed."
     }
   ]
 }
