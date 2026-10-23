@@ -172,8 +172,8 @@ test('opening a mobile picker uses stable layout width and visual viewport heigh
     form.getBoundingClientRect=()=>({width:358,height:300});
     picker.open=true;picker.listeners.toggle();
     assert.equal(form.style.left,'-147px','panel starts at 16, within the actual 390px viewport');
-    assert.equal(form.style.top,'-172px','panel bottom remains inside the visual viewport');
-    assert.equal(form.style.maxHeight,'812px');
+    assert.equal(form.style.top,'-306px','panel opens above the summary without covering its close target');
+    assert.equal(form.style.maxHeight,'678px');
     view.visualViewport.height=500;view.visualViewport.offsetTop=100;picker.listeners.toggle();
     assert.equal(form.style.top,'-416px','panel follows the reduced and scrolled visual viewport');
     assert.equal(form.style.maxHeight,'468px');
