@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C control: fill Water with sleeping peaceful lichen; ordinary bubble relocation remains matching without the mixed-species overcrowding recovery.",
+  "segments": [
+    {
+      "seed": 8420158,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>K               blessed ring of levitation\n     Pml          #wizgenesis\n1000 sleeping peaceful lichen\n                              m.          m.          "
+    }
+  ]
+}

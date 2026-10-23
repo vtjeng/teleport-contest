@@ -12,6 +12,7 @@ import { resetGame } from '../js/gstate.js';
 import {
     elemental_clog,
     maybe_mnexto,
+    mnearto,
     ok_to_obliterate,
 } from '../js/mon.js';
 import {
@@ -118,7 +119,12 @@ test('elemental_clog obliterates the lowest-level eligible monster', async () =>
     linkMonsters(state, [caller, high, low]);
 
     await elemental_clog(caller, state, {
-        message: () => {},
+        message: async (text) => {
+            assert.equal(text, 'You feel besieged.');
+            await Promise.resolve();
+            assert.equal(low.mhp, 5, 'message finishes before removal');
+            assert.deepEqual([caller.mx, caller.my], [10, 10]);
+        },
         random: {
             d: () => 1,
             rn1: () => 1,
@@ -132,6 +138,36 @@ test('elemental_clog obliterates the lowest-level eligible monster', async () =>
     assert.deepEqual([caller.mx, caller.my], [11, 10]);
     assert.equal(state.level.monsters[9][10], high);
     assert.equal(state.level.monsters[11][10], caller);
+});
+
+test('mnearto finishes overcrowding before returning displaced-occupant result', async () => {
+    const state = monsterState();
+    state.astral_level = { dnum: 0, dlevel: 3 };
+    state.u.uz = { dnum: 0, dlevel: 2 };
+    state.u.ux = 1;
+    state.u.uy = 1;
+    // One traversable square makes recursive replacement fail: C then
+    // obliterates an eligible monster and restores the displaced occupant.
+    state.level.at(10, 10).typ = ROOM;
+    const moving = newMonster({ data: state.mons[PM_GIANT_RAT], mhp: 5, m_lev: 1 });
+    const displaced = newMonster({ data: state.mons[PM_GIANT_RAT], mhp: 5, m_lev: 1 });
+    place_monster(moving, 9, 10, state);
+    place_monster(displaced, 10, 10, state);
+    linkMonsters(state, [moving, displaced]);
+    let messageFinished = false;
+    const result = await mnearto(moving, 10, 10, true, 0, {
+        state,
+        message: async () => {
+            await Promise.resolve();
+            assert.equal(moving.mhp, 5);
+            messageFinished = true;
+        },
+        random: { rn2: () => 0, rnd: () => 1, d: () => 1, rn1: () => 1, rne: () => 0 },
+    });
+    assert.equal(result, 2);
+    assert.equal(messageFinished, true);
+    assert.equal(moving.mhp, 0);
+    assert.equal(state.level.monsters[10][10], displaced);
 });
 
 test('maybe_mnexto relocates only to a visible nearby square', async () => {

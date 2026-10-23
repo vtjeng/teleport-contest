@@ -4765,6 +4765,14 @@ export function mnearto(
     if (monster.mx === x && monster.my === y
         && m_at(x, y, state) === monster) return 1;
 
+    // C completes overcrowding recovery before returning 0 or 2. Some
+    // relocation paths wait for messages or redraws in the JavaScript port.
+    const recover = (displaced, result) => {
+        const recovery = deal_with_overcrowding(displaced, state, env);
+        return recovery && typeof recovery.then === 'function'
+            ? recovery.then(() => result)
+            : result;
+    };
     let other = null;
     if (moveOther) other = m_at(x, y, state);
     const finishLeaving = () => {
@@ -4779,10 +4787,7 @@ export function mnearto(
             destination = enexto(x, y, monster.data, env);
             if (!destination || !isok(destination.x, destination.y)) {
                 return other
-                    ? thenResult(
-                        deal_with_overcrowding(other, state, env),
-                        () => 0,
-                    )
+                    ? recover(other, 0)
                     : 0;
             }
         }
@@ -4799,17 +4804,11 @@ export function mnearto(
             if (nested && typeof nested.then === 'function') {
                 return nested.then((result) => result
                     ? 2
-                    : thenResult(
-                        deal_with_overcrowding(other, state, env),
-                        () => 2,
-                    ));
+                    : recover(other, 2));
             }
             return nested
                 ? 2
-                : thenResult(
-                    deal_with_overcrowding(other, state, env),
-                    () => 2,
-                );
+                : recover(other, 2);
         };
         if (placement && typeof placement.then === 'function')
             return placement.then(finish);
@@ -6531,15 +6530,13 @@ export function ok_to_obliterate(mtmp, state = game) {
     return true;
 }
 
-// C ref: mon.c elemental_clog() (3877-3952). C's You_feel() is a pline.c
-// boundary; callers may provide a synchronous message hook for tests, while
-// ordinary gameplay records the unported call. The source relocation itself
-// is awaited by mnexto() when overcrowding reaches this path.
+// C ref: mon.c elemental_clog() (3877-3952). Finish the message and monster
+// removal before relocation, preserving C's order across tty/redraw waits.
 // C's function-static msgmv starts at zero in each process. Keep it on
 // the game state so resetGame() also resets it between runSegment() calls.
 // It is not part of the saved game, matching the C function static.
 
-export function elemental_clog(mon, state = game, env = {}) {
+export async function elemental_clog(mon, state = game, env = {}) {
     if (!In_endgame(state.u?.uz)) return;
 
     let m1 = null;
@@ -6554,11 +6551,8 @@ export function elemental_clog(mon, state = game, env = {}) {
     if (!messageMove
         || (state.moves - messageMove) > 200) {
         if (!messageMove || random.rn2(2)) {
-            if (typeof env.message === 'function') {
-                env.message('You feel besieged.', state, env);
-            } else {
-                note_unported('pline.c You_feel');
-            }
+            const message = env.message ?? ttyPline;
+            await message('You feel besieged.', state, env);
         }
         state.elemental_clog_msgmv = state.moves;
     }
@@ -6594,7 +6588,7 @@ export function elemental_clog(mon, state = game, env = {}) {
         const mx = target.mx;
         const my = target.my;
         target.mstate = (target.mstate ?? 0) | MON_OBLITERATE;
-        mongone(target, { ...env, state });
+        await mongone(target, { ...env, state });
         // C intentionally relocates `mon`, not the monster just obliterated.
         return rloc_to(mon, mx, my, { ...env, state });
     } else if (!Is_astralevel(state.u?.uz)) {

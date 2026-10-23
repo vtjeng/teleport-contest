@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C Water bubble overcrowding: fill available space with sleeping peaceful grid bugs, giant ants and gnomes. mon.c mnearto recovery completes elemental_clog message/removal before returning. Quantity1000 is within the public wizard creation bound; no direct state injection.",
+  "segments": [
+    {
+      "seed": 8420158,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>K               blessed ring of levitation\n     Pml          #wizgenesis\n1000 sleeping peaceful grid bug\n                              #wizgenesis\n1000 sleeping peaceful giant ant\n                              #wizgenesis\n1000 sleeping peaceful gnome\n                              m.          m.          "
+    }
+  ]
+}

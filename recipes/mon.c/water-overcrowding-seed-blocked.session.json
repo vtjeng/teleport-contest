@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent seed variation of Water overcrowding. Earlier first-rest screen divergence at boundary303 and eventual missing disturb RNG at315 persists before and after the mon.c recovery repair; owner still under investigation in mkmaze bubble placement/monmove continuation. Not a passing regression recording or claimed parity evidence.",
+  "segments": [
+    {
+      "seed": 8420159,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>K               blessed ring of levitation\n     Pml          #wizgenesis\n1000 sleeping peaceful grid bug\n                              #wizgenesis\n1000 sleeping peaceful giant ant\n                              #wizgenesis\n1000 sleeping peaceful gnome\n                              m.          m.          "
+    }
+  ]
+}
