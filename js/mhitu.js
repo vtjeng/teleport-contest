@@ -1426,7 +1426,7 @@ async function mswings(mtmp, otemp, bash, rawEnv = {}) {
     if (state.flags?.verbose && !activeHeroProperty(state, BLINDED)
         && visible(mtmp, state)) {
         await message(messageAt(
-            `${capitalizedMonsterName(mtmp, state)} `
+            `${capitalizedMonsterName(mtmp, state, rawEnv)} `
             + `${mswings_verb(otemp, bash, rawEnv)} `
             + `${(otemp.quan > 1) ? 'one of ' : ''}`
             + `${mhis(mtmp, {

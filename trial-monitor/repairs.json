@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T22:16:51.445Z",
+  "asOf": "2026-10-23T22:36:08.017Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9051,8 +9051,95 @@
           "scripts/mhitu.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "6dbc9246393ce3b5f31ab3f8cab7009d1dc03eff",
+          "runs": [
+            {
+              "id": 40032677961,
+              "name": "Checkpoint",
+              "sha": "6dbc9246393ce3b5f31ab3f8cab7009d1dc03eff",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/armor-pronoun-entry-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:17:50Z",
+              "completedAt": "2026-10-23T22:24:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40032677961"
+            },
+            {
+              "id": 40033988408,
+              "name": "Lint",
+              "sha": "6dbc9246393ce3b5f31ab3f8cab7009d1dc03eff",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:29:56Z",
+              "completedAt": "2026-10-23T22:30:54Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40033988408"
+            },
+            {
+              "id": 40033988388,
+              "name": "Dashboard",
+              "sha": "6dbc9246393ce3b5f31ab3f8cab7009d1dc03eff",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T22:29:56Z",
+              "completedAt": "2026-10-23T22:33:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40033988388"
+            }
+          ]
+        }
+      ],
+      "note": "C mon_break_armor evaluates mhim(mon), then mhis(mon), on entry even when no equipment changes. JavaScript had both lookups inside the asynchronous effects body, after its synchronous no-change shortcut, so that shortcut skipped both hallucination-sensitive core RNG calls. Move the existing lookups into the wrapper, pass captured values to effects to avoid a second pair, and bind canonical canspotmon for default perception while preserving explicit state/random/message owners. The no-change path remains synchronous for level construction; armor behavior is unchanged. Actual frozen 151 baseline 292fabd8 fails both fresh public shape-change witnesses at core RNG 6821 / boundary122 and ends with 6917 calls versus C6919; the before-trigger control passes. Normal and monochrome repaired replays strictly match all 6919 RNG calls,125 screens/cursors,0 animations. The control matches6805 RNG,119 screens/cursors,0 animations. Empty and unchanged inventory cases in live/planning states verify exactly two entry draws and a synchronous return; ordinary perception tests cover canonical and explicit owners with no RNG; an actual native armor drop proves captured pronouns are not redrawn and verifies slot clearing, floor placement, and the sound line.784 unique tests pass:39 initial affected excluding the repeated construction case,8 construction/entry tests,3 C replays,734 caller tests. Lint and diff checks pass. Full833 continuation retains an independent weapon-swing planning display-owner leak at boundary126; no full833 strict pass claimed for this repair. Complete accepted151 receipt included; full hosted gates pending, no aggregate score gain claimed. Accepted as distinct repair152 after full Checkpoint40032677961 and exact Main Lint40033988408 / Dashboard40033988388 passed. Full44-fixed /98-batch /2055-case comparison against292fabd8 found no regressions, missing evidence, or aggregate changes. The existing publication checker recorded the complete98-batch receipt; carry it in this next ordinary repair."
+    },
+    {
+      "id": "mswings-display-owner",
+      "kind": "parity-repair",
+      "title": "Keep weapon-swing naming on the caller display RNG",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T21:59:12.015Z",
+          "end": "2026-10-23T21:59:12.015Z",
+          "note": "Instantaneous preserved source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mhitu.c:mswings129-141",
+          "js/mhitu.js:mswings",
+          "js/do_name.js:capitalizedMonsterName",
+          "js/unported_monster_actions.js:planningState"
+        ],
+        "witness": [
+          "recipes/mhitu.c/mswings-display-owner-swing.session.json",
+          "recipes/mhitu.c/mswings-display-owner-monochrome.session.json",
+          "recipes/mhitu.c/mswings-display-owner-before-control.session.json"
+        ],
+        "test": [
+          "scripts/mswings-display-owner.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/weapon.test.mjs",
+          "scripts/monster-ranged-wield-switch.test.mjs",
+          "scripts/mhitm.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/muse.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mon_break_armor evaluates mhim(mon), then mhis(mon), on entry even when no equipment changes. JavaScript had both lookups inside the asynchronous effects body, after its synchronous no-change shortcut, so that shortcut skipped both hallucination-sensitive core RNG calls. Move the existing lookups into the wrapper, pass captured values to effects to avoid a second pair, and bind canonical canspotmon for default perception while preserving explicit state/random/message owners. The no-change path remains synchronous for level construction; armor behavior is unchanged. Actual frozen 151 baseline 292fabd8 fails both fresh public shape-change witnesses at core RNG 6821 / boundary122 and ends with 6917 calls versus C6919; the before-trigger control passes. Normal and monochrome repaired replays strictly match all 6919 RNG calls,125 screens/cursors,0 animations. The control matches6805 RNG,119 screens/cursors,0 animations. Empty and unchanged inventory cases in live/planning states verify exactly two entry draws and a synchronous return; ordinary perception tests cover canonical and explicit owners with no RNG; an actual native armor drop proves captured pronouns are not redrawn and verifies slot clearing, floor placement, and the sound line.784 unique tests pass:39 initial affected excluding the repeated construction case,8 construction/entry tests,3 C replays,734 caller tests. Lint and diff checks pass. Full833 continuation retains an independent weapon-swing planning display-owner leak at boundary126; no full833 strict pass claimed for this repair. Complete accepted151 receipt included; full hosted gates pending, no aggregate score gain claimed."
+      "note": "C mswings evaluates the monster name once during the actual swing. JavaScript planning supplies cloned state/display RNG and a silent message, but mswings omitted that environment when calling capitalizedMonsterName. Nested x_monnam/priestname naming therefore fell back to live display RNG and consumed the future live poultrygeist name before the actual wield message. Forward the existing rawEnv third argument; no attack, text, pronoun, or RNG selection algorithm changes. Output-only trace pinned the global display draw to the planned mswings call with state!=game and a supplied display owner. Actual frozen152 baseline6dbc9246 first differs at screen/cursor126 and animation146; later core mismatch7567/155 follows shifted input history. Fresh normal/monochrome C replays now strictly match all29555 RNG calls,833 screens/cursors,52 animations each. The before-trigger control matches6805 RNG,119 screens/cursors,0 animations on both versions. Two native initialized-game/canonical mattacku/planningState cases prove the baseline planned attack advances live display RNG, while the fix advances only the supplied owner, leaves native core untouched, keeps planning silent, and retains live swing output.5 focused+664 affected=669 tests pass including3 C replays; lint/diff checks pass. Private longer continuation strictly passes76361 RNG/2153 screens/cursors/248 animations; a30-turn hallucination variation passes30865/834/77. An independent ninth seed exposes a separate reflection-discovery exercise owner leak before the target swing, preserved privately; no passing cross-seed claim for this repair. Complete accepted152 receipt included; full hosted gates pending, no aggregate score gain claimed."
     }
   ]
 }
