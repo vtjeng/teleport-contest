@@ -73,6 +73,7 @@ import {
     GLYPH_ZAP_OFF,
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import { GameMap } from '../js/game.js';
 import { assign_level } from '../js/dungeon.js';
 import { dismissPendingTtyMessage } from '../js/tty_message.js';
@@ -2909,3 +2910,38 @@ test('dobuzz reveals a secret door and drafts on the initialized Rogue level',
         for (const restore of restoreCallbacks.reverse()) restore();
     }
 });
+
+// C zap.c dobuzz() runs its hit/miss path once, during the actual action.
+// A speculative monster pass still computes the beam on its clone, but nested
+// helpers must inherit the silent message owner rather than the live TTY.
+for (const planning of [true, false]) {
+    for (const forcedMiss of [true, false]) {
+        test(`beam nested ${forcedMiss ? 'miss' : 'hit'} keeps ${planning ? 'planning' : 'live'} output ownership`, async () => {
+            await aimedWand(1, 0, 0);
+            const state = planning ? planningState(game) : game;
+            const monster = state.level.monlist;
+            assert.ok(monster);
+            const x = state.u.ux + 1, y = state.u.uy;
+            state.level.at(x, y).typ = ROOM;
+            relocate_monster(monster, x, y, state);
+            state.viz_array[y][x] |= IN_SIGHT;
+            monster.mw = null;
+            monster.mhp = monster.mhpmax = 100;
+            const lines = [];
+            const before = game._ttyToplines;
+            await dobuzz(0, 1, state.u.ux, state.u.uy, 1, 0,
+                true, true, forcedMiss, state,
+                {...straightThrough(), rn1: () => 1,
+                    rn2: bound => bound - 1},
+                {planning, message: async text => lines.push(text)});
+            if (planning) {
+                assert.deepEqual(lines, []);
+                assert.equal(game._ttyToplines, before);
+            } else {
+                assert.equal(lines.length, 1);
+                assert.match(lines[0], forcedMiss ? /magic missile misses/u
+                    : /magic missile hits/u);
+            }
+        });
+    }
+}

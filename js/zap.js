@@ -5854,9 +5854,11 @@ export async function dobuzz(
     random = { d, rn1, rn2, rnd, rne, rnl, rnz },
     rawEnv = {},
 ) {
-    const env = { ...rawEnv, state, random };
-    const message = env.planning ? async () => {}
-        : (env.message ?? ttyPline);
+    const message = rawEnv.planning ? async () => {}
+        : (rawEnv.message ?? ttyPline);
+    // C runs the beam once. The planning pass must carry its silent output
+    // owner into nested hit()/miss() calls as well as this function's lines.
+    const env = { ...rawEnv, state, random, message };
     const redraw = env.planning ? () => {}
         : (env.redraw ?? newsym);
     const markInvisible = env.planning ? () => {}

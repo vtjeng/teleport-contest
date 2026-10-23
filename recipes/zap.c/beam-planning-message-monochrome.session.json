@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Astral spell-beam continuation. C zap.c dobuzz emits messages exactly once during the actual beam; planning must pass silent output context through nested hit/miss helpers. Full continuation includes the observed potion impact; requires prior lawful-minion inventory repair.",
+  "segments": [
+    {
+      "seed": 8432001,
+      "datetime": "20261026113000",
+      "nethackrc": "OPTIONS=name:FreshAstral,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\nOPTIONS=!color\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \n\u0012"
+    }
+  ]
+}

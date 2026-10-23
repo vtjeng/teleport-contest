@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T19:38:56.982Z",
+  "asOf": "2026-10-23T19:53:08.077Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8333,8 +8333,97 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "bcc01aedda5aa6e3cca593ea92705081c8560e68",
+          "runs": [
+            {
+              "id": 40013103147,
+              "name": "Checkpoint",
+              "sha": "bcc01aedda5aa6e3cca593ea92705081c8560e68",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/lawful-minion-inventory-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T19:39:18Z",
+              "completedAt": "2026-10-23T19:45:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40013103147"
+            },
+            {
+              "id": 40014226182,
+              "name": "Lint",
+              "sha": "bcc01aedda5aa6e3cca593ea92705081c8560e68",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T19:47:50Z",
+              "completedAt": "2026-10-23T19:48:44Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40014226182"
+            },
+            {
+              "id": 40014226065,
+              "name": "Dashboard",
+              "sha": "bcc01aedda5aa6e3cca593ea92705081c8560e68",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T19:47:50Z",
+              "completedAt": "2026-10-23T19:50:30Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40014226065"
+            }
+          ]
+        }
+      ],
+      "note": "C mongets removes curses, floors negative spe, proofs and clears erosion for lawful minions before mpickobj, then independently applies prince battle-gear floor. JS omitted lawful-minion branch and put prince floor only in non-demon arm. Use is_minion and canonical mon_aligntyp so individual alignment overrides species alignment, and preserve the independent source prince floor. Fresh seed8432001 date20261026113000 Astral Angel throws cursed blindness potion in oldJS, first12897drawrn2(7) instead ofCflight rn2(5); runtime stack attributes misfire to omitted item normalization. New lawful/monochrome C each match16873RNG313screens/cursors53animations; pretrigger control12885RNG159screens/cursors36animations passes. Six constructed cases exercise lawful/neutral Angel, ordinary monster, negative sword quality, proofing and demon-prince floor through real mksobj and minvent insertion.375focused/affected tests including3C pass, lint/diffcheck pass. Longer private32403RNG812screens180animations trace exposes independent planning-beam output leak at314, preserved separately; no full strictpass claimed for minion-only fix. Complete143receipt included; hosted validation pending; no aggregate gain claimed. Accepted as distinct144 after fullCheckpoint40013103147, exact MainLint40014226182 andDashboard40014226065 success.44fixed/98batch2055case comparison against6050 unchanged, no regressions/missing evidence. Complete98publication receipt carried in nextordinaryrepair."
+    },
+    {
+      "id": "beam-planning-message-owner",
+      "kind": "parity-repair",
+      "title": "Carry silent beam planning output into nested hit and miss helpers",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T19:30:29.063Z",
+          "end": "2026-10-23T19:30:29.063Z",
+          "note": "Instantaneous source attribution during143publication; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/zap.c:dobuzz",
+          "nethack-c/upstream/src/zap.c:hit",
+          "nethack-c/upstream/src/zap.c:miss",
+          "js/zap.js",
+          "js/mcastu.js:buzzmu"
+        ],
+        "witness": [
+          "recipes/zap.c/beam-planning-message-beam.session.json",
+          "recipes/zap.c/beam-planning-message-monochrome.session.json",
+          "recipes/zap.c/beam-planning-message-before-control.session.json"
+        ],
+        "test": [
+          "scripts/beam-planning-message.test.mjs",
+          "scripts/zap-ray.test.mjs",
+          "scripts/mcastu.test.mjs",
+          "scripts/muse-offensive.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/zap-zhitu.test.mjs",
+          "scripts/zap-resist.test.mjs",
+          "scripts/zap-floor-hearing.test.mjs",
+          "scripts/mthrowu.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mongets removes curses, floors negative spe, proofs and clears erosion for lawful minions before mpickobj, then independently applies prince battle-gear floor. JS omitted lawful-minion branch and put prince floor only in non-demon arm. Use is_minion and canonical mon_aligntyp so individual alignment overrides species alignment, and preserve the independent source prince floor. Fresh seed8432001 date20261026113000 Astral Angel throws cursed blindness potion in oldJS, first12897drawrn2(7) instead ofCflight rn2(5); runtime stack attributes misfire to omitted item normalization. New lawful/monochrome C each match16873RNG313screens/cursors53animations; pretrigger control12885RNG159screens/cursors36animations passes. Six constructed cases exercise lawful/neutral Angel, ordinary monster, negative sword quality, proofing and demon-prince floor through real mksobj and minvent insertion.375focused/affected tests including3C pass, lint/diffcheck pass. Longer private32403RNG812screens180animations trace exposes independent planning-beam output leak at314, preserved separately; no full strictpass claimed for minion-only fix. Complete143receipt included; hosted validation pending; no aggregate gain claimed."
+      "note": "C dobuzz emits a beam exactly once. JS speculative beam local message variable was silent but nested buzzmonst hit/miss received original env with undefined message and fell back to live ttyPline. Private stack confirms planningtrue/undefinedmessage from buzzmu; derive the shared env with the same silent/live message owner before calling any beam helper. Actual accepted144baseline normal/monochrome each match32403RNG812screen/cursor counts180animation count but extra planning miss firstdiff314. Fresh repaired normal/monochrome each strictly match all content including180animation frames; pretrigger complete-turn control16873RNG313screens/cursors53animations passes both baseline/fix. Four actual nested-hit/miss cases verify planning silence and one live message through initialized game beam paths.469focused/affected tests including3C pass, lint/diffcheck pass. Longer public continuation reaches independent msummon horned-devil reservoir refusal; preserved source-backed privately, not included in passing corpus. Complete144receipt included; hosted validation pending, no aggregate gain claimed."
     }
   ]
 }
