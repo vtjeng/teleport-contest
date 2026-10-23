@@ -887,7 +887,7 @@ async function applyMonsterArmorRuntime(
         vision_recalc(1, {
             ...env,
             state,
-            redraw: env.redraw ?? (() => {}),
+            redraw: env.redraw ?? (state === game ? newsym : () => {}),
         });
         if (!silent && best.lamplit && cansee(monster.mx, monster.my, state)) {
             const adesc = arti_light_description(best, state);
@@ -977,7 +977,7 @@ function m_dowear_type(
         vision_recalc(1, {
             ...env,
             state: env.state,
-            redraw: env.redraw ?? (() => {}),
+            redraw: env.redraw ?? (env.state === game ? newsym : () => {}),
         });
     }
     update_mon_extrinsics(monster, best, true, {

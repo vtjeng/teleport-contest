@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T23:25:48.895Z",
+  "asOf": "2026-10-23T23:42:19.480Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9389,8 +9389,97 @@
           "scripts/weapon.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c2bec743353f7f975aded14de53e4afa08553577",
+          "committedAt": "2026-10-23T23:26:01Z",
+          "runs": [
+            {
+              "id": 40039678411,
+              "name": "Checkpoint",
+              "sha": "c2bec743353f7f975aded14de53e4afa08553577",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/aklys-return-throttle-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:26:22Z",
+              "completedAt": "2026-10-23T23:33:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40039678411"
+            },
+            {
+              "id": 40040699704,
+              "name": "Lint",
+              "sha": "c2bec743353f7f975aded14de53e4afa08553577",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:37:21Z",
+              "completedAt": "2026-10-23T23:38:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40040699704"
+            },
+            {
+              "id": 40040700762,
+              "name": "Dashboard",
+              "sha": "c2bec743353f7f975aded14de53e4afa08553577",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:37:22Z",
+              "completedAt": "2026-10-23T23:39:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40040700762"
+            }
+          ]
+        }
+      ],
+      "note": "C return_from_mtoss emits a successful-return message when its zero-sentinel throttle is unset or more than500 moves old, then remembers the move. JavaScript stored that throttle in a module global shared by speculative and live execution. Output-only trace shows planning move86 with previous0 claims it before live move86 sees previous86, suppressing the aklys return line. Store the primitive on game state so canonical planningState clones and new games own their counters; preserve the sentinel,strict >500 predicate,message text,inventory,flight and RNG behavior. Actual frozen155 baseline d238 fails both normal/monochrome at screen/cursor1699 while all63230 core RNG calls match. Repaired witnesses strictly match63230 RNG/1701 screens/cursors/51 animations; before-trigger control63194/1698/51 passes both. Four native cases cover planning/live isolation,exact500 suppression/501 emission,new-game reset,and zero sentinel,with actual weapon re-equipping and no global core draws.7focused including3C+4native plus495affected=502 tests pass;lint/diff checks pass. Actual extended2153-boundary continuation strictly matches84998 RNG,all2153screens/cursors and55animations. Complete accepted155 receipt included;full hosted gates pending,no aggregate gain claimed. Accepted as distinct repair156 after Checkpoint40039678411 and exact Main Lint40040699704 / Dashboard40040700762 passed. Exact archived44-fixed /98-batch /2055-case comparison againstd23836ff4 found no regressions, missing evidence, or aggregate changes. Initial import metadataHTTP503 left no archive; one normal same-route service retry succeeded, with no credentials change or CI rerun. A later optional Checkpoint metadata copy also hit503; one spaced same-route retry succeeded. Complete98 receipt recorded by the existing checker is carried in this ordinary repair."
+    },
+    {
+      "id": "armor-light-redraw",
+      "kind": "parity-repair",
+      "title": "Redraw live monster armor light into map memory",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T23:07:11.817Z",
+          "end": "2026-10-23T23:07:11.817Z",
+          "note": "Instantaneous preserved source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/worn.c:m_dowear_type974-977",
+          "nethack-c/upstream/src/vision.c:control1 comments485-495/update loop",
+          "js/worn.js:light activation both branches",
+          "js/vision.js:vision_recalc redraw owner"
+        ],
+        "witness": [
+          "recipes/worn.c/armor-light-redraw-light.session.json",
+          "recipes/worn.c/armor-light-redraw-monochrome.session.json",
+          "recipes/worn.c/armor-light-redraw-before-control.session.json"
+        ],
+        "test": [
+          "scripts/armor-light-redraw.test.mjs",
+          "scripts/worn.test.mjs",
+          "scripts/light-vision.test.mjs",
+          "scripts/light.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/mplayer.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mon-shape.test.mjs",
+          "scripts/mon-break-armor.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C return_from_mtoss emits a successful-return message when its zero-sentinel throttle is unset or more than500 moves old, then remembers the move. JavaScript stored that throttle in a module global shared by speculative and live execution. Output-only trace shows planning move86 with previous0 claims it before live move86 sees previous86, suppressing the aklys return line. Store the primitive on game state so canonical planningState clones and new games own their counters; preserve the sentinel,strict >500 predicate,message text,inventory,flight and RNG behavior. Actual frozen155 baseline d238 fails both normal/monochrome at screen/cursor1699 while all63230 core RNG calls match. Repaired witnesses strictly match63230 RNG/1701 screens/cursors/51 animations; before-trigger control63194/1698/51 passes both. Four native cases cover planning/live isolation,exact500 suppression/501 emission,new-game reset,and zero sentinel,with actual weapon re-equipping and no global core draws.7focused including3C+4native plus495affected=502 tests pass;lint/diff checks pass. Actual extended2153-boundary continuation strictly matches84998 RNG,all2153screens/cursors and55animations. Complete accepted155 receipt included;full hosted gates pending,no aggregate gain claimed."
+      "note": "C m_dowear_type begins an armor light then calls vision_recalc(1), which vision.c treats as ordinary recalculation with newsym map-memory writes. Both JavaScript construction/runtime paths supplied a no-op default redraw, allowing revealed seenv cells without their remembered glyphs. Use canonical newsym by default for the live game only; preserve explicit redraw ownership and the existing non-global no-op fallback. No lighting radius, vision algorithm, armor selection, text, or RNG changes. Actual frozen156 baseline c2bec first differs at screen69 for both fresh normal/monochrome witnesses while all5693 RNG calls and76 cursors match. Repaired witnesses strictly match5693 RNG/76screens/cursors/0animations; before-trigger control5693/68/0 passes both. Eight initialized dark-room cases cover construction/runtime x live/planning x default/explicit redraw, proving live memory repair, explicit-owner retention, clone-local light/map state and no globalcore draws.11focused including3C+8native plus494affected=505 tests pass;lint/diff pass. Initial native fixture assumed unseen display null rather than blank, and initial68-key control included trigger69; corrected fixture/control findings and original setup logs are preserved. Full independent833 probe29197/833/53 strictly passes; separate night-time and Healer2153-boundary continuations pass on repaired code. A Priest probe preserves a separately source-attributed floor-fire deletion-owner defect; no full Priest pass for this repair or aggregate score gain claimed. Complete accepted156 receipt included;full hosted gates pending."
     }
   ]
 }
