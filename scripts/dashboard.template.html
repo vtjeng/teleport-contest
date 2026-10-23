@@ -388,9 +388,8 @@ canvas {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   color: var(--ink-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .chart-hint {
@@ -1067,6 +1066,7 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
 
 <div class="header">
   <h1>NetHack Port Progress</h1>
+  <span class="updated" id="displayTimezone"></span>
 </div>
 
 <section class="section current-status" aria-labelledby="currentStatusTitle">
@@ -1204,7 +1204,7 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
   <div class="activity-backlog" id="pendingMainWork"></div>
 </details>
 
-<details class="section dashboard-disclosure"><summary>Historical baseline and process</summary><p><strong id="trialBaselineCount"></strong> · Oct 21, 11:50–15:50 UTC. <span id="trialBaselineRate"></span></p><a class="process-changes" href="https://github.com/vtjeng/teleport-contest/blob/main/.agents/decisions.md">Process changes</a></details>
+<details class="section dashboard-disclosure"><summary>Historical baseline and process</summary><p><strong id="trialBaselineCount"></strong> · <span id="trialBaselineWindow"></span>. <span id="trialBaselineRate"></span></p><a class="process-changes" href="https://github.com/vtjeng/teleport-contest/blob/main/.agents/decisions.md">Process changes</a></details>
 
 <details class="section dashboard-disclosure" id="parkedTaskHistory"><summary id="parkedTaskSummary"><span>Paused worker tasks</span><span class="disclosure-count" id="parkedTaskCount"></span></summary><div class="activity-backlog" id="parkedTasks"></div></details>
 
@@ -1222,6 +1222,9 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
 <div class="tooltip" id="tooltip"></div>
 
 <script>
+const createDashboardTime = /*LOCAL_TIME_PLACEHOLDER*/null;
+const localTime = createDashboardTime();
+document.getElementById('displayTimezone').textContent = 'Times in ' + localTime.zone;
 const DATA = /*DATA_PLACEHOLDER*/null;
 const TRIAL_DATA = /*TRIAL_PLACEHOLDER*/null;
 const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
@@ -1251,9 +1254,7 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
     node('trialHeadline').textContent = 'Activity register invalid: ' + error.message;
     return;
   }
-  const stamp = value => Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleString('en-US',
-    { timeZone:'UTC', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit',
-      hour12:false }) + ' UTC' : 'unknown';
+  const stamp = localTime.stamp;
   const rate = value => value == null ? 'unknown'
     : value.toFixed(2) + ' accepted repairs/hour';
   const text = (id, value) => { node(id).textContent = value; };
@@ -1267,6 +1268,7 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
   };
   function render(view) {
     const baseline = view.baseline;
+    text('trialBaselineWindow', stamp(baseline.start) + ' – ' + stamp(baseline.end));
     text('trialBaselineCount', baseline.acceptedCount == null
       ? 'Unknown' : baseline.acceptedCount + ' accepted');
     text('trialBaselineRate', rate(baseline.rate) + ' wall time · '
@@ -1398,7 +1400,10 @@ function fmtTiming(n, observed) {
 }
 
 function relativeTime(iso) {
-  const ms = Date.now() - new Date(iso).getTime();
+  const at = iso == null || iso === '' ? NaN : new Date(iso).getTime();
+  if (!Number.isFinite(at)) return 'time unknown';
+  const ms = Date.now() - at;
+  if (ms < 0) return 'clock ahead; age unavailable';
   const sec = Math.floor(ms / 1000);
   if (sec < 60) return 'just now';
   const min = Math.floor(sec / 60);
@@ -1415,13 +1420,13 @@ function workerSnapshotText(iso) {
   const at = Date.parse(iso);
   if (!Number.isFinite(at)) return 'Snapshot time unavailable. Recorded worker status cannot establish current activity.';
   const age = at > Date.now() ? 'clock ahead; age unavailable' : relativeTime(iso) + ' at page load';
-  return 'Snapshot ' + new Date(at).toISOString().replace('T', ' ').replace('Z', ' UTC')
+  return 'Snapshot ' + localTime.stamp(at)
     + ' · ' + age + '. Not live: workers and claims may have changed.';
 }
 document.getElementById('updated').textContent = activityAsOf
   ? 'Historical worker snapshot · ' + relativeTime(activityAsOf) : 'Historical worker snapshot unavailable';
-document.getElementById('updated').title = (activityAsOf ? 'Activity as of ' + activityAsOf + '. ' : '')
-  + 'Page built ' + DATA.summary.generatedAt + '. Activity updates on publication.';
+document.getElementById('updated').title = (activityAsOf ? 'Activity as of ' + localTime.stamp(activityAsOf) + '. ' : '')
+  + 'Page built ' + localTime.stamp(DATA.summary.generatedAt) + '. Activity updates on publication.';
 
 // Shared range geometry for the score and activity overview charts.
 function drawRangeSelector(ctx, left, right, height, ink) {
@@ -1482,7 +1487,7 @@ document.getElementById('stats').innerHTML = [
     ? fmtN(score.screens.matched) + '/' + fmtN(score.screens.total) + ' screens matched'
     : ['stale', 'incomplete'].includes(score.status) ? 'Current screen total unavailable' : 'No screen measurement';
   const age = score.publication
-    ? 'Measured ' + new Date(score.publication.measuredThrough).toLocaleString('en-GB', { timeZone: 'UTC' }) + ' UTC · ' + relativeTime(score.publication.measuredThrough)
+    ? 'Measured ' + localTime.stamp(score.publication.measuredThrough) + ' · ' + relativeTime(score.publication.measuredThrough)
     : score.commitUtc
     ? (score.commitAgeLabel || 'Commit') + ' ' + relativeTime(score.commitUtc) : 'Commit age unavailable';
   const metrics = [['Sessions', 'sessions'], ['RNG', 'rng'], ['Cursors', 'cursors']]
@@ -1757,15 +1762,11 @@ window.addEventListener('single-worker-status', () => {
     ? (point.screensTotal ? (total ? 100 : point.screens / point.screensTotal * 100) : null)
     : total ? point.screensTotal : point.screens;
   const measured = point => point.screens !== null && point.screensTotal !== null;
-  const clock = time => new Date(time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  const day = time => new Date(time).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  });
-  const dateTime = time => new Date(time).toLocaleString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
-  });
+  const clock = localTime.clock, day = localTime.day, dateTime = localTime.stamp;
   const age = time => {
+    if (!Number.isFinite(time)) return 'time unknown';
     const ms = Date.now() - time;
+    if (ms < 0) return 'clock ahead; age unavailable';
     return ms < 60000 ? 'just now' : ms < HOUR ? Math.floor(ms / 60000) + 'm ago'
       : ms < DAY ? Math.floor(ms / HOUR) + 'h ago' : Math.floor(ms / DAY) + 'd ago';
   };
@@ -2138,7 +2139,7 @@ window.addEventListener('single-worker-status', () => {
   const item = row => '<details class="main-work-item"><summary><span class="main-work-name">' + esc(title(row))
     + '<small>' + esc(workerName(row.worker))
     + (goals.get(row.goal)?.sourceFile ? ' · ' + esc(goals.get(row.goal).sourceFile) : '')
-    + '</small></span><span class="main-work-age" title="Since ' + esc(row.since) + '">' + age(row) + '</span></summary>'
+    + '</small></span><span class="main-work-age" title="Since ' + esc(localTime.stamp(row.since)) + '">' + age(row) + '</span></summary>'
     + '<div class="main-work-detail"><p>Task ' + esc(row.task)
     + (row.delivery ? ' · Delivery ' + esc(row.delivery.slice(0, 8)) : '') + '</p>'
     + (row.goal ? '<p>Goal ' + esc(row.goal) + '</p>' : '')
@@ -2194,7 +2195,7 @@ window.addEventListener('single-worker-status', () => {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const snapshotTime = document.getElementById('activitySnapshotTime');
   snapshotTime.textContent = 'Retired worker history: ' + workerSnapshotText(activity.capturedAt);
-  snapshotTime.title = activity.capturedAt ? new Date(activity.capturedAt).toLocaleString('en-US', {timeZoneName: 'short'}) : '';
+  snapshotTime.title = localTime.stamp(activity.capturedAt);
   const taskById = new Map([...(activity.tasks || []), ...(singleWorkerSnapshot?.tasks || [])].map(task => [task.id, task]));
   const phaseNames = { validation: 'CI validation', investigation: 'Recorded investigation', working: 'Assigned task', queued: 'Delivery pending', pending: 'Delivery pending',
     integrating: 'Integration and checks', acceptance: 'Acceptance',
@@ -2278,10 +2279,7 @@ window.addEventListener('single-worker-status', () => {
   }
   let panning = null;
   let suppressClickUntil = 0;
-  const stamp = value => new Date(value).toLocaleString('en-US',
-    { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
-  const shortStamp = value => new Date(value).toLocaleTimeString('en-US',
-    { hour: '2-digit', minute: '2-digit', hour12: false });
+  const stamp = localTime.stamp, shortStamp = localTime.clock;
   const duration = segment => (Date.parse(segment.end) - Date.parse(segment.start)) / 60000;
   const name = segment => taskById.get(segment.task)?.label
     || (segment.label ? displayLane(segment.label) : segment.task||segment.goal
@@ -2356,7 +2354,7 @@ window.addEventListener('single-worker-status', () => {
     for (let tick = 0; tick <= 3; tick++) {
       const at = start + (end - start) * tick / 3;
       ctx.textAlign = tick === 0 ? 'left' : tick === 3 ? 'right' : 'center';
-      ctx.fillText(hours >= 24 ? new Date(at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+      ctx.fillText(hours >= 24 ? localTime.shortDay(at)
         : shortStamp(at), x(new Date(at).toISOString()), height - 6);
     }
     plottedDurations = [];
@@ -2509,10 +2507,9 @@ window.addEventListener('single-worker-status', () => {
     let html = '<div class="activity-axis">';
     for (let tick = 0; tick <= tickCount; tick++) {
       const at = start + span * tick / tickCount;
-      const label = hours >= 24 ? (new Date(at).getMonth() + 1) + '/'
-        + new Date(at).getDate() : shortStamp(at);
+      const label = hours >= 24 ? localTime.shortDay(at) : shortStamp(at);
       html += '<span class="activity-tick" style="left:' + (tick / tickCount * 100)
-        + '%">' + label + '</span>';
+        + '%" title="' + stamp(at) + '">' + label + '</span>';
     }
     html += '</div>';
     for (const lane of lanes.filter(lane => historicalToggle.checked || !historicalLabels.has(lane))) {
@@ -2582,7 +2579,7 @@ window.addEventListener('single-worker-status', () => {
       card: style.getPropertyValue('--surface-card').trim(),
     });
     ctx.fillStyle = style.getPropertyValue('--ink-secondary').trim(); ctx.font = "12px 'Inter', sans-serif";
-    const day = time => new Date(time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const day = localTime.day;
     ctx.textAlign = 'left'; ctx.fillText(day(first), 8, 60);
     ctx.textAlign = 'right'; ctx.fillText(day(domainEnd), width - 8, 60);
     minimap.setAttribute('aria-valuetext', stamp(start) + ' to ' + stamp(end));
@@ -2741,8 +2738,7 @@ window.addEventListener('single-worker-status', () => {
   const goalCount = new Set(groups.flatMap(group => group.goals.map(goal => goal.id))).size;
   document.getElementById('tableSubtitle').textContent = goalCount + ' goals · ' + groups.filter(group => group.commit).length + ' integrations';
   const esc = escScoreText;
-  const stamp = value => value ? new Date(value).toLocaleString('en-US',
-    { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'Unpublished';
+  const stamp = value => value ? localTime.stamp(value) : 'Unpublished';
   const synthetic = gain => !gain ? '—' : gain.gained && gain.lost
     ? '+' + fmtN(gain.gained) + ' / −' + fmtN(gain.lost) : fmtDelta(gain.gained - gain.lost);
   document.getElementById('goalTable').innerHTML = '<thead><tr><th>Goal</th><th>Synthetic Δ</th></tr></thead>'

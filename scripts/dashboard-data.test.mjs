@@ -16,6 +16,7 @@ import { COLUMNS } from './score-log.mjs';
 import { escapeJsonForScript, injectDashboardData } from './build-dashboard.mjs';
 import { activityTimeline } from './dashboard-activity.mjs';
 import { singleWorkerActivity } from './single-worker-activity.mjs';
+import { createDashboardTime } from './dashboard-local-time.mjs';
 import { createTrialMonitor } from './trial-monitor.mjs';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -259,10 +260,10 @@ test('worker status prominently dates its snapshot and never presents old idle r
     data.assignmentQueue = {readySessions: 0, ready: [], blocked: [], claimed: [], tasks: [],
         workers: [{worker: 'Worker-3', state: 'idle', assignment: null}]};
     const rendered = renderDashboard(data);
-    const exactTime = capturedAt.replace('T', ' ').replace('Z', ' UTC');
+    const exactTime = createDashboardTime().stamp(capturedAt);
     for (const id of ['activitySnapshotTime']) {
         const text = rendered.get(id).textContent;
-        assert.ok(text.includes(exactTime), 'exact UTC capture time is visible, not only a tooltip');
+        assert.ok(text.includes(exactTime), 'local capture time with offset is visible, not only a tooltip');
         assert.match(text, /21m ago at page load/u);
         assert.match(text, /Not live: workers and claims may have changed/u);
     }
@@ -1702,7 +1703,7 @@ test('full startup keeps the published synthetic aggregate visible with measurem
         checkpoint: { id: 123 }, fresh: false, datasetMatches: true, batches: 98 } };
     const rendered = renderDashboard(data), html = rendered.get('stats').innerHTML;
     assert.match(html, /301,862\/301,874 screens matched/);
-    assert.match(html, /Measured 22\/10\/2026, 07:00:00 UTC/);
+    assert.ok(html.includes('Measured ' + createDashboardTime().stamp(data.challenges.publication.measuredThrough)));
     assert.match(html, /Revision bbbbbbbb/);
     assert.match(html, /actions\/runs\/123/);
     assert.match(html, /Earlier measurement — newer evaluation status unknown/);

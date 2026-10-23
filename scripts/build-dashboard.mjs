@@ -8,6 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { activityUtilization, integrationDurations } from './dashboard-activity.mjs';
 import { workerWork } from './worker-backlog.mjs';
+import { createDashboardTime } from './dashboard-local-time.mjs';
 import { createChartTimeRange } from './dashboard-time-range.mjs';
 import { singleWorkerActivity } from './single-worker-activity.mjs';
 import { syntheticPublicationStatus } from './published-synthetic.mjs';
@@ -44,6 +45,7 @@ export function injectDashboardData(template, data, queueData, commit, trialData
     .replace('/*TRIAL_MODEL_PLACEHOLDER*/null', () => createTrialMonitor.toString())
     .replace('/*SINGLE_WORKER_PLACEHOLDER*/null', () => singleWorkerActivity.toString())
     .replace('/*UTILIZATION_PLACEHOLDER*/null', () => activityUtilization.toString())
+    .replace('/*LOCAL_TIME_PLACEHOLDER*/null', () => createDashboardTime.toString())
     .replace('/*TIME_RANGE_PLACEHOLDER*/null', () => createChartTimeRange.toString())
     .replace('/*INTEGRATION_DURATION_PLACEHOLDER*/null', () => integrationDurations.toString());
   if (commit === undefined) return html;
