@@ -8155,8 +8155,26 @@
           "scripts/muse.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "C monmove.cvamp_shift2377-2397 calls newcham with source message flag then displays WIN_MESSAGE even after a silent attempted shift. JS omitted display as presumed no-op and simulated silent flag by suppressing a distress message. Use canonical newcham with NC_SHOW_MSG/NO_NC_FLAGS and await canonical pending-message-window display after the attempt. Planning skips livewindowinput; already-fog/non-shift branches do not display. Fresh independent public Astral continuation after141fix matches all20160RNG and43animations but previously differs atscreen/cursor262: CshowsOKdontdie More, JSappendswargbite. Csame-step newmonhp d4,8=15 identifies fog shift; source display boundary explains mismatch, notend.cdeathhandling. Monochrome reproducesexactmismatch. Pretrigger control12927RNG261screens/cursors16animations passes. All3C replays nowpass, including532screens/cursors and43animations forbothwitnesses.335focused/affected tests pass, plusfocusedrerun afterstrengtheningalready-fogcontrol. Constructed live/planning andvisible/sensed cases pinshape, sourcepositions andawaitedwindoweffect. Initialplanningassert expectedredraws even thoughplanning intentionally suppresses them; correctedfixtureonly. Lint/diffcheck pass. Complete141receipt included; hosted gates pending; no aggregategainclaimed."
+      "candidates": [
+        {
+          "sha": "13aef56db96f4688448221588c870266765fd119",
+          "runs": [
+            {
+              "id": 40004320033,
+              "name": "Checkpoint",
+              "sha": "13aef56db96f4688448221588c870266765fd119",
+              "event": "push",
+              "branch": "integration-checkpoint/vamp-shift-message-20261023",
+              "status": "completed",
+              "conclusion": "failure",
+              "completedAt": "2026-10-23T18:40:14Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40004320033",
+              "provenance": "Authorized parent workflow/job summary evidence; denied annotation endpoint not retried"
+            }
+          ]
+        }
+      ],
+      "note": "C monmove.cvamp_shift2377-2397 calls newcham with source message flag then displays WIN_MESSAGE even after a silent attempted shift. JS omitted display as presumed no-op and simulated silent flag by suppressing a distress message. Use canonical newcham with NC_SHOW_MSG/NO_NC_FLAGS and await canonical pending-message-window display after the attempt. Planning skips livewindowinput; already-fog/non-shift branches do not display. Fresh independent public Astral continuation after141fix matches all20160RNG and43animations but previously differs atscreen/cursor262: CshowsOKdontdie More, JSappendswargbite. Csame-step newmonhp d4,8=15 identifies fog shift; source display boundary explains mismatch, notend.cdeathhandling. Monochrome reproducesexactmismatch. Pretrigger control12927RNG261screens/cursors16animations passes. All3C replays nowpass, including532screens/cursors and43animations forbothwitnesses.335focused/affected tests pass, plusfocusedrerun afterstrengtheningalready-fogcontrol. Constructed live/planning andvisible/sensed cases pinshape, sourcepositions andawaitedwindoweffect. Initialplanningassert expectedredraws even thoughplanning intentionally suppresses them; correctedfixtureonly. Lint/diffcheck pass. Complete141receipt included; hosted gates pending; no aggregategainclaimed. Initialcandidate13aef56d failedCheckpoint40004320033: parentconfirmed shard4job120588228089 failure, combinedfailure18:40:13UTC. Annotation401wasnotretried. Localexactshard4/4 onNode24 reproduced existing vampireliveactionfixture InputQueueEmpty atnewC-requiredmessage-window boundary;3240tests passed, withthatfixture andanunchanged LP64test failing because localclang isabsent. Correct thefixture byqueuing oneSpace beforebothplanningpasses, asserting bothleaveitqueued andonlyliveactionconsumesit. Productionbehavior unchanged.159focused tests including3C replays pass, then2targeted live/planningtests pass afterstrengtheningkey assertions. Clang-dependentunchangedcheckleftfor normalfullhostedNode22validation; no skipped checks orCIsettings changes. Correctiongroupedwithin142, notanewrepair; notaccepted."
     }
   ]
 }

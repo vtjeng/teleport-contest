@@ -3222,6 +3222,9 @@ async function prepareVampireDoorArrival() {
 
 test('vampire door passage changes form only in the live action', async () => {
     const target = await prepareVampireDoorArrival();
+    // monmove.c vamp_shift() displays WIN_MESSAGE after the live change.
+    // Planning must leave its single acknowledgement for the live action.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     const before = preflightSnapshot();
     const vision = visionSnapshot();
     for (let attempt = 0; attempt < 2; ++attempt) {
@@ -3229,8 +3232,10 @@ test('vampire door passage changes form only in the live action', async () => {
         assert.deepEqual(preflightSnapshot(), before);
         assert.deepEqual(visionSnapshot(), vision);
         assert.equal(target.monster.data, game.mons[PM_VAMPIRE]);
+        assert.equal(game.nhDisplay.inputQueueLength, 1);
     }
     await runSimpleMonsterAction(target.monster, { state: game });
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
     assert.deepEqual([target.monster.mx, target.monster.my],
         [target.destinationX, target.heroY]);
     assert.equal(target.monster.data, game.mons[PM_FOG_CLOUD]);
