@@ -5073,9 +5073,53 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39887336074"
             }
           ]
+        },
+        {
+          "sha": "70b010be230b37b96d96b27f0c7ad4a0c18a1f67",
+          "runs": [
+            {
+              "id": 39889263875,
+              "name": "Checkpoint",
+              "sha": "70b010be230b37b96d96b27f0c7ad4a0c18a1f67",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/shop-ownership-cleanup-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T02:23:00Z",
+              "completedAt": "2026-10-23T02:28:55Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39889263875"
+            },
+            {
+              "id": 39890011771,
+              "name": "Lint",
+              "sha": "70b010be230b37b96d96b27f0c7ad4a0c18a1f67",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T02:31:12Z",
+              "completedAt": "2026-10-23T02:32:08Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39890011771"
+            },
+            {
+              "id": 39890011784,
+              "name": "Dashboard",
+              "sha": "70b010be230b37b96d96b27f0c7ad4a0c18a1f67",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T02:31:12Z",
+              "completedAt": "2026-10-23T02:33:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39890011784"
+            }
+          ]
         }
       ],
-      "note": "set_residency used top-level rooms alone despite C subroom aliasing. Reuse existing persisted-room lookup, preserving the home-level guard and zero_out assignment. Minetown resident migration crashes before repair and matches C after; quiet variation and non-migration control match. Public witnesses reach zero_out via mon_leave; supplemental checks cover restoration, stale generation-time subrooms, the foreign-level guard, and ordinary rooms. No synthetic score gain claimed. Hosted gates pending. Validation: three fresh C differentials, 175 focused/affected tests, 12 timeline tests, eslint js/ scripts/, and git diff --check pass. Accepted with exact-SHA Checkpoint, Main Lint and Dashboard success on attempt 1. Full archived fixed44 and synthetic98/2055 comparisons unchanged; check-published-ci recorded the complete cohort using accepted synthetic baseline. Added a stronger live C variation migrating only one subroom shopkeeper (plus one mimic); it passes and is grouped with this repair, not counted separately. Evidence ships in the next ordinary repair. Grouped follow-up extends the same persisted-room lookup to shkgone without changing source cleanup order or home-level condition. Two distinct subroom shopkeepers crash before repair and match C after; large-mimic death control passes. Three fresh C replays and 110 focused/affected tests pass. This is correction evidence for the original subroom ownership repair, not an additional distinct repair. Follow-up hosted gates pending. Follow-up timeline tests (12), lint and diff-check pass."
+      "note": "set_residency used top-level rooms alone despite C subroom aliasing. Reuse existing persisted-room lookup, preserving the home-level guard and zero_out assignment. Minetown resident migration crashes before repair and matches C after; quiet variation and non-migration control match. Public witnesses reach zero_out via mon_leave; supplemental checks cover restoration, stale generation-time subrooms, the foreign-level guard, and ordinary rooms. No synthetic score gain claimed. Hosted gates pending. Validation: three fresh C differentials, 175 focused/affected tests, 12 timeline tests, eslint js/ scripts/, and git diff --check pass. Accepted with exact-SHA Checkpoint, Main Lint and Dashboard success on attempt 1. Full archived fixed44 and synthetic98/2055 comparisons unchanged; check-published-ci recorded the complete cohort using accepted synthetic baseline. Added a stronger live C variation migrating only one subroom shopkeeper (plus one mimic); it passes and is grouped with this repair, not counted separately. Evidence ships in the next ordinary repair. Grouped follow-up extends the same persisted-room lookup to shkgone without changing source cleanup order or home-level condition. Two distinct subroom shopkeepers crash before repair and match C after; large-mimic death control passes. Three fresh C replays and 110 focused/affected tests pass. This is correction evidence for the original subroom ownership repair, not an additional distinct repair. Follow-up hosted gates pending. Follow-up timeline tests (12), lint and diff-check pass. Grouped correction accepted: exact-SHA Checkpoint, Main Lint and Dashboard succeeded on attempt 1. Watcher/API transport failures recovered by reading existing runs; no CI rerun or duplicate push. Full fixed44 and synthetic98/2055 comparison unchanged. Published checker recorded the complete cohort against fa0bbb407f9573cc109a886962881867ecca3931. Distinct repair total remains 110."
     },
     {
       "id": "special-monster-accessibility",
@@ -5155,6 +5199,44 @@
         }
       ],
       "note": "Extend keepdogs existing stable accessible-monster migration route to the three C mextra home-level owners, preserving exceptional-state checks. C full witness lists one priest and five shopkeepers at exact coordinates; smaller variation lists one shopkeeper. Both are missing before repair with matching RNG; all three live C differentials pass after repair, including home-level control. Supplemental guard branch remains source-pinned, not claimed as publicly witnessed. Existing exceptional Wizard tests retained. 103 focused/affected tests pass. No measured synthetic gain claimed. Hosted gates pending. Twelve timeline tests, lint and diff-check pass. Accepted with exact-SHA Checkpoint, Main Lint and Dashboard success on attempt 1. A watcher annotation read returned 401; the independent run-status read succeeded, so observation resumed for the same run without rerunning CI or changing credentials. Full fixed44 and synthetic98/2055 archived comparisons unchanged. Complete evidence recorded by check-published-ci using the accepted synthetic baseline and carried in the next ordinary correction."
+    },
+    {
+      "id": "vision-reset-stale-sight",
+      "kind": "parity-repair",
+      "title": "Clear stale sight when resetting level vision",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T02:22:53Z",
+          "end": "2026-10-23T02:44:06.880Z",
+          "note": "Observed source and C-probe interval, not measured active work. Forced-arrival investigation exposed a separate loader display failure. Source/probes overlapped the prior grouped-correction gates; code changes followed accepted publication and complete cohort recording. Forced arrival remains unqualified."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vision.c",
+          "nethack-c/upstream/src/detect.c",
+          "js/vision.js",
+          "js/detect.js"
+        ],
+        "witness": [
+          "recipes/vision.c/level-reset-knox.session.json",
+          "recipes/vision.c/level-reset-hidden.session.json",
+          "recipes/vision.c/level-reset-control.session.json"
+        ],
+        "test": [
+          "scripts/vision-reset.test.mjs",
+          "scripts/vision.test.mjs",
+          "scripts/light-vision.test.mjs",
+          "scripts/planning-isolation.test.mjs",
+          "scripts/automatic-search.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "C vision_reset clears both visibility buffers and selects the first buffer before rebuilding opacity. The port retained stale sight, producing a spurious soldier appearance and old map cells during canonical knox loading. Normal and message-hidden witnesses fail before and match after; canceled-loader control passes. Search point mutation uses the existing point owner so resetting a level can clear sight without clearing mid-level search views. Alternate states retain separate buffers. Three fresh C differentials and 206 focused/affected tests pass. Hosted gates pending; no score gain claimed. Twelve timeline tests, lint and diff-check pass."
     }
   ]
 }

@@ -280,9 +280,17 @@ function rebuildTransparencyIndex(state) {
 // C vision_reset publishes readiness only after rebuilding its level index.
 export function vision_reset(state = game) {
     if (!state.level) return;
+    if (state !== game) state._visionBuffers ??= makeVisionBuffers();
+    // C vision.c clears both could_see buffers and selects cs_rows0 before
+    // rebuilding the new level's obstruction index.
+    const buffers = visionBuffers(state);
+    for (const rows of buffers.rows)
+        for (const row of rows) row.fill(0);
+    state.active_buf = 0;
+    state.viz_array = buffers.rows[0];
     rebuildTransparencyIndex(state);
-    state._viz_rmin = null;
-    state._viz_rmax = null;
+    state._viz_rmin = buffers.rmin[0];
+    state._viz_rmax = buffers.rmax[0];
     // C vision.c:263-264 publishes the rebuilt obstruction map.
     state.iflags ??= {};
     state.iflags.vision_inited = true;
@@ -717,7 +725,7 @@ export async function do_clear_area_async(
 // and writes them into the planned state.  js/unported_monster_actions.js is
 // the one caller that does: admitDoorOpening() rebuilds it from the planned
 // map, and the finally at :879-896 rebuilds it from the live one, both through
-// recalc_block_point(), which calls vision_reset().
+// recalc_block_point(), which rebuilds only the transparency index.
 //
 // `env.redraw` defaults to newsym, which ignores its state argument and paints
 // the module-level `game`, so a caller whose state is not `game` must supply

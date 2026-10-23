@@ -235,7 +235,6 @@ import {
     recalc_block_point,
     unblock_point,
     vision_recalc,
-    vision_reset,
 } from './vision.js';
 import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { NO_COLOR } from './terminal.js';
@@ -1922,19 +1921,9 @@ function defaultVisionMutation(x, y, env) {
             + 'for non-global state',
         );
     }
-    const affectedCurrentVision = Boolean(env.state.viz_array?.[y]?.[x]);
-    // vision.c updates its transparent-point index immediately.  The current
-    // JS vision owner rebuilds that index as a unit rather than exposing
-    // dig_point()/fill_point().
-    const oldVisionMin = env.state._viz_rmin;
-    const oldVisionMax = env.state._viz_rmax;
-    vision_reset();
-    // vision_reset() is normally a level-lifecycle operation and clears the
-    // previous display bounds.  A point mutation happens mid-level, so retain
-    // them for vision_recalc() to erase cells which just left sight.
-    env.state._viz_rmin = oldVisionMin;
-    env.state._viz_rmax = oldVisionMax;
-    if (affectedCurrentVision) env.state.vision_full_recalc = 1;
+    // This is a point mutation, not a level reset: preserve the current view
+    // while rebuilding opacity through the existing vision.c point owner.
+    recalc_block_point(x, y, env.state);
 }
 
 function defaultSearchDisplay(x, y, env) {

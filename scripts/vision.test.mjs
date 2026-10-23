@@ -120,8 +120,9 @@ test('See Invisible toggle updates light blocking for living invisible boulder m
         intrinsic: 0, extrinsic: 0,
     } } }, viz_array: Array.from({ length: ROWNO },
         () => new Uint8Array(COLNO)), vision_full_recalc: 0 };
-    state.viz_array[10][10] = COULD_SEE;
     vision_reset(state);
+    // The reset clears sight; this fixture models the subsequent visible view.
+    state.viz_array[10][10] = COULD_SEE;
     state.vision_full_recalc = 0;
     assert.equal(does_block(10, 10, null, state), false);
 

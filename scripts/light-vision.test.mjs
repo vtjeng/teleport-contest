@@ -84,6 +84,7 @@ import {
     do_clear_area,
     init_vision_globals,
     makeVisionBuffers,
+    recalc_block_point,
     vision_recalc,
     vision_reset,
 } from '../js/vision.js';
@@ -511,7 +512,7 @@ test('pit sight leaves Blind and Rogue-level paths in precedence', () => {
 //
 // The fourth shared structure, vision.c's transparency index, is not in env
 // and cannot be: the quadrant walks read it as a module global. That is what
-// the vision_reset() bracket below is for, and dropping either half is what
+// the recalc_block_point() bracket below is for, and dropping either half is what
 // would make the clone compute the live map's sight lines.
 test('vision_recalc against another state leaves the live view alone', () => {
     const state = darkRoomState();
@@ -539,10 +540,10 @@ test('vision_recalc against another state leaves the live view alone', () => {
     };
 
     let painted = 0;
-    vision_reset(planned);
+    recalc_block_point(0, 0, planned);
     for (let round = 0; round < 2; ++round)
         vision_recalc(0, { state: planned, redraw: () => { painted += 1; } });
-    vision_reset(state);
+    recalc_block_point(0, 0, state);
 
     assert.ok(painted > 0);
     assert.equal(state.viz_array, liveArray);

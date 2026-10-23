@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent vision.c vision_reset witness. Canonical knox load resets stale visibility; hidden-message variation exercises map cells; canceled loader control retains the existing level.",
+  "segments": [
+    {
+      "seed": 8420133,
+      "datetime": "20261023200000",
+      "nethackrc": "OPTIONS=name:ArrivalProbe,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizloaddes\nknox.lua\n   "
+    }
+  ]
+}
