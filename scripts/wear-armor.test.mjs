@@ -86,6 +86,7 @@ import {
 import { acurr } from '../js/attrib.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
+import { GameDisplay } from '../js/game_display.js';
 import { unmul } from '../js/hack.js';
 import { enlightenment } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
@@ -2861,7 +2862,7 @@ test('wear and take-off messages keep their foreign naming state',
             state.program_state = { ...game.program_state };
             state.context = structuredClone(game.context);
             state.u = structuredClone(game.u);
-            state.nhDisplay = { ...game.nhDisplay };
+            state.nhDisplay = new GameDisplay(null);
             state._pending_message = '';
             state._ttyPreviousMessage = '';
             state._ttyToplines = '';

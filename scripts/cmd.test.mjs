@@ -4070,10 +4070,10 @@ test('reqmenu rejects non-prefix commands and Escape cancels silently',
         ]) {
             const { state } = resetSafeWaitTestGame('OPTIONS=!cmdassist');
             const grid = structuredClone(state.nhDisplay.grid);
-            // Source redraws this synthetic, map-free screen before the
-            // command result returns. Recorder patch 006 uses terminal
-            // default fg 7 for the cleared cells (NO_COLOR in the port).
-            const clearedGrid = grid.map((row) => row.map(() => (
+            // Source clears this synthetic, map-free screen, then paints
+            // the diagnostic before returning. A map clear uses NO_COLOR;
+            // the top-line cl_end uses this terminal's default foreground 7.
+            const expectedGrid = grid.map((row) => row.map(() => (
                 { ch: ' ', color: NO_COLOR, attr: 0 }
             )));
             state.nhDisplay.pushKey(commandKeyCode('m'));
@@ -4081,11 +4081,14 @@ test('reqmenu rejects non-prefix commands and Escape cancels silently',
 
             await rhack(0, state);
 
-            assert.equal(
-                state._pending_message,
-                `The ${description} command does not accept 'm' prefix.`,
-            );
-            assert.deepEqual(state.nhDisplay.grid, clearedGrid);
+            const message = `The ${description} command does not accept 'm' prefix.`;
+            assert.equal(state._pending_message, message);
+            for (let index = 0; index < expectedGrid[0].length; index++)
+                expectedGrid[0][index] = { ch: message[index] ?? ' ',
+                    color: index < message.length ? NO_COLOR : 7, attr: 0 };
+            assert.deepEqual(state.nhDisplay.grid, expectedGrid);
+            assert.deepEqual([state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+                [message.length, 0]);
             assert.equal(state.context.move, 0);
             assert.equal(state.iflags.menu_requested, false);
             assert.equal(state.nhDisplay.inputQueueLength, 0);
@@ -4118,7 +4121,7 @@ test('a doubled reqmenu prefix cancels without leaking into the next command',
         ]) {
             const { state, monster } = resetSafeWaitTestGame(configuration);
             const grid = structuredClone(state.nhDisplay.grid);
-            const clearedGrid = grid.map((row) => row.map(() => (
+            const expectedGrid = grid.map((row) => row.map(() => (
                 { ch: ' ', color: NO_COLOR, attr: 0 }
             )));
             state.nhDisplay.pushKey(commandKeyCode(prefix));
@@ -4126,9 +4129,14 @@ test('a doubled reqmenu prefix cancels without leaking into the next command',
 
             await rhack(0, state);
 
-            assert.equal(state._pending_message,
-                `Double ${prefix} prefix, canceled.`);
-            assert.deepEqual(state.nhDisplay.grid, clearedGrid);
+            const message = `Double ${prefix} prefix, canceled.`;
+            assert.equal(state._pending_message, message);
+            for (let index = 0; index < expectedGrid[0].length; index++)
+                expectedGrid[0][index] = { ch: message[index] ?? ' ',
+                    color: index < message.length ? NO_COLOR : 7, attr: 0 };
+            assert.deepEqual(state.nhDisplay.grid, expectedGrid);
+            assert.deepEqual([state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+                [message.length, 0]);
             assert.equal(state.context.move, 0);
             assert.equal(state.iflags.menu_requested, false);
             assert.equal(state.context.pendingCommand, undefined);

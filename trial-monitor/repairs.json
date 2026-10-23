@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T20:23:51.846Z",
+  "asOf": "2026-10-23T20:49:52.785Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8601,8 +8601,27 @@
           "scripts/zap-ray.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Cupdate_topl249-302 ends every unsuppressed nonappend replacement with redotoplin, including after its ownmore acknowledgement. JS only painted when acknowledgedTopline was alreadytrue atentry; a More insideupdate_topl then remembers newtext but leaves oldphysicalMore until laterflush, observable in missile animation. Alwayspaint replacement after history update, remove unused acknowledgement plumbing, preserve suppression/history/input ownership. Actual accepted146baseline both freshnormal/monochrome matchall83632RNG2734screens/cursors577framecounts but firstanimation2179 shows oldOKdontdieMore instead ofItismissed; private stacks prove liveadvanceElapsedTurn, notplanning; mapframecells match. Repaired3C replays strictlypass allcontent, beforetriggercontrol67450RNG2158screens/cursors424animations passes both. Two constructed realttyPline/GameDisplay cases verify immediatephysicaltext/cursor afteronequeuedSpace More andemptylogical-line replacement, withnomapflush/extra input. Private initialunitpriorlinefitssame-lineappend; lengthened it toexerciseMore beforeproductionfixture.431focused/affected tests including3C pass, lint/diffcheck pass. Separate thirdseed extended123810RNG3454screens/cursors328animations passes baselineandprivatefix as unaffectedcontrol, not added toregressioncorpus orscore. New8432004movement discrepancy reproduces on146andwithacousticsoff, so independent ofthisrepair; preservedunqualified. Complete146receipt included; fullhostedgatespending, no aggregate gain claimed."
+      "candidates": [
+        {
+          "sha": "7f3c4e131d243641eba5592c81fd65049df2b220",
+          "runs": [
+            {
+              "id": 40019005577,
+              "name": "Checkpoint",
+              "sha": "7f3c4e131d243641eba5592c81fd65049df2b220",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/topl-replacement-redraw-20261023",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-23T20:24:45Z",
+              "completedAt": "2026-10-23T20:31:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40019005577"
+            }
+          ]
+        }
+      ],
+      "note": "Cupdate_topl249-302 ends every unsuppressed nonappend replacement with redotoplin, including after its ownmore acknowledgement. JS only painted when acknowledgedTopline was alreadytrue atentry; a More insideupdate_topl then remembers newtext but leaves oldphysicalMore until laterflush, observable in missile animation. Alwayspaint replacement after history update, remove unused acknowledgement plumbing, preserve suppression/history/input ownership. Actual accepted146baseline both freshnormal/monochrome matchall83632RNG2734screens/cursors577framecounts but firstanimation2179 shows oldOKdontdieMore instead ofItismissed; private stacks prove liveadvanceElapsedTurn, notplanning; mapframecells match. Repaired3C replays strictlypass allcontent, beforetriggercontrol67450RNG2158screens/cursors424animations passes both. Two constructed realttyPline/GameDisplay cases verify immediatephysicaltext/cursor afteronequeuedSpace More andemptylogical-line replacement, withnomapflush/extra input. Private initialunitpriorlinefitssame-lineappend; lengthened it toexerciseMore beforeproductionfixture.431focused/affected tests including3C pass, lint/diffcheck pass. Separate thirdseed extended123810RNG3454screens/cursors328animations passes baselineandprivatefix as unaffectedcontrol, not added toregressioncorpus orscore. New8432004movement discrepancy reproduces on146andwithacousticsoff, so independent ofthisrepair; preservedunqualified. Complete146receipt included; fullhostedgatespending, no aggregate gain claimed. Original147candidate7f3c4e13 failedCheckpoint40019005577 attempt1: testshards3job120638374019 and4job120638373958, combined120640902434 failed. Localreproduction found7fixturetests assuming the old deferredphysicalmessage: stethoscopefirstannouncement sampledaftercompletion instead ofactualMore, off-maplisten expectingunchangedmessage row/cursor, foreignwear display spreadlosingmethods, commanddiagnostics expectingblankgrid. Correctfixtures toobservefirstmessage/cursor at _preNhgetchHook More boundary, preservemap-only/queuedsentinel checks, assertfinalimmediate message/diagnostic/cursor includingterminaldefaultfg7 tail, anduseanindependentrealGameDisplay forforeignnamingstate. Production147gamecode unchanged. Initiallocalshard3 also lackedlockedfast-check; npmci --ignore-scripts restoredexactdependencies withnopackage/lock/config changes. Correctedlocalshard3 passes2524/2524 andshard4 passes3021/3021;7targetedfailurecases pass withsourceCapply.c/cmd.c outputorder checked. Correctiongroupedwithin147, notnewrepair; freshfullhosted gates required."
     }
   ]
 }

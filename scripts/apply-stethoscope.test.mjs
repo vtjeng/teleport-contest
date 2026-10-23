@@ -184,8 +184,7 @@ function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
 }
 
-// The top line a call made outside moveloop_core() produced. Nothing has
-// flushed the screen yet, so this is the text the next flush would paint.
+// Logical TTY message, independent of the physical More marker or wrapping.
 function pendingTopLine() {
     return game._pending_message ?? '';
 }
@@ -1510,7 +1509,8 @@ test('an off-map adjacent listen uses You_hear and always stays free',
     assert.equal(await doapply(game), ECMD_OK);
     assert.equal(pendingTopLine(), 'You hear a faint typing noise.');
     assert.deepEqual(
-        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow], [0, edgeY + 1],
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+        ['You hear a faint typing noise.'.length, 0],
     );
     assert.equal(game.context.stethoscope_seq, game.hero_seq);
     assert.deepEqual(game.gb.bhitpos, { x: 1, y: edgeY });
@@ -1524,9 +1524,11 @@ test('an off-map adjacent listen uses You_hear and always stays free',
         before.terrain,
     );
     assert.deepEqual(
-        adjacentRefusalEffects({ x: 1, y: edgeY }).screen,
-        before.screen,
+        adjacentRefusalEffects({ x: 1, y: edgeY }).screen.slice(1),
+        before.screen.slice(1),
     );
+    assert.equal(topLine(), 'You hear a faint typing noise.',
+        'You_hear paints only the message row, leaving the map unchanged');
 
     // The second listen sees the unchanged hero sequence and computes
     // ECMD_TIME, but apply.c:390 returns ECMD_OK unconditionally. The leading
@@ -1632,9 +1634,11 @@ test('use_stethoscope walks the adjacent square in apply.c order',
     floorCorpstat(CORPSE, markedCorpse);
     for (const key of ['c', 'h', ' ', 'z'])
         game.nhDisplay.pushKey(key.charCodeAt(0));
-    assert.equal(await doapply(game), ECMD_OK);
+    const markerBoundary = await captureFirstMore(async () => {
+        assert.equal(await doapply(game), ECMD_OK);
+    });
     assert.equal(
-        topLine().replace(/--More--$/u, ''),
+        markerBoundary.text,
         'The invisible monster must have moved.',
     );
     assert.equal(
@@ -1646,8 +1650,14 @@ test('use_stethoscope walks the adjacent square in apply.c order',
             .remembered_glyph?.glyph,
     ));
     assert.deepEqual(
-        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+        markerBoundary.cursor,
         [46, 0],
+    );
+    assert.equal(topLine(), pendingTopLine(),
+        'C paints the final corpse report after acknowledging the marker');
+    assert.deepEqual(
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+        [pendingTopLine().length, 0],
     );
     assert.equal(await game.nhDisplay.readKey(), 'z'.charCodeAt(0));
 
@@ -1705,12 +1715,30 @@ test('secret terrain changes the map, vision, display, and turn result',
     }
 });
 
-// The first of the two messages a listen prints when it prints two. It is
-// flushed to the grid when the second overflows the top line, while the second
-// stays pending.
+// Observe the source input boundary, rather than relying on the first line
+// remaining physically visible after C redotoplin() paints the second one.
+async function captureFirstMore(action) {
+    const previous = game._preNhgetchHook;
+    let boundary = null;
+    game._preNhgetchHook = async () => {
+        const line = topLine();
+        if (!boundary && line.endsWith('--More--')) {
+            boundary = { text: line.replace(/--More--$/u, ''),
+                cursor: [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow] };
+        }
+        await previous?.();
+    };
+    try { await action(); }
+    finally { game._preNhgetchHook = previous; }
+    assert.ok(boundary, 'the first message must reach its More boundary');
+    return boundary;
+}
+
 async function listenLine() {
-    assert.equal(await listenWest(1), null);
-    return topLine().replace(/--More--$/u, '');
+    const boundary = await captureFirstMore(async () => {
+        assert.equal(await listenWest(1), null);
+    });
+    return boundary.text;
 }
 
 // A mimic wearing an object, as makemon()'s set_mimic_sym() leaves one.
