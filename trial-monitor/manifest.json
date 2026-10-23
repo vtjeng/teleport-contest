@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "raven-wielded-polearm",
-      "sha": "cb9bf3ba357c00d87078a8ce635adc5afed42f04",
+      "repairId": "mimic-altar-gehennom",
+      "sha": "b2edbb2effb6fb2a04f5e280260d2a6b08cbed6b",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T17:45:05.888827+00:00"
+    "asOf": "2026-10-23T18:02:51.459334+00:00"
   }
 }

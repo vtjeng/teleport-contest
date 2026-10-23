@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public wish and wear opposite-alignment helm; attrib.cuchangealign may summon one Fury after alignment abuse, makemon.csummon_furies owns complete creation lifecycle. Qualification only.",
+  "segments": [
+    {
+      "seed": 8431002,
+      "datetime": "20261025101500",
+      "nethackrc": "OPTIONS=name:HelmFury,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    \u0012"
+    }
+  ]
+}

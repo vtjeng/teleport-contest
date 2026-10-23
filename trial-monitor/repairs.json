@@ -7900,8 +7900,97 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "b2edbb2effb6fb2a04f5e280260d2a6b08cbed6b",
+          "runs": [
+            {
+              "id": 39999170795,
+              "name": "Lint",
+              "sha": "b2edbb2effb6fb2a04f5e280260d2a6b08cbed6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:56:17Z",
+              "completedAt": "2026-10-23T17:57:15Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39999170795"
+            },
+            {
+              "id": 39999170805,
+              "name": "Dashboard",
+              "sha": "b2edbb2effb6fb2a04f5e280260d2a6b08cbed6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:56:17Z",
+              "completedAt": "2026-10-23T17:58:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39999170805"
+            },
+            {
+              "id": 39998092466,
+              "name": "Checkpoint",
+              "sha": "b2edbb2effb6fb2a04f5e280260d2a6b08cbed6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mimic-altar-hell-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:48:26Z",
+              "completedAt": "2026-10-23T17:55:05Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39998092466"
+            }
+          ]
+        }
+      ],
+      "note": "C set_mimic_sym2538-2542 draws ordinary alignment then, only Inhell, draws rn2(3) and assigns AM_NONE for either nonzero outcome. JS omitted the override and draw. Independent public wizard3 genesis reaches altar on200th mimic: before fix C328578RNG vsJS328577, first mismatch328575 at2542;82screens/cursors match. Monochrome repeats exact source mismatch.199mimic pretrigger control326922RNG82screens/cursors passes; ordinary-level200mimic control32168RNG33screens/cursors reaches one altar and no Hell draw, passes. Earlier lower-density/other-level probes were noncovering and remain private. Four fresh C replays and331other focused/affected tests pass after fix, with ordered constructed cases covering all alignment and override outcomes through random-furniture and temple paths. Lint/diffcheck pass. Complete138receipt restored from preserved stash and included; no standalone report publication or aggregate gain claimed. Hosted validation pending. Accepted as distinct139 after Checkpoint39998092466, MainLint39999170795 andDashboard39999170805 succeeded. Complete44fixed/98batch2055case comparison againstcb9bf3ba3 unchanged, no regressions or missing cases. Complete98publication receipt recorded for nextordinaryrepair."
+    },
+    {
+      "id": "helm-summon-furies",
+      "kind": "parity-repair",
+      "title": "Complete and await Fury creation after alignment-helm abuse",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T17:49:09.531336+00:00",
+          "end": "2026-10-23T17:49:09.531336+00:00",
+          "note": "Instantaneous source observation while139wasfrozen; not elapsed active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/attrib.c",
+          "nethack-c/upstream/src/makemon.c",
+          "js/attrib.js",
+          "js/makemon.js",
+          "js/makemon_create.js"
+        ],
+        "witness": [
+          "recipes/makemon.c/helm-furies-summon.session.json",
+          "recipes/makemon.c/helm-furies-monochrome.session.json",
+          "recipes/makemon.c/helm-furies-astral.session.json",
+          "recipes/makemon.c/helm-furies-before-control.session.json",
+          "recipes/makemon.c/helm-furies-other-helm-control.session.json",
+          "recipes/makemon.c/helm-furies-probability-control.session.json"
+        ],
+        "test": [
+          "scripts/helm-furies.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/makemon.test.mjs",
+          "scripts/hero-attributes.test.mjs",
+          "scripts/attrib-innate.test.mjs",
+          "scripts/do_wear.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C set_mimic_sym2538-2542 draws ordinary alignment then, only Inhell, draws rn2(3) and assigns AM_NONE for either nonzero outcome. JS omitted the override and draw. Independent public wizard3 genesis reaches altar on200th mimic: before fix C328578RNG vsJS328577, first mismatch328575 at2542;82screens/cursors match. Monochrome repeats exact source mismatch.199mimic pretrigger control326922RNG82screens/cursors passes; ordinary-level200mimic control32168RNG33screens/cursors reaches one altar and no Hell draw, passes. Earlier lower-density/other-level probes were noncovering and remain private. Four fresh C replays and331other focused/affected tests pass after fix, with ordered constructed cases covering all alignment and override outcomes through random-furniture and temple paths. Lint/diffcheck pass. Complete138receipt restored from preserved stash and included; no standalone report publication or aggregate gain claimed. Hosted validation pending."
+      "note": "C attrib.c1347-1348 summons one Fury after the abuse probability gate, or all remaining Furies on Astral; makemon.c2605-2615 completes each creation before checking count/extinction again. JS used unsupported synchronous runtime creation and did not await the caller. Await canonical makemon_runtime and summon_furies; admit only the exact helper species/hero-coordinate/MM_ADJACENTOK|MM_NOWAIT shape, preserving complete placement/inventory/output and canonical occupation interruption. Independent seed8431002 gate5<abuse7 previously stops before placement at2358RNG48screens; repaired ordinary and monochrome match2571RNG166screens/cursors. Astral forced-limit0 witness matches6419RNG89screens/cursors. Before-wear control2352RNG48screens, other-helm2405RNG158screens, probability-miss seed8431001 gate47 control2479RNG166screens all match. FirstAstralprobe stopped at unsolicitedAmuletwish and is private; added observed nothing response. Longer Astral continuation reaches independent milky-potion ghost creation refusal after the original summon now matches; preserved privately, shorter freshly recorded complete summon used in regression. Constructed tests cover1request,0-until-extinction andgenocided species with awaited messages/equipment. Six C replays plus389otherfocused/affected tests pass; lint/diffcheck pass. Complete139receipt included; hosted gates pending; no aggregate gain claimed."
     }
   ]
 }

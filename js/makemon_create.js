@@ -280,6 +280,7 @@ import {
     PM_LICH,
     PM_LICHEN,
     PM_LITTLE_DOG,
+    PM_ERINYS,
     PM_LONG_WORM,
     PM_RAVEN,
     PM_MANES,
@@ -1318,6 +1319,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && isok(x, y)
         && mmflags === NO_MM_FLAGS;
+    // makemon.c summon_furies() creates Erinyes at the hero square with
+    // adjacent placement and no initial waiting strategy. Keep this caller's
+    // exact species/coordinate/flag contract on the full runtime lifecycle.
+    const furiesCall = !state.in_mklev
+        && normalized._summonFuries === true
+        && ptr === state.mons[PM_ERINYS]
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === (MM_ADJACENTOK | MM_NOWAIT);
     // wizard.c:clonewiz() creates a Wizard at the hero's square with
     // MM_NOWAIT. makemon() relocates that request through enexto_core() and
     // runs the normal runtime tail; the marker ties this species/flag shape
@@ -1370,7 +1380,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !(mmflags & ~(MM_NOMSG | MM_ANGRY | MM_MALE | MM_FEMALE));
     if (tutorialLevel && !runtimeRandomNoMsgCall
         && !runtimeExplicitRandomCall && !runtimeGroupCall
-        && !wereSummonCall && !cloneWizardCall
+        && !wereSummonCall && !cloneWizardCall && !furiesCall
         && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall
         && !explicitInventorylessHeroCall && !hatchEggCall
@@ -1533,7 +1543,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || explicitInventorylessHeroCall
         || hatchEggCall || explicitCoordinateRuntimeCall
-        || cloneWizardCall || cloneuCall || minionSummonCall
+        || cloneWizardCall || furiesCall || cloneuCall || minionSummonCall
         || familiarCall || wereSummonCall || roamerCall
         // sp_lev.c finalizes topology before filling special rooms.  Those
         // explicit-coordinate calls still belong to level generation and
@@ -1607,7 +1617,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall
         && !vaultGuardCall
-        && !cloneWizardCall
+        && !cloneWizardCall && !furiesCall
         && !cloneuCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
@@ -1660,7 +1670,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
-            && !cloneWizardCall
+            && !cloneWizardCall && !furiesCall
             // summon_minion uses the generic creation lifecycle; C imposes
             // no initial-level species reservoir on this divine caller.
             && !divineMinionCall

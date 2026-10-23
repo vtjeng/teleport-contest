@@ -51,7 +51,6 @@ import { game } from './gstate.js';
 import { new_light_source } from './light.js';
 import {
     discard_minvent,
-    makemon,
     makemon_runtime,
 } from './makemon_create.js';
 import { mondied, mongone } from './mon.js';
@@ -1323,12 +1322,25 @@ export async function bagotricks(bag, tipping, state = game) {
 // Erinyes around the player. Called when the player angers the gods (e.g. via
 // a helm of opposite alignment). Pass limit=0 to create until the species is
 // extinct; pass limit=N to create at most N.
-export function summon_furies(limit, state = game) {
+export async function summon_furies(limit, state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const env = { ...rawEnv, state, message };
+    if (state.go?.occupation && !rawEnv.hooks?.stopOccupation) {
+        const { stop_occupation } = await import('./allmain.js');
+        env.hooks = {
+            ...(rawEnv.hooks ?? {}),
+            stopOccupation: (_monster, hookEnv) => stop_occupation(
+                hookEnv.state, { ...hookEnv, message },
+            ),
+        };
+    }
     let i = 0;
     while (mk_gen_ok(PM_ERINYS, G_GONE, 0, state)
         && (i < limit || !limit)) {
-        makemon(state.mons[PM_ERINYS], state.u.ux, state.u.uy,
-            MM_ADJACENTOK | MM_NOWAIT, { state });
+        // C completes placement, inventory and output before testing the
+        // birth limit again or returning to the alignment-change caller.
+        await makemon_runtime(state.mons[PM_ERINYS], state.u.ux, state.u.uy,
+            MM_ADJACENTOK | MM_NOWAIT, { ...env, _summonFuries: true });
         i++;
     }
 }

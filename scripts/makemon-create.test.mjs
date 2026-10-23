@@ -11,6 +11,7 @@ import {
     COLNO,
     COULD_SEE,
     DUST,
+    G_EXTINCT,
     G_GENOD,
     G_GONE,
     HALLUC,
@@ -91,6 +92,7 @@ import {
     set_mimic_sym,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
+import { summon_furies } from '../js/makemon.js';
 import { m_detach, mongone } from '../js/mon.js';
 import { monsterObject } from '../js/monster_object.js';
 import {
@@ -167,6 +169,7 @@ import {
     PM_GNOME,
     PM_GNOME_RULER,
     PM_GNOMISH_WIZARD,
+    PM_ERINYS,
     PM_JACKAL,
     PM_RAVEN,
     PM_KOBOLD,
@@ -8644,5 +8647,44 @@ test('mimic altar disguise retains source alignment and Gehennom override draw o
                 }
             }
         }
+    }
+});
+
+
+test('summon_furies awaits complete creation and respects count and extinction', async () => {
+    for (const [limit, born, gone, expected] of [[1, 0, false, 1], [0, 1, false, 2], [0, 0, true, 0]]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        state.u.ualign.abuse = 7;
+        for (let dx = -1; dx <= 1; dx++)
+            for (let dy = -1; dy <= 1; dy++)
+                state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+        state.viz_array = Array.from({ length: ROWNO }, () => new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE));
+        state.mvitals[PM_ERINYS].born = born;
+        if (gone) state.mvitals[PM_ERINYS].mvflags |= G_GENOD;
+        const random = recordingRandom();
+        const appearances = [];
+        await summon_furies(limit, state, { random: random.random,
+            message: async () => {},
+            norepMessage: async (text) => {
+                await Promise.resolve();
+                appearances.push(text);
+            },
+            hooks: { newsym() {} },
+        });
+        assert.equal(state.mvitals[PM_ERINYS].born, born + expected);
+        const monsters = [];
+        for (let mon = state.level.monlist; mon; mon = mon.nmon) monsters.push(mon);
+        assert.equal(monsters.length, expected);
+        for (const monster of monsters) {
+            assert.equal(monster.mnum, PM_ERINYS);
+            assert.ok(monster.minvent, 'the complete creation suffix equips the Fury');
+            assert.equal(monster.mstrategy & STRAT_WAITMASK, 0);
+        }
+        assert.equal(appearances.length, expected, 'every asynchronous appearance finishes before return');
+        if (limit === 0 && !gone) assert.ok(state.mvitals[PM_ERINYS].mvflags & G_EXTINCT);
+        if (gone) assert.equal(random.calls.length, 0);
     }
 });
