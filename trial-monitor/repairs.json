@@ -5880,8 +5880,84 @@
           "scripts/storm-spell.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "bba8145a9e720a4f9c44734e350b02a3490e05c9",
+          "runs": [
+            {
+              "id": 39904195568,
+              "name": "Checkpoint",
+              "sha": "bba8145a9e720a4f9c44734e350b02a3490e05c9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/storm-upkeep-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:09:24Z",
+              "completedAt": "2026-10-23T05:15:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39904195568"
+            },
+            {
+              "id": 39904881044,
+              "name": "Lint",
+              "sha": "bba8145a9e720a4f9c44734e350b02a3490e05c9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:16:51Z",
+              "completedAt": "2026-10-23T05:17:43Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39904881044"
+            },
+            {
+              "id": 39904880987,
+              "name": "Dashboard",
+              "sha": "bba8145a9e720a4f9c44734e350b02a3490e05c9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:16:51Z",
+              "completedAt": "2026-10-23T05:19:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39904880987"
+            }
+          ]
+        }
+      ],
+      "note": "Port complete timeout.c do_storms and restore allmain.c call after dosounds/before hunger. Preserve strike count doubling,100-coordinate bound,zero-direction skip,unspecified attacker,canonical monster lightning ray,unconditional inside-cloud thunder/deafness and conditional immobility,otherwise acoustics/deafness-filtered hearing. Stop planning before live rays; validate hunger tail from real result and replan allocations. Two public lightning seeds,disabled-acoustics variation,no-strike Air and nonstormy Earth controls,plus levitating cloud-entry thunder continuation all match fresh C. Cloud continuation reaches Kaboom and three-turn immobility release,including wizard death refusal/recovery. Seven fresh C comparisons including original117 Air prerequisite pass.277 focused/affected tests,12 timeline tests,lint and diff-check pass. Carries complete117 exact-SHA gates and98-batch receipts. No score gain claimed; hosted gates pending. Accepted after exact-SHA Checkpoint39904195568/MainLint39904881044/Dashboard39904880987 success, all first attempts. Complete44 fixed and98 synthetic batches/2055cases compare unchanged. Distinct accepted count118. Existing publication checker recorded complete98 cohort againstc39ab48a."
+    },
+    {
+      "id": "dashboard-evidence-link-contrast",
+      "kind": "dashboard",
+      "title": "Make dashboard evidence links readable in both themes",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T05:14:35.871Z",
+          "end": "2026-10-23T05:29:05.724Z",
+          "note": "Observed source inspection and verification interval, not active-work time. CSS edits began after repair118 publication gates and complete98 evidence."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "scripts/dashboard.template.html"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/dashboard-links.test.mjs",
+          "scripts/dashboard-data.test.mjs",
+          "scripts/dashboard-payload.test.mjs",
+          "scripts/verify-dashboard-deployment.test.mjs",
+          "scripts/trial-monitor.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Port complete timeout.c do_storms and restore allmain.c call after dosounds/before hunger. Preserve strike count doubling,100-coordinate bound,zero-direction skip,unspecified attacker,canonical monster lightning ray,unconditional inside-cloud thunder/deafness and conditional immobility,otherwise acoustics/deafness-filtered hearing. Stop planning before live rays; validate hunger tail from real result and replan allocations. Two public lightning seeds,disabled-acoustics variation,no-strike Air and nonstormy Earth controls,plus levitating cloud-entry thunder continuation all match fresh C. Cloud continuation reaches Kaboom and three-turn immobility release,including wizard death refusal/recovery. Seven fresh C comparisons including original117 Air prerequisite pass.277 focused/affected tests,12 timeline tests,lint and diff-check pass. Carries complete117 exact-SHA gates and98-batch receipts. No score gain claimed; hosted gates pending."
+      "note": "Requested UI maintenance, not a parity repair; distinct count remains118. Explicit normal, visited, hover/focus colors, underlines and keyboard focus outline scoped to Revision/CI evidence links. Actual card backgrounds #ffffff and #161b22 yield minimum contrast5.19:1 light and8.88:1 dark. Generated dashboard preserves stylesheet. Rendered verification unavailable: local file denied by browser organization policy; public page ERR_TUNNEL_CONNECTION_FAILED. No bypass attempted. Carries complete118 publication receipts and98 synthetic evaluations. Full hosted gates pending."
     }
   ]
 }

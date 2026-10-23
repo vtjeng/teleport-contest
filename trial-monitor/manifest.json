@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-23T05:03:43.350Z",
+  "asOf": "2026-10-23T05:21:12.488Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "elemental-level-upkeep",
-      "sha": "c39ab48aa14fdd50696443841e17f5ac312ea25e",
+      "repairId": "storm-upkeep",
+      "sha": "bba8145a9e720a4f9c44734e350b02a3490e05c9",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T05:03:43.350Z"
+    "asOf": "2026-10-23T05:21:12.488Z"
   }
 }

@@ -7,6 +7,9 @@
 :root {
   --surface: #f8f7f4;
   --surface-card: #ffffff;
+  --score-link: #0969da;
+  --score-link-visited: #6639ba;
+  --score-link-hover: #0550ae;
   --surface-chart: #fcfcfb;
   --ink-primary: #1a1917;
   --ink-secondary: #52514e;
@@ -41,6 +44,9 @@
   :root:not([data-theme="light"]) {
     --surface: #0e1117;
     --surface-card: #161b22;
+    --score-link: #79c0ff;
+    --score-link-visited: #d2a8ff;
+    --score-link-hover: #b6e3ff;
     --surface-chart: #1a1a19;
     --ink-primary: #e6e4df;
     --ink-secondary: #c3c2b7;
@@ -68,6 +74,9 @@
 :root[data-theme="dark"] {
   --surface: #0e1117;
   --surface-card: #161b22;
+  --score-link: #79c0ff;
+  --score-link-visited: #d2a8ff;
+  --score-link-hover: #b6e3ff;
   --surface-chart: #1a1a19;
   --ink-primary: #e6e4df;
   --ink-secondary: #c3c2b7;
@@ -228,6 +237,21 @@ h1 {
   font-size: 12px;
   margin-top: 10px;
   overflow-wrap: anywhere;
+}
+
+/* Provenance links need their own colors on both card themes. */
+.score-source a {
+  color: var(--score-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.score-source a:visited { color: var(--score-link-visited); }
+.score-source a:hover,
+.score-source a:focus { color: var(--score-link-hover); }
+.score-source a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 #challengePanel { container-type: inline-size; }
