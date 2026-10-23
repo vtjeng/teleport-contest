@@ -82,9 +82,11 @@ import {
     ogreWeaponDivisor,
     racial_exception,
     startsPermanentlyInvisible,
+    set_mimic_sym,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
 import { m_detach, mongone } from '../js/mon.js';
+import { monsterObject } from '../js/monster_object.js';
 import {
     is_dprince,
     is_giant,
@@ -302,6 +304,7 @@ import {
     SPETUM,
     SPEED_BOOTS,
     STRANGE_OBJECT,
+    STATUE,
     TALLOW_CANDLE,
     T_SHIRT,
     STUDDED_LEATHER_ARMOR,
@@ -7714,6 +7717,46 @@ function shopLevelState(shopIndex, dlevel = 2) {
     init_objects(state, () => 0);
     return state;
 }
+
+test('runtime mimic statue disguise constructs and frees its temporary object in source order', () => {
+    for (const override of [false, true]) {
+        const state = shopLevelState(0, 1);
+        state.level.rooms[0].rtype = OROOM;
+        state.in_mklev = false;
+        const monster = newMonster({ data: state.mons[PM_SMALL_MIMIC], mx: MON_X, my: MON_Y });
+        const reservoir = () => DEPTH_ONE_RESERVOIR_BOUNDS.map(bound => step('rn2', [bound], bound - 1));
+        const random = scriptedRandom([
+            step('rn2', [17], 12), // set_mimic_sym selects ROCK_CLASS
+            step('rnd', [1000], 376), // mkobj selects STATUE
+            step('rnd', [2], 1), // temporary object's identity
+            ...reservoir(), // constructor species
+            step('rn2', [10], 9), // no contained book on D:1
+            step('rn2', [2], 1), // constructor gender
+            ...reservoir(), // separate mimic species overlay after obfree
+        ]);
+        const phases = [];
+        let temporary;
+        const hooks = { doesBlock: () => false };
+        if (override) hooks.monsterObject = (obj, phase, env) => {
+            assert.equal(env.state, state);
+            for (const name of ['rn1', 'rn2', 'rnd', 'rne', 'rnz'])
+                assert.equal(env.random[name], random.random[name]);
+            phases.push(phase);
+            temporary = obj;
+            return monsterObject(obj, phase, env);
+        };
+        set_mimic_sym(monster, { state, random: random.random, hooks });
+        random.assertExhausted();
+        assert.equal(monster.mappearance, STATUE);
+        assert.equal(monster.mextra.mcorpsenm, PM_JACKAL);
+        assert.equal(state.context.ident, 3);
+        assert.equal(state.level.objects[MON_X][MON_Y], null);
+        if (override) {
+            assert.deepEqual(phases, ['initialize', 'finalize']);
+            assert.equal(temporary.cobj, null);
+        }
+    }
+});
 
 // C's `svr.rooms[]` stores subrooms after the top-level room allocation, while
 // this port persists them under their parent room. The tile keeps the C

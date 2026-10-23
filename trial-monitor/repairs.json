@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T16:55:02.565Z",
+  "asOf": "2026-10-23T17:13:59.112Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -7652,8 +7652,93 @@
           "scripts/teleport.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "2905464b6538e5adbebc4ad0fabd4210b644da6a",
+          "runs": [
+            {
+              "id": 39990832307,
+              "name": "Checkpoint",
+              "sha": "2905464b6538e5adbebc4ad0fabd4210b644da6a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/natural-random-species-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-23T17:02:25Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39990832307"
+            },
+            {
+              "id": 39992855836,
+              "name": "Lint",
+              "sha": "2905464b6538e5adbebc4ad0fabd4210b644da6a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:10:12Z",
+              "completedAt": "2026-10-23T17:11:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39992855836"
+            },
+            {
+              "id": 39992855743,
+              "name": "Dashboard",
+              "sha": "2905464b6538e5adbebc4ad0fabd4210b644da6a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:10:12Z",
+              "completedAt": "2026-10-23T17:12:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39992855743"
+            }
+          ]
+        }
+      ],
+      "note": "C allmain.c maybe_generate_rnd_mon calls makemon(NULL,0,0,NO_MM_FLAGS); makemon.c1209-1234 accepts rndmonst selection without a finite initial-level species restriction. Remove only that obsolete post-selection gate, retaining source placement retries, caller validation and concrete initialization checks. New independent seed8420301 naturally selects stone golem and previously stops at730screens/10642rng; color,monochrome and public explore-mode runs now match11196rng and782/782/800screens respectively. Pretrigger control10642rng722screens and D5 control8644rng1502screens1animation match; D5 control exercises129 spawn-gate draws but no completed spawn. Fresh C refresh of unchanged historical Aleax regression matches3199rng67screens and turn22 instead of old refusal prefix. Six C replays and all373focused/affected tests pass; constructed deep golem/dragon cases cover fixedHP, ordered initialization draws and both ordinary/MM_NOMSG calls. Obsolete Aleax refusal expectation corrected in this same repair. Complete135gates/98batch receipt included; requested timezone UI already deployed30102f68d and excluded from count. Hosted gates pending; no aggregate gain claimed. Accepted as distinct136 after Checkpoint39990832307, MainLint39992855836 andDashboard39992855743 succeeded. A watcher metadata401 left the combine status unknown; authorized parent connector evidence verified exactSHA/attempt1/combinejob120544640000 success17:02:25UTC. Normal hash-verified archive import then succeeded, with44fixed/98batch2055case comparison unchanged. No status-read bypass orCIrerun. Complete98receipt against30102f68d recorded for nextordinaryrepair."
+    },
+    {
+      "id": "mimic-object-lifecycle",
+      "kind": "parity-repair",
+      "title": "Initialize and free complete temporary objects for mimic disguises",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T16:57:49.098Z",
+          "end": "2026-10-23T16:57:49.098Z",
+          "note": "Observed independent natural mimic source failure while136wasfrozen; instantaneous observation, not elapsed active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/makemon.c",
+          "nethack-c/upstream/src/mkobj.c",
+          "nethack-c/upstream/src/shk.c",
+          "js/makemon_create.js",
+          "js/object_generation.js",
+          "js/monster_object.js"
+        ],
+        "witness": [
+          "recipes/makemon.c/mimic-object-statue.session.json",
+          "recipes/makemon.c/mimic-object-monochrome.session.json",
+          "recipes/makemon.c/mimic-object-before-control.session.json",
+          "recipes/makemon.c/mimic-object-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/mimic-object-generation.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/monster-objects.test.mjs",
+          "scripts/monster-hiding.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C allmain.c maybe_generate_rnd_mon calls makemon(NULL,0,0,NO_MM_FLAGS); makemon.c1209-1234 accepts rndmonst selection without a finite initial-level species restriction. Remove only that obsolete post-selection gate, retaining source placement retries, caller validation and concrete initialization checks. New independent seed8420301 naturally selects stone golem and previously stops at730screens/10642rng; color,monochrome and public explore-mode runs now match11196rng and782/782/800screens respectively. Pretrigger control10642rng722screens and D5 control8644rng1502screens1animation match; D5 control exercises129 spawn-gate draws but no completed spawn. Fresh C refresh of unchanged historical Aleax regression matches3199rng67screens and turn22 instead of old refusal prefix. Six C replays and all373focused/affected tests pass; constructed deep golem/dragon cases cover fixedHP, ordered initialization draws and both ordinary/MM_NOMSG calls. Obsolete Aleax refusal expectation corrected in this same repair. Complete135gates/98batch receipt included; requested timezone UI already deployed30102f68d and excluded from count. Hosted gates pending; no aggregate gain claimed."
+      "note": "C set_mimic_sym assigns an object disguise by constructing a complete temporary mkobj, saving its type and obfreeing it before a separate rndmonnum species overlay. Runtime calls lacked canonical monsterObject and cleanup callbacks. Compose the existing objectGenerationEnv only for that mkobj/obfree pair, preserving state/RNG and injected hooks. Independent natural statue disguise stopped at61378RNG/11587screens; removing unused padding while retaining both movement commands reproduces the same source stop at3235screens. Four fresh C replays now pass; exact constructor species/gender/identity/overlay draw order and callback override tests plus284affected tests pass. Full original13303screen/73203RNG/2animation continuation matches. Additional seed8420303 matches28361RNG/3403screens/3animations; longer unacknowledged More inputs add no gameplay coverage and remain private. Complete136gates/98receipt included. Requested removal of entire Freshness and evidence section is cherry-pickedb0b61cd45 from588f3197, preserves underlying evidence/local-time semantics and is excluded from parity count. Integrated validation and hosted publication pending; no aggregate gain claimed. Integrated288gameplay and142dashboard/startup/timeline tests,lint,diffcheck andgenerateddashboardbuild pass. Removedsection DOM/render dependencies are absent; author-reported browser checks retained as provenance, no new rendered verification claimed. Acknowledged second-seed continuation also matches101408RNG/15503screens/cursors/15animations."
     }
   ]
 }

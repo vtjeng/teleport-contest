@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "monster-wand-teleport-context",
-      "sha": "30102f68df7454545ac1004f9c372781a6868ba2",
+      "repairId": "natural-random-species",
+      "sha": "2905464b6538e5adbebc4ad0fabd4210b644da6a",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T16:51:48.428Z"
+    "asOf": "2026-10-23T17:13:35.082Z"
   }
 }

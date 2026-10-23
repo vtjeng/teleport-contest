@@ -391,6 +391,7 @@ import {
     set_corpsenm,
     weight,
 } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { vtense } from './objnam.js';
 import {
     AKLYS,
@@ -979,9 +980,14 @@ export function set_mimic_sym(monster, normalized) {
             } else if (symbol === COIN_CLASS) {
                 appearance = GOLD_PIECE;
             } else {
-                const temporary = mkobj(symbol, false, normalized);
+                // C constructs and frees the whole temporary object before
+                // choosing the mimic's separate species overlay. Retain
+                // constructor and cleanup owners for statues, figurines,
+                // container contents and timed objects on runtime callers.
+                const objectEnv = objectGenerationEnv(normalized);
+                const temporary = mkobj(symbol, false, objectEnv);
                 appearance = temporary.otyp;
-                obfree(temporary, null, normalized);
+                obfree(temporary, null, objectEnv);
             }
         }
     }
