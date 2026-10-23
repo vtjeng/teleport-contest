@@ -74,6 +74,7 @@ import {
     P_DAGGER,
     P_KNIFE,
     PIT,
+    PLNMSG_enum,
     POLY_TRAP,
     REFLECTING,
     RLOC_MSG,
@@ -860,6 +861,9 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         if (scrollObj.quan > 1)
             scrollObj = splitobj(scrollObj, 1, { state });
         await extract_from_minvent(mtmp, scrollObj, false, false, { state });
+        // C uses the message owner to distinguish observed use from a known
+        // scroll whose current reading and teleport produced no feedback.
+        state.iflags.last_msg = PLNMSG_enum;
         await mreadmsg(mtmp, scrollObj, state);
         if (obj_is_cursed || mtmp.mconf) {
             const nlev = random_teleport_level(state);
@@ -883,12 +887,9 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         } else {
             await m_tele(mtmp, vismon, oseen, O.SCR_TELEPORTATION, state);
         }
-        // m_tele() handles makeknown(). trycall() is a no-op when the otyp
-        // is already discovered. C checks iflags.last_msg != PLNMSG_enum to
-        // detect whether any message was shown; since ttyPline does not set
-        // last_msg, we check dknown directly (mreadmsg sets it when the hero
-        // can see or hear the monster).
-        if (scrollObj.dknown)
+        // m_tele() handles makeknown(); naming additionally requires a
+        // message from this use, exactly as in muse.c.
+        if (scrollObj.dknown && state.iflags.last_msg !== PLNMSG_enum)
             await trycall(scrollObj, state);
         obfree(scrollObj, null, { state });
         return 2;

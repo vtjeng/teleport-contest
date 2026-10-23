@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C continuation for muse.c teleportation-scroll last_msg guard. Silent use must not ask to name an object merely because dknown is set. Audible-use and independent-seed controls preserve their existing behavior.",
+  "segments": [
+    {
+      "seed": 8420160,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>N               blessed ring of levitation\n     \u0017uncursed scroll of punishment\n     rm          m.          "
+    }
+  ]
+}

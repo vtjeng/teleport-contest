@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T08:09:15.324Z",
+  "asOf": "2026-10-23T08:24:29.847Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6284,8 +6284,93 @@
           "scripts/storm-upkeep.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "9b2376ccc666e69eb749180f6a066c217cf90027",
+          "runs": [
+            {
+              "id": 39923073638,
+              "name": "Checkpoint",
+              "sha": "9b2376ccc666e69eb749180f6a066c217cf90027",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/punished-bubbles-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T08:12:52Z",
+              "completedAt": "2026-10-23T08:18:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39923073638"
+            },
+            {
+              "id": 39923893589,
+              "name": "Lint",
+              "sha": "9b2376ccc666e69eb749180f6a066c217cf90027",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T08:20:03Z",
+              "completedAt": "2026-10-23T08:21:01Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39923893589"
+            },
+            {
+              "id": 39923893783,
+              "name": "Dashboard",
+              "sha": "9b2376ccc666e69eb749180f6a066c217cf90027",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T08:20:03Z",
+              "completedAt": "2026-10-23T08:22:48Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39923893783"
+            }
+          ]
+        }
+      ],
+      "note": "C movebubbles excludes attached ball/chain using unplacebc_and_covet_placebc and restores them with matching restriction pin. Port whole ball.c restriction helpers, honor ordinary place/unplace guards, clear restriction after placebc_core, and wire Water caller plus end.c override cleanup with awaited completion. Keep static restriction per game. Two independent public punishment-scroll Water witnesses first failed at ball.c229 rnd400 and screen/cursor boundary107; now match4731/5072rng and128screens/cursors each. Earth punishment-turn control matches4986rng/116screens; separate later Earth-rest failure preserved, not claimed passing. Three fresh C comparisons and78 focused/affected tests pass; restriction controls cover wrong/nested pins, ordinary transit, end override and independent-game reset. Carries complete repair120 and completed dashboardUI exact-SHA gates/98-batch receipts; UI excluded from count. Hosted gates pending; no aggregate score gain claimed. Accepted after exact-SHA Checkpoint39923073638/MainLint39923893589/Dashboard39923893783 success, all first attempts. Complete44 fixed and98 synthetic batches/2055 cases compare unchanged. Distinct accepted121. Existing checker recorded complete98 cohort againsta060ed50."
+    },
+    {
+      "id": "teleport-scroll-message-guard",
+      "kind": "parity-repair",
+      "title": "Only name observed monster teleportation-scroll use",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T08:18:10.281Z",
+          "end": "2026-10-23T08:25:36.566Z",
+          "note": "Observed source/witness interval, not active-work time. Investigation overlapped frozen punishment candidate CI; code edits began after exact-SHA Main gates and complete98 receipt."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/muse.c",
+          "nethack-c/upstream/src/pline.c",
+          "js/muse.js",
+          "js/tty_message.js"
+        ],
+        "witness": [
+          "recipes/muse.c/teleport-scroll-silent.session.json",
+          "recipes/muse.c/teleport-scroll-hearing-control.session.json",
+          "recipes/muse.c/teleport-scroll-seed-control.session.json"
+        ],
+        "test": [
+          "scripts/teleport-scroll-message.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/muse-pure.test.mjs",
+          "scripts/muse-offensive.test.mjs",
+          "scripts/tty-message.test.mjs",
+          "scripts/do-name.test.mjs",
+          "scripts/read-teleport.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C movebubbles excludes attached ball/chain using unplacebc_and_covet_placebc and restores them with matching restriction pin. Port whole ball.c restriction helpers, honor ordinary place/unplace guards, clear restriction after placebc_core, and wire Water caller plus end.c override cleanup with awaited completion. Keep static restriction per game. Two independent public punishment-scroll Water witnesses first failed at ball.c229 rnd400 and screen/cursor boundary107; now match4731/5072rng and128screens/cursors each. Earth punishment-turn control matches4986rng/116screens; separate later Earth-rest failure preserved, not claimed passing. Three fresh C comparisons and78 focused/affected tests pass; restriction controls cover wrong/nested pins, ordinary transit, end override and independent-game reset. Carries complete repair120 and completed dashboardUI exact-SHA gates/98-batch receipts; UI excluded from count. Hosted gates pending; no aggregate score gain claimed."
+      "note": "C muse.c teleportation-scroll arm resets iflags.last_msg to PLNMSG_enum before mreadmsg and requires a message plus dknown before trycall. JS used dknown alone based on obsolete assumption that ttyPline did not update last_msg. Restore source sentinel and guard, reusing canonical message owner. Previously preserved Earth-rest failure traced in disposable diagnostic copy to use_defensive trycall; candidate itself was frozen. Silent public use formerly asked to name an unseen scroll after Wizard potion messages, stopping at5196rng; now matches5313rng and128screens/cursors. Audible-use control retains legitimate naming prompt and5196rng; independent-seed control5173rng; all128screens/cursors match. Three fresh C comparisons and135 focused/affected tests pass. Carries complete121 publication gates and98-batch receipts. Hosted gates pending; no aggregate score gain claimed."
     }
   ]
 }

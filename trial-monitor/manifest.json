@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-23T08:09:15.324Z",
+  "asOf": "2026-10-23T08:24:29.847Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "dashboard-compact-overview",
-      "sha": "a060ed5062ac8a09ce01190e8ab3bb23ac2ff461",
+      "repairId": "water-punishment-restriction",
+      "sha": "9b2376ccc666e69eb749180f6a066c217cf90027",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T08:09:15.324Z"
+    "asOf": "2026-10-23T08:24:29.847Z"
   }
 }
