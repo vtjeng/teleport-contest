@@ -427,7 +427,9 @@ export function shkgone(monster, state = game) {
 export function set_residency(shopkeeper, zero_out, state = game) {
     const eshk = shopkeeper.mextra.eshk;
     if (on_level(eshk.shoplevel, state.u.uz)) {
-        state.level.rooms[eshk.shoproom - ROOMOFFSET].resident = zero_out
+        // C decl.c aliases subrooms into the second half of svr.rooms[].
+        // Resolve that index through the persisted parent-room graph in JS.
+        mapseen_room(eshk.shoproom - ROOMOFFSET, state).resident = zero_out
             ? null : shopkeeper;
     }
 }

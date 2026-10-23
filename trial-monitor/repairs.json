@@ -4933,8 +4933,90 @@
           "scripts/pet-abuse-sounds.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "ae66ee2132485f1117a980d2401d028a92c194f8",
+          "runs": [
+            {
+              "id": 39884129800,
+              "name": "Checkpoint",
+              "sha": "ae66ee2132485f1117a980d2401d028a92c194f8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/worm-redraw-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:27:52Z",
+              "completedAt": "2026-10-23T01:33:43Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39884129800"
+            },
+            {
+              "id": 39885069705,
+              "name": "Lint",
+              "sha": "ae66ee2132485f1117a980d2401d028a92c194f8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:37:43Z",
+              "completedAt": "2026-10-23T01:38:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39885069705"
+            },
+            {
+              "id": 39885069674,
+              "name": "Dashboard",
+              "sha": "ae66ee2132485f1117a980d2401d028a92c194f8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:37:43Z",
+              "completedAt": "2026-10-23T01:40:19Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39885069674"
+            }
+          ]
+        }
+      ],
+      "note": "Implement canonical redraw_worm and wire tamedog and abuse_dog in source order. Highlighted/unhighlighted adult C witnesses stop at the abuse_dog refusal before repair and fully match afterward; baby long worm control passes. Public adult witnesses exercise the hidden head node, not visible-tail redraw. Supplemental lifecycle test covers tail-to-head ordering including the hidden head and unchanged state/RNG. Three live C differentials pass; no synthetic gain claimed. Hosted gates pending. Validation: 122 focused/affected tests, 12 timeline tests, eslint js/ scripts/ and git diff --check pass. Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success on attempt 1. Full 44-session and 98-batch/2055-case archived comparison unchanged. Complete published evidence recorded by check-published-ci with the accepted synthetic baseline; carried in the next ordinary repair."
+    },
+    {
+      "id": "shop-residency-subrooms",
+      "kind": "parity-repair",
+      "title": "Resolve shop residency in persisted subrooms",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T01:28:28Z",
+          "end": "2026-10-23T01:54:29.606Z",
+          "note": "Observed source investigation and C-probe interval, not measured active work. Initial Valley priest setup was invalid (no priest); a separate relocation RNG probe remains unqualified. Minetown exposed the subroom residency crash while qualifying priest accessibility."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c",
+          "nethack-c/upstream/src/decl.c",
+          "nethack-c/upstream/src/dog.c",
+          "js/shk.js",
+          "js/dungeon.js"
+        ],
+        "witness": [
+          "recipes/shk.c/shop-residency-subrooms.session.json",
+          "recipes/shk.c/shop-residency-quiet.session.json",
+          "recipes/shk.c/shop-residency-control.session.json"
+        ],
+        "test": [
+          "scripts/shop-residency.test.mjs",
+          "scripts/shk.test.mjs",
+          "scripts/dog-migrate.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Implement canonical redraw_worm and wire tamedog and abuse_dog in source order. Highlighted/unhighlighted adult C witnesses stop at the abuse_dog refusal before repair and fully match afterward; baby long worm control passes. Public adult witnesses exercise the hidden head node, not visible-tail redraw. Supplemental lifecycle test covers tail-to-head ordering including the hidden head and unchanged state/RNG. Three live C differentials pass; no synthetic gain claimed. Hosted gates pending. Validation: 122 focused/affected tests, 12 timeline tests, eslint js/ scripts/ and git diff --check pass."
+      "note": "set_residency used top-level rooms alone despite C subroom aliasing. Reuse existing persisted-room lookup, preserving the home-level guard and zero_out assignment. Minetown resident migration crashes before repair and matches C after; quiet variation and non-migration control match. Public witnesses reach zero_out via mon_leave; supplemental checks cover restoration, stale generation-time subrooms, the foreign-level guard, and ordinary rooms. No synthetic score gain claimed. Hosted gates pending. Validation: three fresh C differentials, 175 focused/affected tests, 12 timeline tests, eslint js/ scripts/, and git diff --check pass."
     }
   ]
 }
