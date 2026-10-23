@@ -1,4 +1,6 @@
-// Self-contained so the static dashboard can embed the same tested controller.
+import { createDashboardTime } from './dashboard-local-time.mjs';
+
+// Embedded alongside createDashboardTime in the static dashboard.
 export function createChartTimeRange({start, end, asOf = end, minimum, duration, presetUnit, presets,
     prefix, document: doc, onChange = () => {}}) {
     const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -11,11 +13,8 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
     };
     const validDuration = value => Number.isFinite(value) && value > 0;
     const selection = () => ({duration: requested, kind, ending});
-    const localTime = time => {
-        const date = new Date(time), pad = value => String(value).padStart(2, '0');
-        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate())
-            + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
-    };
+    const time = createDashboardTime();
+    const localTime = time.input;
     const elements = doc ? Object.fromEntries(['Window', 'DurationCustom', 'DurationUnit', 'Ending', 'EndingAt',
         'RangeForm', 'RangeError', 'RangeTimezone', 'RangeAsOf', 'RangePicker', 'RangeSummary']
         .map(name => [name, doc.getElementById(prefix + name)])) : null;
@@ -49,9 +48,9 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
         const unitName = unit===86400000?'day':unit===3600000?'hour':'minute';
         elements.RangeSummary.textContent = (requested==='all'?'All':amount+' '+unitName+(amount===1?'':'s'))
             +' · '+(ending==='now'?'Now':'Fixed');
-        elements.RangeAsOf.textContent = 'Latest available: ' + new Date(asOf).toLocaleString(undefined,
-            {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'});
-        elements.RangeTimezone.textContent = 'Timezone: ' + Intl.DateTimeFormat().resolvedOptions().timeZone;
+        elements.RangeAsOf.textContent = 'Latest available: ' + time.stamp(asOf);
+        elements.RangeTimezone.textContent = 'Timezone: ' + time.zone
+            + '. Repeated clock times keep the selected instant; new values use the first occurrence.';
         elements.RangeTimezone.hidden = ending !== 'fixed';
         if (draft) {position();return;}
         elements.Window.value = requested === 'all' ? 'all' : kind === 'preset' ? String(requested / presetUnit) : 'custom';
@@ -118,8 +117,8 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
             return apply(()=>{requested=span;kind=elements.Window.value==='all'?'all':presets.includes(elements.Window.value)?'preset':'custom';});
         };
         const applyEnd = (report=true) => {
-            const last=elements.Ending.value==='now'?'now':new Date(elements.EndingAt.value).getTime();
-            if(last!=='now'&&!Number.isFinite(last))return invalid(elements.EndingAt,'Enter a valid fixed date and time.',report);
+            const last=elements.Ending.value==='now'?'now':time.parseInput(elements.EndingAt.value, bounds().end);
+            if(last!=='now'&&!Number.isFinite(last))return invalid(elements.EndingAt,'Enter a valid local date and time (not a skipped daylight-saving time).',report);
             clearError(elements.EndingAt);
             return apply(()=>{ending=last==='now'?'now':'fixed';if(ending==='fixed')fixedEnd=last;});
         };
@@ -153,9 +152,9 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
             event.preventDefault();
             // Native form submission is a keyboard fallback; validate both
             // values before changing either applied field.
-            const span=durationValue(),last=elements.Ending.value==='now'?'now':new Date(elements.EndingAt.value).getTime();
+            const span=durationValue(),last=elements.Ending.value==='now'?'now':time.parseInput(elements.EndingAt.value, bounds().end);
             if(span!=='all'&&!validDuration(span))return invalid(elements.DurationCustom,'Enter a positive duration.',true);
-            if(last!=='now'&&!Number.isFinite(last))return invalid(elements.EndingAt,'Enter a valid fixed date and time.',true);
+            if(last!=='now'&&!Number.isFinite(last))return invalid(elements.EndingAt,'Enter a valid local date and time (not a skipped daylight-saving time).',true);
             clearError(elements.DurationCustom);clearError(elements.EndingAt);
             apply(()=>{requested=span;kind=elements.Window.value==='all'?'all':presets.includes(elements.Window.value)?'preset':'custom';
                 ending=last==='now'?'now':'fixed';if(ending==='fixed')fixedEnd=last;});

@@ -143,7 +143,7 @@ export function createTrialMonitor(initial, options = {}) {
         ? candidateResult({ sha: selected.sha, runs: [] },
           (current.apiRuns ?? []).filter(run => run.sha === selected.sha)) : null);
     return {
-      baseline: baselineResult, trial: { ...trialResult, status: trial.status,
+      baseline: {...baselineResult, start: baseline.start, end: baseline.end}, trial: { ...trialResult, status: trial.status,
         plannedHours: trial.plannedHours, start: trial.start, end: trial.end,
         coverage: trial.coverage },
       currentCandidate: selectedCandidate ? { repairId: selected?.repairId,
