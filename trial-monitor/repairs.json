@@ -5531,9 +5531,97 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39897703187"
             }
           ]
+        },
+        {
+          "sha": "d50bbf13aee935f9c220f1a97158e1473c696dfc",
+          "runs": [
+            {
+              "id": 39898729164,
+              "name": "Checkpoint",
+              "sha": "d50bbf13aee935f9c220f1a97158e1473c696dfc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/phase-boundary-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:08:39Z",
+              "completedAt": "2026-10-23T04:14:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39898729164"
+            },
+            {
+              "id": 39899372970,
+              "name": "Lint",
+              "sha": "d50bbf13aee935f9c220f1a97158e1473c696dfc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:15:37Z",
+              "completedAt": "2026-10-23T04:16:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39899372970"
+            },
+            {
+              "id": 39899372931,
+              "name": "Dashboard",
+              "sha": "d50bbf13aee935f9c220f1a97158e1473c696dfc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T04:15:37Z",
+              "completedAt": "2026-10-23T04:18:23Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39899372931"
+            }
+          ]
         }
       ],
-      "note": "Move the complete canonical bound_digging owner to mkmaze.js. Preserve nondiggable boundary flags, add non-passwall only strictly beyond extents, and skip Earth. JS allowed ghost308 to arrive at57,1 in outer stone with only W_NONDIGGABLE, shifting subsequent migration placements despite identical early draw labels. 89/93-monster C witnesses fail before and pass after;88 control passes. Original100-monster Valley investigation also now matches all C outputs. Four fresh C comparisons and147 focused/affected tests pass. 97 additional generation tests,12 timeline tests, lint and diff-check pass. Carries complete repair113 receipts. Hosted gates pending; no measured score gain claimed. Initial Checkpoint39897703187 failed test shards2/4; all non-test checks succeeded. Local reproduction identified stale Sanctum boundary assertions and17 second-turn state hashes. Clearing only new W_NONPASSWALL bits reproduces all17 prior hashes exactly; no other state changes. Fresh17-case C matrix and Sanctum replay pass, as do5 corrected tests. Local failed-shard runs add one unrelated missing-clang environment failure; hosted generated-data checks passed. Read of job120231851091 log was denied by redirected blob HTTPForbidden and was not retried. Correction changes only test expectations; gameplay remains unchanged and stays grouped with this repair."
+      "note": "Move the complete canonical bound_digging owner to mkmaze.js. Preserve nondiggable boundary flags, add non-passwall only strictly beyond extents, and skip Earth. JS allowed ghost308 to arrive at57,1 in outer stone with only W_NONDIGGABLE, shifting subsequent migration placements despite identical early draw labels. 89/93-monster C witnesses fail before and pass after;88 control passes. Original100-monster Valley investigation also now matches all C outputs. Four fresh C comparisons and147 focused/affected tests pass. 97 additional generation tests,12 timeline tests, lint and diff-check pass. Carries complete repair113 receipts. Hosted gates pending; no measured score gain claimed. Initial Checkpoint39897703187 failed test shards2/4; all non-test checks succeeded. Local reproduction identified stale Sanctum boundary assertions and17 second-turn state hashes. Clearing only new W_NONPASSWALL bits reproduces all17 prior hashes exactly; no other state changes. Fresh17-case C matrix and Sanctum replay pass, as do5 corrected tests. Local failed-shard runs add one unrelated missing-clang environment failure; hosted generated-data checks passed. Read of job120231851091 log was denied by redirected blob HTTPForbidden and was not retried. Correction changes only test expectations; gameplay remains unchanged and stays grouped with this repair. Corrected candidate accepted after exact-SHA full Checkpoint39898729164/MainLint39899372970/Dashboard39899372931 success. Complete44 fixed and98 synthetic batches/2055cases compare unchanged. Existing checker recorded complete98 cohort against8cb5ccc. Distinct count114; correction remains grouped with originalc46ffb902."
+    },
+    {
+      "id": "authored-wall-solidification",
+      "kind": "parity-repair",
+      "title": "Preserve authored walls during special-level solidification",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T04:00:35.555Z",
+          "end": "2026-10-23T04:20:59.955Z",
+          "note": "Saved C-witness/source-attribution interval, not active-work time. Source reading and canonical C probes overlapped the preceding frozen boundary candidate and its correction. Implementation began after boundary publication gates and complete evidence recording."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c",
+          "nethack-c/upstream/dat/tower1.lua",
+          "nethack-c/upstream/dat/tower2.lua",
+          "js/mklev.js"
+        ],
+        "witness": [
+          "recipes/sp_lev.c/authored-wall-tower1.session.json",
+          "recipes/sp_lev.c/authored-wall-tower2.session.json",
+          "recipes/sp_lev.c/authored-wall-control.session.json"
+        ],
+        "test": [
+          "scripts/authored-wall.test.mjs",
+          "scripts/sp-lev-reset-finalize-level.test.mjs",
+          "scripts/sp-lev-wall-flags.test.mjs",
+          "scripts/tower3-level-generation.test.mjs",
+          "scripts/tower-keepdogs.test.mjs",
+          "scripts/tower-migration.test.mjs",
+          "scripts/astral-level.test.mjs",
+          "scripts/completed-sokoban.test.mjs",
+          "scripts/completed-sokoban-traps.test.mjs",
+          "scripts/mkmaze-level-bounds.test.mjs",
+          "scripts/phase-boundary.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Canonical solidify_map protects IS_STWALL cells only when SpLev_Map is clear. JS already maintains that mask but omitted it from the owner, incorrectly protecting every authored wall. Pass the existing frame through load finish and explicit finalization, and apply the C predicate. Independent xorn phasing in tower1 andtower2 fails before (blocked move/omitted turn RNG) and passes after. Adjacent floor control passes before and after. Both setups fully match C before the wall move. Three fresh C comparisons and47 focused/affected tests pass; the source-pinned finalizer test distinguishes neighboring painted/unpainted wall cells and ordinary floor. Carries accepted repair114 complete98-batch receipts. Hosted gates pending; no measured score gain claimed. Twelve timeline tests, lint and diff-check pass."
     }
   ]
 }

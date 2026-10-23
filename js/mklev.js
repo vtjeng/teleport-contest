@@ -4551,7 +4551,7 @@ export async function lspo_finalize_level(args, env) {
     count_level_features(state);
 
     if (args !== null && coder.solidify)
-        solidify_map(state);
+        solidify_map(state, frame);
 
     /* This must be done before premap_detect(),
      * otherwise branch stairs won't be premapped. */
@@ -4931,7 +4931,7 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c solidify_map(). Marks non-map STONE walls as
             // non-diggable and non-passwall.
             if (coder.solidify) {
-                solidify_map(state);
+                solidify_map(state, frame);
             }
 
             await finishFixupSpecial(state);
@@ -7927,18 +7927,15 @@ export function map_cleanup(state = game) {
     }
 }
 
-// C ref: sp_lev.c solidify_map(). Marks STONE wall tiles that are outside the
-// map fragment as non-diggable and non-passwall. SpLev_Map is the C-side
-// bitmap tracking which tiles the special level actually placed; because the
-// JS port does not maintain that bitmap, every STONE tile receives the flags.
-// This is equivalent to the C behavior for levels whose map covers all walls
-// (tower1-3, for example, fill every non-STONE tile explicitly).
-function solidify_map(state) {
+// C ref: sp_lev.c solidify_map(). Only stone/walls not placed by the
+// special-level author receive the extra dig/phase protection. The loader
+// frame owns C's SpLev_Map bitmap, including stair/door/drawbridge writes.
+function solidify_map(state, frame) {
     for (let x = 0; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y) {
-            const loc = state.level.at(x, y);
-            if (IS_STWALL(loc.typ))
-                loc.wall_info |= (W_NONDIGGABLE | W_NONPASSWALL);
+            const location = state.level.at(x, y);
+            if (IS_STWALL(location.typ) && !frame.splevMap[x][y])
+                location.wall_info |= W_NONDIGGABLE | W_NONPASSWALL;
         }
     }
 }

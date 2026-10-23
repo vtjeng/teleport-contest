@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent sp_lev.c solidify_map witness. Public xorn polymorph and canonical Vlad tower loader: authored-wall westward moves must remain phaseable; northward floor move is the passing control. Canonical loader tracks SpLev_Map; solidification applies only to unpainted stone.",
+  "segments": [
+    {
+      "seed": 8420148,
+      "datetime": "20261023220000",
+      "nethackrc": "OPTIONS=name:PhaseTower,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #polyself\nxorn\n    #wizloaddes\ntower2.lua\n    h   "
+    }
+  ]
+}

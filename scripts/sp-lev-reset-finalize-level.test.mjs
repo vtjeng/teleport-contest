@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
-import { ROOM, STONE } from '../js/const.js';
+import { ROOM, STONE, W_NONDIGGABLE, W_NONPASSWALL } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { mklev, lspo_reset_level, lspo_finalize_level } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
@@ -257,5 +257,25 @@ test('NULL finalize skips every coder-gated operation and still finishes', async
         assert.equal(pendingPostprocess.length, 1);
         const room = game.level.rooms[0];
         assert.equal(game.level.at(room.lx, room.ly).typ, ROOM);
+    });
+});
+
+test('solidify finalization preserves authored walls and protects unpainted walls', async () => {
+    const source = C_SOURCE.slice(C_SOURCE.indexOf('\nsolidify_map(void)'));
+    assert.match(source, /IS_STWALL\(levl\[x\]\[y\]\.typ\) && !SpLev_Map\[x\]\[y\]/u);
+    await runLoader(0x4e55, async des => {
+        des.level_init({ style: 'solidfill', fg: ' ' });
+        des.level_flags('mazelevel', 'solidify', 'noflip');
+        des.map(['-------', '|.....|', '|.....|', '-------']);
+        const {xstart: x, ystart: y, splevMap} = des.frame;
+        // Same top wall, same boundary topology; only authored membership
+        // differs. C's finalizer must preserve that distinction.
+        splevMap[x + 2][y] = 0;
+        assert.equal(splevMap[x + 3][y], 1);
+        await des.finalize_level();
+        assert.equal(game.level.at(x + 3, y).wall_info & W_NONPASSWALL, 0);
+        assert.equal(game.level.at(x + 2, y).wall_info
+            & (W_NONDIGGABLE | W_NONPASSWALL), W_NONDIGGABLE | W_NONPASSWALL);
+        assert.equal(game.level.at(x + 3, y + 1).wall_info, 0);
     });
 });
