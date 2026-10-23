@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent fresh public Astral demon-summoning continuation: C minion.c msummon creates selected demons at the hero with MM_EMIN|MM_NOMSG and completes canonical runtime lifecycle. Requires preceding minion quality and beam message repairs. No gameplay metadata injection.",
+  "segments": [
+    {
+      "seed": 8432001,
+      "datetime": "20261026113000",
+      "nethackrc": "OPTIONS=name:FreshAstral,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\nOPTIONS=!color\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \n\u0012m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \n\u0012"
+    }
+  ]
+}

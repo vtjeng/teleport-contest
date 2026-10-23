@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T19:53:08.077Z",
+  "asOf": "2026-10-23T20:07:32.725Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8422,8 +8422,96 @@
           "scripts/mthrowu.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "4c0bca1e9652341f1d1248807adc7cec9b586976",
+          "runs": [
+            {
+              "id": 40014966174,
+              "name": "Checkpoint",
+              "sha": "4c0bca1e9652341f1d1248807adc7cec9b586976",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/beam-planning-message-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T19:53:33Z",
+              "completedAt": "2026-10-23T20:00:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40014966174"
+            },
+            {
+              "id": 40016068186,
+              "name": "Lint",
+              "sha": "4c0bca1e9652341f1d1248807adc7cec9b586976",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T20:02:08Z",
+              "completedAt": "2026-10-23T20:03:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40016068186"
+            },
+            {
+              "id": 40016068150,
+              "name": "Dashboard",
+              "sha": "4c0bca1e9652341f1d1248807adc7cec9b586976",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T20:02:08Z",
+              "completedAt": "2026-10-23T20:04:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40016068150"
+            }
+          ]
+        }
+      ],
+      "note": "C dobuzz emits a beam exactly once. JS speculative beam local message variable was silent but nested buzzmonst hit/miss received original env with undefined message and fell back to live ttyPline. Private stack confirms planningtrue/undefinedmessage from buzzmu; derive the shared env with the same silent/live message owner before calling any beam helper. Actual accepted144baseline normal/monochrome each match32403RNG812screen/cursor counts180animation count but extra planning miss firstdiff314. Fresh repaired normal/monochrome each strictly match all content including180animation frames; pretrigger complete-turn control16873RNG313screens/cursors53animations passes both baseline/fix. Four actual nested-hit/miss cases verify planning silence and one live message through initialized game beam paths.469focused/affected tests including3C pass, lint/diffcheck pass. Longer public continuation reaches independent msummon horned-devil reservoir refusal; preserved source-backed privately, not included in passing corpus. Complete144receipt included; hosted validation pending, no aggregate gain claimed. Accepted as distinct145 after fullCheckpoint40014966174, exact MainLint40016068186 andDashboard40016068150 succeeded. Exact44fixed/98batch2055case comparison againstbcc01aed unchanged, no regressions/missing evidence. Complete98publication receipt carried in nextordinaryrepair."
+    },
+    {
+      "id": "msummon-selected-species-lifecycle",
+      "kind": "parity-repair",
+      "title": "Complete demon summoning through the canonical selected-species lifecycle",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T19:35:34.649Z",
+          "end": "2026-10-23T19:35:34.649Z",
+          "note": "Instantaneous source attribution while144publicationpending; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/minion.c:msummon",
+          "nethack-c/upstream/src/makemon.c:makemon",
+          "js/minion.js:msummon",
+          "js/makemon_create.js:preflightCreation"
+        ],
+        "witness": [
+          "recipes/minion.c/msummon-species-summon.session.json",
+          "recipes/minion.c/msummon-species-monochrome.session.json",
+          "recipes/minion.c/msummon-species-before-control.session.json",
+          "recipes/minion.c/msummon-species-cross-seed.session.json"
+        ],
+        "test": [
+          "scripts/msummon-species.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/minion.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mcastu.test.mjs",
+          "scripts/mon.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/mhitu.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C dobuzz emits a beam exactly once. JS speculative beam local message variable was silent but nested buzzmonst hit/miss received original env with undefined message and fell back to live ttyPline. Private stack confirms planningtrue/undefinedmessage from buzzmu; derive the shared env with the same silent/live message owner before calling any beam helper. Actual accepted144baseline normal/monochrome each match32403RNG812screen/cursor counts180animation count but extra planning miss firstdiff314. Fresh repaired normal/monochrome each strictly match all content including180animation frames; pretrigger complete-turn control16873RNG313screens/cursors53animations passes both baseline/fix. Four actual nested-hit/miss cases verify planning silence and one live message through initialized game beam paths.469focused/affected tests including3C pass, lint/diffcheck pass. Longer public continuation reaches independent msummon horned-devil reservoir refusal; preserved source-backed privately, not included in passing corpus. Complete144receipt included; hosted validation pending, no aggregate gain claimed."
+      "note": "C minion.cmsummon creates each selected species at hero coordinates withMM_EMIN|MM_NOMSG and completes makemon before census/alignment/output effects; it has no initial-level species reservoir. JS already validates the complete shared msummon/summon_minion call shape and owns async runtime lifecycle, but species bypass admitted only divine summon_minion. Admit the existing full minionSummonCall without widening its marker/coordinate/flag conditions. Private constructor stacks confirm actualmsummon -> makemon_runtime -> preflight species reservoir refusal: seed8432001 horneddevil291 stops before32404RNG/814boundary; seed8432002 date20261027123000 barbeddevil293 stops before7944RNG/109boundary. Four fresh C replays pass: normal/monochrome each57533RNG1773screens/cursors348animations; beforecontrol32403RNG812screens/cursors180animations; independentcrossseed74356RNG2013screens/cursors15animations. Runtime constructed case completes actualhorneddevil inventory/EMIN/birth; three wrong-shape controls refuse beforeRNG.730unique focused/affected tests including4C pass:193initialfocused+422affected+114mhitu+1crossseed; lint/diffcheck pass. Original9path729test patch extended only with independentcrossseed recipe/recording and new replay case; no production rework. Longer private continuation exposes a separate source-attributed top-line replacement redraw defect, preserved privately, not claimed passed here. Complete145receipt included; full hosted gates pending; no aggregate gain claimed."
     }
   ]
 }

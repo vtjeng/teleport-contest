@@ -1527,7 +1527,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EMIN | MM_NOMSG);
-    const divineMinionCall = minionSummonCall && normalized._summon_minion === true;
     // wizard.c nasty() is called both by mcastu.c with a non-null summoner
     // (MM_NOMSG at enexto(summoner->mux, summoner->muy)) and by the late-game
     // harassment caller with NULL (NO_MM_FLAGS at the hero square). Keep its
@@ -1672,9 +1671,9 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !specialRoomCall
             && !cloneuCall
             && !cloneWizardCall && !furiesCall
-            // summon_minion uses the generic creation lifecycle; C imposes
-            // no initial-level species reservoir on this divine caller.
-            && !divineMinionCall
+            // C msummon() and summon_minion() both use this complete
+            // lifecycle without an initial-level species reservoir gate.
+            && !minionSummonCall
             && !wereSummonCall
             && !deadbookCall
             && !runtimeGroupCall

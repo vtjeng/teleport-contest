@@ -26,6 +26,7 @@ import {
     MM_ESHK,
     MM_EPRI,
     MM_EDOG,
+    MM_EMIN,
     MM_IGNOREWATER,
     MM_MALE,
     MM_MINVIS,
@@ -162,6 +163,7 @@ import {
     PM_HOMUNCULUS,
     PM_HORSE,
     PM_HOBBIT,
+    PM_HORNED_DEVIL,
     PM_HUMAN,
     PM_HUMAN_MUMMY,
     PM_XORN,
@@ -8688,3 +8690,47 @@ test('summon_furies awaits complete creation and respects count and extinction',
         if (gone) assert.equal(random.calls.length, 0);
     }
 });
+
+
+test('msummon runtime shape completes horned-devil creation outside the initial reservoir', async () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.u.ux = MON_X;
+    state.u.uy = MON_Y;
+    for (let dx = -1; dx <= 1; dx++)
+        for (let dy = -1; dy <= 1; dy++)
+            state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+    state.viz_array = Array.from({length: ROWNO}, () => new Uint8Array(COLNO));
+    const random = recordingRandom();
+    const monster = await makemon_runtime(state.mons[PM_HORNED_DEVIL],
+        MON_X, MON_Y, MM_EMIN | MM_NOMSG, {state, random: random.random,
+            _msummon: true, message: async () => {},
+            norepMessage: async () => {}, hooks: {newsym() {}}});
+    assert.ok(monster);
+    assert.equal(monster.mnum, PM_HORNED_DEVIL);
+    assert.ok(monster.mextra.emin);
+    assert.ok(monster.minvent, 'complete creation initializes inventory');
+    assert.equal(state.level.monlist, monster);
+    assert.equal(state.mvitals[PM_HORNED_DEVIL].born, 1);
+    assert.ok(random.calls.length > 0);
+});
+for (const [name, marker, offset, extraFlags] of [
+    ['missing caller marker', false, 0, 0],
+    ['outside hero coordinates', true, 1, 0],
+    ['different flag shape', true, 0, MM_EDOG],
+]) {
+    test('msummon admission preserves refusal for ' + name, async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        const random = recordingRandom();
+        await assert.rejects(makemon_runtime(state.mons[PM_HORNED_DEVIL],
+            MON_X + offset, MON_Y, MM_EMIN | MM_NOMSG | extraFlags,
+            {state, random: random.random, _msummon: marker,
+                message: async () => {}, norepMessage: async () => {}}),
+            UnsupportedMonsterCreationError);
+        assert.deepEqual(random.calls, [], 'refusal precedes random draws');
+        assert.equal(state.level.monlist, null);
+    });
+}
