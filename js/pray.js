@@ -16,7 +16,7 @@
 //        dopray() (2199-2273), prayer_done() (2276-2346),
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
 //        a_gname() (2507), a_gname_at() (2514), u_gname() (2524), and
-//        align_gname() (2530).
+//        align_gname() (2530), and halu_gname() (2577-2624).
 //
 // prayer_done() handles delayed prayer resolution; pray_revive() scans the
 // hero-square floor pile for a saved tame pet to restore. pleased() is ported below;
@@ -287,7 +287,9 @@ import {
 } from './potion.js';
 import { region_danger, region_safety } from './region.js';
 import { losexp, pluslvl } from './exper.js';
-import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
+import { d, rn1, rn2, rn2_on_display_rng, rnl, rnd, rne, rnz } from './rng.js';
+import { roles } from './roles.js';
+import { randrole } from './role_init.js';
 import { aggravate } from './wizard.js';
 import { Punished } from './steed.js';
 import {
@@ -3090,12 +3092,51 @@ export function align_gname(alignment, state = game) {
     return gnam.startsWith('_') ? gnam.slice(1) : gnam;
 }
 
-// C ref: pray.c halu_gname(). Returns a hallucinated deity name when the hero
-// is hallucinating, otherwise falls back to align_gname(). The hallucinated
-// path uses rn2_on_display_rng and randrole, which are unported.
+// C ref: pray.c hallu_gods[] (2557-2573), in source order.
+const hallu_gods = [
+    'the Flying Spaghetti Monster', 'Eris', 'the Martians', 'Xom',
+    'AnDoR dRaKoN', 'the Central Bank of Yendor', 'Tooth Fairy', 'Om',
+    'Yawgmoth', 'Morgoth', 'Cthulhu', 'the Ori', 'destiny',
+    'your Friend the Computer',
+];
+
+// C ref: pray.c halu_gname() (2577-2624). Select a pantheon even when the
+// subsequent choice uses a hallucinatory deity or Moloch. All draws belong
+// to this state's display stream; ordinary and resisted perception use none.
 export function halu_gname(alignment, state = game) {
-    // Hallucination branch uses display RNG — unported.
-    return align_gname(alignment, state);
+    if (!Hallucination(state)) return align_gname(alignment, state);
+    const displayRandom = bound => rn2_on_display_rng(bound, state);
+    let which;
+    do {
+        which = randrole(true, undefined, displayRandom);
+    } while (!roles[which].lgod);
+
+    let gnam;
+    switch (displayRandom(9)) {
+    case 0:
+    case 1:
+        gnam = roles[which].lgod;
+        break;
+    case 2:
+    case 3:
+        gnam = roles[which].ngod;
+        break;
+    case 4:
+    case 5:
+        gnam = roles[which].cgod;
+        break;
+    case 6:
+    case 7:
+        gnam = hallu_gods[displayRandom(hallu_gods.length)];
+        break;
+    case 8:
+        gnam = Moloch;
+        break;
+    default:
+        break; // C reports impossible(); retain its missing-name fallback.
+    }
+    if (!gnam) gnam = 'your Friend the Computer';
+    return gnam.startsWith('_') ? gnam.slice(1) : gnam;
 }
 
 // C ref: pray.c u_gname(). The name of the hero's own deity.

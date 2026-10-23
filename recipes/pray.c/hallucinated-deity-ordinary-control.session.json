@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Ordinary perception control: cancel observed #wizintrinsic menu, retain subsequent public Astral inputs.",
+  "segments": [
+    {
+      "seed": 8432008,
+      "datetime": "20261103154500",
+      "nethackrc": "OPTIONS=name:HallucAstral,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       #wizintrinsic\n\u001b    m.   "
+    }
+  ]
+}

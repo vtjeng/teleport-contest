@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T21:35:23.921Z",
+  "asOf": "2026-10-23T21:48:57.051Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8868,8 +8868,103 @@
           "scripts/startup-windowtype.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "cf34c1f0e9ae6fbb02af19d375440076b009c77c",
+          "runs": [
+            {
+              "id": 40027923266,
+              "name": "Checkpoint",
+              "sha": "cf34c1f0e9ae6fbb02af19d375440076b009c77c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/prompt-deferred-vision-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:35:49Z",
+              "completedAt": "2026-10-23T21:42:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40027923266"
+            },
+            {
+              "id": 40028936675,
+              "name": "Lint",
+              "sha": "cf34c1f0e9ae6fbb02af19d375440076b009c77c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:44:21Z",
+              "completedAt": "2026-10-23T21:45:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40028936675"
+            },
+            {
+              "id": 40028936690,
+              "name": "Dashboard",
+              "sha": "cf34c1f0e9ae6fbb02af19d375440076b009c77c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T21:44:21Z",
+              "completedAt": "2026-10-23T21:47:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40028936690"
+            }
+          ]
+        }
+      ],
+      "note": "Ctty_yn_function sendsboth restricted/unrestricted prompts throughcustompline OVERRIDE_MSGTYPE|SUPPRESS_HISTORY; vpline consumesvision_full_recalc beforeflush_screen/putmesg. JSmanualpromptflush skipped deferredvision. Eyelessgreenslimepolymorph setsflag andimmediate slimed_to_death Diequery leftoldmonster glyphs untilnextmessage. Recalculateatnormalinitializedlivepromptpreflush, sameowner as ttyPlineCore, preservingexisting u.ux/bonesrestoreguard. No input/history/RNG/outputstylechanges. Fresh public# wizintrinsic observedpage1c count1setsfatal slime andordinaryturn reachesDieprompt; normal/monochrome138boundaries7903RNG3animations strictlypass, actualf60baseline firstscreen122whileallRNG/cursors/framesmatch. Between-turncontrolled#polyself/quitcontrol125boundaries6635RNG0animationspassesboth. Two realinitializedgame restricted/unrestricted tests failbaselineatinputflag1 andpassfixflag0/sightcleared; bonesrestore/nonglobal guards remainpassing anddonotconsumeeitherownervision.7focused+363affected=370tests including3C+4constructedpass, lint/diffcheckpass. Originalnaturallyinfected5732boundarycase firstscreen4655 nowprivatecausaltrialstrictpass193781RNG5732screens/cursors394animations. Independentseed8432006date20261101124500 long5732probe passes306443RNG542animations; seed8432007date20261102153000 long5732passes205767RNG849animations, privatecontrolsnotaddedtoscore. Initial120boundaryshortsetupendedheldhelmetMore andwasnotawitness; extendedexplicitacknowledgementstoreachDieprompt. Complete149receipt included; fullhostedgatespending, noaggregategainclaimed. Accepted as distinct150 afterfullCheckpoint40027923266 andexactMainLint40028936675/Dashboard40028936690 passed. Normal runAPI summaries verifiedexactSHA/repositories/attempt/triggers; full44fixed/98batch2055case comparison againstf60fd101 cleanwithallaggregatedeltas0. Complete98publicationreceipt carried innextordinarydeityrepair."
+    },
+    {
+      "id": "hallucinated-deity",
+      "kind": "parity-repair",
+      "title": "Select hallucinated deity names from the display RNG",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T21:34:36.946Z",
+          "end": "2026-10-23T21:34:36.946Z",
+          "note": "Instantaneous preserved source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pray.c:halu_gname2557-2624",
+          "nethack-c/upstream/src/role.c:randrole",
+          "js/pray.js:halu_gname",
+          "js/role_init.js:randrole",
+          "js/priest.js:priestname"
+        ],
+        "witness": [
+          "recipes/pray.c/hallucinated-deity-god.session.json",
+          "recipes/pray.c/hallucinated-deity-monochrome.session.json",
+          "recipes/pray.c/hallucinated-deity-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/hallucinated-deity.test.mjs",
+          "scripts/pray.test.mjs",
+          "scripts/priest.test.mjs",
+          "scripts/do-name.test.mjs",
+          "scripts/role-init.test.mjs",
+          "scripts/priest-talk.test.mjs",
+          "scripts/sounds.test.mjs",
+          "scripts/sounds-span.test.mjs",
+          "scripts/sounds-doseduce.test.mjs",
+          "scripts/pray-matrix.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/mhitu.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Ctty_yn_function sendsboth restricted/unrestricted prompts throughcustompline OVERRIDE_MSGTYPE|SUPPRESS_HISTORY; vpline consumesvision_full_recalc beforeflush_screen/putmesg. JSmanualpromptflush skipped deferredvision. Eyelessgreenslimepolymorph setsflag andimmediate slimed_to_death Diequery leftoldmonster glyphs untilnextmessage. Recalculateatnormalinitializedlivepromptpreflush, sameowner as ttyPlineCore, preservingexisting u.ux/bonesrestoreguard. No input/history/RNG/outputstylechanges. Fresh public# wizintrinsic observedpage1c count1setsfatal slime andordinaryturn reachesDieprompt; normal/monochrome138boundaries7903RNG3animations strictlypass, actualf60baseline firstscreen122whileallRNG/cursors/framesmatch. Between-turncontrolled#polyself/quitcontrol125boundaries6635RNG0animationspassesboth. Two realinitializedgame restricted/unrestricted tests failbaselineatinputflag1 andpassfixflag0/sightcleared; bonesrestore/nonglobal guards remainpassing anddonotconsumeeitherownervision.7focused+363affected=370tests including3C+4constructedpass, lint/diffcheckpass. Originalnaturallyinfected5732boundarycase firstscreen4655 nowprivatecausaltrialstrictpass193781RNG5732screens/cursors394animations. Independentseed8432006date20261101124500 long5732probe passes306443RNG542animations; seed8432007date20261102153000 long5732passes205767RNG849animations, privatecontrolsnotaddedtoscore. Initial120boundaryshortsetupendedheldhelmetMore andwasnotawitness; extendedexplicitacknowledgementstoreachDieprompt. Complete149receipt included; fullhostedgatespending, noaggregategainclaimed."
+      "note": "Cpray.c halu_gname firstchoosespantheon throughrandrole(TRUE), rejectingmissingPriestpantheon, then9-waydisplaychoice forlawful/neutral/chaoticdeity,14entryhallugods,orMoloch; stripsleadingunderscore andfallsbackonmissingname. JSstubalwaysreturnednormalalign_gname. PortwholeCtable/function withexistingrandrole andrn2_on_display_rng boundto suppliedstate forbothrole andname draws; ordinary/resistedperception consumesnone. Existingpriestname/sounds/doturn callers alreadyforwardstate. Actualcf34baseline freshpublic8432008/date20261103154500 #wizintrinsic page1h count8firstscreen114humanmummyofSusanowo vsJSnormalMitra; all6805coreRNG/117screenandcursorcounts/0animations match butnamesdiffer. Repairednormal/monochrome eachstrictpass6805RNG117screens/cursors0animations; cancelintrinsic ordinarycontrol6805RNG115screens/cursors0animations passesboth. SixnativeISAACseedcases coverallpantheonarms/novelty/Moloch/repeatednullpantheonretry/underscoreandnextdraw; explicitstate leavesglobaldisplay/corelog untouched. Threeordinary/resistancecontrols forbidanydisplaycontextaccess.12focused+128initialaffected+273additionalaffected+509calleraffected=922tests including3Cpass, lint/diffcheckpass. Full833probe advancesearliestscreen114->126 butretainsseparateunconditionalarmorpronounfastpath mainRNG6821/122gap; preservedprivate, notclaimedfullstrictpass. Complete150receipt included; fullhostedgatespending, noaggregate gain claimed."
     }
   ]
 }
