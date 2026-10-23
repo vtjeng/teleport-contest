@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "gold-status-display-cap",
-      "sha": "0f628c40b7ffc3933d92ec921ea5e0e9f3e91148",
+      "repairId": "runtime-quadruped-creation",
+      "sha": "5be849c83527d9160d3b6dc7279caaafdabee8df",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T15:34:20.959Z"
+    "asOf": "2026-10-23T15:54:46.074Z"
   }
 }

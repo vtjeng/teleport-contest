@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T15:35:57.302Z",
+  "asOf": "2026-10-23T15:56:21.262Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -7371,8 +7371,105 @@
           "scripts/particular-creation-terrain.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "5be849c83527d9160d3b6dc7279caaafdabee8df",
+          "runs": [
+            {
+              "id": 39979701997,
+              "name": "Checkpoint",
+              "sha": "5be849c83527d9160d3b6dc7279caaafdabee8df",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/quadruped-creation-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T15:36:19Z",
+              "completedAt": "2026-10-23T15:43:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39979701997"
+            },
+            {
+              "id": 39981838821,
+              "name": "Lint",
+              "sha": "5be849c83527d9160d3b6dc7279caaafdabee8df",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T15:51:22Z",
+              "completedAt": "2026-10-23T15:52:18Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39981838821"
+            },
+            {
+              "id": 39981838894,
+              "name": "Dashboard",
+              "sha": "5be849c83527d9160d3b6dc7279caaafdabee8df",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T15:51:22Z",
+              "completedAt": "2026-10-23T15:53:21Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39981838894"
+            }
+          ]
+        }
+      ],
+      "note": "C makemon has no D5 species reservoir restriction for runtime rndmonst; all7quadrupeds use existing generic animal lifecycle. Admit S_QUADRUPED, preserving placement/birth/HP/gender/hostility/inventory RNG and other caller validation. Public healing setup independently exposed baluchitherium86 rejection; bounded1181screen color/monochrome witnesses fail1175 before and nowfullymatch4838rng/cursors. Explicitbaluchitherium2596rng42screens,mastodon2487/36,rothe2142/33 remainpassingcontrols. FivefreshC,321focused/affected tests including all3larger species runtime initialization,12timeline andlint pass. Long originalHPcap probe remainsunqualified andpreserved; no HP-cap coverageclaim. Complete132gates/98receipt included. Hosted gatespending; noaggregategainclaimed. Accepted after exact-SHA Checkpoint39979701997/MainLint39981838821/Dashboard39981838894 success, first attempts. Transient503 archive metadata failure resolved by one same-route retry; no CI rerun. Full44fixed/98synthetic comparison unchanged; checker recorded complete98 cohort against0f628c40b. Distinct accepted133."
+    },
+    {
+      "id": "vital-status-display-caps",
+      "kind": "parity-repair",
+      "title": "Cap displayed hit points and energy while preserving raw status values",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T15:25:59.445Z",
+          "end": "2026-10-23T15:25:59.445Z",
+          "note": "Observed source-cap investigation during frozen131; instantaneous observation, not active-work duration."
+        },
+        {
+          "start": "2026-10-23T15:40:00.617Z",
+          "end": "2026-10-23T15:40:00.617Z",
+          "note": "Observed public HP cap qualification during frozen133; intervening independent creation repair is recorded separately."
+        },
+        {
+          "start": "2026-10-23T15:54:04.661Z",
+          "end": "2026-10-23T15:54:04.661Z",
+          "note": "Observed public energy cap qualification during133 publication; no elapsed duration reported as effort."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/src/potion.c",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/botl.c/hp-cap.session.json",
+          "recipes/botl.c/hp-cap-three-lines.session.json",
+          "recipes/botl.c/hp-below-cap.session.json",
+          "recipes/botl.c/energy-cap.session.json",
+          "recipes/botl.c/energy-cap-three-lines.session.json",
+          "recipes/botl.c/energy-below-cap.session.json"
+        ],
+        "test": [
+          "scripts/vital-status-cap.test.mjs",
+          "scripts/gold-status-cap.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C makemon has no D5 species reservoir restriction for runtime rndmonst; all7quadrupeds use existing generic animal lifecycle. Admit S_QUADRUPED, preserving placement/birth/HP/gender/hostility/inventory RNG and other caller validation. Public healing setup independently exposed baluchitherium86 rejection; bounded1181screen color/monochrome witnesses fail1175 before and nowfullymatch4838rng/cursors. Explicitbaluchitherium2596rng42screens,mastodon2487/36,rothe2142/33 remainpassingcontrols. FivefreshC,321focused/affected tests including all3larger species runtime initialization,12timeline andlint pass. Long originalHPcap probe remainsunqualified andpreserved; no HP-cap coverageclaim. Complete132gates/98receipt included. Hosted gatespending; noaggregategainclaimed."
+      "note": "C botl.c1033-1045/1075-1080 stores raw HP/max and energy/max separately from displayed min(raw,9999); percentage uses raw values. Share one pure cap computation across status layout/render/typed fields, preserving negative-current-HP floor, monster-form selection, raw comparisons/percentages and gameplay state. Independent blessed healing/energy potion sequences expose2/3line mismatches at9976/7755. Six freshC recordings now fullymatch: HP19539rng9981screens each and belowcap19518/9975; energy6160/7761 each and belowcap6156/7755; all cursors match,0animations. 38focused/affected tests,12timeline andlint pass. Failed config-only debug options, wizard-kill suicide-prompt and unacknowledged genocide setups retained privately without coverage claims. Complete133gates/98receipt included. Hosted gates pending; no aggregate gain claimed."
     }
   ]
 }

@@ -5134,8 +5134,8 @@ export function describe_level(dflgs = 0, state = game) {
 // reach end.c done(), and every status drawn in that window, including the one
 // urgent_pline("You die...") flushes, shows zero rather than the debt.
 //
-// Both C sites clamp before their min(hp, 9999) cap; that cap is left out
-// because no ported path can lift a hero above 9999 hit points.
+// Retain the raw value here for comparisons and percentage highlights;
+// botl_vital applies the display cap when measuring and rendering status.
 //
 // C ref: botl.c bot_via_windowport() line 1037: `i = Upolyd ? u.mh : u.uhp`.
 // When polymorphed the hero's monster-form HP are shown instead of the base HP.
@@ -5169,8 +5169,15 @@ export function botl_gold(money) {
     return { value: Math.min(raw, 999999), compareValue: raw };
 }
 
+// C ref: botl.c bot_via_windowport() BL_HP/BL_HPMAX (1033-1045) and
+// BL_ENE/BL_ENEMAX (1075-1080). All four fields cap only their displayed
+// value; percentage() and change highlights retain the uncapped value.
+export function botl_vital(raw) {
+    return { value: Math.min(raw, 9999), compareValue: raw };
+}
+
 function _statusVitals(u) {
-    return `${_statusGoldSymbol()}:${botl_gold(money_cnt(game.invent)).value} HP:${_statusHitPoints(u)}(${_statusMaxHitPoints(u)}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} ${_statusExperienceOrHD(u)}`;
+    return `${_statusGoldSymbol()}:${botl_gold(money_cnt(game.invent)).value} HP:${botl_vital(_statusHitPoints(u)).value}(${botl_vital(_statusMaxHitPoints(u)).value}) Pw:${botl_vital(u.uen ?? 0).value}(${botl_vital(u.uenmax ?? 0).value}) AC:${u.uac ?? 10} ${_statusExperienceOrHD(u)}`;
 }
 
 // C ref: botl.c bot_via_windowport()'s BL_GOLD value.  check_gold_symbol()
@@ -5399,11 +5406,11 @@ function _vitalStatusFields(u) {
     const fields = [
         _statusField(`${_statusGoldSymbol()}:${botl_gold(money_cnt(game.invent)).value}`, _fieldOwner('gold')),
         _statusField(' '),
-        _statusField(`HP:${_statusHitPoints(u)}`, _fieldOwner('hitpoints')),
-        _statusField(`(${_statusMaxHitPoints(u)})`, _fieldOwner('hitpoints-max')),
+        _statusField(`HP:${botl_vital(_statusHitPoints(u)).value}`, _fieldOwner('hitpoints')),
+        _statusField(`(${botl_vital(_statusMaxHitPoints(u)).value})`, _fieldOwner('hitpoints-max')),
         _statusField(' '),
-        _statusField(`Pw:${u.uen || 0}`, _fieldOwner('power')),
-        _statusField(`(${u.uenmax || 0})`, _fieldOwner('power-max')),
+        _statusField(`Pw:${botl_vital(u.uen ?? 0).value}`, _fieldOwner('power')),
+        _statusField(`(${botl_vital(u.uenmax ?? 0).value})`, _fieldOwner('power-max')),
         _statusField(' '),
         _statusField(`AC:${u.uac ?? 10}`, _fieldOwner('armor-class')),
         _statusField(' '),
@@ -5880,14 +5887,13 @@ function _statusFieldData(field, valueSnapshot = null) {
         {
             const raw = u?.uen ?? 0;
         return {
-                value: Math.min(raw, 9999),
-                compareValue: raw,
+                ...botl_vital(raw),
                 percent: _statusPercentage(raw, u?.uenmax ?? 0),
         };
         }
     case 'power-max': {
         const raw = u?.uenmax ?? 0;
-        return { value: Math.min(raw, 9999), compareValue: raw };
+        return botl_vital(raw);
     }
     case 'experience-level':
         return {
@@ -5909,14 +5915,13 @@ function _statusFieldData(field, valueSnapshot = null) {
         {
             const raw = _statusHitPoints(u);
         return {
-                value: Math.min(raw, 9999),
-                compareValue: raw,
+                ...botl_vital(raw),
                 percent: _statusPercentage(raw, _statusMaxHitPoints(u)),
         };
         }
     case 'hitpoints-max': {
         const raw = _statusMaxHitPoints(u);
-        return { value: Math.min(raw, 9999), compareValue: raw };
+        return botl_vital(raw);
     }
     case 'dungeon-level': return { text: _statusLevelDescription(u) };
     case 'experience':
