@@ -61,7 +61,7 @@ import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING, GLIB,
-    HALLUC, HALLUC_RES, INFRAVISION, SEE_INVIS,
+    HALLUC, HALLUC_RES, INFRAVISION, SEE_INVIS, WOUNDED_LEGS,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
@@ -4857,6 +4857,8 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Teth', 'Tth', 'Te'] },
     { option: 'trap', rank: 20, enabled: false,
         forms: ['Trap', 'Trp', 'Tr'] },
+    { option: 'woundedlegs', rank: 20, enabled: false,
+        forms: ['WLegs', 'Leg', 'Lg'] },
 ]);
 
 export function statusConditionActive(option, u) {
@@ -4935,6 +4937,9 @@ export function statusConditionActive(option, u) {
     case 'termill':
         return _propertyIntrinsic(u, SICK)
             && Boolean((u.usick_type ?? 0) & SICK_NONVOMITABLE);
+    // botl.c:1208 and youprop.h:138 include both timeout and side bits,
+    // including a ridden steed's wounds stored in the same hero property.
+    case 'woundedlegs': return _propertyActive(u, WOUNDED_LEGS);
     default: return false;
     }
 }

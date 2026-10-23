@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public bear trap on C-observed dry floor west of starting stairs. Enter with force move, rest through healing; optional WLegs source witness. C objnam.c4622 requires trapped prefix for armed terrain; unprefixed object probe retained separately.",
+  "segments": [
+    {
+      "seed": 8420211,
+      "datetime": "20261024043000",
+      "nethackrc": "OPTIONS=name:LegStatus,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,cond_woundedlegs\n",
+      "moves": "  h\u0017trapped bear trap\nlmh       \u001220.                 \u0012"
+    }
+  ]
+}

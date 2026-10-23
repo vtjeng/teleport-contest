@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T10:23:05.726Z",
+  "asOf": "2026-10-23T14:29:56.882Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6991,8 +6991,97 @@
           "scripts/status-hilite-lifecycle.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "265a932ce01b6aa7d72319bf2de53ffbea4a3ab7",
+          "runs": [
+            {
+              "id": 39938764972,
+              "name": "Checkpoint",
+              "sha": "265a932ce01b6aa7d72319bf2de53ffbea4a3ab7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/slippery-status-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T10:23:33Z",
+              "completedAt": "2026-10-23T10:29:47Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39938764972"
+            },
+            {
+              "id": 39969410136,
+              "name": "Lint",
+              "sha": "265a932ce01b6aa7d72319bf2de53ffbea4a3ab7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T14:24:51Z",
+              "completedAt": "2026-10-23T14:25:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39969410136"
+            },
+            {
+              "id": 39969409895,
+              "name": "Dashboard",
+              "sha": "265a932ce01b6aa7d72319bf2de53ffbea4a3ab7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T14:24:51Z",
+              "completedAt": "2026-10-23T14:27:48Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39969409895"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c1207 andyouprop.h112 use intrinsicGlib; optionalSlip/Slp/Sl rank20 defaultdisabled. Add missing entry/predicate preserving existingGlib/expiry owners. Public1turn seed8420200/3turn seed8420201 witnesses formerlymissingSlip23 now3287/2913rng and48screens/cursors fullymatch through expiry. Disabledoptioncontrol3287rng/48screens/cursors passes. ThreefreshC,134focused/affected tests andlint pass. Carries complete128 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed. Accepted after exact-SHA Checkpoint39938764972/MainLint39969410136/Dashboard39969409895 success, first attempts. Initialarchiveimport401 resolved by one explicitlyauthorized normal-route retry; no credentials changes or CI rerun. Full44fixed/98synthetic comparison unchanged; checkerrecordedcomplete98 cohort against50ba7f9a. Distinctaccepted129."
+    },
+    {
+      "id": "wounded-legs-status",
+      "kind": "parity-repair",
+      "title": "Render optional wounded-leg status through injury and healing",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T10:11:32.139Z",
+          "end": "2026-10-23T10:13:51.214Z",
+          "note": "Observed source and publicC qualification during frozen128 CI. No active-work duration inferred. Code edits followed129 gates and complete98receipt; intervening environment/access pauses are not active time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/include/youprop.h",
+          "nethack-c/upstream/src/trap.c",
+          "nethack-c/upstream/src/do.c",
+          "nethack-c/upstream/src/objnam.c",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/botl.c/wounded-status-bear.session.json",
+          "recipes/botl.c/wounded-status-variant.session.json",
+          "recipes/botl.c/wounded-status-disabled.session.json"
+        ],
+        "test": [
+          "scripts/wounded-status.test.mjs",
+          "scripts/wounded-legs.test.mjs",
+          "scripts/hero-bear-trap.test.mjs",
+          "scripts/timeout.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c1207 andyouprop.h112 use intrinsicGlib; optionalSlip/Slp/Sl rank20 defaultdisabled. Add missing entry/predicate preserving existingGlib/expiry owners. Public1turn seed8420200/3turn seed8420201 witnesses formerlymissingSlip23 now3287/2913rng and48screens/cursors fullymatch through expiry. Disabledoptioncontrol3287rng/48screens/cursors passes. ThreefreshC,134focused/affected tests andlint pass. Carries complete128 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed."
+      "note": "C botl.c1208 uses Wounded_legs=intrinsic||extrinsic (youprop.h138), including steed wounds; optionalWLegs/Leg/Lg rank20 defaultdisabled. Add missingentry/purepredicate preserving injury/healing owners. Public armedbeartrap seeds8420210/211 formerlymissingWLegs26 nowmatch2424/3017rng and55screens/cursors; firstcase also1animation andclearsstatusafterhealing. Disabledoptioncontrol2424rng/55screens/cursors/1animationpasses. Initialunprefixedwishcreateddisarmedobject; Cobjnam4622trappedprefixcorrected and setup preservedprivately withoutcoverageclaim. ThreefreshC,162focused/affected tests andlint pass. Carries complete129gates/98receipt. Hostedgatespending; noaggregategainclaimed."
     }
   ]
 }
