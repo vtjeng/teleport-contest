@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent optional Slip status via public wizard intrinsic menu; force redraw then rest through expiry, existing source glib owner.",
+  "segments": [
+    {
+      "seed": 8420200,
+      "datetime": "20261024040000",
+      "nethackrc": "OPTIONS=name:SlipStatus,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,cond_slip\n",
+      "moves": "  w- #wizintrinsic\n1l\n .\u0012m.                    "
+    }
+  ]
+}

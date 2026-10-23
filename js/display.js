@@ -60,7 +60,7 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING,
+    ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING, GLIB,
     HALLUC, HALLUC_RES, INFRAVISION, SEE_INVIS,
     H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
@@ -4841,6 +4841,8 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Ride', 'Rid', 'Rd'] },
     { option: 'slime', rank: 6, enabled: true,
         forms: ['Slime', 'Slim', 'Slm'] },
+    { option: 'slip', rank: 20, enabled: false,
+        forms: ['Slip', 'Slp', 'Sl'] },
     { option: 'stone', rank: 6, enabled: true,
         forms: ['Stone', 'Ston', 'Sto'] },
     { option: 'strngl', rank: 4, enabled: true,
@@ -4923,6 +4925,8 @@ export function statusConditionActive(option, u) {
     case 'levitate': return _propertyActiveUnblocked(u, LEVITATION);
     case 'ride': return Boolean(u.usteed);
     case 'slime': return _propertyIntrinsic(u, SLIMED);
+    // botl.c:1207 and youprop.h:112 use intrinsic Glib only.
+    case 'slip': return _propertyIntrinsic(u, GLIB);
     case 'stone': return _propertyIntrinsic(u, STONED);
     case 'strngl': return _propertyIntrinsic(u, STRANGLED);
     case 'stun': return _propertyIntrinsic(u, STUNNED);

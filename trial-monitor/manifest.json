@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-23T10:09:12.457Z",
+  "asOf": "2026-10-23T10:22:23.429Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "trapped-status-family",
-      "sha": "c0caf9c8dc2c4f9182f5926630b1fb9429fa9edb",
+      "repairId": "glowing-hands-status",
+      "sha": "50ba7f9a49dc850e8c4349879b6447f0c35de243",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T10:09:12.457Z"
+    "asOf": "2026-10-23T10:22:23.429Z"
   }
 }

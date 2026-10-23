@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T10:09:47.763Z",
+  "asOf": "2026-10-23T10:23:05.726Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6903,8 +6903,96 @@
           "scripts/status-hilite-lifecycle.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "50ba7f9a49dc850e8c4349879b6447f0c35de243",
+          "runs": [
+            {
+              "id": 39937178744,
+              "name": "Checkpoint",
+              "sha": "50ba7f9a49dc850e8c4349879b6447f0c35de243",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/glowing-status-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T10:10:15Z",
+              "completedAt": "2026-10-23T10:16:32Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39937178744"
+            },
+            {
+              "id": 39938032375,
+              "name": "Lint",
+              "sha": "50ba7f9a49dc850e8c4349879b6447f0c35de243",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T10:17:22Z",
+              "completedAt": "2026-10-23T10:18:14Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39938032375"
+            },
+            {
+              "id": 39938032344,
+              "name": "Dashboard",
+              "sha": "50ba7f9a49dc850e8c4349879b6447f0c35de243",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T10:17:22Z",
+              "completedAt": "2026-10-23T10:19:44Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39938032344"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c1195 uses u.umconf, tableGlow/Glo/Gl rank20 defaultdisabled. Add missing entry and pure predicate while retaining scroll/attack charge and redraw owners. Public uncursed/blessed witnesses formerly missingGlow only at explicitredraw59/58; now each2026rng and59/58screens/cursors match. Disabledoption and cursedsourcebranch controls2026rng with59/57screens/cursors remainpassing. FourfreshC recordings,88focused/affected tests andlint pass. Wrongselector/prompt-only probes preserved privately, not coverageclaims. Carries complete127 gates/98batch receipt. Hosted gatespending; noaggregategainclaimed. Accepted after exact-SHA Checkpoint39937178744/MainLint39938032375/Dashboard39938032344 success, first attempts. All44fixed/98synthetic batches compare unchanged; existing checker recordedcomplete98 cohort againstc0caf9c8. Distinctaccepted128."
+    },
+    {
+      "id": "slippery-hands-status",
+      "kind": "parity-repair",
+      "title": "Render optional slippery hands status through intrinsic expiry",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T10:05:46.722Z",
+          "end": "2026-10-23T10:07:40.295Z",
+          "note": "Observed source/publicC qualification during frozen127 publication gates. No active-work duration inferred; edits followed128 gates andcomplete98receipt."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/include/youprop.h",
+          "nethack-c/upstream/src/wizcmds.c",
+          "nethack-c/upstream/src/timeout.c",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/botl.c/slippery-status-slip.session.json",
+          "recipes/botl.c/slippery-status-variant.session.json",
+          "recipes/botl.c/slippery-status-disabled.session.json"
+        ],
+        "test": [
+          "scripts/slippery-status.test.mjs",
+          "scripts/apply-grease.test.mjs",
+          "scripts/dowrite-glib.test.mjs",
+          "scripts/timeout.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c1195 uses u.umconf, tableGlow/Glo/Gl rank20 defaultdisabled. Add missing entry and pure predicate while retaining scroll/attack charge and redraw owners. Public uncursed/blessed witnesses formerly missingGlow only at explicitredraw59/58; now each2026rng and59/58screens/cursors match. Disabledoption and cursedsourcebranch controls2026rng with59/57screens/cursors remainpassing. FourfreshC recordings,88focused/affected tests andlint pass. Wrongselector/prompt-only probes preserved privately, not coverageclaims. Carries complete127 gates/98batch receipt. Hosted gatespending; noaggregategainclaimed."
+      "note": "C botl.c1207 andyouprop.h112 use intrinsicGlib; optionalSlip/Slp/Sl rank20 defaultdisabled. Add missing entry/predicate preserving existingGlib/expiry owners. Public1turn seed8420200/3turn seed8420201 witnesses formerlymissingSlip23 now3287/2913rng and48screens/cursors fullymatch through expiry. Disabledoptioncontrol3287rng/48screens/cursors passes. ThreefreshC,134focused/affected tests andlint pass. Carries complete128 gates/98batch receipt. Hosted gatespending; noaggregate gainclaimed."
     }
   ]
 }
