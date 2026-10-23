@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-23T01:11:19.797Z",
+  "asOf": "2026-10-23T01:26:56.009Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "tower-migration",
-      "sha": "84459e05bb666be61975155e35496bbf24dd868c",
+      "repairId": "tower-keepdogs",
+      "sha": "63c2fd88e620da45ff40b5fbbb40974e20f512c8",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T01:11:19.797Z"
+    "asOf": "2026-10-23T01:26:56.009Z"
   }
 }

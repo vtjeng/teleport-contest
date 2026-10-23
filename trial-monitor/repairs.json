@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T01:13:37.091Z",
+  "asOf": "2026-10-23T01:27:20.573Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4850,8 +4850,91 @@
           "scripts/tower-migration.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "63c2fd88e620da45ff40b5fbbb40974e20f512c8",
+          "runs": [
+            {
+              "id": 39882832862,
+              "name": "Checkpoint",
+              "sha": "63c2fd88e620da45ff40b5fbbb40974e20f512c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/tower-keepdogs-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:14:07Z",
+              "completedAt": "2026-10-23T01:19:57Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39882832862"
+            },
+            {
+              "id": 39883480702,
+              "name": "Lint",
+              "sha": "63c2fd88e620da45ff40b5fbbb40974e20f512c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:20:59Z",
+              "completedAt": "2026-10-23T01:21:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39883480702"
+            },
+            {
+              "id": 39883480623,
+              "name": "Dashboard",
+              "sha": "63c2fd88e620da45ff40b5fbbb40974e20f512c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:20:59Z",
+              "completedAt": "2026-10-23T01:24:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39883480623"
+            }
+          ]
+        }
+      ],
+      "note": "C keep_mon_accessible keeps the Wizard accessible even asleep inside his tower; keepdogs uses exact-coordinate migration. Remove only the obsolete tower-level guard now that canonical In_W_tower migration is accepted. Two roles reproduce the missing Wizard migrant listing before the change and match afterward; middle-tower control matches. Three live C differentials pass. No synthetic score gain claimed. Hosted gates pending. Focused/affected checks: 125 tests pass after correcting the witness assertion for the Valkyrie tower coordinate; 12 timeline tests and lint pass. Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success on attempt 1. Full archived fixed and synthetic comparisons unchanged. Complete 98-batch published cohort is carried in the next ordinary repair."
+    },
+    {
+      "id": "worm-redraw",
+      "kind": "parity-repair",
+      "title": "Redraw long-worm segments when tameness changes",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T01:14:34Z",
+          "end": "2026-10-23T01:20:28.597Z",
+          "note": "Observed source-tracing and C-probe interval; not measured active-work time. Simple charm and growth probes matched; sleep plus five knock casts qualified the abuse_dog redraw refusal."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dog.c",
+          "nethack-c/upstream/src/worm.c",
+          "nethack-c/upstream/src/zap.c",
+          "nethack-c/upstream/src/mhitm.c",
+          "js/dog.js",
+          "js/worm.js"
+        ],
+        "witness": [
+          "recipes/dog.c/worm-redraw-highlighted.session.json",
+          "recipes/dog.c/worm-redraw-unhighlighted.session.json",
+          "recipes/dog.c/worm-redraw-baby-control.session.json"
+        ],
+        "test": [
+          "scripts/worm-redraw.test.mjs",
+          "scripts/worm.test.mjs",
+          "scripts/pet-abuse-sounds.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C keep_mon_accessible keeps the Wizard accessible even asleep inside his tower; keepdogs uses exact-coordinate migration. Remove only the obsolete tower-level guard now that canonical In_W_tower migration is accepted. Two roles reproduce the missing Wizard migrant listing before the change and match afterward; middle-tower control matches. Three live C differentials pass. No synthetic score gain claimed. Hosted gates pending. Focused/affected checks: 125 tests pass after correcting the witness assertion for the Valkyrie tower coordinate; 12 timeline tests and lint pass."
+      "note": "Implement canonical redraw_worm and wire tamedog and abuse_dog in source order. Highlighted/unhighlighted adult C witnesses stop at the abuse_dog refusal before repair and fully match afterward; baby long worm control passes. Public adult witnesses exercise the hidden head node, not visible-tail redraw. Supplemental lifecycle test covers tail-to-head ordering including the hidden head and unchanged state/RNG. Three live C differentials pass; no synthetic gain claimed. Hosted gates pending. Validation: 122 focused/affected tests, 12 timeline tests, eslint js/ scripts/ and git diff --check pass."
     }
   ]
 }

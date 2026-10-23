@@ -8,6 +8,7 @@ import {
     cutworm,
     get_wormno,
     initworm,
+    redraw_worm,
     remove_worm,
     wseg_at,
     worm_move,
@@ -26,6 +27,26 @@ function wormState() {
         },
     };
 }
+
+test('redraw_worm visits every tail node and the hidden head without changing state or RNG', () => {
+    const state = wormState();
+    const segments = [{ x: 5, y: 7 }, { x: 6, y: 7 }, { x: 7, y: 7 }];
+    state.level.worms[1] = { segments, growtime: 19 };
+    const before = structuredClone(state);
+    const redraws = [];
+    const unexpectedRandom = () => { throw new Error('redraw_worm must not consume RNG'); };
+    redraw_worm({ wormno: 1 }, { state,
+        random: { rn1: unexpectedRandom, rn2: unexpectedRandom,
+            rnd: unexpectedRandom, d: unexpectedRandom },
+        newsym: (x, y, owner) => {
+            assert.equal(owner, state);
+            redraws.push([x, y]);
+        },
+    });
+    assert.deepEqual(redraws, [[5, 7], [6, 7], [7, 7]],
+        'worm.c redraw_worm includes the final hidden head node');
+    assert.deepEqual(state, before);
+});
 
 test('get_wormno skips slot zero and returns the first free tail slot', () => {
     const state = wormState();

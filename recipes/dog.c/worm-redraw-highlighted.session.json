@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent dog.c:tamedog/abuse_dog -> worm.c:redraw_worm witness. Charm the adjacent worm, freeze it with sleep, and cast knock five times. Adult cases lose tameness and previously stopped at the redraw refusal; baby control has no adult segment chain. Live adult cases cover the hidden head node, not visible-tail redraw; supplemental source-pinned tests cover full tail-to-head order.",
+  "segments": [
+    {
+      "seed": 8420127,
+      "datetime": "20261023170000",
+      "nethackrc": "OPTIONS=name:WormCharm,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,hilite_pet,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup\n",
+      "moves": " #wizgenesis\npeaceful long worm\n#wizcast\n>a#wizcast\neu   #wizcast\nju   #wizcast\nju   #wizcast\nju   #wizcast\nju   #wizcast\nju   "
+    }
+  ]
+}

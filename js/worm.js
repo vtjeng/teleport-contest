@@ -3,7 +3,7 @@
 // worm_move(),
 // wormgone(), cutworm(), place_wsegs(), remove_worm(),
 // place_worm_tail_randomly(), count_wsegs(), create_worm_tail(), worm_known(),
-// wseg_at().
+// wseg_at(), redraw_worm().
 
 import { memoryLayout } from './wizcmds_data.js';
 import {
@@ -130,6 +130,14 @@ export function see_wsegs(worm, rawEnv = {}) {
             (env.noteUnported ?? note_unported)('display.c newsym');
         }
     }
+}
+
+// C ref: worm.c redraw_worm(). Unlike see_wsegs(), this loop includes the
+// hidden head node and redraws every node in tail-to-head list order.
+export function redraw_worm(worm, rawEnv = {}) {
+    const env = wormEnvironment(rawEnv);
+    const segments = env.state.level?.worms?.[worm?.wormno]?.segments ?? [];
+    for (const { x, y } of segments) redrawWormSquare(x, y, env);
 }
 
 // C ref: worm.c get_wormno(). Slot zero remains reserved.

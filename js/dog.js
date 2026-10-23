@@ -87,7 +87,6 @@ import { m_unleash } from './apply.js';
 import {
     christen_monst, mon_pmname, Monnam,
 } from './do_name.js';
-import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { s_suffix } from './hacklib.js';
 import { game } from './gstate.js';
 import {
@@ -177,7 +176,7 @@ import { finish_meating } from './dogmove.js';
 import { body_part } from './polyself.js';
 import { mintrap } from './trap_effects.js';
 import { mdrop_special_objs } from './steal.js';
-import { count_wsegs, get_wormno, initworm, wormgone } from './worm.js';
+import { count_wsegs, get_wormno, initworm, redraw_worm, wormgone } from './worm.js';
 
 import { has_oname, ONAME } from './const.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
@@ -591,7 +590,7 @@ export async function tamedog(
         );
     }
     newsym(monster.mx, monster.my, state);
-    if (monster.wormno) note_unported('worm.c redraw_worm');
+    if (monster.wormno) redraw_worm(monster, normalized);
     if (attacktype(monster.data, AT_WEAP)) {
         monster.weapon_check = NEED_HTH_WEAPON;
         await mon_wield_item(monster, normalized);
@@ -1610,8 +1609,7 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
  * a pet in the middle of migrating has mx == 0 and stays silent.
  *
  * A pet whose tameness reaches 0 while leashed calls m_unleash(), and a long
- * worm that loses its tameness calls redraw_worm(). The latter callee remains
- * an explicit discarded-result gap.
+ * worm that loses its tameness calls redraw_worm() for its entire segment chain.
  *
  * `random` is the injection seam for the complaint draw and for the
  * hallucination draw inside yelp() and growl(); the game passes nothing and
@@ -1640,11 +1638,7 @@ export async function abuse_dog(mtmp, state = game, random = { rn2 }) {
 
         if (!mtmp.mtame) {
             newsym(mtmp.mx, mtmp.my);
-            if (mtmp.wormno) {
-                throw new UnsupportedHeroMoveBoundaryError(
-                    'abuse_dog() redrawing a long worm that lost its tameness',
-                );
-            }
+            if (mtmp.wormno) redraw_worm(mtmp, { state });
         }
     }
 }
