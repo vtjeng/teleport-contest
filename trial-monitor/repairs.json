@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T00:10:25.250620Z",
+  "asOf": "2026-10-23T00:24:14.910536Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4536,8 +4536,85 @@
           "scripts/mon-shape.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "b213c5d1ff22cf4bae7b112fb6bb11624dad3f38",
+          "runs": [
+            {
+              "id": 39876595384,
+              "name": "Checkpoint",
+              "sha": "b213c5d1ff22cf4bae7b112fb6bb11624dad3f38",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/disguised-migration-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:11:23Z",
+              "completedAt": "2026-10-23T00:17:23Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39876595384"
+            },
+            {
+              "id": 39877313797,
+              "name": "Lint",
+              "sha": "b213c5d1ff22cf4bae7b112fb6bb11624dad3f38",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:18:18Z",
+              "completedAt": "2026-10-23T00:19:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39877313797"
+            },
+            {
+              "id": 39877313795,
+              "name": "Dashboard",
+              "sha": "b213c5d1ff22cf4bae7b112fb6bb11624dad3f38",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:18:18Z",
+              "completedAt": "2026-10-23T00:20:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39877313795"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Three live C replays, 126 focused/affected tests, 12 timeline tests and lint passed. Cohort recorder initially rejected because displayed Dashboard status lagged successful watcher completion; direct status checks confirmed both gates, authorized single retry succeeded. Complete cohort included in this ordinary repair commit."
+    },
+    {
+      "id": "longworm-migration",
+      "kind": "parity-repair",
+      "title": "Allow long worms through canonical migration and tail cleanup",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dog.c",
+          "nethack-c/upstream/src/worm.c",
+          "nethack-c/upstream/src/wizcmds.c",
+          "js/dog.js",
+          "js/worm.js"
+        ],
+        "witness": [
+          "recipes/dog.c/longworm-migration-tail.session.json",
+          "recipes/dog.c/longworm-migration-variation.session.json",
+          "recipes/dog.c/longworm-migration-baby-control.session.json"
+        ],
+        "test": [
+          "scripts/longworm-migration.test.mjs",
+          "scripts/dog-migrate.test.mjs",
+          "scripts/worm.test.mjs",
+          "scripts/wizcmds.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C negative-count migration command transfers freshly created disguised small and large mimics; baseline JS refuses both. Ordinary kitten control passes. Remove the obsolete disguise refusal; existing relmon -> mon_leaving_level -> seemimic performs source cleanup. All three full replays match after correction. Canonical lifecycle fixture additionally checks preserved identity, migration list, disguise cleanup and floor-boulder blocking. Hosted gates pending; investigation start time not captured."
+      "note": "Live C negative-count migration transfers long worms with initial tail rolls 1 and 4, followed by destination-level arrival. Baseline JS refuses both; baby-long-worm control passes. Remove the stale refusal and retain existing mon_leave/wormgone/relmon/mon_arrive lifecycle. All three full replays match; 131 focused/affected tests cover zero and nonzero tails, above-cap stored count, map/slot cleanup and supplied-state isolation. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

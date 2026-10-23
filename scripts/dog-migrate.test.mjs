@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     MIGR_EXACT_XY,
+    MAX_NUM_WORMS,
     MIGR_RANDOM,
     HOLE,
     PIT,
@@ -45,6 +46,7 @@ import { mksobj_at, newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     PM_SMALL_MIMIC,
+    PM_LONG_WORM,
     PM_LITTLE_DOG,
     PM_KITTEN,
     PM_SEWER_RAT,
@@ -302,36 +304,64 @@ test('shopkeeper migration clears its home resident and preserves its destinatio
     assert.deepEqual(monster.mtrack[1], destination);
 });
 
-test('migration rejects other future lifecycle owners before item mutation', async () => {
-    for (const [property, value, message] of [
-        ['wormno', 1, /long-worm migration/u],
-    ]) {
-        const state = migrationState();
-        const { monster } = onMapMonster(state);
-        const carried = {
-            cobj: null,
-            nobj: null,
-            no_charge: true,
-            oclass: WEAPON_CLASS,
-        };
-        monster.minvent = carried;
-        monster[property] = value;
+test('migration rejects a stuck monster before item mutation', async () => {
+    const state = migrationState();
+    const { monster } = onMapMonster(state);
+    const carried = {
+        cobj: null,
+        nobj: null,
+        no_charge: true,
+        oclass: WEAPON_CLASS,
+    };
+    monster.minvent = carried;
+    state.u.ustuck = monster;
 
-        await assert.rejects(
-            () => migrate_to_level(
-                monster,
-                1,
-                MIGR_RANDOM,
-                null,
-                { newsym: () => {}, state },
-            ),
-            message,
-        );
-        assert.equal(carried.no_charge, true);
-        assert.deepEqual([monster.mx, monster.my], [MONSTER_X, MONSTER_Y]);
-        assert.equal(state.level.monlist, monster);
-    }
+    await assert.rejects(
+        () => migrate_to_level(
+            monster,
+            1,
+            MIGR_RANDOM,
+            null,
+            { newsym: () => {}, state },
+        ),
+        /stuck-monster migration/u,
+    );
+    assert.equal(carried.no_charge, true);
+    assert.deepEqual([monster.mx, monster.my], [MONSTER_X, MONSTER_Y]);
+    assert.equal(state.level.monlist, monster);
 });
+
+for (const tailCount of [0, 3, MAX_NUM_WORMS + 1]) {
+    test(`worm migration preserves ${tailCount} tail segments subject to the source cap`, async () => {
+        const state = migrationState();
+        const liveWorms = game.level?.worms;
+        const liveBefore = JSON.stringify(liveWorms);
+        const { monster, follower } = onMapMonster(state, PM_LONG_WORM);
+        monster.wormno = 1;
+        const segments = Array.from({ length: tailCount + 1 }, (_, index) => ({
+            x: MONSTER_X + tailCount - index, y: MONSTER_Y,
+        }));
+        state.level.worms = Array(MAX_NUM_WORMS).fill(null);
+        state.level.worms[1] = { segments, growtime: 123 };
+        for (const { x, y } of segments)
+            state.level.monsters[x][y] = monster;
+
+        await migrate_to_level(monster, 1, MIGR_RANDOM, null,
+            { state, newsym: () => {} });
+
+        assert.equal(state.gm.migrating_mons, monster);
+        assert.equal(state.level.monlist, follower);
+        assert.equal(state.level.worms[1], null);
+        assert.equal(monster.wormno, Math.min(tailCount, MAX_NUM_WORMS - 1));
+        assert.deepEqual([monster.mx, monster.my], [0, 0]);
+        assert.deepEqual(monster.mtrack[1], { x: MONSTER_X, y: MONSTER_Y });
+        for (const { x, y } of segments)
+            assert.equal(m_at(x, y, state), null);
+        assert.equal(game.level?.worms, liveWorms);
+        assert.equal(JSON.stringify(liveWorms), liveBefore,
+            'supplied-state migration must not change live worm slots');
+    });
+}
 
 test('migration only admits linked canonical off-map limbo state', async () => {
     {

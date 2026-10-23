@@ -1422,8 +1422,6 @@ export async function migrate_to_level(
                 rawEnv,
             );
     }
-    if (monster.wormno)
-        throw new RangeError('long-worm migration is future work');
     if (monster === state.u.ustuck)
         throw new RangeError('stuck-monster migration is future work');
     const onWizardTowerLevel = [
