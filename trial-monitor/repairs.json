@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T17:13:59.112Z",
+  "asOf": "2026-10-23T19:17:51.536Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6237,7 +6237,7 @@
           ]
         }
       ],
-      "note": "User-requested UI cleanup from stopped dashboard worker commit3ee8b337ce6e01bf48cf9afb787b6e126cf4cd2b, based on9c23db7b. Integrated after accepted120 gates/complete98 receipt. Preserves intervening gameplay/evidence and dark-mode link contrast. Current candidate/CI, complete scores with separate freshness, five recent distinct repairs; historical diagnostics/backlog/provenance collapsed and empty timeline space removed. Worker reported126tests and rendered light/dark320\u20131440px coverage; integrator verification and hosted gates pending. UI does not increment parity count. Completed by replacement dashboard worker while Standard was paused. Existing exact-SHA Checkpoint39920924678/Lint39921745592/Dashboard39921745582 verified; no reruns. Archived44/98 comparison unchanged; complete98 receipt recorded. Distinct parity remains120. Paused local integration preserved in recovery stash; only evidence restored on current Main."
+      "note": "User-requested UI cleanup from stopped dashboard worker commit3ee8b337ce6e01bf48cf9afb787b6e126cf4cd2b, based on9c23db7b. Integrated after accepted120 gates/complete98 receipt. Preserves intervening gameplay/evidence and dark-mode link contrast. Current candidate/CI, complete scores with separate freshness, five recent distinct repairs; historical diagnostics/backlog/provenance collapsed and empty timeline space removed. Worker reported126tests and rendered light/dark320–1440px coverage; integrator verification and hosted gates pending. UI does not increment parity count. Completed by replacement dashboard worker while Standard was paused. Existing exact-SHA Checkpoint39920924678/Lint39921745592/Dashboard39921745582 verified; no reruns. Archived44/98 comparison unchanged; complete98 receipt recorded. Distinct parity remains120. Paused local integration preserved in recovery stash; only evidence restored on current Main."
     },
     {
       "id": "water-punishment-restriction",
@@ -7613,7 +7613,7 @@
           ]
         }
       ],
-      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320\u20131440px. Hosted gates pending; no aggregate gain claimed. Accepted as distinct135 after exact-SHA Checkpoint39988667786, MainLint39989706718 andDashboard39989706788 passed. Requested viewer-local-time UI deployed in the same SHA and excluded from parity count. Complete98batch receipt against847bc654 recorded;44fixed and2055synthetic cases have no changed results or missing evidence."
+      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320–1440px. Hosted gates pending; no aggregate gain claimed. Accepted as distinct135 after exact-SHA Checkpoint39988667786, MainLint39989706718 andDashboard39989706788 passed. Requested viewer-local-time UI deployed in the same SHA and excluded from parity count. Complete98batch receipt against847bc654 recorded;44fixed and2055synthetic cases have no changed results or missing evidence."
     },
     {
       "id": "natural-random-species",
@@ -8172,9 +8172,85 @@
               "provenance": "Authorized parent workflow/job summary evidence; denied annotation endpoint not retried"
             }
           ]
+        },
+        {
+          "sha": "6660c13de640f4e73e4da77f588bf252588f4c50",
+          "runs": [
+            {
+              "id": 40009066128,
+              "name": "Lint",
+              "sha": "6660c13de640f4e73e4da77f588bf252588f4c50",
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-23T19:09:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40009066128"
+            },
+            {
+              "id": 40009066121,
+              "name": "Dashboard",
+              "sha": "6660c13de640f4e73e4da77f588bf252588f4c50",
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-23T19:11:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40009066121"
+            },
+            {
+              "id": 40008059129,
+              "name": "Checkpoint",
+              "sha": "6660c13de640f4e73e4da77f588bf252588f4c50",
+              "event": "push",
+              "branch": "integration-checkpoint/vamp-shift-message-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-23T19:07:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40008059129"
+            }
+          ]
         }
       ],
-      "note": "C monmove.cvamp_shift2377-2397 calls newcham with source message flag then displays WIN_MESSAGE even after a silent attempted shift. JS omitted display as presumed no-op and simulated silent flag by suppressing a distress message. Use canonical newcham with NC_SHOW_MSG/NO_NC_FLAGS and await canonical pending-message-window display after the attempt. Planning skips livewindowinput; already-fog/non-shift branches do not display. Fresh independent public Astral continuation after141fix matches all20160RNG and43animations but previously differs atscreen/cursor262: CshowsOKdontdie More, JSappendswargbite. Csame-step newmonhp d4,8=15 identifies fog shift; source display boundary explains mismatch, notend.cdeathhandling. Monochrome reproducesexactmismatch. Pretrigger control12927RNG261screens/cursors16animations passes. All3C replays nowpass, including532screens/cursors and43animations forbothwitnesses.335focused/affected tests pass, plusfocusedrerun afterstrengtheningalready-fogcontrol. Constructed live/planning andvisible/sensed cases pinshape, sourcepositions andawaitedwindoweffect. Initialplanningassert expectedredraws even thoughplanning intentionally suppresses them; correctedfixtureonly. Lint/diffcheck pass. Complete141receipt included; hosted gates pending; no aggregategainclaimed. Initialcandidate13aef56d failedCheckpoint40004320033: parentconfirmed shard4job120588228089 failure, combinedfailure18:40:13UTC. Annotation401wasnotretried. Localexactshard4/4 onNode24 reproduced existing vampireliveactionfixture InputQueueEmpty atnewC-requiredmessage-window boundary;3240tests passed, withthatfixture andanunchanged LP64test failing because localclang isabsent. Correct thefixture byqueuing oneSpace beforebothplanningpasses, asserting bothleaveitqueued andonlyliveactionconsumesit. Productionbehavior unchanged.159focused tests including3C replays pass, then2targeted live/planningtests pass afterstrengtheningkey assertions. Clang-dependentunchangedcheckleftfor normalfullhostedNode22validation; no skipped checks orCIsettings changes. Correctiongroupedwithin142, notanewrepair; notaccepted."
+      "note": "C monmove.cvamp_shift2377-2397 calls newcham with source message flag then displays WIN_MESSAGE even after a silent attempted shift. JS omitted display as presumed no-op and simulated silent flag by suppressing a distress message. Use canonical newcham with NC_SHOW_MSG/NO_NC_FLAGS and await canonical pending-message-window display after the attempt. Planning skips livewindowinput; already-fog/non-shift branches do not display. Fresh independent public Astral continuation after141fix matches all20160RNG and43animations but previously differs atscreen/cursor262: CshowsOKdontdie More, JSappendswargbite. Csame-step newmonhp d4,8=15 identifies fog shift; source display boundary explains mismatch, notend.cdeathhandling. Monochrome reproducesexactmismatch. Pretrigger control12927RNG261screens/cursors16animations passes. All3C replays nowpass, including532screens/cursors and43animations forbothwitnesses.335focused/affected tests pass, plusfocusedrerun afterstrengtheningalready-fogcontrol. Constructed live/planning andvisible/sensed cases pinshape, sourcepositions andawaitedwindoweffect. Initialplanningassert expectedredraws even thoughplanning intentionally suppresses them; correctedfixtureonly. Lint/diffcheck pass. Complete141receipt included; hosted gates pending; no aggregategainclaimed. Initialcandidate13aef56d failedCheckpoint40004320033: parentconfirmed shard4job120588228089 failure, combinedfailure18:40:13UTC. Annotation401wasnotretried. Localexactshard4/4 onNode24 reproduced existing vampireliveactionfixture InputQueueEmpty atnewC-requiredmessage-window boundary;3240tests passed, withthatfixture andanunchanged LP64test failing because localclang isabsent. Correct thefixture byqueuing oneSpace beforebothplanningpasses, asserting bothleaveitqueued andonlyliveactionconsumesit. Productionbehavior unchanged.159focused tests including3C replays pass, then2targeted live/planningtests pass afterstrengtheningkey assertions. Clang-dependentunchangedcheckleftfor normalfullhostedNode22validation; no skipped checks orCIsettings changes. Correctiongroupedwithin142, notanewrepair; notaccepted. Grouped correction6660c13d passed full Checkpoint40008059129 including shard4, then exact Main Lint40009066128 and Dashboard40009066121. Accepted as distinct142; failed13aef candidate retained. Complete44fixed/98batch2055case comparison againstb4843ccf unchanged, with no regressions/missing evidence. Complete98publication receipt included in next ordinary repair."
+    },
+    {
+      "id": "thrown-boulder-floor-vision",
+      "kind": "parity-repair",
+      "title": "Maintain floor vision when monsters land and retrieve thrown boulders",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T18:39:47.167394+00:00",
+          "end": "2026-10-23T18:39:47.167394+00:00",
+          "note": "Instantaneous source observation during frozen142validation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mthrowu.c",
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/mkobj.c",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/mthrowu.c/thrown-boulder-vision-landing.session.json",
+          "recipes/mthrowu.c/thrown-boulder-vision-monochrome.session.json",
+          "recipes/mthrowu.c/thrown-boulder-vision-before-control.session.json"
+        ],
+        "test": [
+          "scripts/thrown-boulder-vision.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/mon.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "C drop_throw places boulders through place_object; later mpickstuff removes them through remove_object. Common monster action environment omitted blockPoint and recalcBlockPoint hooks. Supply canonical vision callbacks with planning clone ownership and preserve explicit overrides. Old142 game code stops at22829RNG627screens; first missing22830. Fresh public landing and monochrome roundtrip witnesses each match24468RNG671screens/cursors53animations; pretrigger control22829RNG627screens/cursors52animations. Landing-only first trial reached missing removal hook; both transitions grouped as one repair.348focused/affected tests including3C pass on corrected142base; lint/diffcheck pass. Longer continuation matches58522RNG but later beam message differs at671; preserved privately, not claimed strict passing. No stacking occurs in the long trace; separate unexercised stacking guard not changed. Complete142receipt included. Hosted validation pending; not accepted; no aggregate gain claimed."
     }
   ]
 }

@@ -1555,6 +1555,23 @@ function simpleMonsterActionEnvironment(rawEnv = {}) {
         ...rawEnv,
         state,
         random,
+        hooks: {
+            // C mthrowu.c drop_throw() and mon.c mpickstuff() place and
+            // remove boulders through mkobj.c. Both object lifecycle hooks
+            // must borrow clone-owned vision in planning and restore the
+            // derived live index before the actual monster action.
+            blockPoint: (x, y, objectEnv) => {
+                if (objectEnv.planning)
+                    admitPlannedVisionChange(x, y, objectEnv.state);
+                block_point(x, y, objectEnv.state);
+            },
+            recalcBlockPoint: (x, y, objectEnv) => {
+                if (objectEnv.planning)
+                    admitPlannedVisionChange(x, y, objectEnv.state);
+                recalc_block_point(x, y, objectEnv.state);
+            },
+            ...(rawEnv.hooks ?? {}),
+        },
         migrateToLevel: rawEnv.migrateToLevel
             ?? monsterMigrationOperation({ ...rawEnv, state, random }),
         setApparxy: rawEnv.setApparxy
