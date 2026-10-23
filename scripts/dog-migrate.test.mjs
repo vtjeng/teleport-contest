@@ -305,7 +305,6 @@ test('shopkeeper migration clears its home resident and preserves its destinatio
 test('migration rejects other future lifecycle owners before item mutation', async () => {
     for (const [property, value, message] of [
         ['wormno', 1, /long-worm migration/u],
-        ['m_ap_type', 1, /disguised monster migration/u],
     ]) {
         const state = migrationState();
         const { monster } = onMapMonster(state);
@@ -1204,7 +1203,8 @@ test('keep_mon_accessible matches the pure Wizard and level-home branches', () =
     }
 });
 
-test('keepdogs reveals its canonical disguised mimic before transferring it',
+for (const transfer of ['keepdogs', 'migrate_to_level']) {
+    test(`${transfer} reveals its canonical disguised mimic before transferring it`,
     async () => {
         const input = {
             seed: 2026101805,
@@ -1244,9 +1244,14 @@ test('keepdogs reveals its canonical disguised mimic before transferring it',
         assert.ok(mimic.mtame > 0);
         assert.notEqual(mimic.m_ap_type, M_AP_NOTHING);
 
-        await keepdogs(false, { state });
+        if (transfer === 'keepdogs')
+            await keepdogs(false, { state });
+        else
+            await migrate_to_level(mimic, ledger_no(state.u.uz, state) + 1,
+                MIGR_RANDOM, null, { state });
 
-        assert.equal(state.gm.mydogs, mimic, 'the same actor joins mydogs');
+        assert.equal(transfer === 'keepdogs' ? state.gm.mydogs
+            : state.gm.migrating_mons, mimic, 'the same actor joins its destination list');
         let stillOnLevel = false;
         for (let current = state.level.monlist; current; current = current.nmon)
             stillOnLevel ||= current.m_id === sameId;
@@ -1264,3 +1269,4 @@ test('keepdogs reveals its canonical disguised mimic before transferring it',
         assert.equal(does_block(x, y, cell, state), true,
             'the floor boulder continues to block the square');
     });
+}

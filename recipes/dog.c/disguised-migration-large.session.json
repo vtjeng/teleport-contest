@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8411121,
+      "datetime": "20261023120000",
+      "nethackrc": "OPTIONS=name:MimicFall,role:Caveman,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup\n",
+      "moves": " #wizgenesis\npeaceful large mimic\n#migratemons\n -1\n#migratemons\n   \n"
+    }
+  ],
+  "_comment": "Independent dog.c:migrate_to_level witness via wizcmds.c negative-count existing-monster migration. Small and large mimics exercise disguise cleanup; kitten is the ordinary-monster control."
+}

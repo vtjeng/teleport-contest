@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T23:54:25.669485Z",
+  "asOf": "2026-10-23T00:10:25.250620Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4458,8 +4458,86 @@
           "scripts/pline.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "7d69e204ffeb0abbeff9e8c2fc89bf1e34d75640",
+          "runs": [
+            {
+              "id": 39874903370,
+              "name": "Checkpoint",
+              "sha": "7d69e204ffeb0abbeff9e8c2fc89bf1e34d75640",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/polydip-chronicle-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:55:24Z",
+              "completedAt": "2026-10-23T00:01:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39874903370"
+            },
+            {
+              "id": 39875668003,
+              "name": "Lint",
+              "sha": "7d69e204ffeb0abbeff9e8c2fc89bf1e34d75640",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:02:45Z",
+              "completedAt": "2026-10-23T00:03:38Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39875668003"
+            },
+            {
+              "id": 39875667884,
+              "name": "Dashboard",
+              "sha": "7d69e204ffeb0abbeff9e8c2fc89bf1e34d75640",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:02:45Z",
+              "completedAt": "2026-10-23T00:05:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39875667884"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted after preserved Checkpoint and exact-SHA push Lint and Dashboard success on attempt 1. Normal access recovered from watcher HTTP 401 without credential changes or CI rerun. Fixed 44 and synthetic 98/2055 unchanged. Three C replays, 221 focused/affected tests, 12 timeline tests and lint passed. Complete synthetic cohort recorded and included in this ordinary repair commit."
+    },
+    {
+      "id": "disguised-migration",
+      "kind": "parity-repair",
+      "title": "Allow disguised mimics to migrate through canonical departure cleanup",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dog.c",
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/wizcmds.c",
+          "js/dog.js",
+          "js/mon.js"
+        ],
+        "witness": [
+          "recipes/dog.c/disguised-migration-small.session.json",
+          "recipes/dog.c/disguised-migration-large.session.json",
+          "recipes/dog.c/disguised-migration-ordinary.session.json"
+        ],
+        "test": [
+          "scripts/disguised-migration.test.mjs",
+          "scripts/dog-migrate.test.mjs",
+          "scripts/wizcmds.test.mjs",
+          "scripts/mon-kill.test.mjs",
+          "scripts/mon-shape.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C Chronicle shows the first-item event with original hero gender. Baseline matches RNG/cursors but omits the line for both genders; unpolymorphable Book of the Dead control passes. Replace the skipped livelog call at the existing first-only conduct increment. Female repeat-dip case transforms twice with exactly one event. Hosted gates pending; investigation start time not captured."
+      "note": "Live C negative-count migration command transfers freshly created disguised small and large mimics; baseline JS refuses both. Ordinary kitten control passes. Remove the obsolete disguise refusal; existing relmon -> mon_leaving_level -> seemimic performs source cleanup. All three full replays match after correction. Canonical lifecycle fixture additionally checks preserved identity, migration list, disguise cleanup and floor-boulder blocking. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

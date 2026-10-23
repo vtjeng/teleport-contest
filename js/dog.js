@@ -1424,9 +1424,6 @@ export async function migrate_to_level(
     }
     if (monster.wormno)
         throw new RangeError('long-worm migration is future work');
-    const appearance = monster.m_ap_type & M_AP_TYPMASK;
-    if (appearance !== M_AP_NOTHING && appearance !== M_AP_MONSTER)
-        throw new RangeError('disguised monster migration is future work');
     if (monster === state.u.ustuck)
         throw new RangeError('stuck-monster migration is future work');
     const onWizardTowerLevel = [
