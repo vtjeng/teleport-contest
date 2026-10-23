@@ -297,7 +297,7 @@ import {
 // C ref: drawing.c defsyms[].color, the last column of every defsym.h PCHAR
 // row, which display.c reads back through its cmap_color() macro.
 import { CMAP_COLORS, SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
-import { t_at } from './trap.js';
+import { t_at, unconscious } from './trap.js';
 
 import { note_unported } from './unported.js';
 import { Sting_effects } from './artifacts.js';
@@ -4813,6 +4813,8 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Bare', 'Bar', 'Bh'] },
     { option: 'blind', rank: 10, enabled: true,
         forms: ['Blind', 'Blnd', 'Bl'] },
+    { option: 'busy', rank: 20, enabled: false,
+        forms: ['Busy', 'Bsy', 'By'] },
     { option: 'conf', rank: 10, enabled: true,
         forms: ['Conf', 'Cnf', 'Cf'] },
     { option: 'deaf', rank: 10, enabled: true,
@@ -4837,8 +4839,12 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['InLava', 'Lav', 'La'] },
     { option: 'levitate', rank: 10, enabled: true,
         forms: ['Lev', 'Lev', 'Lv'] },
+    { option: 'paralyzed', rank: 20, enabled: false,
+        forms: ['Parlyz', 'Para', 'Par'] },
     { option: 'ride', rank: 10, enabled: true,
         forms: ['Ride', 'Rid', 'Rd'] },
+    { option: 'sleep', rank: 20, enabled: false,
+        forms: ['Zzz', 'Zzz', 'Zz'] },
     { option: 'slime', rank: 6, enabled: true,
         forms: ['Slime', 'Slim', 'Slm'] },
     { option: 'slip', rank: 20, enabled: false,
@@ -4857,12 +4863,101 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Teth', 'Tth', 'Te'] },
     { option: 'trap', rank: 20, enabled: false,
         forms: ['Trap', 'Trp', 'Tr'] },
+    { option: 'unconscious', rank: 20, enabled: false,
+        forms: ['Out', 'Out', 'KO'] },
     { option: 'woundedlegs', rank: 20, enabled: false,
         forms: ['WLegs', 'Leg', 'Lg'] },
 ]);
 
+// C botl.c:923 compares message/reason pointers. Keep the identity of the
+// named mutable buffers, including uhitm.c:104's pointer after "m_id:".
+// JS already stores that buffer and visible suffix separately (end.js).
+export function status_condition_cache_keys(state) {
+    const message = state.nomovemsg == null || state.nomovemsg === 0
+        ? null : state.nomovemsg;
+    const reason = state.multi_reason == null || state.multi_reason === 0
+        ? null : state.multi_reason;
+    let messageKey = message === null ? null : `literal:${message}`;
+    let reasonKey = reason === null ? null : `literal:${reason}`;
+    const colon = state.multireasonbuf?.indexOf(':') ?? -1;
+    if (reason !== null && colon > 0
+        && state.multireasonbuf.slice(colon + 1) === reason)
+        reasonKey = `multireasonbuf:${colon + 1}`;
+    if (message !== null) {
+        if (state.eatmbuf != null && message === state.eatmbuf)
+            messageKey = 'eatmbuf';
+        else if (reason === 'disrobing'
+            && message.startsWith('You finish taking off your '))
+            messageKey = 'offdelaybuf';
+        else if (reason === 'digesting something')
+            messageKey = 'engulf_msgbuf';
+    }
+    return { messageKey, reasonKey };
+}
+
+// C botl.c:923-951,1210-1235. Static C cache and condtests[].test live in
+// this game's gb so separate games cannot share classification or flags.
+// The cache survives multi>=0; only the four test flags clear on recovery.
+export function botl_incapacitated_conditions(state = game, u = state.u) {
+    state.gb ??= {};
+    const cache = state.gb.incapacitated_conditions ??= {
+        messageKey: null, reasonKey: null,
+        available: [false, false], result: [false, false],
+        tests: { unconscious: false, paralyzed: false, sleep: false, busy: false },
+    };
+    const enabled = state.iflags?.status_conditions ?? {};
+    if ((state.multi ?? 0) < 0) {
+        const { messageKey, reasonKey } = status_condition_cache_keys(state);
+        const clear = messageKey === null && reasonKey === null;
+        const refresh = !clear && (messageKey !== cache.messageKey
+            || reasonKey !== cache.reasonKey);
+        if (clear || refresh) {
+            cache.messageKey = messageKey;
+            cache.reasonKey = reasonKey;
+            cache.available.fill(false);
+            cache.result.fill(false);
+        }
+        if (enabled.unconscious && cache.messageKey !== null
+            && !cache.available[0]) {
+            cache.result[0] = !u.usleep && unconscious(state);
+            cache.available[0] = true;
+        }
+        if (enabled.paralyzed && cache.reasonKey !== null
+            && !cache.available[1]) {
+            cache.result[1] = state.multi_reason.startsWith('paralyzed')
+                || state.multi_reason.startsWith('frozen');
+            cache.available[1] = true;
+        }
+        // C retains earlier test flags during negative multi and consults
+        // cached results even if the corresponding option was disabled.
+        if (cache.available[0] && cache.result[0])
+            cache.tests.unconscious = true;
+        else if (cache.available[1] && cache.result[1])
+            cache.tests.paralyzed = true;
+        else if (enabled.sleep && u.usleep)
+            cache.tests.sleep = true;
+        else if (enabled.busy)
+            cache.tests.busy = true;
+    } else {
+        for (const option of Object.keys(cache.tests)) cache.tests[option] = false;
+    }
+    return cache.tests;
+}
+
+// C botl.c condopt(), setting branch. options.js owns initialization of
+// enabled defaults; this setter also clears a potentially lingering test.
+export function condopt(target, canonical, negated) {
+    target.iflags.status_conditions[canonical] = !negated;
+    const tests = target.gb?.incapacitated_conditions?.tests;
+    if (tests && Object.hasOwn(tests, canonical)) tests[canonical] = false;
+}
+
 export function statusConditionActive(option, u) {
     switch (option) {
+    case 'busy':
+    case 'paralyzed':
+    case 'sleep':
+    case 'unconscious': return botl_incapacitated_conditions(game, u)[option];
     case 'barehanded': return !game.uarmg && !game.uwep;
     case 'blind': return _propertyActiveUnblocked(u, BLINDED);
     case 'conf': return _propertyIntrinsic(u, CONFUSION);
@@ -4948,6 +5043,7 @@ export function statusConditionActive(option, u) {
 // absent at the new-game boundary because u_init_carry_attr_boost() guarantees
 // that the initial inventory is within capacity.
 function _statusConditionEntries(u, shrinkLevel = 0) {
+    botl_incapacitated_conditions(game, u);
     const configured = game.iflags?.status_conditions ?? {};
     return STATUS_CONDITION_SPECS
         .filter((spec) => (configured[spec.option] ?? spec.enabled)

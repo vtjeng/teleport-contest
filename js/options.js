@@ -194,6 +194,7 @@ import {
 // inside function bodies.
 import {
     check_gold_symbol,
+    condopt,
     bot,
     classify_terrain,
     docrt,
@@ -5658,13 +5659,6 @@ function bad_negation(result, optname, withParameter = true) {
         `The ${optname} option may not ${withParameter
             ? 'both have a value and ' : ''}be negated.`,
     );
-}
-
-// C ref: botl.c condopt(), its setting branch. status_conditions is the sole
-// owner of condtests[].enabled: no raw cond_* fields are retained in flags.
-// Its initialization branch is initoptions_init()'s existing default table.
-function condopt(target, canonical, negated) {
-    target.iflags.status_conditions[canonical] = !negated;
 }
 
 // C ref: botl.c parse_cond_option(). `opts` is deliberately the whole

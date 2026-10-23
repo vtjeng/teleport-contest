@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public identified paralysis/sleep/booze in one game. Two acknowledgements finish identification messages before first quaff. Exercises cached state across recovery, combat wake-up and changed causes.",
+  "segments": [
+    {
+      "seed": 8420220,
+      "datetime": "20261024050000",
+      "nethackrc": "OPTIONS=name:ImmobileStatus,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,cond_paralyzed,cond_busy,cond_sleep,cond_unconscious,time\n",
+      "moves": "  \u0017uncursed potion of paralysis\n \u0017uncursed potion of sleeping\n \u0017cursed potion of booze\n#wizidentify\n_\n  qe                qf                qg                \u0012."
+    }
+  ]
+}

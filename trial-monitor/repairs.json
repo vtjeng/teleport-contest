@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T14:29:56.882Z",
+  "asOf": "2026-10-23T14:47:55.800Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -7080,8 +7080,120 @@
           "scripts/status-hilite-lifecycle.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d3392c42115f793517f45d17a73418c67959b67f",
+          "runs": [
+            {
+              "id": 39970191332,
+              "name": "Checkpoint",
+              "sha": "d3392c42115f793517f45d17a73418c67959b67f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/wounded-status-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T14:30:20Z",
+              "completedAt": "2026-10-23T14:36:37Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39970191332"
+            },
+            {
+              "id": 39971335203,
+              "name": "Lint",
+              "sha": "d3392c42115f793517f45d17a73418c67959b67f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T14:38:19Z",
+              "completedAt": "2026-10-23T14:39:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39971335203"
+            },
+            {
+              "id": 39971334770,
+              "name": "Dashboard",
+              "sha": "d3392c42115f793517f45d17a73418c67959b67f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T14:38:19Z",
+              "completedAt": "2026-10-23T14:40:57Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39971334770"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c1208 uses Wounded_legs=intrinsic||extrinsic (youprop.h138), including steed wounds; optionalWLegs/Leg/Lg rank20 defaultdisabled. Add missingentry/purepredicate preserving injury/healing owners. Public armedbeartrap seeds8420210/211 formerlymissingWLegs26 nowmatch2424/3017rng and55screens/cursors; firstcase also1animation andclearsstatusafterhealing. Disabledoptioncontrol2424rng/55screens/cursors/1animationpasses. Initialunprefixedwishcreateddisarmedobject; Cobjnam4622trappedprefixcorrected and setup preservedprivately withoutcoverageclaim. ThreefreshC,162focused/affected tests andlint pass. Carries complete129gates/98receipt. Hostedgatespending; noaggregategainclaimed. Accepted after exact-SHA Checkpoint39970191332/MainLint39971335203/Dashboard39971334770 success, first attempts. Complete44fixed/98synthetic comparison unchanged; existingchecker recordedcomplete98 cohort against265a932c. Distinctaccepted130."
+    },
+    {
+      "id": "incapacitated-status-family",
+      "kind": "parity-repair",
+      "title": "Render cached C incapacitation conditions through recovery and option changes",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T10:18:35.367Z",
+          "end": "2026-10-23T10:26:20.778Z",
+          "note": "Observed original source/publicC qualification interval during frozen128/129 work; not active-work time."
+        },
+        {
+          "start": "2026-10-23T14:27:47.975Z",
+          "end": "2026-10-23T14:27:47.975Z",
+          "note": "Observed completion of public same-game lifecycle witness/control after environment recovery; instant observation, no duration inferred."
+        },
+        {
+          "start": "2026-10-23T14:39:49.518Z",
+          "end": "2026-10-23T14:39:49.518Z",
+          "note": "Observed source design review completion during frozen130 publication gates. Code edits followed130 gates/complete98receipt; access/environment pauses are not active time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/src/trap.c",
+          "nethack-c/upstream/src/potion.c",
+          "nethack-c/upstream/src/eat.c",
+          "nethack-c/upstream/src/do_wear.c",
+          "nethack-c/upstream/src/uhitm.c",
+          "js/display.js",
+          "js/options.js"
+        ],
+        "witness": [
+          "recipes/botl.c/incapacitated-status-paralyzed.session.json",
+          "recipes/botl.c/incapacitated-status-busy-fallback.session.json",
+          "recipes/botl.c/incapacitated-status-disabled.session.json",
+          "recipes/botl.c/incapacitated-status-sleep.session.json",
+          "recipes/botl.c/incapacitated-status-unconscious-rest.session.json",
+          "recipes/botl.c/incapacitated-status-unconscious-disabled.session.json",
+          "recipes/botl.c/incapacitated-status-sequence.session.json",
+          "recipes/botl.c/incapacitated-status-sequence-disabled.session.json"
+        ],
+        "test": [
+          "scripts/incapacitated-status.test.mjs",
+          "scripts/options.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/potion.test.mjs",
+          "scripts/uhitm-hmon.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs",
+          "scripts/timeout.test.mjs",
+          "scripts/eat.test.mjs",
+          "scripts/wear-armor.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c1208 uses Wounded_legs=intrinsic||extrinsic (youprop.h138), including steed wounds; optionalWLegs/Leg/Lg rank20 defaultdisabled. Add missingentry/purepredicate preserving injury/healing owners. Public armedbeartrap seeds8420210/211 formerlymissingWLegs26 nowmatch2424/3017rng and55screens/cursors; firstcase also1animation andclearsstatusafterhealing. Disabledoptioncontrol2424rng/55screens/cursors/1animationpasses. Initialunprefixedwishcreateddisarmedobject; Cobjnam4622trappedprefixcorrected and setup preservedprivately withoutcoverageclaim. ThreefreshC,162focused/affected tests andlint pass. Carries complete129gates/98receipt. Hostedgatespending; noaggregategainclaimed."
+      "note": "C botl.c923-951/1210-1235 caches unconscious/paralyzed classifications separately from four condition flags; negative multi can retain earlier flags, recovery clears flags only, condopt clears selectedtest. Add complete optionalOut/Parlyz/Zzz/Busy family and pergamecache; preserve mutable reasonbuffer offset fromexistingid:reason owner and namedmessagebuffers. Move existingcondopt settingbranch todisplay.js andresetcachedflag, no duplicateenabledowner. Publicparalysis/fallback/disabled2690rng/57screens/cursors/4animations; sleep2711/56/4; unconsciouswitness/control2487/67/3; samegame3-effectsequence/control2856/161/5 nowfullymatch. EightfreshC recordings plus745focused/affected tests andlint pass. Shortunconsciousness probes lackedcapturedstatus andwrongselector/identificationprompt probes are preservedprivately withoutfalsecoverageclaims. Carries complete130gates/98batch receipt. Onecoupledfamilyrepair; hostedgatespending, noaggregategainclaimed."
     }
   ]
 }

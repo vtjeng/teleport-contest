@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Same twelve-turn public unconsciousness with all four conditions disabled; complete animation control.",
+  "segments": [
+    {
+      "seed": 8420220,
+      "datetime": "20261024050000",
+      "nethackrc": "OPTIONS=name:ImmobileStatus,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,!cond_paralyzed,!cond_busy,!cond_sleep,!cond_unconscious,time\n",
+      "moves": "  \u0017cursed potion of booze\n#wizidentify\n_\n.qe                  \u001b\n\u0012."
+    }
+  ]
+}

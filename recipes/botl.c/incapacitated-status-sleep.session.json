@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public sleeping potion with all four conditions enabled exercises Zzz and recovery.",
+  "segments": [
+    {
+      "seed": 8420220,
+      "datetime": "20261024050000",
+      "nethackrc": "OPTIONS=name:ImmobileStatus,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,cond_paralyzed,cond_busy,cond_sleep,cond_unconscious\n",
+      "moves": "  \u0017uncursed potion of sleeping\nqe                  \u001b\n\u0012."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Same public paralysis with cond_paralyzed disabled and cond_busy enabled exercises C generic Busy fallback.",
+  "segments": [
+    {
+      "seed": 8420220,
+      "datetime": "20261024050000",
+      "nethackrc": "OPTIONS=name:ImmobileStatus,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,!cond_paralyzed,cond_busy,cond_sleep,cond_unconscious\n",
+      "moves": "  \u0017uncursed potion of paralysis\nqe                  \u001b\n\u0012."
+    }
+  ]
+}
