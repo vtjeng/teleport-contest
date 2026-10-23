@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Blocked independent seed variation of Water overcrowding. Earlier first-rest screen divergence at boundary303 and eventual missing disturb RNG at315 persists before and after the mon.c recovery repair; owner still under investigation in mkmaze bubble placement/monmove continuation. Not a passing regression recording or claimed parity evidence.",
+  "_comment": "Blocked independent seed variation of Water overcrowding. Earlier first-rest screen divergence at boundary303 and eventual missing disturb RNG at315 persists before and after the mon.c recovery repair; owner still under investigation in mkmaze bubble placement/monmove continuation. Not a passing regression recording or claimed parity evidence. Resolved by monmove.c dochug cuss planning-message isolation; full matching recordings now at recordings/monmove.c/wizard-cuss-planning.session.json and accessible variation. Original setup retained for provenance.",
   "segments": [
     {
       "seed": 8420159,

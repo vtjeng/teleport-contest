@@ -2788,7 +2788,12 @@ export async function dochug(monster, rawEnv = {}) {
         && couldsee(monster.mx, monster.my, state)
         && !monster.minvis
         && !random.rn2(5)) {
-        await cuss(monster, state, rawEnv);
+        // The speculative scan keeps C's RNG and wake-up effects on its
+        // clone. Only the live pass may print or consume message-page keys.
+        await cuss(monster, state, {
+            ...env,
+            message: env.planning ? async () => {} : (rawEnv.message ?? ttyPline),
+        });
     }
     return 0;
 }

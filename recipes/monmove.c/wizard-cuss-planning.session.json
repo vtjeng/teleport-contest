@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C monmove.c dochug -> wizard.c cuss witness. The seeded Wizard attack/spell precedes cuss and wake_nearto messages. Planning must retain cloned RNG/wake effects without printing or consuming real keys. Accessible variant preserves wake_msg coordinate prefixes.",
+  "segments": [
+    {
+      "seed": 8420159,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>K               blessed ring of levitation\n     Pml          #wizgenesis\n1000 sleeping peaceful grid bug\n                              #wizgenesis\n1000 sleeping peaceful giant ant\n                              #wizgenesis\n1000 sleeping peaceful gnome\n                              m.          m.          "
+    }
+  ]
+}

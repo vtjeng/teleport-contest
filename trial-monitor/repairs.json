@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T08:46:23.203Z",
+  "asOf": "2026-10-23T09:00:41.876Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6458,8 +6458,95 @@
           "scripts/pay-for-damage.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "b010eb71b906f56dd0d95c31f371bdf0a8752737",
+          "runs": [
+            {
+              "id": 39927132992,
+              "name": "Checkpoint",
+              "sha": "b010eb71b906f56dd0d95c31f371bdf0a8752737",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-overcrowding-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T08:47:16Z",
+              "completedAt": "2026-10-23T08:53:30Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39927132992"
+            },
+            {
+              "id": 39927986995,
+              "name": "Lint",
+              "sha": "b010eb71b906f56dd0d95c31f371bdf0a8752737",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T08:54:24Z",
+              "completedAt": "2026-10-23T08:55:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39927986995"
+            },
+            {
+              "id": 39927987041,
+              "name": "Dashboard",
+              "sha": "b010eb71b906f56dd0d95c31f371bdf0a8752737",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T08:54:24Z",
+              "completedAt": "2026-10-23T08:56:59Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39927987041"
+            }
+          ]
+        }
+      ],
+      "note": "C mon.c mnearto completes displaced-monster overcrowding recovery before result0/2. Replace three undefined thenResult calls with one local completion continuation. Complete elemental_clog source message/removal/relocation ordering, replacing skipped default You_feel with awaited canonical ttyPline and awaiting mongone. Public mixed-species Water setup initially threw; continuation repair alone matched539103rng but exposed missing message, complete repair matches325screens/cursors too. Audible variant matches same totals; lichen-class control matches452339rng/177screens/cursors without overcrowding. Independent seed159 remains blocked earlier at boundary303 and is preserved separately, not claimed fixed. Source-pinned async message and displaced-occupant tests plus affected existing tests verify ordering. One coupled repair, not one count per change; carries complete122 receipts. Hosted gates pending; no aggregate gain claimed. Accepted after exact-SHA Checkpoint39927132992/MainLint39927986995/Dashboard39927987041 success, all first attempts. Complete44 fixed and98 synthetic batches/2055cases compare unchanged. Distinct accepted123; existing checker recorded complete98 cohort against19de2512."
+    },
+    {
+      "id": "cuss-planning-message-isolation",
+      "kind": "parity-repair",
+      "title": "Keep planned cuss and wake messages out of live input",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T08:50:09.150Z",
+          "end": "2026-10-23T08:51:25.656Z",
+          "note": "Observed source/witness interval during frozen overcrowding candidate CI, not active-work time. Caller edits began after123 Main gates and complete98 receipt."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c",
+          "nethack-c/upstream/src/wizard.c",
+          "nethack-c/upstream/src/mon.c",
+          "js/monmove.js",
+          "js/wizard.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/wizard-cuss-planning.session.json",
+          "recipes/monmove.c/wizard-cuss-planning-accessible.session.json",
+          "recipes/mon.c/water-overcrowding.session.json"
+        ],
+        "test": [
+          "scripts/cuss-planning.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/monmove-dochug.test.mjs",
+          "scripts/monmove-dochug-pet.test.mjs",
+          "scripts/wizard.test.mjs",
+          "scripts/mon-wakeup.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mon.c mnearto completes displaced-monster overcrowding recovery before result0/2. Replace three undefined thenResult calls with one local completion continuation. Complete elemental_clog source message/removal/relocation ordering, replacing skipped default You_feel with awaited canonical ttyPline and awaiting mongone. Public mixed-species Water setup initially threw; continuation repair alone matched539103rng but exposed missing message, complete repair matches325screens/cursors too. Audible variant matches same totals; lichen-class control matches452339rng/177screens/cursors without overcrowding. Independent seed159 remains blocked earlier at boundary303 and is preserved separately, not claimed fixed. Source-pinned async message and displaced-occupant tests plus affected existing tests verify ordering. One coupled repair, not one count per change; carries complete122 receipts. Hosted gates pending; no aggregate gain claimed."
+      "note": "C dochug performs attack, quest_talk, then cuss and wake_nearto. JS planning caller passed no message owner, causing clone cuss/wake output to consume real keys before live attack and repeat afterward. Disposable diagnostic trace confirmed planning=true/global=false then live execution. Provide silent message owner only on planning caller, preserving cloned RNG and wake effects and canonical live message default. Previously preserved Water seed159 now fullymatches531831rng/325screens/cursors; accessiblemsg variation519071rng/325screens/cursors; seed158 control539103rng/325screens/cursors remains matching. Three freshC and385focused/affected tests plus lint pass; source-pinned Archon control preserves identical draws and wake state with no planned messages. Carries complete123 gates/98batch receipt. Hosted gates pending; no aggregate gain claimed."
     }
   ]
 }

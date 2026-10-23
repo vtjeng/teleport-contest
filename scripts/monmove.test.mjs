@@ -3441,6 +3441,8 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
         minvis = 0,
         visible = true,
         cussDraw = 0,
+        planning = false,
+        withSleeper = false,
     } = {}) {
         const { state } = makeState();
         // Use the Archon from the assigned v21 case: it is the concrete
@@ -3468,6 +3470,13 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
             mhpmax: 20,
         });
         if (visible) seeSquare(state, monster.mx, monster.my);
+        const sleeper = withSleeper ? ordinaryMonster(state, {
+            mx: 8, my: 10, msleeping: true, mhp: 5, mhpmax: 5,
+        }) : null;
+        if (sleeper) {
+            state.level.monlist = sleeper;
+            seeSquare(state, sleeper.mx, sleeper.my);
+        }
 
         const draws = [];
         const events = [];
@@ -3477,6 +3486,7 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
         initUnported();
         await dochug(monster, {
             state,
+            planning,
             random: {
                 rn2(bound) {
                     draws.push(bound);
@@ -3508,7 +3518,7 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
         });
         const unported = [...game.unported];
         initUnported();
-        return { draws, events, unported };
+        return { draws, events, unported, sleeping: sleeper?.msleeping };
     }
 
     const skipped = [
@@ -3548,6 +3558,16 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
         'message:"Thou shalt pay for thine insolence!"',
     ]);
     assert.equal(gateHit.unported.includes('questpgr.c com_pager'), false);
+
+    const liveWake = await run({ withSleeper: true });
+    assert.equal(liveWake.sleeping, false);
+    assert.ok(liveWake.events.includes('message:The giant rat wakes up.'));
+    const plannedWake = await run({ planning: true, withSleeper: true });
+    assert.equal(plannedWake.sleeping, false, 'planning retains C wake effects');
+    assert.deepEqual(plannedWake.draws, liveWake.draws, 'same source RNG calls');
+    assert.deepEqual(plannedWake.events,
+        liveWake.events.filter(event => !event.startsWith('message:')),
+        'planning emits neither cuss nor wake messages');
 });
 
 test('dochug applies the phase-four Conflict roll to peaceful wizards', async () => {
