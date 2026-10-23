@@ -25,7 +25,7 @@ try {
         const result = await page.evaluate(() => ({
             zone:localTime.zone, boundary:localTime.stamp('2026-10-23T01:30:00Z'),
             measured:localTime.stamp(DATA.challenges.publication.measuredThrough),
-            register:localTime.stamp(TRIAL_DATA.register.asOf),
+            candidate:localTime.stamp(syntheticMonitorView.currentCandidate?.evidenceAt),
             baseline:localTime.stamp(TRIAL_DATA.manifest.baseline.start),
             repairs:[...document.querySelectorAll('#recentRepairs time')].map(node => ({
                 utc:node.dateTime, text:node.textContent, expected:localTime.stamp(node.dateTime)})),
@@ -33,7 +33,7 @@ try {
         assert.equal(await page.locator('#displayTimezone').innerText(), 'Times in ' + result.zone);
         assert.ok(result.boundary.includes(date) && result.boundary.includes(clock));
         assert.ok((await page.locator('#stats').innerText()).includes(result.measured));
-        assert.ok((await page.locator('#trialFreshness').innerText()).includes(result.register));
+        assert.ok((await page.locator('#trialFreshness').innerText()).includes(result.candidate));
         assert.ok((await page.locator('#trialBaselineWindow').textContent()).includes(result.baseline));
         for (const repair of result.repairs) {
             assert.match(repair.utc, /Z$/);

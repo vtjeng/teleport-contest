@@ -1068,7 +1068,7 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
 <section class="section current-status" aria-labelledby="currentStatusTitle">
   <div class="section-toolbar"><h2 class="section-title" id="currentStatusTitle">Current work</h2><button type="button" class="trial-refresh" id="trialRefresh">Refresh public status</button></div>
   <p class="trial-headline" id="trialHeadline" aria-live="polite">Loading recorded activity…</p>
-  <p class="candidate-line"><b>Latest recorded candidate</b> <span id="trialCandidate">Unknown</span></p>
+  <p class="candidate-line"><b>Latest dated candidate</b> <span id="trialCandidate">Unknown</span></p>
   <div class="trial-gates" id="trialGates"></div>
   <p class="trial-freshness" id="trialFreshness"></p>
   <p class="trial-note" id="trialRefreshStatus" role="status" aria-live="polite"></p>
@@ -1292,7 +1292,7 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
     const gates = node('trialGates');
     gates.replaceChildren();
     if (!candidate) {
-      text('trialCandidate', 'Unknown — no candidate recorded in manifest');
+      text('trialCandidate', 'Unknown — no uniquely dated candidate in the repair register');
       gates.textContent = 'Checkpoint · Lint · Dashboard: unknown';
     } else {
       text('trialCandidate', (view.results.find(result => result.repair.id === candidate.repairId)?.repair.title
@@ -1306,16 +1306,23 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
         gates.append(span);
       }
     }
-    const recorded = Date.parse(view.registerAsOf);
-    const age = Date.now() - recorded;
-    text('trialFreshness', 'Recorded activity: ' + stamp(view.registerAsOf)
-      + (!Number.isFinite(recorded) ? '' : age < 0 ? ' · age unknown (clock ahead)'
-        : age > 60 * 60000 ? ' · stale' : '')
+    const selection = view.selection;
+    const warning = selection?.status === 'ambiguous' ? ' · conflicting candidate dates; latest unknown'
+      : selection?.undatedCount ? ' · ' + selection.undatedCount + ' undated candidate entries; latest unknown' : '';
+    text('trialFreshness', (candidate
+      ? 'Candidate evidence: ' + stamp(candidate.evidenceAt) + ' · ' + candidate.state
+        + (candidate.freshness === 'stale' ? ' · stale' : candidate.freshness === 'clock-ahead' ? ' · clock ahead; age unknown' : '')
+      : 'Candidate evidence: unknown')
+      + warning
+      + (selection?.unrecordedCount ? ' · ' + selection.unrecordedCount + (selection.unrecordedCount === 1 ? ' repair has no candidate recorded' : ' repairs have no candidate recorded') : '')
+      + (selection?.legacyPointerMismatch ? ' · saved status differs; using dated candidate evidence' : '')
       + (view.api.status === 'fresh' ? ' · CI checked ' + stamp(view.api.checkedAt) : ' · CI: last-known snapshot'));
+
   }
   // Compare evidence, not the successful check's timestamp or elapsed clock.
   const signature = view => JSON.stringify({
-    results: view.results, candidate: view.currentCandidate,
+    results: view.results, candidate: view.currentCandidate && {...view.currentCandidate, evidenceAgeMs: undefined},
+    selection: view.selection,
     registerAsOf: view.registerAsOf, manifestAsOf: view.manifestAsOf,
   });
   let view = monitor.summarize();

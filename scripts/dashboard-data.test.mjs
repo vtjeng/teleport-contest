@@ -1594,13 +1594,13 @@ function refreshTestSnapshot() {
         register: {version: 1, asOf: '2026-01-01T00:00:00Z', repairs: [{
             id: 'refresh-evidence', title: 'Refresh evidence', kind: 'parity-repair', window: 'single-worker',
             evidence: {source: ['source'], witness: ['witness'], test: ['test']},
-            candidates: [{sha, runs: []}],
+            candidates: [{sha, committedAt:'2026-01-01T00:00:00Z', runs: []}],
         }]}};
 }
 
 function refreshTestResponse(url, snapshot) {
     const encode = value => ({encoding: 'base64', content: Buffer.from(JSON.stringify(value)).toString('base64')});
-    const payload = url.includes('/manifest.json?') ? encode(snapshot.manifest)
+    const payload = url.endsWith('/commits/main') ? {sha:'e'.repeat(40)} : url.includes('/manifest.json?') ? encode(snapshot.manifest)
         : url.includes('/repairs.json?') ? encode(snapshot.register)
             : {workflow_runs: [{id: 900, name: 'Checkpoint', head_sha: 'a'.repeat(40),
                 run_attempt: 1, event: 'push', head_branch: 'integration-checkpoint/test',
@@ -1629,7 +1629,7 @@ test('real refresh handler fetches, applies, reports unchanged, and ignores repe
     assert.match(rendered.get('trialRefreshStatus').textContent, /Checking/u);
     await click();
     await click();
-    assert.equal(calls.length, 3, 'repeated clicks do not duplicate the page-open transaction');
+    assert.equal(calls.length, 1, 'repeated clicks do not duplicate the page-open transaction');
     release();
     await finishRefresh();
     assert.equal(button.disabled, false);
@@ -1638,7 +1638,7 @@ test('real refresh handler fetches, applies, reports unchanged, and ignores repe
     assert.match(rendered.get('trialFreshness').textContent, /stale/u, 'successful fetch does not freshen old activity');
     assert.doesNotMatch(rendered.get('trialFreshness').textContent, /last-known/u);
     await click();
-    assert.equal(calls.length, 6);
+    assert.equal(calls.length, 8);
     assert.equal(rendered.get('trialRefreshStatus').textContent, 'Already up to date.');
     assert.equal(button.listeners.click.length, 1);
     assert.ok(calls.every(({init}) => init.cache === 'no-store' && !('Authorization' in init.headers)));
@@ -1672,12 +1672,15 @@ test('refresh retains rendered evidence when any required source fails and permi
     }
 });
 
-test('unknown activity dates stay unknown and missing register disables misleading refresh', async () => {
+test('candidate dates are independent of history dates and missing register disables refresh', async () => {
     const snapshot = refreshTestSnapshot();
     snapshot.register.asOf = null;
     const rendered = renderDashboard(sourceDashboardData(), null, {singleWorkerData: snapshot});
     await finishRefresh();
-    assert.match(rendered.get('trialFreshness').textContent, /Recorded activity: unknown/u);
+    assert.match(rendered.get('trialFreshness').textContent, /Candidate evidence:.*1 Jan 2026.*stale/u);
+    delete snapshot.register.repairs[0].candidates[0].committedAt;
+    const undated = renderDashboard(sourceDashboardData(), null, {singleWorkerData: snapshot});
+    assert.match(undated.get('trialFreshness').textContent, /Candidate evidence: unknown.*undated candidate/u);
     const missing = renderDashboard(sourceDashboardData());
     assert.equal(missing.get('trialRefresh').disabled, true);
     assert.match(missing.get('trialRefreshStatus').textContent, /unavailable.*Reload/u);
@@ -1698,4 +1701,24 @@ test('full startup keeps the published synthetic aggregate visible with measurem
     assert.match(html, /Earlier measurement — newer evaluation status unknown/);
     assert.doesNotMatch(html, /Needs evaluation|Oldest measured commit/);
     assert.ok(rendered.get('goalTable').innerHTML, 'initialization reaches final history');
+});
+
+
+test('real stale manifest cannot make Current work ignore newer registered candidates', () => {
+    const load = file => JSON.parse(readFileSync(join(PROJECT_ROOT, 'trial-monitor', file), 'utf8'));
+    const snapshot = {manifest:load('manifest.json'),register:load('repairs.json'),
+        buildSha:'f'.repeat(40),builtAt:'2026-10-23T22:40:00Z'};
+    snapshot.manifest.operations.currentCandidate = {repairId:'monster-potion-occupant-lifecycle',
+        sha:'b4843ccf9e8b4b1d19d79bbc1b66237cb167da7b'};
+    snapshot.register.repairs = snapshot.register.repairs.filter(repair => repair.id === 'monster-potion-occupant-lifecycle'
+        || repair.candidates.some(candidate => candidate.sha === '6dbc9246393ce3b5f31ab3f8cab7009d1dc03eff'));
+    snapshot.register.asOf = '2099-01-01T00:00:00Z'; // Unrelated watermark cannot date the candidate.
+    const rendered = renderDashboard(sourceDashboardData(), null, {singleWorkerData:snapshot,showHistorical:false});
+    assert.match(rendered.get('trialCandidate').textContent, /6dbc9246393c/);
+    assert.doesNotMatch(rendered.get('trialCandidate').textContent, /b4843ccf/);
+    assert.ok(rendered.get('trialFreshness').textContent.includes(createDashboardTime().stamp('2026-10-23T22:17:50Z')));
+    assert.match(rendered.get('trialFreshness').textContent, /completed.*saved status differs/);
+    assert.ok(!rendered.get('trialFreshness').textContent.includes('2099'));
+    assert.ok(rendered.get('goalTable').innerHTML, 'strict startup still reaches the final section');
+    assert.equal(rendered.has('workerEvidence'), false);
 });

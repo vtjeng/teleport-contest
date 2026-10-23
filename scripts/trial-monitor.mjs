@@ -89,6 +89,32 @@ export function createTrialMonitor(initial, options = {}) {
     return { repair, candidates, accepted };
   }
 
+  // Candidate identity and ordering come from persisted candidate evidence, never
+  // the manifest pointer, register watermark, array position or an API poll.
+  function selectCandidate(data) {
+    const entries = data.register.repairs.flatMap(repair => repair.candidates.map(candidate => {
+      const firstRun = candidate.runs.filter(run => run.sha === candidate.sha && timestamp(run.createdAt) !== null)
+        .map(run => timestamp(run.createdAt)).sort((a, b) => a - b)[0];
+      const at = timestamp(candidate.committedAt) ?? timestamp(candidate.startedAt) ?? firstRun ?? null;
+      return {repair, candidate, at};
+    }));
+    const dated = entries.filter(entry => entry.at !== null).sort((a, b) => b.at - a.at);
+    const undatedCount = entries.length - dated.length;
+    const unrecordedCount = data.register.repairs.filter(repair => repair.window === 'single-worker' && !repair.candidates.length).length;
+    const latest = dated[0];
+    const tied = latest && dated.some(entry => entry.at === latest.at
+      && (entry.candidate.sha !== latest.candidate.sha || entry.repair.id !== latest.repair.id));
+    const selected = tied ? null : latest ?? null;
+    const pointer = data.manifest.operations?.currentCandidate;
+    return {selected, selection: {
+      source: 'repair-register', undatedCount, unrecordedCount,
+      status: tied ? 'ambiguous' : !entries.length ? 'none' : !selected ? 'undated'
+        : undatedCount || unrecordedCount ? 'partial' : 'selected',
+      legacyPointerMismatch: Boolean(pointer && (!selected || pointer.sha !== selected.candidate.sha
+        || pointer.repairId !== selected.repair.id)),
+    }};
+  }
+
   function summarize(at = options.now?.() ?? new Date()) {
     const now = at instanceof Date ? at.getTime() : new Date(at).getTime();
     const manifest = current.manifest;
@@ -134,26 +160,28 @@ export function createTrialMonitor(initial, options = {}) {
         new Date(Math.min(plannedEnd, trial.status === 'completed'
           ? timestamp(trial.end) : now)).toISOString(),
         trialHours, trial.coverage);
-    const selected = manifest.operations?.currentCandidate;
-    const selectedRepair = selected
-      ? results.find(result => result.repair.id === selected.repairId) : null;
-    const selectedCandidate = selectedRepair?.candidates.find(result =>
-      result.candidate.sha === selected.sha)
-      ?? (selected && shaPattern.test(selected.sha)
-        ? candidateResult({ sha: selected.sha, runs: [] },
-          (current.apiRuns ?? []).filter(run => run.sha === selected.sha)) : null);
+    const {selected, selection} = selectCandidate(current);
+    const selectedCandidate = selected ? candidateResult(selected.candidate,
+      (current.apiRuns ?? []).filter(run => run.sha === selected.candidate.sha)) : null;
+    const evidenceAt = selected ? new Date(selected.at).toISOString() : null;
+    const evidenceAgeMs = selected && Number.isFinite(now) ? now - selected.at : null;
     return {
       baseline: {...baselineResult, start: baseline.start, end: baseline.end}, trial: { ...trialResult, status: trial.status,
         plannedHours: trial.plannedHours, start: trial.start, end: trial.end,
         coverage: trial.coverage },
-      currentCandidate: selectedCandidate ? { repairId: selected?.repairId,
-        sha: selected.sha, origin: selected.origin ?? null,
-        investigator: selected.investigator ?? null,
-        registered: Boolean(selectedRepair), ...selectedCandidate } : null,
+      selection,
+      currentCandidate: selectedCandidate ? { repairId: selected.repair.id,
+        sha: selected.candidate.sha, origin: selected.repair.origin ?? null,
+        investigator: selected.repair.investigator ?? null, registered: true,
+        evidenceAt, evidenceAgeMs,
+        freshness: evidenceAgeMs === null ? 'unknown' : evidenceAgeMs < 0 ? 'clock-ahead'
+          : evidenceAgeMs > 3600000 ? 'stale' : 'recent',
+        state: selectedCandidate.closureAt ? 'completed' : 'pending', ...selectedCandidate } : null,
       investigators: manifest.operations?.investigators ?? null,
       waitingHandoffs: manifest.operations?.waitingHandoffs ?? null,
       buildAt: current.builtAt, buildSha: current.buildSha,
       manifestAsOf: manifest.asOf, registerAsOf: current.register.asOf,
+      sourceSha: current.sourceSha ?? current.buildSha,
       api, pageDeployment: current.pageDeployment ?? 'unknown',
       results,
     };
@@ -177,16 +205,19 @@ export function createTrialMonitor(initial, options = {}) {
       return JSON.parse(new TextDecoder().decode(bytes));
     };
     try {
+      const source = await read('commits/main');
+      if (!shaPattern.test(source.sha)) throw new Error('GitHub Main revision unavailable');
       const [manifestFile, registerFile, runPage] = await Promise.all([
-        read('contents/trial-monitor/manifest.json?ref=main'),
-        read('contents/trial-monitor/repairs.json?ref=main'),
+        read(`contents/trial-monitor/manifest.json?ref=${source.sha}`),
+        read(`contents/trial-monitor/repairs.json?ref=${source.sha}`),
         read('actions/runs?per_page=100'),
       ]);
       const manifest = content(manifestFile);
       const register = content(registerFile);
       if (!Array.isArray(runPage.workflow_runs))
         throw new Error('GitHub run response is incomplete');
-      const selectedSha = manifest.operations?.currentCandidate?.sha;
+      validate({...current, manifest, register});
+      const selectedSha = selectCandidate({manifest, register}).selected?.candidate.sha;
       let rawRuns = runPage.workflow_runs;
       if (selectedSha && shaPattern.test(selectedSha)
           && !rawRuns.some(run => run.head_sha === selectedSha)) {
@@ -223,7 +254,7 @@ export function createTrialMonitor(initial, options = {}) {
         && run.sha === current.buildSha && run.branch === 'main'
         && run.event === 'push' && run.conclusion === 'success')
         ? 'confirmed' : 'unknown';
-      const next = { ...current, manifest, register, apiRuns, pageDeployment };
+      const next = { ...current, manifest, register, apiRuns, pageDeployment, sourceSha: source.sha };
       validate(next);
       current = next;
       api = { status: 'fresh', checkedAt: new Date(options.now?.() ?? new Date()).toISOString(), error: null };

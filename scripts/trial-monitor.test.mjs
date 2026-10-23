@@ -173,7 +173,7 @@ test('public refresh keeps last-known snapshot on fetch failure', async () => {
   assert.equal(view.api.status, 'failed');
   assert.equal(view.api.checkedAt, null);
   assert.match(view.api.error, /offline/u);
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 1);
   assert.ok(calls.every(call => call.init.cache === 'no-store'));
   assert.ok(calls.every(call => !('Authorization' in call.init.headers)));
 });
@@ -195,6 +195,7 @@ test('public refresh reads Main files and exact job times without credentials', 
     now: () => new Date('2026-10-22T01:00:00Z'),
     fetchPublic: async (url, init) => {
       calls.push({ url, init });
+      if (url.endsWith('/commits/main')) return {ok:true, json:async () => ({sha:sha('e')})};
       let payload;
       if (url.includes('/manifest.json?')) payload = encode(data.manifest);
       else if (url.includes('/repairs.json?')) payload = encode(data.register);
@@ -211,7 +212,7 @@ test('public refresh reads Main files and exact job times without credentials', 
   assert.equal(view.trial.acceptedCount, 1);
   assert.equal(view.results[0].accepted.closureAt, '2026-10-22T00:13:00.000Z');
   assert.equal(view.currentCandidate.gates.Checkpoint.status, 'passed');
-  assert.equal(calls.length, 6);
+  assert.equal(calls.length, 7);
   assert.ok(calls.every(call => !('Authorization' in call.init.headers)));
 });
 
@@ -246,6 +247,7 @@ test('failed required fetch retains the last successful check time and atomic sn
   data.manifest.operations.currentCandidate = null;
   let fail = false, now = '2026-10-22T01:00:00Z';
   const monitor = createTrialMonitor(data, {now: () => new Date(now), fetchPublic: async url => {
+    if (url.endsWith('/commits/main')) return {ok:true, json:async () => ({sha:sha('e')})};
     if (fail && url.includes('/repairs.json?')) throw new Error('offline');
     const value = url.includes('/manifest.json?') ? data.manifest
       : url.includes('/repairs.json?') ? data.register : null;
@@ -271,6 +273,7 @@ test('incomplete job evidence cannot mark a refresh fresh or complete a gate', a
     currentCandidate: {repairId: 'incomplete', sha: candidateSha},
   });
   const monitor = createTrialMonitor(data, {fetchPublic: async url => {
+    if (url.endsWith('/commits/main')) return {ok:true, json:async () => ({sha:sha('e')})};
     let payload;
     if (url.includes('/manifest.json?') || url.includes('/repairs.json?')) {
       const value = url.includes('/manifest.json?') ? data.manifest : data.register;
@@ -289,4 +292,90 @@ test('incomplete job evidence cannot mark a refresh fresh or complete a gate', a
   assert.equal(view.api.checkedAt, null);
   assert.match(view.api.error, /incomplete/u);
   assert.equal(view.currentCandidate.gates.Checkpoint.status, 'missing');
+});
+
+test('real stale-manifest/new-register records select repair 152 by persisted evidence, not repair 141', () => {
+  const data = snapshot();
+  data.manifest.operations.currentCandidate = {repairId:'monster-potion-occupant-lifecycle', sha:'b4843ccf9e8b4b1d19d79bbc1b66237cb167da7b'};
+  const latest = data.register.repairs.find(repair => repair.candidates.some(c => c.sha === '6dbc9246393ce3b5f31ab3f8cab7009d1dc03eff'));
+  const older = data.register.repairs.find(repair => repair.id === data.manifest.operations.currentCandidate.repairId);
+  assert.ok(latest && older, 'retained real recording-path evidence');
+  data.register.repairs = [latest, older]; // Deliberately out of order.
+  data.register.asOf = '2026-10-24T10:00:00Z';
+  const view = createTrialMonitor(data).summarize('2026-10-24T10:01:00Z');
+  assert.equal(view.currentCandidate.sha, '6dbc9246393ce3b5f31ab3f8cab7009d1dc03eff');
+  assert.equal(view.currentCandidate.state, 'completed');
+  assert.equal(view.currentCandidate.evidenceAt, '2026-10-23T22:17:50.000Z');
+  assert.equal(view.currentCandidate.freshness, 'stale');
+  assert.equal(view.selection.legacyPointerMismatch, true);
+});
+
+test('ordinary register additions and corrections advance selection without a manifest write', () => {
+  const first = repair('old', sha('a'), [], {window:'single-worker'});
+  const data = running([first], {currentCandidate:{repairId:'old',sha:sha('a')}});
+  const newer = repair('pending', sha('b'), [], {window:'single-worker'});
+  newer.candidates[0].committedAt = '2026-10-22T00:20:00Z';
+  data.register.repairs.unshift(newer);
+  let view = createTrialMonitor(data).summarize('2026-10-22T00:30:00Z');
+  assert.equal(view.currentCandidate.sha, sha('b'));
+  assert.equal(view.currentCandidate.state, 'pending');
+  assert.equal(view.currentCandidate.gates.Checkpoint.status, 'missing');
+  newer.candidates.unshift({sha:sha('c'), committedAt:'2026-10-22T00:25:00Z', runs:[]});
+  view = createTrialMonitor(data).summarize('2026-10-22T00:30:00Z');
+  assert.equal(view.currentCandidate.sha, sha('c'));
+  assert.equal(view.currentCandidate.repairId, 'pending');
+  assert.equal(view.results.length, 2);
+  assert.equal(data.manifest.operations.currentCandidate.sha, sha('a'));
+});
+
+test('unknown chronology, conflicting dates, no candidate and future clocks stay explicit', () => {
+  const data = running([]);
+  assert.equal(createTrialMonitor(data).summarize().selection.status, 'none');
+  const undated = repair('undated', sha('a'), []);
+  delete undated.candidates[0].startedAt;
+  data.register.repairs.push(undated);
+  let view = createTrialMonitor(data).summarize();
+  assert.equal(view.currentCandidate, null);
+  assert.equal(view.selection.status, 'undated');
+  const dated = repair('dated', sha('b'), []);
+  data.register.repairs.push(dated);
+  view = createTrialMonitor(data).summarize('2026-10-21T00:00:00Z');
+  assert.equal(view.selection.status, 'partial');
+  assert.equal(view.selection.undatedCount, 1);
+  assert.equal(view.currentCandidate.freshness, 'clock-ahead');
+  data.register.repairs.push(repair('conflict', sha('c'), []));
+  view = createTrialMonitor(data).summarize();
+  assert.equal(view.currentCandidate, null);
+  assert.equal(view.selection.status, 'ambiguous');
+});
+
+test('refresh pins files, targets the register candidate and cannot freshen it with unrelated updates', async () => {
+  const data = running([repair('old', sha('a'), [])], {currentCandidate:{repairId:'old',sha:sha('a')}});
+  const next = repair('new', sha('b'), []);
+  next.candidates[0].committedAt = '2026-10-22T01:00:00Z';
+  const refreshed = {...data.register, asOf:'2026-10-23T02:00:00Z', repairs:[next,...data.register.repairs]};
+  const calls = [], encode = value => ({encoding:'base64',content:Buffer.from(JSON.stringify(value)).toString('base64')});
+  let failed = false;
+  const monitor = createTrialMonitor(data, {now:()=>new Date('2026-10-23T02:01:00Z'), fetchPublic:async url => {
+    calls.push(url);
+    if (failed) throw new Error('offline');
+    const payload = url.endsWith('/commits/main') ? {sha:sha('e')}
+      : url.includes('/manifest.json?') ? encode(data.manifest)
+        : url.includes('/repairs.json?') ? encode(refreshed) : {workflow_runs:[]};
+    return {ok:true,json:async()=>payload};
+  }});
+  const fresh = await monitor.refresh();
+  assert.equal(fresh.currentCandidate.sha, sha('b'));
+  assert.equal(fresh.currentCandidate.freshness, 'stale');
+  assert.equal(fresh.api.status, 'fresh');
+  assert.equal(fresh.sourceSha, sha('e'));
+  assert.ok(calls.filter(url=>url.includes('/contents/')).every(url=>url.endsWith('?ref='+sha('e'))));
+  assert.ok(calls.some(url=>url.includes('head_sha='+sha('b'))));
+  assert.ok(!calls.some(url=>url.includes('head_sha='+sha('a'))));
+  failed = true;
+  const offline = await monitor.refresh();
+  assert.equal(offline.api.status, 'failed');
+  assert.equal(offline.api.checkedAt, fresh.api.checkedAt);
+  assert.equal(offline.currentCandidate.evidenceAt, fresh.currentCandidate.evidenceAt);
+  assert.equal(offline.currentCandidate.freshness, 'stale');
 });
