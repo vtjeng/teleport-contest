@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T00:51:49.241264Z",
+  "asOf": "2026-10-23T01:13:37.091Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4769,8 +4769,89 @@
           "scripts/wizcmds.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "84459e05bb666be61975155e35496bbf24dd868c",
+          "runs": [
+            {
+              "id": 39881493838,
+              "name": "Checkpoint",
+              "sha": "84459e05bb666be61975155e35496bbf24dd868c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/tower-migration-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:00:33Z",
+              "completedAt": "2026-10-23T01:06:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39881493838"
+            },
+            {
+              "id": 39882248331,
+              "name": "Lint",
+              "sha": "84459e05bb666be61975155e35496bbf24dd868c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:08:04Z",
+              "completedAt": "2026-10-23T01:08:45Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39882248331"
+            },
+            {
+              "id": 39882248320,
+              "name": "Dashboard",
+              "sha": "84459e05bb666be61975155e35496bbf24dd868c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:08:04Z",
+              "completedAt": "2026-10-23T01:10:01Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39882248320"
+            }
+          ]
+        }
+      ],
+      "note": "Live C migration on wizard3 and wizard2 succeeds; baseline JS requires an injected inWizardTower operation. Startup-level control passes. Supply existing canonical In_W_tower default and retain overrides. Public cases cover outside-boundary migrants on tower levels, not tower interior. Supplemental lifecycle tests cover inside/outside flags on all three tower levels, upward-flag composition and override origin coordinates. All three replays and 121 focused/affected tests pass. Hosted gates pending; investigation start time not captured. Accepted: exact-SHA hosted Checkpoint, Main push Lint and Dashboard all passed on attempt 1. Archived comparison covers all 44 fixed sessions and 98 synthetic batches / 2055 cases with no changes or regressions. Complete published cohort recorded by check-published-ci --synthetic-baseline and carried in the next ordinary repair."
+    },
+    {
+      "id": "tower-keepdogs",
+      "kind": "parity-repair",
+      "title": "Keep the sleeping tower Wizard accessible when leaving his level",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T01:01:26Z",
+          "end": "2026-10-23T01:05:45.477Z",
+          "note": "Source tracing and independent Healer/Valkyrie C departure witnesses, with matching middle-tower control. This records an observed investigation interval, not active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dog.c",
+          "nethack-c/upstream/dat/wizard1.lua",
+          "nethack-c/upstream/src/wizcmds.c",
+          "js/dog.js"
+        ],
+        "witness": [
+          "recipes/dog.c/tower-keepdogs-healer.session.json",
+          "recipes/dog.c/tower-keepdogs-valkyrie.session.json",
+          "recipes/dog.c/tower-keepdogs-middle-control.session.json"
+        ],
+        "test": [
+          "scripts/tower-keepdogs.test.mjs",
+          "scripts/dog-migrate.test.mjs",
+          "scripts/tower-migration.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C migration on wizard3 and wizard2 succeeds; baseline JS requires an injected inWizardTower operation. Startup-level control passes. Supply existing canonical In_W_tower default and retain overrides. Public cases cover outside-boundary migrants on tower levels, not tower interior. Supplemental lifecycle tests cover inside/outside flags on all three tower levels, upward-flag composition and override origin coordinates. All three replays and 121 focused/affected tests pass. Hosted gates pending; investigation start time not captured."
+      "note": "C keep_mon_accessible keeps the Wizard accessible even asleep inside his tower; keepdogs uses exact-coordinate migration. Remove only the obsolete tower-level guard now that canonical In_W_tower migration is accepted. Two roles reproduce the missing Wizard migrant listing before the change and match afterward; middle-tower control matches. Three live C differentials pass. No synthetic score gain claimed. Hosted gates pending. Focused/affected checks: 125 tests pass after correcting the witness assertion for the Valkyrie tower coordinate; 12 timeline tests and lint pass."
     }
   ]
 }

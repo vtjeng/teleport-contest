@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent dog.c:keepdogs/keep_mon_accessible tower-departure witness: wizard1 creates its sleeping Wizard, leave for level 1, then list migrants. Healer and Valkyrie show the exact-coordinate Wizard migrant; wizard2 control has no Wizard. No score gain is claimed.",
+  "segments": [
+    {
+      "seed": 8420126,
+      "datetime": "20261023150000",
+      "nethackrc": "OPTIONS=name:TowerKeeper,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup\n",
+      "moves": "  #wizlevelport\nvalley\n   #wizlevelport\nwizard2\n   #wizlevelport\n1\n   #migratemons\n 0\n   "
+    }
+  ]
+}

@@ -1187,12 +1187,38 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
             'restore the exact original More handler after the test');
     });
 
+test('keepdogs preserves the sleeping tower Wizard as an exact-coordinate migrant', async () => {
+    // dog.c keepdogs()/keep_mon_accessible(): the Wizard remains accessible
+    // even while asleep inside his tower. migrate_to_level preserves its flag.
+    const state = migrationState();
+    state.gm.mydogs = null;
+    state.u.uhave = { amulet: 0 };
+    state.wiz1_level = { ...CURRENT_LEVEL };
+    state.dndest = { nlx: MONSTER_X, nly: MONSTER_Y,
+        nhx: MONSTER_X + 2, nhy: MONSTER_Y + 2 };
+    const monster = newMonster({ data: state.mons[PM_WIZARD_OF_YENDOR],
+        mhp: 12, mhpmax: 12, mcanmove: true });
+    monster.iswiz = true;
+    monster.msleeping = true;
+    state.level.monlist = monster;
+    place_monster(monster, MONSTER_X, MONSTER_Y, state);
+
+    await keepdogs(false, { newsym: () => {}, state });
+
+    assert.equal(state.level.monlist, null);
+    assert.equal(state.gm.mydogs, null);
+    assert.equal(state.gm.migrating_mons, monster);
+    assert.equal(monster.msleeping, true);
+    assert.equal(monster.mstate & MON_MIGRATING, MON_MIGRATING);
+    assert.deepEqual(monster.mtrack[0], { x: MIGR_EXACT_XY, y: 2 });
+    assert.deepEqual(monster.mtrack[1], { x: MONSTER_X, y: MONSTER_Y });
+    assert.equal(monster.mux, CURRENT_LEVEL.dnum);
+    assert.equal(monster.muy, CURRENT_LEVEL.dlevel);
+});
+
 test('keepdogs retains explicit migration gaps for unsupported Wizard states',
     async () => {
         const cases = [
-            ['Wizard Tower level', state => {
-                state.wiz1_level = { ...CURRENT_LEVEL };
-            }],
             ['unsupported disguise', (_state, monster) => {
                 monster.m_ap_type = M_AP_FURNITURE;
             }],
