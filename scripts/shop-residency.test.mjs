@@ -33,7 +33,7 @@ test('shop residency follows the persisted C room index and home-level guard', (
     assert.equal(parent.resident, null);
 });
 
-for (const kind of ['subrooms', 'quiet', 'control']) {
+for (const kind of ['subrooms', 'quiet', 'control', 'subset']) {
     test(`Minetown shop residency ${kind} matches recorded C`, async () => {
         const root = createScoringWorkspace(process.cwd(), []);
         try {

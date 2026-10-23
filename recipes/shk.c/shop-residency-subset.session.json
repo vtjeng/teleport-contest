@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C witness for shk.c set_residency called by dog.c mon_leave/migrate_to_level: migrate Minetown residents including subroom shopkeepers. C decl.c aliases subrooms into rooms[MAXNROFROOMS+1]; JS must resolve its persisted room graph. Ends before the separately unported away-from-home accessibility path. Smaller migration variant selects the first two resident actors, a mimic and one subroom shopkeeper, leaving other residents at home.",
+  "segments": [
+    {
+      "seed": 8420131,
+      "datetime": "20261023190000",
+      "nethackrc": "OPTIONS=name:PriestAway,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup\n",
+      "moves": " #wizlevelport\n?\n w   #migratemons\n -2\n   "
+    }
+  ]
+}

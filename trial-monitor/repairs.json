@@ -5007,7 +5007,8 @@
         "witness": [
           "recipes/shk.c/shop-residency-subrooms.session.json",
           "recipes/shk.c/shop-residency-quiet.session.json",
-          "recipes/shk.c/shop-residency-control.session.json"
+          "recipes/shk.c/shop-residency-control.session.json",
+          "recipes/shk.c/shop-residency-subset.session.json"
         ],
         "test": [
           "scripts/shop-residency.test.mjs",
@@ -5015,8 +5016,87 @@
           "scripts/dog-migrate.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d375194369b9d13db782e8a35ba517ecbb3db7d9",
+          "runs": [
+            {
+              "id": 39886721221,
+              "name": "Checkpoint",
+              "sha": "d375194369b9d13db782e8a35ba517ecbb3db7d9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/shop-residency-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T01:55:28Z",
+              "completedAt": "2026-10-23T02:01:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39886721221"
+            },
+            {
+              "id": 39887335978,
+              "name": "Lint",
+              "sha": "d375194369b9d13db782e8a35ba517ecbb3db7d9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T02:02:04Z",
+              "completedAt": "2026-10-23T02:03:05Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39887335978"
+            },
+            {
+              "id": 39887336074,
+              "name": "Dashboard",
+              "sha": "d375194369b9d13db782e8a35ba517ecbb3db7d9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T02:02:04Z",
+              "completedAt": "2026-10-23T02:04:18Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39887336074"
+            }
+          ]
+        }
+      ],
+      "note": "set_residency used top-level rooms alone despite C subroom aliasing. Reuse existing persisted-room lookup, preserving the home-level guard and zero_out assignment. Minetown resident migration crashes before repair and matches C after; quiet variation and non-migration control match. Public witnesses reach zero_out via mon_leave; supplemental checks cover restoration, stale generation-time subrooms, the foreign-level guard, and ordinary rooms. No synthetic score gain claimed. Hosted gates pending. Validation: three fresh C differentials, 175 focused/affected tests, 12 timeline tests, eslint js/ scripts/, and git diff --check pass. Accepted with exact-SHA Checkpoint, Main Lint and Dashboard success on attempt 1. Full archived fixed44 and synthetic98/2055 comparisons unchanged; check-published-ci recorded the complete cohort using accepted synthetic baseline. Added a stronger live C variation migrating only one subroom shopkeeper (plus one mimic); it passes and is grouped with this repair, not counted separately. Evidence ships in the next ordinary repair."
+    },
+    {
+      "id": "special-monster-accessibility",
+      "kind": "parity-repair",
+      "title": "Keep displaced priests and shopkeepers accessible",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T01:55:55Z",
+          "end": "2026-10-23T02:07:38.379Z",
+          "note": "Observed source reading, witness recording and implementation interval; not measured active-work time. Source/probes overlapped the prerequisite shop-residency CI; code edits began after its publication gates and complete evidence recording."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dog.c",
+          "js/dog.js"
+        ],
+        "witness": [
+          "recipes/dog.c/special-accessibility-away.session.json",
+          "recipes/dog.c/special-accessibility-subset.session.json",
+          "recipes/dog.c/special-accessibility-home-control.session.json"
+        ],
+        "test": [
+          "scripts/special-accessibility.test.mjs",
+          "scripts/dog-migrate.test.mjs",
+          "scripts/tower-keepdogs.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "set_residency used top-level rooms alone despite C subroom aliasing. Reuse existing persisted-room lookup, preserving the home-level guard and zero_out assignment. Minetown resident migration crashes before repair and matches C after; quiet variation and non-migration control match. Public witnesses reach zero_out via mon_leave; supplemental checks cover restoration, stale generation-time subrooms, the foreign-level guard, and ordinary rooms. No synthetic score gain claimed. Hosted gates pending. Validation: three fresh C differentials, 175 focused/affected tests, 12 timeline tests, eslint js/ scripts/, and git diff --check pass."
+      "note": "Extend keepdogs existing stable accessible-monster migration route to the three C mextra home-level owners, preserving exceptional-state checks. C full witness lists one priest and five shopkeepers at exact coordinates; smaller variation lists one shopkeeper. Both are missing before repair with matching RNG; all three live C differentials pass after repair, including home-level control. Supplemental guard branch remains source-pinned, not claimed as publicly witnessed. Existing exceptional Wizard tests retained. 103 focused/affected tests pass. No measured synthetic gain claimed. Hosted gates pending. Twelve timeline tests, lint and diff-check pass."
     }
   ]
 }

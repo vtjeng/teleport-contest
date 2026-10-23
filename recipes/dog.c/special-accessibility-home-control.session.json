@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C dog.c keepdogs witness: Minetown priest/shopkeepers migrate away from home, remain accessible at their foreign level after hero departs. Prerequisite shk.c subroom residency is tested separately.",
+  "segments": [
+    {
+      "seed": 8420131,
+      "datetime": "20261023190000",
+      "nethackrc": "OPTIONS=name:PriestAway,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup\n",
+      "moves": " #wizlevelport\n?\n w   #migratemons\n 0\n   #wizlevelport\n7\n   #wizlevelport\n1\n   #migratemons\n a 0\n   "
+    }
+  ]
+}

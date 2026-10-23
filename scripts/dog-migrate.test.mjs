@@ -827,20 +827,24 @@ test('keepdogs leaves an ordinary monster on the level', async () => {
     assert.deepEqual([monster.mx, monster.my], [MONSTER_X, MONSTER_Y]);
 });
 
-test('keepdogs records the partial migration of an accessible shopkeeper', async () => {
+test('keepdogs keeps an away-from-home shopkeeper accessible at exact coordinates', async () => {
     const state = migrationState();
     state.gm.mydogs = null;
     // dog.c keep_mon_accessible():772-778. The shop is on another level, so
-    // C delegates to dog.c:migrate_to_level(), which remains an explicit gap.
-    const { monster } = onMapMonster(state, PM_SEWER_RAT);
+    // C delegates to dog.c:migrate_to_level() with MIGR_EXACT_XY.
+    const { follower, monster } = onMapMonster(state, PM_SHOPKEEPER);
     monster.isshk = true;
     monster.mextra = { eshk: { shoplevel: { ...UPWARD_DESTINATION } } };
 
     await keepdogs(false, { newsym: () => {}, state });
 
-    assert.equal(state.level.monlist, monster);
-    assert.equal(state.gm.migrating_mons, null);
-    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
+    assert.equal(state.level.monlist, follower);
+    assert.equal(state.gm.migrating_mons, monster);
+    assert.equal(m_at(MONSTER_X, MONSTER_Y, state), null);
+    assert.deepEqual(monster.mtrack[0], { x: MIGR_EXACT_XY, y: 0 });
+    assert.deepEqual(monster.mtrack[1], { x: MONSTER_X, y: MONSTER_Y });
+    assert.equal(monster.mux, CURRENT_LEVEL.dnum);
+    assert.equal(monster.muy, CURRENT_LEVEL.dlevel);
 });
 
 test('keepdogs leaves a shopkeeper standing in her own shop', async () => {
@@ -1260,16 +1264,18 @@ test('keepdogs migrates a vault guard who is away from his vault', async () => {
     // mextra owners is a separate reason to stay reachable.
     const state = migrationState();
     state.gm.mydogs = null;
-    const { monster } = onMapMonster(state, PM_SEWER_RAT);
+    const { follower, monster } = onMapMonster(state, PM_SEWER_RAT);
     monster.isgd = true;
     monster.mextra = { egd: { gdlevel: { ...UPWARD_DESTINATION } } };
 
     game.unported?.delete('dog.c migrate_to_level');
     await keepdogs(false, { newsym: () => {}, state });
 
-    assert.equal(state.gm.migrating_mons, null);
-    assert.equal(state.level.monlist, monster);
-    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
+    assert.equal(state.gm.migrating_mons, monster);
+    assert.equal(state.level.monlist, follower);
+    assert.deepEqual(monster.mtrack[0], { x: MIGR_EXACT_XY, y: 0 });
+    assert.deepEqual(monster.mtrack[1], { x: MONSTER_X, y: MONSTER_Y });
+    assert.equal(game.unported?.has('dog.c migrate_to_level') ?? false, false);
 });
 
 test('keep_mon_accessible matches the pure Wizard and level-home branches', () => {
