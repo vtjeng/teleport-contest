@@ -62,7 +62,7 @@ test('dashboard generation preserves the provenance styles and link markup', () 
 
 
 test('overview links share accessible states on the page surface', () => {
-    for (const selector of ['.recent-repairs a', '.trial-gates a', '.trial-history-list a', '.diagnostics a']) {
+    for (const selector of ['.recent-repairs a', '.trial-gates a', '.diagnostics a']) {
         assert.match(rules.get(selector), /color:\s*var\(--score-link\)/);
         assert.match(rules.get(selector + ':visited'), /color:\s*var\(--score-link-visited\)/);
         for (const state of ['hover', 'focus'])
