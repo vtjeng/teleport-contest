@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent mkmaze.c bound_digging witness. Transfer existing Valley monsters to the next level, then detect them. Ghosts must not phase into stone strictly outside the generated bounds. Counts89/93 fail before,88 is a passing control.",
+  "segments": [
+    {
+      "seed": 8420129,
+      "datetime": "20261023180000",
+      "nethackrc": "OPTIONS=name:PriestAway,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup\n",
+      "moves": " #wizlevelport\nvalley\n   #migratemons\n -88\n   #wizlevelport\n27\n  \u0017blessed potion of monster detection\n   ql   "
+    }
+  ]
+}

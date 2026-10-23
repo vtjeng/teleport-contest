@@ -81,7 +81,7 @@ import {
     create_maze,
     check_ransacked,
     fixup_special,
-    get_level_extends,
+    bound_digging,
     is_solid,
     iswall,
     iswall_or_stone,
@@ -8200,19 +8200,6 @@ export function fill_ordinary_room(croom, bonusItems) {
 // ============================================================
 // Level finalize topology
 // ============================================================
-
-function bound_digging() {
-    const map = game.level;
-    const { xmin, xmax, ymin, ymax } = get_level_extends();
-    for (let x = 0; x < COLNO; x++)
-        for (let y = 0; y < ROWNO; y++) {
-            const loc = map.at(x, y);
-            if (!loc) continue;
-            if (IS_STWALL(loc.typ) && (y <= ymin || y >= ymax || x <= xmin || x >= xmax)) {
-                loc.wall_info = (loc.wall_info || 0) | W_NONDIGGABLE;
-            }
-        }
-}
 
 function level_finalize_topology() {
     bound_digging();

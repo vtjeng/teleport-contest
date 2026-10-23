@@ -50,6 +50,7 @@ import {
     TUWALL,
     WATER,
     W_NONDIGGABLE,
+    W_NONPASSWALL,
     undestroyable_trap,
 } from './const.js';
 import {
@@ -1558,4 +1559,21 @@ export function get_level_extends(state = game) {
     }
     ymax += (nonwall || !state.level.flags.is_maze_lev) ? 2 : 1;
     return { xmin, xmax, ymin, ymax };
+}
+
+// C ref: mkmaze.c bound_digging(). The boundary itself is nondiggable;
+// only stone strictly beyond it also blocks phasing. Earth is unrestricted.
+export function bound_digging(state = game) {
+    if (state.earth_level && on_level(state.u?.uz, state.earth_level)) return;
+    const { xmin, xmax, ymin, ymax } = get_level_extends(state);
+    for (let x = 0; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const location = state.level.at(x, y);
+            if (!IS_STWALL(location.typ)) continue;
+            if (y <= ymin || y >= ymax || x <= xmin || x >= xmax)
+                location.wall_info |= W_NONDIGGABLE;
+            if (y < ymin || y > ymax || x < xmin || x > xmax)
+                location.wall_info |= W_NONPASSWALL;
+        }
+    }
 }

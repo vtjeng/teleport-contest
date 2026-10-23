@@ -5427,8 +5427,94 @@
           "scripts/wintty.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "8cb5ccc9dfce6be379c9f6faecab110c4e7f82ea",
+          "runs": [
+            {
+              "id": 39896644607,
+              "name": "Checkpoint",
+              "sha": "8cb5ccc9dfce6be379c9f6faecab110c4e7f82ea",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/styled-space-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:44:50Z",
+              "completedAt": "2026-10-23T03:50:47Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39896644607"
+            },
+            {
+              "id": 39897245401,
+              "name": "Lint",
+              "sha": "8cb5ccc9dfce6be379c9f6faecab110c4e7f82ea",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:51:43Z",
+              "completedAt": "2026-10-23T03:52:34Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39897245401"
+            },
+            {
+              "id": 39897245407,
+              "name": "Dashboard",
+              "sha": "8cb5ccc9dfce6be379c9f6faecab110c4e7f82ea",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:51:43Z",
+              "completedAt": "2026-10-23T03:53:36Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39897245407"
+            }
+          ]
+        }
+      ],
+      "note": "Canonical map_monst selects detected glyphs when monsym is a blank, not when class index is zero. Canonical tty_print_glyph prints attributed spaces. Preserve both glyph selection and full repaint. Independent blessed and uncursed Valley detection each lose inverse ghost attributes before; all RNG and cursor values match. Inverse-disabled control passes before. All three match after. A different seed and nearby ghost probe pass before, so neither is claimed as failing evidence. Initial invalid !inverse option probe excluded; valid control uses !use_inverse. 322 focused/affected tests pass. Hosted gates pending; no score gain claimed. Carries complete accepted repair112 evidence. Three strengthened recording assertions and all 12 timeline tests pass; lint and diff-check pass. Accepted with all exact-SHA gates successful on attempt1. Full archived 44-session and 98-batch/2055-case comparisons unchanged. Existing checker recorded the complete cohort against24afc95; accepted distinct count113."
+    },
+    {
+      "id": "level-phase-boundary",
+      "kind": "parity-repair",
+      "title": "Enforce the canonical outer stone phasing boundary",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T03:49:24.838Z",
+          "end": "2026-10-23T03:56:17.412Z",
+          "note": "Timestamp begins at saved source attribution, not the earlier investigation start; elapsed interval is not active-work time. C controls and source reading overlapped the preceding frozen candidate gates. Code edits began after its complete publication evidence was recorded."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mkmaze.c",
+          "nethack-c/upstream/src/teleport.c",
+          "nethack-c/upstream/src/hack.c",
+          "js/mkmaze.js",
+          "js/mklev.js"
+        ],
+        "witness": [
+          "recipes/mkmaze.c/phase-boundary-ghost.session.json",
+          "recipes/mkmaze.c/phase-boundary-variant.session.json",
+          "recipes/mkmaze.c/phase-boundary-control.session.json"
+        ],
+        "test": [
+          "scripts/mkmaze-level-bounds.test.mjs",
+          "scripts/phase-boundary.test.mjs",
+          "scripts/mkmaze-span.test.mjs",
+          "scripts/teleport.test.mjs",
+          "scripts/level-arrival.test.mjs",
+          "scripts/level-teleport-arrival.test.mjs",
+          "scripts/forced-arrival.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Canonical map_monst selects detected glyphs when monsym is a blank, not when class index is zero. Canonical tty_print_glyph prints attributed spaces. Preserve both glyph selection and full repaint. Independent blessed and uncursed Valley detection each lose inverse ghost attributes before; all RNG and cursor values match. Inverse-disabled control passes before. All three match after. A different seed and nearby ghost probe pass before, so neither is claimed as failing evidence. Initial invalid !inverse option probe excluded; valid control uses !use_inverse. 322 focused/affected tests pass. Hosted gates pending; no score gain claimed. Carries complete accepted repair112 evidence. Three strengthened recording assertions and all 12 timeline tests pass; lint and diff-check pass."
+      "note": "Move the complete canonical bound_digging owner to mkmaze.js. Preserve nondiggable boundary flags, add non-passwall only strictly beyond extents, and skip Earth. JS allowed ghost308 to arrive at57,1 in outer stone with only W_NONDIGGABLE, shifting subsequent migration placements despite identical early draw labels. 89/93-monster C witnesses fail before and pass after;88 control passes. Original100-monster Valley investigation also now matches all C outputs. Four fresh C comparisons and147 focused/affected tests pass. 97 additional generation tests,12 timeline tests, lint and diff-check pass. Carries complete repair113 receipts. Hosted gates pending; no measured score gain claimed."
     }
   ]
 }
