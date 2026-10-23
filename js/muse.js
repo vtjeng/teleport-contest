@@ -2335,7 +2335,14 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
         break;
     case O.WAN_TELEPORTATION:
         if (hits_you) {
-            await tele(state);
+            // C muse.c mbhitm() calls tele() on the active turn. Retain
+            // the planning input boundary, cloned RNG and display owners;
+            // monster missile callers name their redraw operation newsym.
+            await tele(state, {
+                ...rawEnv,
+                random,
+                redraw: rawEnv.redraw ?? rawEnv.newsym,
+            });
             if (state.gz?.zap_oseen)
                 discover_object(O.WAN_TELEPORTATION, true, true, true, state,
                     discoveryEnv);
@@ -2345,10 +2352,10 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
                 && in_rooms(mtmp.mx, mtmp.my, TEMPLE, state).length > 0) {
                 if (cansee(mtmp.mx, mtmp.my, state))
                     await pline_mon(mtmp,
-                        `${capitalizedMonsterName(mtmp, state)} resists the magic!`,
-                        state);
-            } else if (!(await tele_restrict(mtmp, state)))
-                await rloc(mtmp, RLOC_MSG, { state });
+                        `${capitalizedMonsterName(mtmp, state, rawEnv)} resists the magic!`,
+                        state, rawEnv);
+            } else if (!(await tele_restrict(mtmp, state, rawEnv)))
+                await rloc(mtmp, RLOC_MSG, { ...rawEnv, state, random });
         }
         break;
     case O.WAN_CANCELLATION:

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T16:07:30.166Z",
+  "asOf": "2026-10-23T16:34:27.129Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -7431,7 +7431,7 @@
         {
           "start": "2026-10-23T15:25:59.445Z",
           "end": "2026-10-23T15:25:59.445Z",
-          "note": "Observed source-cap investigation during frozen131; instantaneous observation, not active-work duration."
+          "note": "Observed source-cap investigation during frozen132; instantaneous observation, not active-work duration."
         },
         {
           "start": "2026-10-23T15:40:00.617Z",
@@ -7469,8 +7469,106 @@
           "scripts/display-symbols.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "847bc65441b5a820338028d6a4c1a877bd17db68",
+          "runs": [
+            {
+              "id": 39984221700,
+              "name": "Checkpoint",
+              "sha": "847bc65441b5a820338028d6a4c1a877bd17db68",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vital-status-caps-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T16:08:08Z",
+              "completedAt": "2026-10-23T16:14:25Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39984221700"
+            },
+            {
+              "id": 39985354507,
+              "name": "Lint",
+              "sha": "847bc65441b5a820338028d6a4c1a877bd17db68",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T16:16:05Z",
+              "completedAt": "2026-10-23T16:17:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39985354507"
+            },
+            {
+              "id": 39985354458,
+              "name": "Dashboard",
+              "sha": "847bc65441b5a820338028d6a4c1a877bd17db68",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T16:16:05Z",
+              "completedAt": "2026-10-23T16:20:01Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39985354458"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c1033-1045/1075-1080 stores raw HP/max and energy/max separately from displayed min(raw,9999); percentage uses raw values. Share one pure cap computation across status layout/render/typed fields, preserving negative-current-HP floor, monster-form selection, raw comparisons/percentages and gameplay state. Independent blessed healing/energy potion sequences expose2/3line mismatches at9976/7755. Six freshC recordings now fullymatch: HP19539rng9981screens each and belowcap19518/9975; energy6160/7761 each and belowcap6156/7755; all cursors match,0animations. 38focused/affected tests,12timeline andlint pass. Failed config-only debug options, wizard-kill suicide-prompt and unacknowledged genocide setups retained privately without coverage claims. Complete133gates/98receipt included. Hosted gates pending; no aggregate gain claimed. First candidate2125fc21 Checkpoint39982620390 failed test shard1; every other substantive job passed. Completed job120513548574 log download returned Forbidden and was not retried or bypassed. Local same shard reproduced one stale layout expectation (2481/2482 pass): raw HPMAX999999 must display9999 with two extra alignment spaces. Corrected only that expected line; raw fixture and79-column assertion retained. Correction grouped under this same repair; new full exact-SHA Checkpoint required. All205 display-symbol tests,12timeline and focused lint pass after correction. Accepted as distinct134 after corrected exact-SHA Checkpoint39984221700, MainLint39985354507, Dashboard39985354458 passed. Dashboard watcher401 resolved by one user-authorized same-route retry whose saved success was recovered after environment loss, independently corroborated by authorized parent connector evidence (deploy job120522971558 success16:20:01UTC). No CI rerun for metadata failures. Complete98batch receipt against5be849c8 recorded; fixed44/synthetic2055 comparison unchanged. Fixture correction grouped with this repair."
+    },
+    {
+      "id": "monster-wand-teleport-context",
+      "kind": "parity-repair",
+      "title": "Preserve active turn context for teleport-wand hits on heroes and monsters",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T15:58:05.016Z",
+          "end": "2026-10-23T15:58:05.016Z",
+          "note": "Observed independent deep-creation probe during frozen134; this probe later exposed teleport-wand context loss. Instantaneous observation, not active-work duration."
+        },
+        {
+          "start": "2026-10-23T16:07:21.424Z",
+          "end": "2026-10-23T16:07:21.424Z",
+          "note": "Observed bounded public teleport failure and preceding control qualification; no elapsed duration claimed as effort."
+        },
+        {
+          "start": "2026-10-23T16:34:27.129Z",
+          "end": "2026-10-23T16:34:27.129Z",
+          "note": "Observed complete hero/monster target-family validation after134gates; environment outage and approval wait are not counted as active work."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/muse.c",
+          "nethack-c/upstream/src/teleport.c",
+          "js/muse.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/muse.c/hero-teleport-controlled.session.json",
+          "recipes/muse.c/hero-teleport-monochrome.session.json",
+          "recipes/muse.c/hero-teleport-uncontrolled.session.json",
+          "recipes/muse.c/hero-teleport-before-control.session.json",
+          "recipes/muse.c/hero-teleport-command-control.session.json",
+          "recipes/muse.c/hero-teleport-monster-chain.session.json"
+        ],
+        "test": [
+          "scripts/muse-hero-teleport.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/muse-bhitm-resist.test.mjs",
+          "scripts/teleport.test.mjs",
+          "scripts/teleport-monster-traps.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c1033-1045/1075-1080 stores raw HP/max and energy/max separately from displayed min(raw,9999); percentage uses raw values. Share one pure cap computation across status layout/render/typed fields, preserving negative-current-HP floor, monster-form selection, raw comparisons/percentages and gameplay state. Independent blessed healing/energy potion sequences expose2/3line mismatches at9976/7755. Six freshC recordings now fullymatch: HP19539rng9981screens each and belowcap19518/9975; energy6160/7761 each and belowcap6156/7755; all cursors match,0animations. 38focused/affected tests,12timeline andlint pass. Failed config-only debug options, wizard-kill suicide-prompt and unacknowledged genocide setups retained privately without coverage claims. Complete133gates/98receipt included. Hosted gates pending; no aggregate gain claimed. First candidate2125fc21 Checkpoint39982620390 failed test shard1; every other substantive job passed. Completed job120513548574 log download returned Forbidden and was not retried or bypassed. Local same shard reproduced one stale layout expectation (2481/2482 pass): raw HPMAX999999 must display9999 with two extra alignment spaces. Corrected only that expected line; raw fixture and79-column assertion retained. Correction grouped under this same repair; new full exact-SHA Checkpoint required. All205 display-symbol tests,12timeline and focused lint pass after correction."
+      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320–1440px. Hosted gates pending; no aggregate gain claimed."
     }
   ]
 }
