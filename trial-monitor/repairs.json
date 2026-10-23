@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T09:57:31.307Z",
+  "asOf": "2026-10-23T10:09:47.763Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6816,8 +6816,95 @@
           "scripts/status-hilite-lifecycle.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c0caf9c8dc2c4f9182f5926630b1fb9429fa9edb",
+          "runs": [
+            {
+              "id": 39935683799,
+              "name": "Checkpoint",
+              "sha": "c0caf9c8dc2c4f9182f5926630b1fb9429fa9edb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trapped-status-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T09:58:01Z",
+              "completedAt": "2026-10-23T10:04:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39935683799"
+            },
+            {
+              "id": 39936548476,
+              "name": "Lint",
+              "sha": "c0caf9c8dc2c4f9182f5926630b1fb9429fa9edb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T10:05:05Z",
+              "completedAt": "2026-10-23T10:05:55Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39936548476"
+            },
+            {
+              "id": 39936548464,
+              "name": "Dashboard",
+              "sha": "c0caf9c8dc2c4f9182f5926630b1fb9429fa9edb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T10:05:05Z",
+              "completedAt": "2026-10-23T10:07:43Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39936548464"
+            }
+          ]
+        }
+      ],
+      "note": "C botl.c1154-1163 selects enabled InLava/Teth specifics and generic Trap fallback; table canonical option is lava, not inlava. Add missing tethered/trap entries and coupled pure predicate family with existing state owners. Public burial Teth/fallback/disabled cases each2691rng/98screens/cursors; ordinarypit2683/25; lavafallback/control2905/48. Six freshC recordings fully replay after fix;52 focused/affected tests andlint pass. Initial wrong inventory-selector setup preserved privately, not claimed as tethered coverage. Old inlava implementation predates current repair register. Carries complete126 gates/98batch receipt; hosted gatespending, no aggregate gainclaimed. Accepted after exact-SHA Checkpoint39935683799/MainLint39936548476/Dashboard39936548464 success, first attempts. All44fixed and98synthetic batches compare unchanged; existingchecker recorded complete98cohort againstd9e3aedd. Distinctaccepted127."
+    },
+    {
+      "id": "glowing-hands-status",
+      "kind": "parity-repair",
+      "title": "Render optional glowing hands status from confusion charges",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T09:58:47.462Z",
+          "end": "2026-10-23T10:01:18.055Z",
+          "note": "Observed source and independent publicC qualification during frozen127 CI; no active-work duration inferred. Code edits followed127 gates and complete98receipt."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c",
+          "nethack-c/upstream/src/read.c",
+          "nethack-c/upstream/src/uhitm.c",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/botl.c/glowing-status-glow.session.json",
+          "recipes/botl.c/glowing-status-blessed.session.json",
+          "recipes/botl.c/glowing-status-disabled.session.json",
+          "recipes/botl.c/glowing-status-cursed.session.json"
+        ],
+        "test": [
+          "scripts/glowing-status.test.mjs",
+          "scripts/read-confuse-monster.test.mjs",
+          "scripts/uhitm-hmon.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/startup-status-hilites.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C botl.c1154-1163 selects enabled InLava/Teth specifics and generic Trap fallback; table canonical option is lava, not inlava. Add missing tethered/trap entries and coupled pure predicate family with existing state owners. Public burial Teth/fallback/disabled cases each2691rng/98screens/cursors; ordinarypit2683/25; lavafallback/control2905/48. Six freshC recordings fully replay after fix;52 focused/affected tests andlint pass. Initial wrong inventory-selector setup preserved privately, not claimed as tethered coverage. Old inlava implementation predates current repair register. Carries complete126 gates/98batch receipt; hosted gatespending, no aggregate gainclaimed."
+      "note": "C botl.c1195 uses u.umconf, tableGlow/Glo/Gl rank20 defaultdisabled. Add missing entry and pure predicate while retaining scroll/attack charge and redraw owners. Public uncursed/blessed witnesses formerly missingGlow only at explicitredraw59/58; now each2026rng and59/58screens/cursors match. Disabledoption and cursedsourcebranch controls2026rng with59/57screens/cursors remainpassing. FourfreshC recordings,88focused/affected tests andlint pass. Wrongselector/prompt-only probes preserved privately, not coverageclaims. Carries complete127 gates/98batch receipt. Hosted gatespending; noaggregategainclaimed."
     }
   ]
 }

@@ -4821,6 +4821,8 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Fly', 'Fly', 'Fl'] },
     { option: 'foodpois', rank: 6, enabled: true,
         forms: ['FoodPois', 'Fpois', 'Poi'] },
+    { option: 'glowhands', rank: 20, enabled: false,
+        forms: ['Glow', 'Glo', 'Gl'] },
     { option: 'grab', rank: 2, enabled: true,
         forms: ['Grab', 'Grb', 'Gr'] },
     { option: 'hallucinat', rank: 10, enabled: true,
@@ -4883,6 +4885,8 @@ export function statusConditionActive(option, u) {
     case 'foodpois':
         return _propertyIntrinsic(u, SICK)
             && Boolean((u.usick_type ?? 0) & SICK_VOMITABLE);
+    // botl.c:1195 reads the remaining confuse-monster hand charges.
+    case 'glowhands': return Boolean(u.umconf);
     // botl.c:1164-1188 treats these as one mutually exclusive family.
     // Swallowing precedes sticky polymorph; a disabled Grab falls back to
     // Held even for an eel, when that optional condition is enabled.

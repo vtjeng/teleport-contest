@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Uncursed human scroll changes umconf while !cond_glowhands suppresses the optional status. Public option control.",
+  "segments": [
+    {
+      "seed": 8420190,
+      "datetime": "20261024033000",
+      "nethackrc": "OPTIONS=name:GlowStatus,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips,!cond_glowhands\n",
+      "moves": "  \u0017uncursed scroll of confuse monster\nrf       \u0012.\u001b\n.     \u0012"
+    }
+  ]
+}
