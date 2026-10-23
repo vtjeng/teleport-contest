@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent mkmaze.c forced-arrival witness. Canonical knox arrival region, sleeping grid bugs and a wished pit. Monster cases reach deterministic relocation; west-shifted 30-bug case removes the pit at the first sweep square; one-bug control finds a free square. Full C traces qualify the branch.",
+  "segments": [
+    {
+      "seed": 8420133,
+      "datetime": "20261023200000",
+      "nethackrc": "OPTIONS=name:ArrivalProbe,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizloaddes\nknox.lua\n    #wizlevelport\n2\n   #wizlevelport\n1\n   \u0017pit\n   #wizgenesis\n1 sleeping peaceful grid bug\n                    #wizlevelport\n2\n   #wizlevelport\n1\n   "
+    }
+  ]
+}

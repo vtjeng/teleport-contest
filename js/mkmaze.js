@@ -811,12 +811,9 @@ export async function place_lregion(
 // `oneshot` is TRUE when there is no other square to try: either the region is
 // a single square, or the 200 random tries are spent and the deterministic
 // sweep is running. Only then does C disturb what is already on the square,
-// and both ways it does so are unported. C's goto_level() clears u.ustuck and
-// u.uswallow before u_on_rndspot() calls this function (do.c:1620, 1736-1804),
-// and fixup_special() runs while mklev() is constructing a level before the
-// hero is placed. Thus a monster found here cannot be the current holder, so
-// the m_into_limbo() call stays synchronous under the conditional cleanup
-// contract in mon.c.
+// and only the live pass may disturb what is there. The planning pass checks
+// the same destination with a removable trap omitted from a private view;
+// relocation is a live effect after selection, not another selection draw.
 async function put_lregion_here(
     x, y,
     nlx, nly, nhx, nhy,
@@ -826,6 +823,7 @@ async function put_lregion_here(
     state = game,
     options = {},
 ) {
+    let placementState = state;
     if (bad_location(x, y, nlx, nly, nhx, nhy, state)
         || is_exclusion_zone(rtype, x, y, state)) {
         if (!oneshot) {
@@ -835,13 +833,26 @@ async function put_lregion_here(
            avoid failure due to a misplaced trap. */
         const trap = t_at(x, y, state);
         if (trap && !undestroyable_trap(trap.ttyp)) {
-            // C ref: mkmaze.c:435-439. Clear the trapped flag of any monster
-            // standing in the trap, then remove the trap itself.
-            const mtmpOnTrap = m_at(x, y, state);
-            if (mtmpOnTrap) mtmpOnTrap.mtrapped = false;
-            deltrap(trap, state);
+            if (options.planPositionOnly) {
+                // Only trap membership changes candidate viability. Preserve
+                // the live trap, monster flags and map while admitting pickup
+                // against the square as it will be after live removal.
+                placementState = {
+                    ...state,
+                    level: Object.assign(
+                        Object.create(Object.getPrototypeOf(state.level)),
+                        state.level,
+                        { traps: state.level.traps.filter(t => t !== trap) },
+                    ),
+                };
+            } else {
+                // C ref: mkmaze.c:435-439.
+                const mtmpOnTrap = m_at(x, y, state);
+                if (mtmpOnTrap) mtmpOnTrap.mtrapped = false;
+                deltrap(trap, state);
+            }
         }
-        if (bad_location(x, y, nlx, nly, nhx, nhy, state)
+        if (bad_location(x, y, nlx, nly, nhx, nhy, placementState)
             || is_exclusion_zone(rtype, x, y, state))
             return false;
     }
@@ -853,12 +864,12 @@ async function put_lregion_here(
         const mtmp = m_at(x, y, state);
         if (mtmp) {
             /* move the monster if no choice, or just try again */
-            if (oneshot) {
+            if (!oneshot) return false;
+            if (!options.planPositionOnly) {
                 // mkmaze.c:449-450, rloc() and then mon.c m_into_limbo().
                 if (!await rloc(mtmp, RLOC_NOMSG, { state }))
-                    m_into_limbo(mtmp, state);
+                    await m_into_limbo(mtmp, state);
             }
-            return false;
         }
         if (options.planPositionOnly) {
             if (typeof options.preflightPosition !== 'function') {
@@ -866,7 +877,7 @@ async function put_lregion_here(
                     'planned region placement requires a position preflight',
                 );
             }
-            options.preflightPosition(x, y, state);
+            options.preflightPosition(x, y, placementState);
         } else {
             u_on_newpos(x, y, state, options);
         }

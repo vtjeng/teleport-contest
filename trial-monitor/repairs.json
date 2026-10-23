@@ -5255,9 +5255,94 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39892269434"
             }
           ]
+        },
+        {
+          "sha": "45c4844b7e12a26c6dd6827c7173b47ec77f842d",
+          "runs": [
+            {
+              "id": 39893020047,
+              "name": "Checkpoint",
+              "sha": "45c4844b7e12a26c6dd6827c7173b47ec77f842d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vision-reset-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:04:22Z",
+              "completedAt": "2026-10-23T03:10:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39893020047"
+            },
+            {
+              "id": 39893646001,
+              "name": "Lint",
+              "sha": "45c4844b7e12a26c6dd6827c7173b47ec77f842d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:11:11Z",
+              "completedAt": "2026-10-23T03:12:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39893646001"
+            },
+            {
+              "id": 39893645835,
+              "name": "Dashboard",
+              "sha": "45c4844b7e12a26c6dd6827c7173b47ec77f842d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T03:11:11Z",
+              "completedAt": "2026-10-23T03:13:51Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39893645835"
+            }
+          ]
         }
       ],
-      "note": "C vision_reset clears both visibility buffers and selects the first buffer before rebuilding opacity. The port retained stale sight, producing a spurious soldier appearance and old map cells during canonical knox loading. Normal and message-hidden witnesses fail before and match after; canceled-loader control passes. Search point mutation uses the existing point owner so resetting a level can clear sight without clearing mid-level search views. Alternate states retain separate buffers. Three fresh C differentials and 206 focused/affected tests pass. Hosted gates pending; no score gain claimed. Twelve timeline tests, lint and diff-check pass. Initial hosted Checkpoint failed two test shards while all recordings, fixed scoring and synthetic groups passed. Job-log storage download returned Forbidden; no retry of that denied download. Local affected tests reproduced two fixture defects: mid-level opacity edit used a level reset, and a redraw fixture omitted the initialized hero form. Corrected the fixtures without further gameplay edits; 137 tests in the two affected files pass. The other 519 additional affected tests passed unchanged. New exact-commit hosted Checkpoint required."
+      "note": "C vision_reset clears both visibility buffers and selects the first buffer before rebuilding opacity. The port retained stale sight, producing a spurious soldier appearance and old map cells during canonical knox loading. Normal and message-hidden witnesses fail before and match after; canceled-loader control passes. Search point mutation uses the existing point owner so resetting a level can clear sight without clearing mid-level search views. Alternate states retain separate buffers. Three fresh C differentials and 206 focused/affected tests pass. Hosted gates pending; no score gain claimed. Twelve timeline tests, lint and diff-check pass. Initial hosted Checkpoint failed two test shards while all recordings, fixed scoring and synthetic groups passed. Job-log storage download returned Forbidden; no retry of that denied download. Local affected tests reproduced two fixture defects: mid-level opacity edit used a level reset, and a redraw fixture omitted the initialized hero form. Corrected the fixtures without further gameplay edits; 137 tests in the two affected files pass. The other 519 additional affected tests passed unchanged. New exact-commit hosted Checkpoint required. Corrected candidate accepted with full exact-SHA Checkpoint and Main Lint/Dashboard success. Watcher metadata failure recovered by querying the existing successful run; no rerun. All 44 fixed and 98 synthetic batches/2055 cases compare unchanged. Existing checker recorded the complete cohort against 70b010be230b37b96d96b27f0c7ad4a0c18a1f67. Accepted distinct count 111; fixture correction grouped with this repair."
+    },
+    {
+      "id": "forced-arrival-planning",
+      "kind": "parity-repair",
+      "title": "Keep forced arrival planning free of live effects",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T02:22:53Z",
+          "end": "2026-10-23T03:18:14.526Z",
+          "note": "Observed investigation interval, not measured active work. Initial canonical-loader setup exposed the separately accepted vision reset prerequisite. Crowded-arrival C probes and runtime attribution overlapped its hosted validation; arrival code edits followed its successful publication gates and complete evidence recording."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mkmaze.c",
+          "nethack-c/upstream/src/dungeon.c",
+          "nethack-c/upstream/src/mon.c",
+          "js/mkmaze.js",
+          "js/do.js"
+        ],
+        "witness": [
+          "recipes/mkmaze.c/forced-arrival-monster.session.json",
+          "recipes/mkmaze.c/forced-arrival-monster-variant.session.json",
+          "recipes/mkmaze.c/forced-arrival-trap.session.json",
+          "recipes/mkmaze.c/forced-arrival-control.session.json"
+        ],
+        "test": [
+          "scripts/forced-arrival.test.mjs",
+          "scripts/level-teleport-arrival.test.mjs",
+          "scripts/level-arrival.test.mjs",
+          "scripts/planning-isolation.test.mjs",
+          "scripts/mon-stone-migration.test.mjs",
+          "scripts/teleport.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "The dry arrival pass invoked live rloc and deltrap, altering selection inputs and consuming live RNG before replay. C exhausts 200 coordinate pairs then uses the first viable sweep square, relocating its monster or removing its trap. Plan trap membership through an isolated level view and defer relocation to the live pass. Continue hero placement after forced relocation rather than returning false; await limbo completion. Two monster counts and a separate trap-at-sweep-origin witness fail before and match C after; one-monster control matches. The smaller west-shifted setup leaves an open square and is retained privately as control evidence, not claimed as forced trap removal. Four fresh C differentials and 136 focused/affected tests pass. Frozen live trap/monster checks cover accepted and refused preflights; undestroyable portal remains excluded. Public witnesses exercise successful relocation, not limbo fallback. Hosted gates pending; no measured score gain claimed. Twelve timeline tests, lint and diff-check pass."
     }
   ]
 }
