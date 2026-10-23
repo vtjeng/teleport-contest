@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent dog.c:migrate_to_level Wizard Tower default-predicate witness. Bottom and middle tower levels exercise outside-boundary migrants on a tower level; startup-level migration is the ordinary control. No live inside-boundary coverage is claimed.",
+  "segments": [
+    {
+      "seed": 8411126,
+      "datetime": "20261023150000",
+      "nethackrc": "OPTIONS=name:TowerMigrant,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup\n",
+      "moves": " #wizgenesis\npeaceful kitten\n#migratemons\n -1\n   "
+    }
+  ]
+}

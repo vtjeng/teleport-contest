@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T00:37:04.060379Z",
+  "asOf": "2026-10-23T00:51:49.241264Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4692,8 +4692,85 @@
           "scripts/wizcmds.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "7d9a95a9097822bd46294b5d2292bbe9419ff560",
+          "runs": [
+            {
+              "id": 39879295840,
+              "name": "Checkpoint",
+              "sha": "7d9a95a9097822bd46294b5d2292bbe9419ff560",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/holder-migration-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:38:18Z",
+              "completedAt": "2026-10-23T00:44:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39879295840"
+            },
+            {
+              "id": 39879984941,
+              "name": "Lint",
+              "sha": "7d9a95a9097822bd46294b5d2292bbe9419ff560",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:45:15Z",
+              "completedAt": "2026-10-23T00:46:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39879984941"
+            },
+            {
+              "id": 39879985090,
+              "name": "Dashboard",
+              "sha": "7d9a95a9097822bd46294b5d2292bbe9419ff560",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T00:45:15Z",
+              "completedAt": "2026-10-23T00:47:57Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39879985090"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Four live C replays, 124 focused/affected tests, 12 timeline tests and lint passed. Environment restarted during cohort recording after 98 files copied; verified process gone and own Main lease intact, removed only abandoned checker cache lock and completed documented idempotent recovery. Complete cohort included in this ordinary repair commit."
+    },
+    {
+      "id": "tower-migration",
+      "kind": "parity-repair",
+      "title": "Use canonical Wizard Tower bounds during monster migration",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dog.c",
+          "nethack-c/upstream/src/dungeon.c",
+          "nethack-c/upstream/src/wizcmds.c",
+          "js/dog.js",
+          "js/dungeon.js"
+        ],
+        "witness": [
+          "recipes/dog.c/tower-migration-bottom.session.json",
+          "recipes/dog.c/tower-migration-middle.session.json",
+          "recipes/dog.c/tower-migration-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/tower-migration.test.mjs",
+          "scripts/dog-migrate.test.mjs",
+          "scripts/dungeon.test.mjs",
+          "scripts/wizcmds.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C negative-count migration releases large/giant mimic contact and a fog cloud engulfing the hero; baseline JS refuses those three. Non-sticky small mimic control passes. Remove obsolete holder refusal; existing relmon -> mon_leaving_level awaits unstuck, preserving source cooldown and engulfing redraw ordering. All four full replays and 124 focused/affected tests pass, including active versus absent cooldown. Hosted gates pending; investigation start time not captured."
+      "note": "Live C migration on wizard3 and wizard2 succeeds; baseline JS requires an injected inWizardTower operation. Startup-level control passes. Supply existing canonical In_W_tower default and retain overrides. Public cases cover outside-boundary migrants on tower levels, not tower interior. Supplemental lifecycle tests cover inside/outside flags on all three tower levels, upward-flag composition and override origin coordinates. All three replays and 121 focused/affected tests pass. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

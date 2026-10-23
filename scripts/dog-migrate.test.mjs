@@ -200,6 +200,42 @@ test('ordinary migration clears charges and transfers the live monster', async (
     assert.equal(monster.mlstmv, MIGRATION_TURN);
 });
 
+for (const tower of ['wiz1_level', 'wiz2_level', 'wiz3_level']) {
+    for (const inside of [false, true]) {
+        test(`migration uses canonical ${tower} boundary with inside=${inside}`, async () => {
+            const state = migrationState();
+            state[tower] = { ...CURRENT_LEVEL };
+            state.dndest = inside
+                ? { nlx: MONSTER_X, nly: MONSTER_Y, nhx: MONSTER_X + 2, nhy: MONSTER_Y + 2 }
+                : { nlx: MONSTER_X + 1, nly: MONSTER_Y, nhx: MONSTER_X + 2, nhy: MONSTER_Y + 2 };
+            const { monster } = onMapMonster(state);
+            await migrate_to_level(monster, 1, MIGR_RANDOM, null,
+                { state, newsym: () => {} });
+            assert.equal(monster.mtrack[0].y, inside ? 3 : 1,
+                'tower-origin flag combines with upward migration');
+            assert.deepEqual(monster.mtrack[1], { x: MONSTER_X, y: MONSTER_Y });
+            assert.equal(state.gm.migrating_mons, monster);
+        });
+    }
+}
+
+test('migration retains an injected tower operation with original coordinates', async () => {
+    const state = migrationState();
+    state.wiz1_level = { ...CURRENT_LEVEL };
+    const { monster } = onMapMonster(state);
+    const calls = [];
+    await migrate_to_level(monster, 1, MIGR_RANDOM, null, {
+        state, newsym: () => {},
+        inWizardTower: (x, y, level, owner) => {
+            calls.push([x, y, level]);
+            assert.equal(owner, state);
+            return true;
+        },
+    });
+    assert.deepEqual(calls, [[MONSTER_X, MONSTER_Y, CURRENT_LEVEL]]);
+    assert.equal(monster.mtrack[0].y, 3);
+});
+
 test('migration uses canonical mon_leaving_level boulder landing effects', async () => {
     const state = migrationState();
     state.flags = { acoustics: true };
