@@ -643,6 +643,11 @@ test('pooleffects rereads levitation and flight after leaving water', async () =
     state.flags = { terrainstatus: false };
     state.iflags = { in_lava_effects: 1 };
     state.unported = new Set();
+    // docrt's cleared vision buffer redraws the hero's square, which reads
+    // the initialized form just as a live game does.
+    monst_globals_init(state);
+    state.u.umonnum = state.u.umonster = PM_HUMAN;
+    state.youmonst = { data: state.mons[PM_HUMAN] };
     // A live level has completed vision_reset before pooleffects redraws it.
     vision_reset(state);
 

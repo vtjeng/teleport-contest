@@ -1868,7 +1868,7 @@ test('linedup reads clear_path() for a ray that misses the hero square',
         // the unchanged hero-square answer is what keeps the pair a test of
         // the condition rather than of the terrain.
         state.level.at(state.u.ux + 2, y).typ = STONE;
-        vision_reset(state);
+        block_point(state.u.ux + 2, y, state);
         assert.equal(
             linedup(state.u.ux + 1, y, targetX, y, 0,
                 { state, random: noDraw() }),

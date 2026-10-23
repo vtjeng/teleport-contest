@@ -5232,11 +5232,32 @@
           "scripts/vision.test.mjs",
           "scripts/light-vision.test.mjs",
           "scripts/planning-isolation.test.mjs",
-          "scripts/automatic-search.test.mjs"
+          "scripts/automatic-search.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/mthrowu.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "C vision_reset clears both visibility buffers and selects the first buffer before rebuilding opacity. The port retained stale sight, producing a spurious soldier appearance and old map cells during canonical knox loading. Normal and message-hidden witnesses fail before and match after; canceled-loader control passes. Search point mutation uses the existing point owner so resetting a level can clear sight without clearing mid-level search views. Alternate states retain separate buffers. Three fresh C differentials and 206 focused/affected tests pass. Hosted gates pending; no score gain claimed. Twelve timeline tests, lint and diff-check pass."
+      "candidates": [
+        {
+          "sha": "213ccf9c30644320106042e35bb63414b9eac7fe",
+          "runs": [
+            {
+              "id": 39892269434,
+              "name": "Checkpoint",
+              "sha": "213ccf9c30644320106042e35bb63414b9eac7fe",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vision-reset-20261023",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-23T02:56:07Z",
+              "completedAt": "2026-10-23T03:02:08Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39892269434"
+            }
+          ]
+        }
+      ],
+      "note": "C vision_reset clears both visibility buffers and selects the first buffer before rebuilding opacity. The port retained stale sight, producing a spurious soldier appearance and old map cells during canonical knox loading. Normal and message-hidden witnesses fail before and match after; canceled-loader control passes. Search point mutation uses the existing point owner so resetting a level can clear sight without clearing mid-level search views. Alternate states retain separate buffers. Three fresh C differentials and 206 focused/affected tests pass. Hosted gates pending; no score gain claimed. Twelve timeline tests, lint and diff-check pass. Initial hosted Checkpoint failed two test shards while all recordings, fixed scoring and synthetic groups passed. Job-log storage download returned Forbidden; no retry of that denied download. Local affected tests reproduced two fixture defects: mid-level opacity edit used a level reset, and a redraw fixture omitted the initialized hero form. Corrected the fixtures without further gameplay edits; 137 tests in the two affected files pass. The other 519 additional affected tests passed unchanged. New exact-commit hosted Checkpoint required."
     }
   ]
 }
