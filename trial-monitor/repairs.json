@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T23:09:47.750Z",
+  "asOf": "2026-10-23T23:25:48.895Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9304,8 +9304,93 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d23836ff4c103d0f0f0ce627ee79eb415303fb5b",
+          "committedAt": "2026-10-23T23:12:16Z",
+          "runs": [
+            {
+              "id": 40038336219,
+              "name": "Checkpoint",
+              "sha": "d23836ff4c103d0f0f0ce627ee79eb415303fb5b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-djinni-and-dashboard-freshness-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:12:32Z",
+              "completedAt": "2026-10-23T23:19:14Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40038336219"
+            },
+            {
+              "id": 40039195133,
+              "name": "Lint",
+              "sha": "d23836ff4c103d0f0f0ce627ee79eb415303fb5b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:21:21Z",
+              "completedAt": "2026-10-23T23:22:14Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40039195133"
+            },
+            {
+              "id": 40039195083,
+              "name": "Dashboard",
+              "sha": "d23836ff4c103d0f0f0ce627ee79eb415303fb5b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:21:21Z",
+              "completedAt": "2026-10-23T23:23:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40039195083"
+            }
+          ]
+        }
+      ],
+      "note": "C precheck uses verbalize for both smoky-potion djinni release outcomes; JavaScript substituted youHear, adding a prefix or suppressing speech under deafness/acoustics. Use the existing canonical verbalize helper with identical lines and release RNG/monster semantics. Actual frozen154 baseline first differs screen427 for normal/monochrome, all18573 core RNG calls and428 cursors match. Repaired normal/monochrome strictly match18573 RNG/428 screens/cursors/4 animations; before-trigger control17879/414/3 passes both. Eight initialized-game cases cover both release outcomes x deafness x acoustics, checking exact quoted speech, potion consumption, creation and peaceful/detach outcomes. All8 fail baseline with the expected prefix/suppression and pass fixed.11focused+444affected=455 tests pass; lint/diff checks pass. Independent twelfth-seed control31116/833/170 strictly passes. Full eleventh833 probe30925/833/6 strictly passes; extended2153 retains separately preserved aklys message-throttle mismatch1699 despite84998 matching core RNG. No full extended pass or aggregate gain claimed. Complete accepted154 receipt included. Requested dashboard candidate/freshness correction cherry-picked from4b4f0f1f1 as90ed0ccb4; UI excluded from parity counts. Full hosted gates pending. Integrated dashboard validation passes152 relevant tests,69 post-register reducer/data checks,and Chromium candidate/overview/local-time suites on generated local data with mocked/disabled public APIs. Both themes,320–1440px,keyboard focus,and Los Angeles/Berlin/Kathmandu checks pass without page errors. Light/dark link contrast and stored UTC semantics are preserved. Accepted as distinct repair155 after Checkpoint40038336219 and exact Main Lint40039195133 / Dashboard40039195083 passed. Requested UI freshness correction deployed in the same d23836ff4 and is excluded from parity count. Exact44-fixed /98-batch /2055-case archive comparison against20aaed824 found no regressions, missing evidence, or aggregate changes. The existing checker recorded complete98 evidence, carried in this ordinary repair."
+    },
+    {
+      "id": "aklys-return-throttle",
+      "kind": "parity-repair",
+      "title": "Keep returning-weapon message throttles local to the game",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T23:03:15.077Z",
+          "end": "2026-10-23T23:03:15.077Z",
+          "note": "Instantaneous preserved source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mthrowu.c:return_from_mtoss850-965",
+          "js/mthrowu.js:return_from_mtoss1268",
+          "js/unported_monster_actions.js:planningState"
+        ],
+        "witness": [
+          "recipes/mthrowu.c/aklys-return-throttle-return.session.json",
+          "recipes/mthrowu.c/aklys-return-throttle-monochrome.session.json",
+          "recipes/mthrowu.c/aklys-return-throttle-before-control.session.json"
+        ],
+        "test": [
+          "scripts/aklys-return-throttle.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/monster-ranged-wield-switch.test.mjs",
+          "scripts/weapon.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C precheck uses verbalize for both smoky-potion djinni release outcomes; JavaScript substituted youHear, adding a prefix or suppressing speech under deafness/acoustics. Use the existing canonical verbalize helper with identical lines and release RNG/monster semantics. Actual frozen154 baseline first differs screen427 for normal/monochrome, all18573 core RNG calls and428 cursors match. Repaired normal/monochrome strictly match18573 RNG/428 screens/cursors/4 animations; before-trigger control17879/414/3 passes both. Eight initialized-game cases cover both release outcomes x deafness x acoustics, checking exact quoted speech, potion consumption, creation and peaceful/detach outcomes. All8 fail baseline with the expected prefix/suppression and pass fixed.11focused+444affected=455 tests pass; lint/diff checks pass. Independent twelfth-seed control31116/833/170 strictly passes. Full eleventh833 probe30925/833/6 strictly passes; extended2153 retains separately preserved aklys message-throttle mismatch1699 despite84998 matching core RNG. No full extended pass or aggregate gain claimed. Complete accepted154 receipt included. Requested dashboard candidate/freshness correction cherry-picked from4b4f0f1f1 as90ed0ccb4; UI excluded from parity counts. Full hosted gates pending. Integrated dashboard validation passes152 relevant tests,69 post-register reducer/data checks,and Chromium candidate/overview/local-time suites on generated local data with mocked/disabled public APIs. Both themes,320–1440px,keyboard focus,and Los Angeles/Berlin/Kathmandu checks pass without page errors. Light/dark link contrast and stored UTC semantics are preserved."
+      "note": "C return_from_mtoss emits a successful-return message when its zero-sentinel throttle is unset or more than500 moves old, then remembers the move. JavaScript stored that throttle in a module global shared by speculative and live execution. Output-only trace shows planning move86 with previous0 claims it before live move86 sees previous86, suppressing the aklys return line. Store the primitive on game state so canonical planningState clones and new games own their counters; preserve the sentinel,strict >500 predicate,message text,inventory,flight and RNG behavior. Actual frozen155 baseline d238 fails both normal/monochrome at screen/cursor1699 while all63230 core RNG calls match. Repaired witnesses strictly match63230 RNG/1701 screens/cursors/51 animations; before-trigger control63194/1698/51 passes both. Four native cases cover planning/live isolation,exact500 suppression/501 emission,new-game reset,and zero sentinel,with actual weapon re-equipping and no global core draws.7focused including3C+4native plus495affected=502 tests pass;lint/diff checks pass. Actual extended2153-boundary continuation strictly matches84998 RNG,all2153screens/cursors and55animations. Complete accepted155 receipt included;full hosted gates pending,no aggregate gain claimed."
     }
   ]
 }

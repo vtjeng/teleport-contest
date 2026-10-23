@@ -1263,10 +1263,11 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 // throw of a returning weapon (Aklys / Mjollnir). Handles the return flight
 // animation, the message, re-equipping the weapon, and the case where the
 // return goes wrong (weapon hits thrower or drops).
-let returnDoNotAnnoy = 0;
-
 export async function return_from_mtoss(magr, otmp, tethered_weapon, state = game, random = { rn2, rnd }, rawEnv = {}) {
     const env = { ...rawEnv, state, random };
+    // C uses one process-wide throttle. Each game and speculative clone
+    // must own its value so planning cannot claim the live return message.
+    const returnDoNotAnnoy = state._returnDoNotAnnoy ?? 0;
     const impaired = (magr.mconf || magr.mstun || magr.mblinded);
     let notcaught = false;
     let hits_thrower_flag = false;
@@ -1314,7 +1315,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                         state,
                     );
                 }
-                returnDoNotAnnoy = moves;
+                state._returnDoNotAnnoy = moves;
             }
             if (otmp) {
                 add_to_minv(magr, otmp, env);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public C returning-aklys message witness and control; no score claim",
+  "segments": [
+    {
+      "seed": 8432011,
+      "datetime": "20261109154500",
+      "nethackrc": "OPTIONS=name:EleventhHalluc,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       #wizintrinsic\n8h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.   "
+    }
+  ]
+}
