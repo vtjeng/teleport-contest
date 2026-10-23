@@ -223,11 +223,13 @@ async function placebc_core(state, rawEnv = {}) {
     state.u.bglyph = glyph;
     state.u.cglyph = glyph;
     redraw(state.u.ux, state.u.uy, state);
+    state.bcrestriction = 0;
 }
 
-// C ref: ball.c placebc() (193-209). The restriction mechanism is only used
-// by covet/lift callers outside this span, so a free chain is the live check.
+// C ref: ball.c placebc() (193-209). Ordinary placement cannot interrupt
+// the temporary restriction held while Water bubbles relocate occupants.
 export async function placebc(state = game, rawEnv = {}) {
+    if (!check_restriction(0, state)) return;
     const chain = state.uchain;
     if (chain && chain.where !== OBJ_FREE) {
         note_unported('pline.c impossible');
@@ -277,7 +279,38 @@ function unplacebc_core(state) {
 // C ref: ball.c unplacebc() (212-219). The helper is intentionally a no-op
 // for an already-free chain, which is the state between level save and load.
 export function unplacebc(state = game) {
+    if (state.bcrestriction) {
+        note_unported('pline.c impossible');
+        return;
+    }
     unplacebc_core(state);
+}
+
+// C hack.h enum bcargs and ball.c check_restriction()/covet wrappers.
+export const override_restriction = -1;
+function check_restriction(restriction, state) {
+    return !state.bcrestriction || restriction === override_restriction
+        || state.bcrestriction === restriction;
+}
+
+export function unplacebc_and_covet_placebc(state = game, rawEnv = {}) {
+    if (state.bcrestriction) {
+        note_unported('pline.c impossible');
+        return 0;
+    }
+    const restriction = (rawEnv.random?.rnd ?? rnd)(400);
+    state.bcrestriction = restriction;
+    unplacebc_core(state);
+    return restriction;
+}
+
+export async function lift_covet_and_placebc(pin, state = game, rawEnv = {}) {
+    if (!check_restriction(pin, state)) return;
+    if (state.uchain && state.uchain.where !== OBJ_FREE) {
+        note_unported('pline.c impossible');
+        return;
+    }
+    await placebc_core(state, rawEnv);
 }
 
 // C ref: ball.c ballrelease() (23-39). A carried, unwelded ball leaves the

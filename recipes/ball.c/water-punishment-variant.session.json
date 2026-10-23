@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public C witness for Water movebubbles temporarily excluding punishment objects with the ball.c restriction pin. Earth control covers the punishment scroll turn; later independent rest blocker is not claimed passing.",
+  "segments": [
+    {
+      "seed": 8420161,
+      "datetime": "20261024010000",
+      "nethackrc": "OPTIONS=name:FullPlane,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n>>K               blessed ring of levitation\n     \u0017uncursed scroll of punishment\n     rn          m.          "
+    }
+  ]
+}

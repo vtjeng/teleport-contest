@@ -1,3 +1,4 @@
+import { unplacebc_and_covet_placebc, lift_covet_and_placebc } from './ball.js';
 // mkmaze.js -- NetHack's mkmaze.c level generation and special-level fixups.
 
 import {
@@ -489,8 +490,10 @@ export async function movebubbles(state = game, random = rn2) {
     if (!state.waterlevel_portal) set_wportal(state);
     vision_recalc(2, { state });
     const bounds = airBubbleBounds(state);
+    let bcpin = 0;
 
     if (waterLevel) {
+        if (state.uball) bcpin = unplacebc_and_covet_placebc(state);
         state.hero_bubble = null;
         // C collects using the previous direction, before toggling it for
         // movement below. The first overlapping bubble owns each monster or
@@ -580,6 +583,7 @@ export async function movebubbles(state = game, random = rn2) {
             - (!bubble.dy ? ry : (ry ? 1 : 0));
         await mv_bubble(bubble, dx, dy, false, state, random);
     }
+    if (waterLevel && state.uball) await lift_covet_and_placebc(bcpin, state);
     state.vision_full_recalc = 1;
 }
 

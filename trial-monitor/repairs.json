@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T05:53:08.054Z",
+  "asOf": "2026-10-23T08:09:15.324Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6122,8 +6122,170 @@
           "scripts/storm-upkeep.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "55a238fdb184c98d1c071e477bbbc40dd9e89438",
+          "runs": [
+            {
+              "id": 39908462240,
+              "name": "Checkpoint",
+              "sha": "55a238fdb184c98d1c071e477bbbc40dd9e89438",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/bubble-collection-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T05:55:30Z",
+              "completedAt": "2026-10-23T06:01:36Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39908462240"
+            },
+            {
+              "id": 39909137368,
+              "name": "Lint",
+              "sha": "55a238fdb184c98d1c071e477bbbc40dd9e89438",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T06:02:39Z",
+              "completedAt": "2026-10-23T06:03:31Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39909137368"
+            },
+            {
+              "id": 39909137448,
+              "name": "Dashboard",
+              "sha": "55a238fdb184c98d1c071e477bbbc40dd9e89438",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T06:02:39Z",
+              "completedAt": "2026-10-23T06:05:25Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39909137448"
+            }
+          ]
+        }
+      ],
+      "note": "C movebubbles collects using prior static up, then toggles direction for movement. JS always collected forward, changing which overlapping bubble owned monsters/objects. Traverse collection using prior direction without mutating the list; keep existing movement order. Two public six-rest Water witnesses had late RNG differences despite matching screens; now match6675/7066 RNG and140 screens/cursors each. Air control remains full match. New overlap ownership unit fails before for reverse collection; both directions pass after. Initial eel fixture had invalid dry-destination expectation, corrected to a terrestrial monster. Three fresh C comparisons,108 focused/affected tests pass. Carries accepted119 complete98 receipts. Hosted gates pending; no aggregate score gain claimed. Accepted after exact-SHA Checkpoint39908462240/MainLint39909137368/Dashboard39909137448 success, all first attempts. Watcher status read returned401; independent API reads verified success, no CI reruns or credential changes. Complete44 fixed and98 synthetic batches/2055 cases compare unchanged. Distinct accepted120. Existing checker recorded complete98 cohort against9c23db7b."
+    },
+    {
+      "id": "dashboard-compact-overview",
+      "kind": "dashboard",
+      "title": "Prioritize current validation, complete scores and recent repairs",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "scripts/dashboard.template.html",
+          "scripts/dashboard-time-range.mjs"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/dashboard-data.test.mjs",
+          "scripts/dashboard-links.test.mjs",
+          "scripts/dashboard-time-range.test.mjs",
+          "scripts/dashboard-overview.browser.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "a060ed5062ac8a09ce01190e8ab3bb23ac2ff461",
+          "runs": [
+            {
+              "id": 39920924678,
+              "name": "Checkpoint",
+              "sha": "a060ed5062ac8a09ce01190e8ab3bb23ac2ff461",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/dashboard-compact-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T07:54:28Z",
+              "completedAt": "2026-10-23T08:00:33Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39920924678"
+            },
+            {
+              "id": 39921745592,
+              "name": "Lint",
+              "sha": "a060ed5062ac8a09ce01190e8ab3bb23ac2ff461",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T08:01:34Z",
+              "completedAt": "2026-10-23T08:02:32Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39921745592"
+            },
+            {
+              "id": 39921745582,
+              "name": "Dashboard",
+              "sha": "a060ed5062ac8a09ce01190e8ab3bb23ac2ff461",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T08:01:34Z",
+              "completedAt": "2026-10-23T08:04:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39921745582"
+            }
+          ]
+        }
+      ],
+      "note": "User-requested UI cleanup from stopped dashboard worker commit3ee8b337ce6e01bf48cf9afb787b6e126cf4cd2b, based on9c23db7b. Integrated after accepted120 gates/complete98 receipt. Preserves intervening gameplay/evidence and dark-mode link contrast. Current candidate/CI, complete scores with separate freshness, five recent distinct repairs; historical diagnostics/backlog/provenance collapsed and empty timeline space removed. Worker reported126tests and rendered light/dark320–1440px coverage; integrator verification and hosted gates pending. UI does not increment parity count. Completed by replacement dashboard worker while Standard was paused. Existing exact-SHA Checkpoint39920924678/Lint39921745592/Dashboard39921745582 verified; no reruns. Archived44/98 comparison unchanged; complete98 receipt recorded. Distinct parity remains120. Paused local integration preserved in recovery stash; only evidence restored on current Main."
+    },
+    {
+      "id": "water-punishment-restriction",
+      "kind": "parity-repair",
+      "title": "Exclude punishment objects during Water bubble relocation",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T05:56:32.062Z",
+          "end": "2026-10-23T05:59:22.919Z",
+          "note": "Preserved initial source/C-witness interval, not active-work time. Capacity pauses and replacement dashboard publication followed; implementation resumed only after current Main gates and complete98 receipt. No active-time estimate inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/ball.c",
+          "nethack-c/upstream/src/mkmaze.c",
+          "nethack-c/upstream/src/end.c",
+          "nethack-c/upstream/include/hack.h",
+          "js/ball.js",
+          "js/mkmaze.js",
+          "js/end.js"
+        ],
+        "witness": [
+          "recipes/ball.c/water-punishment.session.json",
+          "recipes/ball.c/water-punishment-variant.session.json",
+          "recipes/ball.c/earth-punishment-control.session.json"
+        ],
+        "test": [
+          "scripts/punished-bubbles.test.mjs",
+          "scripts/ball-restriction.test.mjs",
+          "scripts/end-done-object-cleanup.test.mjs",
+          "scripts/ball-memory.test.mjs",
+          "scripts/ball-fall.test.mjs",
+          "scripts/domove-ball.test.mjs",
+          "scripts/dig-buried-ball.test.mjs",
+          "scripts/end.test.mjs",
+          "scripts/mkmaze-span.test.mjs",
+          "scripts/bubble-collection-order.test.mjs",
+          "scripts/elemental-level-upkeep.test.mjs",
+          "scripts/storm-upkeep.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C movebubbles collects using prior static up, then toggles direction for movement. JS always collected forward, changing which overlapping bubble owned monsters/objects. Traverse collection using prior direction without mutating the list; keep existing movement order. Two public six-rest Water witnesses had late RNG differences despite matching screens; now match6675/7066 RNG and140 screens/cursors each. Air control remains full match. New overlap ownership unit fails before for reverse collection; both directions pass after. Initial eel fixture had invalid dry-destination expectation, corrected to a terrestrial monster. Three fresh C comparisons,108 focused/affected tests pass. Carries accepted119 complete98 receipts. Hosted gates pending; no aggregate score gain claimed."
+      "note": "C movebubbles excludes attached ball/chain using unplacebc_and_covet_placebc and restores them with matching restriction pin. Port whole ball.c restriction helpers, honor ordinary place/unplace guards, clear restriction after placebc_core, and wire Water caller plus end.c override cleanup with awaited completion. Keep static restriction per game. Two independent public punishment-scroll Water witnesses first failed at ball.c229 rnd400 and screen/cursor boundary107; now match4731/5072rng and128screens/cursors each. Earth punishment-turn control matches4986rng/116screens; separate later Earth-rest failure preserved, not claimed passing. Three fresh C comparisons and78 focused/affected tests pass; restriction controls cover wrong/nested pins, ordinary transit, end override and independent-game reset. Carries complete repair120 and completed dashboardUI exact-SHA gates/98-batch receipts; UI excluded from count. Hosted gates pending; no aggregate score gain claimed."
     }
   ]
 }

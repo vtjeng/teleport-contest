@@ -26,7 +26,7 @@ function cleanupState({ ux = 2, uy = 2, dx = 1, dy = 0 } = {}) {
 }
 
 test('done_object_cleanup consumes in-use inventory and settles a free throw',
-    () => {
+    async () => {
         const state = cleanupState();
         const active = newObject({
             // A one-item ordinary inventory stack exercises useupall().
@@ -42,7 +42,7 @@ test('done_object_cleanup consumes in-use inventory and settles a free throw',
         state.invent = active;
         state.thrownobj = thrown;
 
-        done_object_cleanup(state);
+        await done_object_cleanup(state);
 
         assert.equal(active.where, OBJ_DELETED);
         assert.equal(state.invent, null);
@@ -56,7 +56,7 @@ test('done_object_cleanup consumes in-use inventory and settles a free throw',
     });
 
 test('done_object_cleanup falls back to the hero square and clears grouped kicks',
-    () => {
+    async () => {
         const state = cleanupState({ ux: 1, uy: 1, dx: -1, dy: 0 });
         const kicked = newObject({
             // x=0 is outside isok(); C uses u.ux,u.uy as the fallback.
@@ -65,7 +65,7 @@ test('done_object_cleanup falls back to the hero square and clears grouped kicks
         });
         state.gk = { kickedobj: kicked };
 
-        done_object_cleanup(state);
+        await done_object_cleanup(state);
 
         assert.equal(kicked.where, OBJ_FLOOR);
         assert.equal(kicked.ox, 1);
@@ -74,12 +74,12 @@ test('done_object_cleanup falls back to the hero square and clears grouped kicks
         assert.equal(state.gk.kickedobj, null);
     });
 
-test('done_object_cleanup leaves non-free transit objects in place', () => {
+test('done_object_cleanup leaves non-free transit objects in place', async () => {
     const state = cleanupState();
     const floorObject = newObject({ where: OBJ_FLOOR, ox: 2, oy: 2 });
     state.gt = { thrownobj: floorObject };
 
-    done_object_cleanup(state);
+    await done_object_cleanup(state);
 
     assert.equal(state.gt.thrownobj, floorObject);
     assert.equal(floorObject.where, OBJ_FLOOR);

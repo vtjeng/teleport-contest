@@ -1,3 +1,4 @@
+import { lift_covet_and_placebc, override_restriction } from './ball.js';
 // end.js -- the end of the game.
 // C ref: src/end.c.
 //
@@ -1024,7 +1025,7 @@ function finishInUseInventory(state) {
 // C ref: end.c done_object_cleanup() (851-906). The C globals gt.thrownobj
 // and gk.kickedobj are represented by both the grouped state fields used by
 // monster throws and the legacy root fields used by hero throws in this port.
-export function done_object_cleanup(state) {
+export async function done_object_cleanup(state) {
     finishInUseInventory(state);
 
     const ox0 = state.u.ux + state.u.dx;
@@ -1057,9 +1058,7 @@ export function done_object_cleanup(state) {
 
     const uchain = state.uchain;
     if (uchain && uchain.where === OBJ_FREE) {
-        // C's result is discarded. ball.c is not ported, so preserve this
-        // source boundary without raising a refusal or inventing placement.
-        note_unported('ball.c lift_covet_and_placebc');
+        await lift_covet_and_placebc(override_restriction, state);
     }
 
     // The TTY build has no persistent inventory window to destroy; clearing
@@ -1226,7 +1225,7 @@ async function really_done(how, state) {
     // Panic has no browser-side signal cleanup, but C still reaches the
     // finalizer.  Its object cleanup and disclosure are deliberately skipped.
     if (!programState.panicking)
-        done_object_cleanup(state);
+        await done_object_cleanup(state);
     // C clears this even when panic skipped done_object_cleanup().
     if (state.iflags)
         state.iflags.perm_invent = false;
