@@ -181,8 +181,7 @@ try {
   assert.equal((await member.boundingBox()).height, initialRow.height);
   assert.ok((await summary.boundingBox()).x > (await page.locator('#goalTable .integration-group').first().boundingBox()).x + 10,
     'goals are indented beneath their integration');
-  assert.match(await page.locator('#activitySnapshotTime').innerText(), /ago|just now/u);
-  assert.ok((await page.locator('#activitySnapshotTime').getAttribute('title')).length > 0);
+  assert.equal(await page.locator('#activitySnapshotTime, #workerEvidence, #updated').count(), 0);
   assert.equal(await page.locator('.history-view-controls #historyBatchPicker').count(), 1);
   assert.match(await page.locator('.integration-legend').innerText(), /Over 30 min/u);
   assert.equal(await page.locator('#integrationDurationSummary strong').count(), 1);

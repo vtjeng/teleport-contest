@@ -22,6 +22,8 @@ try {
   assert.match(await page.locator('#trialCandidate').innerText(), /[a-f0-9]{12}/);
   assert.equal(await page.locator('#trialGates > span').count(), 3);
   assert.equal(await page.locator('#stats > .stat').count(), 2);
+  assert.equal(await page.getByText('Freshness and evidence', {exact:true}).count(), 0);
+  assert.equal(await page.locator('#activitySnapshotTime, #workerEvidence, #updated').count(), 0);
   assert.match(await page.locator('#stats').innerText(), /98 batches · 2,055 cases/);
   const expected = await page.evaluate(() => singleWorkerSnapshot.tasks.filter(task => task.publishedAt)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt)).slice(0, 5).map(task => task.label));

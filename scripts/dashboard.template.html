@@ -148,7 +148,6 @@ h1 {
   font-size: 13px;
   margin-bottom: 24px;
 }
-.snapshot-status { color:var(--ink-primary); font-size:13px; line-height:1.5; border-left:3px solid var(--ink-muted); padding-left:10px; margin:0 0 16px; overflow-wrap:anywhere; }
 
 /* --- Stat tiles --- */
 .stats {
@@ -1004,10 +1003,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 .trial-gates { display:flex; gap:6px 12px; flex-wrap:wrap; font-size:12px; }
 .trial-gates a { color:var(--integration-blue); }
 .trial-freshness { overflow-wrap:anywhere; border-top:1px solid var(--border); padding-top:10px; color:var(--ink-secondary); font-size:12px; }
-.trial-note,.trial-history { margin-top:9px; color:var(--ink-secondary); font-size:12px; }
-.trial-history summary { cursor:pointer; }
-.trial-history-list { padding-left:18px; margin-top:6px; }
-.trial-history-list a { color:var(--integration-blue); }
+.trial-note { margin-top:9px; color:var(--ink-secondary); font-size:12px; }
 .trial-legacy-note { color:var(--ink-muted); font-size:12px; margin:0 0 16px; }
 @media (max-width:600px) {
   .trial-monitor { padding:12px; }
@@ -1052,11 +1048,11 @@ h1 { font-size:22px; }
 .dashboard-disclosure > .section-toolbar { margin-top:12px; }
 summary { cursor:pointer; }
 summary:focus-visible { outline:2px solid var(--integration-blue); outline-offset:3px; }
-.recent-repairs a,.trial-gates a,.trial-history-list a,.diagnostics a { color:var(--score-link); text-decoration:underline; text-underline-offset:3px; }
-.recent-repairs a:visited,.trial-gates a:visited,.trial-history-list a:visited,.diagnostics a:visited { color:var(--score-link-visited); }
-.recent-repairs a:hover,.trial-gates a:hover,.trial-history-list a:hover,.diagnostics a:hover,
-.recent-repairs a:focus,.trial-gates a:focus,.trial-history-list a:focus,.diagnostics a:focus { color:var(--score-link-hover); }
-.recent-repairs a:focus-visible,.trial-gates a:focus-visible,.trial-history-list a:focus-visible,.diagnostics a:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+.recent-repairs a,.trial-gates a,.diagnostics a { color:var(--score-link); text-decoration:underline; text-underline-offset:3px; }
+.recent-repairs a:visited,.trial-gates a:visited,.diagnostics a:visited { color:var(--score-link-visited); }
+.recent-repairs a:hover,.trial-gates a:hover,.diagnostics a:hover,
+.recent-repairs a:focus,.trial-gates a:focus,.diagnostics a:focus { color:var(--score-link-hover); }
+.recent-repairs a:focus-visible,.trial-gates a:focus-visible,.diagnostics a:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
 @media (max-width:600px) {
   body { padding:14px 12px; }
   .recent-repairs li { grid-template-columns:minmax(0,1fr); gap:2px; }
@@ -1076,12 +1072,6 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
   <div class="trial-gates" id="trialGates"></div>
   <p class="trial-freshness" id="trialFreshness"></p>
   <p class="trial-note" id="trialRefreshStatus" role="status" aria-live="polite"></p>
-  <details class="trial-history"><summary>Freshness and evidence</summary>
-    <span class="updated" id="updated"></span>
-    <p>Candidate and investigation records update in ordinary commits. Refresh checks the register and candidate CI; it does not refresh scores. The page reloads every 30 minutes.</p>
-    <p class="snapshot-status" id="activitySnapshotTime" role="note"></p>
-    <ul class="trial-history-list" id="workerEvidence"></ul>
-  </details>
 </section>
 <section class="section" aria-labelledby="scoreSummaryTitle">
   <h2 class="section-title" id="scoreSummaryTitle">Latest complete scores</h2>
@@ -1297,19 +1287,6 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
         ? task.status.split(' · ')[1] : '';
       item.append(title, time, detail); recent.append(item);
     }
-    const evidence = node('workerEvidence');
-    evidence.replaceChildren();
-    for (const task of singleWorkerSnapshot.tasks) {
-      const item = document.createElement('li');
-      item.append(task.label + ' · ' + task.status + '. ' + task.investigation + '. ' + (task.outcome ?? '')
-        + ' Source: ' + (task.source || 'not recorded') + '.');
-      for (const ref of task.links) {
-        const a = document.createElement('a');
-        a.href = ref.url; a.textContent = ref.label; a.target = '_blank'; a.rel = 'noopener noreferrer';
-        item.append(' · ', a);
-      }
-      evidence.append(item);
-    }
     window.dispatchEvent(new Event('single-worker-status'));
     const candidate = view.currentCandidate;
     const gates = node('trialGates');
@@ -1413,20 +1390,6 @@ function relativeTime(iso) {
   const days = Math.floor(hr / 24);
   return days + 'd ' + (hr % 24) + 'h ago';
 }
-
-// --- Last updated ---
-const activityAsOf = DATA.activity?.capturedAt;
-function workerSnapshotText(iso) {
-  const at = Date.parse(iso);
-  if (!Number.isFinite(at)) return 'Snapshot time unavailable. Recorded worker status cannot establish current activity.';
-  const age = at > Date.now() ? 'clock ahead; age unavailable' : relativeTime(iso) + ' at page load';
-  return 'Snapshot ' + localTime.stamp(at)
-    + ' · ' + age + '. Not live: workers and claims may have changed.';
-}
-document.getElementById('updated').textContent = activityAsOf
-  ? 'Historical worker snapshot · ' + relativeTime(activityAsOf) : 'Historical worker snapshot unavailable';
-document.getElementById('updated').title = (activityAsOf ? 'Activity as of ' + localTime.stamp(activityAsOf) + '. ' : '')
-  + 'Page built ' + localTime.stamp(DATA.summary.generatedAt) + '. Activity updates on publication.';
 
 // Shared range geometry for the score and activity overview charts.
 function drawRangeSelector(ctx, left, right, height, ink) {
@@ -2193,9 +2156,6 @@ window.addEventListener('single-worker-status', () => {
   const segments = [...(activity.stages || (activity.segments || []).filter(row => row.phase !== 'queued')), ...(singleWorkerSnapshot?.stages || [])];
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const snapshotTime = document.getElementById('activitySnapshotTime');
-  snapshotTime.textContent = 'Retired worker history: ' + workerSnapshotText(activity.capturedAt);
-  snapshotTime.title = localTime.stamp(activity.capturedAt);
   const taskById = new Map([...(activity.tasks || []), ...(singleWorkerSnapshot?.tasks || [])].map(task => [task.id, task]));
   const phaseNames = { validation: 'CI validation', investigation: 'Recorded investigation', working: 'Assigned task', queued: 'Delivery pending', pending: 'Delivery pending',
     integrating: 'Integration and checks', acceptance: 'Acceptance',

@@ -253,31 +253,19 @@ test('outdated exploration and shared queue panels are absent without changing h
     assert.match(template, /Work lead backlog/u);
 });
 
-test('worker status prominently dates its snapshot and never presents old idle rows as live', () => {
-    const data = sourceDashboardData();
-    const capturedAt = new Date(Date.now() - 21 * 60000).toISOString();
-    data.activity = {capturedAt, tasks: [], segments: []};
-    data.assignmentQueue = {readySessions: 0, ready: [], blocked: [], claimed: [], tasks: [],
-        workers: [{worker: 'Worker-3', state: 'idle', assignment: null}]};
-    const rendered = renderDashboard(data);
-    const exactTime = createDashboardTime().stamp(capturedAt);
-    for (const id of ['activitySnapshotTime']) {
-        const text = rendered.get(id).textContent;
-        assert.ok(text.includes(exactTime), 'local capture time with offset is visible, not only a tooltip');
-        assert.match(text, /21m ago at page load/u);
-        assert.match(text, /Not live: workers and claims may have changed/u);
-    }
-    for (const capturedAt of [undefined, 'invalid']) {
-        data.activity.capturedAt = capturedAt;
-        const missing = renderDashboard(data);
-        for (const id of ['activitySnapshotTime'])
-            assert.match(missing.get(id).textContent, /Snapshot time unavailable.*cannot establish current activity/u);
-    }
-    data.activity.capturedAt = new Date(Date.now() + 60000).toISOString();
-    assert.match(renderDashboard(data).get('activitySnapshotTime').textContent, /clock ahead; age unavailable/u);
+test('removed freshness disclosure leaves no DOM nodes or rendering dependencies', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
-    for (const id of ['activitySnapshotTime'])
-        assert.ok(template.includes(`class="snapshot-status" id="${id}" role="note"`));
+    assert.doesNotMatch(template, /Freshness and evidence|workerEvidence|activitySnapshotTime|workerSnapshotText|id="updated"/u);
+    const data = sourceDashboardData();
+    for (const capturedAt of [undefined, 'invalid', '2026-10-23T01:30:00Z']) {
+        data.activity = {capturedAt, tasks: [], segments: []};
+        const rendered = renderDashboard(data);
+        for (const id of ['updated', 'activitySnapshotTime', 'workerEvidence'])
+            assert.equal(rendered.has(id), false);
+        assert.match(rendered.get('stats').innerHTML, /Development set/);
+        assert.ok(rendered.get('goalTable').innerHTML, 'startup reaches the final section');
+        assert.equal(rendered.get('displayTimezone').textContent, 'Times in ' + createDashboardTime().zone);
+    }
 });
 
 test('integration series share a chart but keep independent medians and pin the original task', () => {
@@ -1567,7 +1555,7 @@ test('single engineer renders and refreshes in the existing timeline without ena
     assert.equal(timeline.listeners.click.length, 1, 'refresh does not duplicate handlers');
 });
 
-test('full startup renders scores, charts, worker evidence and final history with only real DOM IDs', () => {
+test('full startup renders scores, charts, recent repairs and final history with only real DOM IDs', () => {
     const load = file => JSON.parse(readFileSync(join(PROJECT_ROOT, 'trial-monitor', file), 'utf8'));
     const snapshot = {manifest: load('manifest.json'), register: load('repairs.json'),
         buildSha: 'f'.repeat(40), builtAt: '2026-10-22T03:00:00Z'};
@@ -1579,7 +1567,8 @@ test('full startup renders scores, charts, worker evidence and final history wit
     assert.match(rendered.get('progressReadout').textContent, /44\/44/);
     assert.ok(rendered.get('developmentChart').ops.some(([operation]) => operation === 'stroke'));
     assert.match(rendered.get('timeline').innerHTML, /Standard engineer/);
-    assert.ok(rendered.get('workerEvidence').children.length > 0);
+    for (const id of ['updated', 'activitySnapshotTime', 'workerEvidence'])
+        assert.equal(rendered.has(id), false, 'removed disclosure is not required during startup');
     const accepted = singleWorkerActivity(createTrialMonitor(snapshot).summarize()).tasks
         .filter(task => task.publishedAt).sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
     const rows = rendered.get('recentRepairs').children;

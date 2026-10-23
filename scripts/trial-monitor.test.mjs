@@ -235,7 +235,7 @@ test('dashboard template preserves compact single-column mobile layout', () => {
   assert.match(html, /<meta name="viewport" content="width=device-width, initial-scale=1">/u);
   const mobileCss = html.slice(html.lastIndexOf('@media (max-width:600px)'), html.indexOf('</style>'));
   assert.match(mobileCss, /\.trial-tiles,\.trial-details\s*\{\s*grid-template-columns:minmax\(0,1fr\);/u);
-  for (const id of ['trialHeadline', 'trialBaselineCount', 'workerEvidence',
+  for (const id of ['trialHeadline', 'trialBaselineCount', 'recentRepairs',
     'trialGates', 'trialCandidate', 'trialFreshness', 'trialRefreshStatus']) {
     assert.match(html, new RegExp(`id="${id}"`, 'u'));
   }
