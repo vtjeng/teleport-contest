@@ -8,6 +8,7 @@ import {
     HALLUC,
     HOLE,
     MFAST,
+    MON_DETACH,
     NC_SHOW_MSG,
     NC_VIA_WAND_OR_SPELL,
     OBJ_DELETED,
@@ -91,6 +92,7 @@ import {
     PM_CLAY_GOLEM,
     PM_FIRE_ELEMENTAL,
     PM_FLOATING_EYE,
+    PM_DJINNI,
     PM_GHOST,
     PM_GNOME,
     PM_GOBLIN,
@@ -338,32 +340,26 @@ test('use_misc paralyzes the monster after a milky potion releases a ghost',
     });
     potion.ocarry = monster;
     const draws = [];
-    // The C caller is a runtime makemon(MM_NOMSG) creation. The focused
-    // harness does not yet carry that runtime creation marker, so use the
-    // same explicit-square creation in the initialized level-generation
-    // context while exercising the complete precheck/use_misc branch.
-    const wasMklev = state.in_mklev;
-    state.in_mklev = true;
-    let result;
-    try {
-        result = await use_misc(monster, {
-            kind: 'gain level',
-            object: potion,
-        }, state, {
-            message: async () => {},
-            random: { rn2: (bound) => {
-                draws.push(bound);
-                return 0;
-            } },
-        });
-    } finally {
-        state.in_mklev = wasMklev;
-    }
+    // Keep the production runtime state: precheck must await the complete
+    // occupant lifecycle rather than switching into level generation.
+    assert.equal(state.in_mklev, false);
+    const result = await use_misc(monster, {
+        kind: 'gain level',
+        object: potion,
+    }, state, {
+        message: async () => {},
+        random: { rn2: (bound) => {
+            draws.push(bound);
+            return 0;
+        } },
+    });
     assert.equal(result, 2);
     assert.equal(draws[0], 13);
     assert.equal(monster.mcanmove, false);
     assert.equal(monster.mfrozen, 3);
     assert.equal(state.unported.has('mhitm.c paralyze_monst'), false);
+    assert.equal(state.mvitals[PM_GHOST].born, 1);
+    assert.equal(state.in_mklev, false);
 });
 
 test('ureflects treats an empty suffix as a real C string and stays clone-local',
@@ -2671,4 +2667,47 @@ test('live confused fire-scroll unslime still reaches the naming prompt',
     }
     assert.equal(prompted, true,
         'the live confused-scroll branch still calls trycall()/docall()');
+});
+
+
+test('smoky monster potions await runtime djinni creation before either release outcome', async () => {
+    for (const freed of [false, true]) {
+        const state = await offensiveHero();
+        for (let i = 0; i < 10; ++i) state.nhDisplay.pushKey(32);
+        state.mvitals[PM_DJINNI].born = 0;
+        state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
+        state.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
+        state.obj_descr[state.objects[POT_GAIN_LEVEL].oc_descr_idx].oc_descr = 'smoky';
+        const potion = makeObject(state, POT_GAIN_LEVEL, { where: OBJ_MINVENT });
+        const monster = makeMonster(state, PM_GOBLIN, { mx: 1, my: 1,
+            mhp: 8, mhpmax: 8, mcanmove: true, minvent: potion });
+        potion.ocarry = monster;
+        const draws = [];
+        assert.equal(state.in_mklev, false);
+        const result = await use_misc(monster, { kind: 'gain level', object: potion }, state, {
+            message: async () => {},
+            random: { rn2: (bound) => {
+                draws.push(bound);
+                return bound === 2 && freed ? 1 : 0;
+            } },
+        });
+        assert.equal(result, 2);
+        assert.equal(draws[0], 13);
+        assert.equal(state.mvitals[PM_DJINNI].born, 1,
+            'the occupant completes creation before the release/vanish choice');
+        assert.equal(monster.minvent, null);
+        let djinni;
+        for (let mon = state.level.monlist; mon; mon = mon.nmon)
+            if (mon.mnum === PM_DJINNI) djinni = mon;
+        if (freed) {
+            assert.ok(djinni);
+            assert.equal(djinni.mpeaceful, 1);
+        } else {
+            assert.ok(djinni);
+            assert.equal(djinni.mhp, 0);
+            assert.ok(djinni.mstate & MON_DETACH);
+            assert.equal(state.level.monsters[djinni.mx][djinni.my], null,
+                'the vanished occupant is detached before deferred list cleanup');
+        }
+    }
 });

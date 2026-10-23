@@ -151,7 +151,7 @@ import { add_to_container, carrying, freeinv, hands_obj, obfree, obj_extract_sel
 import { game } from './gstate.js';
 import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
-import { makemon, makemon_runtime } from './makemon_create.js';
+import { makemon_runtime } from './makemon_create.js';
 import { grow_up, rndmonst, set_malign } from './makemon.js';
 import { awaken_soldiers } from './music.js';
 import { m_next2u } from './mhitu.js';
@@ -324,7 +324,7 @@ function activeHeroProperty(state, property) {
 // nothing happened, 1 if the monster died, 2 if it was incapacitated.
 async function precheck(mon, obj, state, env = {}) {
     if (!obj) return 0;
-    const random = env.random ?? { rn2 };
+    const random = { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) };
     const vis = cansee(mon.mx, mon.my, state);
 
     if (obj.oclass === O.POTION_CLASS) {
@@ -337,9 +337,9 @@ async function precheck(mon, obj, state, env = {}) {
                 if (!cc) return 0;
                 await mquaffmsg(mon, obj, state);
                 await m_useup(mon, obj, { state });
-                const mtmp = makemon(
+                const mtmp = await makemon_runtime(
                     state.mons[M.PM_GHOST], cc.x, cc.y, MM_NOMSG,
-                    { state },
+                    { ...env, state, random },
                 );
                 if (!mtmp) {
                     if (vis) {
@@ -377,9 +377,9 @@ async function precheck(mon, obj, state, env = {}) {
             if (!cc) return 0;
             await mquaffmsg(mon, obj, state);
             await m_useup(mon, obj, { state });
-            const mtmp = makemon(
+            const mtmp = await makemon_runtime(
                 state.mons[M.PM_DJINNI], cc.x, cc.y, MM_NOMSG,
-                { state },
+                { ...env, state, random },
             );
             if (!mtmp) {
                 if (vis) {

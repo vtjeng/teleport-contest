@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "mimic-altar-gehennom",
-      "sha": "b2edbb2effb6fb2a04f5e280260d2a6b08cbed6b",
+      "repairId": "helm-summon-furies",
+      "sha": "70b150e374b0454f816bb20e44d474191e7d1818",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T18:02:51.459334+00:00"
+    "asOf": "2026-10-23T18:17:07.464765+00:00"
   }
 }

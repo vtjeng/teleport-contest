@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Astral opposite-alignment helm continuation: summoned Erinys drinks a milky potion, whose occupant uses muse.cprecheck73-96. Source-backed qualification after Fury lifecycle repair.",
+  "segments": [
+    {
+      "seed": 8431003,
+      "datetime": "20261025101500",
+      "nethackrc": "OPTIONS=name:HelmFury,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\nOPTIONS=!color\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     nothing\n    We       m.    n    m.    n    m.    n    m.    n    m.    n    \u0012"
+    }
+  ]
+}

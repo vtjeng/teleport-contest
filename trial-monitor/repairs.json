@@ -7989,8 +7989,92 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "70b150e374b0454f816bb20e44d474191e7d1818",
+          "runs": [
+            {
+              "id": 40001187037,
+              "name": "Lint",
+              "sha": "70b150e374b0454f816bb20e44d474191e7d1818",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T18:10:53Z",
+              "completedAt": "2026-10-23T18:11:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40001187037"
+            },
+            {
+              "id": 40001187187,
+              "name": "Dashboard",
+              "sha": "70b150e374b0454f816bb20e44d474191e7d1818",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T18:10:53Z",
+              "completedAt": "2026-10-23T18:13:41Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40001187187"
+            },
+            {
+              "id": 40000130291,
+              "name": "Checkpoint",
+              "sha": "70b150e374b0454f816bb20e44d474191e7d1818",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/helm-furies-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T18:03:13Z",
+              "completedAt": "2026-10-23T18:09:57Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40000130291"
+            }
+          ]
+        }
+      ],
+      "note": "C attrib.c1347-1348 summons one Fury after the abuse probability gate, or all remaining Furies on Astral; makemon.c2605-2615 completes each creation before checking count/extinction again. JS used unsupported synchronous runtime creation and did not await the caller. Await canonical makemon_runtime and summon_furies; admit only the exact helper species/hero-coordinate/MM_ADJACENTOK|MM_NOWAIT shape, preserving complete placement/inventory/output and canonical occupation interruption. Independent seed8431002 gate5<abuse7 previously stops before placement at2358RNG48screens; repaired ordinary and monochrome match2571RNG166screens/cursors. Astral forced-limit0 witness matches6419RNG89screens/cursors. Before-wear control2352RNG48screens, other-helm2405RNG158screens, probability-miss seed8431001 gate47 control2479RNG166screens all match. FirstAstralprobe stopped at unsolicitedAmuletwish and is private; added observed nothing response. Longer Astral continuation reaches independent milky-potion ghost creation refusal after the original summon now matches; preserved privately, shorter freshly recorded complete summon used in regression. Constructed tests cover1request,0-until-extinction andgenocided species with awaited messages/equipment. Six C replays plus389otherfocused/affected tests pass; lint/diffcheck pass. Complete139receipt included; hosted gates pending; no aggregate gain claimed. Accepted as distinct140 after Checkpoint40000130291, MainLint40001187037 andDashboard40001187187 all succeeded. Complete44fixed/98batch2055case comparison againstb2edbb2e unchanged, no regressions or missing evidence. Complete98publication receipt recorded for nextordinaryrepair."
+    },
+    {
+      "id": "monster-potion-occupant-lifecycle",
+      "kind": "parity-repair",
+      "title": "Finish monster potion occupants before consuming their results",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T18:05:14.188986+00:00",
+          "end": "2026-10-23T18:05:14.188986+00:00",
+          "note": "Instantaneous source observation while140wasfrozen; not elapsed active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/muse.c",
+          "js/muse.js"
+        ],
+        "witness": [
+          "recipes/muse.c/monster-potion-occupant-milky.session.json",
+          "recipes/muse.c/monster-potion-occupant-monochrome.session.json",
+          "recipes/muse.c/monster-potion-occupant-before-control.session.json"
+        ],
+        "test": [
+          "scripts/monster-potion-occupant.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/muse-pure.test.mjs",
+          "scripts/muse-offensive.test.mjs",
+          "scripts/muse-bhitm-resist.test.mjs",
+          "scripts/muse-hero-teleport.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C attrib.c1347-1348 summons one Fury after the abuse probability gate, or all remaining Furies on Astral; makemon.c2605-2615 completes each creation before checking count/extinction again. JS used unsupported synchronous runtime creation and did not await the caller. Await canonical makemon_runtime and summon_furies; admit only the exact helper species/hero-coordinate/MM_ADJACENTOK|MM_NOWAIT shape, preserving complete placement/inventory/output and canonical occupation interruption. Independent seed8431002 gate5<abuse7 previously stops before placement at2358RNG48screens; repaired ordinary and monochrome match2571RNG166screens/cursors. Astral forced-limit0 witness matches6419RNG89screens/cursors. Before-wear control2352RNG48screens, other-helm2405RNG158screens, probability-miss seed8431001 gate47 control2479RNG166screens all match. FirstAstralprobe stopped at unsolicitedAmuletwish and is private; added observed nothing response. Longer Astral continuation reaches independent milky-potion ghost creation refusal after the original summon now matches; preserved privately, shorter freshly recorded complete summon used in regression. Constructed tests cover1request,0-until-extinction andgenocided species with awaited messages/equipment. Six C replays plus389otherfocused/affected tests pass; lint/diffcheck pass. Complete139receipt included; hosted gates pending; no aggregate gain claimed."
+      "note": "C muse.cprecheck73-128 creates a ghost or djinni after a monster drinks the corresponding potion, finishing makemon before checking nullable result and emitting/paralyzing/freeing/peacefulness effects. JS still used bare synchronous creation in both branches. Await makemon_runtime with the complete currentstate/RNG/output context. Independent liveC extendedAstral seed8431003, originally recorded while qualifying Fury creation, reaches the next missing lifecycle after140fix; originalinput andC retained unmodified. Milky andmonochrome previously stop at7062RNG104screens2animations, firstmissing next_ident at7063step105; repaired fullreplays each match9798RNG147screens/cursors5animations. Public pretrigger control7013RNG103screens/cursors2animations passes. Bounded60additionalC probes include9smoky chance rolls, allmisses; no live smoke branch coverage claimed. Runtime constructed tests covermilky paralysis andbothsmoky release/vanish outcomes with RNG context; removed oldin_mklev workaround. New smoky fixture initially assumed immediate list deletion; corrected tosource deferred MON_DETACH/map removal, no production rework.348focused/affected tests including3C replays pass, lint/diffcheck pass. Complete140receipt included; full hosted gates pending. No aggregate gain claimed."
     }
   ]
 }
