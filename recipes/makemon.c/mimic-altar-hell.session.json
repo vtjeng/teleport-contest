@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public wizard level teleport and mimic genesis to probe Gehennom altar disguise alignment. Source makemon.c2540-2544; qualification only.",
+  "segments": [
+    {
+      "seed": 8420704,
+      "datetime": "20261024153000",
+      "nethackrc": "OPTIONS=name:AltarDisguise,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!tips\n",
+      "moves": "  #wizlevelport\nvalley\n   #wizlevelport\nwizard3\n   \u0007200 small mimic\n            \u0012"
+    }
+  ]
+}

@@ -3,6 +3,10 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    AM_CHAOTIC,
+    AM_LAWFUL,
+    AM_NEUTRAL,
+    AM_NONE,
     BURN_OBJECT,
     COLNO,
     COULD_SEE,
@@ -52,6 +56,7 @@ import {
     SDOOR,
     SHOPBASE,
     STONE,
+    TEMPLE,
     TRAPDOOR,
     WEB,
     W_AMUL,
@@ -65,6 +70,7 @@ import {
     W_SADDLE,
     STRAT_WAITMASK,
 } from '../js/const.js';
+import { S_altar } from '../js/symbols.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
@@ -8602,6 +8608,41 @@ test('raven creation respects the wielded bec de corbin in runtime and level gen
             const jackal = await (inMklev ? makemon : makemon_runtime)(state.mons[PM_JACKAL], MON_X,
                 MON_Y, flags, { state, random: random.random, hooks: { newsym() {} } });
             assert.equal(jackal.mpeaceful, false, 'the override applies only to ravens');
+        }
+    }
+});
+
+
+test('mimic altar disguise retains source alignment and Gehennom override draw order', () => {
+    for (const temple of [false, true]) {
+        for (const hellish of [false, true]) {
+            for (const [alignmentDraw, mask] of [[0, AM_CHAOTIC], [1, AM_NEUTRAL], [2, AM_LAWFUL]]) {
+                for (const override of hellish ? [0, 1, 2] : [null]) {
+                    const state = shopLevelState(0, 1);
+                    state.level.rooms[0].rtype = temple ? TEMPLE : OROOM;
+                    state.dungeons[state.u.uz.dnum].flags.hellish = hellish;
+                    const monster = newMonster({ data: state.mons[PM_SMALL_MIMIC], mx: MON_X, my: MON_Y });
+                    const random = scriptedRandom([
+                        ...(temple ? [] : [step('rn2', [17], 1), step('rn2', [8], 4)]),
+                        step('rn2', [3], alignmentDraw),
+                        ...(hellish ? [step('rn2', [3], override)] : []),
+                    ]);
+                    let blocked = false;
+                    set_mimic_sym(monster, { state, random: random.random, hooks: {
+                        doesBlock: () => {
+                            random.assertExhausted();
+                            assert.equal(monster.mextra.mcorpsenm, override ? AM_NONE : mask);
+                            blocked = true;
+                            return false;
+                        },
+                    } });
+                    assert.equal(monster.m_ap_type, M_AP_FURNITURE);
+                    assert.equal(monster.mappearance, S_altar);
+                    assert.equal(monster.mextra.mcorpsenm, override ? AM_NONE : mask);
+                    assert.equal(blocked, true);
+                    random.assertExhausted();
+                }
+            }
         }
     }
 });

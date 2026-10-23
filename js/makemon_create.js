@@ -13,6 +13,7 @@ import {
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
+    AM_NONE,
     BLCORNER,
     BLINDED,
     BOLT_LIM,
@@ -1024,8 +1025,12 @@ export function set_mimic_sym(monster, normalized) {
                && appearance === S_altar) {
         const alignment = random.rn2(3) - 1;
         newmcorpsenm(monster);
-        monster.mextra.mcorpsenm = alignment < 0 ? AM_CHAOTIC
-            : alignment > 0 ? AM_LAWFUL : AM_NEUTRAL;
+        // C makemon.c:2538-2542 chooses alignment before the Gehennom
+        // override, even when the extra draw makes this altar unaligned.
+        monster.mextra.mcorpsenm = In_hell(state.u.uz, state) && random.rn2(3)
+            ? AM_NONE
+            : alignment < 0 ? AM_CHAOTIC
+                : alignment > 0 ? AM_LAWFUL : AM_NEUTRAL;
     } else if (monster.mextra && 'mcorpsenm' in monster.mextra) {
         monster.mextra.mcorpsenm = NON_PM;
     }

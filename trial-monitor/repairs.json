@@ -7818,8 +7818,90 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "cb9bf3ba357c00d87078a8ce635adc5afed42f04",
+          "runs": [
+            {
+              "id": 39996981590,
+              "name": "Lint",
+              "sha": "cb9bf3ba357c00d87078a8ce635adc5afed42f04",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:40:19Z",
+              "completedAt": "2026-10-23T17:41:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39996981590"
+            },
+            {
+              "id": 39996981630,
+              "name": "Dashboard",
+              "sha": "cb9bf3ba357c00d87078a8ce635adc5afed42f04",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:40:19Z",
+              "completedAt": "2026-10-23T17:43:51Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39996981630"
+            },
+            {
+              "id": 39995952159,
+              "name": "Checkpoint",
+              "sha": "cb9bf3ba357c00d87078a8ce635adc5afed42f04",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/raven-weapon-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T17:32:48Z",
+              "completedAt": "2026-10-23T17:39:21Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39995952159"
+            }
+          ]
+        }
+      ],
+      "note": "C makemon.c1403-1404 overrides initial raven hostility when uwep is BEC_DE_CORBIN before set_malign; carrying the weapon or wielding it near another species does not qualify. Source condition now runs in the same creation phase and consumes no RNG. Fresh armed/monochrome witnesses previously diverged at RNG2533 and screen60; after repair each matches3298RNG186screens/cursors. Carried control3096RNG186screens and jackal control2842RNG187screens pass. Initial wrong-slot and shield-blocked probes were noncovering and remain private. Four C replays plus316focused/affected tests pass; new fixture branch/wrapper setup corrected before passing, without production rework. Runtime and level-generation cases cover absent/different/matching weapon, angry flag, species control and unchanged RNG. Complete137receipt included; hosted validation pending. No aggregate gain claimed. Accepted as distinct138 after Checkpoint39995952159, MainLint39996981590 and Dashboard39996981630 all succeeded. Normal exact archive import and44fixed/98batch2055case comparison against6605cad8b passed unchanged; no regressions or missing evidence. Integrated320gameplay and12timeline tests pluslint passed. Complete98receipt held for nextordinaryrepair at requested clean model-switch boundary; no report-only push."
+    },
+    {
+      "id": "mimic-altar-gehennom",
+      "kind": "parity-repair",
+      "title": "Retain Gehennom altar disguise alignment and RNG for mimics",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-23T17:29:48.931635+00:00",
+          "end": "2026-10-23T17:29:48.931635+00:00",
+          "note": "Instantaneous source observation during raven publication; not elapsed active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/makemon.c",
+          "js/makemon_create.js"
+        ],
+        "witness": [
+          "recipes/makemon.c/mimic-altar-hell.session.json",
+          "recipes/makemon.c/mimic-altar-monochrome.session.json",
+          "recipes/makemon.c/mimic-altar-before-control.session.json",
+          "recipes/makemon.c/mimic-altar-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/mimic-altar.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/makemon.test.mjs",
+          "scripts/monster-hiding.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C makemon.c1403-1404 overrides initial raven hostility when uwep is BEC_DE_CORBIN before set_malign; carrying the weapon or wielding it near another species does not qualify. Source condition now runs in the same creation phase and consumes no RNG. Fresh armed/monochrome witnesses previously diverged at RNG2533 and screen60; after repair each matches3298RNG186screens/cursors. Carried control3096RNG186screens and jackal control2842RNG187screens pass. Initial wrong-slot and shield-blocked probes were noncovering and remain private. Four C replays plus316focused/affected tests pass; new fixture branch/wrapper setup corrected before passing, without production rework. Runtime and level-generation cases cover absent/different/matching weapon, angry flag, species control and unchanged RNG. Complete137receipt included; hosted validation pending. No aggregate gain claimed."
+      "note": "C set_mimic_sym2538-2542 draws ordinary alignment then, only Inhell, draws rn2(3) and assigns AM_NONE for either nonzero outcome. JS omitted the override and draw. Independent public wizard3 genesis reaches altar on200th mimic: before fix C328578RNG vsJS328577, first mismatch328575 at2542;82screens/cursors match. Monochrome repeats exact source mismatch.199mimic pretrigger control326922RNG82screens/cursors passes; ordinary-level200mimic control32168RNG33screens/cursors reaches one altar and no Hell draw, passes. Earlier lower-density/other-level probes were noncovering and remain private. Four fresh C replays and331other focused/affected tests pass after fix, with ordered constructed cases covering all alignment and override outcomes through random-furniture and temple paths. Lint/diffcheck pass. Complete138receipt restored from preserved stash and included; no standalone report publication or aggregate gain claimed. Hosted validation pending."
     }
   ]
 }

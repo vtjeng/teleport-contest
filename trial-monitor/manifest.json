@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "mimic-object-lifecycle",
-      "sha": "6605cad8b1b97688a74e976f0fbffb3e65ce1589",
+      "repairId": "raven-wielded-polearm",
+      "sha": "cb9bf3ba357c00d87078a8ce635adc5afed42f04",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T17:32:12.669043+00:00"
+    "asOf": "2026-10-23T17:45:05.888827+00:00"
   }
 }
