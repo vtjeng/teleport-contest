@@ -7997,8 +7997,10 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
                     state.moves = 1000;
                     state.u.uhpmax = 999999;
                 },
-                expected: 'Dlvl:1 $:50 HP:16(999999) Pw:4(6) AC:8 Xp:1/42'
-                    + ' T:1000 Spear Shield Stairs 5.0.0',
+                // botl.c caps HPMAX at 9999; tty keeps the version aligned
+                // by padding the empty capacity field with the saved columns.
+                expected: 'Dlvl:1 $:50 HP:16(9999) Pw:4(6) AC:8 Xp:1/42'
+                    + ' T:1000 Spear Shield Stairs   5.0.0',
             },
         ];
 

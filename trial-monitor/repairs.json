@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T15:56:21.262Z",
+  "asOf": "2026-10-23T16:07:30.166Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -7465,11 +7465,12 @@
           "scripts/startup-status-hilites.test.mjs",
           "scripts/status-field-data.test.mjs",
           "scripts/status-hilite-menu.test.mjs",
-          "scripts/status-hilite-lifecycle.test.mjs"
+          "scripts/status-hilite-lifecycle.test.mjs",
+          "scripts/display-symbols.test.mjs"
         ]
       },
       "candidates": [],
-      "note": "C botl.c1033-1045/1075-1080 stores raw HP/max and energy/max separately from displayed min(raw,9999); percentage uses raw values. Share one pure cap computation across status layout/render/typed fields, preserving negative-current-HP floor, monster-form selection, raw comparisons/percentages and gameplay state. Independent blessed healing/energy potion sequences expose2/3line mismatches at9976/7755. Six freshC recordings now fullymatch: HP19539rng9981screens each and belowcap19518/9975; energy6160/7761 each and belowcap6156/7755; all cursors match,0animations. 38focused/affected tests,12timeline andlint pass. Failed config-only debug options, wizard-kill suicide-prompt and unacknowledged genocide setups retained privately without coverage claims. Complete133gates/98receipt included. Hosted gates pending; no aggregate gain claimed."
+      "note": "C botl.c1033-1045/1075-1080 stores raw HP/max and energy/max separately from displayed min(raw,9999); percentage uses raw values. Share one pure cap computation across status layout/render/typed fields, preserving negative-current-HP floor, monster-form selection, raw comparisons/percentages and gameplay state. Independent blessed healing/energy potion sequences expose2/3line mismatches at9976/7755. Six freshC recordings now fullymatch: HP19539rng9981screens each and belowcap19518/9975; energy6160/7761 each and belowcap6156/7755; all cursors match,0animations. 38focused/affected tests,12timeline andlint pass. Failed config-only debug options, wizard-kill suicide-prompt and unacknowledged genocide setups retained privately without coverage claims. Complete133gates/98receipt included. Hosted gates pending; no aggregate gain claimed. First candidate2125fc21 Checkpoint39982620390 failed test shard1; every other substantive job passed. Completed job120513548574 log download returned Forbidden and was not retried or bypassed. Local same shard reproduced one stale layout expectation (2481/2482 pass): raw HPMAX999999 must display9999 with two extra alignment spaces. Corrected only that expected line; raw fixture and79-column assertion retained. Correction grouped under this same repair; new full exact-SHA Checkpoint required. All205 display-symbol tests,12timeline and focused lint pass after correction."
     }
   ]
 }
