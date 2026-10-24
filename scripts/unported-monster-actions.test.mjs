@@ -225,6 +225,7 @@ import {
 import {
     clear_path,
     recalc_block_point,
+    vision_reset,
     vision_recalc,
 } from '../js/vision.js';
 import { start_timer } from '../js/timeout.js';
@@ -1811,9 +1812,11 @@ test('a planned ranged announcement discards a fog-region leave', async () => {
         ...game.mons[PM_GNOME],
         pmidx: PM_FOG_CLOUD,
     };
-    const dagger = monsterObject(DAGGER);
+    // The real object union keeps ocarry and v aliased for clone remapping.
+    const dagger = newObject(monsterObject(DAGGER));
     dagger.owornmask = W_WEP;
     target.monster.minvent = dagger;
+    dagger.ocarry = target.monster;
     target.monster.mw = dagger;
     target.monster.weapon_check = NEED_WEAPON;
     // The sentinel proves that monshoot() writes only the planning clone's
@@ -3070,6 +3073,8 @@ test('simple movement admits inert and trapped doorway masks', async () => {
 // writer of a doormask does.
 async function prepareClosedDoorArrival() {
     const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+    // Initialize the bulk-edited fixture map before source point updates.
+    vision_reset(game);
     const location = game.level.at(target.destinationX, target.heroY);
     location.typ = DOOR;
     location.flags = D_CLOSED;
@@ -3161,6 +3166,8 @@ for (const mask of [D_CLOSED, D_LOCKED]) {
 
 async function prepareUnlockingArrival(pmidx, carriesKey) {
     const target = await prepareSelectedAction({ pmidx });
+    // Initialize the bulk-edited fixture map before source point updates.
+    vision_reset(game);
     if (carriesKey) {
         target.monster.minvent = monsterObject(SKELETON_KEY);
         target.monster.minvent.ocarry = target.monster;
@@ -3257,6 +3264,8 @@ test('planned vampire door form change writes nothing to frozen live state', asy
 
 test('giant locked-door planning preserves live terrain and vision before smashing', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_HILL_GIANT });
+    // Initialize the bulk-edited fixture map before source point updates.
+    vision_reset(game);
     const location = game.level.at(target.destinationX, target.heroY);
     location.typ = DOOR;
     location.flags = location.doormask = D_LOCKED;

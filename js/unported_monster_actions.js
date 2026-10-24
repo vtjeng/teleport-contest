@@ -191,6 +191,8 @@ import {
     does_block,
     makeVisionBuffers,
     recalc_block_point,
+    restoreTransparencyIndex,
+    snapshotTransparencyIndex,
     unblock_point,
     vision_recalc,
 } from './vision.js';
@@ -863,21 +865,17 @@ function opensClosedDoor(monster, location, doorMask) {
 }
 
 // UnblockDoor (monmove.c:1526-1536) writes the doormask and then rebuilds the
-// vision system twice: recalc_block_point() rebuilds the compact transparency
+// vision system twice: recalc_block_point() updates the compact transparency
 // index, and vision_recalc(0) rebuilds what the hero sees. Both write state
 // the cloned scan shares with the live game, and the second also paints and
 // ORs seenv into every square that has come into view. This gives the cloned
 // scan what it needs to run both, and runs before the first door it opens.
 //
-// The two rebuilds are isolated differently, because vision.c holds them
-// differently. The COULD_SEE buffers and the level are per-state, so the clone
-// takes its own; the terrain grid is copied whole, since vision_recalc() marks
-// squares all over the map rather than only the door. The transparency index
-// is one set of module buffers with no per-state form, so the clone borrows
-// it: it rebuilds it from the planned map, and preflightSimpleMonsterActions()
-// rebuilds it from the live map before returning. Nothing else reads it in
-// between, and either rebuild derives the whole index from the map it is given,
-// so the live game gets back exactly the index it had.
+// The COULD_SEE buffers and terrain are per-state. The transparency index is
+// module-owned: the clone borrows it, saving its exact contents before the
+// first mutation and restoring them in either preflight finally block. An
+// explicit opening can differ from does_block(), so map reconstruction would
+// not restore the borrowed index.
 export function isolatePlannedVision(state) {
     if (state._visionBuffers) return;
     if (!state._plannedMapMemory) {
@@ -896,9 +894,9 @@ export function isolatePlannedVision(state) {
 // before it rebuilds the borrowed transparency index.
 export function admitPlannedVisionChange(x, y, state) {
     isolatePlannedVision(state);
-    // block_point() rebuilds the complete module-wide transparency index, so
-    // one affected coordinate is sufficient to rebuild it from the live map
-    // when planning finishes, even when the clone makes several changes.
+    // Preserve all point overrides and row pointers once, before any planned
+    // mutation. Several doors, mimics, or regions can change during one plan.
+    state._plannedTransparencyIndex ??= snapshotTransparencyIndex();
     state._plannedVisionChange ??= { x, y };
 }
 
@@ -1982,23 +1980,10 @@ export async function preflightSimpleMonsterActions(
             }
         }
     } finally {
-        // A planned door opening or blocking mimic disguise rebuilt
-        // js/vision.js's shared transparency index from the planned map.
-        // Deriving it again from the live map restores it, whether the plan
-        // finished or refused partway through.
-        //
-        // recalc_block_point() is not side-effect-free on the live state:
-        // rebuildVisionPoint() sets vision_full_recalc whenever the change
-        // touches the hero's current vision, which is the normal case for a
-        // door in a lit room. Leaving that set would make the live scan run a
-        // vision_recalc(0) C never performs, so the flag is saved and written
-        // back — the restore has to restore everything it touches, not only
-        // the index it came for.
+        // Restore the exact borrowed index, including forced openings, on
+        // successful plans and early refusals. This leaves live flags alone.
         if (planned._plannedVisionChange) {
-            const { x, y } = planned._plannedVisionChange;
-            const fullRecalcBefore = state.vision_full_recalc;
-            recalc_block_point(x, y, state);
-            state.vision_full_recalc = fullRecalcBefore;
+            restoreTransparencyIndex(planned._plannedTransparencyIndex);
         }
     }
     return {
@@ -2041,10 +2026,7 @@ export async function preflightElapsedTurnTail(state, advanceTail) {
         };
     } finally {
         if (planned._plannedVisionChange) {
-            const { x, y } = planned._plannedVisionChange;
-            const fullRecalcBefore = state.vision_full_recalc;
-            recalc_block_point(x, y, state);
-            state.vision_full_recalc = fullRecalcBefore;
+            restoreTransparencyIndex(planned._plannedTransparencyIndex);
         }
     }
 }

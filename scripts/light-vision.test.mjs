@@ -540,10 +540,10 @@ test('vision_recalc against another state leaves the live view alone', () => {
     };
 
     let painted = 0;
-    recalc_block_point(0, 0, planned);
+    recalc_block_point(state.u.ux + 1, state.u.uy, planned);
     for (let round = 0; round < 2; ++round)
         vision_recalc(0, { state: planned, redraw: () => { painted += 1; } });
-    recalc_block_point(0, 0, state);
+    recalc_block_point(state.u.ux + 1, state.u.uy, state);
 
     assert.ok(painted > 0);
     assert.equal(state.viz_array, liveArray);

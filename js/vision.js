@@ -211,70 +211,62 @@ export function does_block(x, y, _location = null, state = game) {
     return blocksVisionAt(x, y, state);
 }
 
-// The compact transparency index below (viz_clear and the left/right pointers)
-// is a pure function of the map, so it is derived rather than owned: rebuilding
-// it from a different state and rebuilding it again from the live one restores
-// exactly what was there. js/unported_monster_actions.js relies on that to let
-// its cloned monster scan see a door it opened.
-function rebuildVisionPoint(x, y, state) {
-    const affectedCurrentVision = Boolean(state.viz_array?.[y]?.[x]);
-    rebuildTransparencyIndex(state);
-    if (affectedCurrentVision) state.vision_full_recalc = 1;
+// C vision.c block_point/unblock_point explicitly change one obstruction.
+// Rebuilding from does_block would erase forced openings such as Water bubbles.
+function updateVisionPoint(x, y, state, blocked) {
+    viz_clear[y][x] = blocked ? 0 : 1;
+    rebuildTransparencyRow(y);
+    if (state.viz_array?.[y]?.[x]) state.vision_full_recalc = 1;
 }
 
-// C refs: vision.c block_point(), unblock_point(), recalc_block_point().
-// The JS owner rebuilds the compact transparency index as a unit; preserving
-// the prior display bounds gives the same subsequent vision_recalc() contract.
 export function block_point(x, y, state = game) {
-    rebuildVisionPoint(x, y, state);
+    updateVisionPoint(x, y, state, true);
 }
 
 export function unblock_point(x, y, state = game) {
-    rebuildVisionPoint(x, y, state);
+    updateVisionPoint(x, y, state, false);
 }
 
 export function recalc_block_point(x, y, state = game) {
-    rebuildVisionPoint(x, y, state);
+    updateVisionPoint(x, y, state, blocksVisionAt(x, y, state));
 }
 
-// C ref: vision_reset() — rebuild viz_clear and left/right ptrs
-function rebuildTransparencyIndex(state) {
-    const level = state.level;
-    if (!level) return;
-
-    for (let y = 0; y < ROWNO; y++) {
-        viz_clear[y].fill(0);
-        let dig_left = 0;
-        let block = true;
-        for (let x = 1; x < COLNO; x++) {
-            const cur_block = blocksVisionAt(x, y, state);
-            if (block !== cur_block) {
-                if (block) {
-                    for (let i = dig_left; i < x; i++) {
-                        left_ptrs[y][i] = dig_left;
-                        right_ptrs[y][i] = x - 1;
-                    }
-                } else {
-                    let i = dig_left;
-                    if (dig_left) dig_left--;
-                    for (; i < x; i++) {
-                        left_ptrs[y][i] = dig_left;
-                        right_ptrs[y][i] = x;
-                        viz_clear[y][i] = 1;
-                    }
-                }
-                dig_left = x;
-                block = !block;
-            }
+// C dig_point/fill_point maintain these run endpoints incrementally. A row
+// rebuild has the same endpoints and preserves every other explicit point.
+function rebuildTransparencyRow(y) {
+    for (let start = 0; start < COLNO;) {
+        const clear = viz_clear[y][start];
+        let end = start;
+        while (end + 1 < COLNO && viz_clear[y][end + 1] === clear) end++;
+        const left = clear ? Math.max(0, start - 1) : start;
+        const right = clear ? Math.min(COLNO - 1, end + 1) : end;
+        for (let x = start; x <= end; x++) {
+            left_ptrs[y][x] = left;
+            right_ptrs[y][x] = right;
         }
-        let i = dig_left;
-        if (!block && dig_left) dig_left--;
-        for (; i < COLNO; i++) {
-            left_ptrs[y][i] = dig_left;
-            right_ptrs[y][i] = COLNO - 1;
-            viz_clear[y][i] = block ? 0 : 1;
-        }
+        start = end + 1;
     }
+}
+
+// Only vision_reset derives all obstructions from the map.
+function rebuildTransparencyIndex(state) {
+    if (!state.level) return;
+    for (let y = 0; y < ROWNO; y++) {
+        viz_clear[y][0] = 0;
+        for (let x = 1; x < COLNO; x++)
+            viz_clear[y][x] = blocksVisionAt(x, y, state) ? 0 : 1;
+        rebuildTransparencyRow(y);
+    }
+}
+
+// A planning pass borrows the module index. Preserve its exact contents,
+// including source-owned openings which differ from does_block().
+export function snapshotTransparencyIndex() {
+    return transparencyIndexViews().map(row => row.slice());
+}
+
+export function restoreTransparencyIndex(snapshot) {
+    transparencyIndexViews().forEach((row, index) => row.set(snapshot[index]));
 }
 
 // C vision_reset publishes readiness only after rebuilding its level index.
