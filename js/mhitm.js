@@ -1405,8 +1405,10 @@ async function mswingsm(magr, mdef, otemp, env) {
         ...env,
         canSpotMonster: env.canSpotMonster ?? canspotmon,
     };
+    // C Monnam uses canonical sensing even when the attack's physical-sight
+    // hook cannot see the attacker. Keep only its active display RNG owner.
     await message(
-        `${Monnam(magr, state, env)} `
+        `${Monnam(magr, state, { displayRandom: env.displayRandom })} `
             + `${mswings_verb(otemp, bash, { ...env, state, random })} `
             + `${otemp.quan > 1 ? 'one of ' : ''}${mhis(magr, pronounEnv)} `
             + `${xnameFresh(otemp, state)} at ${mon_nam(mdef, state, pronounEnv)}.`,
