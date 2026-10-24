@@ -829,8 +829,10 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
     };
     const namingEnv = {
         ...effectEnv,
+        // Names and pronouns include sensed monsters. The interaction
+        // gate below still uses physical sight through canseemon().
         canSpotMonster: (monster, currentState) =>
-            canseemon(monster, currentState),
+            canspotmon(monster, currentState),
     };
     const pline = (text) => message(text, state);
     const plineMon = (text) => message(
