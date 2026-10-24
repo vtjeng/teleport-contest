@@ -5237,7 +5237,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
             }
         }
     }
-    newsym(x, y, state);
+    if (state === game && !env.planning) newsym(x, y);
     return true;
 }
 
