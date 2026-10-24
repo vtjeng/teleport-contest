@@ -6904,7 +6904,7 @@ export async function mhitm_ad_deth(
             return;
         }
 
-        await message('You feel your life force draining away...', state, env);
+        await youFeel('your life force draining away...', state, env);
         mhm.permdmg = 1;
         return;
     }
