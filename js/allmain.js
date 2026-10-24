@@ -666,6 +666,16 @@ function regionEffectEnv(state, random, { planning = false } = {}) {
         state,
         random,
         planning,
+        // Region callbacks name coughing monsters even on a silent dry run.
+        // Own those cosmetic draws on the same cloned level as their effects.
+        displayRandom: planning ? (bound) => {
+            if (!state.displayCtx) {
+                throw new TypeError(
+                    'planned region naming requires initialized display RNG',
+                );
+            }
+            return createCoreRandom(state.displayCtx, state).rn2(bound);
+        } : undefined,
         blockPoint: (x, y) => {
             if (planning) admitPlannedVisionChange(x, y, state);
             return block_point(x, y, state);
