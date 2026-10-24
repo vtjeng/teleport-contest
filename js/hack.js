@@ -5456,6 +5456,14 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
             return false;
         }
         if (is_lava(u.ux, u.uy, state)) {
+            // Lava effects own tactile display, worn-item destruction, death
+            // choices and possible relocation. Replay that input-capable
+            // source call live, then replan from its resulting state.
+            if (rawEnv.planning) {
+                if (typeof rawEnv.requestPlanningInput !== 'function')
+                    throw new TypeError('planned lava entry requires a replay boundary');
+                rawEnv.requestPlanningInput('trap.c lava_effects');
+            }
             if (await lava_effects(state)) return true;
         } else {
             const isWaterWall = is_waterwall(u.ux, u.uy, state);

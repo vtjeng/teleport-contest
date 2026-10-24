@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T17:18:56.528239+00:00",
+  "asOf": "2026-10-24T17:38:45.699054+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -12926,8 +12926,90 @@
           "scripts/quantum-container-owner.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "12e58c2428c4a15b5bdfabd3fdc96fe550a1a6c1",
+          "committedAt": "2026-10-24T17:20:33Z",
+          "runs": [
+            {
+              "id": 40115695622,
+              "name": "Checkpoint",
+              "sha": "12e58c2428c4a15b5bdfabd3fdc96fe550a1a6c1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/quantum-container-owner-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T17:20:47Z",
+              "completedAt": "2026-10-24T17:29:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40115695622"
+            },
+            {
+              "id": 40116518613,
+              "name": "Lint",
+              "sha": "12e58c2428c4a15b5bdfabd3fdc96fe550a1a6c1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T17:31:34Z",
+              "completedAt": "2026-10-24T17:32:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40116518613"
+            },
+            {
+              "id": 40116518632,
+              "name": "Dashboard",
+              "sha": "12e58c2428c4a15b5bdfabd3fdc96fe550a1a6c1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T17:31:34Z",
+              "completedAt": "2026-10-24T17:33:43Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40116518632"
+            }
+          ]
+        }
+      ],
+      "note": "Provisional independent186 only after all publication gates; accepted count185. Onlyadd_to_container(box,catcorpse,objectGenerationEnv(normalized)); preserve state/random/providedhooks, objectconstructor/timer/species/weight/attach ordering. No algorithms/defaultAPI/RNGchanges. Callmissingowner6603971e3f August25 beforeexperiment. Noearlierquantumrepairregisterentry. New gnomeCaveman/cat8432098/date20270222100000. ActualCstartupTroglodyte/Neutral; fiveintrinsicselectionpublicmenu. Firstavailable15322core327screens/cursors allsame thenfailclosed atinput328/Ccore15323 RN250aftercontainer insertion. UnsupportedObjectOperationError objectNoLongerHeld otyp265; m_initinv->makemon_runtime->use_defensive->m_move. LIVEglobalmoves17,inMklevfalse,planningundefined,ownerundefined,quantum658/type210[40,11]HP37/max37,tame0/chamNONPM. Box214FREE/spe1/empty, corpse265FREE/HOUSECAT33/timed0/weight200. Output-only400inputobserverall4streams identical. normalmono20454core401screens/cursors0animations strictpass;before12885/301/0 old/newpass. Onequantumcallfix ALONE on4d fullymatches277472core4554screens/cursors18animations. Prefix175notrequired for thiscontrol. Not admitted/noaggregate scoregain. 4cases8plan/live fullHealer initialized; actualseed8432118 generatesbox naturally, default andprovidedcanonicaloverride. Controls8432099nobox and8432103ordinarypotion. Actualmakemon_runtime andprivatecloneISAAC state wrappers, nofake draws. Exactplanlivecore/events/objects/monsterHP; propercorpseHOUSECAT/timed0/weight200 insideSchrodingerboxspe1/weight550/containedparent thenMINVENTowner; hookcalledFREEaftertimerstop/beforeattach andnextRN250. Globalcore/display/grid/HP/floorobjects guarded. Baseline1defaultfail3controls pass,new4pass. InitialNO_MINVENT runtimeQuantumfixture rejected existingoutside-mklevpreflight; replaced unsupportedfixture with ordinary-inventory control. Guardleftunchanged; failedlogretained. 668native+affected pass incl4native;3freshC additionally=671unique. Assembled7focused(4native+3C)pass;fullESLintjs/scripts exit0. Patch appliescleanly. Primaryintegration/register/fullhosted stillrequired. Prior161mk_mplayerloot and185make_corpsedeathdrops are different source entries; no earlier quantum container repair. Future extensions of this m_initinv lifecycle boundary group here. Includes accepted grouped175519receipt; no new admission or score gain. Final primary integration7focused+664affected=671unique pass;16registerchecks/fullESLint/diffpass. Candidate remains provisional186 until exact hostedarchive/comparison/MainLintDashboard allpass. Accepted distinct186 after exact Checkpoint40115695622/Lint40116518613/Dashboard40116518632 success; completion times use completed-workflow metadata updatedAt. Genuinearchivehash/admission/44fixed98batch2055comparisonagainst519unchanged. Complete98receipt exit0/pending[]/pointer12e verifiedbefore nextsourceedit, shippednextordinarylava-entryrepair. No scoregain."
+    },
+    {
+      "id": "lava-entry-replay",
+      "kind": "parity-repair",
+      "title": "Replay input-capable lava entry effects on live state",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T17:38:45.699054+00:00",
+          "end": "2026-10-24T17:38:45.699054+00:00",
+          "note": "Sequential integration observation after verified12ecomplete98receipt. No elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "C mhitu.c expels264-306 ->spoteffectsTRUE",
+          "C hack.c pooleffects3296-3300 ->lava_effects",
+          "C trap.c lava_effects6794-6987",
+          "JS hack.js pooleffects5458-5459",
+          "JS unported_monster_actions.js requestPlanningInput/MonsterInputPlanningBoundaryError",
+          "JS mon.js m_detach existinginput-capabledismountboundary"
+        ],
+        "witness": [
+          "recipes/hack.c/lava-replay-boundary-normal.session.json",
+          "recipes/hack.c/lava-replay-boundary-monochrome.session.json",
+          "recipes/hack.c/lava-replay-boundary-before-control.session.json"
+        ],
+        "test": [
+          "scripts/lava-replay-boundary.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Provisional independent186 only after all publication gates; accepted count185. Onlyadd_to_container(box,catcorpse,objectGenerationEnv(normalized)); preserve state/random/providedhooks, objectconstructor/timer/species/weight/attach ordering. No algorithms/defaultAPI/RNGchanges. Callmissingowner6603971e3f August25 beforeexperiment. Noearlierquantumrepairregisterentry. New gnomeCaveman/cat8432098/date20270222100000. ActualCstartupTroglodyte/Neutral; fiveintrinsicselectionpublicmenu. Firstavailable15322core327screens/cursors allsame thenfailclosed atinput328/Ccore15323 RN250aftercontainer insertion. UnsupportedObjectOperationError objectNoLongerHeld otyp265; m_initinv->makemon_runtime->use_defensive->m_move. LIVEglobalmoves17,inMklevfalse,planningundefined,ownerundefined,quantum658/type210[40,11]HP37/max37,tame0/chamNONPM. Box214FREE/spe1/empty, corpse265FREE/HOUSECAT33/timed0/weight200. Output-only400inputobserverall4streams identical. normalmono20454core401screens/cursors0animations strictpass;before12885/301/0 old/newpass. Onequantumcallfix ALONE on4d fullymatches277472core4554screens/cursors18animations. Prefix175notrequired for thiscontrol. Not admitted/noaggregate scoregain. 4cases8plan/live fullHealer initialized; actualseed8432118 generatesbox naturally, default andprovidedcanonicaloverride. Controls8432099nobox and8432103ordinarypotion. Actualmakemon_runtime andprivatecloneISAAC state wrappers, nofake draws. Exactplanlivecore/events/objects/monsterHP; propercorpseHOUSECAT/timed0/weight200 insideSchrodingerboxspe1/weight550/containedparent thenMINVENTowner; hookcalledFREEaftertimerstop/beforeattach andnextRN250. Globalcore/display/grid/HP/floorobjects guarded. Baseline1defaultfail3controls pass,new4pass. InitialNO_MINVENT runtimeQuantumfixture rejected existingoutside-mklevpreflight; replaced unsupportedfixture with ordinary-inventory control. Guardleftunchanged; failedlogretained. 668native+affected pass incl4native;3freshC additionally=671unique. Assembled7focused(4native+3C)pass;fullESLintjs/scripts exit0. Patch appliescleanly. Primaryintegration/register/fullhosted stillrequired. Prior161mk_mplayerloot and185make_corpsedeathdrops are different source entries; no earlier quantum container repair. Future extensions of this m_initinv lifecycle boundary group here. Includes accepted grouped175519receipt; no new admission or score gain. Final primary integration7focused+664affected=671unique pass;16registerchecks/fullESLint/diffpass. Candidate remains provisional186 until exact hostedarchive/comparison/MainLintDashboard allpass."
+      "note": "Provisional independent187 only after full publication gates; accepted count186. Planned lava-effects terrain entry is distinct from182swallowed docrt vision-cycle andtrapper-expulsion textposition repairs. Future extensions of this replay boundary group here. Direct lava-effects call 5b80e3ce45 September8, beforeexperiment; expels forwarded rawEnv d9d352f9ac September17 but liquidcalleeignoredplanning. At existinggroundedlavaentry, require and use existing requestPlanningInput before lava_effects. Livecallunchanged. C lava owner includes tactilemap, inventory destruction/worncallbacks, deathqueries/lifesaving/relocation. Sameestablishedlive-replaythenreplan contract asplannedsteeddetach; no skippedliveeffects, weakeneddisplayguard,newplanner/RNGalgorithm orCIchanges. Independent malehumanWizard/dog8432130/date20270306100000, FirePlane selectedfromfreshpublicCmenu page3L; actualCstatusFire, fiveintrinsics verified. Baseline runJsSession discarded partial onordinaryfeel_locationguard exception, so zero-lengthaggregatewasnotstartupfault. Output-only exportedpartial diagnostic firstcore18104 differs: CnextRN25distfleeck vsJSd6d6lava_effects fromplanning; firstmissingscreen/cursor457. Available18103core456screens/cursors1animation precedingfaultmatch. Turn21clone/globalfalseplanningtrue/replayownerfn/displayownerfn, swallower130/type107HP11/max22/chamNONPM andhero[21,14]HP12swallowed1 onLAVAPOOL20. Fixedlivepasssameowner/actor/hero/terrain follows; output-only520inputobserver all4streamsidentical andmatchesC. Earlierturn14/15ROOM25expulsion controls also present. normalmono20614RNG521screens/cursors1animation strictpass;before15679/431/1 strictpass. Oldunrepairednormalfailsat457;beforecontrolpasses. 8cases:4plannedgroundlava ordinary/FireRes/WaterWalking/lavaform; requireexactreplaycallbackbeforeanylavaiflag/HP/core/display/inventory/mapchanges. MissingownerTypeErrorbeforeeffects. Floor/flying/levitatingplanlivecontrols noowner/noRNG. Old5fail3controls,new8pass. ActualinitializedHealer andvalidpolymorphedFireElemental native states. 11focused(8native+3C)+407affected=418isolatedassembledpass;fullESLintpass; primaryintegration/fullhostedstillrequired. OneboundaryfixadvancesfullFireprobe exception457->independentnamingdifference553 andlatercoredrift977, notfullpass. LaterSome_Monnam theftcallerownerqualifiedseparately; its additional isolatedfix advances tothirdfailure2403. Noadmission/aggregate scoregain. Includes accepted18612ecomplete98receipt. Primary/fullhosted gates pending; do not count187yet. Final primary11focused+407affected=418unique pass;16registerchecks/fullESLint/diffpass. Sourcecandidate frozen only after commit; fullhosted/archive/comparison/MainLintDashboard required. Acceptedcount186 untilallgates."
     }
   ]
 }
