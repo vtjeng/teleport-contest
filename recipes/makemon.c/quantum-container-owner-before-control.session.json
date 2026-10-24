@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent gnomeCaveman Schrodinger-box constructor witness; C makemon.c m_initinv776-795 and mkobj.c add_to_container2676. Before-control stops before live summon.",
+  "segments": [
+    {
+      "seed": 8432098,
+      "datetime": "20270222100000",
+      "nethackrc": "OPTIONS=name:GnomeCaveProbe,role:Caveman,race:gnome,gender:female,align:neutral,playmode:debug,pettype:cat,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm. "
+    }
+  ]
+}

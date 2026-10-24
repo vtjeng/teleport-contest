@@ -2780,7 +2780,7 @@ function m_initinv(monster, normalized) {
                 box.spe = 1; // flag for SchroedingersBox
                 set_corpsenm(catcorpse, PM_HOUSECAT, normalized);
                 stop_timer(ROT_CORPSE, catcorpse, state, normalized);
-                add_to_container(box, catcorpse, normalized);
+                add_to_container(box, catcorpse, objectGenerationEnv(normalized));
                 box.owt = weight(box, normalized);
             }
             addFreshMonsterObject(monster, box, normalized);
