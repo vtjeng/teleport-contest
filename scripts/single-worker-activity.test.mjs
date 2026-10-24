@@ -80,3 +80,27 @@ test('embedded timeline parses and keeps narrow layout, freshness and historical
   assert.match(html, /\.activity-label\s*\{[^}]*white-space: normal;[^}]*overflow-wrap: anywhere;/u);
   assert.match(html, /\.trial-tiles,\.trial-details\s*\{\s*grid-template-columns:minmax\(0,1fr\)/u);
 });
+
+
+test('post-trial repairs share the current lane without admitting baseline or double-counting corrections', () => {
+  const data = saved();
+  const corrected = data.register.repairs[0];
+  corrected.window = 'post-trial';
+  const pending = structuredClone(data.register.repairs[1]);
+  pending.id = 'post-trial-pending'; pending.window = 'post-trial';
+  pending.candidates[0].runs.find(run => run.name === 'Dashboard').conclusion = 'failure';
+  const baseline = read('../trial-monitor/repairs.json').repairs.find(repair => repair.window === 'baseline');
+  data.register.repairs.push(pending, baseline);
+  const summarized = view(data), activity = singleWorkerActivity(summarized);
+  assert.equal(activity.tasks.length, 3);
+  assert.equal(activity.acceptedCount, 2, 'two stable repair identities, not candidate or commit counts');
+  assert.equal(activity.tasks.filter(task => task.id === corrected.id).length, 1);
+  assert.equal(activity.tasks.find(task => task.id === corrected.id).publishedAt,
+    summarized.results.find(result => result.repair.id === corrected.id).accepted.closureAt,
+    'grouped correction retains first acceptance time');
+  assert.equal(activity.tasks.find(task => task.id === pending.id).publishedAt, undefined);
+  assert.ok(activity.segments.some(segment => segment.task === corrected.id));
+  assert.ok(activity.tasks.every(task => task.worker === 'Standard engineer'));
+  assert.ok(!activity.tasks.some(task => task.id === baseline.id));
+  assert.ok(!activity.segments.some(segment => segment.task === baseline.id));
+});

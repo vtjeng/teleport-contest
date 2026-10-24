@@ -1722,3 +1722,25 @@ test('real stale manifest cannot make Current work ignore newer registered candi
     assert.ok(rendered.get('goalTable').innerHTML, 'strict startup still reaches the final section');
     assert.equal(rendered.has('workerEvidence'), false);
 });
+
+
+test('recent accepted repairs and timeline include newer post-trial work in first-acceptance order', () => {
+    const load = file => JSON.parse(readFileSync(join(PROJECT_ROOT, 'trial-monitor', file), 'utf8'));
+    const snapshot = {manifest:load('manifest.json'),register:load('repairs.json'),
+        buildSha:'f'.repeat(40),builtAt:'2026-10-24T22:30:00Z'};
+    const results = createTrialMonitor(snapshot).summarize().results;
+    const expected = results.filter(result => ['single-worker','post-trial'].includes(result.repair.window) && result.accepted)
+        .sort((a,b) => Date.parse(b.accepted.closureAt) - Date.parse(a.accepted.closureAt));
+    const newest = expected.slice(0,5);
+    assert.ok(newest.every(result => result.repair.window === 'post-trial'), 'real newer-lane regression fixture');
+    const rendered = renderDashboard(sourceDashboardData(), null, {singleWorkerData:snapshot,showHistorical:false});
+    assert.deepEqual(rendered.get('recentRepairs').children.map(row => row.children[0].textContent),
+        newest.map(result => result.repair.title));
+    assert.deepEqual(rendered.get('recentRepairs').children.map(row => row.children[1].dateTime),
+        newest.map(result => result.accepted.closureAt));
+    assert.match(rendered.get('repairCount').textContent, new RegExp('^' + expected.length + ' registered'));
+    assert.equal(new Set(expected.map(result => result.repair.id)).size, expected.length);
+    assert.ok(rendered.get('timeline').innerHTML.includes(newest[0].repair.title), 'actual post-trial CI bars are rendered');
+    assert.equal(createTrialMonitor(snapshot).summarize().baseline.acceptedCount, 13, 'frozen baseline unchanged');
+    assert.ok(rendered.get('goalTable').innerHTML, 'strict DOM startup reaches the final section');
+});

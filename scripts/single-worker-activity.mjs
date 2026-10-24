@@ -7,7 +7,9 @@ export function singleWorkerActivity(view) {
   const tasks = [], segments = [];
   for (const result of view?.results ?? []) {
     const repair = result.repair;
-    if (repair.window !== 'single-worker') continue;
+    // Both tags belong to the continuing Standard engineer lane. Keep the
+    // frozen baseline and unused trial outside this partial current register.
+    if (!['single-worker', 'post-trial'].includes(repair.window)) continue;
     const latest = result.candidates.at(-1);
     const task = { id: repair.id, label: repair.title, worker: lane,
       status: result.accepted ? 'Accepted repair' : 'Not fully accepted',
