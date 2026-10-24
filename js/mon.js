@@ -4538,7 +4538,13 @@ export function unstuck(mtmp, state = game, env = {}) {
             if (typeof env.docrt === 'function') {
                 await env.docrt({ ...env, state, overlayMonsters: false });
             } else if (!env.planning) {
-                await docrt({ overlayMonsters: false });
+                // This caller already brackets the remembered-map redraw
+                // with C's vision phases; docrt must not repeat them.
+                await docrt({
+                    overlayMonsters: false,
+                    suspendVision: () => {},
+                    restoreVision: () => {},
+                });
             } else if (typeof env.redraw === 'function') {
                 await env.redraw(state);
             }

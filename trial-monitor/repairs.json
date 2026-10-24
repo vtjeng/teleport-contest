@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T12:49:51.737940+00:00",
+  "asOf": "2026-10-24T13:17:35.240318+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -12217,8 +12217,106 @@
           "scripts/zap-ray.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "6ca2442088445187371f4c2223d3f539114d0333",
+          "committedAt": "2026-10-24T12:50:39Z",
+          "runs": [
+            {
+              "id": 40095631752,
+              "name": "Checkpoint",
+              "sha": "6ca2442088445187371f4c2223d3f539114d0333",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/region-feedback-owner-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T12:58:48Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40095631752"
+            },
+            {
+              "id": 40096783491,
+              "name": "Lint",
+              "sha": "6ca2442088445187371f4c2223d3f539114d0333",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T13:08:31Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40096783491",
+              "createdAt": "2026-10-24T13:07:27Z"
+            },
+            {
+              "id": 40096783517,
+              "name": "Dashboard",
+              "sha": "6ca2442088445187371f4c2223d3f539114d0333",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T13:10:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40096783517",
+              "createdAt": "2026-10-24T13:07:27Z"
+            }
+          ]
+        }
+      ],
+      "note": "Independentplannedregioncallbackcosmeticowner defect. Sept17regionfactory10ca2abc predatesexperiment, distinctfrom180timeoutmarkercontract orhero-postmove-gasmovementcoordinates. SourceCrun_regionsafter nh_timeout andinside_gas_cloudMonnam forvisiblesquare/nearbycoughingmonster. Factorysilencedplannedfeedback/drawing butomitteddisplayRandom, soMonnamduringclonedregionupkeepadvancedglobaldisplaycontext. BindonlyplannedcallbacktocanonicalcreateCoreRandom(state.displayCtx,state).rn2, lazyguardmissingdisplaycontext; liveundefined retainsglobaldefault. No gasdamage,visibility,geometry,status,regionaging,namingAPI orcoreRNG changes. Publicseed8432060/dateJan16 initiallyHallu129/Detect800130/Conflict800131 verified; Blind/Deafinitiallyunselected,naturalchangesallowed. Afteraaarmorfix firstscreen2553coughname. Passive2601Cordinarycore/screens/cursorsidentical; JSoutputobserverordinarycore/screens/cursorsunchanged. Firstmixed122729input2552/display49998:extraJS430261,2=1 beforeCrnd8=5, stackMonnam->inside_gas_cloud->run_regions->finishElapsedTurnAfterTimeout. Actualmove75cloneplanningtrue/globalfalse andliveplanningfalse/globaltrue bothenvdisplayRandomundefined; hero49,6BLIND0,invisiblemon761/type333[50,5]HP189, canSeesquaretrue,damage8. Freshnormal/mono73671RNG2601screens/cursors296animationsstrictpass,before70937/2501/288strictpassold/new. Exactaabothbaselinefirstscreen/cursor2553;availablecorevaluesprefixmatch butshortinput-endmissingCtail73648, notclaimedwrongcorevalues. Full154670RNG4546screens/cursors562animationsstrictpass withregiononlyprototypeonaa. Sixinitializedcases12plan/live H/non xvisible/invisibleDetected/farunseen, actualfinishElapsedTurn/NhRegioninsidegas/NON_PMhuman. Exactcore rn212/rn270/rnd3/rn220/rn267, gas1+5HP24, monsterblind1/cansee0,TTL5->4, cloneglobalHP/core/display/TTL/TTYguards andcompleteplan/livecontexts/outcomesequality. Liveexacthuman/invisiblehuman coughtext, unseennoextraTTY,Hcoughsuffix. Old2Hfeedbackfail4controls,new6pass. Initialtestfedsharedstate.coreCtx tocreateCoreRandom; realplannerclonescore separately. CorrectedtestcloneIsaacContextconsistentwithclonedRandom,no productionworkaround, failedlogretained. Isolatedmirror9focused+875affected=884pass,fullESLint/diffpass. Eightfilesbyte-copied onlyafteraareceiptcheckerexit0; primary9focused integrationcheck and16registertestsrequired. No admission/aggregatescoregain. Includescompleteacceptedaa98receipt/provenance; provisional181onlyafterfullhosted/exactMain gates, accepted180. Primary9integrationreplays and16registertests passed afterbyte-verifiedtransfer; diffcheckpassed. Accepted independent181 after exactSHA Checkpoint40095631752, MainLint40096783491 andDashboard40096783517success. Archivehash/admissionproof/full44fixed98synthetic2055comparisonversusaa unchanged. Existingchecker completedfromunchangedcleanprimary6c beforethisnextedit; complete98receipt carried here. Distinctaccepted181, no measuredscoregain."
+    },
+    {
+      "id": "swallowed-redraw-phases",
+      "kind": "parity-repair",
+      "title": "Redraw the released swallowed view with one vision cycle",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T13:11:09.801371+00:00",
+          "end": "2026-10-24T13:11:09.801371+00:00",
+          "note": "Preserved source/nativequalification pointobservation; no elapsedactive-workclaim."
+        },
+        {
+          "start": "2026-10-24T13:17:35.240318+00:00",
+          "end": "2026-10-24T13:17:35.240318+00:00",
+          "note": "Integration observation only; no elapsedactive-workclaim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c:unstuck3438-3467",
+          "nethack-c/upstream/src/display.c:docrt1702-1774",
+          "js/mon.js:unstuck4537-4548",
+          "js/display.js:docrt4165-4215"
+        ],
+        "witness": [
+          "recipes/mon.c/swallowed-redraw-phases-normal.session.json",
+          "recipes/mon.c/swallowed-redraw-phases-monochrome.session.json",
+          "recipes/mon.c/swallowed-redraw-phases-before-control.session.json"
+        ],
+        "test": [
+          "scripts/swallowed-redraw-phases.test.mjs",
+          "scripts/mon-kill.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/display-visibility.test.mjs",
+          "scripts/vision.test.mjs",
+          "scripts/vision-blind-epilogue.test.mjs",
+          "scripts/end-lifesaved.test.mjs",
+          "scripts/end-really-done.test.mjs",
+          "scripts/holder-migration.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/read.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/teleport.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independentplannedregioncallbackcosmeticowner defect. Sept17regionfactory10ca2abc predatesexperiment, distinctfrom180timeoutmarkercontract orhero-postmove-gasmovementcoordinates. SourceCrun_regionsafter nh_timeout andinside_gas_cloudMonnam forvisiblesquare/nearbycoughingmonster. Factorysilencedplannedfeedback/drawing butomitteddisplayRandom, soMonnamduringclonedregionupkeepadvancedglobaldisplaycontext. BindonlyplannedcallbacktocanonicalcreateCoreRandom(state.displayCtx,state).rn2, lazyguardmissingdisplaycontext; liveundefined retainsglobaldefault. No gasdamage,visibility,geometry,status,regionaging,namingAPI orcoreRNG changes. Publicseed8432060/dateJan16 initiallyHallu129/Detect800130/Conflict800131 verified; Blind/Deafinitiallyunselected,naturalchangesallowed. Afteraaarmorfix firstscreen2553coughname. Passive2601Cordinarycore/screens/cursorsidentical; JSoutputobserverordinarycore/screens/cursorsunchanged. Firstmixed122729input2552/display49998:extraJS430261,2=1 beforeCrnd8=5, stackMonnam->inside_gas_cloud->run_regions->finishElapsedTurnAfterTimeout. Actualmove75cloneplanningtrue/globalfalse andliveplanningfalse/globaltrue bothenvdisplayRandomundefined; hero49,6BLIND0,invisiblemon761/type333[50,5]HP189, canSeesquaretrue,damage8. Freshnormal/mono73671RNG2601screens/cursors296animationsstrictpass,before70937/2501/288strictpassold/new. Exactaabothbaselinefirstscreen/cursor2553;availablecorevaluesprefixmatch butshortinput-endmissingCtail73648, notclaimedwrongcorevalues. Full154670RNG4546screens/cursors562animationsstrictpass withregiononlyprototypeonaa. Sixinitializedcases12plan/live H/non xvisible/invisibleDetected/farunseen, actualfinishElapsedTurn/NhRegioninsidegas/NON_PMhuman. Exactcore rn212/rn270/rnd3/rn220/rn267, gas1+5HP24, monsterblind1/cansee0,TTL5->4, cloneglobalHP/core/display/TTL/TTYguards andcompleteplan/livecontexts/outcomesequality. Liveexacthuman/invisiblehuman coughtext, unseennoextraTTY,Hcoughsuffix. Old2Hfeedbackfail4controls,new6pass. Initialtestfedsharedstate.coreCtx tocreateCoreRandom; realplannerclonescore separately. CorrectedtestcloneIsaacContextconsistentwithclonedRandom,no productionworkaround, failedlogretained. Isolatedmirror9focused+875affected=884pass,fullESLint/diffpass. Eightfilesbyte-copied onlyafteraareceiptcheckerexit0; primary9focused integrationcheck and16registertestsrequired. No admission/aggregatescoregain. Includescompleteacceptedaa98receipt/provenance; provisional181onlyafterfullhosted/exactMain gates, accepted180. Primary9integrationreplays and16registertests passed afterbyte-verifiedtransfer; diffcheckpassed."
+      "note": "Independent swallowed-view renderingphase defect in Sept16e24unstuck body, not105migrationcleanup: reviewed7d9 diff onlydog.js2lines/tests,no JSmonbodychange. Cunstuck callsdocrt once; Cdocrt ownsvision2->rememberedmap->vision0->monsteroverlay. JSunstuck alreadybrackets mapredraw anddefaultdocrt repeated2/0, yielding2,2,0,0. Supplyexistingno-op suspendVision/restoreVision hooks onlytodefaultdocrt alreadybracketedbycaller; preserveouterawaited/custom/planningcallbacks andallsourceoperationsonce,releasefields,cooldown,map/RNG APIs,statusandinputordering. No unportedoperationstub: bothvisionphasesremainimplemented/executedoutside. Freshindependent8432064/dateJan20 initiallyC129Hallu130Detect800131Conflict800 verified; Blind/Deafinitiallyunselected,naturalchangesallowed. Wizardrecoveryregurgitated847 thenfirstscreen848. Passive901Cordinarycore/screens/cursorsidentical; JSregionprototypeobserverordinarycore/screens/cursorsunchanged. Firstobservedmixedshape47058/display15097 atinput847 C3834vsJS463311; repeatedboundsmayhideearlieractualextra draw, donotclaimcounterasexactduplicateorigin. JSstackvision_recalc962->docrt->mon4541->expels->savelife atmove34; previousfeel_location->vision_recalc998. Csourceonecycle/nativeequivalence andstrictfullreplayestablishcause. Normal/mono35261RNG901screens/cursors658animationsstrictpass; before28590/801/652strictpassold/new. Exact6cbothbaselinefirst848,controlpass. Fullminimalprototype129229RNG4546screens/cursors829animationsstrictpass; lateroldcore50804at1448CdistfleeckvsJSrn220disappears, notcountedseparatebug. Native6cases10executions:4swallowedH/non xBlind/non compareactualdefaultunstuckwithoneordinarycanonicaldocrtatreleasedsourceposition;2ordinaryadjacentLichen-holderH/noncontrolsdrawnothing. Realinitializedunstuck/docrt/vision/swallowed; NON_PMpurpleworm/human,catalogdagger/rockwithcanonicalweight/place_object, properlevels,ordinaryholderadjacent. Releaseclearsustuck/uswallow/uswldtim/mswallower,HP30unchanged, exactlyrnd2cooldown2/coreunmovedunderexplicitrndseam; exactserializedGameDisplay/displaycontext/heroXY/rememberedglyph/seenv equalitytooneordinaryredraw. Old2Halluswallowedfail4controls,new6pass. InitialfixturelackedMorekeybeforecanonicalswallowed:clearedmessagewindow/providednumericSpace32beforecall,no productionworkaround; failedlogretained. Fixtureadjacency/weights/levels tightenedbeforefinalold/newrechecks. Existinginjectedphaseordercontractunchanged. Ninefocusedplusaffected/fullESLint checksrunning; fullhosted/exactSHApublicationgatesstillrequired. Includesaccepted1816ccomplete98receipt/provenance. Provisionalindependent182onlyafterallgates, accepted181 andsyntheticscore2051/2055unchanged. Priest/catnewseed8432066/dateJan22withprototype matchesall160116core/713animations butfirstscreen4238CYouDreamFeelDrainedvsJSYouFeel; independentknownprefix175familyleadpreserved, notclaimedfullcontrolpass. Final9focused+706affected=715pass,16register/fullESLint/diffpass."
     }
   ]
 }
