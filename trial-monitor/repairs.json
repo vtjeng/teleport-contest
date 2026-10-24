@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T18:51:12.446831+00:00",
+  "asOf": "2026-10-24T19:16:52.105978+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8876,6 +8876,16 @@
           "start": "2026-10-23T23:57:17.970Z",
           "end": "2026-10-23T23:57:17.970Z",
           "note": "Preserved instantaneous first-divergence observation for grouped peaceful-flag correction; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T19:10:03Z",
+          "end": "2026-10-24T19:10:03Z",
+          "note": "First extra-display-stack observation only; not inferred active-work time."
+        },
+        {
+          "start": "2026-10-24T19:16:52.105978+00:00",
+          "end": "2026-10-24T19:16:52.105978+00:00",
+          "note": "Grouped149 meal-redraw primary integration observation afterverified733complete98receipt. No elapsedactivework claim."
         }
       ],
       "evidence": {
@@ -8883,7 +8893,10 @@
           "nethack-c/upstream/src/monmove.c:mind_blast625-649",
           "nethack-c/upstream/include/rm.h:490",
           "js/monmove.js:mind_blast",
-          "js/mon.js:wakeup"
+          "js/mon.js:wakeup",
+          "C mon.c wakeup4333-4350 calls finish_meating afterdisguise reveal arms",
+          "C dogmove.c finish_meating1447-1457 clears meating/disguise thennewsym",
+          "JS mon.js wakeup4053 lost redraw operation; originalb2663648a0 Aug7 predatesexperiment"
         ],
         "witness": [
           "recipes/monmove.c/mind-blast-target-chain-normal.session.json",
@@ -8891,7 +8904,10 @@
           "recipes/monmove.c/mind-blast-target-chain-before-control.session.json",
           "recipes/monmove.c/mind-blast-peace-flags-peace.session.json",
           "recipes/monmove.c/mind-blast-peace-flags-monochrome.session.json",
-          "recipes/monmove.c/mind-blast-peace-flags-before-control.session.json"
+          "recipes/monmove.c/mind-blast-peace-flags-before-control.session.json",
+          "recipes/mon.c/wakeup-meal-redraw-owner-normal.session.json",
+          "recipes/mon.c/wakeup-meal-redraw-owner-monochrome.session.json",
+          "recipes/mon.c/wakeup-meal-redraw-owner-before-control.session.json"
         ],
         "test": [
           "scripts/mind-blast-target-chain.test.mjs",
@@ -8900,7 +8916,8 @@
           "scripts/mon-kill.test.mjs",
           "scripts/unported-monster-actions.test.mjs",
           "scripts/allmain-turn.test.mjs",
-          "scripts/mind-blast-peace-flags.test.mjs"
+          "scripts/mind-blast-peace-flags.test.mjs",
+          "scripts/wakeup-meal-redraw-owner.test.mjs"
         ]
       },
       "candidates": [
@@ -8994,7 +9011,7 @@
           ]
         }
       ],
-      "note": "Cmind_blast traverses fmon (rm.h canonicalsvl.level.monlist), cachesnext beforewakeup/death, andprocessesopposed/nonmindless/livingtargets. JSiteratedobsolete state.fmon, skippingallothermonsters. Usecanonicallevel.monlist andcachednext; passfullstate/random/message/planningcontext tocanonicalwakeup instead ofstateonly. Herobranch unchanged. Actualworm-only4b3b563c baseline freshnormal firstmissingrn2(10)13779/317, horizontal6998/110; beforetriggercontrol passesboth. Three freshlyrecorded C replays strictlypass: normal24950RNG812screens/cursors162animations, horizontal8938/143/29, beforecontrol13309/309/150. Two canonicaldochug constructedlive/planning cases proveopposedtargetdamage, awakening/mealend, friend/mindless/deadskip, nexttarget traversal, exactRNG andplanningmessagesilence.381affected+64focused=445unique tests including3C pass; lint/diffcheck pass. Existing acoustics-off independentfull812probe passes25999RNG103animations; fifthseed8432005date20261030164500 full812probe passesbothbaseline/fix24737RNG24animations, privateunaffectedcontrol. Private2132continuationstrictpass52913RNG188animations; longer5732matchesall193781RNG/cursors394animations buthasindependentgreenslimepromptvisionfirstscreen4655, preservedsourcelead, notclaimedfullstrictpasshere. Complete148receipt included; fullhostedgatespending; noaggregatescoregainclaimed. Accepted as distinct149 afterfullCheckpoint40026262349 andexactMainLint40027327241/Dashboard40027327131 passed. Normal runAPI summaries verifiedexactSHA/repositories/attempt/triggers; full44fixed/98batch2055case comparison against4b3b563c clean, allaggregatedeltas0. Complete98publicationreceipt carried innextordinarypromptrepair. Grouped correction: C mpeaceful bitfields compare equal for same-side monsters. JS mixed false/0 or true/1 representations incorrectly triggered psychic target RNG/damage; normalize flag values only, preserving eligibility and RNG order. Exact64b baseline normal/monochrome first differs RNG131565 (extra rn2(10)); before-trigger control passes. Three fresh C replays now strictly pass: normal/monochrome131823RNG2597screens/cursors277animations,control131182/2594/277.32 native live/planning flag combinations plus3C and743 affected tests pass (778 total),lint/diff pass. Independent expected flag table pins C bit semantics. Private full5753 Monk replay needs both this correction and independently reproduced159 projectile-owner repair; combined strict546198RNG5753screens/cursors473animations passes. Distinct increment0,grouped under149; full hosted correction gates pending. Complete accepted15998-batch receipt included; no aggregate score gain claimed. Grouped149 correction accepted after exact Checkpoint40046158987,Lint40046796731 and Dashboard40046796704 completed successfully. Hash-verified44fixed/98batch/2055case archived comparison against64b has no missing evidence,regressions or aggregate changes. Accepted distinct total stays159;complete98receipt carried in next ordinary repair."
+      "note": "Cmind_blast traverses fmon (rm.h canonicalsvl.level.monlist), cachesnext beforewakeup/death, andprocessesopposed/nonmindless/livingtargets. JSiteratedobsolete state.fmon, skippingallothermonsters. Usecanonicallevel.monlist andcachednext; passfullstate/random/message/planningcontext tocanonicalwakeup instead ofstateonly. Herobranch unchanged. Actualworm-only4b3b563c baseline freshnormal firstmissingrn2(10)13779/317, horizontal6998/110; beforetriggercontrol passesboth. Three freshlyrecorded C replays strictlypass: normal24950RNG812screens/cursors162animations, horizontal8938/143/29, beforecontrol13309/309/150. Two canonicaldochug constructedlive/planning cases proveopposedtargetdamage, awakening/mealend, friend/mindless/deadskip, nexttarget traversal, exactRNG andplanningmessagesilence.381affected+64focused=445unique tests including3C pass; lint/diffcheck pass. Existing acoustics-off independentfull812probe passes25999RNG103animations; fifthseed8432005date20261030164500 full812probe passesbothbaseline/fix24737RNG24animations, privateunaffectedcontrol. Private2132continuationstrictpass52913RNG188animations; longer5732matchesall193781RNG/cursors394animations buthasindependentgreenslimepromptvisionfirstscreen4655, preservedsourcelead, notclaimedfullstrictpasshere. Complete148receipt included; fullhostedgatespending; noaggregatescoregainclaimed. Accepted as distinct149 afterfullCheckpoint40026262349 andexactMainLint40027327241/Dashboard40027327131 passed. Normal runAPI summaries verifiedexactSHA/repositories/attempt/triggers; full44fixed/98batch2055case comparison against4b3b563c clean, allaggregatedeltas0. Complete98publicationreceipt carried innextordinarypromptrepair. Grouped correction: C mpeaceful bitfields compare equal for same-side monsters. JS mixed false/0 or true/1 representations incorrectly triggered psychic target RNG/damage; normalize flag values only, preserving eligibility and RNG order. Exact64b baseline normal/monochrome first differs RNG131565 (extra rn2(10)); before-trigger control passes. Three fresh C replays now strictly pass: normal/monochrome131823RNG2597screens/cursors277animations,control131182/2594/277.32 native live/planning flag combinations plus3C and743 affected tests pass (778 total),lint/diff pass. Independent expected flag table pins C bit semantics. Private full5753 Monk replay needs both this correction and independently reproduced159 projectile-owner repair; combined strict546198RNG5753screens/cursors473animations passes. Distinct increment0,grouped under149; full hosted correction gates pending. Complete accepted15998-batch receipt included; no aggregate score gain claimed. Grouped149 correction accepted after exact Checkpoint40046158987,Lint40046796731 and Dashboard40046796704 completed successfully. Hash-verified44fixed/98batch/2055case archived comparison against64b has no missing evidence,regressions or aggregate changes. Accepted distinct total stays159;complete98receipt carried in next ordinary repair. Grouped149 correction: Grouped149 correction to existing canonical wakeup source scope; distinct increment0, acceptedcount190 until all gates and after. No standalone191 claim. Only wakeup meal-cleanup call forwards rawEnv and chooses caller redraw or canonicalnewsym for active nonplanning game, otherwise no display operation. Preserve source state/meal/disguise writes and live canonical draw. No beam callsite, RNGalgorithm or helper changes. Fresh independent EarthWizard/dog8432138March14 afteraccepted733 prerequisite. Oldscreen/cursor672 zero-based firstbeam name Cglossygolem vsJShillgiant, firstcore49727zero-based/input1403 later. Passive750 C exactallordinaryfields; output-onlyJS RNG/context observers all4actualstreams identical. Firstmixed42986 CnextRN25distflee whileJSextra~drn2383=136; stack finish_meating->wakeup->buzzmonst->dobuzz->breamm->mattacku. Actualmoves20 bothcloneandLIVE Wizard257/type285[70,4]HP142/max158,NONPM/tame0/peacefulfalse/meating0/M_AP_MONSTER3 appearance117. rawplanning/message/display/redraw undefined duelegacybeam shape; clone state!==game still triggersglobaldefaultredraw old. New active-state condition is required independently of planningflag. 12 initialized fullHealer seed8432140March16 actualclonewiz/makemon_runtime constructor x4variants=48 transitions: H/non xvisible/blindDetected/blindUnknown xdisguised/protected. DefaultLIVE vs explicit canonicalnewsym LIVE fullcore/display/grid/actor equality; clonelegacy withoutplanningflag andcloneplanning withflag privateappearance/meal/sleep update while globalcore/display/grid/vitals/HP/count/liveactor/placement unchanged. Sixold disguisedfail/sixprotectedcontrols; new12pass. ExactsourceexpectedM_AP_NOTHING/mappearance0/meating0; actualprivateISAAC contexts no fixed draw scripts. Normal/monochrome58874RNG2001screens/cursors16animations strictpass;before30984/651/11 strictpass. Baseline2witnessesfail/controlpass. Initial prototype alsoforwardedbeam env at2calls; mon-only closes samefirstdifferences so droppedallzapchanges before primaryedit. Nativeconstructor initiallyomitted complete random owner andhitexistingfailclosedguard; supplied canonicalcreateCoreRandom(game.coreCtx,game), no productionconstructorchange; oldfailurelog retained. Fullisolatedonly reaches2340screens63560core; priorCprefixmatches, thenCmissingrnd2mon_poly at2342. Actualboundary type notyetcaptured; separatelead, nofullEarthpassclaim. Includes accepted190733complete98receipt in nextordinaryrepaircommit. Primaryfocused/affected/fullLint andallhostedgatesrequired. No distinctincrement. Final grouped149 meal-redraw primary15focused+615affected=630unique pass;16register/fullESLint/diffpass. Require normal fullhosted exactSHA archivecomparison and MainLint/Dashboard gates. Count remains190; no distinctincrement."
     },
     {
       "id": "prompt-deferred-vision",
@@ -13261,8 +13278,54 @@
           "scripts/clone-final-redraw.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Provisional distinct190 only after189 acceptance and all gates. No current count. C wizard.c clonewiz517-533 final newsym after final attitudes, optional fakeamulet, M_AP_MONSTER disguise. JS wizard.js existing callback-only redraw from99e9b62810 Oct13 predates experiment. Add canonical newsym default only for active global state and nonplanning; preserve explicit redraw/redrawSquare and await. Reuse existing display import edge. No RNG algorithm/helper changes. Independent Fire plane Wizard dog8432130 March6, after separate187/188/189 prerequisites. Ten screen boundaries3718-3727 differ; all core/cursor/animation match. Output-only context observer preserves all4 streams: global LIVE move137 actor411 Wizard285[32,20]HP155/max155 NONPM, sleepfalse/tame0/peacefulfalse, M_AP_MONSTER3 appearance117, neither redraw nor redrawSquare supplied. Move4 explicit supplied callback is a separate control. Passive C prefix and output-only JS observer each preserve ordinary4 streams. First mixed disagreement187099 C ~drn2(383)=28 clonewiz530 before next coreRN25; JS skips final displaydraw until later. No C rebuild. normal and monochrome123429RNG3751screens/cursors52animations; before120779/3681/52. All3 fixed strictpass. Baseline3 replay check in progress separately. Baseline normal/mono both fail at firstscreen3718, beforecontrolpasses (three-baseline exit0). 8 initialized real clonewiz/makemon_runtime cases xdefaultLIVE/explicitdelegatedLIVE/planning=24 constructions. H/non visible/blinddetected/blindunknown plus protectedshape. Full defaultLIVE vs delegatedLIVE core/display/grid/messages/fields/inventory equality. Plan/live gameplaycore/fields/inventory equality; planning global core/display/grid/vitals/context/originalmonster guards. HLU planned appearance text legitimately differs due suppressed initial glyphs, excluded only planned text equality; full LIVE strict. Old3Hallu spotted fail5controls, fixed8pass. 596 assembled =11focused(8native3C)+585affected passed; full assembled ESLint passed. Primary integration16register/fullLint/tests and all hosted gates still required after189receipt. Wrong nativegrid guard[7][9] corrected canonical[x][y] to[9][7]; tightened ident9985; removed invalid plannedHLU appearance-text equality while preserving full LIVE equality; logs retained. Native-corrected8pass, assembled596pass supersede native-final intermediate failure. Isolated fix with187/188/189 full147813core4555screens/cursors71animations strictPASS. Private control only; no admission/aggregate gain. Includes accepted189 complete98receipt, to ship in this ordinary repair commit. Primary integration and hosted exact-SHA gates required; accepted distinct189 until all gates. Final primary11focused+585affected=596 unique passed,16register/fullESLint/diff passed. Require full hosted exactSHA archive comparison and Main Lint/Dashboard before provisional190 acceptance."
+      "candidates": [
+        {
+          "sha": "733ac6b29ff83ec4d43159f33c1b26362227ef8c",
+          "committedAt": "2026-10-24T18:52:27Z",
+          "runs": [
+            {
+              "id": 40122741233,
+              "name": "Checkpoint",
+              "sha": "733ac6b29ff83ec4d43159f33c1b26362227ef8c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/clone-final-redraw-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T18:52:59Z",
+              "completedAt": "2026-10-24T19:01:29Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40122741233"
+            },
+            {
+              "id": 40123584269,
+              "name": "Lint",
+              "sha": "733ac6b29ff83ec4d43159f33c1b26362227ef8c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T19:04:02Z",
+              "completedAt": "2026-10-24T19:05:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40123584269"
+            },
+            {
+              "id": 40123584299,
+              "name": "Dashboard",
+              "sha": "733ac6b29ff83ec4d43159f33c1b26362227ef8c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T19:04:02Z",
+              "completedAt": "2026-10-24T19:06:59Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40123584299"
+            }
+          ]
+        }
+      ],
+      "note": "Provisional distinct190 only after189 acceptance and all gates. No current count. C wizard.c clonewiz517-533 final newsym after final attitudes, optional fakeamulet, M_AP_MONSTER disguise. JS wizard.js existing callback-only redraw from99e9b62810 Oct13 predates experiment. Add canonical newsym default only for active global state and nonplanning; preserve explicit redraw/redrawSquare and await. Reuse existing display import edge. No RNG algorithm/helper changes. Independent Fire plane Wizard dog8432130 March6, after separate187/188/189 prerequisites. Ten screen boundaries3718-3727 differ; all core/cursor/animation match. Output-only context observer preserves all4 streams: global LIVE move137 actor411 Wizard285[32,20]HP155/max155 NONPM, sleepfalse/tame0/peacefulfalse, M_AP_MONSTER3 appearance117, neither redraw nor redrawSquare supplied. Move4 explicit supplied callback is a separate control. Passive C prefix and output-only JS observer each preserve ordinary4 streams. First mixed disagreement187099 C ~drn2(383)=28 clonewiz530 before next coreRN25; JS skips final displaydraw until later. No C rebuild. normal and monochrome123429RNG3751screens/cursors52animations; before120779/3681/52. All3 fixed strictpass. Baseline3 replay check in progress separately. Baseline normal/mono both fail at firstscreen3718, beforecontrolpasses (three-baseline exit0). 8 initialized real clonewiz/makemon_runtime cases xdefaultLIVE/explicitdelegatedLIVE/planning=24 constructions. H/non visible/blinddetected/blindunknown plus protectedshape. Full defaultLIVE vs delegatedLIVE core/display/grid/messages/fields/inventory equality. Plan/live gameplaycore/fields/inventory equality; planning global core/display/grid/vitals/context/originalmonster guards. HLU planned appearance text legitimately differs due suppressed initial glyphs, excluded only planned text equality; full LIVE strict. Old3Hallu spotted fail5controls, fixed8pass. 596 assembled =11focused(8native3C)+585affected passed; full assembled ESLint passed. Primary integration16register/fullLint/tests and all hosted gates still required after189receipt. Wrong nativegrid guard[7][9] corrected canonical[x][y] to[9][7]; tightened ident9985; removed invalid plannedHLU appearance-text equality while preserving full LIVE equality; logs retained. Native-corrected8pass, assembled596pass supersede native-final intermediate failure. Isolated fix with187/188/189 full147813core4555screens/cursors71animations strictPASS. Private control only; no admission/aggregate gain. Includes accepted189 complete98receipt, to ship in this ordinary repair commit. Primary integration and hosted exact-SHA gates required; accepted distinct189 until all gates. Final primary11focused+585affected=596 unique passed,16register/fullESLint/diff passed. Require full hosted exactSHA archive comparison and Main Lint/Dashboard before provisional190 acceptance. Accepted distinct190 after exact Checkpoint40122741233/Lint40123584269/Dashboard40123584299 success; completed-workflow metadata updatedAt supplies completion timestamps, not active work time. Genuine archive/hash/admission/44fixed98batch2055 comparison vs0bf unchanged. Complete98 receipt exit0/pending[]/pointer733 verified before next primary edit, carried in next ordinary repair. No admission or aggregate score gain."
     }
   ]
 }

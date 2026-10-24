@@ -4050,7 +4050,12 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
         monster.mundetected = 0;
         newsym(monster.mx, monster.my, state);
     }
-    finish_meating(monster);
+    // End the meal in this state; preflight must not repaint the live map.
+    finish_meating(monster, {
+        ...rawEnv,
+        redraw: rawEnv.redraw
+            ?? (!rawEnv.planning && state === game ? newsym : () => {}),
+    });
     if (via_attack) {
         const was_peaceful = monster.mpeaceful;
 
