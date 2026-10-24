@@ -224,13 +224,15 @@ export async function erode_obj(obj, description, type, flags, env) {
     if (visobj && !uvictim && !vismon && /^the /iu.test(name))
         name = name.slice(4);
     // C's two remaining message subjects. The capitalized form opens a
-    // sentence; the lower-case one sits after "Somehow,".
-    const possessive = uvictim
+    // sentence; the lower-case one sits after "Somehow,". C selects these
+    // only inside a feedback branch, so quiet outcomes must not name a monster.
+    const nameEnv = { displayRandom: env.displayRandom };
+    const possessive = () => uvictim
         ? 'Your' : vismon
-            ? monsterPossessive(obj.ocarry, state, true) : 'The';
-    const lowerPossessive = uvictim
+            ? monsterPossessive(obj.ocarry, state, true, nameEnv) : 'The';
+    const lowerPossessive = () => uvictim
         ? 'your' : vismon
-            ? monsterPossessive(obj.ocarry, state) : 'the';
+            ? monsterPossessive(obj.ocarry, state, false, nameEnv) : 'the';
     const verbose = state.flags?.verbose !== false;
     const print = Boolean(flags & EF_VERBOSE);
 
@@ -258,7 +260,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     if (!vulnerable || (obj.oerodeproof && obj.rknown)) {
         if (verbose && print && (uvictim || vismon)) {
             await message(
-                `${possessive} ${name} ${vtense(name, 'are')} `
+                `${possessive()} ${name} ${vtense(name, 'are')} `
                 + `not affected by ${details.affectedBy}.`,
                 state,
             );
@@ -270,7 +272,7 @@ export async function erode_obj(obj, description, type, flags, env) {
         || (obj.blessed && !random.rnl(4))) {
         if (verbose && (print || obj.oerodeproof) && visible) {
             await message(
-                `Somehow, ${lowerPossessive} `
+                `Somehow, ${lowerPossessive()} `
                 + `${name} ${vtense(name, 'are')} not affected by the `
                 + `${details.affectedBy}.`,
                 state,
@@ -290,7 +292,7 @@ export async function erode_obj(obj, description, type, flags, env) {
                 ? ' completely'
                 : erosion ? ' further' : '';
             await message(
-                `${possessive} ${name} `
+                `${possessive()} ${name} `
                 + `${vtense(name, details.action)}${adverb}!`,
                 state,
             );
@@ -311,7 +313,7 @@ export async function erode_obj(obj, description, type, flags, env) {
                 ? 'shatters'
                 : `${vtense(name, details.action)} away`;
             await message(
-                `${possessive} ${name} ${action}!`,
+                `${possessive()} ${name} ${action}!`,
                 state,
             );
         }
@@ -360,7 +362,7 @@ export async function erode_obj(obj, description, type, flags, env) {
             );
         } else if (vismon || visobj) {
             await message(
-                `${possessive} ${name} ${vtense(name, 'look')} completely `
+                `${possessive()} ${name} ${vtense(name, 'look')} completely `
                 + `${details.result}.`,
                 state,
             );

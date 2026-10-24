@@ -10601,9 +10601,54 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40058284411"
             }
           ]
+        },
+        {
+          "sha": "abd0ea90861b636a63ba6e36691d25408b18b140",
+          "committedAt": "2026-10-24T09:47:22Z",
+          "runs": [
+            {
+              "id": 40083357267,
+              "name": "Checkpoint",
+              "sha": "abd0ea90861b636a63ba6e36691d25408b18b140",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vampire-revival-redraw-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T09:47:38Z",
+              "completedAt": "2026-10-24T09:55:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40083357267"
+            },
+            {
+              "id": 40084096552,
+              "name": "Lint",
+              "sha": "abd0ea90861b636a63ba6e36691d25408b18b140",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T09:59:09Z",
+              "completedAt": "2026-10-24T10:00:11Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40084096552"
+            },
+            {
+              "id": 40084096557,
+              "name": "Dashboard",
+              "sha": "abd0ea90861b636a63ba6e36691d25408b18b140",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T09:59:09Z",
+              "completedAt": "2026-10-24T10:01:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40084096557"
+            }
+          ]
         }
       ],
-      "note": "C mon.c decide_to_shapeshift moves an amorphous vampire out of a closed door with enexto/rloc_to before newcham. JS shape upkeep supplies redrawSquare/hooks.newsym,but teleport rloc_to_core reads top-level newsym/redraw. The planning clone fell back to global newsym,advancing live cosmetic RNG and repainting the live map. Bind this one caller newsym through existing shapeRedraw;live path keeps canonical redraws,clone keeps its existing silent owner. Private telemetry confirms fog619 move120 from54,8 to54,9:live=false/planning=true,hook andredrawSquare functions present,newsym/redraw undefined; matchinglivecountercall also observed. Supplemental canonical C display vector is passive-identical to ordinaryprefix after stripping~drn2 and matchesJS through67292; extra JS383draw67293 fromteleport.finishPlacement before shapeOldNames shifts the next message. The adjacentwizarddeath/refusal was incidental;no end.c change. Fresh normal/monochrome95372RNG2261screens/cursors31animations fullymatch; before-event control94007/2221/31passes both. Exact52F baseline normal/mono firstscreen2240 with allcorealreadymatching. Four native door/room x Hallu/nonHallu tests each execute initialized planning/live upkeep(8runs),forcing a lowHPfog-to-vampire-leader shape;actual relocation,shape,HP,speed and complete gameplay draw arrays agree plan/live. Assert clone leaves live display RNG,map,context,core and actor unchanged. Oldsource fails bothcloseddoorplanningcases,roomcontrols pass. Seven focused tests(3C+4native) plus469affected=476,lint/diff pass. Full private public-input Astral blind/Hallu/Detect/Conflict now206666RNG4459screens/cursors158animationsstrictpass. Canonical C activation133-136 verified; earlier role-dependent wish-acknowledgement setup attempts are retained without intendedintrinsiccoverage claims. CallbackomissionSeptember16 predatesexperiment. Distinct from162upkeep naming RNG and monmove.c vamp_shift door admission/WIN_MESSAGE repairs:this is mon.c upkeep relocation rendering. Includes complete accepted16698-batch receipt and exact provenance; no admission or measured scoregain; full hostedgatespending. Accepted distinct167 after exact-SHA Checkpoint40057417826,MainLint40058284435 andDashboard40058284411 success. Archive44/98/2055 comparison against52F verifies hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary monster wand miss repair. Further167vampire transformationdisplay-owner correction atdeath-revivalentrypoint. OldSep9vamprises finalnewsym(x,y,state) ignoredthirdarg andpaintedglobalboardfromcloneddeath. OrderedmixedRNG observerunchangedordinaryJS core/screens/cursors: firstactualdifference73248atinput893 JSextra383187 beforeCfirstdistfleeck,notlaterflatbounddifference30342batdochug. ActualJSvamprises vampire577[47,5] cloneplanningtrue/globalfalse atcosmetic30330; livecallat30424. Cmon.c2985newsymisactualonlyC;JSguardstate===game&&!env.planning preserveslivefinalredraw andallresurrectionphysics. Newchamalreadyownsits ownstate-safe redraw. Fresh normal/mono46974RNG1001screens/cursors17animations strictpass;beforecontrol41533/851/16 strictpassold/new. Exactedoldtargetsfirst894allcorematching,controlpasses;Cactualrise896verified. Four nativecases(8plan/live executions) Hallu/non xshifted/baseform: old2shiftedfail2basecontrols,new4pass. Actualvampirebatdead0/chamVAMPIRE_LEADER/HPmax30/naturalformNON_PM,realnewcham/core/HPmax/occupancy/deathcount;exactrevivaltext,canonicalthreeHallunames[430,2]x3(newchaml_oldnameunconditional),live2monsterredraws(newcham+vamprises) versuszero globalclonewrites,cloneglobalcore/display/map/monsterunchanged,plan/livegameplay/nameoutcomesequal. InitialnativeexpectedonlytwoHallunames corrected afterreadingCnewcham5295-5319 unconditional l_oldname; failure preserved, no productionnamechange. Sevenfocused+679affected=686pass,focusedESLint/diffpass. IsolatedfullTouristpetfirstscreen894->3371,corefirst3412unchanged; no fullpass or independentrest/confdirbugclaim. Conservativegroup167vampiretransformationowner rework,no distinctincrement;accepted remains177. Completeed98receipt/provenance included;fullhosted/publicationgatespending. FinalprimaryfullESLint,16registertests anddiffcheckpassed."
+      "note": "C mon.c decide_to_shapeshift moves an amorphous vampire out of a closed door with enexto/rloc_to before newcham. JS shape upkeep supplies redrawSquare/hooks.newsym,but teleport rloc_to_core reads top-level newsym/redraw. The planning clone fell back to global newsym,advancing live cosmetic RNG and repainting the live map. Bind this one caller newsym through existing shapeRedraw;live path keeps canonical redraws,clone keeps its existing silent owner. Private telemetry confirms fog619 move120 from54,8 to54,9:live=false/planning=true,hook andredrawSquare functions present,newsym/redraw undefined; matchinglivecountercall also observed. Supplemental canonical C display vector is passive-identical to ordinaryprefix after stripping~drn2 and matchesJS through67292; extra JS383draw67293 fromteleport.finishPlacement before shapeOldNames shifts the next message. The adjacentwizarddeath/refusal was incidental;no end.c change. Fresh normal/monochrome95372RNG2261screens/cursors31animations fullymatch; before-event control94007/2221/31passes both. Exact52F baseline normal/mono firstscreen2240 with allcorealreadymatching. Four native door/room x Hallu/nonHallu tests each execute initialized planning/live upkeep(8runs),forcing a lowHPfog-to-vampire-leader shape;actual relocation,shape,HP,speed and complete gameplay draw arrays agree plan/live. Assert clone leaves live display RNG,map,context,core and actor unchanged. Oldsource fails bothcloseddoorplanningcases,roomcontrols pass. Seven focused tests(3C+4native) plus469affected=476,lint/diff pass. Full private public-input Astral blind/Hallu/Detect/Conflict now206666RNG4459screens/cursors158animationsstrictpass. Canonical C activation133-136 verified; earlier role-dependent wish-acknowledgement setup attempts are retained without intendedintrinsiccoverage claims. CallbackomissionSeptember16 predatesexperiment. Distinct from162upkeep naming RNG and monmove.c vamp_shift door admission/WIN_MESSAGE repairs:this is mon.c upkeep relocation rendering. Includes complete accepted16698-batch receipt and exact provenance; no admission or measured scoregain; full hostedgatespending. Accepted distinct167 after exact-SHA Checkpoint40057417826,MainLint40058284435 andDashboard40058284411 success. Archive44/98/2055 comparison against52F verifies hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary monster wand miss repair. Further167vampire transformationdisplay-owner correction atdeath-revivalentrypoint. OldSep9vamprises finalnewsym(x,y,state) ignoredthirdarg andpaintedglobalboardfromcloneddeath. OrderedmixedRNG observerunchangedordinaryJS core/screens/cursors: firstactualdifference73248atinput893 JSextra383187 beforeCfirstdistfleeck,notlaterflatbounddifference30342batdochug. ActualJSvamprises vampire577[47,5] cloneplanningtrue/globalfalse atcosmetic30330; livecallat30424. Cmon.c2985newsymisactualonlyC;JSguardstate===game&&!env.planning preserveslivefinalredraw andallresurrectionphysics. Newchamalreadyownsits ownstate-safe redraw. Fresh normal/mono46974RNG1001screens/cursors17animations strictpass;beforecontrol41533/851/16 strictpassold/new. Exactedoldtargetsfirst894allcorematching,controlpasses;Cactualrise896verified. Four nativecases(8plan/live executions) Hallu/non xshifted/baseform: old2shiftedfail2basecontrols,new4pass. Actualvampirebatdead0/chamVAMPIRE_LEADER/HPmax30/naturalformNON_PM,realnewcham/core/HPmax/occupancy/deathcount;exactrevivaltext,canonicalthreeHallunames[430,2]x3(newchaml_oldnameunconditional),live2monsterredraws(newcham+vamprises) versuszero globalclonewrites,cloneglobalcore/display/map/monsterunchanged,plan/livegameplay/nameoutcomesequal. InitialnativeexpectedonlytwoHallunames corrected afterreadingCnewcham5295-5319 unconditional l_oldname; failure preserved, no productionnamechange. Sevenfocused+679affected=686pass,focusedESLint/diffpass. IsolatedfullTouristpetfirstscreen894->3371,corefirst3412unchanged; no fullpass or independentrest/confdirbugclaim. Conservativegroup167vampiretransformationowner rework,no distinctincrement;accepted remains177. Completeed98receipt/provenance included;fullhosted/publicationgatespending. FinalprimaryfullESLint,16registertests anddiffcheckpassed. Accepted grouped167revival correctionabd afterexact-SHA Checkpoint40083357267,MainLint40084096552 andDashboard40084096557success. Exactarchivehashes/admissionproof/full44fixed98synthetic2055comparison versused passedunchanged. Complete98receiptcarriedhere. Accepted distinct177, noincrementforrework."
     },
     {
       "id": "monster-wand-miss-owner",
@@ -11749,6 +11794,47 @@
         }
       ],
       "note": "C display.c newsym1046-1054 uses tp_sensemon, MATCH_WARN_OF_MON, or see_with_infrared&&mon_visible; display.h113 explicitly excludes globally broader canseemon from display routines. JS canseemon lets visible head/worm_known expose unseen tail. Passive public-compatible Healer observer atmove195: three tails[33,3],[33,4],[32,4] invisible with tp/warn/infrafalse but canseemontrue; accounts for115JS versus112C redraw draws. Correct caller predicates, preserve canonical APIs, physical sight/detection/telepathy/infrared rules. Fresh normal/mono156172RNG3001screens/cursors18animations strictpass; beforecontrol143980/2851/15 strictpass old/new. Old3d targets firstscreen2883/cursor2891/animation2907 with allcore matching. Eight initialized native cases Hallu/non x none/detection/telepathy/visible-tail: old4fail4controls,new8pass; exact display/core context, known head, monster/segment/HP/occupancy guards. Full independent4554 Healer now all240403 gameplayRNG match, later screen3904 unresolved; no full-pass or score gain claim. Old October2 implementation predates experiment. New distinct repair only after all hosted/publication gates; accepted remains176. Includes complete98 prior3d receipt. Final11focused+494affected=505 tests,16register tests, fullESLint anddiffcheckpassed. Accepted distinct177 after exact-SHA Checkpoint40080031553, MainLint40080632807 and Dashboard40080632848 success. Exact archived hashes/admission-proof/full44fixed98synthetic2055 comparison versus3d passed unchanged. Complete98 checker receipt carried here."
+    },
+    {
+      "id": "erosion-feedback-names",
+      "kind": "parity-repair",
+      "title": "Select erosion feedback names when printed",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T10:07:40.683263+00:00",
+          "end": "2026-10-24T10:07:40.683263+00:00",
+          "note": "Source qualification observation only; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/trap.c:245-357 erode_obj feedback branches",
+          "js/trap_erode_obj.js:erode_obj",
+          "js/do_name.js:monsterPossessive canonical displayRandom"
+        ],
+        "witness": [
+          "recipes/trap.c/erosion-feedback-normal.session.json",
+          "recipes/trap.c/erosion-feedback-monochrome.session.json",
+          "recipes/trap.c/erosion-feedback-before-control.session.json"
+        ],
+        "test": [
+          "scripts/erosion-feedback-names.test.mjs",
+          "scripts/trap-erode-obj.test.mjs",
+          "scripts/explode.test.mjs",
+          "scripts/explosion-description.test.mjs",
+          "scripts/mhitm.test.mjs",
+          "scripts/mcastu.test.mjs",
+          "scripts/trap-water-damage.test.mjs",
+          "scripts/zap-ray.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Independent genericerosionfeedback selection/owner defect. AftervampguardfirstprivateTouristpetscreen3371; passive3401ordinaryCcore/screens/cursorsidentical; mixedobserverunchangedordinaryJS. Firstmixed257579andglobal119010 JS430280 beforeC5core/383display. Directpriestname->monsterPossessive->erode_obj->burn_dmg->burnarmor. Actualmove170 clonedplanningtrue,existingdisplayRandomfunction,canonicalvismontrue/Blindfalse,robe143/wearer406,BURN0,flags1EF_GREASE,vulnerabletrue,erosion0,proof/knownfalse. Ctrap245-357 choosescapitalizedMonnam orlowercase mon_nam onlyinactualprintedbranch. JSeagerlyselectedboth namesbeforegrease/vulnerability/proof/quiet decisions andomittedowneddisplaycallback. Makebothselectorslazy,passdisplayRandomonly,preservecanonicalvisibility/defaultnaming/gameplay andunmodifiedgrease_protect/acid_damage helpers. Ten nativecases(20plan/live) Hallu/non xdamage/quietmetal/proofmessage/knownproofquiet/unseendetected: old4visibleHallufail6controls,new10pass. CatalogclothrobeW_ARMC orironplateW_ARM,actualgoblinNON_PM/validOBJ_MINVENTowner+mask,canonicalcanseemon versuscanspotmon,EF_GREASEignoredforburnasC;core0draws,ownedHalluone4302paironlyactualfeedback,nonequiet/unseen. Exactupper/lowertext,ER_DAMAGED/ER_NOTHING,oeroded/rknown/HP/ownership/clonedglobalcore/display/map/itemguards,plan/livestatesequal. Freshnormal/mono140191RNG3401screens/cursors110animationsstrictpass;beforecontrol137223/3301/38strictpassold/new. Exactabdbaselinesfirst3371withallcorematching,controlpasses. IsolatedfulloriginalTouristpet319637RNG4554screens/cursors204animationsstrictpass;later3412corealsoclearedwithoutcmd/hackchange,donotclaimindependentrestbug. Thirteenfocused+794affected=807pass,focusedESLint/diffpass. Oldgenericfunctionfeedback codeAug17/Sep16predatesexperiment;noearlierregisterrepairsourceerode_obj,distinctgenericbranch-selectiondefectnotexplosioncallbackrepair176orvamp167rework. Provisional178onlyafterfullhosted/exactSHApublication gates;accepted remains177. No officialscore/admissiongain. Completeacceptedabd98receipt/provenanceincluded. FinalprimaryfullESLint,16registertests,diffcheckandfinalsourcefullTouristpet319637/4554/204strictpass."
     }
   ]
 }
