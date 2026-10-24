@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public-input elapsed-turn timeout handoff witness; C allmain.c moveloop_core212,273-274; actual monster gain-level grow_up and later blindness vapor. Before-control ends before failing timeout boundary.",
+  "segments": [
+    {
+      "seed": 8432060,
+      "datetime": "20270116100000",
+      "nethackrc": "OPTIONS=name:PetConflictProbe,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800t>>800h\n    m.    n    \nm.    n  "
+    }
+  ]
+}

@@ -760,7 +760,7 @@ function elapsedTurnMinLiquid(monster, env) {
 export async function finishElapsedTurn(
     state,
     random,
-    { planning = false, randomMonsterOnly = false } = {},
+    { planning = false, randomMonsterOnly = false, timeoutHandoff = false } = {},
 ) {
     // Every message and status seam this block hands a callee is one of these
     // three, so the planning and live arms are chosen once rather than per
@@ -931,7 +931,10 @@ export async function finishElapsedTurn(
     // C's fatal timeout never reaches the remaining upkeep. JS's end-game
     // owner returns so the recorder can retain its final capture.
     if (state.program_state?.gameover) return { afterTimeout: liveTimeout };
-    if (liveTimeout) {
+    // The dry run can stop here even when a live-only monster item action
+    // changes the ensuing timeout. Its tail was never planned, so retain
+    // that handoff and validate the tail against the actual post-timeout state.
+    if (liveTimeout || timeoutHandoff) {
         const tailPlan = await preflightElapsedTurnTail(
             state,
             (planned, planningRandom) => finishElapsedTurnAfterTimeout(
@@ -1582,7 +1585,10 @@ async function advanceElapsedTurn(state) {
             let afterLevelEffects;
             let afterStorms;
             try {
-                const result = await finishElapsedTurn(state, random);
+                const result = await finishElapsedTurn(state, random, {
+                    timeoutHandoff: preflight.beforeTimeout
+                        && upkeepCount === preflight.upkeepCount,
+                });
                 afterUnmul = result?.afterUnmul;
                 afterTimeout = result?.afterTimeout;
                 afterHunger = result?.afterHunger;
