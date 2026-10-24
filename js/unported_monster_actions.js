@@ -1302,9 +1302,9 @@ function monsterMissileEnv(monster, env) {
                 ),
                 losehp,
                 fromMonster: true,
-                planningDeath: env.planning
-                    && typeof env.planningDeath === 'function'
-                    ? () => env.planningDeath(monster)
+                planningDeath: actionEnv.planning
+                    && typeof actionEnv.planningDeath === 'function'
+                    ? () => actionEnv.planningDeath(monster)
                     : undefined,
             });
         },

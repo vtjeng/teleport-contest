@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent fresh public black-naga projectile-death probe, adapted public setup only;new seed/date/name and C evidence,no score claim",
+  "segments": [
+    {
+      "seed": 8432020,
+      "datetime": "20261119140000",
+      "nethackrc": "OPTIONS=name:SpitOwner,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  qh               \u0007black naga\nkyhhhhhhhhhh....................m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n"
+    }
+  ]
+}

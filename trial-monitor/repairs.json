@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-23T23:58:25.697Z",
+  "asOf": "2026-10-24T00:26:20.991Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9566,8 +9566,96 @@
           "scripts/muse.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "db19a3c6390af4ef5173e178bf9de86ec95a352f",
+          "committedAt": "2026-10-23T23:59:02Z",
+          "runs": [
+            {
+              "id": 40042682443,
+              "name": "Checkpoint",
+              "sha": "db19a3c6390af4ef5173e178bf9de86ec95a352f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/floor-fire-delete-20261023",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-23T23:59:42Z",
+              "completedAt": "2026-10-24T00:06:34Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40042682443"
+            },
+            {
+              "id": 40043928895,
+              "name": "Lint",
+              "sha": "db19a3c6390af4ef5173e178bf9de86ec95a352f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T00:13:53Z",
+              "completedAt": "2026-10-24T00:14:48Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40043928895"
+            },
+            {
+              "id": 40043928894,
+              "name": "Dashboard",
+              "sha": "db19a3c6390af4ef5173e178bf9de86ec95a352f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T00:13:53Z",
+              "completedAt": "2026-10-24T00:16:42Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40043928894"
+            }
+          ]
+        }
+      ],
+      "note": "C burn_floor_objects routes a fully consumed non-hero floor stack through delobj(), whose delobj_core guard spends obj_resists(obj,0,0) before extraction,unhiding,map redraw and freeing. JavaScript helper directly extracted/freed,skipping that source deletion owner. Call canonical delobj with the existing object environment;partial quantity/weight and hero-caused useupf/billing paths are unchanged. Output-only floor trace shows one teleport scroll,potion and corpse at36,19; the extra C roll belongs to deleting the consumed scroll,not a second pile item. Actual frozen157 d70f085 baseline normal/monochrome first differs core39277/boundary818 after the burn quantity roll. Repaired witnesses strictly match39738 RNG/821screens/cursors/33animations. The before-trigger control passes both; exact metrics are retained in the replay reports. Eight initialized-game cases cover live/planning x partial/whole x hero/non-hero,checking ordered resistance/deletion RNG,split-ID draw when appropriate,both floor links,quantity,redraw,ignition and no globalcore mutation.11focused including3C+8native plus513affected=524tests pass;lint/diff pass. Initial partial prototype lacked required unused random-interface members,and two first native hero-partial controls omitted source next_ident rnd(2); setup logs and source corrections are preserved without production ID changes. Private full Priest continuation strictly matches90190 RNG/2153screens/cursors/379animations; independent Ranger and Tourist continuations pass after the fix without corpus admission or score claims. Longer Monk input preserves a separately source-attributed psychic target eligibility correction,conservatively grouped under149 rather than a new repair. Complete accepted157 receipt included;full hosted gates pending. Before-trigger control exact totals:39274 RNG/817 screens/cursors/32 animations,strictly passing baseline and repaired code. Accepted as distinct repair158 after Checkpoint40042682443 and exact Main Lint40043928895 / Dashboard40043928894 passed. Exact44-fixed /98-batch /2055-case archived comparison againstd70f08537 found no regressions, missing evidence, or aggregate changes. Existing checker recorded complete98 receipt,carried in this ordinary repair."
+    },
+    {
+      "id": "fatal-spit-owner",
+      "kind": "parity-repair",
+      "title": "Preserve attack-local fatal projectile planning callbacks",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T00:20:52.772Z",
+          "end": "2026-10-24T00:20:52.772Z",
+          "note": "Instantaneous preserved source-attribution observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mthrowu.c:thitu75-155",
+          "js/unported_monster_actions.js:monsterMissileEnv.hitHero1290-1308",
+          "js/mhitu.js:mattacku1657",
+          "js/mthrowu.js:thitu2007-2017"
+        ],
+        "witness": [
+          "recipes/mthrowu.c/fatal-spit-owner-fatal.session.json",
+          "recipes/mthrowu.c/fatal-spit-owner-monochrome.session.json",
+          "recipes/mthrowu.c/fatal-spit-owner-before-control.session.json"
+        ],
+        "test": [
+          "scripts/fatal-spit-owner.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mhitm.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/zap.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C burn_floor_objects routes a fully consumed non-hero floor stack through delobj(), whose delobj_core guard spends obj_resists(obj,0,0) before extraction,unhiding,map redraw and freeing. JavaScript helper directly extracted/freed,skipping that source deletion owner. Call canonical delobj with the existing object environment;partial quantity/weight and hero-caused useupf/billing paths are unchanged. Output-only floor trace shows one teleport scroll,potion and corpse at36,19; the extra C roll belongs to deleting the consumed scroll,not a second pile item. Actual frozen157 d70f085 baseline normal/monochrome first differs core39277/boundary818 after the burn quantity roll. Repaired witnesses strictly match39738 RNG/821screens/cursors/33animations. The before-trigger control passes both; exact metrics are retained in the replay reports. Eight initialized-game cases cover live/planning x partial/whole x hero/non-hero,checking ordered resistance/deletion RNG,split-ID draw when appropriate,both floor links,quantity,redraw,ignition and no globalcore mutation.11focused including3C+8native plus513affected=524tests pass;lint/diff pass. Initial partial prototype lacked required unused random-interface members,and two first native hero-partial controls omitted source next_ident rnd(2); setup logs and source corrections are preserved without production ID changes. Private full Priest continuation strictly matches90190 RNG/2153screens/cursors/379animations; independent Ranger and Tourist continuations pass after the fix without corpus admission or score claims. Longer Monk input preserves a separately source-attributed psychic target eligibility correction,conservatively grouped under149 rather than a new repair. Complete accepted157 receipt included;full hosted gates pending. Before-trigger control exact totals:39274 RNG/817 screens/cursors/32 animations,strictly passing baseline and repaired code."
+      "note": "C thitu reaches fatal losehp as a terminal input boundary. JavaScript mattacku already gives the current attack a MonsterDeathPlanningError callback for that boundary,but monsterMissileEnv.hitHero overwrote it with an earlier environment callback,which can be undefined. Preserve the current action environment callback,matching the adjacent poison adapter. The existing thitu fatal planning guard now stops the clone before end-game input/display; live damage,RNG and all non-global display guards remain unchanged. Output-only trace confirms planning=true,outer callback undefined,action callback function at damage9/HP5. Independent fresh black-naga304-boundary normal/monochrome C witnesses contain no mind flayer and fail unmodified158 with curs_on_u global-state guard. Repaired witnesses strictly match4425 RNG/304screens/cursors/22animations; before-trigger4251/251/13 control passes baseline and fix. Five native canonical monster-action cases cover fatal/nonfatal planning,missing/stale outer callbacks,and live nonfatal damage; assert correct attack monsterId,no stale callback,no globalHP/core/ID/map/program mutation from clones,and no planning input reads. Initial prototype checked error.monster instead of source monsterId; fixture corrected and logs retained,without changing the error class.8focused including3C+5native plus662affected=670 tests pass;lint/diff pass. A private longer Monk replay requires both this independently reproduced older projectile adapter fix and the separately grouped149 peaceful-flag correction; no claim that either alone resolves the full5753 case and no aggregate score gain claimed. Complete accepted158 receipt included;full hosted gates pending."
     }
   ]
 }
