@@ -9853,9 +9853,54 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40047811461"
             }
           ]
+        },
+        {
+          "sha": "8740f84a1fd8ea2673766035e03409cff15afa8a",
+          "committedAt": "2026-10-24T06:55:13Z",
+          "runs": [
+            {
+              "id": 40072106175,
+              "name": "Checkpoint",
+              "sha": "8740f84a1fd8ea2673766035e03409cff15afa8a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/knockback-name-owner-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T06:55:26Z",
+              "completedAt": "2026-10-24T07:02:47Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40072106175"
+            },
+            {
+              "id": 40072971528,
+              "name": "Lint",
+              "sha": "8740f84a1fd8ea2673766035e03409cff15afa8a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T07:08:37Z",
+              "completedAt": "2026-10-24T07:09:35Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40072971528"
+            },
+            {
+              "id": 40072971377,
+              "name": "Dashboard",
+              "sha": "8740f84a1fd8ea2673766035e03409cff15afa8a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T07:08:37Z",
+              "completedAt": "2026-10-24T07:11:24Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40072971377"
+            }
+          ]
         }
       ],
-      "note": "C successful mhurtle_step moves the monster,redraws old/new cells,flushes,and emits one delay frame per cell. JavaScript speculative execution retained the live frame hook and ran these presentation calls before executing the live attack again. Output-only owner trace monster590/moves55 shows planned non-global two-cell knockback followed by actual two-cell knockback. Keep cloned displacement,region/trap and apparent-hero effects,while suppressing successful-step live redraw/flush/delay under env.planning;retain live C order and all non-global guards. This older adapter code originates92337428e6 September27,independent from grouped149 flags. Exact8640 normal/monochrome baseline has4frames vsC2 atboundary2681;before-trigger control passes. Three freshly recorded C replays strictly pass:normal/monochrome48599RNG2683screens/cursors234animations,control48583/2681/232. Six initialized-game cases cover planning/live x range0/1/2,checking coordinates,grid ownership,movement/stun,one live frame per cell,no clone frame and unchanged global map/display/core. Native baseline two-cell clone emitted2frames instead of0.9focused including3C+6native plus788affected=797tests pass;lint/diff pass. Full independent Rogue continuation strictly matches79498RNG4433screens/cursors371animations;Barbarian controls pass4433 and8033boundaries,without corpus admission or score claims. Complete grouped14998-batch hosted receipt included;full hosted gates pending. Accepted as distinct160 after exact Checkpoint40047144138,Lint40047811376 and Dashboard40047811461 succeeded. Hash-verified44fixed/98batch/2055case comparison against8640 found no regressions,missing evidence or aggregate changes. Complete98publicationreceipt carried in next ordinary constructor repair. Further grouped160knockbackpresentation-owner correction,NOT distinct repair. Beamformatterhypothesisrefuted. Afterisolated175vaporfix firstscreen204targetnameCettinmummy vsJSbabylongword. Passive241Cprefixordinary-identical core/screens/cursors;5204Ccosmeticdraws vs5206JSglobal. Firstglobalindex3424 C383151 vsJS430234 then2=0. JSdirectstack Monnam->mhitm_knockbackuhitm7988->hitmu->mattacku->dochug atmove8. Cloned speculative feedback attackername omitsactive displayowner. Ccaller m_move inheritedlastcoremetadata,notdirectcallattribution. Actualbeam hit itselfhasownerfunction andcanSpottrue;do not editzapformatter basedonlater symptom. Full C5247-5420 and JS7880-8050 read. Livepublichero target reachesnormalattackerMonnam. Nativefiregiant actualspeciesAT_WEAPphysical,alive,sizegap>1,solid,nohug/engulf/sticks,noheldweapon;normalROOMdestinationvalid,sourcechance3/6successful;goblinmoveoractualcarriedLOADSTONEsteadfast. Planning/live helperprovidedboundowner,sourceCMonnamcanonical. OriginalnativeprototypeartificialAT_CLAWreplacedbyactualspeciesattack;BigIntserializationfixtureerrorretained. No productioneditbeforethisscopefreeze. Fresh normal/mono11200RNG241screens/cursors12animationsstrictpass,before8716/191/9strictpass. Exactc587oldnormal/monofirst204,coreallmatching,controlpasses. Six initialized actualmhitm_knockback cases(12planning/live) Hallu/non xrejected/steadfast/moved. ActualfiregiantAT_WEAPphysical/goblin,actualcarriedloadstonewithcatalogclass/material/weight;fullchance/geometry/size/solid/weapon/sourcepredicatepath,realmhurtle1cell,actualanimation0clone/1live,stun/movement/mapownership/HP/core/cosmeticcallbackguards. Old2Halluacceptedfeedbackfails4controls pass,new6pass. Ninefocused+697affected=706tests,lint/diffpass;catalogweighttightening6native rerunpass. Fullprivatepet4554nowfirstscreen894/core138656at3371,separateunsolvedsources,notfullpass/noadmission/scoregain. Grouped160rework,notdistinctcount. No beam/zapformatterchange. TwoMonnamcallsforwardonlydisplayRandom;allothernaming/gameplay/predicates/animationunchanged. Includes complete accepted17598-batchreceipt/provenance. Fullhostedandpublicationgatespending;accepted distinct stays175."
+      "note": "C successful mhurtle_step moves the monster,redraws old/new cells,flushes,and emits one delay frame per cell. JavaScript speculative execution retained the live frame hook and ran these presentation calls before executing the live attack again. Output-only owner trace monster590/moves55 shows planned non-global two-cell knockback followed by actual two-cell knockback. Keep cloned displacement,region/trap and apparent-hero effects,while suppressing successful-step live redraw/flush/delay under env.planning;retain live C order and all non-global guards. This older adapter code originates92337428e6 September27,independent from grouped149 flags. Exact8640 normal/monochrome baseline has4frames vsC2 atboundary2681;before-trigger control passes. Three freshly recorded C replays strictly pass:normal/monochrome48599RNG2683screens/cursors234animations,control48583/2681/232. Six initialized-game cases cover planning/live x range0/1/2,checking coordinates,grid ownership,movement/stun,one live frame per cell,no clone frame and unchanged global map/display/core. Native baseline two-cell clone emitted2frames instead of0.9focused including3C+6native plus788affected=797tests pass;lint/diff pass. Full independent Rogue continuation strictly matches79498RNG4433screens/cursors371animations;Barbarian controls pass4433 and8033boundaries,without corpus admission or score claims. Complete grouped14998-batch hosted receipt included;full hosted gates pending. Accepted as distinct160 after exact Checkpoint40047144138,Lint40047811376 and Dashboard40047811461 succeeded. Hash-verified44fixed/98batch/2055case comparison against8640 found no regressions,missing evidence or aggregate changes. Complete98publicationreceipt carried in next ordinary constructor repair. Further grouped160knockbackpresentation-owner correction,NOT distinct repair. Beamformatterhypothesisrefuted. Afterisolated175vaporfix firstscreen204targetnameCettinmummy vsJSbabylongword. Passive241Cprefixordinary-identical core/screens/cursors;5204Ccosmeticdraws vs5206JSglobal. Firstglobalindex3424 C383151 vsJS430234 then2=0. JSdirectstack Monnam->mhitm_knockbackuhitm7988->hitmu->mattacku->dochug atmove8. Cloned speculative feedback attackername omitsactive displayowner. Ccaller m_move inheritedlastcoremetadata,notdirectcallattribution. Actualbeam hit itselfhasownerfunction andcanSpottrue;do not editzapformatter basedonlater symptom. Full C5247-5420 and JS7880-8050 read. Livepublichero target reachesnormalattackerMonnam. Nativefiregiant actualspeciesAT_WEAPphysical,alive,sizegap>1,solid,nohug/engulf/sticks,noheldweapon;normalROOMdestinationvalid,sourcechance3/6successful;goblinmoveoractualcarriedLOADSTONEsteadfast. Planning/live helperprovidedboundowner,sourceCMonnamcanonical. OriginalnativeprototypeartificialAT_CLAWreplacedbyactualspeciesattack;BigIntserializationfixtureerrorretained. No productioneditbeforethisscopefreeze. Fresh normal/mono11200RNG241screens/cursors12animationsstrictpass,before8716/191/9strictpass. Exactc587oldnormal/monofirst204,coreallmatching,controlpasses. Six initialized actualmhitm_knockback cases(12planning/live) Hallu/non xrejected/steadfast/moved. ActualfiregiantAT_WEAPphysical/goblin,actualcarriedloadstonewithcatalogclass/material/weight;fullchance/geometry/size/solid/weapon/sourcepredicatepath,realmhurtle1cell,actualanimation0clone/1live,stun/movement/mapownership/HP/core/cosmeticcallbackguards. Old2Halluacceptedfeedbackfails4controls pass,new6pass. Ninefocused+697affected=706tests,lint/diffpass;catalogweighttightening6native rerunpass. Fullprivatepet4554nowfirstscreen894/core138656at3371,separateunsolvedsources,notfullpass/noadmission/scoregain. Grouped160rework,notdistinctcount. No beam/zapformatterchange. TwoMonnamcallsforwardonlydisplayRandom;allothernaming/gameplay/predicates/animationunchanged. Includes complete accepted17598-batchreceipt/provenance. Fullhostedandpublicationgatespending;accepted distinct stays175. Accepted grouped160correction874 after exact-SHA Checkpoint40072106175,MainLint40072971528andDashboard40072971377success. Archive44/98/2055comparisonagainstc587verifiedhashes/admissionproof,no regressions/drops/missing/scorechanges.Complete98receiptcarriedinnextordinaryexplosiondescriptionrepair.Accepteddistinctremains175."
     },
     {
       "id": "mplayer-object-hooks",
@@ -11182,7 +11227,10 @@
       "evidence": {
         "source": [
           "C mon.c monkilled3377-3418",
-          "JS mon.js monkilled5988"
+          "JS mon.js monkilled5988",
+          "nethack-c/upstream/src/makemon.c:1355 NON_PM initialization",
+          "nethack-c/upstream/src/mon.c:3245-3247 corpse chance",
+          "nethack-c/upstream/include/monsters.h:727-733 goblin frequency/size"
         ],
         "witness": [
           "recipes/mon.c/monkilled-name-owner-normal.session.json",
@@ -11250,7 +11298,7 @@
           ]
         }
       ],
-      "note": "Forward only active displayRandom to capitalizedMonsterName at visible death feedback; canonical sensing stays default as CMonnam. ActualpublicTouristvictim800atmove167,fltxtempty,planningtrue/non-global,displayOwnerfunction supplied but omitted at naming. Firstglobal95148 C38314 versusJS43013/2=1 frommonkilled->mdamagem->mattackm->fightm. Ordinary-identical passive2901prefix;Cosmetics95552both,butfirstscreen2867name scorpionvssnake. After169hitmmcorrectionfirstscreen2867/core3072 remains. Ccallercontextm_move inherited,notdirectcallproof;JSstackandenvcontext direct. 3ef1e104Aug8 namecallpredatesexperiment;distinctmon.c death feedback owner,not169mhitmhit/miss formatting. Classification provisional until fully qualified. 3freshCnormal/mono124098RNG2901screens/cursors603animationsstrictpass;beforecontrol122316/2851/599passesbeforeandafter. Baseline369f+exact169mhitmblob42b7c792equalsd728executiontree;bothfirstscreen2867withallcorematching,controlpasses.Four initialized nativeHallu/non xempty/nullfltxt eachplanning/live(8runs),actualinvisibleDetectedgoblin,canseeTiletrue/canseemonfalse/canspottrue,realmondead+normaldeathdropscorpseeligibilityrn2(3)=1declinescorpse,exactdeathtext/cosmetic[430,2],globalcore/context/cloneHP/mapownershipchecks;oldHallu-messagecasefails3controlspass,newall4pass.7focused+596affected=603pass,lint/diffpass. FullTouristfirstscreen3078/corecall128203passiveacidliquidcorefallback,notsolvedhere;notfullpass.Noadmissionormeasuredgain;notaccepted174. Includes complete accepted grouped169 correction98-batch receipt. Candidate174 pending all hosted and publication gates. Accepted distinct174 after exact-SHA Checkpoint40069029625, MainLint40069600097 and Dashboard40069600041 success. Archive44/98/2055 comparison againstd728 verifies hashes/admissionproof without drops,missing,regressions or scorechanges. Complete98 receipt shipped in next ordinary grouped169feedback correction."
+      "note": "Forward only active displayRandom to capitalizedMonsterName at visible death feedback; canonical sensing stays default as CMonnam. ActualpublicTouristvictim800atmove167,fltxtempty,planningtrue/non-global,displayOwnerfunction supplied but omitted at naming. Firstglobal95148 C38314 versusJS43013/2=1 frommonkilled->mdamagem->mattackm->fightm. Ordinary-identical passive2901prefix;Cosmetics95552both,butfirstscreen2867name scorpionvssnake. After169hitmmcorrectionfirstscreen2867/core3072 remains. Ccallercontextm_move inherited,notdirectcallproof;JSstackandenvcontext direct. 3ef1e104Aug8 namecallpredatesexperiment;distinctmon.c death feedback owner,not169mhitmhit/miss formatting. Classification provisional until fully qualified. 3freshCnormal/mono124098RNG2901screens/cursors603animationsstrictpass;beforecontrol122316/2851/599passesbeforeandafter. Baseline369f+exact169mhitmblob42b7c792equalsd728executiontree;bothfirstscreen2867withallcorematching,controlpasses.Four initialized nativeHallu/non xempty/nullfltxt eachplanning/live(8runs),actualinvisibleDetectedgoblin,canseeTiletrue/canseemonfalse/canspottrue,realmondead+normaldeathdropscorpseeligibilityrn2(3)=1declinescorpse,exactdeathtext/cosmetic[430,2],globalcore/context/cloneHP/mapownershipchecks;oldHallu-messagecasefails3controlspass,newall4pass.7focused+596affected=603pass,lint/diffpass. FullTouristfirstscreen3078/corecall128203passiveacidliquidcorefallback,notsolvedhere;notfullpass.Noadmissionormeasuredgain;notaccepted174. Includes complete accepted grouped169 correction98-batch receipt. Candidate174 pending all hosted and publication gates. Accepted distinct174 after exact-SHA Checkpoint40069029625, MainLint40069600097 and Dashboard40069600041 success. Archive44/98/2055 comparison againstd728 verifies hashes/admissionproof without drops,missing,regressions or scorechanges. Complete98 receipt shipped in next ordinary grouped169feedback correction. Testfixturecorrectiongrouped174,notnewrepair:rawnewMonsterischam0asCzeromonst,butruntimeCmakemon1355initializesregularmonsterchamNON_PM.Oldfixtureinadvertentlyrestoredgiantantondeathandclaimedbound3;supersededbyexplicitNON_PMnormalGoblin,sourcefreq2/MZ_SMALL givescorpse_chancebound2,noformrestore.Postdeathspeciesassertadded.Fourcorrectednativepass,oldmon.jsd728owner-code1fail3controls,public3Cunchangedstrictpass. No constructordefault/gameplaychangeoracceptedcountincrease. Correctionincludedwithordinaryexplosioncandidate;fullpublicationgatespending."
     },
     {
       "id": "vapor-feel-prefix",
@@ -11339,6 +11387,53 @@
         }
       ],
       "note": "Fresh publicTourist8432044/dateDec24 petdog initialHallu/Blind/Deaf/Detect/Conflict137-141verified. Firstscreen171(1based) CYou dream that you feel rather tired versusJSYou feel rather tired; gameplaycorematchesatthatboundary. Output-onlyobserver actualmove4 planningandlive multi-116 usleep3 nomovemsgYouwake up heroUnawaretrue; callerpotionbreathe->potionhit->m_throw->use_offensive->mattacku->dochug. CYou_feel selectsdream prefix underUnaware;JSsleepingandconfusion/boozehardcodednormalprefix. Preservewait/RNG/nomulorder,helpersleepawarenessalgorithm,propertiesandgameplay. SourcecallpredatesSep2;distinctpotion/plineprefixdefect,not169combatmonster-namingrework.Provisional175pendingqualificationandallgates. Fresh normal/mono8716RNG191screens/cursors9animationsstrictpass,before6167/161/0strictpass. Exact74d oldtargetsfirst171withallcorematching;controlpasses. Twelveinitialized realpotionbreathecases(24planning/live) sleeping/confusion/booze xawake/paralyzed/asleep/fainted;old6dreamingfails6controlspass,new12pass. Actualvalidpotionclass/material,objectin_usepreservation,RNGexactrnd5andDexexercise2,sleepmultiandnomovemsg/confusiontimeout,clone/globalcore/displayguard. Fifteenfocused+322affected=337pass;afterfixtureclass/materialtightening15focusedrerunpass;lint/diffpass. No scoregain/admission,notaccepted175;nextseparatebeamtargetname204retainedlonger241evidence. Initial241-boundary target recordings revealed separate zapbeamtargetnaming at204 afterYoufeel171fixed. Preserved full extended241recipes/recordings and failedtests,selected new190-key recipe coveringtargetandendingbeforeunrelated204;freshC recording,notgoldencropping. Correctedaffectedfilepath toexistingmonster-hurls-potion test; do not claim initial333tests passed. Implement completeCYou_feelprefix viaexistingheroUnaware,wirebothCYou_feelcallswithin potionbreathe sleeping/confusion/booze. Preservecanonicalmessagewait,RNG/state/nomulorder. SourceSep2predatesexperiment;independentpline/potiondefect,not169combatfeedbackrework. Includescomplete accepted74d98-batchreceipt. Candidate175pendingallhostedpublicationgates. Accepted distinct175 after exact-SHA Checkpoint40070971408, MainLint40071575171 and Dashboard40071575276 success. Archive44/98/2055 comparison against74dverifiedhashes/admissionproof,no regressions/drops/missing/scorechanges. PublicationcheckerpreflightHTTP503ghrepoGraphQLlookupfailedbeforewrites;treecleanverified,samenormalroutelaterretrycompleted98receipt,nocredentialchanges/noCIrerun. Receiptcarriedinnextordinary160knockbackcorrection."
+    },
+    {
+      "id": "explosion-description-owner",
+      "kind": "parity-repair",
+      "title": "Keep hallucinated explosion descriptions off gameplay RNG",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T06:52:23.568633+00:00",
+          "end": "2026-10-24T06:52:23.568633+00:00",
+          "note": "Preserved source qualification observation only; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "C explode.c explode490-501,595-600",
+          "C do_name.c rndmonnam display RNG",
+          "JS explode.js hallucinatoryExplosion398-405",
+          "js/explode.js:hallucinatoryExplosion",
+          "js/do_name.js:rndmonnamDetails API",
+          "nethack-c/upstream/src/makemon.c:1350-1355 light/NON_PM initialization"
+        ],
+        "witness": [
+          "recipes/explode.c/hallucinatory-description-normal.session.json",
+          "recipes/explode.c/hallucinatory-description-monochrome.session.json",
+          "recipes/explode.c/hallucinatory-description-nonhallucinating-control.session.json"
+        ],
+        "test": [
+          "scripts/explosion-description.test.mjs",
+          "scripts/explode.test.mjs",
+          "scripts/mhitm.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/mon-kill.test.mjs",
+          "scripts/mon.test.mjs",
+          "scripts/monkilled-names.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/zap-destroy-items.test.mjs",
+          "scripts/dothrow-breakobj.test.mjs",
+          "scripts/do-name.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Independent Astral pet probe firstcore138656at3371: Cnextdestroy_itemsrn2(5)=2 versusJSextra430=427/7640=1284. DirectJSstack rndmonnam->hallucinatoryExplosion->explode->mon_explodes->explmm->mattackm atmove170. rndmonnam explicitly accepts cosmetic RNG asenv.random anddoesnotreadenv.displayRandom;wholeenvsuppliesgameplayrandom evenwhenplanneddisplayownerprovided. Bindcanonical random:env.displayRandom??rn2_on_display_rng,asx_monnamalreadydoes. Freshminimalpublic hostileflamingspherewitnessreproducesfirstcore2693/screen72;no dependencyonunresolved894redraw. Fresh normal/mono2842RNG253screens/cursors2animationsstrictpass;nonHallucontrol2840/230/2strictpassold/new. Exact874oldtargetsfirstcore2693/screen72atCburnarmorrn2(5)versusJS430,controlpasses. ActualCinitialHallu21,target71smakkenexplodes/xeroc caught/fatal+debugdecline74-76verified. Four initialized nativeHallu/non xexplicit-live/default-liveeachplan/live(8executions) actualmon_explodesrealflamingsphereAT_EXPLAD_FIRE4d6,CNON_PM/light/emits_light/movingcontext/nakedgear;realmondead/lightrelease/explode/burnarmor/destroy_items/heroHP100->96. Exactcore[d4,6;5;5;2],Halluownedcosmetics[430,7640],owlpugdescriptionequalclone/live,globalcore/context/display/HP/light/monsterownership. Old2Hallufail2controls,new4pass. Sevenfocused+609affected=616pass,lint/diffpass. Includes corrected174normalGoblinchamNON_PMdeathfixture/corebound2andpostdeathspeciesassertion;4correctednativepass,oldowner-code1fail3controls,samepublicCstillpasses. No newgameplayRNGAPI,source-defaultconstructorchange,admissionorscoregain. Retrylimitmonster20alreadyCcorrect;herounboundedversuslegacyshared20remainsseparatelydeferred,notchanged/certifiedhere. Provisionaldistinct176onlyafterfullhostedpublicationgates;174fixturecorrectioncountsasrework. Preserved missing-light and degenerate-random fixture failures. Cmakemon1350registerslightsourceand1355setsNON_PM. Native nowactualnew_light_source/emits_light,explicitNON_PM,nakedvalidgearstate,HP100,realmondead/lightrelease. All-zero scriptedrngincorrectlyloopsCburnarmorcontinuingemptyhelmet;validtorsochoice1terminatesasC113-140. Rawcham0causedgiantantdeathrestoration;correctnormal-spherebaseCnative. Earlier174monkilledfixturealso correctedNON_PM:Cinclude/monsters.h Goblinfreq2,sizeSMALL givescorpse_chance bound2 atmon3247,not oldgiantantbound3. Corrected4nativepass,oldowner-code1fail3controls stillreproduces,publicCwitnessesunchanged;group174testrework nextordinarycommit. SourcecallSep12predatesexperiment;distinctexplode.c cosmeticdescriptionadapter,not169combatname/160knockbackrework. Fixonecallerargument/import,do notchangeRNG/naming APIs orotherexplosionsemantics. Includescomplete accepted160correction87498-batchreceipt/provenance. Fullhostedandpublicationgatespending;notaccepted176."
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public hostile flaming sphere explosion description cosmetic-owner witness; Cexplode490-501/595-600 anddo_name rndmonnam. Verify Hallucinationactivation21,targetexplosion71;nonhallucinating control omits intrinsic menu.",
+  "segments": [
+    {
+      "seed": 8432046,
+      "datetime": "20261228100000",
+      "nethackrc": "OPTIONS=name:ExplosionOwnerProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips,!color,!autopickup,!debug_mongen\n",
+      "moves": "  #wizintrinsic\n800h\n    #wizgenesis\nhostile flaming sphere\n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n    m.    n    \n"
+    }
+  ]
+}

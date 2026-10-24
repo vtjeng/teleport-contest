@@ -5,7 +5,7 @@ import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster, m_at } from '../js/monst.js';
-import { PM_GOBLIN, AD_PHYS } from '../js/monsters.js';
+import { PM_GOBLIN, AD_PHYS, NON_PM } from '../js/monsters.js';
 import { monkilled } from '../js/mon.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { ROOM, HALLUC, DETECT_MONSTERS, BLINDED, SEE_INVIS } from '../js/const.js';
@@ -32,7 +32,7 @@ for (const hallucinating of [false, true]) for (const deathMessage of [false, tr
                 game.u.uprops[property].extrinsic = 0;
             }
             const goblin = newMonster({ data: game.mons[PM_GOBLIN], mnum: PM_GOBLIN,
-                m_id: 9912, mhp: 20, mhpmax: 20, mcansee: true, mcanmove: true, minvis: true });
+                m_id: 9912, cham: NON_PM, mhp: 20, mhpmax: 20, mcansee: true, mcanmove: true, minvis: true });
             game.level.monlist = goblin; place_monster(goblin, 8, 7, game);
             light_globals_init(game); init_vision_globals(); vision_reset(game); vision_recalc(0);
             const state = planning ? planningState(game) : game;
@@ -56,7 +56,8 @@ for (const hallucinating of [false, true]) for (const deathMessage of [false, tr
                 ? [`The invisible ${hallucinating ? 'giant ant' : 'goblin'} is killed!`] : []);
             assert.deepEqual(cosmetic, hallucinating && deathMessage ? [430, 2] : []);
             // Normal-level corpse eligibility is real; roll 1 declines the corpse.
-            assert.deepEqual(bounds, [3]);
+            assert.deepEqual(bounds, [2]);
+            assert.equal(victim.data, state.mons[PM_GOBLIN]);
             assert.equal(victim.mhp, 0);
             assert.equal(m_at(8, 7, state), null);
             assert.deepEqual(game.coreCtx, core);

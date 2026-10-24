@@ -197,7 +197,7 @@ import { mon_pmname, Monnam, rndmonnam } from './do_name.js';
 import { done } from './end.js';
 import { encumber_msg } from './pickup.js';
 import { ttyPline } from './tty_message.js';
-import { d, rn1, rn2, rnl, rnd, rne } from './rng.js';
+import { d, rn1, rn2, rnl, rnd, rne, rn2_on_display_rng } from './rng.js';
 import { note_unported } from './unported.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
@@ -399,7 +399,7 @@ function hallucinatoryExplosion(state, env) {
     let text;
     let tries = 0;
     do {
-        text = `${s_suffix(rndmonnam({ ...env, state }))} explosion`;
+        text = `${s_suffix(rndmonnam({ state, random: env.displayRandom ?? rn2_on_display_rng }))} explosion`;
         tries++;
     } while (text[0] !== text[0]?.toLowerCase() && tries < 20);
     return text;
