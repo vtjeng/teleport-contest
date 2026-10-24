@@ -357,7 +357,7 @@ import { ok_to_quest, onquest } from './quest.js';
 import { com_pager, deliver_splev_message } from './questpgr.js';
 import { gain_guardian_angel } from './minion.js';
 import { reset_hostility } from './priest.js';
-import { in_out_region, visible_region_at } from './region.js';
+import { in_out_region } from './region.js';
 import { getlev } from './restore.js';
 import { delete_levelfile } from './files.js';
 import { cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
@@ -2004,8 +2004,7 @@ export function preflight_dropx(obj, env = {}) {
     }
     // do.c:dropx/dropz/flooreffects adds no effect for an engraving on dry
     // floor. Keep its text intact and let the ordinary placement/redraw run.
-    if (visible_region_at(x, y, state))
-        throw new UnsupportedDropError('a visible region over the drop');
+    // A visible region affects the canonical redraw, not floor placement.
     for (let buried = state.level.buriedobjlist; buried; buried = buried.nobj) {
         // hack.c impact_disturbs_zombies() only changes a timed corpse within
         // one square. A matching timer still needs peek_timer(), so
