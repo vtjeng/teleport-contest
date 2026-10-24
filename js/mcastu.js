@@ -118,6 +118,7 @@ import {
     heroUnaware,
     pline_mon,
     verbalize as plineVerbalize,
+    youFeel,
     youHear,
 } from './pline.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
@@ -131,7 +132,7 @@ export async function touch_of_death(mtmp, env = {}) {
     const message = env.message ?? (env.planning ? async () => {} : ttyPline);
     let dmg = 50 + random.d(8, 6);
     const drain = Math.trunc(dmg / 2);
-    await message('You feel drained...', state, env);
+    await message(youFeel('drained...', state), state, env);
     const kbuf = death_inflicted_by('the touch of death', mtmp, state);
     if (Upolyd(state.u)) {
         state.u.mh = 0;
