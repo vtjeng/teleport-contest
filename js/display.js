@@ -3941,13 +3941,15 @@ export function newsym(x, y) {
     // detection. The remaining arm handles the general WARNING property.
     const outOfSightMon = !visible ? m_at(x, y, game) : null;
     // C ref: display.c newsym() (1047-1049). see_it covers tp_sensemon,
-    // MATCH_WARN_OF_MON, and see_with_infrared (via canSeeMonster, which
-    // checks infravision when cansee is false). The broader sensed test
-    // adds Detect_monsters.
+    // MATCH_WARN_OF_MON, and see_with_infrared with mon_visible. Do not use
+    // canseemon here: worm_known can see a different segment while this
+    // square is out of sight. The broader sensed test adds Detect_monsters.
     const outOfSightSeeIt = Boolean(
         outOfSightMon
-        && (sensemonWithoutDetection(outOfSightMon, game)
-            || canseemon(outOfSightMon, game)),
+        && (tp_sensemon(outOfSightMon, game)
+            || warningMatches(outOfSightMon, game)
+            || (see_with_infrared(outOfSightMon, game)
+                && mon_visible(outOfSightMon, game))),
     );
     const outOfSightWormTail = is_worm_tail_at(outOfSightMon, x, y);
     const outOfSightSensed = Boolean(
