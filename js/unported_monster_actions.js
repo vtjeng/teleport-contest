@@ -1493,7 +1493,9 @@ function attackHeroWithMattacku(monster, env) {
                 losehp: loseSpellHp,
                 encumberMessage: spellEnv.encumberMessage
                     ?? (planning ? async () => {} : encumber_msg),
-                monsterName: (mtmp) => capitalizedMonsterName(mtmp, env.state),
+                monsterName: (mtmp) => capitalizedMonsterName(
+                    mtmp, env.state, { displayRandom: spellEnv.displayRandom },
+                ),
                 monnam: (mtmp) => mon_nam(mtmp, state, spellEnv),
                 message: spellMessage,
                 mdamageu: (mtmp2, dmg) =>

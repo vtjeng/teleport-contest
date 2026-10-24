@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T01:32:55.584402+00:00",
+  "asOf": "2026-10-24T01:58:47.653731+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9978,8 +9978,97 @@
           "scripts/makemon-create.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "e15a9a09ccf8cb1997fa8726d870783005df32b3",
+          "committedAt": "2026-10-24T01:33:20Z",
+          "runs": [
+            {
+              "id": 40050347925,
+              "name": "Checkpoint",
+              "sha": "e15a9a09ccf8cb1997fa8726d870783005df32b3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/distress-display-owner-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:33:35Z",
+              "completedAt": "2026-10-24T01:40:24Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40050347925"
+            },
+            {
+              "id": 40051388315,
+              "name": "Lint",
+              "sha": "e15a9a09ccf8cb1997fa8726d870783005df32b3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:47:39Z",
+              "completedAt": "2026-10-24T01:48:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40051388315"
+            },
+            {
+              "id": 40051388343,
+              "name": "Dashboard",
+              "sha": "e15a9a09ccf8cb1997fa8726d870783005df32b3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:47:39Z",
+              "completedAt": "2026-10-24T01:50:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40051388343"
+            }
+          ]
+        }
+      ],
+      "note": "C once-per-turn mcalcdistress reaches newcham old-name capture before movement allocation and random births. JavaScript finishElapsedTurn initialized its cloned displayRandom only after that upkeep,so planned shape names fell back to the live cosmetic stream. Move the existing owner initialization before mcalcdistress and pass it through;later births/timers keep that same owner. Preserve C order,main RNG,live names,shape logic and all guards. Canonical recorder supplementary ~drn2 logging,with entries stripped,produces identical segment data to the ordinary record. C/JS display draws agree through1379;first extra JS430draw1380 has shapeOldNames->newcham_distress->m_calcdistress stack while C expects383glyphdraw. ExactE752 baseline normal/monochrome first screen mismatch61,baby-blue-dragon versus mumak teleport message;all17114main RNG calls already match. Three newly recorded C replays strictly pass after repair:normal/monochrome17114RNG64screens/cursors0animations;before-control16848RNG61screens/cursors0animations passes baseline and fix. Four initialized-game cases force canonical shape upkeep and check full injected gameplay-draw sequence,actual cloned shape/cooldown change,clone-only display advancement,unchanged global core/context/monster,and nonhallucinated/undetected/live controls. Native baseline fails because the clone cosmetic stream never advances.7focused including3C+4native plus743affected=750tests pass;lint/diff pass. Original blind-Gehennom missing corpse RNG case remains a separate unresolved lead;no full776-boundary pass or aggregate score gain claimed. Upkeep environment predates experiment (05c87bb0d7 July24);this is independent of prior weapon-swing naming scope. Complete accepted16198-batch receipt included;full hosted gates pending. Accepted as distinct162 after exact Checkpoint40050347925,Lint40051388315 and Dashboard40051388343 succeeded. Exact hash-verified44fixed/98batch/2055case archived comparison againstE752 has no regressions,missing evidence or aggregate changes. Complete98receipt carried in next ordinary spell-naming repair."
+    },
+    {
+      "id": "directed-spell-display-owner",
+      "kind": "parity-repair",
+      "title": "Keep directed monster-spell names on their active display RNG",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T01:47:36.263821+00:00",
+          "end": "2026-10-24T01:47:36.263821+00:00",
+          "note": "Instantaneous preserved caster-name trace/source observation;no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mhitu.c:AT_MAGCcastmu930",
+          "nethack-c/upstream/src/mcastu.c:castmu218-224,m_cure_self307-318",
+          "js/unported_monster_actions.js:attackHeroWithMattacku.castMonsterSpell",
+          "js/mcastu.js:castmu/m_cure_self",
+          "js/do_name.js:capitalizedMonsterName/x_monnam"
+        ],
+        "witness": [
+          "recipes/mcastu.c/spell-name-display-normal.session.json",
+          "recipes/mcastu.c/spell-name-display-monochrome.session.json",
+          "recipes/mcastu.c/spell-name-display-before-control.session.json"
+        ],
+        "test": [
+          "scripts/spell-name-display.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/mcastu.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/monmove-dochug.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/do-name.test.mjs",
+          "scripts/mon-shape.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C once-per-turn mcalcdistress reaches newcham old-name capture before movement allocation and random births. JavaScript finishElapsedTurn initialized its cloned displayRandom only after that upkeep,so planned shape names fell back to the live cosmetic stream. Move the existing owner initialization before mcalcdistress and pass it through;later births/timers keep that same owner. Preserve C order,main RNG,live names,shape logic and all guards. Canonical recorder supplementary ~drn2 logging,with entries stripped,produces identical segment data to the ordinary record. C/JS display draws agree through1379;first extra JS430draw1380 has shapeOldNames->newcham_distress->m_calcdistress stack while C expects383glyphdraw. ExactE752 baseline normal/monochrome first screen mismatch61,baby-blue-dragon versus mumak teleport message;all17114main RNG calls already match. Three newly recorded C replays strictly pass after repair:normal/monochrome17114RNG64screens/cursors0animations;before-control16848RNG61screens/cursors0animations passes baseline and fix. Four initialized-game cases force canonical shape upkeep and check full injected gameplay-draw sequence,actual cloned shape/cooldown change,clone-only display advancement,unchanged global core/context/monster,and nonhallucinated/undetected/live controls. Native baseline fails because the clone cosmetic stream never advances.7focused including3C+4native plus743affected=750tests pass;lint/diff pass. Original blind-Gehennom missing corpse RNG case remains a separate unresolved lead;no full776-boundary pass or aggregate score gain claimed. Upkeep environment predates experiment (05c87bb0d7 July24);this is independent of prior weapon-swing naming scope. Complete accepted16198-batch receipt included;full hosted gates pending."
+      "note": "C mattacku calls castmu(TRUE,foundyou);successful sensed casting and self-cure feedback name the caster with Monnam. JavaScript directed castMonsterSpell callback omitted the active displayRandom,so a planning cast advanced live hallucinated-name RNG. Pass only spellEnv.displayRandom to capitalizedMonsterName,matching the existing missile-name wrapper and preserving canonical perception/state and gameplay ordering. Do not pass the entire spell environment:the native blind+detected controls caught its canSeeMonster seam overriding canonical canspotmon. That unpublished prototype was narrowed;no observer or unrelated callback change retained. Supplementary canonical C display log and output-only JS stack agree through2373 draws after162;extra draw2374 atboundary68 identifies this callback. Existing undirected callback planning suppresses its message,so its latent omission and unqualified range2 callback remain untouched. Three fresh quietD1masterlich C replays strictly pass:normal/monochrome3603RNG433screens/cursors232animations;before-genesis control2733RNG28screens/cursors0animations. ExactE15a baseline normal/mono firstscreen mismatch85,coreRNGalreadyfullymatching;controlpassesboth. Four initialized default-orc-shaman direct actions cover planning/live x Hallu/nonHallu with blindness+monster detection,canonicalcanspotmon=true,full gameplay sequence rn2(5),rn2(3),rn2(30),d(2,6),d(3,6),actualHP5->8/cooldown7,clone-only cosmetic advancement,and unchanged globalcore/context/actor duringplanning. Canonical baseline fails clone-stream advancement;final seven focused cases include3C+4native,plus673affected=680tests,lint/diff pass. Source callback predatesexperiment (b34425dd62 September2);distinct from elapsed-upkeep and weapon-swing naming owners. Longer Gehennom shape-message ordering200 and missing gameplay RNG272 remain unresolved,no full776 pass or score gain claimed. Complete accepted16298-batch receipt included;full hosted gates pending."
     }
   ]
 }

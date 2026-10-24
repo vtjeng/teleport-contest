@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent quietD1masterlich directedspell-name planningowner witness;before-control",
+  "segments": [
+    {
+      "seed": 8432032,
+      "datetime": "20261204110000",
+      "nethackrc": "OPTIONS=name:SpellOwnerProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips,!acoustics,!debug_mongen\n",
+      "moves": "  #wizintrinsic\n800h800t\n  "
+    }
+  ]
+}
