@@ -5811,7 +5811,9 @@ async function buzzmonst(
             /* some armor was destroyed; no damage done */
             if (canseemon(mon, state)) {
                 await message(
-                    `${s_suffix(Monnam(mon, state))} `
+                    `${s_suffix(Monnam(mon, state, {
+                        displayRandom: env.displayRandom,
+                    }))} `
                     + `${xnameFresh(otmp, state)} is disintegrated!`,
                     state, env,
                 );

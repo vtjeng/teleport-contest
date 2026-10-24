@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T12:03:46.528704+00:00",
+  "asOf": "2026-10-24T12:21:27.426501+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -8384,7 +8384,7 @@
     {
       "id": "beam-planning-message-owner",
       "kind": "parity-repair",
-      "title": "Carry silent beam planning output into nested hit and miss helpers",
+      "title": "Keep nested beam feedback on its active output owners",
       "window": "single-worker",
       "origin": "sole-standard-engineer",
       "investigator": null,
@@ -8394,6 +8394,11 @@
           "start": "2026-10-23T19:30:29.063Z",
           "end": "2026-10-23T19:30:29.063Z",
           "note": "Instantaneous source attribution during143publication; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T12:21:27.426501+00:00",
+          "end": "2026-10-24T12:21:27.426501+00:00",
+          "note": "Preserved disintegrated-armor feedback qualification observation only; no elapsedactive-workclaim."
         }
       ],
       "evidence": {
@@ -8402,12 +8407,19 @@
           "nethack-c/upstream/src/zap.c:hit",
           "nethack-c/upstream/src/zap.c:miss",
           "js/zap.js",
-          "js/mcastu.js:buzzmu"
+          "js/mcastu.js:buzzmu",
+          "nethack-c/upstream/src/zap.c:dobuzz4936-4943",
+          "nethack-c/upstream/src/mthrowu.c:m_useupall1154-1170",
+          "nethack-c/upstream/src/mon.c:check_gear_next_turn5915",
+          "js/zap.js:buzzmonst armorfeedback5814"
         ],
         "witness": [
           "recipes/zap.c/beam-planning-message-beam.session.json",
           "recipes/zap.c/beam-planning-message-monochrome.session.json",
-          "recipes/zap.c/beam-planning-message-before-control.session.json"
+          "recipes/zap.c/beam-planning-message-before-control.session.json",
+          "recipes/zap.c/disintegrated-armor-name-normal.session.json",
+          "recipes/zap.c/disintegrated-armor-name-monochrome.session.json",
+          "recipes/zap.c/disintegrated-armor-name-before-control.session.json"
         ],
         "test": [
           "scripts/beam-planning-message.test.mjs",
@@ -8419,7 +8431,8 @@
           "scripts/zap-zhitu.test.mjs",
           "scripts/zap-resist.test.mjs",
           "scripts/zap-floor-hearing.test.mjs",
-          "scripts/mthrowu.test.mjs"
+          "scripts/mthrowu.test.mjs",
+          "scripts/beam-armor-name.test.mjs"
         ]
       },
       "candidates": [
@@ -8468,7 +8481,7 @@
           ]
         }
       ],
-      "note": "C dobuzz emits a beam exactly once. JS speculative beam local message variable was silent but nested buzzmonst hit/miss received original env with undefined message and fell back to live ttyPline. Private stack confirms planningtrue/undefinedmessage from buzzmu; derive the shared env with the same silent/live message owner before calling any beam helper. Actual accepted144baseline normal/monochrome each match32403RNG812screen/cursor counts180animation count but extra planning miss firstdiff314. Fresh repaired normal/monochrome each strictly match all content including180animation frames; pretrigger complete-turn control16873RNG313screens/cursors53animations passes both baseline/fix. Four actual nested-hit/miss cases verify planning silence and one live message through initialized game beam paths.469focused/affected tests including3C pass, lint/diffcheck pass. Longer public continuation reaches independent msummon horned-devil reservoir refusal; preserved source-backed privately, not included in passing corpus. Complete144receipt included; hosted validation pending, no aggregate gain claimed. Accepted as distinct145 after fullCheckpoint40014966174, exact MainLint40016068186 andDashboard40016068150 succeeded. Exact44fixed/98batch2055case comparison againstbcc01aed unchanged, no regressions/missing evidence. Complete98publication receipt carried in nextordinaryrepair."
+      "note": "C dobuzz emits a beam exactly once. JS speculative beam local message variable was silent but nested buzzmonst hit/miss received original env with undefined message and fell back to live ttyPline. Private stack confirms planningtrue/undefinedmessage from buzzmu; derive the shared env with the same silent/live message owner before calling any beam helper. Actual accepted144baseline normal/monochrome each match32403RNG812screen/cursor counts180animation count but extra planning miss firstdiff314. Fresh repaired normal/monochrome each strictly match all content including180animation frames; pretrigger complete-turn control16873RNG313screens/cursors53animations passes both baseline/fix. Four actual nested-hit/miss cases verify planning silence and one live message through initialized game beam paths.469focused/affected tests including3C pass, lint/diffcheck pass. Longer public continuation reaches independent msummon horned-devil reservoir refusal; preserved source-backed privately, not included in passing corpus. Complete144receipt included; hosted validation pending, no aggregate gain claimed. Accepted as distinct145 after fullCheckpoint40014966174, exact MainLint40016068186 andDashboard40016068150 succeeded. Exact44fixed/98batch2055case comparison againstbcc01aed unchanged, no regressions/missing evidence. Complete98publication receipt carried in nextordinaryrepair. Conservative grouped145 nestedbeamfeedback ownership correction, no distinctincrement. Cdobuzz4936-4943 evaluatesMonnam forvisible disintegratedarmorfeedback. JSsamebranch forgot active displayRandom; speculativeclone namedwearer throughglobaldisplaystream evenwithsilentmessage. Forwardonlyenv.displayRandom tothatMonnam, preservingcanonicalvisibility/defaultAPI,s_suffix,armorname,disintegration/reflection/damage/walk/gear and allcoreRNG. FreshTourist8432060/date20270116 hearing-enabledHallu setup: C129Hallu,130Detect800,131Conflict800; Blind/Deafinitiallyunselected,naturalchangesallowed. Passive1101ordinaryCcore/screens/cursorsidentical; JSobservercore/screens/cursorsunchanged. Firstmixed51385atinput1066 extraJS430344/76405739/76405388 beforeCdistfleeck; displayindex16946 stackMonnam->buzzmonst. Actualmove32cloneplanningtrue/globalfalse withdisplayRandomfunction,type-24/damgtype4, wearer673/type332[48,5]HP108canseetrue, armor124class3spe3where4worn1quantity1; liveglobalcallbackfunction. CChristmas-tree-monstersplintmaildisintegrated1067. Normal/mono35380RNG1101screens/cursors86animationsstrictpass,before32054/1001/77strictpass. Exact4coldtargetfirst1067allcorematching,controlpass. Fourinitialized nativecases8plan/live H/non xvisible/hiddenDetected, actualdobuzz-24, validNON_PMhuman/catalogsplintmailminventoryW_ARM. Exact(Hrn26,)rn1(7,7),rn220, oneownednamepair4302onlyHvisible; hiddennoRNG/message, liveexactpossessivearmorline, HP30unchanged, armorconsumed/I_SPECIALgearcheck, cloneglobaldisplay/core/gear/HPguards. Old1fail3controls,new4pass. Initialfixtureexpected0wornmask; sourcecheck_gear_next_turn requiresI_SPECIAL, correctedexpectationonlyandpreservedfailedlog. Longerisolatedprototype clears1067 thenfirst2553gascloudcoughname; addingseparateuncommittedregionownerprototype yieldsfull154670/4546/562strictpass, butthatisNOTthissinglechangefullpass. Separateleadretained. SourcearmorcallSept16predatesexperiment; groupedwith145samebuzzmonstfeedbackcontractratherthannewrepair. Includesaccepted1804ccomplete98receipt/provenance. Focused/affected/fullESLintchecks running; allhosted/Main gatesstillrequired, distinctstays180. Final7focused+699affected=706pass,16register/fullESLint/diffpass. Prior4creceiptfirstcheckerfailedsource-inputvalidation because nextlocaleditstartedbeforeasynccheckcompleted; no receiptwrites occurred. Reconciledmirror8alreadyacceptedVorpalpathsbyte-identical, advancedmirrorcleanexact4c, existingcheckercompletedonce there, transferredverified98receipt/SCORE/published tothisordinaryrepair. NoCIrerun, credentialschange, duplicateevaluation or gatewaiver."
     },
     {
       "id": "msummon-selected-species-lifecycle",
@@ -12067,8 +12080,53 @@
           "scripts/monmove.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Independent elapsed-turn handoff defect in Sept14f207code, not periodicteleport code/rework. FreshTourist8432060/date20270116initialDetect800/Conflict800 at125/126; Blind/Hallu/Deafinitiallyunselected, naturalblindnessallowed. Atmoves4 liveonlyuse_misc gainlevelmonster833/type338 consumesCgrow_up rnd8=6 atcoreindex10714, whileplanningintentionallyskipsitemaction; nextblindnesspotionvapor rnd5 becomesclone1 versuslive3. Dryrunstopsbeforetimeout; live predicatefalse andoldcodeexecutestailwithoutreplanning,thenasserts anddiscardsegment. Output-onlypartialobserver provesall11516corecalls and163screens/cursors availableprefix matchC beforeassert; do not claim fullbaseline score. Preserveactual nh_timeout predicateguards andassertion. New optionaltimeoutHandoff forwarded onlyforpreflightbeforeTimeout matchingupkeepcount; existing live-tailpreflight executedifactualexpiryrequires it OR priorplanrequestedhandoff. No cloneditem execution,fabricatedexpiry,draws,changedtimeoutvalues orsourceordering. Normal/mono14720RNG231screens/cursors17animationsstrictpass;before10713/151/6strictpassold/new. Oldtargets reproduciblyelapsed-turnpreflight/live timeoutfailure. Fullnew175876RNG4542screens/cursors402animationsstrictpass. Fourinitialized nativecases8livecomparisons BLIND3/1 andHALLUC0/1, actualfinishElapsedTurn/nh_timeout andtail. Forcehandoff vsnormal replay exactcore/displaycontexts, loggedcalls,time,movement,HP/PW,hunger,blesscount,allprops; onecountdowndecrement, markertrueevennoexpiry. Old2noexpiryfail2expirycontrols,new4pass. Sourcepinstranglingtest unchanged. Fullfocused/affected/lint checksrunning. Includesaccepted423 group169complete98receipt/provenance; provisionalindependent180onlyafterallgates, accepted179 andscoresunchanged. Final7focused+830affected=837pass;fullESLint/diffcheckpass; registerchecksrequired."
+      "candidates": [
+        {
+          "sha": "4c401b19fff4d4da765ad02a9feaffd6ed27f0b1",
+          "committedAt": "2026-10-24T12:05:07Z",
+          "runs": [
+            {
+              "id": 40092488477,
+              "name": "Checkpoint",
+              "sha": "4c401b19fff4d4da765ad02a9feaffd6ed27f0b1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/timeout-handoff-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T12:13:18Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40092488477"
+            },
+            {
+              "id": 40093213127,
+              "name": "Lint",
+              "sha": "4c401b19fff4d4da765ad02a9feaffd6ed27f0b1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T12:16:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40093213127",
+              "createdAt": "2026-10-24T12:15:53Z"
+            },
+            {
+              "id": 40093213104,
+              "name": "Dashboard",
+              "sha": "4c401b19fff4d4da765ad02a9feaffd6ed27f0b1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T12:18:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40093213104",
+              "createdAt": "2026-10-24T12:15:53Z"
+            }
+          ]
+        }
+      ],
+      "note": "Independent elapsed-turn handoff defect in Sept14f207code, not periodicteleport code/rework. FreshTourist8432060/date20270116initialDetect800/Conflict800 at125/126; Blind/Hallu/Deafinitiallyunselected, naturalblindnessallowed. Atmoves4 liveonlyuse_misc gainlevelmonster833/type338 consumesCgrow_up rnd8=6 atcoreindex10714, whileplanningintentionallyskipsitemaction; nextblindnesspotionvapor rnd5 becomesclone1 versuslive3. Dryrunstopsbeforetimeout; live predicatefalse andoldcodeexecutestailwithoutreplanning,thenasserts anddiscardsegment. Output-onlypartialobserver provesall11516corecalls and163screens/cursors availableprefix matchC beforeassert; do not claim fullbaseline score. Preserveactual nh_timeout predicateguards andassertion. New optionaltimeoutHandoff forwarded onlyforpreflightbeforeTimeout matchingupkeepcount; existing live-tailpreflight executedifactualexpiryrequires it OR priorplanrequestedhandoff. No cloneditem execution,fabricatedexpiry,draws,changedtimeoutvalues orsourceordering. Normal/mono14720RNG231screens/cursors17animationsstrictpass;before10713/151/6strictpassold/new. Oldtargets reproduciblyelapsed-turnpreflight/live timeoutfailure. Fullnew175876RNG4542screens/cursors402animationsstrictpass. Fourinitialized nativecases8livecomparisons BLIND3/1 andHALLUC0/1, actualfinishElapsedTurn/nh_timeout andtail. Forcehandoff vsnormal replay exactcore/displaycontexts, loggedcalls,time,movement,HP/PW,hunger,blesscount,allprops; onecountdowndecrement, markertrueevennoexpiry. Old2noexpiryfail2expirycontrols,new4pass. Sourcepinstranglingtest unchanged. Fullfocused/affected/lint checksrunning. Includesaccepted423 group169complete98receipt/provenance; provisionalindependent180onlyafterallgates, accepted179 andscoresunchanged. Final7focused+830affected=837pass;fullESLint/diffcheckpass; registerchecksrequired. Accepted independent180 after exactSHA Checkpoint40092488477, MainLint40093213127 andDashboard40093213104success. Exactarchive/admissionproof/full44fixed98synthetic2055comparisonversus423unchanged; no scoregain. Complete98receipt carried in nextordinarybeamfeedback correction."
     }
   ]
 }

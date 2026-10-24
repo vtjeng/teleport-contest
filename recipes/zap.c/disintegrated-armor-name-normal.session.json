@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public disintegrated armor feedback owner witness; C zap.c dobuzz4936-4943. Blind/Deafinitiallyunselected; Hallu/Detect/Conflict verified. Beforecontrolendsbeforefirstsource-observedarmorfeedback.",
+  "segments": [
+    {
+      "seed": 8432060,
+      "datetime": "20270116100000",
+      "nethackrc": "OPTIONS=name:PetConflictProbe,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800h800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \n\u0012    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n"
+    }
+  ]
+}
