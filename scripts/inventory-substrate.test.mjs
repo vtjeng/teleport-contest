@@ -3634,10 +3634,16 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         region.visible = true;
         add_rect_to_reg(region, { lx: 10, ly: 5, hx: 10, hy: 5 });
         state.level.regions.push(region);
-        assert.throws(
+        // C dropx()/dropz() still places the object under a visible region;
+        // only its canonical redraw sees that region. Admission stays pure.
+        assert.doesNotThrow(
             () => preflight_dropx(ball, { state, hooks }),
-            /visible region/u,
         );
+        assert.equal(state.invent, ball);
+        assert.equal(ball.where, OBJ_INVENT);
+        assert.equal(state.level.objects[10][5], null);
+        assert.equal(state.level.regions[0], region);
+        assert.equal(region.visible, true);
     });
 
 test('direct drop preflight admits levitation without changing ownership', () => {
