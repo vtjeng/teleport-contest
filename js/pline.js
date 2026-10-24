@@ -39,6 +39,12 @@ export function youHear(line, state = game) {
     return `You hear ${line}`;
 }
 
+// C ref: pline.c You_feel() (388-401). Use the awareness state before
+// the sensation's caller changes timeouts or schedules its wakeup message.
+export function youFeel(line, state = game) {
+    return `${heroUnaware(state) ? 'You dream that you feel' : 'You feel'} ${line}`;
+}
+
 // C ref: pline.c pline_mon() (138-152). The C helper sets the message
 // position to the monster square, except for the hero monster at (0, 0), then
 // delegates to vpline(). messageAt() carries that location into accessible

@@ -294,7 +294,7 @@ import {
 } from './objects.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youFeel } from './pline.js';
 import {
     GLYPH_INVISIBLE, map_invisible, map_invisible_planning, unmap_object,
 } from './display.js';
@@ -3004,7 +3004,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
         {
             const confusion = state.u.uprops[CONFUSION];
             if (!(confusion.intrinsic || confusion.extrinsic))
-                await message('You feel somewhat dizzy.', state);
+                await message(youFeel('somewhat dizzy.', state), state);
             await make_confused(
                 itimeout_incr(confusion.intrinsic, random.rnd(5)),
                 false,
@@ -3040,7 +3040,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
     case POT_SLEEPING:
         kn++;
         if (!Free_action(state) && !Sleep_resistance(state)) {
-            await message('You feel rather tired.', state);
+            await message(youFeel('rather tired.', state), state);
             nomul(-random.rnd(5), state);
             state.multi_reason = 'sleeping off a magical draught';
             state.nomovemsg = You_can_move_again;
