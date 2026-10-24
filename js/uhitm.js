@@ -7975,7 +7975,7 @@ export async function mhitm_knockback(
                 ? `and ${y_monnam(state.u.usteed, state, env)} ` : '';
             await message(`You ${suffix}don't budge.`, state);
         } else if (canseemon(mdef, state)) {
-            await message(`${Monnam(mdef, state)} doesn't budge.`, state);
+            await message(`${Monnam(mdef, state, { displayRandom: env?.displayRandom })} doesn't budge.`, state);
         }
         return false;
     }
@@ -7985,7 +7985,7 @@ export async function mhitm_knockback(
             ? 'backward' : 'back';
     const message = requireAttackOperation(env, 'message');
     if (u_def || canseemon(mdef, state)) {
-        const attacker = u_agr ? 'You' : Monnam(magr, state);
+        const attacker = u_agr ? 'You' : Monnam(magr, state, { displayRandom: env?.displayRandom });
         const defender = u_def || was_u ? 'you' : y_monnam(mdef, state, env);
         const extra = was_u && state.u?.usteed
             ? ` and ${y_monnam(state.u.usteed, state, env)}` : '';

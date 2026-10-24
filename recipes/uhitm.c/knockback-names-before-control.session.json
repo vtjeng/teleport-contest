@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Tourist pet Astral knockback feedback cosmetic-owner witness; C uhitm.c mhitm_knockback5340-5379. Before-control ends before the observed speculative knockback name leak.",
+  "segments": [
+    {
+      "seed": 8432044,
+      "datetime": "20261224100000",
+      "nethackrc": "OPTIONS=name:PetConflictProbe,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm"
+    }
+  ]
+}

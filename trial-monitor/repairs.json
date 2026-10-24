@@ -9770,6 +9770,11 @@
           "start": "2026-10-24T00:42:53.163190+00:00",
           "end": "2026-10-24T00:42:53.163190+00:00",
           "note": "Instantaneous preserved owner-trace observation;no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T06:35:08.030091+00:00",
+          "end": "2026-10-24T06:35:08.030091+00:00",
+          "note": "Preserved source qualification observation only; no elapsed active-work claim."
         }
       ],
       "evidence": {
@@ -9778,12 +9783,17 @@
           "js/dothrow.js:mhurtle_step",
           "js/uhitm.js:mhitm_knockback",
           "js/mhitm.js:mdamagem",
-          "js/hack.js:nh_delay_output"
+          "js/hack.js:nh_delay_output",
+          "C uhitm.c mhitm_knockback5340-5379 feedback",
+          "JS uhitm.js mhitm_knockback7988 attacker Monnam omittedenv;steadfast Monnam7978 alsoomittedenv"
         ],
         "witness": [
           "recipes/dothrow.c/knockback-animation-normal.session.json",
           "recipes/dothrow.c/knockback-animation-monochrome.session.json",
-          "recipes/dothrow.c/knockback-animation-before-control.session.json"
+          "recipes/dothrow.c/knockback-animation-before-control.session.json",
+          "recipes/uhitm.c/knockback-names-normal.session.json",
+          "recipes/uhitm.c/knockback-names-monochrome.session.json",
+          "recipes/uhitm.c/knockback-names-before-control.session.json"
         ],
         "test": [
           "scripts/knockback-animation.test.mjs",
@@ -9794,7 +9804,8 @@
           "scripts/unported-monster-actions.test.mjs",
           "scripts/monmove.test.mjs",
           "scripts/allmain-turn.test.mjs",
-          "scripts/trap.test.mjs"
+          "scripts/trap.test.mjs",
+          "scripts/knockback-names.test.mjs"
         ]
       },
       "candidates": [
@@ -9844,7 +9855,7 @@
           ]
         }
       ],
-      "note": "C successful mhurtle_step moves the monster,redraws old/new cells,flushes,and emits one delay frame per cell. JavaScript speculative execution retained the live frame hook and ran these presentation calls before executing the live attack again. Output-only owner trace monster590/moves55 shows planned non-global two-cell knockback followed by actual two-cell knockback. Keep cloned displacement,region/trap and apparent-hero effects,while suppressing successful-step live redraw/flush/delay under env.planning;retain live C order and all non-global guards. This older adapter code originates92337428e6 September27,independent from grouped149 flags. Exact8640 normal/monochrome baseline has4frames vsC2 atboundary2681;before-trigger control passes. Three freshly recorded C replays strictly pass:normal/monochrome48599RNG2683screens/cursors234animations,control48583/2681/232. Six initialized-game cases cover planning/live x range0/1/2,checking coordinates,grid ownership,movement/stun,one live frame per cell,no clone frame and unchanged global map/display/core. Native baseline two-cell clone emitted2frames instead of0.9focused including3C+6native plus788affected=797tests pass;lint/diff pass. Full independent Rogue continuation strictly matches79498RNG4433screens/cursors371animations;Barbarian controls pass4433 and8033boundaries,without corpus admission or score claims. Complete grouped14998-batch hosted receipt included;full hosted gates pending. Accepted as distinct160 after exact Checkpoint40047144138,Lint40047811376 and Dashboard40047811461 succeeded. Hash-verified44fixed/98batch/2055case comparison against8640 found no regressions,missing evidence or aggregate changes. Complete98publicationreceipt carried in next ordinary constructor repair."
+      "note": "C successful mhurtle_step moves the monster,redraws old/new cells,flushes,and emits one delay frame per cell. JavaScript speculative execution retained the live frame hook and ran these presentation calls before executing the live attack again. Output-only owner trace monster590/moves55 shows planned non-global two-cell knockback followed by actual two-cell knockback. Keep cloned displacement,region/trap and apparent-hero effects,while suppressing successful-step live redraw/flush/delay under env.planning;retain live C order and all non-global guards. This older adapter code originates92337428e6 September27,independent from grouped149 flags. Exact8640 normal/monochrome baseline has4frames vsC2 atboundary2681;before-trigger control passes. Three freshly recorded C replays strictly pass:normal/monochrome48599RNG2683screens/cursors234animations,control48583/2681/232. Six initialized-game cases cover planning/live x range0/1/2,checking coordinates,grid ownership,movement/stun,one live frame per cell,no clone frame and unchanged global map/display/core. Native baseline two-cell clone emitted2frames instead of0.9focused including3C+6native plus788affected=797tests pass;lint/diff pass. Full independent Rogue continuation strictly matches79498RNG4433screens/cursors371animations;Barbarian controls pass4433 and8033boundaries,without corpus admission or score claims. Complete grouped14998-batch hosted receipt included;full hosted gates pending. Accepted as distinct160 after exact Checkpoint40047144138,Lint40047811376 and Dashboard40047811461 succeeded. Hash-verified44fixed/98batch/2055case comparison against8640 found no regressions,missing evidence or aggregate changes. Complete98publicationreceipt carried in next ordinary constructor repair. Further grouped160knockbackpresentation-owner correction,NOT distinct repair. Beamformatterhypothesisrefuted. Afterisolated175vaporfix firstscreen204targetnameCettinmummy vsJSbabylongword. Passive241Cprefixordinary-identical core/screens/cursors;5204Ccosmeticdraws vs5206JSglobal. Firstglobalindex3424 C383151 vsJS430234 then2=0. JSdirectstack Monnam->mhitm_knockbackuhitm7988->hitmu->mattacku->dochug atmove8. Cloned speculative feedback attackername omitsactive displayowner. Ccaller m_move inheritedlastcoremetadata,notdirectcallattribution. Actualbeam hit itselfhasownerfunction andcanSpottrue;do not editzapformatter basedonlater symptom. Full C5247-5420 and JS7880-8050 read. Livepublichero target reachesnormalattackerMonnam. Nativefiregiant actualspeciesAT_WEAPphysical,alive,sizegap>1,solid,nohug/engulf/sticks,noheldweapon;normalROOMdestinationvalid,sourcechance3/6successful;goblinmoveoractualcarriedLOADSTONEsteadfast. Planning/live helperprovidedboundowner,sourceCMonnamcanonical. OriginalnativeprototypeartificialAT_CLAWreplacedbyactualspeciesattack;BigIntserializationfixtureerrorretained. No productioneditbeforethisscopefreeze. Fresh normal/mono11200RNG241screens/cursors12animationsstrictpass,before8716/191/9strictpass. Exactc587oldnormal/monofirst204,coreallmatching,controlpasses. Six initialized actualmhitm_knockback cases(12planning/live) Hallu/non xrejected/steadfast/moved. ActualfiregiantAT_WEAPphysical/goblin,actualcarriedloadstonewithcatalogclass/material/weight;fullchance/geometry/size/solid/weapon/sourcepredicatepath,realmhurtle1cell,actualanimation0clone/1live,stun/movement/mapownership/HP/core/cosmeticcallbackguards. Old2Halluacceptedfeedbackfails4controls pass,new6pass. Ninefocused+697affected=706tests,lint/diffpass;catalogweighttightening6native rerunpass. Fullprivatepet4554nowfirstscreen894/core138656at3371,separateunsolvedsources,notfullpass/noadmission/scoregain. Grouped160rework,notdistinctcount. No beam/zapformatterchange. TwoMonnamcallsforwardonlydisplayRandom;allothernaming/gameplay/predicates/animationunchanged. Includes complete accepted17598-batchreceipt/provenance. Fullhostedandpublicationgatespending;accepted distinct stays175."
     },
     {
       "id": "mplayer-object-hooks",
@@ -11280,8 +11291,54 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Fresh publicTourist8432044/dateDec24 petdog initialHallu/Blind/Deaf/Detect/Conflict137-141verified. Firstscreen171(1based) CYou dream that you feel rather tired versusJSYou feel rather tired; gameplaycorematchesatthatboundary. Output-onlyobserver actualmove4 planningandlive multi-116 usleep3 nomovemsgYouwake up heroUnawaretrue; callerpotionbreathe->potionhit->m_throw->use_offensive->mattacku->dochug. CYou_feel selectsdream prefix underUnaware;JSsleepingandconfusion/boozehardcodednormalprefix. Preservewait/RNG/nomulorder,helpersleepawarenessalgorithm,propertiesandgameplay. SourcecallpredatesSep2;distinctpotion/plineprefixdefect,not169combatmonster-namingrework.Provisional175pendingqualificationandallgates. Fresh normal/mono8716RNG191screens/cursors9animationsstrictpass,before6167/161/0strictpass. Exact74d oldtargetsfirst171withallcorematching;controlpasses. Twelveinitialized realpotionbreathecases(24planning/live) sleeping/confusion/booze xawake/paralyzed/asleep/fainted;old6dreamingfails6controlspass,new12pass. Actualvalidpotionclass/material,objectin_usepreservation,RNGexactrnd5andDexexercise2,sleepmultiandnomovemsg/confusiontimeout,clone/globalcore/displayguard. Fifteenfocused+322affected=337pass;afterfixtureclass/materialtightening15focusedrerunpass;lint/diffpass. No scoregain/admission,notaccepted175;nextseparatebeamtargetname204retainedlonger241evidence. Initial241-boundary target recordings revealed separate zapbeamtargetnaming at204 afterYoufeel171fixed. Preserved full extended241recipes/recordings and failedtests,selected new190-key recipe coveringtargetandendingbeforeunrelated204;freshC recording,notgoldencropping. Correctedaffectedfilepath toexistingmonster-hurls-potion test; do not claim initial333tests passed. Implement completeCYou_feelprefix viaexistingheroUnaware,wirebothCYou_feelcallswithin potionbreathe sleeping/confusion/booze. Preservecanonicalmessagewait,RNG/state/nomulorder. SourceSep2predatesexperiment;independentpline/potiondefect,not169combatfeedbackrework. Includescomplete accepted74d98-batchreceipt. Candidate175pendingallhostedpublicationgates."
+      "candidates": [
+        {
+          "sha": "c587ac330f210e77dc44100693998e1d1a3fe828",
+          "committedAt": "2026-10-24T06:37:50Z",
+          "runs": [
+            {
+              "id": 40070971408,
+              "name": "Checkpoint",
+              "sha": "c587ac330f210e77dc44100693998e1d1a3fe828",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vapor-feel-prefix-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T06:38:02Z",
+              "completedAt": "2026-10-24T06:45:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40070971408"
+            },
+            {
+              "id": 40071575171,
+              "name": "Lint",
+              "sha": "c587ac330f210e77dc44100693998e1d1a3fe828",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T06:47:12Z",
+              "completedAt": "2026-10-24T06:48:15Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40071575171"
+            },
+            {
+              "id": 40071575276,
+              "name": "Dashboard",
+              "sha": "c587ac330f210e77dc44100693998e1d1a3fe828",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T06:47:13Z",
+              "completedAt": "2026-10-24T06:50:11Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40071575276"
+            }
+          ]
+        }
+      ],
+      "note": "Fresh publicTourist8432044/dateDec24 petdog initialHallu/Blind/Deaf/Detect/Conflict137-141verified. Firstscreen171(1based) CYou dream that you feel rather tired versusJSYou feel rather tired; gameplaycorematchesatthatboundary. Output-onlyobserver actualmove4 planningandlive multi-116 usleep3 nomovemsgYouwake up heroUnawaretrue; callerpotionbreathe->potionhit->m_throw->use_offensive->mattacku->dochug. CYou_feel selectsdream prefix underUnaware;JSsleepingandconfusion/boozehardcodednormalprefix. Preservewait/RNG/nomulorder,helpersleepawarenessalgorithm,propertiesandgameplay. SourcecallpredatesSep2;distinctpotion/plineprefixdefect,not169combatmonster-namingrework.Provisional175pendingqualificationandallgates. Fresh normal/mono8716RNG191screens/cursors9animationsstrictpass,before6167/161/0strictpass. Exact74d oldtargetsfirst171withallcorematching;controlpasses. Twelveinitialized realpotionbreathecases(24planning/live) sleeping/confusion/booze xawake/paralyzed/asleep/fainted;old6dreamingfails6controlspass,new12pass. Actualvalidpotionclass/material,objectin_usepreservation,RNGexactrnd5andDexexercise2,sleepmultiandnomovemsg/confusiontimeout,clone/globalcore/displayguard. Fifteenfocused+322affected=337pass;afterfixtureclass/materialtightening15focusedrerunpass;lint/diffpass. No scoregain/admission,notaccepted175;nextseparatebeamtargetname204retainedlonger241evidence. Initial241-boundary target recordings revealed separate zapbeamtargetnaming at204 afterYoufeel171fixed. Preserved full extended241recipes/recordings and failedtests,selected new190-key recipe coveringtargetandendingbeforeunrelated204;freshC recording,notgoldencropping. Correctedaffectedfilepath toexistingmonster-hurls-potion test; do not claim initial333tests passed. Implement completeCYou_feelprefix viaexistingheroUnaware,wirebothCYou_feelcallswithin potionbreathe sleeping/confusion/booze. Preservecanonicalmessagewait,RNG/state/nomulorder. SourceSep2predatesexperiment;independentpline/potiondefect,not169combatfeedbackrework. Includescomplete accepted74d98-batchreceipt. Candidate175pendingallhostedpublicationgates. Accepted distinct175 after exact-SHA Checkpoint40070971408, MainLint40071575171 and Dashboard40071575276 success. Archive44/98/2055 comparison against74dverifiedhashes/admissionproof,no regressions/drops/missing/scorechanges. PublicationcheckerpreflightHTTP503ghrepoGraphQLlookupfailedbeforewrites;treecleanverified,samenormalroutelaterretrycompleted98receipt,nocredentialchanges/noCIrerun. Receiptcarriedinnextordinary160knockbackcorrection."
     }
   ]
 }
