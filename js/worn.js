@@ -936,9 +936,13 @@ function m_dowear_type(
 ) {
     if (monster.mfrozen) return undefined;
     const runtime = !creation;
+    // C snapshots the name with canspotmon(), including sensed monsters.
+    // The armor owner's canSeeMonster seam controls visible wear messages;
+    // forward only its cosmetic RNG to the canonical naming owner.
+    const nameEnv = { displayRandom: env.displayRandom };
     const sourceName = monsterHeroProperty(env.state, SEE_INVIS)
-        ? Monnam(monster, env.state, env)
-        : mon_nam(monster, env.state, env);
+        ? Monnam(monster, env.state, nameEnv)
+        : mon_nam(monster, env.state, nameEnv);
     const selected = selectMonsterArmor(monster, mask, {
         ...env, creation,
     }, racialException);

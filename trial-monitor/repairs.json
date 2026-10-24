@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T01:58:47.653731+00:00",
+  "asOf": "2026-10-24T02:26:24.725113+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -10067,8 +10067,97 @@
           "scripts/mon-shape.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "aecae01ce4008e7bde1bfa50060e58477ba9ca02",
+          "committedAt": "2026-10-24T01:59:04Z",
+          "runs": [
+            {
+              "id": 40052236504,
+              "name": "Checkpoint",
+              "sha": "aecae01ce4008e7bde1bfa50060e58477ba9ca02",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/spell-name-display-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:59:15Z",
+              "completedAt": "2026-10-24T02:06:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40052236504"
+            },
+            {
+              "id": 40053330707,
+              "name": "Lint",
+              "sha": "aecae01ce4008e7bde1bfa50060e58477ba9ca02",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:14:21Z",
+              "completedAt": "2026-10-24T02:15:18Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40053330707"
+            },
+            {
+              "id": 40053330602,
+              "name": "Dashboard",
+              "sha": "aecae01ce4008e7bde1bfa50060e58477ba9ca02",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:14:21Z",
+              "completedAt": "2026-10-24T02:16:46Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40053330602"
+            }
+          ]
+        }
+      ],
+      "note": "C mattacku calls castmu(TRUE,foundyou);successful sensed casting and self-cure feedback name the caster with Monnam. JavaScript directed castMonsterSpell callback omitted the active displayRandom,so a planning cast advanced live hallucinated-name RNG. Pass only spellEnv.displayRandom to capitalizedMonsterName,matching the existing missile-name wrapper and preserving canonical perception/state and gameplay ordering. Do not pass the entire spell environment:the native blind+detected controls caught its canSeeMonster seam overriding canonical canspotmon. That unpublished prototype was narrowed;no observer or unrelated callback change retained. Supplementary canonical C display log and output-only JS stack agree through2373 draws after162;extra draw2374 atboundary68 identifies this callback. Existing undirected callback planning suppresses its message,so its latent omission and unqualified range2 callback remain untouched. Three fresh quietD1masterlich C replays strictly pass:normal/monochrome3603RNG433screens/cursors232animations;before-genesis control2733RNG28screens/cursors0animations. ExactE15a baseline normal/mono firstscreen mismatch85,coreRNGalreadyfullymatching;controlpassesboth. Four initialized default-orc-shaman direct actions cover planning/live x Hallu/nonHallu with blindness+monster detection,canonicalcanspotmon=true,full gameplay sequence rn2(5),rn2(3),rn2(30),d(2,6),d(3,6),actualHP5->8/cooldown7,clone-only cosmetic advancement,and unchanged globalcore/context/actor duringplanning. Canonical baseline fails clone-stream advancement;final seven focused cases include3C+4native,plus673affected=680tests,lint/diff pass. Source callback predatesexperiment (b34425dd62 September2);distinct from elapsed-upkeep and weapon-swing naming owners. Longer Gehennom shape-message ordering200 and missing gameplay RNG272 remain unresolved,no full776 pass or score gain claimed. Complete accepted16298-batch receipt included;full hosted gates pending. Exact-SHA Checkpoint40052236504,MainLint40053330707 andDashboard40053330602 completed/success; archived44/98 comparison againstE15A verified hashes/admission proof with no drops,missing cases,regressions or issues. Accepted distinct163;complete98 receipt recorded for next ordinary repair. No score change."
+    },
+    {
+      "id": "sensed-armor-name",
+      "kind": "parity-repair",
+      "title": "Name sensed monsters canonically while selecting armor",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T02:25:23Z",
+          "end": "2026-10-24T02:25:23Z",
+          "note": "Instantaneous preserved qualification observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c:movemon_singlemon1268-1281",
+          "nethack-c/upstream/src/worn.c:m_dowear747-791,m_dowear_type802-817",
+          "nethack-c/upstream/src/do_name.c:x_monnam/rndmonnam",
+          "js/worn.js:m_dowear_type",
+          "js/unported_monster_actions.js:planSimpleMonsterScan.dowear"
+        ],
+        "witness": [
+          "recipes/worn.c/sensed-armor-name-normal.session.json",
+          "recipes/worn.c/sensed-armor-name-monochrome.session.json",
+          "recipes/worn.c/sensed-armor-name-no-hallucination-control.session.json"
+        ],
+        "test": [
+          "scripts/sensed-armor-name.test.mjs",
+          "scripts/worn.test.mjs",
+          "scripts/armor-light-redraw.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/do-name.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove-singlemon.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mon-shape.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mattacku calls castmu(TRUE,foundyou);successful sensed casting and self-cure feedback name the caster with Monnam. JavaScript directed castMonsterSpell callback omitted the active displayRandom,so a planning cast advanced live hallucinated-name RNG. Pass only spellEnv.displayRandom to capitalizedMonsterName,matching the existing missile-name wrapper and preserving canonical perception/state and gameplay ordering. Do not pass the entire spell environment:the native blind+detected controls caught its canSeeMonster seam overriding canonical canspotmon. That unpublished prototype was narrowed;no observer or unrelated callback change retained. Supplementary canonical C display log and output-only JS stack agree through2373 draws after162;extra draw2374 atboundary68 identifies this callback. Existing undirected callback planning suppresses its message,so its latent omission and unqualified range2 callback remain untouched. Three fresh quietD1masterlich C replays strictly pass:normal/monochrome3603RNG433screens/cursors232animations;before-genesis control2733RNG28screens/cursors0animations. ExactE15a baseline normal/mono firstscreen mismatch85,coreRNGalreadyfullymatching;controlpassesboth. Four initialized default-orc-shaman direct actions cover planning/live x Hallu/nonHallu with blindness+monster detection,canonicalcanspotmon=true,full gameplay sequence rn2(5),rn2(3),rn2(30),d(2,6),d(3,6),actualHP5->8/cooldown7,clone-only cosmetic advancement,and unchanged globalcore/context/actor duringplanning. Canonical baseline fails clone-stream advancement;final seven focused cases include3C+4native,plus673affected=680tests,lint/diff pass. Source callback predatesexperiment (b34425dd62 September2);distinct from elapsed-upkeep and weapon-swing naming owners. Longer Gehennom shape-message ordering200 and missing gameplay RNG272 remain unresolved,no full776 pass or score gain claimed. Complete accepted16298-batch receipt included;full hosted gates pending."
+      "note": "C m_dowear_type snapshots each eligible armor-slot name before selecting an item, with canonical canspotmon even if canseemon is false. JavaScript forwarded the full movement/armor environment, whose canSeeMonster callback incorrectly overrode canonical sensing in x_monnam. Forward only displayRandom to Monnam/mon_nam, preserving source slot order, SEE_INVIS branch, live message guards and gameplay. Fresh ordinary D1 seed8432033/date20261205121000 blind+hallucination+monster-detection hostile-master-lich C normal and monochrome each strictly match3511 gameplay RNG/437 screens/cursors/3 animations; no-hallucination control3550/433/3 also passes. Exact acceptedAEC normal/mono firstscreen mismatch71, all gameplay RNG already matching; control passes before and after. Eight native initialized planning/live x Hallu/nonHallu x SEE_INVIS cases assert blind canseemon=false/canspotmon=true, full C eight-slot name-draw sequence [430,2]x8 under controlled rejection-free names, clone-owned display advancement only, unchanged live core/context/actor inventory. Baseline native fails four hallucinating cases, controls pass. Eleven focused plus500 affected=511 tests; lint/diff pass. Source inherited176f2dbfc9 September17, predating experiment; distinct from spell and upkeep naming ownership repairs. Supplemental canonical C display log and private JS stack isolate omitted first name draw66 at public input71; output-only diagnostics not retained in production. Longer private Gehennom detection probe now matches screens through271 before the separate gameplay RNG failure272; no full776 pass, corpus admission or score gain claimed. Includes complete accepted16398-batch receipt and exact-SHA acceptance provenance. Full hosted gates pending."
     }
   ]
 }

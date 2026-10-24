@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C worn.c m_dowear_type sensed-monster name snapshot; independent blind+Detect master lich; monochrome",
+  "segments": [
+    {
+      "seed": 8432033,
+      "datetime": "20261205121000",
+      "nethackrc": "OPTIONS=name:SpellOwnerProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips,!acoustics,!debug_mongen\nOPTIONS=!color\n",
+      "moves": "  #wizintrinsic\n800h800i800t\n    #wizgenesis\nhostile master lich\ny hhhhhhhhm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \n\u0012"
+    }
+  ]
+}
