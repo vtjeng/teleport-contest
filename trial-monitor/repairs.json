@@ -10517,8 +10517,94 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "3994c094a50256709eaab135d41f68dccfe16b34",
+          "committedAt": "2026-10-24T03:35:13Z",
+          "runs": [
+            {
+              "id": 40059060464,
+              "name": "Checkpoint",
+              "sha": "3994c094a50256709eaab135d41f68dccfe16b34",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-wand-miss-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T03:37:27Z",
+              "completedAt": "2026-10-24T03:44:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40059060464"
+            },
+            {
+              "id": 40059954948,
+              "name": "Lint",
+              "sha": "3994c094a50256709eaab135d41f68dccfe16b34",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T03:50:39Z",
+              "completedAt": "2026-10-24T03:51:34Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40059954948"
+            },
+            {
+              "id": 40059954953,
+              "name": "Dashboard",
+              "sha": "3994c094a50256709eaab135d41f68dccfe16b34",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T03:50:39Z",
+              "completedAt": "2026-10-24T03:53:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40059954953"
+            }
+          ]
+        }
+      ],
+      "note": "C muse.c mbhitm WAN_STRIKING calls zap.c miss for the failed to-hit branch. JS omitted rawEnv from this call while the adjacent hit branch already forwards it,so miss fell back to live ttyPline and global cosmetic RNG during a speculative monster attack. Forward rawEnv,retaining existing canonical miss text,predicates and gameplay. Independent public Tourist Astral seed8432038/date20261212100000 explicitly activates blind/deaf/Hallu/Detect/Conflict atC137-141. Fresh normal/monochrome prefixes8879RNG201screens/cursors0animations strictlypass; before-miss control6208/149/0passesbeforeandafter. ExactF220baseline normal/mono firstscreen153,allcorealreadyfullymatching. Passive canonical C display log matchesordinaryprefix; firstJSglobaldisplaydraw1025 is430 atmonsterCommonName->zap.miss->muse.mbhitm,whereCnextdraw383 belongs to later live redraws. Eight initialized native planning/live x Hallu/nonHallu x Deaf/hearing cases invoke actualmbhitm against sensed invisiblehuman,rollonlyrnd(20),capturetheexactmissline through suppliedowner,andassertcosmetic[430,2]onlyHallu,unchangedtargetHP,livecore/context andclone-vs-livedisplayownership. NoqueuedinputorTTYsuccessstub;oldsourceall8fail,newall8pass. Eleven focused(8native+3C)+401affected=412tests,lint/diffpass. Long863probe now firstdivergence315 in separatemissmm defender naming/Morewidth;all32364CcoreprefixmatchesbutJSextendsafterinputalignment,no full863passclaimed. That laterpath is source-reading only,notpartofthispatch. OmittedargumentSept6 predatesexperiment;distinctfromteleport-wandcontextanddirectedspellnameadapters. Includes complete accepted16798-batch receipt and exact provenance;noadmissionormeasuredscoregain;fullhostedgatespending. Accepted distinct168 after exact-SHA Checkpoint40059060464, MainLint40059954948 and Dashboard40059954953 success. Archive44/98/2055 comparison againstF220 verified exact hashes/admission proof with no drops,missing,regressions or score changes. Complete98 receipt carried in next ordinary grouped combat-feedback repair."
+    },
+    {
+      "id": "monster-combat-name-owner",
+      "kind": "parity-repair",
+      "title": "Preserve canonical sensing and cosmetic ownership in monster combat feedback",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T04:02:54Z",
+          "end": "2026-10-24T04:02:54Z",
+          "note": "Instantaneous preserved qualification observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mhitm.c:missmm74-93,mswingsm1283-1301",
+          "nethack-c/upstream/src/do_name.c:mon_nam_too1189-1216",
+          "js/mhitm.js:missmm,mswingsm"
+        ],
+        "witness": [
+          "recipes/mhitm.c/sensed-combat-name-normal.session.json",
+          "recipes/mhitm.c/sensed-combat-name-monochrome.session.json",
+          "recipes/mhitm.c/sensed-combat-name-before-control.session.json"
+        ],
+        "test": [
+          "scripts/sensed-combat-names.test.mjs",
+          "scripts/mhitm.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/do-name.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mswings-display-owner.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C muse.c mbhitm WAN_STRIKING calls zap.c miss for the failed to-hit branch. JS omitted rawEnv from this call while the adjacent hit branch already forwards it,so miss fell back to live ttyPline and global cosmetic RNG during a speculative monster attack. Forward rawEnv,retaining existing canonical miss text,predicates and gameplay. Independent public Tourist Astral seed8432038/date20261212100000 explicitly activates blind/deaf/Hallu/Detect/Conflict atC137-141. Fresh normal/monochrome prefixes8879RNG201screens/cursors0animations strictlypass; before-miss control6208/149/0passesbeforeandafter. ExactF220baseline normal/mono firstscreen153,allcorealreadyfullymatching. Passive canonical C display log matchesordinaryprefix; firstJSglobaldisplaydraw1025 is430 atmonsterCommonName->zap.miss->muse.mbhitm,whereCnextdraw383 belongs to later live redraws. Eight initialized native planning/live x Hallu/nonHallu x Deaf/hearing cases invoke actualmbhitm against sensed invisiblehuman,rollonlyrnd(20),capturetheexactmissline through suppliedowner,andassertcosmetic[430,2]onlyHallu,unchangedtargetHP,livecore/context andclone-vs-livedisplayownership. NoqueuedinputorTTYsuccessstub;oldsourceall8fail,newall8pass. Eleven focused(8native+3C)+401affected=412tests,lint/diffpass. Long863probe now firstdivergence315 in separatemissmm defender naming/Morewidth;all32364CcoreprefixmatchesbutJSextendsafterinputalignment,no full863passclaimed. That laterpath is source-reading only,notpartofthispatch. OmittedargumentSept6 predatesexperiment;distinctfromteleport-wandcontextanddirectedspellnameadapters. Includes complete accepted16798-batch receipt and exact provenance;noadmissionormeasuredscoregain;fullhostedgatespending."
+      "note": "Grouped one repair covering monster-versus-monster miss and weapon-swing feedback under the same canonical sensed-defender naming contract. missmm now forwards active core/cosmetic owners without the combat visibility override; mswingsm reuses its existing pronounEnv canonical canSpotMonster binding for defender naming. No new sensing algorithm or gameplay decisions. C missmm and mswingsm call canonical naming even when the defender is invisible but detected. Old JS called it, shortening More width, and missmm attacker naming used global cosmetic RNG. Independent public Tourist Astral seed8432038/date20261212100000 has actual C Blind/Deaf/Hallu/Detect/Conflict activation137-141; later natural cures are not assumed absent. Fresh normal/monochrome371-boundary recordings each16169RNG/371screens/cursors/15animations strictlypass; before-event control14187/311/9passes before and after. Exact3994baseline bothvariants firstscreen316,all16169Ccoreprefixmatches thenJSextends; controlpasses. Eight initialized native armed/unarmed x Hallu/non x Detect/non cases each execute planning/live real mattackm(16runs),canonicalwield callback and actual miss/passive gates,verify exact swing/miss lines,displaydrawarrays,livecore/context/HP and clone ownership. Oldsource6fail2unseen nonHallu controls pass;newall8pass. Eleven focused(8native+3C)+593affected=604tests,lint/diffpass. Full private863-boundary probe32364RNG/863screens/cursors/81animations nowstrictpass. Initial target-coordinate/passive-draw test fixture corrections preserved separately; no production workaround. Both naming defects predateexperiment(Aug16 andOct12). Distinct prior153mhitu hero-target swing owner; this grouped mhitm monster-target repair counts once. Includes complete accepted16898-batch receipt and exact provenance. No admission or measured scoregain; full hostedgates pending."
     }
   ]
 }

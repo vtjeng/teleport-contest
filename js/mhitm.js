@@ -482,11 +482,14 @@ async function missmm(magr, mdef, mattk, env) {
     pre_mm_attack(magr, mdef, env);
 
     if (state.gv.vis) {
+        // C names use canonical sensing; the combat visibility seam is not
+        // the naming predicate. Keep both random owners for reflexive names.
+        const nameEnv = { random: env.random, displayRandom: env.displayRandom };
         await message(
-            `${capitalizedMonsterName(magr, state)} `
+            `${capitalizedMonsterName(magr, state, nameEnv)} `
             + `${(magr.mcan || !could_seduce(magr, mdef, mattk, env))
                 ? 'misses' : 'pretends to be friendly to'} `
-            + `${mon_nam_too(mdef, magr, state, env)}.`,
+            + `${mon_nam_too(mdef, magr, state, nameEnv)}.`,
             state,
         );
     } else {
@@ -1406,7 +1409,7 @@ async function mswingsm(magr, mdef, otemp, env) {
         `${Monnam(magr, state, env)} `
             + `${mswings_verb(otemp, bash, { ...env, state, random })} `
             + `${otemp.quan > 1 ? 'one of ' : ''}${mhis(magr, pronounEnv)} `
-            + `${xnameFresh(otemp, state)} at ${mon_nam(mdef, state, env)}.`,
+            + `${xnameFresh(otemp, state)} at ${mon_nam(mdef, state, pronounEnv)}.`,
         state,
         env,
     );
