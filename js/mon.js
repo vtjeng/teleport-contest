@@ -5985,7 +5985,7 @@ export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
         ? worm_known(mdef, state) : cansee(mdef.mx, mdef.my, state))) {
         await message(
             messageAt(
-                `${capitalizedMonsterName(mdef, state)} is`
+                `${capitalizedMonsterName(mdef, state, { displayRandom: env.displayRandom })} is`
                 + ` ${nonliving(mptr) ? 'destroyed' : 'killed'}`
                 + `${fltxt ? ' by the ' : ''}${fltxt}!`,
                 mdef.mx,
