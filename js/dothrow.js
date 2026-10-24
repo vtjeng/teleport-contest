@@ -739,6 +739,8 @@ export async function mhurtle_step(arg, x, y) {
     if (!monster || !state.level)
         throw new TypeError('mhurtle_step requires a monster and level');
     if (!isok(x, y)) return false;
+    // Speculative movement keeps map/physics effects without live presentation.
+    const redraw = env.planning ? () => {} : newsym;
 
     if (will_hurtle(monster, x, y, state, env)
         && await m_in_out_region(monster, x, y, { ...env, state })) {
@@ -746,18 +748,20 @@ export async function mhurtle_step(arg, x, y) {
             const oldX = monster.mx;
             const oldY = monster.my;
             remove_monster(oldX, oldY, state);
-            newsym(oldX, oldY);
+            redraw(oldX, oldY);
             place_monster(monster, x, y, state);
-            newsym(monster.mx, monster.my);
+            redraw(monster.mx, monster.my);
         } else {
             state.u.ux0 = state.u.ux;
             state.u.uy0 = state.u.uy;
             u_on_newpos(x, y, state);
-            newsym(state.u.ux0, state.u.uy0);
+            redraw(state.u.ux0, state.u.uy0);
             vision_recalc(0, { state });
         }
-        await flush_screen(1);
-        await nh_delay_output(state);
+        if (!env.planning) {
+            await flush_screen(1);
+            await nh_delay_output(state);
+        }
         set_apparxy(monster, { ...env, state, random: env.random });
         if (IS_WATERWALL(state.level.at(x, y).typ)) return false;
         const result = await mintrap(
