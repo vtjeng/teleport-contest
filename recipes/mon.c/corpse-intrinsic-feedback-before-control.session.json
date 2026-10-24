@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public GnomeHealer8432176Apr21 corpse intrinsic feedback owner before-control; grouped183. No admission/scoreclaim.",
+  "segments": [
+    {
+      "seed": 8432176,
+      "datetime": "20270421100000",
+      "nethackrc": "OPTIONS=name:GnomeHealerProbe,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n "
+    }
+  ]
+}

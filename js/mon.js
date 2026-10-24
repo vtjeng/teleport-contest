@@ -1871,7 +1871,7 @@ export async function mon_give_prop(mtmp, prop, rawEnv = {}) {
     mtmp.mintrinsics = (mtmp.mintrinsics ?? 0) | intrinsic;
     if (canseemon(mtmp, state) && message) {
         await monsterMessage(
-            message.replace('%s', capitalizedMonsterName(mtmp, state)),
+            message.replace('%s', capitalizedMonsterName(mtmp, state, { displayRandom: rawEnv.displayRandom })),
             mtmp,
             state,
             rawEnv,
@@ -1886,8 +1886,8 @@ export async function mon_givit(mtmp, ptr, rawEnv = {}) {
     const visible = canseemon(mtmp, state);
     if (ptr === state.mons?.[PM_STALKER]) {
         if (!mtmp.perminvis || mtmp.invis_blkd) {
-            const oldName = capitalizedMonsterName(mtmp, state);
-            mon_set_minvis(mtmp, false, state);
+            const oldName = capitalizedMonsterName(mtmp, state, { displayRandom: rawEnv.displayRandom });
+            mon_set_minvis(mtmp, false, state, rawEnv);
             if (visible) {
                 const text = !canspotmon(mtmp, state)
                     ? `${oldName} vanishes.`
