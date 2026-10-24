@@ -2404,7 +2404,7 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //   watch_on_duty()                       wired
 //   mind_blast()                          wired for mind flayers
 //   killer bee jelly, gelcube_digests()   wired through dochug()
-//   mon_offmap()                         unreachable on a fresh D:1 level
+//   mon_offmap()                         wired after movement/escape
 //   cuss()                                the source gate and wizard.c:cuss
 //                                         are wired below; com_pager is a
 //                                         named discarded void gap there
@@ -2718,6 +2718,8 @@ export async function dochug(monster, rawEnv = {}) {
         }
 
         if (!status) status = await moveMonster(monster, env);
+        // C returns before fear/range checks when an escape migrated it.
+        if (mon_offmap(monster)) return 1;
         if (status !== MMOVE_DIED) {
             range = await distanceAndFear(monster, { ...env, monFlee });
         }

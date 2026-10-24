@@ -10,6 +10,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
+    MON_MIGRATING,
     MS_BRIBE,
     NATTK,
     M_SEEN_SLEEP,
@@ -1607,3 +1608,29 @@ test('dochug updates quest status before the frozen-monster return', async () =>
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, ['preflight', 'stat-check']);
 });
+
+// C monmove.c:913-915 ends the action before distfleeck when an escape
+// inside m_move() migrated the monster out of the active level.
+for (const planning of [false, true]) for (const migrated of [false, true]) {
+    test(`dochug off-map escape planning=${planning} migrated=${migrated}`, async () => {
+        const state = makeState(), events = [];
+        const monster = makeMonster();
+        let ranges = 0;
+        const result = await dochug(monster, {
+            ...baseEnv(state, events), planning,
+            distanceAndFear: () => {
+                ranges++;
+                return { inrange: true, nearby: false, scared: false };
+            },
+            moveMonster: subject => {
+                events.push('escape');
+                if (migrated) subject.mstate = MON_MIGRATING;
+                return MMOVE_DONE;
+            },
+        });
+        assert.equal(result, migrated ? 1 : 0);
+        assert.equal(ranges, migrated ? 1 : 2);
+        assert.equal(events.filter(x => x === 'escape').length, 1);
+        assert.equal(events.includes('attack'), false);
+    });
+}

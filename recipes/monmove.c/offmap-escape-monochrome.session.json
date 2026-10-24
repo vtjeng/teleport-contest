@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Gehennom trapped-monster cursed teleportation escape; dochug mon_offmap guard; monochrome",
+  "segments": [
+    {
+      "seed": 8432031,
+      "datetime": "20261202154500",
+      "nethackrc": "OPTIONS=name:BlindHalluc,role:Ranger,race:elf,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\nOPTIONS=!color\n",
+      "moves": "  #wizlevelport\n30\n    #wizintrinsic\n800h800i800t\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    "
+    }
+  ]
+}

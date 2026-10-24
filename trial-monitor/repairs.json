@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T02:26:24.725113+00:00",
+  "asOf": "2026-10-24T02:40:35.605357+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -10156,8 +10156,99 @@
           "scripts/mon-shape.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "cc17051e8b7a71afe572632ae896089d49653d07",
+          "committedAt": "2026-10-24T02:27:01Z",
+          "runs": [
+            {
+              "id": 40054223761,
+              "name": "Checkpoint",
+              "sha": "cc17051e8b7a71afe572632ae896089d49653d07",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/sensed-armor-name-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:27:15Z",
+              "completedAt": "2026-10-24T02:34:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40054223761"
+            },
+            {
+              "id": 40054816087,
+              "name": "Lint",
+              "sha": "cc17051e8b7a71afe572632ae896089d49653d07",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:35:37Z",
+              "completedAt": "2026-10-24T02:36:36Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40054816087"
+            },
+            {
+              "id": 40054816095,
+              "name": "Dashboard",
+              "sha": "cc17051e8b7a71afe572632ae896089d49653d07",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:35:37Z",
+              "completedAt": "2026-10-24T02:38:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40054816095"
+            }
+          ]
+        }
+      ],
+      "note": "C m_dowear_type snapshots each eligible armor-slot name before selecting an item, with canonical canspotmon even if canseemon is false. JavaScript forwarded the full movement/armor environment, whose canSeeMonster callback incorrectly overrode canonical sensing in x_monnam. Forward only displayRandom to Monnam/mon_nam, preserving source slot order, SEE_INVIS branch, live message guards and gameplay. Fresh ordinary D1 seed8432033/date20261205121000 blind+hallucination+monster-detection hostile-master-lich C normal and monochrome each strictly match3511 gameplay RNG/437 screens/cursors/3 animations; no-hallucination control3550/433/3 also passes. Exact acceptedAEC normal/mono firstscreen mismatch71, all gameplay RNG already matching; control passes before and after. Eight native initialized planning/live x Hallu/nonHallu x SEE_INVIS cases assert blind canseemon=false/canspotmon=true, full C eight-slot name-draw sequence [430,2]x8 under controlled rejection-free names, clone-owned display advancement only, unchanged live core/context/actor inventory. Baseline native fails four hallucinating cases, controls pass. Eleven focused plus500 affected=511 tests; lint/diff pass. Source inherited176f2dbfc9 September17, predating experiment; distinct from spell and upkeep naming ownership repairs. Supplemental canonical C display log and private JS stack isolate omitted first name draw66 at public input71; output-only diagnostics not retained in production. Longer private Gehennom detection probe now matches screens through271 before the separate gameplay RNG failure272; no full776 pass, corpus admission or score gain claimed. Includes complete accepted16398-batch receipt and exact-SHA acceptance provenance. Full hosted gates pending. Accepted distinct164 after exact-SHA Checkpoint40054223761,MainLint40054816087 andDashboard40054816095 success. Archived44/98/2055 comparison againstAEC verified hashes and admission proof with no drops,missing,regressions or changes. Complete98 receipt recorded for next ordinary off-map repair."
+    },
+    {
+      "id": "dochug-offmap-escape",
+      "kind": "parity-repair",
+      "title": "End monster actions after off-level defensive escape",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T02:30:58Z",
+          "end": "2026-10-24T02:30:58Z",
+          "note": "Instantaneous preserved source/qualification observation, no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c:dochug913-915,m_move1926-1930",
+          "nethack-c/upstream/src/muse.c:use_defensive887-914",
+          "nethack-c/upstream/include/monst.h:mon_offmap",
+          "js/monmove.js:dochug",
+          "js/muse.js:use_defensive teleportation scroll"
+        ],
+        "witness": [
+          "recipes/monmove.c/offmap-escape-normal.session.json",
+          "recipes/monmove.c/offmap-escape-monochrome.session.json",
+          "recipes/monmove.c/offmap-escape-before-control.session.json"
+        ],
+        "test": [
+          "scripts/offmap-escape.test.mjs",
+          "scripts/monmove-dochug.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/monmove-singlemon.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/teleport-monster-traps.test.mjs",
+          "scripts/wizard-migration.test.mjs",
+          "scripts/mon-stone-migration.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C m_dowear_type snapshots each eligible armor-slot name before selecting an item, with canonical canspotmon even if canseemon is false. JavaScript forwarded the full movement/armor environment, whose canSeeMonster callback incorrectly overrode canonical sensing in x_monnam. Forward only displayRandom to Monnam/mon_nam, preserving source slot order, SEE_INVIS branch, live message guards and gameplay. Fresh ordinary D1 seed8432033/date20261205121000 blind+hallucination+monster-detection hostile-master-lich C normal and monochrome each strictly match3511 gameplay RNG/437 screens/cursors/3 animations; no-hallucination control3550/433/3 also passes. Exact acceptedAEC normal/mono firstscreen mismatch71, all gameplay RNG already matching; control passes before and after. Eight native initialized planning/live x Hallu/nonHallu x SEE_INVIS cases assert blind canseemon=false/canspotmon=true, full C eight-slot name-draw sequence [430,2]x8 under controlled rejection-free names, clone-owned display advancement only, unchanged live core/context/actor inventory. Baseline native fails four hallucinating cases, controls pass. Eleven focused plus500 affected=511 tests; lint/diff pass. Source inherited176f2dbfc9 September17, predating experiment; distinct from spell and upkeep naming ownership repairs. Supplemental canonical C display log and private JS stack isolate omitted first name draw66 at public input71; output-only diagnostics not retained in production. Longer private Gehennom detection probe now matches screens through271 before the separate gameplay RNG failure272; no full776 pass, corpus admission or score gain claimed. Includes complete accepted16398-batch receipt and exact-SHA acceptance provenance. Full hosted gates pending."
+      "note": "C dochug checks mon_offmap immediately after the undirected-spell/m_move phase and returns1 before recalculating distfleeck. JavaScript omitted that guard, so a trapped wraith migrating through a cursed teleport scroll continued range/fear work and spent an extra rn2(5). Add the canonical guard at the same point; no migration,scroll,corpse or RNG implementation change. Private output-only core trace identifies actor388wraith at move19 and the extra post-escape draw; subsequent actor386vrock first distfleeck displaced C weighted m_move rn2(8). Fresh public Gehennom normal/monochrome C prefixes each35820RNG301screens/cursors24animations fully match; before-escape control33813RNG251screens/cursors16animations passes before and after. ExactCC170 baseline normal/mono fails at gameplay index34609/boundary272, controlpasses. Four native planning/live x migrated/on-map cases assert source result and one vs two range checks; baseline fails two migrated cases, on-map controls pass. Three C plus48dochug(including4new)+550affected+35migration=636tests,lint/diff pass. Full original private blind+Hallu Gehennom run now51970RNG772screens/cursors4animations strictly matches; original apparent corpse-consumption failure was downstream of this draw, canonical delobj was already correct. Detection variant preserves all57108Cgameplay calls but has later display mismatch532/input-alignment extra calls; no full776pass claimed. Source omission predates experiment (July26/September2 code),distinct from migration owners and earlier monster action adapters. Includes complete accepted16498-batch receipt and provenance; no cohort admission or measured score gain. Full hosted gates pending."
     }
   ]
 }
