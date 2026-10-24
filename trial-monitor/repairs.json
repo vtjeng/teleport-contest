@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T18:33:49.711224+00:00",
+  "asOf": "2026-10-24T18:51:12.446831+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -13179,8 +13179,90 @@
           "scripts/seducer-feedback-sensing.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "0bf43c7f2385f8a733b922ebd956c88537d4cd87",
+          "committedAt": "2026-10-24T18:35:51Z",
+          "runs": [
+            {
+              "id": 40121456065,
+              "name": "Checkpoint",
+              "sha": "0bf43c7f2385f8a733b922ebd956c88537d4cd87",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/seducer-feedback-sensing-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T18:36:08Z",
+              "completedAt": "2026-10-24T18:44:37Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40121456065"
+            },
+            {
+              "id": 40122179613,
+              "name": "Lint",
+              "sha": "0bf43c7f2385f8a733b922ebd956c88537d4cd87",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T18:45:38Z",
+              "completedAt": "2026-10-24T18:46:42Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40122179613"
+            },
+            {
+              "id": 40122179657,
+              "name": "Dashboard",
+              "sha": "0bf43c7f2385f8a733b922ebd956c88537d4cd87",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T18:45:38Z",
+              "completedAt": "2026-10-24T18:49:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40122179657"
+            }
+          ]
+        }
+      ],
+      "note": "Provisional independent189 only after188theft prerequisite andallgates. Noexistingdoseducenamingrepairregisterentry; differentCentrythan184guardianperception. FutureextensionsofthisnamingEnv correctiongroup here. No count now. ac25d77e1d October5, beforeexperiment. Singlepredicate inexistingnamingEnv canseemon->canspotmon. Retainmandatorycallbackforpronoun_gender. Explicitphysicalseewho/canSee interaction/caressing/promptgatesunchanged. Nohelper/RNG/defaultAPI orCIchange. IndependentFireprobe malehumanWizard/dog8432130Mar6 afterseparateLava/Theftprerequisites. Firstscreen/cursor2403 Cnamedhallucinatedseducer vsJSIt inheadacheline, corefirst2441. ActualLIVEglobalmoves100/displayOwnerfn,canSee=false/canSpot=true,Blind722/Hallu701, unresponsivefalse, AmorousDemon328/type290[34,18]HP37/max37/mcanfalse/cooldown69/femaletrue/chamNONPM. Output-only2450observerall4streamsidentical. No publicplanningclaim for thisearlyreturn; nativeclonecoverage separate. normalmono87280RNG2451screens/cursors37animations strictpass;before85361/2381/37 strictpass. 18cases36plan/live H/non xvisible/blindDetected/blindUnknown xcancelled/tired/unresponsive. InitializedHealer/validAmorousDemon/NONPMroom; defaultcanonicalMonnam+mhe Csourcepinned expectations withactualprivateISAACcontexts, sourceheadacheHallu coreRN24 anddisplayname streams separate. Fullmessages/order,privatecontexts,globalcore/display/inventory/HP/monsterHP/coords/cancellation/cooldown guards;planliveequal. Old6blindDetectedfail12controls,new18pass. 21focused+350affected=371isolatedassembledpass/fullESLintpass. Primaryintegration/register/fullhostedstillrequired after188receipt. Initialhypothesisremovednamingoverride entirely; sourceinspectionshowednonHallu pronoun_gender requiresprovider, so keptcallbackbutcanonicalcanspot before finalnative/Ctests. No productionedit orCIrerun. Withseparate187/188prerequisites andcorrectedpredicate, all147813core/cursors4555/71animations match fullC, but latermapglyphdifference3718 remains. Recordedfulloutputwasremove-overridevariantunderHallu; canonicalcallbacknative/C3pass. No fullscreenpass/admission/scoregain claim; laterglyphlead unqualified. Includes accepted18865fcomplete98receipt. Primary/fullhosted exactSHA gates required; count188until189fullyaccepted. Finalprimary21focused+350affected=371unique pass;16register/fullESLint/diffpass. Fullhosted/archive/comparison/MainLintDashboard required before189acceptance. Count188untilallgates. Accepted distinct189 after exact Checkpoint40121456065/Lint40122179613/Dashboard40122179657 success; completed-workflow metadata updatedAt supplies completion timestamps, not active work time. Genuine archive/hash/admission/44fixed98batch2055 comparison vs65f unchanged. Complete98 receipt exit0/pending[]/pointer0bf verified before next primary edit, carried in next ordinary Wizard repair. No admission or aggregate score gain."
+    },
+    {
+      "id": "clone-final-redraw",
+      "kind": "parity-repair",
+      "title": "Redraw Wizard clones after their final disguise",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T18:43:58.324Z",
+          "end": "2026-10-24T18:43:58.324Z",
+          "note": "Qualification preservation observation only; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T18:51:12.446831+00:00",
+          "end": "2026-10-24T18:51:12.446831+00:00",
+          "note": "Sequential primary integration after verified accepted189 complete98receipt. Observation only, no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "C wizard.c clonewiz517-533 final newsym after final attitudes, optional fakeamulet, M_AP_MONSTER disguise. JS wizard.js existing callback-only redraw from99e9b62810 Oct13 predates experiment."
+        ],
+        "witness": [
+          "recipes/wizard.c/clone-final-redraw-normal.session.json",
+          "recipes/wizard.c/clone-final-redraw-monochrome.session.json",
+          "recipes/wizard.c/clone-final-redraw-before-control.session.json"
+        ],
+        "test": [
+          "scripts/clone-final-redraw.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Provisional independent189 only after188theft prerequisite andallgates. Noexistingdoseducenamingrepairregisterentry; differentCentrythan184guardianperception. FutureextensionsofthisnamingEnv correctiongroup here. No count now. ac25d77e1d October5, beforeexperiment. Singlepredicate inexistingnamingEnv canseemon->canspotmon. Retainmandatorycallbackforpronoun_gender. Explicitphysicalseewho/canSee interaction/caressing/promptgatesunchanged. Nohelper/RNG/defaultAPI orCIchange. IndependentFireprobe malehumanWizard/dog8432130Mar6 afterseparateLava/Theftprerequisites. Firstscreen/cursor2403 Cnamedhallucinatedseducer vsJSIt inheadacheline, corefirst2441. ActualLIVEglobalmoves100/displayOwnerfn,canSee=false/canSpot=true,Blind722/Hallu701, unresponsivefalse, AmorousDemon328/type290[34,18]HP37/max37/mcanfalse/cooldown69/femaletrue/chamNONPM. Output-only2450observerall4streamsidentical. No publicplanningclaim for thisearlyreturn; nativeclonecoverage separate. normalmono87280RNG2451screens/cursors37animations strictpass;before85361/2381/37 strictpass. 18cases36plan/live H/non xvisible/blindDetected/blindUnknown xcancelled/tired/unresponsive. InitializedHealer/validAmorousDemon/NONPMroom; defaultcanonicalMonnam+mhe Csourcepinned expectations withactualprivateISAACcontexts, sourceheadacheHallu coreRN24 anddisplayname streams separate. Fullmessages/order,privatecontexts,globalcore/display/inventory/HP/monsterHP/coords/cancellation/cooldown guards;planliveequal. Old6blindDetectedfail12controls,new18pass. 21focused+350affected=371isolatedassembledpass/fullESLintpass. Primaryintegration/register/fullhostedstillrequired after188receipt. Initialhypothesisremovednamingoverride entirely; sourceinspectionshowednonHallu pronoun_gender requiresprovider, so keptcallbackbutcanonicalcanspot before finalnative/Ctests. No productionedit orCIrerun. Withseparate187/188prerequisites andcorrectedpredicate, all147813core/cursors4555/71animations match fullC, but latermapglyphdifference3718 remains. Recordedfulloutputwasremove-overridevariantunderHallu; canonicalcallbacknative/C3pass. No fullscreenpass/admission/scoregain claim; laterglyphlead unqualified. Includes accepted18865fcomplete98receipt. Primary/fullhosted exactSHA gates required; count188until189fullyaccepted. Finalprimary21focused+350affected=371unique pass;16register/fullESLint/diffpass. Fullhosted/archive/comparison/MainLintDashboard required before189acceptance. Count188untilallgates."
+      "note": "Provisional distinct190 only after189 acceptance and all gates. No current count. C wizard.c clonewiz517-533 final newsym after final attitudes, optional fakeamulet, M_AP_MONSTER disguise. JS wizard.js existing callback-only redraw from99e9b62810 Oct13 predates experiment. Add canonical newsym default only for active global state and nonplanning; preserve explicit redraw/redrawSquare and await. Reuse existing display import edge. No RNG algorithm/helper changes. Independent Fire plane Wizard dog8432130 March6, after separate187/188/189 prerequisites. Ten screen boundaries3718-3727 differ; all core/cursor/animation match. Output-only context observer preserves all4 streams: global LIVE move137 actor411 Wizard285[32,20]HP155/max155 NONPM, sleepfalse/tame0/peacefulfalse, M_AP_MONSTER3 appearance117, neither redraw nor redrawSquare supplied. Move4 explicit supplied callback is a separate control. Passive C prefix and output-only JS observer each preserve ordinary4 streams. First mixed disagreement187099 C ~drn2(383)=28 clonewiz530 before next coreRN25; JS skips final displaydraw until later. No C rebuild. normal and monochrome123429RNG3751screens/cursors52animations; before120779/3681/52. All3 fixed strictpass. Baseline3 replay check in progress separately. Baseline normal/mono both fail at firstscreen3718, beforecontrolpasses (three-baseline exit0). 8 initialized real clonewiz/makemon_runtime cases xdefaultLIVE/explicitdelegatedLIVE/planning=24 constructions. H/non visible/blinddetected/blindunknown plus protectedshape. Full defaultLIVE vs delegatedLIVE core/display/grid/messages/fields/inventory equality. Plan/live gameplaycore/fields/inventory equality; planning global core/display/grid/vitals/context/originalmonster guards. HLU planned appearance text legitimately differs due suppressed initial glyphs, excluded only planned text equality; full LIVE strict. Old3Hallu spotted fail5controls, fixed8pass. 596 assembled =11focused(8native3C)+585affected passed; full assembled ESLint passed. Primary integration16register/fullLint/tests and all hosted gates still required after189receipt. Wrong nativegrid guard[7][9] corrected canonical[x][y] to[9][7]; tightened ident9985; removed invalid plannedHLU appearance-text equality while preserving full LIVE equality; logs retained. Native-corrected8pass, assembled596pass supersede native-final intermediate failure. Isolated fix with187/188/189 full147813core4555screens/cursors71animations strictPASS. Private control only; no admission/aggregate gain. Includes accepted189 complete98receipt, to ship in this ordinary repair commit. Primary integration and hosted exact-SHA gates required; accepted distinct189 until all gates. Final primary11focused+585affected=596 unique passed,16register/fullESLint/diff passed. Require full hosted exactSHA archive comparison and Main Lint/Dashboard before provisional190 acceptance."
     }
   ]
 }
