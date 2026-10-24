@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T00:26:20.991Z",
+  "asOf": "2026-10-24T00:40:03.188784+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -6237,7 +6237,7 @@
           ]
         }
       ],
-      "note": "User-requested UI cleanup from stopped dashboard worker commit3ee8b337ce6e01bf48cf9afb787b6e126cf4cd2b, based on9c23db7b. Integrated after accepted120 gates/complete98 receipt. Preserves intervening gameplay/evidence and dark-mode link contrast. Current candidate/CI, complete scores with separate freshness, five recent distinct repairs; historical diagnostics/backlog/provenance collapsed and empty timeline space removed. Worker reported126tests and rendered light/dark320–1440px coverage; integrator verification and hosted gates pending. UI does not increment parity count. Completed by replacement dashboard worker while Standard was paused. Existing exact-SHA Checkpoint39920924678/Lint39921745592/Dashboard39921745582 verified; no reruns. Archived44/98 comparison unchanged; complete98 receipt recorded. Distinct parity remains120. Paused local integration preserved in recovery stash; only evidence restored on current Main."
+      "note": "User-requested UI cleanup from stopped dashboard worker commit3ee8b337ce6e01bf48cf9afb787b6e126cf4cd2b, based on9c23db7b. Integrated after accepted120 gates/complete98 receipt. Preserves intervening gameplay/evidence and dark-mode link contrast. Current candidate/CI, complete scores with separate freshness, five recent distinct repairs; historical diagnostics/backlog/provenance collapsed and empty timeline space removed. Worker reported126tests and rendered light/dark320\u20131440px coverage; integrator verification and hosted gates pending. UI does not increment parity count. Completed by replacement dashboard worker while Standard was paused. Existing exact-SHA Checkpoint39920924678/Lint39921745592/Dashboard39921745582 verified; no reruns. Archived44/98 comparison unchanged; complete98 receipt recorded. Distinct parity remains120. Paused local integration preserved in recovery stash; only evidence restored on current Main."
     },
     {
       "id": "water-punishment-restriction",
@@ -7613,7 +7613,7 @@
           ]
         }
       ],
-      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320–1440px. Hosted gates pending; no aggregate gain claimed. Accepted as distinct135 after exact-SHA Checkpoint39988667786, MainLint39989706718 andDashboard39989706788 passed. Requested viewer-local-time UI deployed in the same SHA and excluded from parity count. Complete98batch receipt against847bc654 recorded;44fixed and2055synthetic cases have no changed results or missing evidence."
+      "note": "C muse.c mbhitm WAN_TELEPORTATION invokes tele or tele_restrict/rloc on the active turn before discovery. Preserve normalized random/message/input/display callbacks for both target branches; hero teleds uses the existing missile newsym owner as redraw. Independent controlled and explore-mode uncontrolled Grey-elf wand hits previously consume live input/RNG or throw missing clone redraw. Longer continuation exposed the same context loss when the beam teleports an umber hulk before the hero; fixed in this same repair. Six freshC regressions and two ownership assertions pass; full independent13303screen/146584rng/123animation continuation also matches. 360focused/affected gameplay tests and142dashboard/startup/timeline tests,lint anddiffcheck pass. Carries complete134gates/98batch receipt. Requested viewer-local-time UI cherry-pickbb2c4b0c7 (source5eda793e) shares integrated validation but is not a parity increment; author browser evidence covers LA/Berlin/Kathmandu andboth themes320\u20131440px. Hosted gates pending; no aggregate gain claimed. Accepted as distinct135 after exact-SHA Checkpoint39988667786, MainLint39989706718 andDashboard39989706788 passed. Requested viewer-local-time UI deployed in the same SHA and excluded from parity count. Complete98batch receipt against847bc654 recorded;44fixed and2055synthetic cases have no changed results or missing evidence."
     },
     {
       "id": "natural-random-species",
@@ -8759,6 +8759,11 @@
           "start": "2026-10-23T21:00:48.803Z",
           "end": "2026-10-23T21:00:48.803Z",
           "note": "Instantaneous preserved source/private-trial observation; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-23T23:57:17.970Z",
+          "end": "2026-10-23T23:57:17.970Z",
+          "note": "Preserved instantaneous first-divergence observation for grouped peaceful-flag correction; no elapsed active-work claim."
         }
       ],
       "evidence": {
@@ -8771,7 +8776,10 @@
         "witness": [
           "recipes/monmove.c/mind-blast-target-chain-normal.session.json",
           "recipes/monmove.c/mind-blast-target-chain-horizontal.session.json",
-          "recipes/monmove.c/mind-blast-target-chain-before-control.session.json"
+          "recipes/monmove.c/mind-blast-target-chain-before-control.session.json",
+          "recipes/monmove.c/mind-blast-peace-flags-peace.session.json",
+          "recipes/monmove.c/mind-blast-peace-flags-monochrome.session.json",
+          "recipes/monmove.c/mind-blast-peace-flags-before-control.session.json"
         ],
         "test": [
           "scripts/mind-blast-target-chain.test.mjs",
@@ -8779,7 +8787,8 @@
           "scripts/mon-wakeup.test.mjs",
           "scripts/mon-kill.test.mjs",
           "scripts/unported-monster-actions.test.mjs",
-          "scripts/allmain-turn.test.mjs"
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mind-blast-peace-flags.test.mjs"
         ]
       },
       "candidates": [
@@ -8828,7 +8837,7 @@
           ]
         }
       ],
-      "note": "Cmind_blast traverses fmon (rm.h canonicalsvl.level.monlist), cachesnext beforewakeup/death, andprocessesopposed/nonmindless/livingtargets. JSiteratedobsolete state.fmon, skippingallothermonsters. Usecanonicallevel.monlist andcachednext; passfullstate/random/message/planningcontext tocanonicalwakeup instead ofstateonly. Herobranch unchanged. Actualworm-only4b3b563c baseline freshnormal firstmissingrn2(10)13779/317, horizontal6998/110; beforetriggercontrol passesboth. Three freshlyrecorded C replays strictlypass: normal24950RNG812screens/cursors162animations, horizontal8938/143/29, beforecontrol13309/309/150. Two canonicaldochug constructedlive/planning cases proveopposedtargetdamage, awakening/mealend, friend/mindless/deadskip, nexttarget traversal, exactRNG andplanningmessagesilence.381affected+64focused=445unique tests including3C pass; lint/diffcheck pass. Existing acoustics-off independentfull812probe passes25999RNG103animations; fifthseed8432005date20261030164500 full812probe passesbothbaseline/fix24737RNG24animations, privateunaffectedcontrol. Private2132continuationstrictpass52913RNG188animations; longer5732matchesall193781RNG/cursors394animations buthasindependentgreenslimepromptvisionfirstscreen4655, preservedsourcelead, notclaimedfullstrictpasshere. Complete148receipt included; fullhostedgatespending; noaggregatescoregainclaimed. Accepted as distinct149 afterfullCheckpoint40026262349 andexactMainLint40027327241/Dashboard40027327131 passed. Normal runAPI summaries verifiedexactSHA/repositories/attempt/triggers; full44fixed/98batch2055case comparison against4b3b563c clean, allaggregatedeltas0. Complete98publicationreceipt carried innextordinarypromptrepair."
+      "note": "Cmind_blast traverses fmon (rm.h canonicalsvl.level.monlist), cachesnext beforewakeup/death, andprocessesopposed/nonmindless/livingtargets. JSiteratedobsolete state.fmon, skippingallothermonsters. Usecanonicallevel.monlist andcachednext; passfullstate/random/message/planningcontext tocanonicalwakeup instead ofstateonly. Herobranch unchanged. Actualworm-only4b3b563c baseline freshnormal firstmissingrn2(10)13779/317, horizontal6998/110; beforetriggercontrol passesboth. Three freshlyrecorded C replays strictlypass: normal24950RNG812screens/cursors162animations, horizontal8938/143/29, beforecontrol13309/309/150. Two canonicaldochug constructedlive/planning cases proveopposedtargetdamage, awakening/mealend, friend/mindless/deadskip, nexttarget traversal, exactRNG andplanningmessagesilence.381affected+64focused=445unique tests including3C pass; lint/diffcheck pass. Existing acoustics-off independentfull812probe passes25999RNG103animations; fifthseed8432005date20261030164500 full812probe passesbothbaseline/fix24737RNG24animations, privateunaffectedcontrol. Private2132continuationstrictpass52913RNG188animations; longer5732matchesall193781RNG/cursors394animations buthasindependentgreenslimepromptvisionfirstscreen4655, preservedsourcelead, notclaimedfullstrictpasshere. Complete148receipt included; fullhostedgatespending; noaggregatescoregainclaimed. Accepted as distinct149 afterfullCheckpoint40026262349 andexactMainLint40027327241/Dashboard40027327131 passed. Normal runAPI summaries verifiedexactSHA/repositories/attempt/triggers; full44fixed/98batch2055case comparison against4b3b563c clean, allaggregatedeltas0. Complete98publicationreceipt carried innextordinarypromptrepair. Grouped correction: C mpeaceful bitfields compare equal for same-side monsters. JS mixed false/0 or true/1 representations incorrectly triggered psychic target RNG/damage; normalize flag values only, preserving eligibility and RNG order. Exact64b baseline normal/monochrome first differs RNG131565 (extra rn2(10)); before-trigger control passes. Three fresh C replays now strictly pass: normal/monochrome131823RNG2597screens/cursors277animations,control131182/2594/277.32 native live/planning flag combinations plus3C and743 affected tests pass (778 total),lint/diff pass. Independent expected flag table pins C bit semantics. Private full5753 Monk replay needs both this correction and independently reproduced159 projectile-owner repair; combined strict546198RNG5753screens/cursors473animations passes. Distinct increment0,grouped under149; full hosted correction gates pending. Complete accepted15998-batch receipt included; no aggregate score gain claimed."
     },
     {
       "id": "prompt-deferred-vision",
@@ -9351,7 +9360,7 @@
           ]
         }
       ],
-      "note": "C precheck uses verbalize for both smoky-potion djinni release outcomes; JavaScript substituted youHear, adding a prefix or suppressing speech under deafness/acoustics. Use the existing canonical verbalize helper with identical lines and release RNG/monster semantics. Actual frozen154 baseline first differs screen427 for normal/monochrome, all18573 core RNG calls and428 cursors match. Repaired normal/monochrome strictly match18573 RNG/428 screens/cursors/4 animations; before-trigger control17879/414/3 passes both. Eight initialized-game cases cover both release outcomes x deafness x acoustics, checking exact quoted speech, potion consumption, creation and peaceful/detach outcomes. All8 fail baseline with the expected prefix/suppression and pass fixed.11focused+444affected=455 tests pass; lint/diff checks pass. Independent twelfth-seed control31116/833/170 strictly passes. Full eleventh833 probe30925/833/6 strictly passes; extended2153 retains separately preserved aklys message-throttle mismatch1699 despite84998 matching core RNG. No full extended pass or aggregate gain claimed. Complete accepted154 receipt included. Requested dashboard candidate/freshness correction cherry-picked from4b4f0f1f1 as90ed0ccb4; UI excluded from parity counts. Full hosted gates pending. Integrated dashboard validation passes152 relevant tests,69 post-register reducer/data checks,and Chromium candidate/overview/local-time suites on generated local data with mocked/disabled public APIs. Both themes,320–1440px,keyboard focus,and Los Angeles/Berlin/Kathmandu checks pass without page errors. Light/dark link contrast and stored UTC semantics are preserved. Accepted as distinct repair155 after Checkpoint40038336219 and exact Main Lint40039195133 / Dashboard40039195083 passed. Requested UI freshness correction deployed in the same d23836ff4 and is excluded from parity count. Exact44-fixed /98-batch /2055-case archive comparison against20aaed824 found no regressions, missing evidence, or aggregate changes. The existing checker recorded complete98 evidence, carried in this ordinary repair."
+      "note": "C precheck uses verbalize for both smoky-potion djinni release outcomes; JavaScript substituted youHear, adding a prefix or suppressing speech under deafness/acoustics. Use the existing canonical verbalize helper with identical lines and release RNG/monster semantics. Actual frozen154 baseline first differs screen427 for normal/monochrome, all18573 core RNG calls and428 cursors match. Repaired normal/monochrome strictly match18573 RNG/428 screens/cursors/4 animations; before-trigger control17879/414/3 passes both. Eight initialized-game cases cover both release outcomes x deafness x acoustics, checking exact quoted speech, potion consumption, creation and peaceful/detach outcomes. All8 fail baseline with the expected prefix/suppression and pass fixed.11focused+444affected=455 tests pass; lint/diff checks pass. Independent twelfth-seed control31116/833/170 strictly passes. Full eleventh833 probe30925/833/6 strictly passes; extended2153 retains separately preserved aklys message-throttle mismatch1699 despite84998 matching core RNG. No full extended pass or aggregate gain claimed. Complete accepted154 receipt included. Requested dashboard candidate/freshness correction cherry-picked from4b4f0f1f1 as90ed0ccb4; UI excluded from parity counts. Full hosted gates pending. Integrated dashboard validation passes152 relevant tests,69 post-register reducer/data checks,and Chromium candidate/overview/local-time suites on generated local data with mocked/disabled public APIs. Both themes,320\u20131440px,keyboard focus,and Los Angeles/Berlin/Kathmandu checks pass without page errors. Light/dark link contrast and stored UTC semantics are preserved. Accepted as distinct repair155 after Checkpoint40038336219 and exact Main Lint40039195133 / Dashboard40039195083 passed. Requested UI freshness correction deployed in the same d23836ff4 and is excluded from parity count. Exact44-fixed /98-batch /2055-case archive comparison against20aaed824 found no regressions, missing evidence, or aggregate changes. The existing checker recorded complete98 evidence, carried in this ordinary repair."
     },
     {
       "id": "aklys-return-throttle",
@@ -9654,8 +9663,54 @@
           "scripts/zap.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "C thitu reaches fatal losehp as a terminal input boundary. JavaScript mattacku already gives the current attack a MonsterDeathPlanningError callback for that boundary,but monsterMissileEnv.hitHero overwrote it with an earlier environment callback,which can be undefined. Preserve the current action environment callback,matching the adjacent poison adapter. The existing thitu fatal planning guard now stops the clone before end-game input/display; live damage,RNG and all non-global display guards remain unchanged. Output-only trace confirms planning=true,outer callback undefined,action callback function at damage9/HP5. Independent fresh black-naga304-boundary normal/monochrome C witnesses contain no mind flayer and fail unmodified158 with curs_on_u global-state guard. Repaired witnesses strictly match4425 RNG/304screens/cursors/22animations; before-trigger4251/251/13 control passes baseline and fix. Five native canonical monster-action cases cover fatal/nonfatal planning,missing/stale outer callbacks,and live nonfatal damage; assert correct attack monsterId,no stale callback,no globalHP/core/ID/map/program mutation from clones,and no planning input reads. Initial prototype checked error.monster instead of source monsterId; fixture corrected and logs retained,without changing the error class.8focused including3C+5native plus662affected=670 tests pass;lint/diff pass. A private longer Monk replay requires both this independently reproduced older projectile adapter fix and the separately grouped149 peaceful-flag correction; no claim that either alone resolves the full5753 case and no aggregate score gain claimed. Complete accepted158 receipt included;full hosted gates pending."
+      "candidates": [
+        {
+          "sha": "64b0b2aed85eb4709d648af09ad1fe996147cda7",
+          "committedAt": "2026-10-24T00:26:51Z",
+          "runs": [
+            {
+              "id": 40045143537,
+              "name": "Checkpoint",
+              "sha": "64b0b2aed85eb4709d648af09ad1fe996147cda7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/fatal-spit-owner-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T00:28:28Z",
+              "completedAt": "2026-10-24T00:35:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40045143537"
+            },
+            {
+              "id": 40045779750,
+              "name": "Lint",
+              "sha": "64b0b2aed85eb4709d648af09ad1fe996147cda7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T00:36:05Z",
+              "completedAt": "2026-10-24T00:36:59Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40045779750"
+            },
+            {
+              "id": 40045779755,
+              "name": "Dashboard",
+              "sha": "64b0b2aed85eb4709d648af09ad1fe996147cda7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T00:36:05Z",
+              "completedAt": "2026-10-24T00:38:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40045779755"
+            }
+          ]
+        }
+      ],
+      "note": "C thitu reaches fatal losehp as a terminal input boundary. JavaScript mattacku already gives the current attack a MonsterDeathPlanningError callback for that boundary,but monsterMissileEnv.hitHero overwrote it with an earlier environment callback,which can be undefined. Preserve the current action environment callback,matching the adjacent poison adapter. The existing thitu fatal planning guard now stops the clone before end-game input/display; live damage,RNG and all non-global display guards remain unchanged. Output-only trace confirms planning=true,outer callback undefined,action callback function at damage9/HP5. Independent fresh black-naga304-boundary normal/monochrome C witnesses contain no mind flayer and fail unmodified158 with curs_on_u global-state guard. Repaired witnesses strictly match4425 RNG/304screens/cursors/22animations; before-trigger4251/251/13 control passes baseline and fix. Five native canonical monster-action cases cover fatal/nonfatal planning,missing/stale outer callbacks,and live nonfatal damage; assert correct attack monsterId,no stale callback,no globalHP/core/ID/map/program mutation from clones,and no planning input reads. Initial prototype checked error.monster instead of source monsterId; fixture corrected and logs retained,without changing the error class.8focused including3C+5native plus662affected=670 tests pass;lint/diff pass. A private longer Monk replay requires both this independently reproduced older projectile adapter fix and the separately grouped149 peaceful-flag correction; no claim that either alone resolves the full5753 case and no aggregate score gain claimed. Complete accepted158 receipt included;full hosted gates pending. Accepted as distinct159 after exact Checkpoint40045143537,Lint40045779750 and Dashboard40045779755 succeeded. Hash-verified archived44fixed/98batches/2055cases compare clean againstDB19; all aggregate deltas0. Complete98receipt carried with next ordinary grouped correction."
     }
   ]
 }

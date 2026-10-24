@@ -787,7 +787,7 @@ async function mind_blast(mtmp, env = {}) {
     for (let m2 = state.level.monlist, next = null; m2; m2 = next) {
         next = m2.nmon;
         if (m2.mhp <= 0) continue; /* DEADMONSTER */
-        if (m2.mpeaceful === mtmp.mpeaceful) continue;
+        if (Boolean(m2.mpeaceful) === Boolean(mtmp.mpeaceful)) continue;
         if (mindless(m2.data)) continue;
         if (m2 === mtmp) continue;
         if ((telepathic(m2.data) && (random.rn2(2) || m2.mblinded))
