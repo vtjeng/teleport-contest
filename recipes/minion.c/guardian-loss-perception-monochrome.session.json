@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh Cminionlose_guardian_angel sensed departurefeedback witness; canspotmon vsphysicalvisibility. Fivepropertiesactivated138-142, beforecontrolbeforefirst156departure. No initialnaturalstateassumptions afteractivation.",
+  "segments": [
+    {
+      "seed": 8432086,
+      "datetime": "20270210100000",
+      "nethackrc": "OPTIONS=name:HealerAccessProbe,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:cat,!legacy,!tutorial,!splash_screen,acoustics,!color,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    "
+    }
+  ]
+}

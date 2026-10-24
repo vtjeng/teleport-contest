@@ -84,7 +84,7 @@ export async function lose_guardian_angel(mon, state = game, rawEnv = {}) {
     const random = guardianRandom(state, rawEnv);
     const env = { ...rawEnv, state, random };
     if (mon) {
-        if (canseemon(mon, state)) {
+        if (canspotmon(mon, state)) {
             if (!heroDeaf(state)) {
                 await (rawEnv.message ?? ttyPline)(
                     `${Monnam(mon, state)} rebukes you, saying:`, state,
