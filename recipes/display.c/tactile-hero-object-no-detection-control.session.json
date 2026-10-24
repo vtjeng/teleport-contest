@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C display.c blind hero tactile floor-object redraw; no-detection-control",
+  "segments": [
+    {
+      "seed": 8432034,
+      "datetime": "20261206143000",
+      "nethackrc": "OPTIONS=name:TactileProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips,!acoustics,!debug_mongen\n",
+      "moves": "  #wizintrinsic\n800h800i\n    da    \u0012"
+    }
+  ]
+}

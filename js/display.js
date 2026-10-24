@@ -3767,6 +3767,14 @@ export function newsym(x, y) {
             && dist2(x, y, game.u?.ux ?? 0, game.u?.uy ?? 0) <= 2)) return;
 
     const visible = cansee(x, y);
+    // C display.c:1041-1045 takes the tactile hero path directly. Do not
+    // pre-map a floor object here: feel_location owns that map update and
+    // its Hallucination draws before display_self paints the hero.
+    if (!visible && game.u?.ux === x && game.u?.uy === y) {
+        feel_location(x, y, game);
+        if (heroCanSpotSelf(game)) display_self();
+        return;
+    }
     if (visible) {
         // display.c:newsym() snapshots permanent location lighting at the
         // physical-visibility boundary, before any covering layer returns.
@@ -3915,17 +3923,6 @@ export function newsym(x, y) {
     }
 
     if (game.u?.ux === x && game.u?.uy === y) {
-        // display.c:1041-1045. A hero square outside physical sight is felt
-        // before canspotself() redraws the hero. The tactile update can change
-        // map memory (for example, a dark Rogue room's S_room becomes
-        // S_darkroom), so it must precede the hero glyph and own the memory
-        // write for this branch.
-        if (!visible) {
-            feel_location(x, y, game);
-            if (heroCanSpotSelf(game)) display_self();
-            return;
-        }
-
         // C ref: display.h display_self() (251-260). maybe_display_usteed()
         // puts a visible steed's glyph on the hero's square. C's newsym()
         // first maps the underlying location when canspotself() is false,

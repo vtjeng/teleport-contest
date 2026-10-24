@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T02:40:35.605357+00:00",
+  "asOf": "2026-10-24T02:54:41.335426+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -10247,8 +10247,102 @@
           "scripts/mon-stone-migration.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "d36823064168a39fb486758adb328492993426fd",
+          "committedAt": "2026-10-24T02:40:58Z",
+          "runs": [
+            {
+              "id": 40055206124,
+              "name": "Checkpoint",
+              "sha": "d36823064168a39fb486758adb328492993426fd",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/offmap-escape-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:41:15Z",
+              "completedAt": "2026-10-24T02:48:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40055206124"
+            },
+            {
+              "id": 40055802109,
+              "name": "Lint",
+              "sha": "d36823064168a39fb486758adb328492993426fd",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:49:56Z",
+              "completedAt": "2026-10-24T02:51:01Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40055802109"
+            },
+            {
+              "id": 40055802082,
+              "name": "Dashboard",
+              "sha": "d36823064168a39fb486758adb328492993426fd",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:49:56Z",
+              "completedAt": "2026-10-24T02:52:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40055802082"
+            }
+          ]
+        }
+      ],
+      "note": "C dochug checks mon_offmap immediately after the undirected-spell/m_move phase and returns1 before recalculating distfleeck. JavaScript omitted that guard, so a trapped wraith migrating through a cursed teleport scroll continued range/fear work and spent an extra rn2(5). Add the canonical guard at the same point; no migration,scroll,corpse or RNG implementation change. Private output-only core trace identifies actor388wraith at move19 and the extra post-escape draw; subsequent actor386vrock first distfleeck displaced C weighted m_move rn2(8). Fresh public Gehennom normal/monochrome C prefixes each35820RNG301screens/cursors24animations fully match; before-escape control33813RNG251screens/cursors16animations passes before and after. ExactCC170 baseline normal/mono fails at gameplay index34609/boundary272, controlpasses. Four native planning/live x migrated/on-map cases assert source result and one vs two range checks; baseline fails two migrated cases, on-map controls pass. Three C plus48dochug(including4new)+550affected+35migration=636tests,lint/diff pass. Full original private blind+Hallu Gehennom run now51970RNG772screens/cursors4animations strictly matches; original apparent corpse-consumption failure was downstream of this draw, canonical delobj was already correct. Detection variant preserves all57108Cgameplay calls but has later display mismatch532/input-alignment extra calls; no full776pass claimed. Source omission predates experiment (July26/September2 code),distinct from migration owners and earlier monster action adapters. Includes complete accepted16498-batch receipt and provenance; no cohort admission or measured score gain. Full hosted gates pending. Accepted distinct165 after exact-SHA Checkpoint40055206124,MainLint40055802109 andDashboard40055802082 success. Archive44/98/2055 comparison againstCC170 verifies hashes/admission proof,no regressions,missing or score changes. Complete98 receipt carried in next ordinary tactile repair."
+    },
+    {
+      "id": "tactile-hero-object",
+      "kind": "parity-repair",
+      "title": "Map blind hero floor objects once through the tactile owner",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T02:46:11Z",
+          "end": "2026-10-24T02:46:11Z",
+          "note": "Instantaneous preserved qualification observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/display.c:newsym1041-1045,feel_location776-905",
+          "nethack-c/upstream/include/display.h:random_obj_to_glyph932-936,display_self251-260",
+          "js/display.js:newsym/feel_location",
+          "js/polyself.js:polymon redraw1194"
+        ],
+        "witness": [
+          "recipes/display.c/tactile-hero-object-normal.session.json",
+          "recipes/display.c/tactile-hero-object-monochrome.session.json",
+          "recipes/display.c/tactile-hero-object-no-detection-control.session.json"
+        ],
+        "test": [
+          "scripts/tactile-hero-object.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/display-visibility.test.mjs",
+          "scripts/display-symbols.test.mjs",
+          "scripts/display-newsym-suppression.test.mjs",
+          "scripts/game-display.test.mjs",
+          "scripts/glyph-customization.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/polyself.test.mjs",
+          "scripts/drop.test.mjs",
+          "scripts/apply-lock-pick.test.mjs",
+          "scripts/detect.test.mjs",
+          "scripts/cmd.test.mjs",
+          "scripts/engraving.test.mjs",
+          "scripts/mount-steed.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C dochug checks mon_offmap immediately after the undirected-spell/m_move phase and returns1 before recalculating distfleeck. JavaScript omitted that guard, so a trapped wraith migrating through a cursed teleport scroll continued range/fear work and spent an extra rn2(5). Add the canonical guard at the same point; no migration,scroll,corpse or RNG implementation change. Private output-only core trace identifies actor388wraith at move19 and the extra post-escape draw; subsequent actor386vrock first distfleeck displaced C weighted m_move rn2(8). Fresh public Gehennom normal/monochrome C prefixes each35820RNG301screens/cursors24animations fully match; before-escape control33813RNG251screens/cursors16animations passes before and after. ExactCC170 baseline normal/mono fails at gameplay index34609/boundary272, controlpasses. Four native planning/live x migrated/on-map cases assert source result and one vs two range checks; baseline fails two migrated cases, on-map controls pass. Three C plus48dochug(including4new)+550affected+35migration=636tests,lint/diff pass. Full original private blind+Hallu Gehennom run now51970RNG772screens/cursors4animations strictly matches; original apparent corpse-consumption failure was downstream of this draw, canonical delobj was already correct. Detection variant preserves all57108Cgameplay calls but has later display mismatch532/input-alignment extra calls; no full776pass claimed. Source omission predates experiment (July26/September2 code),distinct from migration owners and earlier monster action adapters. Includes complete accepted16498-batch receipt and provenance; no cohort admission or measured score gain. Full hosted gates pending."
+      "note": "C newsym takes the out-of-sight hero branch directly:feel_location owns map memory before display_self. JavaScript precomputed the ordinary underlying object glyph before reaching that branch,then feel_location mapped it again; hallucinating floor objects spent an extra cosmetic draw even when the hero could not reach the floor. Move the existing tactile hero early return immediately after cansee and remove its late duplicate block; ordinary visible/nonhero layers are unchanged. Fresh independent seed8432034/date20261206143000 Wizard publicly adds blind+Hallu+Detect,then drops starting staff and redraws:normal/monochrome2108RNG41screens/cursors0animations strictly match; no-Detect control2108/37/0 passes before and after. ExactD368 baseline normal/mono firstscreen mismatch35 atdrop with allgameplayRNG alreadymatching. Eight initialized native Hallu/nonHallu x Detect/noDetect x levitating/grounded cases independently advance rawISAAC by the canonical zero/one noncorpse-object draw; assert exact cosmetic context,tactile remembered object glyph,seen vector,hero presentation,unchanged core and floor pile. Baseline fails fourHallu cases,nonHallu controls pass. Eleven focused+350affected+264tactile callers=625tests,lint/diff pass. Full private blind+Hallu+Detect Gehennom now57108RNG776screens/cursors28animations strictly matches; original no-Detect full772 alreadyclosed by priorguard. Canonical supplemental C/JS cosmetic vectors agree through54833; extra JS463 draw54834 is identified by object pre-map stack duringpolymon. C RNG caller metadata is inherited,so following383 draw is not asserted to be hero identity;display_self itself does not randomize the hero. Source pre-mapJuly23 and tactile branchOctober14 predate experiment; no existing repair ID owns this defect. Includes complete accepted16598-batch receipt and exact provenance. No scored cohort admission or measured score gain; full hosted gates pending."
     }
   ]
 }
