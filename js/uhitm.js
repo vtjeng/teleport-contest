@@ -8123,7 +8123,7 @@ export async function passive(
             } else {
                 await effectEnv.message(
                     `You are splashed by ${s_suffix(mon_nam(mon, state, effectEnv))} `
-                        + `${hliquid('acid', effectEnv)}!`,
+                        + `${hliquid('acid', { state, displayRandom: effectEnv.displayRandom })}!`,
                     state,
                     effectEnv,
                 );
