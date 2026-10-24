@@ -2320,7 +2320,7 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
             await resist(mtmp, otmp.oclass, tmp, TELL, state, random, rawEnv);
             learnit = true;
         } else {
-            await miss('wand', mtmp, state);
+            await miss('wand', mtmp, state, rawEnv);
         }
         /* need to see the wand being zapped and also the spot where the
            target is hit; don't have to see the target itself though */

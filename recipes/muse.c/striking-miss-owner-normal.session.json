@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public monster striking-wand miss message/display owner; normal",
+  "segments": [
+    {
+      "seed": 8432038,
+      "datetime": "20261212100000",
+      "nethackrc": "OPTIONS=name:DeafAstralProbe,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    "
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T03:11:57.965204+00:00",
+  "asOf": "2026-10-24T03:34:48.160951+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -10429,8 +10429,96 @@
           "scripts/distress-display-owner.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "f22057a313a8f06abc37986a5d06bda522d46905",
+          "committedAt": "2026-10-24T03:12:15Z",
+          "runs": [
+            {
+              "id": 40057417826,
+              "name": "Checkpoint",
+              "sha": "f22057a313a8f06abc37986a5d06bda522d46905",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vampire-door-display-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T03:13:26Z",
+              "completedAt": "2026-10-24T03:20:23Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40057417826"
+            },
+            {
+              "id": 40058284435,
+              "name": "Lint",
+              "sha": "f22057a313a8f06abc37986a5d06bda522d46905",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T03:26:09Z",
+              "completedAt": "2026-10-24T03:27:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40058284435"
+            },
+            {
+              "id": 40058284411,
+              "name": "Dashboard",
+              "sha": "f22057a313a8f06abc37986a5d06bda522d46905",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T03:26:09Z",
+              "completedAt": "2026-10-24T03:28:57Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40058284411"
+            }
+          ]
+        }
+      ],
+      "note": "C mon.c decide_to_shapeshift moves an amorphous vampire out of a closed door with enexto/rloc_to before newcham. JS shape upkeep supplies redrawSquare/hooks.newsym,but teleport rloc_to_core reads top-level newsym/redraw. The planning clone fell back to global newsym,advancing live cosmetic RNG and repainting the live map. Bind this one caller newsym through existing shapeRedraw;live path keeps canonical redraws,clone keeps its existing silent owner. Private telemetry confirms fog619 move120 from54,8 to54,9:live=false/planning=true,hook andredrawSquare functions present,newsym/redraw undefined; matchinglivecountercall also observed. Supplemental canonical C display vector is passive-identical to ordinaryprefix after stripping~drn2 and matchesJS through67292; extra JS383draw67293 fromteleport.finishPlacement before shapeOldNames shifts the next message. The adjacentwizarddeath/refusal was incidental;no end.c change. Fresh normal/monochrome95372RNG2261screens/cursors31animations fullymatch; before-event control94007/2221/31passes both. Exact52F baseline normal/mono firstscreen2240 with allcorealreadymatching. Four native door/room x Hallu/nonHallu tests each execute initialized planning/live upkeep(8runs),forcing a lowHPfog-to-vampire-leader shape;actual relocation,shape,HP,speed and complete gameplay draw arrays agree plan/live. Assert clone leaves live display RNG,map,context,core and actor unchanged. Oldsource fails bothcloseddoorplanningcases,roomcontrols pass. Seven focused tests(3C+4native) plus469affected=476,lint/diff pass. Full private public-input Astral blind/Hallu/Detect/Conflict now206666RNG4459screens/cursors158animationsstrictpass. Canonical C activation133-136 verified; earlier role-dependent wish-acknowledgement setup attempts are retained without intendedintrinsiccoverage claims. CallbackomissionSeptember16 predatesexperiment. Distinct from162upkeep naming RNG and monmove.c vamp_shift door admission/WIN_MESSAGE repairs:this is mon.c upkeep relocation rendering. Includes complete accepted16698-batch receipt and exact provenance; no admission or measured scoregain; full hostedgatespending. Accepted distinct167 after exact-SHA Checkpoint40057417826,MainLint40058284435 andDashboard40058284411 success. Archive44/98/2055 comparison against52F verifies hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary monster wand miss repair."
+    },
+    {
+      "id": "monster-wand-miss-owner",
+      "kind": "parity-repair",
+      "title": "Forward the active message and cosmetic owner to monster wand misses",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T03:27:41Z",
+          "end": "2026-10-24T03:27:41Z",
+          "note": "Instantaneous preserved qualification observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/muse.c:mbhitm1597-1704,miss1643",
+          "nethack-c/upstream/src/zap.c:miss3571-3576",
+          "js/muse.js:mbhitm WAN_STRIKING miss2323",
+          "js/zap.js:miss",
+          "js/mhitu.js:mattacku useOffensiveItem"
+        ],
+        "witness": [
+          "recipes/muse.c/striking-miss-owner-normal.session.json",
+          "recipes/muse.c/striking-miss-owner-monochrome.session.json",
+          "recipes/muse.c/striking-miss-owner-before-control.session.json"
+        ],
+        "test": [
+          "scripts/monster-wand-miss.test.mjs",
+          "scripts/muse.test.mjs",
+          "scripts/muse-offensive.test.mjs",
+          "scripts/muse-bhitm-resist.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/zap.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mon.c decide_to_shapeshift moves an amorphous vampire out of a closed door with enexto/rloc_to before newcham. JS shape upkeep supplies redrawSquare/hooks.newsym,but teleport rloc_to_core reads top-level newsym/redraw. The planning clone fell back to global newsym,advancing live cosmetic RNG and repainting the live map. Bind this one caller newsym through existing shapeRedraw;live path keeps canonical redraws,clone keeps its existing silent owner. Private telemetry confirms fog619 move120 from54,8 to54,9:live=false/planning=true,hook andredrawSquare functions present,newsym/redraw undefined; matchinglivecountercall also observed. Supplemental canonical C display vector is passive-identical to ordinaryprefix after stripping~drn2 and matchesJS through67292; extra JS383draw67293 fromteleport.finishPlacement before shapeOldNames shifts the next message. The adjacentwizarddeath/refusal was incidental;no end.c change. Fresh normal/monochrome95372RNG2261screens/cursors31animations fullymatch; before-event control94007/2221/31passes both. Exact52F baseline normal/mono firstscreen2240 with allcorealreadymatching. Four native door/room x Hallu/nonHallu tests each execute initialized planning/live upkeep(8runs),forcing a lowHPfog-to-vampire-leader shape;actual relocation,shape,HP,speed and complete gameplay draw arrays agree plan/live. Assert clone leaves live display RNG,map,context,core and actor unchanged. Oldsource fails bothcloseddoorplanningcases,roomcontrols pass. Seven focused tests(3C+4native) plus469affected=476,lint/diff pass. Full private public-input Astral blind/Hallu/Detect/Conflict now206666RNG4459screens/cursors158animationsstrictpass. Canonical C activation133-136 verified; earlier role-dependent wish-acknowledgement setup attempts are retained without intendedintrinsiccoverage claims. CallbackomissionSeptember16 predatesexperiment. Distinct from162upkeep naming RNG and monmove.c vamp_shift door admission/WIN_MESSAGE repairs:this is mon.c upkeep relocation rendering. Includes complete accepted16698-batch receipt and exact provenance; no admission or measured scoregain; full hostedgatespending."
+      "note": "C muse.c mbhitm WAN_STRIKING calls zap.c miss for the failed to-hit branch. JS omitted rawEnv from this call while the adjacent hit branch already forwards it,so miss fell back to live ttyPline and global cosmetic RNG during a speculative monster attack. Forward rawEnv,retaining existing canonical miss text,predicates and gameplay. Independent public Tourist Astral seed8432038/date20261212100000 explicitly activates blind/deaf/Hallu/Detect/Conflict atC137-141. Fresh normal/monochrome prefixes8879RNG201screens/cursors0animations strictlypass; before-miss control6208/149/0passesbeforeandafter. ExactF220baseline normal/mono firstscreen153,allcorealreadyfullymatching. Passive canonical C display log matchesordinaryprefix; firstJSglobaldisplaydraw1025 is430 atmonsterCommonName->zap.miss->muse.mbhitm,whereCnextdraw383 belongs to later live redraws. Eight initialized native planning/live x Hallu/nonHallu x Deaf/hearing cases invoke actualmbhitm against sensed invisiblehuman,rollonlyrnd(20),capturetheexactmissline through suppliedowner,andassertcosmetic[430,2]onlyHallu,unchangedtargetHP,livecore/context andclone-vs-livedisplayownership. NoqueuedinputorTTYsuccessstub;oldsourceall8fail,newall8pass. Eleven focused(8native+3C)+401affected=412tests,lint/diffpass. Long863probe now firstdivergence315 in separatemissmm defender naming/Morewidth;all32364CcoreprefixmatchesbutJSextendsafterinputalignment,no full863passclaimed. That laterpath is source-reading only,notpartofthispatch. OmittedargumentSept6 predatesexperiment;distinctfromteleport-wandcontextanddirectedspellnameadapters. Includes complete accepted16798-batch receipt and exact provenance;noadmissionormeasuredscoregain;fullhostedgatespending."
     }
   ]
 }
