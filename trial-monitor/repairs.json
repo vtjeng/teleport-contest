@@ -9775,6 +9775,11 @@
           "start": "2026-10-24T06:35:08.030091+00:00",
           "end": "2026-10-24T06:35:08.030091+00:00",
           "note": "Preserved source qualification observation only; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T09:13:48.271079+00:00",
+          "end": "2026-10-24T09:13:48.271079+00:00",
+          "note": "Preserved source qualification observation only; no elapsed active-work claim."
         }
       ],
       "evidence": {
@@ -9785,7 +9790,11 @@
           "js/mhitm.js:mdamagem",
           "js/hack.js:nh_delay_output",
           "C uhitm.c mhitm_knockback5340-5379 feedback",
-          "JS uhitm.js mhitm_knockback7988 attacker Monnam omittedenv;steadfast Monnam7978 alsoomittedenv"
+          "JS uhitm.js mhitm_knockback7988 attacker Monnam omittedenv;steadfast Monnam7978 alsoomittedenv",
+          "nethack-c/upstream/src/dothrow.c:847-871",
+          "nethack-c/upstream/src/do_name.c:872-883",
+          "nethack-c/upstream/src/mondata.c:1191-1210",
+          "js/dothrow.js:hurtle/hurtle_step/noitMhim"
         ],
         "witness": [
           "recipes/dothrow.c/knockback-animation-normal.session.json",
@@ -9793,7 +9802,10 @@
           "recipes/dothrow.c/knockback-animation-before-control.session.json",
           "recipes/uhitm.c/knockback-names-normal.session.json",
           "recipes/uhitm.c/knockback-names-monochrome.session.json",
-          "recipes/uhitm.c/knockback-names-before-control.session.json"
+          "recipes/uhitm.c/knockback-names-before-control.session.json",
+          "recipes/dothrow.c/knockback-collision-normal.session.json",
+          "recipes/dothrow.c/knockback-collision-monochrome.session.json",
+          "recipes/dothrow.c/knockback-collision-before-control.session.json"
         ],
         "test": [
           "scripts/knockback-animation.test.mjs",
@@ -9805,7 +9817,8 @@
           "scripts/monmove.test.mjs",
           "scripts/allmain-turn.test.mjs",
           "scripts/trap.test.mjs",
-          "scripts/knockback-names.test.mjs"
+          "scripts/knockback-names.test.mjs",
+          "scripts/knockback-collision-names.test.mjs"
         ]
       },
       "candidates": [
@@ -9900,7 +9913,7 @@
           ]
         }
       ],
-      "note": "C successful mhurtle_step moves the monster,redraws old/new cells,flushes,and emits one delay frame per cell. JavaScript speculative execution retained the live frame hook and ran these presentation calls before executing the live attack again. Output-only owner trace monster590/moves55 shows planned non-global two-cell knockback followed by actual two-cell knockback. Keep cloned displacement,region/trap and apparent-hero effects,while suppressing successful-step live redraw/flush/delay under env.planning;retain live C order and all non-global guards. This older adapter code originates92337428e6 September27,independent from grouped149 flags. Exact8640 normal/monochrome baseline has4frames vsC2 atboundary2681;before-trigger control passes. Three freshly recorded C replays strictly pass:normal/monochrome48599RNG2683screens/cursors234animations,control48583/2681/232. Six initialized-game cases cover planning/live x range0/1/2,checking coordinates,grid ownership,movement/stun,one live frame per cell,no clone frame and unchanged global map/display/core. Native baseline two-cell clone emitted2frames instead of0.9focused including3C+6native plus788affected=797tests pass;lint/diff pass. Full independent Rogue continuation strictly matches79498RNG4433screens/cursors371animations;Barbarian controls pass4433 and8033boundaries,without corpus admission or score claims. Complete grouped14998-batch hosted receipt included;full hosted gates pending. Accepted as distinct160 after exact Checkpoint40047144138,Lint40047811376 and Dashboard40047811461 succeeded. Hash-verified44fixed/98batch/2055case comparison against8640 found no regressions,missing evidence or aggregate changes. Complete98publicationreceipt carried in next ordinary constructor repair. Further grouped160knockbackpresentation-owner correction,NOT distinct repair. Beamformatterhypothesisrefuted. Afterisolated175vaporfix firstscreen204targetnameCettinmummy vsJSbabylongword. Passive241Cprefixordinary-identical core/screens/cursors;5204Ccosmeticdraws vs5206JSglobal. Firstglobalindex3424 C383151 vsJS430234 then2=0. JSdirectstack Monnam->mhitm_knockbackuhitm7988->hitmu->mattacku->dochug atmove8. Cloned speculative feedback attackername omitsactive displayowner. Ccaller m_move inheritedlastcoremetadata,notdirectcallattribution. Actualbeam hit itselfhasownerfunction andcanSpottrue;do not editzapformatter basedonlater symptom. Full C5247-5420 and JS7880-8050 read. Livepublichero target reachesnormalattackerMonnam. Nativefiregiant actualspeciesAT_WEAPphysical,alive,sizegap>1,solid,nohug/engulf/sticks,noheldweapon;normalROOMdestinationvalid,sourcechance3/6successful;goblinmoveoractualcarriedLOADSTONEsteadfast. Planning/live helperprovidedboundowner,sourceCMonnamcanonical. OriginalnativeprototypeartificialAT_CLAWreplacedbyactualspeciesattack;BigIntserializationfixtureerrorretained. No productioneditbeforethisscopefreeze. Fresh normal/mono11200RNG241screens/cursors12animationsstrictpass,before8716/191/9strictpass. Exactc587oldnormal/monofirst204,coreallmatching,controlpasses. Six initialized actualmhitm_knockback cases(12planning/live) Hallu/non xrejected/steadfast/moved. ActualfiregiantAT_WEAPphysical/goblin,actualcarriedloadstonewithcatalogclass/material/weight;fullchance/geometry/size/solid/weapon/sourcepredicatepath,realmhurtle1cell,actualanimation0clone/1live,stun/movement/mapownership/HP/core/cosmeticcallbackguards. Old2Halluacceptedfeedbackfails4controls pass,new6pass. Ninefocused+697affected=706tests,lint/diffpass;catalogweighttightening6native rerunpass. Fullprivatepet4554nowfirstscreen894/core138656at3371,separateunsolvedsources,notfullpass/noadmission/scoregain. Grouped160rework,notdistinctcount. No beam/zapformatterchange. TwoMonnamcallsforwardonlydisplayRandom;allothernaming/gameplay/predicates/animationunchanged. Includes complete accepted17598-batchreceipt/provenance. Fullhostedandpublicationgatespending;accepted distinct stays175. Accepted grouped160correction874 after exact-SHA Checkpoint40072106175,MainLint40072971528andDashboard40072971377success. Archive44/98/2055comparisonagainstc587verifiedhashes/admissionproof,no regressions/drops/missing/scorechanges.Complete98receiptcarriedinnextordinaryexplosiondescriptionrepair.Accepteddistinctremains175."
+      "note": "C successful mhurtle_step moves the monster,redraws old/new cells,flushes,and emits one delay frame per cell. JavaScript speculative execution retained the live frame hook and ran these presentation calls before executing the live attack again. Output-only owner trace monster590/moves55 shows planned non-global two-cell knockback followed by actual two-cell knockback. Keep cloned displacement,region/trap and apparent-hero effects,while suppressing successful-step live redraw/flush/delay under env.planning;retain live C order and all non-global guards. This older adapter code originates92337428e6 September27,independent from grouped149 flags. Exact8640 normal/monochrome baseline has4frames vsC2 atboundary2681;before-trigger control passes. Three freshly recorded C replays strictly pass:normal/monochrome48599RNG2683screens/cursors234animations,control48583/2681/232. Six initialized-game cases cover planning/live x range0/1/2,checking coordinates,grid ownership,movement/stun,one live frame per cell,no clone frame and unchanged global map/display/core. Native baseline two-cell clone emitted2frames instead of0.9focused including3C+6native plus788affected=797tests pass;lint/diff pass. Full independent Rogue continuation strictly matches79498RNG4433screens/cursors371animations;Barbarian controls pass4433 and8033boundaries,without corpus admission or score claims. Complete grouped14998-batch hosted receipt included;full hosted gates pending. Accepted as distinct160 after exact Checkpoint40047144138,Lint40047811376 and Dashboard40047811461 succeeded. Hash-verified44fixed/98batch/2055case comparison against8640 found no regressions,missing evidence or aggregate changes. Complete98publicationreceipt carried in next ordinary constructor repair. Further grouped160knockbackpresentation-owner correction,NOT distinct repair. Beamformatterhypothesisrefuted. Afterisolated175vaporfix firstscreen204targetnameCettinmummy vsJSbabylongword. Passive241Cprefixordinary-identical core/screens/cursors;5204Ccosmeticdraws vs5206JSglobal. Firstglobalindex3424 C383151 vsJS430234 then2=0. JSdirectstack Monnam->mhitm_knockbackuhitm7988->hitmu->mattacku->dochug atmove8. Cloned speculative feedback attackername omitsactive displayowner. Ccaller m_move inheritedlastcoremetadata,notdirectcallattribution. Actualbeam hit itselfhasownerfunction andcanSpottrue;do not editzapformatter basedonlater symptom. Full C5247-5420 and JS7880-8050 read. Livepublichero target reachesnormalattackerMonnam. Nativefiregiant actualspeciesAT_WEAPphysical,alive,sizegap>1,solid,nohug/engulf/sticks,noheldweapon;normalROOMdestinationvalid,sourcechance3/6successful;goblinmoveoractualcarriedLOADSTONEsteadfast. Planning/live helperprovidedboundowner,sourceCMonnamcanonical. OriginalnativeprototypeartificialAT_CLAWreplacedbyactualspeciesattack;BigIntserializationfixtureerrorretained. No productioneditbeforethisscopefreeze. Fresh normal/mono11200RNG241screens/cursors12animationsstrictpass,before8716/191/9strictpass. Exactc587oldnormal/monofirst204,coreallmatching,controlpasses. Six initialized actualmhitm_knockback cases(12planning/live) Hallu/non xrejected/steadfast/moved. ActualfiregiantAT_WEAPphysical/goblin,actualcarriedloadstonewithcatalogclass/material/weight;fullchance/geometry/size/solid/weapon/sourcepredicatepath,realmhurtle1cell,actualanimation0clone/1live,stun/movement/mapownership/HP/core/cosmeticcallbackguards. Old2Halluacceptedfeedbackfails4controls pass,new6pass. Ninefocused+697affected=706tests,lint/diffpass;catalogweighttightening6native rerunpass. Fullprivatepet4554nowfirstscreen894/core138656at3371,separateunsolvedsources,notfullpass/noadmission/scoregain. Grouped160rework,notdistinctcount. No beam/zapformatterchange. TwoMonnamcallsforwardonlydisplayRandom;allothernaming/gameplay/predicates/animationunchanged. Includes complete accepted17598-batchreceipt/provenance. Fullhostedandpublicationgatespending;accepted distinct stays175. Accepted grouped160correction874 after exact-SHA Checkpoint40072106175,MainLint40072971528andDashboard40072971377success. Archive44/98/2055comparisonagainstc587verifiedhashes/admissionproof,no regressions/drops/missing/scorechanges.Complete98receiptcarriedinnextordinaryexplosiondescriptionrepair.Accepteddistinctremains175. Further160knockback-owner correction: independent Healer firstscreen3904, firstcosmetic194448 C383228 vsJS430280; output-only stack cloned hurtle_step collision x_monnam. Actualmove242 two planned clones thenlive, hero32,6 collidesvampirebat552at33,6,canSpottrue. Cosmetic owner lost through mhitm_knockback->hurtle->walkRange->x_monnam. Pass existing displayRandom throughout without API default changes. Expanded actual unseen/no-detection control exposes existing gameplay owners also lost at x_monnam_it AUGMENT_IT rn2(2) and noitMhim pronoun_gender rn2(4); forward existing random through same caller/helper, matching Cdo_name881/mondata1199. Eight initialized actual mhitm_knockback hero collisions Hallu/non xplan/live xvisible/unseen: old4Hallu fail4normalcontrols,new8pass. Actual firegiant AT_WEAPAD_PHYS and NON_PM vampirebat obstacle, canonical test_move/hurtle/wakeup/setmangry/stun, ownedcosmeticsHalluvisible[430,2,430,2]/unseen[430,2], core[3,6,2,2,4] plusunseenHallu2/4 beforestun4, clonedglobalcore/displayisolation,blockedpositions/HP. Fresh normal/mono213265RNG4001screens/cursors31animationsstrictpass;beforecontrol205575/3851/30strictpassold/new. Exactadf targetsfirst3904allcorematch. FullindependentHealer240403/4554/38 andfreshBarbarian8432053Jan7255404/4554/43strictpass afterfinalchanges; initialfiveintrinsicactivationsverified,maynaturallycurelater. Elevenfocused+547affected=558pass;focusedESLint/diffpass. Preserved initial native stun-roll/message expectation mistakes and string-key fixture failures; correct numericEnter10, no production change forfixturefailures. Conservativegroup160rework,no distinctincrement; accepted remains177. CompleteacceptedADf98receipt/provenance included. Fullnewhosted/exactSHApublication gatespending."
     },
     {
       "id": "mplayer-object-hooks",
@@ -11630,8 +11643,54 @@
           "scripts/worm-hidden-tail.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "C display.c newsym1046-1054 uses tp_sensemon, MATCH_WARN_OF_MON, or see_with_infrared&&mon_visible; display.h113 explicitly excludes globally broader canseemon from display routines. JS canseemon lets visible head/worm_known expose unseen tail. Passive public-compatible Healer observer atmove195: three tails[33,3],[33,4],[32,4] invisible with tp/warn/infrafalse but canseemontrue; accounts for115JS versus112C redraw draws. Correct caller predicates, preserve canonical APIs, physical sight/detection/telepathy/infrared rules. Fresh normal/mono156172RNG3001screens/cursors18animations strictpass; beforecontrol143980/2851/15 strictpass old/new. Old3d targets firstscreen2883/cursor2891/animation2907 with allcore matching. Eight initialized native cases Hallu/non x none/detection/telepathy/visible-tail: old4fail4controls,new8pass; exact display/core context, known head, monster/segment/HP/occupancy guards. Full independent4554 Healer now all240403 gameplayRNG match, later screen3904 unresolved; no full-pass or score gain claim. Old October2 implementation predates experiment. New distinct repair only after all hosted/publication gates; accepted remains176. Includes complete98 prior3d receipt. Final11focused+494affected=505 tests,16register tests, fullESLint anddiffcheckpassed."
+      "candidates": [
+        {
+          "sha": "adf87b697ca1e6ae8ee814bce485cb90d1e47522",
+          "committedAt": "2026-10-24T08:56:39Z",
+          "runs": [
+            {
+              "id": 40080031553,
+              "name": "Checkpoint",
+              "sha": "adf87b697ca1e6ae8ee814bce485cb90d1e47522",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/worm-hidden-tail-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T08:57:10Z",
+              "completedAt": "2026-10-24T09:04:38Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40080031553"
+            },
+            {
+              "id": 40080632807,
+              "name": "Lint",
+              "sha": "adf87b697ca1e6ae8ee814bce485cb90d1e47522",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T09:06:18Z",
+              "completedAt": "2026-10-24T09:07:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40080632807"
+            },
+            {
+              "id": 40080632848,
+              "name": "Dashboard",
+              "sha": "adf87b697ca1e6ae8ee814bce485cb90d1e47522",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T09:06:18Z",
+              "completedAt": "2026-10-24T09:08:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40080632848"
+            }
+          ]
+        }
+      ],
+      "note": "C display.c newsym1046-1054 uses tp_sensemon, MATCH_WARN_OF_MON, or see_with_infrared&&mon_visible; display.h113 explicitly excludes globally broader canseemon from display routines. JS canseemon lets visible head/worm_known expose unseen tail. Passive public-compatible Healer observer atmove195: three tails[33,3],[33,4],[32,4] invisible with tp/warn/infrafalse but canseemontrue; accounts for115JS versus112C redraw draws. Correct caller predicates, preserve canonical APIs, physical sight/detection/telepathy/infrared rules. Fresh normal/mono156172RNG3001screens/cursors18animations strictpass; beforecontrol143980/2851/15 strictpass old/new. Old3d targets firstscreen2883/cursor2891/animation2907 with allcore matching. Eight initialized native cases Hallu/non x none/detection/telepathy/visible-tail: old4fail4controls,new8pass; exact display/core context, known head, monster/segment/HP/occupancy guards. Full independent4554 Healer now all240403 gameplayRNG match, later screen3904 unresolved; no full-pass or score gain claim. Old October2 implementation predates experiment. New distinct repair only after all hosted/publication gates; accepted remains176. Includes complete98 prior3d receipt. Final11focused+494affected=505 tests,16register tests, fullESLint anddiffcheckpassed. Accepted distinct177 after exact-SHA Checkpoint40080031553, MainLint40080632807 and Dashboard40080632848 success. Exact archived hashes/admission-proof/full44fixed98synthetic2055 comparison versus3d passed unchanged. Complete98 checker receipt carried here."
     }
   ]
 }

@@ -585,6 +585,7 @@ export async function hurtle(
         random = null,
         planningDeath = null,
         isolateVision = null,
+        displayRandom = null,
     } = {},
 ) {
     const u = state.u;
@@ -626,7 +627,7 @@ export async function hurtle(
     const destination = { x: u.ux + dx * range, y: u.uy + dy * range };
     const walkRange = {
         range, state, planning: Boolean(planning), random, planningDeath,
-        isolateVision,
+        isolateVision, displayRandom,
     };
     await walk_path(source, destination, hurtle_step, walkRange);
 }
@@ -663,11 +664,11 @@ function rangePointer(arg) {
     return { range: Number(arg ?? 0) };
 }
 
-function noitMhim(monster, state) {
+function noitMhim(monster, state, random) {
     const gender = pronoun_gender(
         monster,
         PRONOUN_NO_IT | PRONOUN_HALLU,
-        { state, canSpotMonster: canspotmon },
+        { state, random, canSpotMonster: canspotmon },
     );
     return genders[gender].him;
 }
@@ -999,10 +1000,10 @@ export async function hurtle_step(arg, x, y) {
             (has_mgivenname(mon) ? SUPPRESS_SADDLE : 0) | AUGMENT_IT,
             false,
             state,
-            { canSpotMonster: canspotmon },
+            { canSpotMonster: canspotmon, random, displayRandom: arg?.displayRandom },
         );
         if (!glyph_is_monster(glyph) && !glyph_is_invisible(glyph)) {
-            const pronoun = noitMhim(mon, state);
+            const pronoun = noitMhim(mon, state, random);
             await message(`You find ${mnam} by bumping into ${pronoun}.`, state);
         } else {
             await message(`You bump into ${mnam}.`, state);

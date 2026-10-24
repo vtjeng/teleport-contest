@@ -8021,6 +8021,7 @@ export async function mhitm_knockback(
             await hurtle(dx, dy, knockdistance, false, state, {
                 planning: Boolean(env?.planning),
                 random: rng,
+                displayRandom: env?.displayRandom,
                 planningDeath: env?.planning
                     && typeof env.planningDeath === 'function'
                     ? () => env.planningDeath(magr)
