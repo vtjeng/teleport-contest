@@ -2963,7 +2963,8 @@ export function place_object(obj, x, y, env = {}) {
     // boulder. Resolved before the writes below, as remove_object() resolves
     // its mirror image, so a caller that cannot supply the vision owner leaves
     // the object where it was rather than half-placed.
-    const blockPoint = obj.otyp === BOULDER
+    const oldHead = floorObjectGrid(state)[x][y];
+    const blockPoint = obj.otyp === BOULDER && oldHead?.otyp !== BOULDER
         ? requiredHook(normalized, 'blockPoint', obj)
         : null;
 
@@ -2984,22 +2985,8 @@ export function place_object(obj, x, y, env = {}) {
         obj.where = OBJ_FLOOR;
         obj.nobj = state.level.objlist ?? null;
         state.level.objlist = obj;
-        // Two things about this call do not look like C. C makes it above the pile
-        // insertion, and this port's block_point() is the same full vision_reset()
-        // as unblock_point() and recalc_block_point(), reading the live pile
-        // (js/vision.js blocksVisionAt()); a rebuild run before the insertion would
-        // still read the square as transparent, so it has to run after.
-        //
-        // C's `!otmp2 || otmp2->otyp != BOULDER` guard is dropped, and that is not
-        // free. The rebuild reaches C's blocked answer either way, since a square
-        // that already held a boulder rebuilds to the same value. But
-        // js/vision.js rebuildVisionPoint() also raises state.vision_full_recalc
-        // whenever the square is in the viz_array, and js/allmain.js spends that
-        // flag on an extra vision_recalc(0) at the end of the turn -- so on a
-        // second boulder landing where one already stands, this port makes a call
-        // C skips entirely. No ported path stacks boulders yet, which is why the
-        // guard is left out rather than written; restoring it means reading the
-        // pile before insertion.
+        // block_point rebuilds from the floor grid, so run it after insertion.
+        // Its C first-boulder guard uses the pile head captured before insertion.
         if (blockPoint) blockPoint(x, y, normalized);
         if (obj.timed) obj_timer_checks(obj, x, y, 0, normalized);
         return obj;

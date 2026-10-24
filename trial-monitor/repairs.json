@@ -10802,9 +10802,98 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40062538692"
             }
           ]
+        },
+        {
+          "sha": "87a3056b747f18ec982058cd27085761da1d584e",
+          "committedAt": "2026-10-24T04:44:20Z",
+          "runs": [
+            {
+              "id": 40063532654,
+              "name": "Checkpoint",
+              "sha": "87a3056b747f18ec982058cd27085761da1d584e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/sensing-vision-order-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T04:44:28Z",
+              "completedAt": "2026-10-24T04:51:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40063532654"
+            },
+            {
+              "id": 40064052959,
+              "name": "Lint",
+              "sha": "87a3056b747f18ec982058cd27085761da1d584e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T04:52:27Z",
+              "completedAt": "2026-10-24T04:53:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40064052959"
+            },
+            {
+              "id": 40064052905,
+              "name": "Dashboard",
+              "sha": "87a3056b747f18ec982058cd27085761da1d584e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T04:52:27Z",
+              "completedAt": "2026-10-24T04:55:14Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40064052905"
+            }
+          ]
         }
       ],
-      "note": "C allmain.c moveloop_core performs Hallucination sensing redraws before pending vision recalculation,inside !context.mv||Blind. JS spent pending vision before the sensing layers. Move Hallucination pending work to its C phase/guard,retain the existing non-hallucinatory vision/region order. This is a Hallucination correction,not whole-function certification or a general non-Hallu reorder. Independent public Monk Astral seed8432039/date20261216100000 actual C Hallu/Blind/Deaf/Detect/Conflict activation137-141 confirmed. Passive canonical display log agrees with ordinarycore/screens/cursors; first globaldraw1665 C38357 versusJS463357,actualJSstackfeel_location->newsym->vision_recalc atmove3hero33,18obj23 before see_monsters. Fresh normal/monochrome23230RNG501screens/cursors33animations strictlypass;before-event control8168/161/0passesbeforeandafter. Exact5d6abaseline bothvariants firstscreen168,allcorealreadyfullymatching;controlpass. Original broad reorder0914failedCheckpoint40062538692 inrecordingbatch1 andtestshard4. Exactlocalreproduction found the same existing amorphous-door-passage-open-control only:2806RNGand172cursorsmatch,2of172mapframes differ. Localrecordingbatch609/610;testshard2858/2859. A private notice-drain relocation prototype didnotfixit and wasnotretained. Narrowing to demonstrated Hallu behavior restores the prior non-Hallu path; original golden andtests unchanged. Corrected3freshC+602affected=605 plus7existingdoorwaycontrols=612pass,lint/diffpass;16registertestsrequired. Full privateMonk firstscreenadvances610,Touristglyph2677alsofixed withfirstscreen2720;neitherfullprobeclaimedpassing. LaterMonk610 independently traced to preexisting second-boulderguard andpreservedseparately. OriginalMay5codepredatesexperiment;distinctfrom166newsym tactile duplicate mapping. Includes accepted170complete98-batchreceipt/provenance. Failedandcorrectedcommitsgroupedasone171ifallgatespass;notaccepted,noadmissionormeasuredscoregain;freshfullhostedgatespending."
+      "note": "C allmain.c moveloop_core performs Hallucination sensing redraws before pending vision recalculation,inside !context.mv||Blind. JS spent pending vision before the sensing layers. Move Hallucination pending work to its C phase/guard,retain the existing non-hallucinatory vision/region order. This is a Hallucination correction,not whole-function certification or a general non-Hallu reorder. Independent public Monk Astral seed8432039/date20261216100000 actual C Hallu/Blind/Deaf/Detect/Conflict activation137-141 confirmed. Passive canonical display log agrees with ordinarycore/screens/cursors; first globaldraw1665 C38357 versusJS463357,actualJSstackfeel_location->newsym->vision_recalc atmove3hero33,18obj23 before see_monsters. Fresh normal/monochrome23230RNG501screens/cursors33animations strictlypass;before-event control8168/161/0passesbeforeandafter. Exact5d6abaseline bothvariants firstscreen168,allcorealreadyfullymatching;controlpass. Original broad reorder0914failedCheckpoint40062538692 inrecordingbatch1 andtestshard4. Exactlocalreproduction found the same existing amorphous-door-passage-open-control only:2806RNGand172cursorsmatch,2of172mapframes differ. Localrecordingbatch609/610;testshard2858/2859. A private notice-drain relocation prototype didnotfixit and wasnotretained. Narrowing to demonstrated Hallu behavior restores the prior non-Hallu path; original golden andtests unchanged. Corrected3freshC+602affected=605 plus7existingdoorwaycontrols=612pass,lint/diffpass;16registertestsrequired. Full privateMonk firstscreenadvances610,Touristglyph2677alsofixed withfirstscreen2720;neitherfullprobeclaimedpassing. LaterMonk610 independently traced to preexisting second-boulderguard andpreservedseparately. OriginalMay5codepredatesexperiment;distinctfrom166newsym tactile duplicate mapping. Includes accepted170complete98-batchreceipt/provenance. Failedandcorrectedcommitsgroupedasone171ifallgatespass;notaccepted,noadmissionormeasuredscoregain;freshfullhostedgatespending. Accepted distinct171 after corrected exact-SHA Checkpoint40063532654,MainLint40064052959 and Dashboard40064052905 success. Original0914and87acorrectioncountonce. Archive44/98/2055 comparison against5d6a verified hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary stacking-guard repair."
+    },
+    {
+      "id": "stacked-boulder-vision",
+      "kind": "parity-repair",
+      "title": "Skip redundant vision blocking when stacking boulders",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T04:29:00Z",
+          "end": "2026-10-24T04:29:00Z",
+          "note": "Instantaneous preserved source qualification observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mkobj.c:place_object2305-2341",
+          "js/obj.js:place_object",
+          "nethack-c/upstream/src/vision.c:block_point",
+          "js/unported_monster_actions.js:simpleMonsterActionEnvironment blockPoint",
+          "js/mthrowu.js:drop_throw,ohitmon,m_throw,thrwmu"
+        ],
+        "witness": [
+          "recipes/mkobj.c/stacked-boulder-vision-normal.session.json",
+          "recipes/mkobj.c/stacked-boulder-vision-monochrome.session.json",
+          "recipes/mkobj.c/stacked-boulder-vision-before-control.session.json"
+        ],
+        "test": [
+          "scripts/stacked-boulder-vision.test.mjs",
+          "scripts/object-substrate.test.mjs",
+          "scripts/object-pile-count.test.mjs",
+          "scripts/hero-boulder-push.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/thrown-boulder-vision.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/flooreffects.test.mjs",
+          "scripts/mon-consumption.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "C mkobj.c place_object captures the pre-insertion pile head and only calls block_point when placing the first boulder. JS explicitly dropped the existing-boulder guard,raising vision_full_recalc on a second landing where C makes no call. Capture oldHead before hook admission and retain existing post-insertion transparency rebuild/floor-index semantics. The stacking arm requires no vision hook. Independent public Monk Astral8432039/date20261216100000 has verified C initial Hallu/Blind/Deaf/Detect/Conflict activation137-141. Actual liveJS boulder195 lands33,19 atopBOULDER475 via drop_throw->ohitmon->m_throw->thrwmu->mattacku atmove24; flagsetterprovesfalse->true atblock_point->place_object. Passive canonical display log matches ordinary core/screens/cursors; firstcosmetic16246 C38313 versusJS46325 via nextmon.c visionRecalc tactile floor draw. Fresh normal/monochrome26982RNG641screens/cursors35animations strictlypass;beforecontrol26108/601/33passesbeforeandafter. Exact0914baseline bothvariants firstscreen610 withallcorefullymatching;controlpass. All414testsrevalidatedoncorrected87abase. Three initialized native actualplace_object cases empty/ROCK/BOULDER pile call canonicalblock_point andverify0/1hookcounts,visionflag,twofloorindexes,coordinates,andunchangedcore/display;thirdstackedboulderrequiresnohook. Oldstackcasefails,2first-bouldercontrolspass. Six focused(3native+3C)+408affected=414pass,lint/diffpass;16registertestsrequired. Own172patchstashed5139f4eaacross171correction,restored/hashverifiedunchanged81e2f90a;no work discarded. FullprivateMonkfirstscreenadvances1100,notfullpass;Touristlater2720unchanged. Guardomission1eab8bf8Oct14predatesexperiment. Distinctfromaccepted1436050f40missinghookrouting,whoseevidenceexplicitlyexcludedunexercisedstackingguard;not correctionto171allmainHalluorder. Includes complete accepted17198-batchreceipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending."
     }
   ]
 }
