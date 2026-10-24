@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Monk Astral hero arrival floor glyph witness. C hack.c domove_core2964-2974 relies on vision_recalc(1) hero redraw; no second explicit destination newsym. Before-control ends before first demonstrated duplicate draw.",
+  "segments": [
+    {
+      "seed": 8432039,
+      "datetime": "20261216100000",
+      "nethackrc": "OPTIONS=name:DeafAstralMonkProbe,role:Monk,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \n\u0012    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    n    \nm.    n    \n    \nm.    n    \nm.    "
+    }
+  ]
+}

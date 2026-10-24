@@ -10892,8 +10892,96 @@
           "scripts/mon-consumption.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "55673dcda3110cefb69458aa663959259a70bbaa",
+          "committedAt": "2026-10-24T04:59:03Z",
+          "runs": [
+            {
+              "id": 40064477345,
+              "name": "Checkpoint",
+              "sha": "55673dcda3110cefb69458aa663959259a70bbaa",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/stacked-boulder-vision-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T04:59:16Z",
+              "completedAt": "2026-10-24T05:06:21Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40064477345"
+            },
+            {
+              "id": 40065200296,
+              "name": "Lint",
+              "sha": "55673dcda3110cefb69458aa663959259a70bbaa",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T05:10:13Z",
+              "completedAt": "2026-10-24T05:11:08Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40065200296"
+            },
+            {
+              "id": 40065200445,
+              "name": "Dashboard",
+              "sha": "55673dcda3110cefb69458aa663959259a70bbaa",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T05:10:13Z",
+              "completedAt": "2026-10-24T05:13:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40065200445"
+            }
+          ]
+        }
+      ],
+      "note": "C mkobj.c place_object captures the pre-insertion pile head and only calls block_point when placing the first boulder. JS explicitly dropped the existing-boulder guard,raising vision_full_recalc on a second landing where C makes no call. Capture oldHead before hook admission and retain existing post-insertion transparency rebuild/floor-index semantics. The stacking arm requires no vision hook. Independent public Monk Astral8432039/date20261216100000 has verified C initial Hallu/Blind/Deaf/Detect/Conflict activation137-141. Actual liveJS boulder195 lands33,19 atopBOULDER475 via drop_throw->ohitmon->m_throw->thrwmu->mattacku atmove24; flagsetterprovesfalse->true atblock_point->place_object. Passive canonical display log matches ordinary core/screens/cursors; firstcosmetic16246 C38313 versusJS46325 via nextmon.c visionRecalc tactile floor draw. Fresh normal/monochrome26982RNG641screens/cursors35animations strictlypass;beforecontrol26108/601/33passesbeforeandafter. Exact0914baseline bothvariants firstscreen610 withallcorefullymatching;controlpass. All414testsrevalidatedoncorrected87abase. Three initialized native actualplace_object cases empty/ROCK/BOULDER pile call canonicalblock_point andverify0/1hookcounts,visionflag,twofloorindexes,coordinates,andunchangedcore/display;thirdstackedboulderrequiresnohook. Oldstackcasefails,2first-bouldercontrolspass. Six focused(3native+3C)+408affected=414pass,lint/diffpass;16registertestsrequired. Own172patchstashed5139f4eaacross171correction,restored/hashverifiedunchanged81e2f90a;no work discarded. FullprivateMonkfirstscreenadvances1100,notfullpass;Touristlater2720unchanged. Guardomission1eab8bf8Oct14predatesexperiment. Distinctfromaccepted1436050f40missinghookrouting,whoseevidenceexplicitlyexcludedunexercisedstackingguard;not correctionto171allmainHalluorder. Includes complete accepted17198-batchreceipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending. Accepted distinct172 after exact-SHA Checkpoint40064477345,MainLint40065200296 and Dashboard40065200445 success. Archive44/98/2055 comparison against87a verified hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary arrival-redraw repair."
+    },
+    {
+      "id": "arrival-floor-redraw",
+      "kind": "parity-repair",
+      "title": "Avoid a second hero arrival redraw after vision recalculation",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T05:16:52Z",
+          "end": "2026-10-24T05:16:52Z",
+          "note": "Instantaneous preserved qualification observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c:domove_core2964-2974",
+          "nethack-c/upstream/src/vision.c:vision_recalc843-853",
+          "js/hack.js:domove_core4623-4628",
+          "js/vision.js:vision_recalc blind hero tail"
+        ],
+        "witness": [
+          "recipes/hack.c/arrival-floor-redraw-normal.session.json",
+          "recipes/hack.c/arrival-floor-redraw-monochrome.session.json",
+          "recipes/hack.c/arrival-floor-redraw-before-control.session.json"
+        ],
+        "test": [
+          "scripts/arrival-floor-redraw.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/cmd.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/vision.test.mjs",
+          "scripts/vision-blind-epilogue.test.mjs",
+          "scripts/display-symbols.test.mjs",
+          "scripts/hero-boulder-push.test.mjs",
+          "scripts/amorphous-door-passage.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mkobj.c place_object captures the pre-insertion pile head and only calls block_point when placing the first boulder. JS explicitly dropped the existing-boulder guard,raising vision_full_recalc on a second landing where C makes no call. Capture oldHead before hook admission and retain existing post-insertion transparency rebuild/floor-index semantics. The stacking arm requires no vision hook. Independent public Monk Astral8432039/date20261216100000 has verified C initial Hallu/Blind/Deaf/Detect/Conflict activation137-141. Actual liveJS boulder195 lands33,19 atopBOULDER475 via drop_throw->ohitmon->m_throw->thrwmu->mattacku atmove24; flagsetterprovesfalse->true atblock_point->place_object. Passive canonical display log matches ordinary core/screens/cursors; firstcosmetic16246 C38313 versusJS46325 via nextmon.c visionRecalc tactile floor draw. Fresh normal/monochrome26982RNG641screens/cursors35animations strictlypass;beforecontrol26108/601/33passesbeforeandafter. Exact0914baseline bothvariants firstscreen610 withallcorefullymatching;controlpass. All414testsrevalidatedoncorrected87abase. Three initialized native actualplace_object cases empty/ROCK/BOULDER pile call canonicalblock_point andverify0/1hookcounts,visionflag,twofloorindexes,coordinates,andunchangedcore/display;thirdstackedboulderrequiresnohook. Oldstackcasefails,2first-bouldercontrolspass. Six focused(3native+3C)+408affected=414pass,lint/diffpass;16registertestsrequired. Own172patchstashed5139f4eaacross171correction,restored/hashverifiedunchanged81e2f90a;no work discarded. FullprivateMonkfirstscreenadvances1100,notfullpass;Touristlater2720unchanged. Guardomission1eab8bf8Oct14predatesexperiment. Distinctfromaccepted1436050f40missinghookrouting,whoseevidenceexplicitlyexcludedunexercisedstackingguard;not correctionto171allmainHalluorder. Includes complete accepted17198-batchreceipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending."
+      "note": "C domove_core redraws old hero position then calls vision_recalc(1),whose tail redraws the currenthero;there is no second explicit destination newsym before invocation_message. Remove JS extra destination redraw,retain movement guard/success mask,oldposition,visioncall andinvocation ordering. Independent public MonkAstral8432039/date20261216100000 verifiedinitialC Hallu/Blind/Deaf/Detect/Conflict activation137-141. After prior171/172,passive1141prefix logger is ordinary-identical forcore/screens/cursors; firstcosmetic26202 C383105 versusJS463370 atmove40,JSstacknewsym->domove_core4627 withfloorROCK474hero33,19. C27299cosmeticdraws versusJS27300. Fresh normal/monochrome40858RNG1141screens/cursors38animations strictlypass;beforecontrol39109/1091/37passesbeforeandafter. Baselinecomposition87a+exact172objblob36a5635 is verified equal accepted55673gameexecutiontree58d5ffaa;bothvariantsfirstscreen1100,allcorealreadyfullymatching,controlpasses. Four initialized actualdomove native blind-hero Hallu/non xfloorROCK/none cases complete startup withoneinitialinput,then assert moved5,7->6,7,oneC-required rawISAACcosmeticdraw onlyHallu+floorobject,zero3controls,unchangedcore/HP,floorownership andnomessage. Oracle firsttype190isnotCORPSE so no second corpse draw. Oldtargetfails3controls pass,newall4pass. Initialstartup-empty fixture didnotcompleteactualmovementandwasrejected;correctfixtureumovedtrueandux0origin,notasuccessstub. Sevenfocused(4native+3C)+509affected=516pass,lint/diffpass;16registertestsrequired. FullprivateMonk177100RNG4554screens/cursors78animationsstrictpass;independentTouriststillfirstscreen2720/core2884,notfullpass. Extraarrivalnewsym wasalready2b96c564July27;Oct22refused-swapb2df merelymovedexistinglinesintoguard,so thisisindependentpreexperimentduplicate-redrawdefect,notcorrectionofswapadmission. Includes complete accepted17298-batchreceipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending."
     }
   ]
 }

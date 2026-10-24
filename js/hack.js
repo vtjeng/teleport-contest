@@ -4623,8 +4623,8 @@ async function domove_core(state = game) {
             state.domoveAttempting & (DOMOVE_RUSH | DOMOVE_WALK);
         u.umoved = true;
         newsym(oldx, oldy);
+        // vision_recalc() redraws the hero; C has no second arrival newsym().
         vision_recalc(1);
-        newsym(newx, newy);
         await invocation_message(state);
     }
     // C ref: hack.c domove_core():2976-2987. The attached objects return
