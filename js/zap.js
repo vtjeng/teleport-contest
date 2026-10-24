@@ -2779,6 +2779,20 @@ export async function stone_to_flesh_obj(obj, state = game,
 // void gap; shop billing and object conversion retain their source order.
 export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv = {}) {
     const objectEnv = zapObjectEnv(state, random, rawEnv);
+    const redraw = rawEnv.redraw ?? rawEnv.newsym
+        ?? (!rawEnv.planning && state === game ? newsym : () => {});
+    // The dry run borrows vision.c's shared obstruction index. Capture it
+    // before changing the floor object, so both the index and cloned map
+    // memory are restored even when a later source operation refuses.
+    if (rawEnv.planning && state !== game && obj.where === OBJ_FLOOR) {
+        if (typeof rawEnv.admitPlannedVisionChange !== 'function') {
+            throw new TypeError(
+                'planned floor fracture requires admitPlannedVisionChange',
+            );
+        }
+        rawEnv.admitPlannedVisionChange(obj.ox, obj.oy, state);
+    }
+
     const byHero = !state.context?.mon_moving;
     const location = get_obj_location(obj, 0, state);
     if (byHero && location
@@ -2822,9 +2836,9 @@ export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv 
             unblock_point(ox, oy, state);
             // The ray may hit more objects after this square; make vision
             // reflect the now-nonblocking rock immediately.
-            vision_recalc(0, objectEnv);
+            vision_recalc(0, { ...objectEnv, redraw });
         }
-        if (cansee(ox, oy, state)) newsym(ox, oy, state);
+        if (cansee(ox, oy, state)) redraw(ox, oy, state);
     }
 }
 

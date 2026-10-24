@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T20:48:08.886560+00:00",
+  "asOf": "2026-10-24T21:44:40.542199+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -13605,8 +13605,92 @@
           "scripts/unported-monster-actions.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "b8b907327bc2b35c9d2ef6e5b37495acabbc14ae",
+          "committedAt": "2026-10-24T20:48:32Z",
+          "runs": [
+            {
+              "id": 40131463821,
+              "name": "Checkpoint",
+              "createdAt": "2026-10-24T20:48:51Z",
+              "completedAt": "2026-10-24T20:57:34Z",
+              "sha": "b8b907327bc2b35c9d2ef6e5b37495acabbc14ae",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vision-point-ownership-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40131463821"
+            },
+            {
+              "id": 40132385828,
+              "name": "Lint",
+              "completedAt": "2026-10-24T21:02:40Z",
+              "sha": "b8b907327bc2b35c9d2ef6e5b37495acabbc14ae",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40132385828"
+            },
+            {
+              "id": 40132385843,
+              "name": "Dashboard",
+              "createdAt": "2026-10-24T21:01:30Z",
+              "completedAt": "2026-10-24T21:04:56Z",
+              "sha": "b8b907327bc2b35c9d2ef6e5b37495acabbc14ae",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40132385843"
+            }
+          ]
+        }
+      ],
+      "note": "Provisional distinct193 only after full exact-SHA validation/publication gates; accepted192 currently. Canonical point ownership differs from prior caller-only stacked-boulder or vision-reset repairs. No new acceptance yet. Update only the explicit obstruction bit and rebuild that row pointers from existing bits. block/unblock do not reevaluate map; recalc alone does. vision_reset still derives full map. Planning snapshots full exact borrowed index once and restores on both preflight finally paths; preserves existing x/y marker shape and live flags. No RNG/terminal/ISAAC changes. Independent Water Wizard/dog8432144Mar20 originallyfirstscreen1305 Cwalkingdiskdrive digestion vsJSgraydragon. Public readonly #vision at1281 exactoriginalCprefix and JSall4strict pass, turn70hero72,12swallow0; CCOULD_SEE at75,13/14/15 vsJS0. JSgascloud74,13AIRTTL9blocked the path; explicit Cbubbleunblock must prevail. Isolatedpointprototype removes allthree bitmap differences and matches all4streams through1310. Earlier1220/1237nonheroC/JSbitmapsidentical;1287invalidqueryrejected. No private Cbuild/instrumentation. Output-only context baseline/observer all4actualSHA256identical and strictCpass. ActualLIVEturn70 point74,13 AIR35 oldClear0 cloudTTL9 hero73,13swallow0; callerunblock_point<-mv_bubble<-movebubbles. Subsequentturn71cloudTTL8/turn72point74,14 alsoobserved. No planning public bubble context claimed; native both actual planning entrypoints separately tested. Freshnormal/mono69661RNG1311screens/cursors11animations strictpass;before63406RNG1238screens/cursors10animations strictpass. Baseline2witnessfail1controlpass. No cohort admission or scoregain. InitializedHealer8432148Mar24actualgame/map/vision/ISAAC/display. H/non xBlind/non: explicit point lifecycle keeps forced WATER opening despite unrelated ROOM blocking, recalc and fullreset deliberately closeit. Exact borrowed index restored after2mutations/visionrecalc inboth preflightSimpleMonsterActions advanceRound and preflightElapsedTurnTail success/throw; actualcallbackcount1 guards reachability; core/display/grid/HP/flag unchanged. Four ordinary map refresh controls. Two C dig/fill boundarycases0/79 validate run pointers and siblingoverride persistence. Final26native plus3C focused; finaltests required. Native initialupkeep fixture did notexhaust hero movement, so advanceRoundunreached; setmovement0/callbackreturntrue andassertcallbackcount1. Oldlogsretained. Isolated harnessscriptsdirectory missing and sessionssymlink existed; corrected disposable workspace harness, no productchanges. First757affectedrun748pass9fail: two internalmarker-shape assertions fixed by separateprivate snapshotproperty; lightvisionfixture updated actual wall point instead of oldfullrebuildsentinel0,0; three doorfixture setups reset bulkeditedmap before pointupdates. Preserve all assertions. Overbroad reset in general selectedactionfixture caused6unrelatedfixtures to reach differentbehavior; removed and confined reset to actualdoorhelpers/case. Fog-ranged fixture plainobjectlost ocarry-vunion onclone; use realnewObject andcarrier, no production inventory change. Missed vision_reset fixtureimport corrected before furtherchecks; logsretained. Isolated757tests allpass plus final26native (two additionalboundarycases) allpass; fullESLintpass. Primary29focused+730affected759required. Accepted192receipt verified before all primaryedits. Includes accepted192complete98receipt/SCORE/published/evaluations. New repair notaccepted untilnormalfullhostedarchivecomparison andexactSHA MainLint/Dashboard gates. Finalprimary759tests (29focused26native3C+730affected) passed;16register/fullESLint/diffcheckpass. Nativeboundary0/79casespassed; oldnative22fail4controls/new26pass. Preservefailedfixture/harnesslogs. Normalfullhostedgates/archivescomparisonstillrequired, accepted192. Accepted as distinct193 after exactSHA Checkpoint40131463821/Lint40132385828/Dashboard40132385843 success. Genuine archivehash/admission44fixed98batch2055 comparisonvs22d unchanged. Lint completion21:02:40 from authorizedparent21:03normalconnector; CP20:57:34/Dashboard21:04:56 localknownIDcompletedworkflowupdatedAt; no elapsedactivework claim. Complete98receipt exit0/pending[]/pointerB8bverifiedbeforeanyfurtherprimarysourceedit. Shipthisacceptance/receipt/SCORE/evaluations innextordinaryrepair; no admission or aggregatescoregain."
+    },
+    {
+      "id": "fracture-rock-planning-vision",
+      "kind": "parity-repair",
+      "title": "Restore borrowed vision after planned rock fracturing",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T21:26:22.100493+00:00",
+          "end": "2026-10-24T21:26:22.100493+00:00",
+          "note": "Actualsavedboulderpointobserverlogmtime after replay; observationtimestamp only, no elapsedactivework."
+        },
+        {
+          "start": "2026-10-24T21:43:12.158272+00:00",
+          "end": "2026-10-24T21:43:12.158272+00:00",
+          "note": "Sequentialprimaryintegration afteraccepted193complete98receipt andisolatedqualification; observationonly,noelapsedactivework."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "C zap.c fracture_rock5537-5577: floorconversion/extract/place/does_block/unblock/vision_recalc/newsym",
+          "C monmove.c m_break_boulder143-172 andm_move ALLOW_ROCK2050 onward actualRidercaller",
+          "JS zap.js fracture_rock floorindex/no-owned-redraworigin8a3839e19f Sept26beforeexperiment; awaitedplacement1eab8bf8bf Oct14also predatesexperiment",
+          "JS unported_monster_actions admitPlannedVisionChange andboth preflight finally restore borrowedindex"
+        ],
+        "witness": [
+          "recipes/zap.c/fracture-rock-planning-vision-normal.session.json",
+          "recipes/zap.c/fracture-rock-planning-vision-monochrome.session.json",
+          "recipes/zap.c/fracture-rock-planning-vision-before-control.session.json"
+        ],
+        "test": [
+          "scripts/fracture-rock-planning-vision.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Provisional distinct193 only after full exact-SHA validation/publication gates; accepted192 currently. Canonical point ownership differs from prior caller-only stacked-boulder or vision-reset repairs. No new acceptance yet. Update only the explicit obstruction bit and rebuild that row pointers from existing bits. block/unblock do not reevaluate map; recalc alone does. vision_reset still derives full map. Planning snapshots full exact borrowed index once and restores on both preflight finally paths; preserves existing x/y marker shape and live flags. No RNG/terminal/ISAAC changes. Independent Water Wizard/dog8432144Mar20 originallyfirstscreen1305 Cwalkingdiskdrive digestion vsJSgraydragon. Public readonly #vision at1281 exactoriginalCprefix and JSall4strict pass, turn70hero72,12swallow0; CCOULD_SEE at75,13/14/15 vsJS0. JSgascloud74,13AIRTTL9blocked the path; explicit Cbubbleunblock must prevail. Isolatedpointprototype removes allthree bitmap differences and matches all4streams through1310. Earlier1220/1237nonheroC/JSbitmapsidentical;1287invalidqueryrejected. No private Cbuild/instrumentation. Output-only context baseline/observer all4actualSHA256identical and strictCpass. ActualLIVEturn70 point74,13 AIR35 oldClear0 cloudTTL9 hero73,13swallow0; callerunblock_point<-mv_bubble<-movebubbles. Subsequentturn71cloudTTL8/turn72point74,14 alsoobserved. No planning public bubble context claimed; native both actual planning entrypoints separately tested. Freshnormal/mono69661RNG1311screens/cursors11animations strictpass;before63406RNG1238screens/cursors10animations strictpass. Baseline2witnessfail1controlpass. No cohort admission or scoregain. InitializedHealer8432148Mar24actualgame/map/vision/ISAAC/display. H/non xBlind/non: explicit point lifecycle keeps forced WATER opening despite unrelated ROOM blocking, recalc and fullreset deliberately closeit. Exact borrowed index restored after2mutations/visionrecalc inboth preflightSimpleMonsterActions advanceRound and preflightElapsedTurnTail success/throw; actualcallbackcount1 guards reachability; core/display/grid/HP/flag unchanged. Four ordinary map refresh controls. Two C dig/fill boundarycases0/79 validate run pointers and siblingoverride persistence. Final26native plus3C focused; finaltests required. Native initialupkeep fixture did notexhaust hero movement, so advanceRoundunreached; setmovement0/callbackreturntrue andassertcallbackcount1. Oldlogsretained. Isolated harnessscriptsdirectory missing and sessionssymlink existed; corrected disposable workspace harness, no productchanges. First757affectedrun748pass9fail: two internalmarker-shape assertions fixed by separateprivate snapshotproperty; lightvisionfixture updated actual wall point instead of oldfullrebuildsentinel0,0; three doorfixture setups reset bulkeditedmap before pointupdates. Preserve all assertions. Overbroad reset in general selectedactionfixture caused6unrelatedfixtures to reach differentbehavior; removed and confined reset to actualdoorhelpers/case. Fog-ranged fixture plainobjectlost ocarry-vunion onclone; use realnewObject andcarrier, no production inventory change. Missed vision_reset fixtureimport corrected before furtherchecks; logsretained. Isolated757tests allpass plus final26native (two additionalboundarycases) allpass; fullESLintpass. Primary29focused+730affected759required. Accepted192receipt verified before all primaryedits. Includes accepted192complete98receipt/SCORE/published/evaluations. New repair notaccepted untilnormalfullhostedarchivecomparison andexactSHA MainLint/Dashboard gates. Finalprimary759tests (29focused26native3C+730affected) passed;16register/fullESLint/diffcheckpass. Nativeboundary0/79casespassed; oldnative22fail4controls/new26pass. Preservefailedfixture/harnesslogs. Normalfullhostedgates/archivescomparisonstillrequired, accepted192."
+      "note": "Provisional distinct194 onlyafterfullgates. Fracturehelperplanning boundarywas notpreviousrepairsource; priorvaultguard andthrown/stackedboulder repairs owncallers/placement, notthisCfloorconversionindexborrow. Accepted22dfailureidenticalrulesout193regression. Futurefractureplanningextensionsgroup here. Beforeactualnon-liveplannedfloorfracture, requireexistingadmitPlannedVisionChange andadmit beforeobjectmutation/RNG. Routevision_recalc andlastnewsym throughprovidedredraw/newSym or canonicalLIVEdefault; defaultclonepresentation silent. Preserveconversion/quantity RNG/placement/shop/guilt/does_block ordering, actualLIVEunblock/recalc/render. NoRNGalgorithm/terminal/plannerprotocol/CI changes. IndependentfemaleDwarfArcheologist8432154Mar30 verifiedDigger/Astral. Oldfirstcore113923 step2145 CdistfleeckRN25 vsJSkitten targetRND5; firstmapdiff2145. Bothaccepted22d andB8b reproduceidentically. Output-onlycore/target/ray/boulder-point observersall4actualhashesidentical. Actualkitten57/type32 at33,16HP5/5tame12canSeetrueNONPM targetsPestilence166/type312at33,19HP56/56lvl33. Boulder768/type475at33,18 makescloneindex0 butLIVEindex1; no region. InitiallyLIVEboulderdroppedturn8 throughmdrop_obj->relobj->finishDeathEffects. At155Rider m_break_boulder->fracture_rock plannedunblockleaks sharedindexwithoutadmission, actualLIVEconversionquantity50vsclone12 afterfirstdrift. RestoringborrowedindexyieldsCquantity/core/path. No Cpetblindness/targetscorepatch. Freshnormal/mono114507RNG2151screens/cursors10animationsstrictpass;before111155/2101/9strictpass beforeandafter. Baseline2witnessfail1controlpass. No admission/orgain. 19initializedHealer8432156Apr1cases: H/non xBlind/non xBOULDER/STATUE xotherBOULDER/no blocker =16. DefaultLIVEvsexplicitcanonicalredraw fullcore/display/grid/index/world/pile/context/HP/flag equality. Fouractualpreflight modes percase: bothSimple advanceRound andElapsedTail success/throw, actualcallbackcount1, planner-providedprivateRNG, objectconversion/quantity/weight/nextdrawmatchLIVE, exactglobalindex/bothvisionbuffers/mapmemory/core/display/grid/context/HP/flag unchanged; globaloriginalobjectunchanged. Actualcanonicalmksobj/place_object/ISAAC. Missingownerbeforeobject/core/globalmutation, plus2FREEobjectclonecontrolsnofloorowner. Old11fail8controls,new19pass. Firstnativefixtureusedsharedplanned.coreCtx instead ofactualcallbackprivateRNG; fixedtestbinding andstrengthenedtypedbuffers/worldguard; failedlogsretained. No sourceRNGchange. Rayobserverfirstmissinglocalstatevariable rejectedstreamcheck; correctedandall4hashguardpassed. PublicCwish/intrinsicmenus remaineddiagnostic-only; no petprobe/Cblindnessclaim. Firstaffected881run880pass1fail: rollinglandminefixtureusesactualgame withplanningflagonlytosuppressUI. Restrictedindexadmissionguardtoactualnonliveplannedstates; preservedalltestassertions. Corrected881allpass/fullESLintpass. Fixmatchesall359868coreRNG/4554screens-count/cursors-count/96animation-count butnotfulloutputs: nextscreen/cursor2232 Cdreamfeelprefix vsJSnormalfeel; lateranim3938 cosmetic differs. No fullpass/aggregateclaim. Nextmake_sick You_feel caller belongs existing175prefix scope; notintegrated. Isolated881tests22focus19native3C+859affectedpass; fullESLintpass. Primary/fullhostedgatesrequired; accepted193complete98receipt verifiedbeforeprimaryedit. Includescompleteaccepted193receipt/SCORE/published98evaluations. Candidate194notaccepted untilnormalexactSHAfullgates/archivescomparison. Finalprimary881tests (22focused19native3C+859affected),16register/fullESLint/diffcheckpassed. Newcandidate194stillrequiresnormalfullhostedarchivecomparison/Mainpublicationgates; accepted193untilallpass."
     }
   ]
 }
