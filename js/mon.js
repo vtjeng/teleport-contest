@@ -1833,7 +1833,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
             const name = distant_name(obj, donameFresh, state);
             if (state.flags?.verbose)
                 await monsterMessage(
-                    `${capitalizedMonsterName(mtmp, state)} eats ${name}!`,
+                    `${capitalizedMonsterName(mtmp, state, { displayRandom: rawEnv.displayRandom })} eats ${name}!`,
                     mtmp,
                     state,
                     rawEnv,
