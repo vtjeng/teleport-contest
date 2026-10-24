@@ -1326,7 +1326,7 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
     case M.AT_TENT:
         verb = 'tentacles suck your brain';
         /* s_suffix(Monst_name) */
-        Monst_name = monsterPossessive(mtmp, state, true, env);
+        Monst_name = s_suffix(Monst_name);
         break;
     case M.AT_EXPL:
     case M.AT_BOOM:
