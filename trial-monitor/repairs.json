@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T01:08:08.321584+00:00",
+  "asOf": "2026-10-24T01:32:55.584402+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9889,8 +9889,97 @@
           "scripts/artifacts.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "e752eab46fc7ea4604411cf8387f17d3a92d1af6",
+          "committedAt": "2026-10-24T01:08:22Z",
+          "runs": [
+            {
+              "id": 40048426493,
+              "name": "Checkpoint",
+              "sha": "e752eab46fc7ea4604411cf8387f17d3a92d1af6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mplayer-object-hooks-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:08:33Z",
+              "completedAt": "2026-10-24T01:15:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40048426493"
+            },
+            {
+              "id": 40049070989,
+              "name": "Lint",
+              "sha": "e752eab46fc7ea4604411cf8387f17d3a92d1af6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:16:59Z",
+              "completedAt": "2026-10-24T01:17:54Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40049070989"
+            },
+            {
+              "id": 40049071049,
+              "name": "Dashboard",
+              "sha": "e752eab46fc7ea4604411cf8387f17d3a92d1af6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:16:59Z",
+              "completedAt": "2026-10-24T01:19:44Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40049071049"
+            }
+          ]
+        }
+      ],
+      "note": "C Astral arrival final_level creates special monster players whose random loot calls mkobj(RANDOM_CLASS,FALSE);figurines use existing species initialization/finalization. JavaScript mk_mplayer passed only raw state/random and omitted the existing canonical monsterObject hook,raising UnsupportedObjectOperationError through deferred_goto before boundary67. Compose the standard objectGenerationEnv at mk_mplayer boundary,preserving caller hooks,state/random and all loot/equipment ordering. No new object/species logic,swallowed refusal or global default changes. Output-only original-error stack traces mk_mplayer253->mkobj->mksobj_init->requiredHook(monsterObject). ExactFD3 baseline normal/monochrome stops67screens/5743RNG;C witnesses match6770RNG71screens/cursors0animations after repair. Before-arrival control5646RNG66screens/cursors0animations passes baseline and fix. Three fresh public C replays also inspect actual initialized Astral inventory figurines for nonhuman species and finalized sex,matching C branches.3focused+640affected=643tests pass;lint/diff pass. Private full independent Caveman replay strictly matches302763RNG4433screens/cursors125animations;independent elvenWizard4433control175513RNG1423animations passes actual isolated fix. Source raw environment dates to8614167301 October9,pre-experiment. Complete accepted16098-batch receipt included;full hosted gates pending;no aggregate score gain claimed. Accepted as distinct161 after exact Checkpoint40048426493,Lint40049070989 and Dashboard40049071049 succeeded. Hash-verified archived44fixed/98batch/2055case comparison againstFD3 found no regressions,missing evidence or aggregate changes. Complete98receipt carried in next ordinary elapsed-naming repair."
+    },
+    {
+      "id": "distress-display-owner",
+      "kind": "parity-repair",
+      "title": "Keep elapsed shape-change names on the planning display RNG",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T01:25:34.080370+00:00",
+          "end": "2026-10-24T01:25:34.080370+00:00",
+          "note": "Instantaneous preserved display-trace/source observation;no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c:228mcalcdistress",
+          "nethack-c/upstream/src/mon.c:newcham5278-5320",
+          "js/allmain.js:finishElapsedTurn",
+          "js/mon.js:shapeOldNames/newcham/m_calcdistress",
+          "js/do_name.js:x_monnam"
+        ],
+        "witness": [
+          "recipes/allmain.c/distress-display-owner-normal.session.json",
+          "recipes/allmain.c/distress-display-owner-monochrome.session.json",
+          "recipes/allmain.c/distress-display-owner-before-control.session.json"
+        ],
+        "test": [
+          "scripts/distress-display-owner.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/mon-shape.test.mjs",
+          "scripts/mon.test.mjs",
+          "scripts/shapechange-async-callers.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/monmove-dochug.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/makemon-create.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C Astral arrival final_level creates special monster players whose random loot calls mkobj(RANDOM_CLASS,FALSE);figurines use existing species initialization/finalization. JavaScript mk_mplayer passed only raw state/random and omitted the existing canonical monsterObject hook,raising UnsupportedObjectOperationError through deferred_goto before boundary67. Compose the standard objectGenerationEnv at mk_mplayer boundary,preserving caller hooks,state/random and all loot/equipment ordering. No new object/species logic,swallowed refusal or global default changes. Output-only original-error stack traces mk_mplayer253->mkobj->mksobj_init->requiredHook(monsterObject). ExactFD3 baseline normal/monochrome stops67screens/5743RNG;C witnesses match6770RNG71screens/cursors0animations after repair. Before-arrival control5646RNG66screens/cursors0animations passes baseline and fix. Three fresh public C replays also inspect actual initialized Astral inventory figurines for nonhuman species and finalized sex,matching C branches.3focused+640affected=643tests pass;lint/diff pass. Private full independent Caveman replay strictly matches302763RNG4433screens/cursors125animations;independent elvenWizard4433control175513RNG1423animations passes actual isolated fix. Source raw environment dates to8614167301 October9,pre-experiment. Complete accepted16098-batch receipt included;full hosted gates pending;no aggregate score gain claimed."
+      "note": "C once-per-turn mcalcdistress reaches newcham old-name capture before movement allocation and random births. JavaScript finishElapsedTurn initialized its cloned displayRandom only after that upkeep,so planned shape names fell back to the live cosmetic stream. Move the existing owner initialization before mcalcdistress and pass it through;later births/timers keep that same owner. Preserve C order,main RNG,live names,shape logic and all guards. Canonical recorder supplementary ~drn2 logging,with entries stripped,produces identical segment data to the ordinary record. C/JS display draws agree through1379;first extra JS430draw1380 has shapeOldNames->newcham_distress->m_calcdistress stack while C expects383glyphdraw. ExactE752 baseline normal/monochrome first screen mismatch61,baby-blue-dragon versus mumak teleport message;all17114main RNG calls already match. Three newly recorded C replays strictly pass after repair:normal/monochrome17114RNG64screens/cursors0animations;before-control16848RNG61screens/cursors0animations passes baseline and fix. Four initialized-game cases force canonical shape upkeep and check full injected gameplay-draw sequence,actual cloned shape/cooldown change,clone-only display advancement,unchanged global core/context/monster,and nonhallucinated/undetected/live controls. Native baseline fails because the clone cosmetic stream never advances.7focused including3C+4native plus743affected=750tests pass;lint/diff pass. Original blind-Gehennom missing corpse RNG case remains a separate unresolved lead;no full776-boundary pass or aggregate score gain claimed. Upkeep environment predates experiment (05c87bb0d7 July24);this is independent of prior weapon-swing naming scope. Complete accepted16198-batch receipt included;full hosted gates pending."
     }
   ]
 }

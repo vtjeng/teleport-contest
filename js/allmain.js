@@ -786,10 +786,22 @@ export async function finishElapsedTurn(
     // so they get a live evaluator below rather than this value, which
     // nh_timeout() and the hunger transition can already have invalidated.
     const wtcap = near_capacity(state);
+    // Shape-change upkeep names monsters before random births and timers.
+    // All planned naming callers share this clone-owned cosmetic stream.
+    const planningDisplayRandom = planning
+        ? state.displayCtx
+            ? createCoreRandom(state.displayCtx, state).rn2
+            : () => {
+                throw new TypeError(
+                    'planned monster naming requires initialized display RNG',
+                );
+            }
+        : undefined;
     state.gw.were_changes = 0;
     await mcalcdistress(state, {
         state,
         random,
+        displayRandom: planningDisplayRandom,
         planning,
         message: turnMessage,
         redrawSquare: planning ? () => {} : newsym,
@@ -809,15 +821,6 @@ export async function finishElapsedTurn(
             random.rn2,
         );
     }
-    const planningDisplayRandom = planning
-        ? state.displayCtx
-            ? createCoreRandom(state.displayCtx, state).rn2
-            : () => {
-                throw new TypeError(
-                    'planned monster naming requires initialized display RNG',
-                );
-            }
-        : undefined;
     // A random mimic can be born during this cloned allocation. makemon.c
     // set_mimic_sym() rebuilds vision after choosing a blocking disguise, so
     // run that tail against the cloned monster map and mark the borrowed
