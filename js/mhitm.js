@@ -74,7 +74,6 @@ import {
     mon_nam_too,
     noname_monnam,
     a_monnam,
-    monsterPossessive,
     some_mon_nam,
     x_monnam,
 } from './do_name.js';
@@ -1297,7 +1296,8 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
         return M_ATTK_MISS; /* bypass mdamagem() */
 
     if (state.gv.vis) {
-        const magr_name = capitalizedMonsterName(magr, state);
+        const nameEnv = { random: env.random, displayRandom: env.displayRandom };
+        const magr_name = capitalizedMonsterName(magr, state, nameEnv);
         let buf = '';
 
         if (compat) {
@@ -1305,7 +1305,7 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
             // compat's nymph gender result to choose the adverb.
             await message(
                 `${magr_name} ${mdef.mcansee ? 'smiles at' : 'talks to'} `
-                + `${mon_nam(mdef, state, env)} `
+                + `${mon_nam(mdef, state, nameEnv)} `
                 + `${compat === 2 ? 'engagingly' : 'seductively'}.`,
                 state,
             );
@@ -1316,7 +1316,7 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
             case AT_BUTT: buf = `${magr_name} butts`; break;
             case AT_TUCH: buf = `${magr_name} touches`; break;
             case AT_TENT:
-                buf = `${monsterPossessive(magr, state, true)} tentacles suck`;
+                buf = `${s_suffix(magr_name)} tentacles suck`;
                 break;
             case AT_HUGS:
                 if (magr !== state.u.ustuck) {
@@ -1331,13 +1331,13 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
             }
             if (buf) {
                 await message(
-                    `${buf} ${mon_nam_too(mdef, magr, state, env)}.`,
+                    `${buf} ${mon_nam_too(mdef, magr, state, nameEnv)}.`,
                     state,
                 );
             }
 
             if (mon_hates_silver(mdef) && silverhit) {
-                let mdefName = mon_nam_too(mdef, magr, state, env);
+                let mdefName = mon_nam_too(mdef, magr, state, nameEnv);
                 const attackerName = s_suffix(magr_name);
                 if (!noncorporeal(mdef.data) && !amorphous(mdef.data)) {
                     if (mdef !== magr) {

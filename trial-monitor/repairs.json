@@ -10569,7 +10569,7 @@
     {
       "id": "monster-combat-name-owner",
       "kind": "parity-repair",
-      "title": "Preserve canonical sensing and cosmetic ownership in monster combat feedback",
+      "title": "Preserve sensed combat names and active feedback owners",
       "window": "single-worker",
       "origin": "sole-standard-engineer",
       "investigator": null,
@@ -10579,18 +10579,28 @@
           "start": "2026-10-24T04:02:54Z",
           "end": "2026-10-24T04:02:54Z",
           "note": "Instantaneous preserved qualification observation; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T05:18:07Z",
+          "end": "2026-10-24T05:18:07Z",
+          "note": "Instantaneous preserved successful-hit source qualification observation; no elapsed active-work claim."
         }
       ],
       "evidence": {
         "source": [
           "nethack-c/upstream/src/mhitm.c:missmm74-93,mswingsm1283-1301",
           "nethack-c/upstream/src/do_name.c:mon_nam_too1189-1216",
-          "js/mhitm.js:missmm,mswingsm"
+          "js/mhitm.js:missmm,mswingsm",
+          "nethack-c/upstream/src/mhitm.c:hitmm642-731",
+          "js/mhitm.js:hitmm"
         ],
         "witness": [
           "recipes/mhitm.c/sensed-combat-name-normal.session.json",
           "recipes/mhitm.c/sensed-combat-name-monochrome.session.json",
-          "recipes/mhitm.c/sensed-combat-name-before-control.session.json"
+          "recipes/mhitm.c/sensed-combat-name-before-control.session.json",
+          "recipes/mhitm.c/sensed-hit-name-normal.session.json",
+          "recipes/mhitm.c/sensed-hit-name-monochrome.session.json",
+          "recipes/mhitm.c/sensed-hit-name-before-control.session.json"
         ],
         "test": [
           "scripts/sensed-combat-names.test.mjs",
@@ -10600,7 +10610,8 @@
           "scripts/monmove.test.mjs",
           "scripts/unported-monster-actions.test.mjs",
           "scripts/allmain-turn.test.mjs",
-          "scripts/mswings-display-owner.test.mjs"
+          "scripts/mswings-display-owner.test.mjs",
+          "scripts/sensed-hit-names.test.mjs"
         ]
       },
       "candidates": [
@@ -10650,7 +10661,7 @@
           ]
         }
       ],
-      "note": "Grouped one repair covering monster-versus-monster miss and weapon-swing feedback under the same canonical sensed-defender naming contract. missmm now forwards active core/cosmetic owners without the combat visibility override; mswingsm reuses its existing pronounEnv canonical canSpotMonster binding for defender naming. No new sensing algorithm or gameplay decisions. C missmm and mswingsm call canonical naming even when the defender is invisible but detected. Old JS called it, shortening More width, and missmm attacker naming used global cosmetic RNG. Independent public Tourist Astral seed8432038/date20261212100000 has actual C Blind/Deaf/Hallu/Detect/Conflict activation137-141; later natural cures are not assumed absent. Fresh normal/monochrome371-boundary recordings each16169RNG/371screens/cursors/15animations strictlypass; before-event control14187/311/9passes before and after. Exact3994baseline bothvariants firstscreen316,all16169Ccoreprefixmatches thenJSextends; controlpasses. Eight initialized native armed/unarmed x Hallu/non x Detect/non cases each execute planning/live real mattackm(16runs),canonicalwield callback and actual miss/passive gates,verify exact swing/miss lines,displaydrawarrays,livecore/context/HP and clone ownership. Oldsource6fail2unseen nonHallu controls pass;newall8pass. Eleven focused(8native+3C)+593affected=604tests,lint/diffpass. Full private863-boundary probe32364RNG/863screens/cursors/81animations nowstrictpass. Initial target-coordinate/passive-draw test fixture corrections preserved separately; no production workaround. Both naming defects predateexperiment(Aug16 andOct12). Distinct prior153mhitu hero-target swing owner; this grouped mhitm monster-target repair counts once. Includes complete accepted16898-batch receipt and exact provenance. No admission or measured scoregain; full hostedgates pending. Accepted distinct169 after exact-SHA Checkpoint40060840356,MainLint40061380134 and Dashboard40061380203 success. Exact archive44/98/2055 comparison against3994 verified hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary breath-name repair."
+      "note": "Grouped one repair covering monster-versus-monster miss and weapon-swing feedback under the same canonical sensed-defender naming contract. missmm now forwards active core/cosmetic owners without the combat visibility override; mswingsm reuses its existing pronounEnv canonical canSpotMonster binding for defender naming. No new sensing algorithm or gameplay decisions. C missmm and mswingsm call canonical naming even when the defender is invisible but detected. Old JS called it, shortening More width, and missmm attacker naming used global cosmetic RNG. Independent public Tourist Astral seed8432038/date20261212100000 has actual C Blind/Deaf/Hallu/Detect/Conflict activation137-141; later natural cures are not assumed absent. Fresh normal/monochrome371-boundary recordings each16169RNG/371screens/cursors/15animations strictlypass; before-event control14187/311/9passes before and after. Exact3994baseline bothvariants firstscreen316,all16169Ccoreprefixmatches thenJSextends; controlpasses. Eight initialized native armed/unarmed x Hallu/non x Detect/non cases each execute planning/live real mattackm(16runs),canonicalwield callback and actual miss/passive gates,verify exact swing/miss lines,displaydrawarrays,livecore/context/HP and clone ownership. Oldsource6fail2unseen nonHallu controls pass;newall8pass. Eleven focused(8native+3C)+593affected=604tests,lint/diffpass. Full private863-boundary probe32364RNG/863screens/cursors/81animations nowstrictpass. Initial target-coordinate/passive-draw test fixture corrections preserved separately; no production workaround. Both naming defects predateexperiment(Aug16 andOct12). Distinct prior153mhitu hero-target swing owner; this grouped mhitm monster-target repair counts once. Includes complete accepted16898-batch receipt and exact provenance. No admission or measured scoregain; full hostedgates pending. Accepted distinct169 after exact-SHA Checkpoint40060840356,MainLint40061380134 and Dashboard40061380203 success. Exact archive44/98/2055 comparison against3994 verified hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary breath-name repair. Correction/extension to169,NOT a distinct repair:successful-hit feedback still omitted the provided cosmetic owner on prefetched attacker name and used combat visibility overrides on defender names. Forward only random/displayRandom in hitmm nameEnv;reuse Cprefetched attacker name forAT_TENT s_suffix instead of a second naming call. No attackEnv/default API or othermhitmfunction change. PublicTourist8432038/dateDec12 passive2761prefix is ordinary-identical forcore/screens/cursors;firstglobal92482 C383312 versusJS430422/76402577.Actualcontextplanningtrue/non-globalstate,displayOwnerfunction alreadyprovided,attacker795defender803bite/bite/claw;liveownerundefinedcorrectlyusesglobal.The missingargument leaks speculative names before later real redraws. Fresh normal/monochrome119557RNG2761screens/cursors587animationsstrictpass;beforecontrol117098/2701/582passesbeforeandafter.Exact369fbaseline bothvariantsfirstscreen2720,allcorefullymatching;controlpass.Eight initialized native armed/unarmed xHallu/non xDetect/non eachplanning/live(16runs)executeactualmattackm/canonicalwield,damage,knockback/passive;verifyexacthit/swingtext,cosmeticarrays,clone/liveownership,HP18armed/19unarmed,core/contextisolation.Old6fail2controls pass,new8pass.11focused+604affected=615tests,lint/diffpass;16registertestsrequired.ExistingmhitmtestscoverCprefetchedAT_TENTpossessive,notclaimedasnewpublicAT_TENTcoverage.Initialnativefixturemissingmandatoryunsupportedcapabilitycorrectedwiththrowingguard,not successstub;RNGexpectations correctedfromCknockbackdistance/chanceandweapon-addeddamage,no productionworkaround.FullTouristfirstscreenadvances2867/core3072,notfullpass;separatemon.c monkilleddeathnameownerleadpreserved.Codepredatesexperiment;groupedwithoriginal169miss/swingnamingcontract. Includesaccepted173complete98-batchreceipt/provenance.Noadmissionormeasuredscoregain;correctionrequiresfreshfullhostedandMain gates.Countremains173ifaccepted."
     },
     {
       "id": "monster-breath-name-owner",
@@ -10980,8 +10991,54 @@
           "scripts/amorphous-door-passage.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "C domove_core redraws old hero position then calls vision_recalc(1),whose tail redraws the currenthero;there is no second explicit destination newsym before invocation_message. Remove JS extra destination redraw,retain movement guard/success mask,oldposition,visioncall andinvocation ordering. Independent public MonkAstral8432039/date20261216100000 verifiedinitialC Hallu/Blind/Deaf/Detect/Conflict activation137-141. After prior171/172,passive1141prefix logger is ordinary-identical forcore/screens/cursors; firstcosmetic26202 C383105 versusJS463370 atmove40,JSstacknewsym->domove_core4627 withfloorROCK474hero33,19. C27299cosmeticdraws versusJS27300. Fresh normal/monochrome40858RNG1141screens/cursors38animations strictlypass;beforecontrol39109/1091/37passesbeforeandafter. Baselinecomposition87a+exact172objblob36a5635 is verified equal accepted55673gameexecutiontree58d5ffaa;bothvariantsfirstscreen1100,allcorealreadyfullymatching,controlpasses. Four initialized actualdomove native blind-hero Hallu/non xfloorROCK/none cases complete startup withoneinitialinput,then assert moved5,7->6,7,oneC-required rawISAACcosmeticdraw onlyHallu+floorobject,zero3controls,unchangedcore/HP,floorownership andnomessage. Oracle firsttype190isnotCORPSE so no second corpse draw. Oldtargetfails3controls pass,newall4pass. Initialstartup-empty fixture didnotcompleteactualmovementandwasrejected;correctfixtureumovedtrueandux0origin,notasuccessstub. Sevenfocused(4native+3C)+509affected=516pass,lint/diffpass;16registertestsrequired. FullprivateMonk177100RNG4554screens/cursors78animationsstrictpass;independentTouriststillfirstscreen2720/core2884,notfullpass. Extraarrivalnewsym wasalready2b96c564July27;Oct22refused-swapb2df merelymovedexistinglinesintoguard,so thisisindependentpreexperimentduplicate-redrawdefect,notcorrectionofswapadmission. Includes complete accepted17298-batchreceipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending."
+      "candidates": [
+        {
+          "sha": "369fdfd3c0896c850b9865abe5e2b02638d73621",
+          "committedAt": "2026-10-24T05:17:23Z",
+          "runs": [
+            {
+              "id": 40066448740,
+              "name": "Checkpoint",
+              "sha": "369fdfd3c0896c850b9865abe5e2b02638d73621",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/arrival-floor-redraw-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T05:29:31Z",
+              "completedAt": "2026-10-24T05:36:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40066448740"
+            },
+            {
+              "id": 40067077777,
+              "name": "Lint",
+              "sha": "369fdfd3c0896c850b9865abe5e2b02638d73621",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T05:39:04Z",
+              "completedAt": "2026-10-24T05:40:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40067077777"
+            },
+            {
+              "id": 40067077866,
+              "name": "Dashboard",
+              "sha": "369fdfd3c0896c850b9865abe5e2b02638d73621",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T05:39:04Z",
+              "completedAt": "2026-10-24T05:42:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40067077866"
+            }
+          ]
+        }
+      ],
+      "note": "C domove_core redraws old hero position then calls vision_recalc(1),whose tail redraws the currenthero;there is no second explicit destination newsym before invocation_message. Remove JS extra destination redraw,retain movement guard/success mask,oldposition,visioncall andinvocation ordering. Independent public MonkAstral8432039/date20261216100000 verifiedinitialC Hallu/Blind/Deaf/Detect/Conflict activation137-141. After prior171/172,passive1141prefix logger is ordinary-identical forcore/screens/cursors; firstcosmetic26202 C383105 versusJS463370 atmove40,JSstacknewsym->domove_core4627 withfloorROCK474hero33,19. C27299cosmeticdraws versusJS27300. Fresh normal/monochrome40858RNG1141screens/cursors38animations strictlypass;beforecontrol39109/1091/37passesbeforeandafter. Baselinecomposition87a+exact172objblob36a5635 is verified equal accepted55673gameexecutiontree58d5ffaa;bothvariantsfirstscreen1100,allcorealreadyfullymatching,controlpasses. Four initialized actualdomove native blind-hero Hallu/non xfloorROCK/none cases complete startup withoneinitialinput,then assert moved5,7->6,7,oneC-required rawISAACcosmeticdraw onlyHallu+floorobject,zero3controls,unchangedcore/HP,floorownership andnomessage. Oracle firsttype190isnotCORPSE so no second corpse draw. Oldtargetfails3controls pass,newall4pass. Initialstartup-empty fixture didnotcompleteactualmovementandwasrejected;correctfixtureumovedtrueandux0origin,notasuccessstub. Sevenfocused(4native+3C)+509affected=516pass,lint/diffpass;16registertestsrequired. FullprivateMonk177100RNG4554screens/cursors78animationsstrictpass;independentTouriststillfirstscreen2720/core2884,notfullpass. Extraarrivalnewsym wasalready2b96c564July27;Oct22refused-swapb2df merelymovedexistinglinesintoguard,so thisisindependentpreexperimentduplicate-redrawdefect,notcorrectionofswapadmission. Includes complete accepted17298-batchreceipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending. Accepted distinct173 after exact-SHA Checkpoint40066448740,MainLint40067077777 and Dashboard40067077866 success. Initialbranchpushfailedmissingusername;normalrefreadconfirmedabsent;parentauthorizedoneboundedretry,samescredentials/normalroutesucceeded,nodispatchorcredentialchange.Checkpointfinalsummary503resolvedbyspacednormalread,noCIrerun. Archive44/98/2055 comparison against55673verifiedhashes/admissionproof,no drops,missing,regressions or scorechanges.Complete98receiptcarriedinordinary169successful-hitcorrection."
     }
   ]
 }
