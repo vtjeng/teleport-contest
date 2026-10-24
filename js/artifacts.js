@@ -2179,6 +2179,8 @@ export async function artifact_hit(
         } else if (is_art(otmp, ART_VORPAL_BLADE)
                    && (dieroll === 1
                        || mdef.data === state.mons[PM_JABBERWOCK])) {
+            // Feedback mon_nam keeps canonical perception and uses the attack's cosmetic RNG.
+            const nameEnv = { displayRandom: effectEnv.displayRandom };
             const behead_msg = ['%wepdesc beheads %target!',
                                 '%wepdesc decapitates %target!'];
 
@@ -2190,11 +2192,11 @@ export async function artifact_hit(
                     || state.u.uswallow) {
                     if (youattack) {
                         await message(
-                            `Somehow, you miss ${monsterCommonName(mdef, state)} wildly.`,
+                            `Somehow, you miss ${monsterCommonName(mdef, state, 0, nameEnv)} wildly.`,
                             state);
                     } else if (vis) {
                         await message(
-                            `Somehow, ${monsterCommonName(magr, state)} misses wildly.`,
+                            `Somehow, ${monsterCommonName(magr, state, 0, nameEnv)} misses wildly.`,
                             state);
                     }
                     dmgptr.value = 0;
@@ -2202,7 +2204,7 @@ export async function artifact_hit(
                 }
                 if (noncorporeal(mdef.data) || amorphous(mdef.data)) {
                     await message(
-                        `${wepdesc} slices through ${s_suffix(monsterCommonName(mdef, state))} ${mbodypart(mdef, NECK)}.`,
+                        `${wepdesc} slices through ${s_suffix(monsterCommonName(mdef, state, 0, nameEnv))} ${mbodypart(mdef, NECK)}.`,
                         state);
                     return true;
                 }
@@ -2211,7 +2213,7 @@ export async function artifact_hit(
                 const msg = behead_msg[random.rn2(2)];
                 await message(
                     msg.replace('%wepdesc', wepdesc)
-                       .replace('%target', monsterCommonName(mdef, state)),
+                       .replace('%target', monsterCommonName(mdef, state, 0, nameEnv)),
                     state);
                 if (Hallucination(state) && !state.flags.female)
                     await message(
@@ -2221,7 +2223,7 @@ export async function artifact_hit(
             } else {
                 if (!has_head(state.youmonst.data)) {
                     await message(
-                        `Somehow, ${magr ? monsterCommonName(magr, state) : wepdesc} misses you wildly.`,
+                        `Somehow, ${magr ? monsterCommonName(magr, state, 0, nameEnv) : wepdesc} misses you wildly.`,
                         state);
                     dmgptr.value = 0;
                     return true;

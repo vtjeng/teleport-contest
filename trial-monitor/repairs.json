@@ -11833,8 +11833,101 @@
           "scripts/unported-monster-actions.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c3726a0ed2f6f1ba0ffd36a00ef9321578b86560",
+          "committedAt": "2026-10-24T10:08:26Z",
+          "runs": [
+            {
+              "id": 40084758831,
+              "name": "Checkpoint",
+              "sha": "c3726a0ed2f6f1ba0ffd36a00ef9321578b86560",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/erosion-feedback-names-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T10:08:59Z",
+              "completedAt": "2026-10-24T10:16:47Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40084758831"
+            },
+            {
+              "id": 40086066345,
+              "name": "Lint",
+              "sha": "c3726a0ed2f6f1ba0ffd36a00ef9321578b86560",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T10:28:44Z",
+              "completedAt": "2026-10-24T10:29:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40086066345"
+            },
+            {
+              "id": 40086066454,
+              "name": "Dashboard",
+              "sha": "c3726a0ed2f6f1ba0ffd36a00ef9321578b86560",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T10:28:44Z",
+              "completedAt": "2026-10-24T10:31:44Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40086066454"
+            }
+          ]
+        }
+      ],
+      "note": "Independent genericerosionfeedback selection/owner defect. AftervampguardfirstprivateTouristpetscreen3371; passive3401ordinaryCcore/screens/cursorsidentical; mixedobserverunchangedordinaryJS. Firstmixed257579andglobal119010 JS430280 beforeC5core/383display. Directpriestname->monsterPossessive->erode_obj->burn_dmg->burnarmor. Actualmove170 clonedplanningtrue,existingdisplayRandomfunction,canonicalvismontrue/Blindfalse,robe143/wearer406,BURN0,flags1EF_GREASE,vulnerabletrue,erosion0,proof/knownfalse. Ctrap245-357 choosescapitalizedMonnam orlowercase mon_nam onlyinactualprintedbranch. JSeagerlyselectedboth namesbeforegrease/vulnerability/proof/quiet decisions andomittedowneddisplaycallback. Makebothselectorslazy,passdisplayRandomonly,preservecanonicalvisibility/defaultnaming/gameplay andunmodifiedgrease_protect/acid_damage helpers. Ten nativecases(20plan/live) Hallu/non xdamage/quietmetal/proofmessage/knownproofquiet/unseendetected: old4visibleHallufail6controls,new10pass. CatalogclothrobeW_ARMC orironplateW_ARM,actualgoblinNON_PM/validOBJ_MINVENTowner+mask,canonicalcanseemon versuscanspotmon,EF_GREASEignoredforburnasC;core0draws,ownedHalluone4302paironlyactualfeedback,nonequiet/unseen. Exactupper/lowertext,ER_DAMAGED/ER_NOTHING,oeroded/rknown/HP/ownership/clonedglobalcore/display/map/itemguards,plan/livestatesequal. Freshnormal/mono140191RNG3401screens/cursors110animationsstrictpass;beforecontrol137223/3301/38strictpassold/new. Exactabdbaselinesfirst3371withallcorematching,controlpasses. IsolatedfulloriginalTouristpet319637RNG4554screens/cursors204animationsstrictpass;later3412corealsoclearedwithoutcmd/hackchange,donotclaimindependentrestbug. Thirteenfocused+794affected=807pass,focusedESLint/diffpass. Oldgenericfunctionfeedback codeAug17/Sep16predatesexperiment;noearlierregisterrepairsourceerode_obj,distinctgenericbranch-selectiondefectnotexplosioncallbackrepair176orvamp167rework. Provisional178onlyafterfullhosted/exactSHApublication gates;accepted remains177. No officialscore/admissiongain. Completeacceptedabd98receipt/provenanceincluded. FinalprimaryfullESLint,16registertests,diffcheckandfinalsourcefullTouristpet319637/4554/204strictpass. Accepted distinct178 afterexact-SHA Checkpoint40084758831,MainLint40086066345 andDashboard40086066454success. InitialMainpushmissingUsername knownfailed; authorizedsingle normal-route existingcredential retry succeeded withoutcredentialchanges/CIrerun. Exactarchivehashes/admissionproof/full44fixed98synthetic2055comparison versusABD unchanged;complete98receiptcarriedhere."
+    },
+    {
+      "id": "vorpal-feedback-owner",
+      "kind": "parity-repair",
+      "title": "Keep Vorpal feedback on the attack display owner",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T10:39:13Z",
+          "end": "2026-10-24T10:39:13Z",
+          "note": "First direct display-owner stack observation preserved from tool timestamp; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T11:03:42.040780+00:00",
+          "end": "2026-10-24T11:03:42.040780+00:00",
+          "note": "Source qualification observation only; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/artifact.c:1447-1470 prefetch and1597-1642 Vorpal",
+          "nethack-c/upstream/src/do_name.c:988-992 player-monster rank",
+          "nethack-c/upstream/src/role.c:417 Joshu",
+          "js/artifacts.js:artifact_hit Vorpalfeedback"
+        ],
+        "witness": [
+          "recipes/artifact.c/vorpal-feedback-normal.session.json",
+          "recipes/artifact.c/vorpal-feedback-monochrome.session.json",
+          "recipes/artifact.c/vorpal-feedback-before-control.session.json"
+        ],
+        "test": [
+          "scripts/vorpal-feedback-owner.test.mjs",
+          "scripts/artifacts.test.mjs",
+          "scripts/mhitm.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/uhitm.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/do-name.test.mjs",
+          "scripts/dothrow.test.mjs",
+          "scripts/mthrowu.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent genericerosionfeedback selection/owner defect. AftervampguardfirstprivateTouristpetscreen3371; passive3401ordinaryCcore/screens/cursorsidentical; mixedobserverunchangedordinaryJS. Firstmixed257579andglobal119010 JS430280 beforeC5core/383display. Directpriestname->monsterPossessive->erode_obj->burn_dmg->burnarmor. Actualmove170 clonedplanningtrue,existingdisplayRandomfunction,canonicalvismontrue/Blindfalse,robe143/wearer406,BURN0,flags1EF_GREASE,vulnerabletrue,erosion0,proof/knownfalse. Ctrap245-357 choosescapitalizedMonnam orlowercase mon_nam onlyinactualprintedbranch. JSeagerlyselectedboth namesbeforegrease/vulnerability/proof/quiet decisions andomittedowneddisplaycallback. Makebothselectorslazy,passdisplayRandomonly,preservecanonicalvisibility/defaultnaming/gameplay andunmodifiedgrease_protect/acid_damage helpers. Ten nativecases(20plan/live) Hallu/non xdamage/quietmetal/proofmessage/knownproofquiet/unseendetected: old4visibleHallufail6controls,new10pass. CatalogclothrobeW_ARMC orironplateW_ARM,actualgoblinNON_PM/validOBJ_MINVENTowner+mask,canonicalcanseemon versuscanspotmon,EF_GREASEignoredforburnasC;core0draws,ownedHalluone4302paironlyactualfeedback,nonequiet/unseen. Exactupper/lowertext,ER_DAMAGED/ER_NOTHING,oeroded/rknown/HP/ownership/clonedglobalcore/display/map/itemguards,plan/livestatesequal. Freshnormal/mono140191RNG3401screens/cursors110animationsstrictpass;beforecontrol137223/3301/38strictpassold/new. Exactabdbaselinesfirst3371withallcorematching,controlpasses. IsolatedfulloriginalTouristpet319637RNG4554screens/cursors204animationsstrictpass;later3412corealsoclearedwithoutcmd/hackchange,donotclaimindependentrestbug. Thirteenfocused+794affected=807pass,focusedESLint/diffpass. Oldgenericfunctionfeedback codeAug17/Sep16predatesexperiment;noearlierregisterrepairsourceerode_obj,distinctgenericbranch-selectiondefectnotexplosioncallbackrepair176orvamp167rework. Provisional178onlyafterfullhosted/exactSHApublication gates;accepted remains177. No officialscore/admissiongain. Completeacceptedabd98receipt/provenanceincluded. FinalprimaryfullESLint,16registertests,diffcheckandfinalsourcefullTouristpet319637/4554/204strictpass."
+      "note": "Independent Vorpalartifactfeedback display-owner defect. InitiallyunblindedTouristpet full153715corematched butfirstscreen2969. Passive3001ordinaryCcore/screens/cursorsidentical; mixedobserverunchangedJS. Firstmixed178133atinput2968 JSextra430388 beforeCdistfleeck; firstcosmetic78169C383203vsJS430388. Actualartifact_hit cloneplanningtrue/globalfalse withdisplayRandomfunction, Samurai674 vsinvisiblelich568HP61,dieroll1,longsword54/Vorpal18,visfalse;liveglobal/defaultdisplayowner. Cartifact.c1597-1642 callsmon_nam againforVorpalfeedbackinadditiontoprefetchedhittee: preservebothselections,forwardonlyeffectEnv.displayRandom tofive namesinVorpalblockonly, preservingtheirpriorcanonicalvisibilitydefaults. Nootherartifactbranches/gameplay/damage/namingAPI changes. Freshnormal/mono101407RNG3001screens/cursors891animationsstrictpass;beforecontrol97718/2901/853strictpassold/new. ExactC372targetsfirst2969allcorematching,controlpasses;CactualVorpaldecapitation2969verified. Twenty nativecases(40plan/live) Hallu/non xBlind/non xbehead/nontrigger/ghost/headless/Jabberwock: old7Hallufail13controls,new20pass. ActualSamurai/invisibleLich(61HP) orcanonicalcontrolspeciesNON_PM, catalogLONG_SWORD18artifact_existsregistration/validmonsterinventoryW_WEP, emits_light/new_light_source forfirevortexheadlesscontrol, realartifact_hit/spec_dbon. Exactfatal322/ordinary6/headless0damage, rnd1+rn22onlybeheading, unconditionalbehead/ghostfeedbackevenvisfalseasC, headlessvisgatedreturn, allHPunchangedinsideartifact_hit/knownobject/owneddisplay/globalcore/map/bonus/cloneguards. Callbackforcesprefetchgiantant thensecondkillerbee, provingCnewfeedbackselectionratherthanhitteereuse; exactinvisibleprefix/possessive/decapitationmessages. InitialnativeexpectedSamuraiordinarynamewrong: Cdo_name988-992 rank_of androle.c417 yieldjoshu atlevel12outsideendgame; fixtureexpectationcorrected,failedlogpreserved,noproductionrankchange. Twentyfinalnativeincludinglightsourcetighteningpass;sevenoldfail13controlsverifiedagain. Twenty-threefocused+660affected=683pass,focusedESLint/diffpass. Fullvisibilitycontrol153715RNG4550screens/cursors1526animationsstrictpass. Sep7feedbackcallsandOct5-6environment/prefetchalreadyownedpredateexperiment;noearlierartifact_hitrepairsource. Notcorrectiontomplayer-object-hooks constructorwork orordinaryhitfeedback169; distinctVorpalbranchownerrepair provisional179onlyafterfullhosted/exactSHApublicationgates. Accepted remains178, officialscoreunchanged2051/2055. CompleteacceptedC37298receipt/provenanceincluded. FinalRNG-onlyadapterprimaryfullESLint,16registertests,diffcheck,683focused/affected andfull153715/4550/1526strictpass."
     }
   ]
 }
