@@ -1538,7 +1538,7 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
             }
             if (state.gv?.vis && canspotmon(magr, state)) {
                 await requireAttackOperation(env, 'message')(
-                    `${Monnam(magr, state, env)} turns to stone!`, state,
+                    `${Monnam(magr, state, { displayRandom: env.displayRandom })} turns to stone!`, state,
                 );
             }
             await monstone(magr, state, env);
