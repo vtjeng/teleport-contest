@@ -1585,7 +1585,7 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
             if (!Deaf(state)) {
                 if (canseemon(mtmp, state)) {
                     if (typeof env.message === 'function')
-                        await env.message(`${Monnam(mtmp, state)} coughs.`, state);
+                        await env.message(`${Monnam(mtmp, state, { displayRandom: env.displayRandom })} coughs.`, state);
                 } else {
                     note_unported('sound.c Soundeffect');
                     const heard = youHear('a cough.', state);
@@ -1607,7 +1607,7 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                 if (canseemon(mtmp, state)
                     && typeof env.message === 'function') {
                     await env.message(
-                        `${Monnam(mtmp, state)} breathes `
+                        `${Monnam(mtmp, state, { displayRandom: env.displayRandom })} breathes `
                         + `${breathwep_name(typ, state, random)}!`,
                         state,
                     );
