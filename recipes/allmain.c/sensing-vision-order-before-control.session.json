@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Monk Astral pending vision/sensing redraw order witness. C allmain.c451-473; before-control ends before first demonstrated pending-vision tactile draw.",
+  "segments": [
+    {
+      "seed": 8432039,
+      "datetime": "20261216100000",
+      "nethackrc": "OPTIONS=name:DeafAstralMonkProbe,role:Monk,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n"
+    }
+  ]
+}

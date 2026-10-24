@@ -1732,11 +1732,6 @@ export async function moveloop_core() {
         await makewish(g);
     }
 
-    // Vision + display
-    if (g.vision_full_recalc) {
-        vision_recalc(0);
-        g.vision_full_recalc = 0;
-    }
     // Close the elapsed turn's display work before status calculation and
     // flushing can expose the completed frame.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
@@ -1770,6 +1765,12 @@ export async function moveloop_core() {
             // allmain.c:462-467. These sensing modes need only the monster
             // overlay; objects and traps retain their ordinary memory.
             await see_monsters(g);
+        }
+        // C ref: allmain.c:470-471. Recalculate after the sensing layers;
+        // a blind hero's tactile repaint can itself consume display RNG.
+        if (g.vision_full_recalc) {
+            vision_recalc(0);
+            g.vision_full_recalc = 0;
         }
     }
     // C ref: allmain.c moveloop_core() (473-478). The status line repaints

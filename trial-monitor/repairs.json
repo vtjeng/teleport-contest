@@ -10688,8 +10688,96 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "5d6a6c83e1804bc4a706e7b9c7ffa41b42c59909",
+          "committedAt": "2026-10-24T04:15:42Z",
+          "runs": [
+            {
+              "id": 40061657473,
+              "name": "Checkpoint",
+              "sha": "5d6a6c83e1804bc4a706e7b9c7ffa41b42c59909",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-breath-names-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T04:15:56Z",
+              "completedAt": "2026-10-24T04:22:45Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40061657473"
+            },
+            {
+              "id": 40062184595,
+              "name": "Lint",
+              "sha": "5d6a6c83e1804bc4a706e7b9c7ffa41b42c59909",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T04:24:03Z",
+              "completedAt": "2026-10-24T04:25:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40062184595"
+            },
+            {
+              "id": 40062184583,
+              "name": "Dashboard",
+              "sha": "5d6a6c83e1804bc4a706e7b9c7ffa41b42c59909",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T04:24:03Z",
+              "completedAt": "2026-10-24T04:26:48Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40062184583"
+            }
+          ]
+        }
+      ],
+      "note": "C mthrowu.c breamm names the visible monster before breath/cough feedback. Forward only the existing env.displayRandom to both Monnam calls so speculative planning advances its own display context,retaining canonical sensing,gameplay RNG,beam walk and message ownership. Independent public Tourist Astral8432038/date20261212100000 extended ordinary inputs; initial C Blind/Deaf/Hallu/Detect/Conflict activation137-141 verified,not assumed to persist after natural cures. Canonical passive display logging is identical to ordinary screens/cursors/core: first mismatchglobal49256 atCstep1648,Cnext383=32 versusJS430=301 then2=1 fromMonnam->breamm->breamu->mattacku during speculative attack; after suppliedownerfix prefixmatches. Fresh normal/monochrome69108RNG1681screens/cursors290animations strictlypass; before-event control65595/1601/257passesbeforeandafter. Exact1165baseline bothvariants firstscreen1649; controlpasses. Four initialized native Hallu/non x Deaf/hearing cases each execute real cancelledbreamm in planning/live(8runs),assert exact cough/no-message,cosmetic[430,2]onlyHalluhearing,zero corecalls,unchangedlivecore/context/HP and clone-vs-livecosmeticownership. OldsourceHalluhearingfails,3controls pass;newall4pass. Seven focused(4native+3C)+399affected=406tests,lint/diffpass. Initial test import typo AD_FIRE corrected before qualification; no production workaround. Full private4554probe advancesfirstscreen2677,withlatercore2884; not claimed fullpass. Later glyph-order investigation remains unresolved and separate. Source omittedownerSeptember15 predatesexperiment;distinct from169mhitm miss/swing feedback and prior163directedspelladapter. Includes complete accepted16998-batch receipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending. Accepted distinct170 after exact-SHA Checkpoint40061657473,MainLint40062184595 and Dashboard40062184583 success. Archive44/98/2055 comparison against1165 verified hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary sensing-vision-order repair."
+    },
+    {
+      "id": "sensing-vision-order",
+      "kind": "parity-repair",
+      "title": "Recalculate pending vision after the guarded sensing redraws",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T04:18:49Z",
+          "end": "2026-10-24T04:18:49Z",
+          "note": "Instantaneous preserved source qualification observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c:moveloop_core451-473",
+          "js/allmain.js:moveloop_core once-per-input vision/sensing",
+          "nethack-c/upstream/src/vision.c:vision_recalc",
+          "js/vision.js:vision_recalc blind redraw"
+        ],
+        "witness": [
+          "recipes/allmain.c/sensing-vision-order-normal.session.json",
+          "recipes/allmain.c/sensing-vision-order-monochrome.session.json",
+          "recipes/allmain.c/sensing-vision-order-before-control.session.json"
+        ],
+        "test": [
+          "scripts/sensing-vision-order.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/display-symbols.test.mjs",
+          "scripts/vision.test.mjs",
+          "scripts/vision-blind-epilogue.test.mjs",
+          "scripts/vision-reset.test.mjs",
+          "scripts/vision-xray.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C mthrowu.c breamm names the visible monster before breath/cough feedback. Forward only the existing env.displayRandom to both Monnam calls so speculative planning advances its own display context,retaining canonical sensing,gameplay RNG,beam walk and message ownership. Independent public Tourist Astral8432038/date20261212100000 extended ordinary inputs; initial C Blind/Deaf/Hallu/Detect/Conflict activation137-141 verified,not assumed to persist after natural cures. Canonical passive display logging is identical to ordinary screens/cursors/core: first mismatchglobal49256 atCstep1648,Cnext383=32 versusJS430=301 then2=1 fromMonnam->breamm->breamu->mattacku during speculative attack; after suppliedownerfix prefixmatches. Fresh normal/monochrome69108RNG1681screens/cursors290animations strictlypass; before-event control65595/1601/257passesbeforeandafter. Exact1165baseline bothvariants firstscreen1649; controlpasses. Four initialized native Hallu/non x Deaf/hearing cases each execute real cancelledbreamm in planning/live(8runs),assert exact cough/no-message,cosmetic[430,2]onlyHalluhearing,zero corecalls,unchangedlivecore/context/HP and clone-vs-livecosmeticownership. OldsourceHalluhearingfails,3controls pass;newall4pass. Seven focused(4native+3C)+399affected=406tests,lint/diffpass. Initial test import typo AD_FIRE corrected before qualification; no production workaround. Full private4554probe advancesfirstscreen2677,withlatercore2884; not claimed fullpass. Later glyph-order investigation remains unresolved and separate. Source omittedownerSeptember15 predatesexperiment;distinct from169mhitm miss/swing feedback and prior163directedspelladapter. Includes complete accepted16998-batch receipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending."
+      "note": "C allmain.c moveloop_core runs find_ac,then sensing redraws inside !context.mv||Blind,and only then recalculates pending vision inside that same guard. JS prematurely and unconditionally recalculated before find_ac. Move the existing block to the C source position/guard,retaining flag clear and independent glyph-notice handling;no vision/display algorithm change. Independent public Monk Astral seed8432039/date20261216100000 actual C Hallu/Blind/Deaf/Detect/Conflict activation137-141 confirmed. Passive canonical display log agrees with ordinary core/screens/cursors; first global draw1665 C38357 versusJS463357. Actual JSstackfeel_location->newsym->vision_recalc consumes a tactile floor-object draw atmove3 hero33,18 before see_monsters. Fresh normal/monochrome23230RNG501screens/cursors33animations strictlypass;before-event control8168/161/0passesbeforeandafter. Exact5d6abaseline bothvariants firstscreen168 with allcorecalls already matching;controlpass. Three focused C plus602affected=605tests,lint/diffpass. Full private4554Monk firstscreenadvances610; independentTourist glyph2677 also corrected,firstscreenadvances2720.Neitherfullprobeclaimedpassing. PriorTouristmonster-list-order hypothesis superseded by direct source/stackevidence. LaterMonk610 visionflag investigation remains separate,not a workaround in this patch. Original May5 code predatesexperiment;distinct from166newsym tactile duplicate mapping within one call,this is allmain phase/guard. Includes complete accepted17098-batch receipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending."
     }
   ]
 }
