@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh independent Water gremlin splitting naming witness: physical sight false, sensing true. Normal/mono1000 inputs, before650 control. Public initialrecipe seed8432144March20, verify source and actual context before attribution.",
+  "segments": [
+    {
+      "seed": 8432144,
+      "datetime": "20270320100000",
+      "nethackrc": "OPTIONS=name:WaterPlaneProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>K                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.  "
+    }
+  ]
+}

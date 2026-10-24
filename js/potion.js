@@ -355,12 +355,17 @@ function djinniRandom(env = {}) {
 // source-specific hit-point updates.
 export async function split_mon(mon, attacker = null, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    // C names sensed monsters even when a caller supplies physical sight.
+    const namingEnv = {
+        ...rawEnv,
+        canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
+    };
     const message = rawEnv.message ?? ttyPline;
     let reason = '';
     if (attacker) {
         reason = attacker === state.youmonst
             ? ' from your heat'
-            : ` from ${s_suffix(mon_nam(attacker, state, rawEnv))} heat`;
+            : ` from ${s_suffix(mon_nam(attacker, state, namingEnv))} heat`;
     }
 
     if (mon === state.youmonst) {
@@ -390,7 +395,7 @@ export async function split_mon(mon, attacker = null, rawEnv = {}) {
         mon.mhpmax -= clone.mhpmax;
         if (canspotmon(mon, state)) {
             await message(
-                `${Monnam(mon, state, rawEnv)} multiplies${reason}!`,
+                `${Monnam(mon, state, namingEnv)} multiplies${reason}!`,
                 state,
                 rawEnv,
             );

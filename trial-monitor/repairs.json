@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T19:52:47.348Z",
+  "asOf": "2026-10-24T20:13:55.424046+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -13433,9 +13433,93 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40126073545"
             }
           ]
+        },
+        {
+          "sha": "bebb7833fa045c564a50c778fbf43b3db4a54ab8",
+          "committedAt": "2026-10-24T19:53:25Z",
+          "runs": [
+            {
+              "id": 40127355384,
+              "name": "Checkpoint",
+              "sha": "bebb7833fa045c564a50c778fbf43b3db4a54ab8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/opaque-region-drop-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T19:53:44Z",
+              "completedAt": "2026-10-24T20:02:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40127355384"
+            },
+            {
+              "id": 40128315383,
+              "name": "Lint",
+              "sha": "bebb7833fa045c564a50c778fbf43b3db4a54ab8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T20:06:37Z",
+              "completedAt": "2026-10-24T20:07:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40128315383"
+            },
+            {
+              "id": 40128315396,
+              "name": "Dashboard",
+              "sha": "bebb7833fa045c564a50c778fbf43b3db4a54ab8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T20:06:37Z",
+              "completedAt": "2026-10-24T20:10:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40128315396"
+            }
+          ]
         }
       ],
-      "note": "Provisional distinct191 only aftergrouped1498a fullyaccepted andallnormalgates. Existing solid-rock-drop expandedterrain only; this independent preexperiment opaque-region guard was notchangedbythatrepair. Futureextensions ofthisregiondropboundary group here. No count now. 8cf03fc11d August4 preexperiment. Current733/8a guardunchanged. Removeonly visible_region_at drop preflightguard andnowunusedimport; retain all ownership/equipment/unpaid/terrain/trap/shop/timer/light guards andcanonical floor/region rendering callbacks. No RNG orregionstatealgorithm changes. IndependentEarthWizard/dog8432138March14 afterwakeup owner prerequisite. Oldfirstmissing screen/cursor2340 zero-based andfirstmissingcore63560 zero-based/Cmon_poly rnd2 at2342. Actual boundary UnsupportedDropError visible region overdrop, before placement. Freshnormal/mono2700inputs andbefore2250. ActualLIVEglobal moves60 heroGarterSnake214[72,3]HP10 ROOM25; quarterstaff79/id52 INVENT3 q1weight40/unpaidfalse/worn0/primaryfalse alreadyunwieldedbydrop_weapon. CanonicalregionTTL5visibletruearg8hero_inside trueinside_gas_cloud/expire_gas_cloud onepointrect72,3. Output-onlyactualcontext4streamSHA256identical. 24 initializedfullHealer8432142March18 cases x2LIVE default/delegatedcanonicalnewsym=48 drops plus24pureclonepreflights: H/non xBlind/non xcloudatdrop/outside/none xquarterstaffwielded/food. Actualmksobj/addinv/setuwep andcreate_gas_cloud(size1,damage3) withcanonicalvisionhooks/random, validcallback/TTL/bounds/hero_inside. Verify clonepreflightpureglobalcore/display/grid/regions/inventory/slot unchanged. LIVEsourcefloorplacement/inventoryunlink/quantity/weight/slots, callbackafterplacement andclearedweapon, regiongraph/TTL/HP unchanged, no core draws; default vsdelegated fulldisplay/core/grid/object equality. Old8atdropfail16controls/new24pass. normal/mono69609RNG2701screens/cursors18animations strictpass;before61869/2251/17 strictpass. Baseline2fail1controlpasses. PrivatefullEarth4555 strictPASS all149941RNG/4555screens/cursors51animations withwakeupprerequisite. No admission/aggregatescoregain. Nativeinitial2importpaths didnotexist; consultedexistingdrop-command test andcorrectedmksobj importtoobj.js. Retainedbothimportfailurelogs; no productionmodule/guardchange. One diagnosticstatic form lookup usednonexported mons; usedexportedPM_GARTER_SNAKE214 instead. No fabricatedactivework. Initial isolatedlint usednpx fromdisposableworkspace withoutlocal node_modules link; ENOENTnpmcache beforelint. Reusedknownexisting localESLintbinary+config path aspriorassembly; fullESLintpassed, no installs/credential/security changes. 27focused(24native3C)+407affected=434 isolated assembledpassed; fullassembled ESLintpassed. Primaryintegration/register/fullLint andallhostedgates required after8areceipt. Includes fullyaccepted190grouped1498acomplete98receipt; primary/fullhosted exactSHA gatesrequired. Accepted190until191fullygated. Finalprimary27focused+407affected=434unique passed;16register/fullESLint/diffpass. Fullhosted exactSHA archivecomparison and MainLint/Dashboardrequired before191acceptance. Count190untilallgates. CandidateD5 exactCheckpoint40126073545 failed testshard1; allotherstagespassed. Localmatching shard3250tests3249pass1fail pinpointsinventory-substrate.test oldexpectationthatopaque-regionsrefusedrop. Cdo.c admitsit; replaceoldassertthrowswithadmission+inventory/ownership/floor/region no-mutation asserts. Preserveallotherexclusions. Thisisgrouped191testcorrection, no acceptedincrement, noD5Mainpush/archiveimport. RequirechangedcommitfreshfullCheckpoint andallpublicationgates. Correctedinventory-substrate125testsallpass; cumulativeprimary434+125=559distincttests,16register/fullESLint/diffpass. Originalfailingassertisnowadmission+puritycheck; gameplaycodeunchangedfromD5. Newfullhosted gatesstillrequired; no191acceptanceyet."
+      "note": "Provisional distinct191 only aftergrouped1498a fullyaccepted andallnormalgates. Existing solid-rock-drop expandedterrain only; this independent preexperiment opaque-region guard was notchangedbythatrepair. Futureextensions ofthisregiondropboundary group here. No count now. 8cf03fc11d August4 preexperiment. Current733/8a guardunchanged. Removeonly visible_region_at drop preflightguard andnowunusedimport; retain all ownership/equipment/unpaid/terrain/trap/shop/timer/light guards andcanonical floor/region rendering callbacks. No RNG orregionstatealgorithm changes. IndependentEarthWizard/dog8432138March14 afterwakeup owner prerequisite. Oldfirstmissing screen/cursor2340 zero-based andfirstmissingcore63560 zero-based/Cmon_poly rnd2 at2342. Actual boundary UnsupportedDropError visible region overdrop, before placement. Freshnormal/mono2700inputs andbefore2250. ActualLIVEglobal moves60 heroGarterSnake214[72,3]HP10 ROOM25; quarterstaff79/id52 INVENT3 q1weight40/unpaidfalse/worn0/primaryfalse alreadyunwieldedbydrop_weapon. CanonicalregionTTL5visibletruearg8hero_inside trueinside_gas_cloud/expire_gas_cloud onepointrect72,3. Output-onlyactualcontext4streamSHA256identical. 24 initializedfullHealer8432142March18 cases x2LIVE default/delegatedcanonicalnewsym=48 drops plus24pureclonepreflights: H/non xBlind/non xcloudatdrop/outside/none xquarterstaffwielded/food. Actualmksobj/addinv/setuwep andcreate_gas_cloud(size1,damage3) withcanonicalvisionhooks/random, validcallback/TTL/bounds/hero_inside. Verify clonepreflightpureglobalcore/display/grid/regions/inventory/slot unchanged. LIVEsourcefloorplacement/inventoryunlink/quantity/weight/slots, callbackafterplacement andclearedweapon, regiongraph/TTL/HP unchanged, no core draws; default vsdelegated fulldisplay/core/grid/object equality. Old8atdropfail16controls/new24pass. normal/mono69609RNG2701screens/cursors18animations strictpass;before61869/2251/17 strictpass. Baseline2fail1controlpasses. PrivatefullEarth4555 strictPASS all149941RNG/4555screens/cursors51animations withwakeupprerequisite. No admission/aggregatescoregain. Nativeinitial2importpaths didnotexist; consultedexistingdrop-command test andcorrectedmksobj importtoobj.js. Retainedbothimportfailurelogs; no productionmodule/guardchange. One diagnosticstatic form lookup usednonexported mons; usedexportedPM_GARTER_SNAKE214 instead. No fabricatedactivework. Initial isolatedlint usednpx fromdisposableworkspace withoutlocal node_modules link; ENOENTnpmcache beforelint. Reusedknownexisting localESLintbinary+config path aspriorassembly; fullESLintpassed, no installs/credential/security changes. 27focused(24native3C)+407affected=434 isolated assembledpassed; fullassembled ESLintpassed. Primaryintegration/register/fullLint andallhostedgates required after8areceipt. Includes fullyaccepted190grouped1498acomplete98receipt; primary/fullhosted exactSHA gatesrequired. Accepted190until191fullygated. Finalprimary27focused+407affected=434unique passed;16register/fullESLint/diffpass. Fullhosted exactSHA archivecomparison and MainLint/Dashboardrequired before191acceptance. Count190untilallgates. CandidateD5 exactCheckpoint40126073545 failed testshard1; allotherstagespassed. Localmatching shard3250tests3249pass1fail pinpointsinventory-substrate.test oldexpectationthatopaque-regionsrefusedrop. Cdo.c admitsit; replaceoldassertthrowswithadmission+inventory/ownership/floor/region no-mutation asserts. Preserveallotherexclusions. Thisisgrouped191testcorrection, no acceptedincrement, noD5Mainpush/archiveimport. RequirechangedcommitfreshfullCheckpoint andallpublicationgates. Correctedinventory-substrate125testsallpass; cumulativeprimary434+125=559distincttests,16register/fullESLint/diffpass. Originalfailingassertisnowadmission+puritycheck; gameplaycodeunchangedfromD5. Newfullhosted gatesstillrequired; no191acceptanceyet. Accepted as distinct191 after corrected exactSHA Checkpoint40127355384/Lint40128315383/Dashboard40128315396 success. OriginalD5source andBEBBtestcorrection countonce. Completiontimestamps usecompletedworkflowmetadata updatedAt, notactivework. Genuine archivehash/admission44fixed98batch2055 comparisonvs8a unchanged. Complete98receipt exit0/pending[]/pointerBEBBverifiedbeforepotionprimaryedit, carried innextordinarysplitting-name repair. No admission oraggregate scoregain."
+    },
+    {
+      "id": "split-mon-sensed-names",
+      "kind": "parity-repair",
+      "title": "Name sensed monsters when they split",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T19:36:24Z",
+          "end": "2026-10-24T19:36:24Z",
+          "note": "Actual public split-context observation; no elapsedactivework claim."
+        },
+        {
+          "start": "2026-10-24T20:13:55.424046+00:00",
+          "end": "2026-10-24T20:13:55.424046+00:00",
+          "note": "Sequential primaryintegration afterverifiedaccepted191BEBBcomplete98receipt. Observation only,no elapsedactivework claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "C potion.c split_mon2873-2935 reasonmon_nam beforeclone andMonnam aftercanspotmon",
+          "C do_name.c x_monnam do_it usescanspotmon, notcanseemon",
+          "C mon.c minliquid987 split trigger; C mhitm.c passive AD_COLD1394-1408 heatclonesBrownMold/BlueJelly",
+          "JS potion.js split_mon sourceSeptember17 5c819d886c predatesexperiment; spottedmessagegateefbda3264b October2"
+        ],
+        "witness": [
+          "recipes/potion.c/split-mon-sensed-names-normal.session.json",
+          "recipes/potion.c/split-mon-sensed-names-monochrome.session.json",
+          "recipes/potion.c/split-mon-sensed-names-before-control.session.json"
+        ],
+        "test": [
+          "scripts/split-mon-sensed-names.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Provisional independent192 only after191source+inventory-test correction group fullyaccepted andallnormalgates. D5executiontree qualification retained; BEBB changes onlytest expectation/register. Noexisting split_mon repair sourceentry; bothnamingcalls qualifyasone scope, futureextensionsgroup here. No currentcount. Local namingEnv canonicalcanSpotMonster default, honors explicitspotprovider. Applyonlyattackerreason mon_nam andsubjectMonnam. RetainphysicalcanSee providerinrawEnv forotheroperations, exactcanspotmessagegate, clone/HP/max/core behavior. Nohelper/RNG changes. Fresh independentWaterWizard/dog8432144March20verifiedWater. Baselinefirstscreen/cursor710zero-based CThefreezingspheremultiplies vsJSIt, laterfirstcore44030/input862. Bothcloneplanning/LIVE moves42 rawphysicalownerfn/spotownerundefined,canSeefalse/canSpottrue,Blind/Hallu759. Gremlin213/type40[58,17]HP20/max20 andclone214[57,17]19/19 afteractual39HPsplit,NONPM,noninvisible,tame0. Cloneprovideddisplayfn, LIVEdisplayundef. Output-only1000context all4actualSHA256identical. 24cases96realclone_mon calls: H/non xvisible/blindDetected/blindUnknown xGremlinwater(noattacker)/BrownMoldpassivecold(Salamanderattacker) xstrong39HP/weak1HP. EachinitializedHealer8432146March22, realmonstersvalidNONPM/map/grid, actualprivateISAACcore/display. Defaultphysical-only namingowner vs explicitcanonicalcanspot oracle fullcore/display/messages/HP/max/placement/IDs equal perplan/live mode; exactnonHalluCliterals. Plan/live gameplayequal, clonedisplaypaintingproperlysuppressed; liveglobalcore/display/grid/vitals/context/HP/placement preserved duringplan. Strongodd39HP parent20clone19, totalmaxconserved. WeakGremlin1/1; weakgrownMold1/39 fitscoldpassivethreshold, noclone. Old5fail19controls, new24pass. normalmono51876RNG1001screens/cursors9animations strictpass;before32767/651/6 strictpass. Baseline2witnessfail1beforecontrolpass. IsolatedfullWater firstscreen1305/core79822at1444; nofullpass. Later1305Cwalkingdiskdrive digests you aftertrollswallow isseparateunqualifiedengulf/digest-name lead. PreserveoriginalCraw4555/739110RNG64animations, noaggregate/admissiongain. InitialheatfixtureusedGremlin; CcallerreviewpassiveAD_COLDshowedheatbranchrequiresBrownMold/BlueJelly. ReplacedheatcaseswithgrownBrownMoldonROOM andSalamander, retainedGremlinPoolwatercases; weakheatmax39preservesgrownthreshold. Useslegal800Hallutimeout. Oldsourcecase/logretained. Addedexplicitglobalcontextguard andreranbothnativevariants. No productionedits/CIreruns. 27focused(24native3C)+740affected=767isolatedassembledpassed; finalformattedpatchfullESLintpassed. Primary/register/fullhostedgatesstillrequired after191receipt. Nativeglobalcontextguard24pass/old5fail19controls. Includes fullyaccepted191BEBBcomplete98receipt; primary/fullhosted exactSHA gatesrequired. Accepted191until192fullygated. Finalprimary27focused+740affected=767unique pass;16register/fullESLint/diffpass. Fullhosted exactSHA archivecomparison and MainLint/Dashboardrequired before192acceptance. Acceptedcount191untilallgates."
     }
   ]
 }
