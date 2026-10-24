@@ -120,7 +120,7 @@ import {
 import { makeplural } from './fruit.js';
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { rn1, rn2, rnd, rn2_on_display_rng } from './rng.js';
 import { obj_resists } from './bury.js';
 import { is_quest_artifact } from './questpgr.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
@@ -1005,7 +1005,14 @@ export async function stealamulet(mtmp, rawEnv = {}) {
     await freeinv(otmp, { ...rawEnv, state });
     const objectName = donameFresh(otmp, state);
     mpickobj(mtmp, otmp, { ...rawEnv, state, random });
-    await message(`${Some_Monnam(mtmp, state)} steals ${objectName}!`, state);
+    // x_monnam() uses core RNG for unseen someone/something grammar,
+    // and the separate display stream for hallucinated species names.
+    const nameEnv = {
+        random,
+        displayRandom: rawEnv.displayRandom
+            ?? ((bound) => rn2_on_display_rng(bound, state)),
+    };
+    await message(`${Some_Monnam(mtmp, state, nameEnv)} steals ${objectName}!`, state);
     if (can_teleport(mtmp.data)
         && !await tele_restrict(mtmp, state, rawEnv)) {
         await rloc(mtmp, RLOC_MSG, { ...rawEnv, state, random });

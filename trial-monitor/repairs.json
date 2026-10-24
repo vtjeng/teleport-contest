@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T17:38:45.699054+00:00",
+  "asOf": "2026-10-24T18:03:13.725618+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -13008,8 +13008,93 @@
           "scripts/lava-replay-boundary.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "dfd1f3590a7962b766940f2f218d1790a1cf3a82",
+          "committedAt": "2026-10-24T17:40:30Z",
+          "runs": [
+            {
+              "id": 40117224148,
+              "name": "Checkpoint",
+              "sha": "dfd1f3590a7962b766940f2f218d1790a1cf3a82",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/lava-entry-replay-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T17:40:58Z",
+              "completedAt": "2026-10-24T17:50:32Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40117224148"
+            },
+            {
+              "id": 40118238235,
+              "name": "Lint",
+              "sha": "dfd1f3590a7962b766940f2f218d1790a1cf3a82",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T17:54:12Z",
+              "completedAt": "2026-10-24T17:55:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40118238235"
+            },
+            {
+              "id": 40118238354,
+              "name": "Dashboard",
+              "sha": "dfd1f3590a7962b766940f2f218d1790a1cf3a82",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T17:54:12Z",
+              "completedAt": "2026-10-24T17:57:41Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40118238354"
+            }
+          ]
+        }
+      ],
+      "note": "Provisional independent187 only after full publication gates; accepted count186. Planned lava-effects terrain entry is distinct from182swallowed docrt vision-cycle andtrapper-expulsion textposition repairs. Future extensions of this replay boundary group here. Direct lava-effects call 5b80e3ce45 September8, beforeexperiment; expels forwarded rawEnv d9d352f9ac September17 but liquidcalleeignoredplanning. At existinggroundedlavaentry, require and use existing requestPlanningInput before lava_effects. Livecallunchanged. C lava owner includes tactilemap, inventory destruction/worncallbacks, deathqueries/lifesaving/relocation. Sameestablishedlive-replaythenreplan contract asplannedsteeddetach; no skippedliveeffects, weakeneddisplayguard,newplanner/RNGalgorithm orCIchanges. Independent malehumanWizard/dog8432130/date20270306100000, FirePlane selectedfromfreshpublicCmenu page3L; actualCstatusFire, fiveintrinsics verified. Baseline runJsSession discarded partial onordinaryfeel_locationguard exception, so zero-lengthaggregatewasnotstartupfault. Output-only exportedpartial diagnostic firstcore18104 differs: CnextRN25distfleeck vsJSd6d6lava_effects fromplanning; firstmissingscreen/cursor457. Available18103core456screens/cursors1animation precedingfaultmatch. Turn21clone/globalfalseplanningtrue/replayownerfn/displayownerfn, swallower130/type107HP11/max22/chamNONPM andhero[21,14]HP12swallowed1 onLAVAPOOL20. Fixedlivepasssameowner/actor/hero/terrain follows; output-only520inputobserver all4streamsidentical andmatchesC. Earlierturn14/15ROOM25expulsion controls also present. normalmono20614RNG521screens/cursors1animation strictpass;before15679/431/1 strictpass. Oldunrepairednormalfailsat457;beforecontrolpasses. 8cases:4plannedgroundlava ordinary/FireRes/WaterWalking/lavaform; requireexactreplaycallbackbeforeanylavaiflag/HP/core/display/inventory/mapchanges. MissingownerTypeErrorbeforeeffects. Floor/flying/levitatingplanlivecontrols noowner/noRNG. Old5fail3controls,new8pass. ActualinitializedHealer andvalidpolymorphedFireElemental native states. 11focused(8native+3C)+407affected=418isolatedassembledpass;fullESLintpass; primaryintegration/fullhostedstillrequired. OneboundaryfixadvancesfullFireprobe exception457->independentnamingdifference553 andlatercoredrift977, notfullpass. LaterSome_Monnam theftcallerownerqualifiedseparately; its additional isolatedfix advances tothirdfailure2403. Noadmission/aggregate scoregain. Includes accepted18612ecomplete98receipt. Primary/fullhosted gates pending; do not count187yet. Final primary11focused+407affected=418unique pass;16registerchecks/fullESLint/diffpass. Sourcecandidate frozen only after commit; fullhosted/archive/comparison/MainLintDashboard required. Acceptedcount186 untilallgates. Accepted as distinct187 after exact Checkpoint40117224148/Lint40118238235/Dashboard40118238354 success; workflow completion timestamps use completed-run metadata updatedAt. Genuine exact archive hash/admission/44fixed98batch2055case comparison against12e unchanged. Complete98receipt checker exit0/pending[]/pointerdfd verified from unchangedsource before nextedit; receipt carried in ordinary amulet-theft repair. No aggregate gain."
+    },
+    {
+      "id": "amulet-theft-owner",
+      "kind": "parity-repair",
+      "title": "Keep amulet theft naming on its gameplay and display RNG owners",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T17:51:03.556803+00:00",
+          "end": "2026-10-24T17:51:03.556803+00:00",
+          "note": "Qualification preservation observation only, no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T18:03:13.725618+00:00",
+          "end": "2026-10-24T18:03:13.725618+00:00",
+          "note": "Sequential integration observation after verifieddfdcomplete98receipt; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "C steal.c stealamulet689-775 -> Some_Monnam aftermpickobj",
+          "C do_name.c x_monnam876-885 AUGMENT_IT rn22core; rndmonnamdisplay",
+          "JS steal.js stealamulet1008",
+          "JS do_name.js Some_Monnam/x_monnam_it/rndmonnamDetails"
+        ],
+        "witness": [
+          "recipes/steal.c/amulet-theft-owner-normal.session.json",
+          "recipes/steal.c/amulet-theft-owner-monochrome.session.json",
+          "recipes/steal.c/amulet-theft-owner-before-control.session.json"
+        ],
+        "test": [
+          "scripts/amulet-theft-owner.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Provisional independent187 only after full publication gates; accepted count186. Planned lava-effects terrain entry is distinct from182swallowed docrt vision-cycle andtrapper-expulsion textposition repairs. Future extensions of this replay boundary group here. Direct lava-effects call 5b80e3ce45 September8, beforeexperiment; expels forwarded rawEnv d9d352f9ac September17 but liquidcalleeignoredplanning. At existinggroundedlavaentry, require and use existing requestPlanningInput before lava_effects. Livecallunchanged. C lava owner includes tactilemap, inventory destruction/worncallbacks, deathqueries/lifesaving/relocation. Sameestablishedlive-replaythenreplan contract asplannedsteeddetach; no skippedliveeffects, weakeneddisplayguard,newplanner/RNGalgorithm orCIchanges. Independent malehumanWizard/dog8432130/date20270306100000, FirePlane selectedfromfreshpublicCmenu page3L; actualCstatusFire, fiveintrinsics verified. Baseline runJsSession discarded partial onordinaryfeel_locationguard exception, so zero-lengthaggregatewasnotstartupfault. Output-only exportedpartial diagnostic firstcore18104 differs: CnextRN25distfleeck vsJSd6d6lava_effects fromplanning; firstmissingscreen/cursor457. Available18103core456screens/cursors1animation precedingfaultmatch. Turn21clone/globalfalseplanningtrue/replayownerfn/displayownerfn, swallower130/type107HP11/max22/chamNONPM andhero[21,14]HP12swallowed1 onLAVAPOOL20. Fixedlivepasssameowner/actor/hero/terrain follows; output-only520inputobserver all4streamsidentical andmatchesC. Earlierturn14/15ROOM25expulsion controls also present. normalmono20614RNG521screens/cursors1animation strictpass;before15679/431/1 strictpass. Oldunrepairednormalfailsat457;beforecontrolpasses. 8cases:4plannedgroundlava ordinary/FireRes/WaterWalking/lavaform; requireexactreplaycallbackbeforeanylavaiflag/HP/core/display/inventory/mapchanges. MissingownerTypeErrorbeforeeffects. Floor/flying/levitatingplanlivecontrols noowner/noRNG. Old5fail3controls,new8pass. ActualinitializedHealer andvalidpolymorphedFireElemental native states. 11focused(8native+3C)+407affected=418isolatedassembledpass;fullESLintpass; primaryintegration/fullhostedstillrequired. OneboundaryfixadvancesfullFireprobe exception457->independentnamingdifference553 andlatercoredrift977, notfullpass. LaterSome_Monnam theftcallerownerqualifiedseparately; its additional isolatedfix advances tothirdfailure2403. Noadmission/aggregate scoregain. Includes accepted18612ecomplete98receipt. Primary/fullhosted gates pending; do not count187yet. Final primary11focused+407affected=418unique pass;16registerchecks/fullESLint/diffpass. Sourcecandidate frozen only after commit; fullhosted/archive/comparison/MainLintDashboard required. Acceptedcount186 untilallgates."
+      "note": "Provisional independent188 only after separate187lava-entry publication and allgates. Noexistingamulet-theftrepairregisterentry; distinctCsteal.c stealamulet caller versusbeam145/weapon-swing177 names. Futureextensionsofthiscallerenvironmentgroup here. Caller omittedenvironment f848e37cfd October11, beforeexperiment. At soleSome_Monnam stealsmessage pass gameplay random and rawEnv.displayRandom or canonical rn2_on_display_rng(bound,state). Preserve bothsources: unseenHallu someone/something coinflipiscore; spottedHallu species/genderisdisplay. AddofficialdisplayRNGimport only; nohelperalgorithm/defaultAPI/globalRNGchanges. SameindependentFireprobe malehumanWizard/dog8432130Mar6 afterseparatelava-entryprerequisite. Baselinefirstscreen/cursor553,animation586,all24938corethrough651match;before540passes. Completeownerfix advancesfullprobe toindependentdoseduceheadache2403 andcore2441, notfullpass. Turn26planningcloneandLIVEglobalbothcoreOwner/displayOwnerfunctions;BLINDED794/HALLU775; actor256/type285[27,5]HP133/max133/chamNONPM; realAmulet213/id82q1weight20worn0alreadyMINVENT4andheroHave0afterfreeinv/mpickobj. Output-only650observerall4streamsidentical. PassiveC601inputboundariesordinarycore/screens/cursors/animationsidentical. JSoutput-onlyobserverall4streamsidentical. Originalfirstextraatmixed28891/input553: CnextcoreRN25distflee vsJSdisplay430118,20; actualstackSome_Monnam->stealamulet->mhitm_ad_samu->hitmu->mattacku. Withcompleteownersall30912mixedentries EXACT Cmatch through600inputs. TempobserverfirstrunReferenceError t notdeclared afterremovinghelperblock; correcteddisposableobserver only,logsretained, noCbuild/RNGproductionedit. normalmono24938core651screens/cursors7animations strictpass;before21503/541/1 strictpass old/new. 12cases24plan/live H/non xvisible/blindDetected/blindUnknown xamuletpresent/missing, initializedfullHealer andvalidNONPMnonteleportingCyclops/realgeneratedAmulet/addinv/actualfreeinv/mpickobj/encumber. ActualprivateISAACcoreanddisplaycontexts, nofakedraw. Exacttransferidentity/MINVENTparent/quantityweight/HAVEflag/HP/coords, messages; hiddenHallucoreRN22expectedprivatecontext whiledisplayunchanged; spottedHallu4302displaywhilecoreunchanged; absent/ordinarycontrolsnoextradraws. Cloneglobalcore/display/inventory/actor guards; planlive outcomes/contextsequal. Old3fail9controls,new12pass. Initialassertexpectedbooleantrueforu.uhave numeric1 correctedBoolean(assertion). Firstdisplay-onlyhypothesis omittedhiddenAUGMENT_IT coreowner; source/nativefailure exposedrealcoregrammarrn22, refinedcallertoBOTHowners andexpectedlegitimateprivatecoreadvance. Helpersunchanged, allfailedlogs retained. 15focused+439affected=454isolatedassembledpass;fullESLintpass. Primaryintegration/register/fullhosted required after187receipt. .cache/seducer-feedback-sensing-20261024/: doseduce nameenv overridescanspot withcanseemon. C firstheadache2403 name vsIt; preservephysicalseewho canseemon, name/pronouncallback shouldcanspotmon. SourceOctober5. Prototypeallcore147813/cursors4555/animations71match, laterindependentmapglyph3718 stilldiff. Notqualified/publicationyet. Includes accepted187dfdcomplete98receipt. Primary/fullhosted exactSHA gates required. Acceptedcount187;188provisional only. Finalprimary15focused+439affected=454unique pass;16register/fullESLint/diffpass. Fullhosted/archive/comparison/MainLintDashboard required; count187until188fullyaccepted."
     }
   ]
 }
