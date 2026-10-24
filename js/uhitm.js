@@ -4769,10 +4769,11 @@ export async function mhitm_really_poison(
     const random = { rn1, ...(env.random ?? {}) };
     const message = requireAttackOperation(env, 'message');
     const visible = Boolean(state.gv?.vis);
+    const nameEnv = { displayRandom: env.displayRandom };
 
     if (visible && canspotmon(magr, state)) {
         await message(
-            `${s_suffix(Monnam(magr, state, env))} `
+            `${s_suffix(Monnam(magr, state, nameEnv))} `
                 + `${mpoisons_subj(magr, mattk, state)} was poisoned!`,
             state,
         );
@@ -4781,7 +4782,7 @@ export async function mhitm_really_poison(
         if (visible && canspotmon(mdef, state)
             && canspotmon(magr, state)) {
             await message(
-                `The poison doesn't seem to affect ${mon_nam(mdef, state, env)}.`,
+                `The poison doesn't seem to affect ${mon_nam(mdef, state, nameEnv)}.`,
                 state,
             );
         }

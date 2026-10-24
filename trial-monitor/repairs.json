@@ -10584,6 +10584,16 @@
           "start": "2026-10-24T05:18:07Z",
           "end": "2026-10-24T05:18:07Z",
           "note": "Instantaneous preserved successful-hit source qualification observation; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T05:59:48Z",
+          "end": "2026-10-24T05:59:48Z",
+          "note": "Preserved source qualification observation only; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T06:14:29.859302+00:00",
+          "end": "2026-10-24T06:14:29.859302+00:00",
+          "note": "Preserved source qualification observation only; no elapsed active-work claim."
         }
       ],
       "evidence": {
@@ -10592,7 +10602,12 @@
           "nethack-c/upstream/src/do_name.c:mon_nam_too1189-1216",
           "js/mhitm.js:missmm,mswingsm",
           "nethack-c/upstream/src/mhitm.c:hitmm642-731",
-          "js/mhitm.js:hitmm"
+          "js/mhitm.js:hitmm",
+          "nethack-c/upstream/src/mhitm.c:passivemm1330-1349",
+          "nethack-c/upstream/src/do_name.c:hliquid1493-1508",
+          "nethack-c/upstream/src/uhitm.c:mhitm_really_poison3098-3119",
+          "js/mhitm.js:passivemm AD_ACID feedback",
+          "js/uhitm.js:mhitm_really_poison"
         ],
         "witness": [
           "recipes/mhitm.c/sensed-combat-name-normal.session.json",
@@ -10600,7 +10615,13 @@
           "recipes/mhitm.c/sensed-combat-name-before-control.session.json",
           "recipes/mhitm.c/sensed-hit-name-normal.session.json",
           "recipes/mhitm.c/sensed-hit-name-monochrome.session.json",
-          "recipes/mhitm.c/sensed-hit-name-before-control.session.json"
+          "recipes/mhitm.c/sensed-hit-name-before-control.session.json",
+          "recipes/mhitm.c/passive-acid-feedback-normal.session.json",
+          "recipes/mhitm.c/passive-acid-feedback-monochrome.session.json",
+          "recipes/mhitm.c/passive-acid-feedback-before-control.session.json",
+          "recipes/uhitm.c/poison-feedback-normal.session.json",
+          "recipes/uhitm.c/poison-feedback-monochrome.session.json",
+          "recipes/uhitm.c/poison-feedback-before-control.session.json"
         ],
         "test": [
           "scripts/sensed-combat-names.test.mjs",
@@ -10611,7 +10632,9 @@
           "scripts/unported-monster-actions.test.mjs",
           "scripts/allmain-turn.test.mjs",
           "scripts/mswings-display-owner.test.mjs",
-          "scripts/sensed-hit-names.test.mjs"
+          "scripts/sensed-hit-names.test.mjs",
+          "scripts/passive-acid-feedback.test.mjs",
+          "scripts/poison-feedback.test.mjs"
         ]
       },
       "candidates": [
@@ -10706,7 +10729,7 @@
           ]
         }
       ],
-      "note": "Grouped one repair covering monster-versus-monster miss and weapon-swing feedback under the same canonical sensed-defender naming contract. missmm now forwards active core/cosmetic owners without the combat visibility override; mswingsm reuses its existing pronounEnv canonical canSpotMonster binding for defender naming. No new sensing algorithm or gameplay decisions. C missmm and mswingsm call canonical naming even when the defender is invisible but detected. Old JS called it, shortening More width, and missmm attacker naming used global cosmetic RNG. Independent public Tourist Astral seed8432038/date20261212100000 has actual C Blind/Deaf/Hallu/Detect/Conflict activation137-141; later natural cures are not assumed absent. Fresh normal/monochrome371-boundary recordings each16169RNG/371screens/cursors/15animations strictlypass; before-event control14187/311/9passes before and after. Exact3994baseline bothvariants firstscreen316,all16169Ccoreprefixmatches thenJSextends; controlpasses. Eight initialized native armed/unarmed x Hallu/non x Detect/non cases each execute planning/live real mattackm(16runs),canonicalwield callback and actual miss/passive gates,verify exact swing/miss lines,displaydrawarrays,livecore/context/HP and clone ownership. Oldsource6fail2unseen nonHallu controls pass;newall8pass. Eleven focused(8native+3C)+593affected=604tests,lint/diffpass. Full private863-boundary probe32364RNG/863screens/cursors/81animations nowstrictpass. Initial target-coordinate/passive-draw test fixture corrections preserved separately; no production workaround. Both naming defects predateexperiment(Aug16 andOct12). Distinct prior153mhitu hero-target swing owner; this grouped mhitm monster-target repair counts once. Includes complete accepted16898-batch receipt and exact provenance. No admission or measured scoregain; full hostedgates pending. Accepted distinct169 after exact-SHA Checkpoint40060840356,MainLint40061380134 and Dashboard40061380203 success. Exact archive44/98/2055 comparison against3994 verified hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary breath-name repair. Correction/extension to169,NOT a distinct repair:successful-hit feedback still omitted the provided cosmetic owner on prefetched attacker name and used combat visibility overrides on defender names. Forward only random/displayRandom in hitmm nameEnv;reuse Cprefetched attacker name forAT_TENT s_suffix instead of a second naming call. No attackEnv/default API or othermhitmfunction change. PublicTourist8432038/dateDec12 passive2761prefix is ordinary-identical forcore/screens/cursors;firstglobal92482 C383312 versusJS430422/76402577.Actualcontextplanningtrue/non-globalstate,displayOwnerfunction alreadyprovided,attacker795defender803bite/bite/claw;liveownerundefinedcorrectlyusesglobal.The missingargument leaks speculative names before later real redraws. Fresh normal/monochrome119557RNG2761screens/cursors587animationsstrictpass;beforecontrol117098/2701/582passesbeforeandafter.Exact369fbaseline bothvariantsfirstscreen2720,allcorefullymatching;controlpass.Eight initialized native armed/unarmed xHallu/non xDetect/non eachplanning/live(16runs)executeactualmattackm/canonicalwield,damage,knockback/passive;verifyexacthit/swingtext,cosmeticarrays,clone/liveownership,HP18armed/19unarmed,core/contextisolation.Old6fail2controls pass,new8pass.11focused+604affected=615tests,lint/diffpass;16registertestsrequired.ExistingmhitmtestscoverCprefetchedAT_TENTpossessive,notclaimedasnewpublicAT_TENTcoverage.Initialnativefixturemissingmandatoryunsupportedcapabilitycorrectedwiththrowingguard,not successstub;RNGexpectations correctedfromCknockbackdistance/chanceandweapon-addeddamage,no productionworkaround.FullTouristfirstscreenadvances2867/core3072,notfullpass;separatemon.c monkilleddeathnameownerleadpreserved.Codepredatesexperiment;groupedwithoriginal169miss/swingnamingcontract. Includesaccepted173complete98-batchreceipt/provenance.Noadmissionormeasuredscoregain;correctionrequiresfreshfullhostedandMain gates.Countremains173ifaccepted. Accepted grouped169 correction d728 after exact-SHA Checkpoint40067615900, MainLint40068425380 and Dashboard40068425422 success. Exact archive comparison versus accepted369f retained44fixed/98batches/2055cases without regressions or score changes. Complete98 receipt included in next ordinary monkilled repair. Distinct accepted remains173."
+      "note": "Grouped one repair covering monster-versus-monster miss and weapon-swing feedback under the same canonical sensed-defender naming contract. missmm now forwards active core/cosmetic owners without the combat visibility override; mswingsm reuses its existing pronounEnv canonical canSpotMonster binding for defender naming. No new sensing algorithm or gameplay decisions. C missmm and mswingsm call canonical naming even when the defender is invisible but detected. Old JS called it, shortening More width, and missmm attacker naming used global cosmetic RNG. Independent public Tourist Astral seed8432038/date20261212100000 has actual C Blind/Deaf/Hallu/Detect/Conflict activation137-141; later natural cures are not assumed absent. Fresh normal/monochrome371-boundary recordings each16169RNG/371screens/cursors/15animations strictlypass; before-event control14187/311/9passes before and after. Exact3994baseline bothvariants firstscreen316,all16169Ccoreprefixmatches thenJSextends; controlpasses. Eight initialized native armed/unarmed x Hallu/non x Detect/non cases each execute planning/live real mattackm(16runs),canonicalwield callback and actual miss/passive gates,verify exact swing/miss lines,displaydrawarrays,livecore/context/HP and clone ownership. Oldsource6fail2unseen nonHallu controls pass;newall8pass. Eleven focused(8native+3C)+593affected=604tests,lint/diffpass. Full private863-boundary probe32364RNG/863screens/cursors/81animations nowstrictpass. Initial target-coordinate/passive-draw test fixture corrections preserved separately; no production workaround. Both naming defects predateexperiment(Aug16 andOct12). Distinct prior153mhitu hero-target swing owner; this grouped mhitm monster-target repair counts once. Includes complete accepted16898-batch receipt and exact provenance. No admission or measured scoregain; full hostedgates pending. Accepted distinct169 after exact-SHA Checkpoint40060840356,MainLint40061380134 and Dashboard40061380203 success. Exact archive44/98/2055 comparison against3994 verified hashes/admission proof,no drops,missing,regressions or scorechanges. Complete98 receipt carried in next ordinary breath-name repair. Correction/extension to169,NOT a distinct repair:successful-hit feedback still omitted the provided cosmetic owner on prefetched attacker name and used combat visibility overrides on defender names. Forward only random/displayRandom in hitmm nameEnv;reuse Cprefetched attacker name forAT_TENT s_suffix instead of a second naming call. No attackEnv/default API or othermhitmfunction change. PublicTourist8432038/dateDec12 passive2761prefix is ordinary-identical forcore/screens/cursors;firstglobal92482 C383312 versusJS430422/76402577.Actualcontextplanningtrue/non-globalstate,displayOwnerfunction alreadyprovided,attacker795defender803bite/bite/claw;liveownerundefinedcorrectlyusesglobal.The missingargument leaks speculative names before later real redraws. Fresh normal/monochrome119557RNG2761screens/cursors587animationsstrictpass;beforecontrol117098/2701/582passesbeforeandafter.Exact369fbaseline bothvariantsfirstscreen2720,allcorefullymatching;controlpass.Eight initialized native armed/unarmed xHallu/non xDetect/non eachplanning/live(16runs)executeactualmattackm/canonicalwield,damage,knockback/passive;verifyexacthit/swingtext,cosmeticarrays,clone/liveownership,HP18armed/19unarmed,core/contextisolation.Old6fail2controls pass,new8pass.11focused+604affected=615tests,lint/diffpass;16registertestsrequired.ExistingmhitmtestscoverCprefetchedAT_TENTpossessive,notclaimedasnewpublicAT_TENTcoverage.Initialnativefixturemissingmandatoryunsupportedcapabilitycorrectedwiththrowingguard,not successstub;RNGexpectations correctedfromCknockbackdistance/chanceandweapon-addeddamage,no productionworkaround.FullTouristfirstscreenadvances2867/core3072,notfullpass;separatemon.c monkilleddeathnameownerleadpreserved.Codepredatesexperiment;groupedwithoriginal169miss/swingnamingcontract. Includesaccepted173complete98-batchreceipt/provenance.Noadmissionormeasuredscoregain;correctionrequiresfreshfullhostedandMain gates.Countremains173ifaccepted. Accepted grouped169 correction d728 after exact-SHA Checkpoint40067615900, MainLint40068425380 and Dashboard40068425422 success. Exact archive comparison versus accepted369f retained44fixed/98batches/2055cases without regressions or score changes. Complete98 receipt included in next ordinary monkilled repair. Distinct accepted remains173. Further grouped169feedback correction,NOT a distinct repair:passivemm AD_ACID and uhitm mhitm_really_poison now use canonical names with only active displayRandom. Acid hliquid receives state/displayRandom only,excluding legacy env.random corefallback. C hliquid explicitly usesdisplay RNG. Preserve acid splash/chance30/chance6,erosion,damage,resistance,visibility,cancellation andpoisonchanceguards. Botholdcallerspredateexperiment(Oct5/Sep17). Acid fresh normal/mono129677RNG3121screens/cursors663animationsstrictpass,before127811/3051/648passesold/new;oldtargetfirstcore128203andscreen3078extraJSrn2(41),Cnextchance30. Poison fresh normal/mono210703RNG4481screens/cursors890animationsstrictpass,before201056/4401/882passesold/new;oldtargetfirstscreen4445withallcorematching. Publiclatecontextmove232attacker888defender979isLIVEglobal,canspottrue,combatvisibilityoverridefalse,defenderminvisfalse;do not call that publictargetinvisible. NativeinvisibleDetectedvariationindependent. Twelve initialized nativecases(24planning/live executions):acid4Hallu/non xDetect/non,poison8Hallu/non xvisible/silent xresistant/non. Real attacks/passive/damage19/19,realpoisonresistancegreendragon/raven,damage2/8,rn1(10,6),exactcore/cosmeticcalls,canonicalnames,clone/globaldisplay/core/context checks. Old5fail7controls,new12pass. SixC+12native=18focused plus655affected=673pass,lint/diffpass;registertestsrequired. Full independent Tourist8432038/dateDec12 now212906RNG4554screens/cursors914animationsstrictpass in output-only prototype using identical source changes. No challengeadmissionormeasuredscoregain. Includes complete accepted17498-batchreceipt/provenance. Candidate/fullhostedpublicationgatespending;accepted distinct stays174."
     },
     {
       "id": "monster-breath-name-owner",
@@ -11124,8 +11147,54 @@
           "scripts/monmove.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Forward only active displayRandom to capitalizedMonsterName at visible death feedback; canonical sensing stays default as CMonnam. ActualpublicTouristvictim800atmove167,fltxtempty,planningtrue/non-global,displayOwnerfunction supplied but omitted at naming. Firstglobal95148 C38314 versusJS43013/2=1 frommonkilled->mdamagem->mattackm->fightm. Ordinary-identical passive2901prefix;Cosmetics95552both,butfirstscreen2867name scorpionvssnake. After169hitmmcorrectionfirstscreen2867/core3072 remains. Ccallercontextm_move inherited,notdirectcallproof;JSstackandenvcontext direct. 3ef1e104Aug8 namecallpredatesexperiment;distinctmon.c death feedback owner,not169mhitmhit/miss formatting. Classification provisional until fully qualified. 3freshCnormal/mono124098RNG2901screens/cursors603animationsstrictpass;beforecontrol122316/2851/599passesbeforeandafter. Baseline369f+exact169mhitmblob42b7c792equalsd728executiontree;bothfirstscreen2867withallcorematching,controlpasses.Four initialized nativeHallu/non xempty/nullfltxt eachplanning/live(8runs),actualinvisibleDetectedgoblin,canseeTiletrue/canseemonfalse/canspottrue,realmondead+normaldeathdropscorpseeligibilityrn2(3)=1declinescorpse,exactdeathtext/cosmetic[430,2],globalcore/context/cloneHP/mapownershipchecks;oldHallu-messagecasefails3controlspass,newall4pass.7focused+596affected=603pass,lint/diffpass. FullTouristfirstscreen3078/corecall128203passiveacidliquidcorefallback,notsolvedhere;notfullpass.Noadmissionormeasuredgain;notaccepted174. Includes complete accepted grouped169 correction98-batch receipt. Candidate174 pending all hosted and publication gates."
+      "candidates": [
+        {
+          "sha": "b35a9d155d3ee52c2a705d4968ab0538f0aedfb3",
+          "committedAt": "2026-10-24T06:08:25Z",
+          "runs": [
+            {
+              "id": 40069029625,
+              "name": "Checkpoint",
+              "sha": "b35a9d155d3ee52c2a705d4968ab0538f0aedfb3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monkilled-name-owner-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T06:08:43Z",
+              "completedAt": "2026-10-24T06:15:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40069029625"
+            },
+            {
+              "id": 40069600097,
+              "name": "Lint",
+              "sha": "b35a9d155d3ee52c2a705d4968ab0538f0aedfb3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T06:17:12Z",
+              "completedAt": "2026-10-24T06:18:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40069600097"
+            },
+            {
+              "id": 40069600041,
+              "name": "Dashboard",
+              "sha": "b35a9d155d3ee52c2a705d4968ab0538f0aedfb3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T06:17:12Z",
+              "completedAt": "2026-10-24T06:19:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40069600041"
+            }
+          ]
+        }
+      ],
+      "note": "Forward only active displayRandom to capitalizedMonsterName at visible death feedback; canonical sensing stays default as CMonnam. ActualpublicTouristvictim800atmove167,fltxtempty,planningtrue/non-global,displayOwnerfunction supplied but omitted at naming. Firstglobal95148 C38314 versusJS43013/2=1 frommonkilled->mdamagem->mattackm->fightm. Ordinary-identical passive2901prefix;Cosmetics95552both,butfirstscreen2867name scorpionvssnake. After169hitmmcorrectionfirstscreen2867/core3072 remains. Ccallercontextm_move inherited,notdirectcallproof;JSstackandenvcontext direct. 3ef1e104Aug8 namecallpredatesexperiment;distinctmon.c death feedback owner,not169mhitmhit/miss formatting. Classification provisional until fully qualified. 3freshCnormal/mono124098RNG2901screens/cursors603animationsstrictpass;beforecontrol122316/2851/599passesbeforeandafter. Baseline369f+exact169mhitmblob42b7c792equalsd728executiontree;bothfirstscreen2867withallcorematching,controlpasses.Four initialized nativeHallu/non xempty/nullfltxt eachplanning/live(8runs),actualinvisibleDetectedgoblin,canseeTiletrue/canseemonfalse/canspottrue,realmondead+normaldeathdropscorpseeligibilityrn2(3)=1declinescorpse,exactdeathtext/cosmetic[430,2],globalcore/context/cloneHP/mapownershipchecks;oldHallu-messagecasefails3controlspass,newall4pass.7focused+596affected=603pass,lint/diffpass. FullTouristfirstscreen3078/corecall128203passiveacidliquidcorefallback,notsolvedhere;notfullpass.Noadmissionormeasuredgain;notaccepted174. Includes complete accepted grouped169 correction98-batch receipt. Candidate174 pending all hosted and publication gates. Accepted distinct174 after exact-SHA Checkpoint40069029625, MainLint40069600097 and Dashboard40069600041 success. Archive44/98/2055 comparison againstd728 verifies hashes/admissionproof without drops,missing,regressions or scorechanges. Complete98 receipt shipped in next ordinary grouped169feedback correction."
     }
   ]
 }

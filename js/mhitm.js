@@ -1758,19 +1758,20 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
     switch (mddat.mattk[i].adtyp) {
     case AD_ACID:
         if (mhitb && !random.rn2(2)) {
-            const attackerName = Monnam(magr, state, env);
+            const nameEnv = { displayRandom: env.displayRandom };
+            const attackerName = Monnam(magr, state, nameEnv);
             if (canseemon(magr, state)) {
                 await message(
                     `${attackerName} is splashed by `
-                        + `${s_suffix(mon_nam(mdef, state, env))} `
-                        + `${hliquid('acid', { ...env, state })}!`,
+                        + `${s_suffix(mon_nam(mdef, state, nameEnv))} `
+                        + `${hliquid('acid', { state, displayRandom: env.displayRandom })}!`,
                     state,
                 );
             }
             if (Resists_Elem(magr, ACID_RES, state)) {
                 if (canseemon(magr, state)) {
                     await message(
-                        `${Monnam(magr, state, env)} is not affected.`, state,
+                        `${Monnam(magr, state, nameEnv)} is not affected.`, state,
                     );
                 }
                 tmp = 0;
