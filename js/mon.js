@@ -3585,6 +3585,9 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
             await rloc_to(monster, destination.x, destination.y, {
                 ...shapeEnv,
                 state,
+                // Teleport reads newsym, while shape upkeep owns redrawSquare.
+                // Keep a planned door escape on that same silent map owner.
+                newsym: (x, y) => shapeRedraw(x, y, shapeEnv),
             });
         }
     }

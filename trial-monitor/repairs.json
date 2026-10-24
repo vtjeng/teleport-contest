@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T02:54:41.335426+00:00",
+  "asOf": "2026-10-24T03:11:57.965204+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -10341,8 +10341,96 @@
           "scripts/mount-steed.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "52f13b3fb77b0dc945a4b17622cd5f4b9503dc16",
+          "committedAt": "2026-10-24T02:54:58Z",
+          "runs": [
+            {
+              "id": 40056195253,
+              "name": "Checkpoint",
+              "sha": "52f13b3fb77b0dc945a4b17622cd5f4b9503dc16",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/tactile-hero-object-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T02:55:36Z",
+              "completedAt": "2026-10-24T03:02:23Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40056195253"
+            },
+            {
+              "id": 40056875272,
+              "name": "Lint",
+              "sha": "52f13b3fb77b0dc945a4b17622cd5f4b9503dc16",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T03:05:26Z",
+              "completedAt": "2026-10-24T03:06:23Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40056875272"
+            },
+            {
+              "id": 40056875276,
+              "name": "Dashboard",
+              "sha": "52f13b3fb77b0dc945a4b17622cd5f4b9503dc16",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T03:05:26Z",
+              "completedAt": "2026-10-24T03:07:31Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40056875276"
+            }
+          ]
+        }
+      ],
+      "note": "C newsym takes the out-of-sight hero branch directly:feel_location owns map memory before display_self. JavaScript precomputed the ordinary underlying object glyph before reaching that branch,then feel_location mapped it again; hallucinating floor objects spent an extra cosmetic draw even when the hero could not reach the floor. Move the existing tactile hero early return immediately after cansee and remove its late duplicate block; ordinary visible/nonhero layers are unchanged. Fresh independent seed8432034/date20261206143000 Wizard publicly adds blind+Hallu+Detect,then drops starting staff and redraws:normal/monochrome2108RNG41screens/cursors0animations strictly match; no-Detect control2108/37/0 passes before and after. ExactD368 baseline normal/mono firstscreen mismatch35 atdrop with allgameplayRNG alreadymatching. Eight initialized native Hallu/nonHallu x Detect/noDetect x levitating/grounded cases independently advance rawISAAC by the canonical zero/one noncorpse-object draw; assert exact cosmetic context,tactile remembered object glyph,seen vector,hero presentation,unchanged core and floor pile. Baseline fails fourHallu cases,nonHallu controls pass. Eleven focused+350affected+264tactile callers=625tests,lint/diff pass. Full private blind+Hallu+Detect Gehennom now57108RNG776screens/cursors28animations strictly matches; original no-Detect full772 alreadyclosed by priorguard. Canonical supplemental C/JS cosmetic vectors agree through54833; extra JS463 draw54834 is identified by object pre-map stack duringpolymon. C RNG caller metadata is inherited,so following383 draw is not asserted to be hero identity;display_self itself does not randomize the hero. Source pre-mapJuly23 and tactile branchOctober14 predate experiment; no existing repair ID owns this defect. Includes complete accepted16598-batch receipt and exact provenance. No scored cohort admission or measured score gain; full hosted gates pending. Accepted distinct166 after exact Checkpoint40056195253,MainLint40056875272 andDashboard40056875276 success. Archive44/98/2055 comparison againstD368 verifies hashes/admission proof with no drops,missing,regressions or score change. Complete98 receipt carried in next ordinary vampire upkeep relocation repair."
+    },
+    {
+      "id": "vampire-door-display-owner",
+      "kind": "parity-repair",
+      "title": "Keep planned vampire door relocation on its upkeep redraw owner",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T03:09:57Z",
+          "end": "2026-10-24T03:09:57Z",
+          "note": "Instantaneous preserved qualification observation; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c:decide_to_shapeshift4912-4923",
+          "nethack-c/upstream/src/teleport.c:rloc_to/rloc_to_core",
+          "js/mon.js:decide_to_shapeshift/newchamDistressEnv/shapeRedraw",
+          "js/teleport.js:rloc_to_core redraw owner",
+          "js/allmain.js:finishElapsedTurn planning hooks"
+        ],
+        "witness": [
+          "recipes/mon.c/vampire-door-display-normal.session.json",
+          "recipes/mon.c/vampire-door-display-monochrome.session.json",
+          "recipes/mon.c/vampire-door-display-before-control.session.json"
+        ],
+        "test": [
+          "scripts/vampire-door-display.test.mjs",
+          "scripts/mon-shape.test.mjs",
+          "scripts/teleport.test.mjs",
+          "scripts/teleport-monster-traps.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/distress-display-owner.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C newsym takes the out-of-sight hero branch directly:feel_location owns map memory before display_self. JavaScript precomputed the ordinary underlying object glyph before reaching that branch,then feel_location mapped it again; hallucinating floor objects spent an extra cosmetic draw even when the hero could not reach the floor. Move the existing tactile hero early return immediately after cansee and remove its late duplicate block; ordinary visible/nonhero layers are unchanged. Fresh independent seed8432034/date20261206143000 Wizard publicly adds blind+Hallu+Detect,then drops starting staff and redraws:normal/monochrome2108RNG41screens/cursors0animations strictly match; no-Detect control2108/37/0 passes before and after. ExactD368 baseline normal/mono firstscreen mismatch35 atdrop with allgameplayRNG alreadymatching. Eight initialized native Hallu/nonHallu x Detect/noDetect x levitating/grounded cases independently advance rawISAAC by the canonical zero/one noncorpse-object draw; assert exact cosmetic context,tactile remembered object glyph,seen vector,hero presentation,unchanged core and floor pile. Baseline fails fourHallu cases,nonHallu controls pass. Eleven focused+350affected+264tactile callers=625tests,lint/diff pass. Full private blind+Hallu+Detect Gehennom now57108RNG776screens/cursors28animations strictly matches; original no-Detect full772 alreadyclosed by priorguard. Canonical supplemental C/JS cosmetic vectors agree through54833; extra JS463 draw54834 is identified by object pre-map stack duringpolymon. C RNG caller metadata is inherited,so following383 draw is not asserted to be hero identity;display_self itself does not randomize the hero. Source pre-mapJuly23 and tactile branchOctober14 predate experiment; no existing repair ID owns this defect. Includes complete accepted16598-batch receipt and exact provenance. No scored cohort admission or measured score gain; full hosted gates pending."
+      "note": "C mon.c decide_to_shapeshift moves an amorphous vampire out of a closed door with enexto/rloc_to before newcham. JS shape upkeep supplies redrawSquare/hooks.newsym,but teleport rloc_to_core reads top-level newsym/redraw. The planning clone fell back to global newsym,advancing live cosmetic RNG and repainting the live map. Bind this one caller newsym through existing shapeRedraw;live path keeps canonical redraws,clone keeps its existing silent owner. Private telemetry confirms fog619 move120 from54,8 to54,9:live=false/planning=true,hook andredrawSquare functions present,newsym/redraw undefined; matchinglivecountercall also observed. Supplemental canonical C display vector is passive-identical to ordinaryprefix after stripping~drn2 and matchesJS through67292; extra JS383draw67293 fromteleport.finishPlacement before shapeOldNames shifts the next message. The adjacentwizarddeath/refusal was incidental;no end.c change. Fresh normal/monochrome95372RNG2261screens/cursors31animations fullymatch; before-event control94007/2221/31passes both. Exact52F baseline normal/mono firstscreen2240 with allcorealreadymatching. Four native door/room x Hallu/nonHallu tests each execute initialized planning/live upkeep(8runs),forcing a lowHPfog-to-vampire-leader shape;actual relocation,shape,HP,speed and complete gameplay draw arrays agree plan/live. Assert clone leaves live display RNG,map,context,core and actor unchanged. Oldsource fails bothcloseddoorplanningcases,roomcontrols pass. Seven focused tests(3C+4native) plus469affected=476,lint/diff pass. Full private public-input Astral blind/Hallu/Detect/Conflict now206666RNG4459screens/cursors158animationsstrictpass. Canonical C activation133-136 verified; earlier role-dependent wish-acknowledgement setup attempts are retained without intendedintrinsiccoverage claims. CallbackomissionSeptember16 predatesexperiment. Distinct from162upkeep naming RNG and monmove.c vamp_shift door admission/WIN_MESSAGE repairs:this is mon.c upkeep relocation rendering. Includes complete accepted16698-batch receipt and exact provenance; no admission or measured scoregain; full hostedgatespending."
     }
   ]
 }
