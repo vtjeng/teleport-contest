@@ -1046,7 +1046,7 @@ async function mcast_stun_you(dmg, env = {}) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         if (!hStun)
-            await message('You feel momentarily disoriented.', state, env);
+            await message(youFeel('momentarily disoriented.', state), state, env);
         await make_stunned(1, false, state, { ...env, message });
     } else {
         await message(
@@ -1075,7 +1075,7 @@ export async function mcast_weaken_you(mtmp, dmg, rawEnv = {}) {
     if (heroProperty(state, ANTIMAGIC)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
-        await message('You feel momentarily weakened.', state, rawEnv);
+        await message(youFeel('momentarily weakened.', state), state, rawEnv);
         return;
     }
 
@@ -1163,7 +1163,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         break;
     case MCAST_CURSE_ITEMS:
         if (typeof env.message === 'function')
-            await env.message('You feel as if you need some help.', state);
+            await env.message(youFeel('as if you need some help.', state), state);
         {
             const { rndcurse } = await import('./sit.js');
             await rndcurse(state, env);
@@ -1305,7 +1305,7 @@ async function mcast_confuse_you(mtmp, rawEnv = {}) {
     if (heroProperty(state, ANTIMAGIC)) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
-        await message('You feel momentarily dizzy.', state);
+        await message(youFeel('momentarily dizzy.', state), state);
         return;
     }
 
@@ -1329,11 +1329,11 @@ async function mcast_confuse_you(mtmp, rawEnv = {}) {
         && !heroProperty(state, HALLUC_RES);
     if (hallucinating) {
         await message(
-            `You feel ${oldConfusion ? 'trippier' : 'trippy'}!`, state,
+            youFeel(`${oldConfusion ? 'trippier' : 'trippy'}!`, state), state,
         );
     } else {
         await message(
-            `You feel ${oldConfusion ? 'more ' : ''}confused!`, state,
+            youFeel(`${oldConfusion ? 'more ' : ''}confused!`, state), state,
         );
     }
     monstunseesu(M_SEEN_MAGR, state);
