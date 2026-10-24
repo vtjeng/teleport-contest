@@ -632,10 +632,10 @@ export async function make_sick(
             return;
         }
         if (!old) {
-            await message('You feel deathly sick.', state);
+            await message(youFeel('deathly sick.', state), state);
         } else if (talk) {
             await message(
-                `You feel ${xtime <= old / 2 ? 'much' : 'even'} worse.`,
+                youFeel(`${xtime <= old / 2 ? 'much' : 'even'} worse.`, state),
                 state,
             );
         }
@@ -646,12 +646,12 @@ export async function make_sick(
     } else if (old && (type & (u.usick_type ?? 0))) {
         u.usick_type &= ~type;
         if (u.usick_type) {
-            if (talk) await message('You feel somewhat better.', state);
+            if (talk) await message(youFeel('somewhat better.', state), state);
             // potion.c approximates the remaining illness with twice its old
             // timeout after one sickness type has been cured.
             set_itimeout(sick, old * 2);
         } else {
-            if (talk) await message('You feel cured.  What a relief!', state);
+            if (talk) await message(youFeel('cured.  What a relief!', state), state);
             // C assigns Sick directly to zero rather than preserving flags.
             sick.intrinsic = 0;
         }
