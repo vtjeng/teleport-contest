@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T00:52:25.910779+00:00",
+  "asOf": "2026-10-24T01:08:08.321584+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -9797,8 +9797,100 @@
           "scripts/trap.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "fd3a9cfe3a9dea20a2e139cf4d7298940fd121f1",
+          "committedAt": "2026-10-24T00:52:36Z",
+          "runs": [
+            {
+              "id": 40047144138,
+              "name": "Checkpoint",
+              "sha": "fd3a9cfe3a9dea20a2e139cf4d7298940fd121f1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/knockback-animation-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T00:52:48Z",
+              "completedAt": "2026-10-24T00:59:35Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40047144138"
+            },
+            {
+              "id": 40047811376,
+              "name": "Lint",
+              "sha": "fd3a9cfe3a9dea20a2e139cf4d7298940fd121f1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:00:59Z",
+              "completedAt": "2026-10-24T01:01:47Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40047811376"
+            },
+            {
+              "id": 40047811461,
+              "name": "Dashboard",
+              "sha": "fd3a9cfe3a9dea20a2e139cf4d7298940fd121f1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T01:00:59Z",
+              "completedAt": "2026-10-24T01:03:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40047811461"
+            }
+          ]
+        }
+      ],
+      "note": "C successful mhurtle_step moves the monster,redraws old/new cells,flushes,and emits one delay frame per cell. JavaScript speculative execution retained the live frame hook and ran these presentation calls before executing the live attack again. Output-only owner trace monster590/moves55 shows planned non-global two-cell knockback followed by actual two-cell knockback. Keep cloned displacement,region/trap and apparent-hero effects,while suppressing successful-step live redraw/flush/delay under env.planning;retain live C order and all non-global guards. This older adapter code originates92337428e6 September27,independent from grouped149 flags. Exact8640 normal/monochrome baseline has4frames vsC2 atboundary2681;before-trigger control passes. Three freshly recorded C replays strictly pass:normal/monochrome48599RNG2683screens/cursors234animations,control48583/2681/232. Six initialized-game cases cover planning/live x range0/1/2,checking coordinates,grid ownership,movement/stun,one live frame per cell,no clone frame and unchanged global map/display/core. Native baseline two-cell clone emitted2frames instead of0.9focused including3C+6native plus788affected=797tests pass;lint/diff pass. Full independent Rogue continuation strictly matches79498RNG4433screens/cursors371animations;Barbarian controls pass4433 and8033boundaries,without corpus admission or score claims. Complete grouped14998-batch hosted receipt included;full hosted gates pending. Accepted as distinct160 after exact Checkpoint40047144138,Lint40047811376 and Dashboard40047811461 succeeded. Hash-verified44fixed/98batch/2055case comparison against8640 found no regressions,missing evidence or aggregate changes. Complete98publicationreceipt carried in next ordinary constructor repair."
+    },
+    {
+      "id": "mplayer-object-hooks",
+      "kind": "parity-repair",
+      "title": "Supply canonical object constructors to monster-player loot",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T00:47:33.557549+00:00",
+          "end": "2026-10-24T00:47:33.557549+00:00",
+          "note": "Instantaneous preserved public failure/source observation;no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mplayer.c:mk_mplayer278-304",
+          "nethack-c/upstream/src/mkobj.c:FIGURINE1040-1047,finalization1200-1229",
+          "js/mplayer.js:mk_mplayer",
+          "js/do.js:final_level",
+          "js/object_generation.js:objectGenerationEnv",
+          "js/monster_object.js:monsterObject"
+        ],
+        "witness": [
+          "recipes/mplayer.c/object-hooks-normal.session.json",
+          "recipes/mplayer.c/object-hooks-monochrome.session.json",
+          "recipes/mplayer.c/object-hooks-before-control.session.json"
+        ],
+        "test": [
+          "scripts/mplayer-object-hooks.test.mjs",
+          "scripts/mplayer.test.mjs",
+          "scripts/monster-objects.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/object-substrate.test.mjs",
+          "scripts/goto-level-builds-up.test.mjs",
+          "scripts/level-change.test.mjs",
+          "scripts/do.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/worn.test.mjs",
+          "scripts/artifacts.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C successful mhurtle_step moves the monster,redraws old/new cells,flushes,and emits one delay frame per cell. JavaScript speculative execution retained the live frame hook and ran these presentation calls before executing the live attack again. Output-only owner trace monster590/moves55 shows planned non-global two-cell knockback followed by actual two-cell knockback. Keep cloned displacement,region/trap and apparent-hero effects,while suppressing successful-step live redraw/flush/delay under env.planning;retain live C order and all non-global guards. This older adapter code originates92337428e6 September27,independent from grouped149 flags. Exact8640 normal/monochrome baseline has4frames vsC2 atboundary2681;before-trigger control passes. Three freshly recorded C replays strictly pass:normal/monochrome48599RNG2683screens/cursors234animations,control48583/2681/232. Six initialized-game cases cover planning/live x range0/1/2,checking coordinates,grid ownership,movement/stun,one live frame per cell,no clone frame and unchanged global map/display/core. Native baseline two-cell clone emitted2frames instead of0.9focused including3C+6native plus788affected=797tests pass;lint/diff pass. Full independent Rogue continuation strictly matches79498RNG4433screens/cursors371animations;Barbarian controls pass4433 and8033boundaries,without corpus admission or score claims. Complete grouped14998-batch hosted receipt included;full hosted gates pending."
+      "note": "C Astral arrival final_level creates special monster players whose random loot calls mkobj(RANDOM_CLASS,FALSE);figurines use existing species initialization/finalization. JavaScript mk_mplayer passed only raw state/random and omitted the existing canonical monsterObject hook,raising UnsupportedObjectOperationError through deferred_goto before boundary67. Compose the standard objectGenerationEnv at mk_mplayer boundary,preserving caller hooks,state/random and all loot/equipment ordering. No new object/species logic,swallowed refusal or global default changes. Output-only original-error stack traces mk_mplayer253->mkobj->mksobj_init->requiredHook(monsterObject). ExactFD3 baseline normal/monochrome stops67screens/5743RNG;C witnesses match6770RNG71screens/cursors0animations after repair. Before-arrival control5646RNG66screens/cursors0animations passes baseline and fix. Three fresh public C replays also inspect actual initialized Astral inventory figurines for nonhuman species and finalized sex,matching C branches.3focused+640affected=643tests pass;lint/diff pass. Private full independent Caveman replay strictly matches302763RNG4433screens/cursors125animations;independent elvenWizard4433control175513RNG1423animations passes actual isolated fix. Source raw environment dates to8614167301 October9,pre-experiment. Complete accepted16098-batch receipt included;full hosted gates pending;no aggregate score gain claimed."
     }
   ]
 }

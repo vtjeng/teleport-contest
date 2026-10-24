@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public-input Astral monster-player figurine constructor witness;C mplayer.c278-304/mkobj.c1040-1047. normal",
+  "segments": [
+    {
+      "seed": 8432025,
+      "datetime": "20261126120000",
+      "nethackrc": "OPTIONS=name:TwentyFourthHalluc,role:Caveman,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>J     n"
+    }
+  ]
+}

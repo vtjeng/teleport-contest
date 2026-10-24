@@ -30,6 +30,7 @@ import { monmightthrowwep } from './weapon.js';
 import { m_at } from './monst.js';
 import { goodpos, rloc } from './teleport.js';
 import { verbalize } from './pline.js';
+import { objectGenerationEnv } from './object_generation.js';
 
 const developers = Object.freeze([
     'Alex', 'Dave', 'Dean', 'Derek', 'Eric', 'Izchak', 'Janet', 'Jessie', 'Ken', 'Kevin', 'Michael', 'Mike', 'Pasi', 'Pat', 'Patric', 'Paul', 'Sean', 'Steve', 'Timo', 'Warwick',
@@ -124,7 +125,7 @@ export function mk_mplayer_armor(monster, type, env = {}) {
 export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? state.random ?? { d, rn1, rn2, rnd, rne };
-    const env = { ...rawEnv, state, random };
+    const env = objectGenerationEnv({ ...rawEnv, state, random });
     if (!is_mplayer(species)) return null;
 
     const blocker = m_at(x, y, state);
