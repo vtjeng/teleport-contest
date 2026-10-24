@@ -1808,13 +1808,14 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
     /* These affect the enemy only if defender is still alive */
     if (random.rn2(3)) {
         switch (mddat.mattk[i].adtyp) {
-        case AD_PLYS: /* Floating eye */
+        case AD_PLYS: { /* Floating eye */
+            const nameEnv = { displayRandom: env.displayRandom };
             if (tmp > 127) tmp = 127;
             if (mddat === state.mons?.[PM_FLOATING_EYE]) {
                 if (!random.rn2(4)) tmp = 127;
                 if (magr.mcansee && haseyes(magr.data) && mdef.mcansee
                     && (perceives(magr.data) || !mdef.minvis)) {
-                    const format = s_suffix(Monnam(mdef, state, env))
+                    const format = s_suffix(Monnam(mdef, state, nameEnv))
                         .replaceAll('%', '%%')
                         + ' gaze is reflected by %s %s.';
                     if (await mon_reflects(
@@ -1825,10 +1826,11 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
                     )) {
                         return mdead | mhit;
                     }
+                    const attackerName = Monnam(magr, state, nameEnv);
                     if (canseemon(magr, state)) {
                         await message(
-                            `${Monnam(magr, state, env)} is frozen by `
-                                + `${s_suffix(mon_nam(mdef, state, env))} gaze!`,
+                            `${attackerName} is frozen by `
+                                + `${s_suffix(mon_nam(mdef, state, nameEnv))} gaze!`,
                             state,
                         );
                     }
@@ -1838,10 +1840,11 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             } else {
                 /* C's else arm covers the non-floating-eye AD_PLYS response;
                  * gel cubes are the ordinary species which reaches it. */
+                const attackerName = Monnam(magr, state, nameEnv);
                 if (canseemon(magr, state)) {
                     await message(
-                        `${Monnam(magr, state, env)} is frozen by `
-                            + `${mon_nam(mdef, state, env)}.`,
+                        `${attackerName} is frozen by `
+                            + `${mon_nam(mdef, state, nameEnv)}.`,
                         state,
                     );
                 }
@@ -1849,6 +1852,7 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
                 return mdead | mhit;
             }
             return M_ATTK_HIT;
+        }
         case AD_COLD:
             if (Resists_Elem(magr, COLD_RES, state)) {
                 if (canseemon(magr, state)) {
