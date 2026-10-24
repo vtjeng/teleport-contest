@@ -12700,8 +12700,93 @@
           "scripts/guardian-loss-perception.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c009e8d665a0984b17d6be3ffd6052e14de3f100",
+          "committedAt": "2026-10-24T16:01:27Z",
+          "runs": [
+            {
+              "id": 40109655979,
+              "name": "Checkpoint",
+              "sha": "c009e8d665a0984b17d6be3ffd6052e14de3f100",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/guardian-loss-perception-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T16:09:47Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40109655979"
+            },
+            {
+              "id": 40110627464,
+              "name": "Lint",
+              "sha": "c009e8d665a0984b17d6be3ffd6052e14de3f100",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T16:15:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40110627464",
+              "createdAt": "2026-10-24T16:14:23Z"
+            },
+            {
+              "id": 40110627551,
+              "name": "Dashboard",
+              "sha": "c009e8d665a0984b17d6be3ffd6052e14de3f100",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "completedAt": "2026-10-24T16:17:38Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40110627551",
+              "createdAt": "2026-10-24T16:14:23Z"
+            }
+          ]
+        }
+      ],
+      "note": "Provisionalindependent184onlyafterallgates. Cminionlose_guardian_angel468-494 usescanspotmon; oldJScanseemonOct9 8614167suppressesfeedbackforsensedunseenAngels. Onepredicateusesexistingcanonicalperceptionimport; preserveDeafspeech/Monnam/defaultAPIs/mongone/generation/count/coreRNG. Scope reviewedoriginalguardianmovement31538:onlyJSunportedactionsadmission,ordinaryKnightdog/cat/petlesswithoutintrinsicmenu; minionlossgateuntouched. Lawfulinventoryqualityonlymakemon_create. Independentfeedbackperception,notcommitcount. PublicHealer8432086Feb10 C138Hallu139Blind140Deaf141Detect800142Conflict800verified(onebased). ActualLIVEglobalmoves2/ownerundefined,canSeeFalse/canSpotTrue/BlindDeaftrue,guardian845type123Angel[32,6]HP163tame10miniontrue,hero33,6. Dogmoveskipshelperinplanning; no public/nativecloneclaim. Output-only180prefixobserverunchangedcore/screens/cursors/animations. Firstscreen156CjaguarThothvanishesmissingJS; subsequentHnames/More shift,allfull137077corematches. Normal/mono10063RNG201screens/cursors0animationsstrictpass;before7130/146/0strictpassold/new;36boldtargetsfirst156/cursor157/allcorematching. Full137077RNG4554screens/cursors933animationsstrictpasswithonepredicate. TwelveLIVEinitializednativecasesHallu/non xDeaf/non xvisible/BlindDetected/Blindunseen; actualAstralarrival8432087Feb11createscanonicallyequippedguardian,notfabricatedmonster. Actuallose_guardian_angel/mongone/mdrop_special_objs/mk_roamer; feedbackbeforecore,exactnonHguardianAngelHermes/quotedrebukeorvanishes,Hnamedpatterns,quietunseencontrols. Oneobj_resistsrn2100peroriginalinventoryitembeforeCcountRN1(3,2),real2..4hostileuntamedalignedAngelscreated,oldguardianHP0removedgrid,heroHP/maxunchanged. Old4detectedfail8controls,new12pass. InitialRN1-firstexpectationcorrectedfromCmon3279/steal852gearcleanup; initialscopedprototypeindex/indexOfharnesscorrection,failedlogsretained,noproductionworkaround. 645isolatednative/affectedplus3C=648unique,primaryintegrationchecksrequired. FreshpetlessHealer8432088Feb12baseline36bandprototypeboth251375/4554/49strictpass,source-definedpetlessoptioncontrol,nodirectCmemoryclaim. NewMonk8432090Feb14afterguardianfixavailable32423core1084screens/cursors82animationsallmatchCthenfailclosedUnsupportedObjectOperationErrormonsterObjectinmake_corpseStoneGolemstatue; furtherindependentleadpreserved,notfullpass. Noadmission/scoregain. Includescompleteaccepted18336b98-batchreceipt;allfullhosted/exactMaingatesrequired,count183untilaccepted. Finalprimary15focused+633affected=648unique pass,16registerchecks/fullESLint/diffpass. Independent184candidate locallyqualified,notaccepted/countincrementyet; readyfreshfullCheckpoint. Acceptedindependent184C009 afterexactSHA Checkpoint40109655979/MainLint40110627464/Dashboard40110627551 success. Genuinearchive/hash/admission/full44fixed98synthetic2055comparisonagainst36bunchanged,noregression/scoregain. Complete98receiptcheckerexit0/pending[]/C00998pointerverifiedbeforeprimarydeathobjectedit,receiptcarriedinnextordinaryrepair. Acceptedcount184."
+    },
+    {
+      "id": "corpse-object-owner",
+      "kind": "parity-repair",
+      "title": "Supply canonical object constructors to monster death drops",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-24T16:07:05.544013+00:00",
+          "end": "2026-10-24T16:07:05.544013+00:00",
+          "note": "Preserved make_corpse source/witness qualification observation; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T16:24:01.928668+00:00",
+          "end": "2026-10-24T16:24:01.928668+00:00",
+          "note": "Sequential integration observation afterC009complete98receipt; no elapsed active-work claim."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c:make_corpseStoneGolem669-673",
+          "nethack-c/upstream/src/mkobj.c:mksobj1198-1230,mkcorpstat2067",
+          "js/mon.js:make_corpse",
+          "js/object_generation.js",
+          "js/monster_object.js"
+        ],
+        "witness": [
+          "recipes/mon.c/corpse-object-owner-normal.session.json",
+          "recipes/mon.c/corpse-object-owner-monochrome.session.json",
+          "recipes/mon.c/corpse-object-owner-before-control.session.json"
+        ],
+        "test": [
+          "scripts/corpse-object-owner.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Provisionalindependent184onlyafterallgates. Cminionlose_guardian_angel468-494 usescanspotmon; oldJScanseemonOct9 8614167suppressesfeedbackforsensedunseenAngels. Onepredicateusesexistingcanonicalperceptionimport; preserveDeafspeech/Monnam/defaultAPIs/mongone/generation/count/coreRNG. Scope reviewedoriginalguardianmovement31538:onlyJSunportedactionsadmission,ordinaryKnightdog/cat/petlesswithoutintrinsicmenu; minionlossgateuntouched. Lawfulinventoryqualityonlymakemon_create. Independentfeedbackperception,notcommitcount. PublicHealer8432086Feb10 C138Hallu139Blind140Deaf141Detect800142Conflict800verified(onebased). ActualLIVEglobalmoves2/ownerundefined,canSeeFalse/canSpotTrue/BlindDeaftrue,guardian845type123Angel[32,6]HP163tame10miniontrue,hero33,6. Dogmoveskipshelperinplanning; no public/nativecloneclaim. Output-only180prefixobserverunchangedcore/screens/cursors/animations. Firstscreen156CjaguarThothvanishesmissingJS; subsequentHnames/More shift,allfull137077corematches. Normal/mono10063RNG201screens/cursors0animationsstrictpass;before7130/146/0strictpassold/new;36boldtargetsfirst156/cursor157/allcorematching. Full137077RNG4554screens/cursors933animationsstrictpasswithonepredicate. TwelveLIVEinitializednativecasesHallu/non xDeaf/non xvisible/BlindDetected/Blindunseen; actualAstralarrival8432087Feb11createscanonicallyequippedguardian,notfabricatedmonster. Actuallose_guardian_angel/mongone/mdrop_special_objs/mk_roamer; feedbackbeforecore,exactnonHguardianAngelHermes/quotedrebukeorvanishes,Hnamedpatterns,quietunseencontrols. Oneobj_resistsrn2100peroriginalinventoryitembeforeCcountRN1(3,2),real2..4hostileuntamedalignedAngelscreated,oldguardianHP0removedgrid,heroHP/maxunchanged. Old4detectedfail8controls,new12pass. InitialRN1-firstexpectationcorrectedfromCmon3279/steal852gearcleanup; initialscopedprototypeindex/indexOfharnesscorrection,failedlogsretained,noproductionworkaround. 645isolatednative/affectedplus3C=648unique,primaryintegrationchecksrequired. FreshpetlessHealer8432088Feb12baseline36bandprototypeboth251375/4554/49strictpass,source-definedpetlessoptioncontrol,nodirectCmemoryclaim. NewMonk8432090Feb14afterguardianfixavailable32423core1084screens/cursors82animationsallmatchCthenfailclosedUnsupportedObjectOperationErrormonsterObjectinmake_corpseStoneGolemstatue; furtherindependentleadpreserved,notfullpass. Noadmission/scoregain. Includescompleteaccepted18336b98-batchreceipt;allfullhosted/exactMaingatesrequired,count183untilaccepted. Finalprimary15focused+633affected=648unique pass,16registerchecks/fullESLint/diffpass. Independent184candidate locallyqualified,notaccepted/countincrementyet; readyfreshfullCheckpoint."
+      "note": "Provisionalindependent185onlyafterallgates. make_corpse internalobjectEnvomittedcanonicalobjectgenerationhooks; composeexistingobjectGenerationEnv once,preservingstate/random/calleroverrides/flags/allobjectconstructionordering. CStoneGolemdeathclearsCORPSTAT_INITthenmkcorpstatSTATUE; Cmksobjfinalization1198-1230stilldoesrndmonnum/sex/setcorpsenm eveninitfalse,beforemkcorpstat overridesactualspecies/sex. No fixedspecies/fakedraw/skippedconstructor/newobjectalgorithms/RNGAPIchanges. Sourcebec9Sept30predatesexperiment; mplayer-object-hooks161onlymk_mplayerloot/figurineboundary,notmake_corpse;monstonealreadycomposesowner,differentpetrificationcontract. PublicMonk8432090Feb14fiveaccessibilityproperties; frozenC009available32423core1084screens/cursors82animationsmatchCthenUnsupportedObjectOperationErrormonsterObject atmake_corpseStoneGolemSTATUE->mkcorpstat->mksobjfinalization. ActualLIVEglobalmoves38,hookundefined,flags2,StoneGolem110/type257[31,6]HP0/max100/femalefalse/chamNONPM. Output-only1120prefixobserveridenticalallfourstreams(partialoldreturn). Normal/mono33410RNG1121screens/cursors85animationsstrictpass;before30853/1001/53strictpassold/new. BaselinefirstmissingCcore32424/input1085rn22rndmonst_adj,notwrongcorevalues. Full155186/4554/377strictpassafteronecomposition. Sixnativecases12plan/live:StoneGolemmale/female xdefault/callersuppliedcanonicalobserverhook,ClayGolemROCK/LizardCORPSEcontrols. InitializedfullHealer/normaldeathdropsroom,actualmakemon_runtime/MM_NOMSG/NONPMandcanonicalgolemHP100/70. Actualmondied/mondead/make_corpse/mksobj/mkcorpstat/monsterObject withvalidactualISAACprivatecontext; fullplanlivecore/object/phaseequalityandglobalcore/display/grid/HP/objguards. STATUEonefinalizephasebeforeNONPM/afterdiscardedrandomspecies12thenactual257override;initfalse/nocontents/finalmale2orfemale1/weight2850. Clay50+RN220rocks/weight10each;Lizardcorpse10/sexmale. Old2defaultStonefail4providedowner/ordinarycontrols pass,new6pass. InitialnativeGameMapdeathdropsfalsecorrectedtonormaltruefromCLEVEL_SPECIFIC_NOCORPSE; initialredrawcomparisoncorrectedtoplanned[]/live7,7separateCkillRedrawseam. Failedlogsretained,noproductionworkaround. Isolated123cases122pass1mixedgameinstanceflesh-golemtest; correctworkingdirectorysameunmodifiedtestpasses. Addedmon.test/mon-kill/monster-equipped-drop115incl6duplicatenativespass;232unique+3C=235,primaryfullintegrationrequired. No admission/scoregain. Includescompleteaccepted184C00998receipt; fullhosted/archive/comparison/MainLintDashboardrequired;count184untilaccepted. Finalprimary9focused+226affected=235unique pass;16registerchecks/fullESLint/diffpass. FreshdwarfValkyrie8432092Feb16verifiedstartup/fiveproperties;full279829/4554/22strictpasswithsameownercomposition. Sourcecandidate185fullylocallyqualified,notaccepteduntilallgates;futuremake_corpseownerextensionsgroupunderthisrepair. Acceptedcount184."
     }
   ]
 }

@@ -5595,7 +5595,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
     // carry only the subset their own function uses, so fill this source
     // function's defaults before honoring supplied overrides.
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) };
-    const objectEnv = { ...env, state, random };
+    const objectEnv = objectGenerationEnv({ ...env, state, random });
     const message = env.message ?? ttyPline;
     const mdat = mtmp.data;
     const x = mtmp.mx;
