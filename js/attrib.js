@@ -143,7 +143,7 @@ import { aligns } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { unconscious } from './trap.js';
 import { summon_furies } from './makemon.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, youFeel } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
 
 const EXERCISE_LIMIT = 50;
@@ -1228,8 +1228,7 @@ export async function adjattrib(
     if (messageMode <= 0) {
         await emitAttributeMessage(
             env,
-            `You feel ${Math.abs(increment) > 1 ? 'very ' : ''}`
-                + `${description}!`,
+            youFeel(`${Math.abs(increment) > 1 ? 'very ' : ''}${description}!`, state),
             state,
         );
     }

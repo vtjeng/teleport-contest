@@ -167,7 +167,7 @@ import { is_ice,
 import { note_unported } from './unported.js';
 import { vault_gd_watching } from './vault.js';
 import { unpunish } from './read.js';
-import { heroDeaf, livelog_printf, verbalize, youHear } from './pline.js';
+import { heroDeaf, livelog_printf, verbalize, youHear, youFeel } from './pline.js';
 import {
     HeroDeathPlanningError, check_capacity, endRunning, inv_cnt, losehp, nomul, unmul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase, s_suffix } from './hacklib.js';
@@ -867,7 +867,7 @@ export async function eat_brains(magr, mdef, visflag, dmg, state = game, env = {
             await done(DIED, state, { ...effectEnv, fromMonster: true });
             if (state.program_state?.gameover) return result;
             state.u.acurr.a[A_INT] = (state.urace.attrmin[A_INT] ?? 0) + 2;
-            await message('You feel like a scarecrow.', state, effectEnv);
+            await message(youFeel('like a scarecrow.', state), state, effectEnv);
         }
         giveNutrit = true;
         await exercise(A_WIS, false, state, random);
