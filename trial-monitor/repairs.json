@@ -10740,7 +10740,7 @@
     {
       "id": "sensing-vision-order",
       "kind": "parity-repair",
-      "title": "Recalculate pending vision after the guarded sensing redraws",
+      "title": "Order Hallucination sensing before pending vision work",
       "window": "single-worker",
       "origin": "sole-standard-engineer",
       "investigator": null,
@@ -10750,6 +10750,11 @@
           "start": "2026-10-24T04:18:49Z",
           "end": "2026-10-24T04:18:49Z",
           "note": "Instantaneous preserved source qualification observation; no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T04:44:19Z",
+          "end": "2026-10-24T04:44:19Z",
+          "note": "Instantaneous corrected-scope qualification observation; no elapsed active-work claim."
         }
       ],
       "evidence": {
@@ -10773,11 +10778,33 @@
           "scripts/vision-reset.test.mjs",
           "scripts/vision-xray.test.mjs",
           "scripts/monmove.test.mjs",
-          "scripts/unported-monster-actions.test.mjs"
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/amorphous-door-passage.test.mjs",
+          "scripts/vampire-door-passage.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "C allmain.c moveloop_core runs find_ac,then sensing redraws inside !context.mv||Blind,and only then recalculates pending vision inside that same guard. JS prematurely and unconditionally recalculated before find_ac. Move the existing block to the C source position/guard,retaining flag clear and independent glyph-notice handling;no vision/display algorithm change. Independent public Monk Astral seed8432039/date20261216100000 actual C Hallu/Blind/Deaf/Detect/Conflict activation137-141 confirmed. Passive canonical display log agrees with ordinary core/screens/cursors; first global draw1665 C38357 versusJS463357. Actual JSstackfeel_location->newsym->vision_recalc consumes a tactile floor-object draw atmove3 hero33,18 before see_monsters. Fresh normal/monochrome23230RNG501screens/cursors33animations strictlypass;before-event control8168/161/0passesbeforeandafter. Exact5d6abaseline bothvariants firstscreen168 with allcorecalls already matching;controlpass. Three focused C plus602affected=605tests,lint/diffpass. Full private4554Monk firstscreenadvances610; independentTourist glyph2677 also corrected,firstscreenadvances2720.Neitherfullprobeclaimedpassing. PriorTouristmonster-list-order hypothesis superseded by direct source/stackevidence. LaterMonk610 visionflag investigation remains separate,not a workaround in this patch. Original May5 code predatesexperiment;distinct from166newsym tactile duplicate mapping within one call,this is allmain phase/guard. Includes complete accepted17098-batch receipt/provenance,noadmissionormeasuredscoregain;fullhostedgatespending."
+      "candidates": [
+        {
+          "sha": "0914bdad8eb8dbf7cb109920c88f9b28f13c8170",
+          "committedAt": "2026-10-24T04:29:16Z",
+          "runs": [
+            {
+              "id": 40062538692,
+              "name": "Checkpoint",
+              "sha": "0914bdad8eb8dbf7cb109920c88f9b28f13c8170",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/sensing-vision-order-20261024",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-24T04:29:31Z",
+              "completedAt": "2026-10-24T04:36:11Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40062538692"
+            }
+          ]
+        }
+      ],
+      "note": "C allmain.c moveloop_core performs Hallucination sensing redraws before pending vision recalculation,inside !context.mv||Blind. JS spent pending vision before the sensing layers. Move Hallucination pending work to its C phase/guard,retain the existing non-hallucinatory vision/region order. This is a Hallucination correction,not whole-function certification or a general non-Hallu reorder. Independent public Monk Astral seed8432039/date20261216100000 actual C Hallu/Blind/Deaf/Detect/Conflict activation137-141 confirmed. Passive canonical display log agrees with ordinarycore/screens/cursors; first globaldraw1665 C38357 versusJS463357,actualJSstackfeel_location->newsym->vision_recalc atmove3hero33,18obj23 before see_monsters. Fresh normal/monochrome23230RNG501screens/cursors33animations strictlypass;before-event control8168/161/0passesbeforeandafter. Exact5d6abaseline bothvariants firstscreen168,allcorealreadyfullymatching;controlpass. Original broad reorder0914failedCheckpoint40062538692 inrecordingbatch1 andtestshard4. Exactlocalreproduction found the same existing amorphous-door-passage-open-control only:2806RNGand172cursorsmatch,2of172mapframes differ. Localrecordingbatch609/610;testshard2858/2859. A private notice-drain relocation prototype didnotfixit and wasnotretained. Narrowing to demonstrated Hallu behavior restores the prior non-Hallu path; original golden andtests unchanged. Corrected3freshC+602affected=605 plus7existingdoorwaycontrols=612pass,lint/diffpass;16registertestsrequired. Full privateMonk firstscreenadvances610,Touristglyph2677alsofixed withfirstscreen2720;neitherfullprobeclaimedpassing. LaterMonk610 independently traced to preexisting second-boulderguard andpreservedseparately. OriginalMay5codepredatesexperiment;distinctfrom166newsym tactile duplicate mapping. Includes accepted170complete98-batchreceipt/provenance. Failedandcorrectedcommitsgroupedasone171ifallgatespass;notaccepted,noadmissionormeasuredscoregain;freshfullhostedgatespending."
     }
   ]
 }

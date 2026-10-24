@@ -1732,6 +1732,18 @@ export async function moveloop_core() {
         await makewish(g);
     }
 
+    const hallucination = g.u.uprops?.[HALLUC];
+    const hallucinating = Boolean(
+        hallucination?.intrinsic
+        && !hallucination?.blocked
+        && !propertyActive(g, HALLUC_RES),
+    );
+    // Keep the existing non-hallucinatory vision/region ordering. Hallucination
+    // below follows C's sensing layers before spending pending vision work.
+    if (!hallucinating && g.vision_full_recalc) {
+        vision_recalc(0);
+        g.vision_full_recalc = 0;
+    }
     // Close the elapsed turn's display work before status calculation and
     // flushing can expose the completed frame.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
@@ -1741,12 +1753,6 @@ export async function moveloop_core() {
     // layers and redraws the swallowed stomach. The latter bypasses newsym(),
     // so the swallowed guard alone is not enough: omitting this branch leaves
     // the stale pre-hallucination DEC/Unicode stomach on the terminal.
-    const hallucination = g.u.uprops?.[HALLUC];
-    const hallucinating = Boolean(
-        hallucination?.intrinsic
-        && !hallucination?.blocked
-        && !propertyActive(g, HALLUC_RES),
-    );
     const blind = Boolean(g.u.uprops?.[BLINDED]?.intrinsic
         || g.u.uprops?.[BLINDED]?.extrinsic)
         && !g.u.uprops?.[BLINDED]?.blocked;
@@ -1768,7 +1774,7 @@ export async function moveloop_core() {
         }
         // C ref: allmain.c:470-471. Recalculate after the sensing layers;
         // a blind hero's tactile repaint can itself consume display RNG.
-        if (g.vision_full_recalc) {
+        if (hallucinating && g.vision_full_recalc) {
             vision_recalc(0);
             g.vision_full_recalc = 0;
         }
