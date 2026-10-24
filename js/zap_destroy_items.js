@@ -185,17 +185,17 @@ function floorBurnMessageNames(obj, state) {
 // y_monnam() for an object in a monster's pack; js/shk.js stops there. The
 // monster arm below builds the same possessive from do_name.js
 // monsterPossessive() instead, which is that y_monnam() call by another name.
-function destroyedItemName(u_carry, carrier, obj, cnt, quan, state) {
+function destroyedItemName(u_carry, carrier, obj, cnt, quan, state, displayRandom) {
     if (u_carry) {
         return (cnt === 1 && quan === 1)
             ? Yname2(obj, state)
             : yname(obj, state);
     }
     if (cnt === 1 && quan === 1) {
-        return `${monsterPossessive(carrier, state, true)} `
+        return `${monsterPossessive(carrier, state, true, { displayRandom })} `
             + `${fire_object_name_at_quantity(obj, 1, state)}`;
     }
-    return `${monsterPossessive(carrier, state)} `
+    return `${monsterPossessive(carrier, state, false, { displayRandom })} `
         + `${fire_object_name_at_quantity(obj, 2, state)}`;
 }
 
@@ -349,7 +349,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                         : 'All of '); /* N of N */
             await message(
                 `${mult}${destroyedItemName(
-                    u_carry, carrier, obj, cnt, quan, state,
+                    u_carry, carrier, obj, cnt, quan, state, env.displayRandom,
                 )} ${destroy_strings[dindx][cnt > 1 ? 1 : 0]}!`,
                 state,
             );
