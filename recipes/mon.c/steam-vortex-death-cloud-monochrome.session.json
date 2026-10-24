@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Knight8432180Apr25 steam vortex death cloud monochrome. No admitted challenge or score claim. Before-control ends before hero killing vortex.",
+  "segments": [
+    {
+      "seed": 8432180,
+      "datetime": "20270425100000",
+      "nethackrc": "OPTIONS=name:KnightAirProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips,!color\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>M                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    \nm."
+    }
+  ]
+}

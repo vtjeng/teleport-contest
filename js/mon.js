@@ -721,7 +721,7 @@ import {
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
 import { mwepgone, possibly_unwield } from './weapon.js';
-import { cansee, couldsee, does_block, is_lightblocker_mappear, m_canseeu, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
+import { block_point, cansee, couldsee, does_block, is_lightblocker_mappear, m_canseeu, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
 import { bypass_obj, mon_break_armor, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
@@ -5362,7 +5362,20 @@ export async function mondead(mtmp, state = game, env = {}) {
             mtmp.my,
             random.rn2(10) + 5,
             0,
-            { ...env, state, random, message },
+            {
+                ...env, state, random, message,
+                blockPoint: env.blockPoint ?? ((x, y) => {
+                    if (env.planning && state !== game) {
+                        if (typeof env.admitPlannedVisionChange !== 'function')
+                            throw new TypeError('planned death cloud requires admitPlannedVisionChange');
+                        env.admitPlannedVisionChange(x, y, state);
+                    }
+                    return block_point(x, y, state);
+                }),
+                canSee: env.canSee ?? ((x, y) => cansee(x, y, state)),
+                newsym: env.newsym ?? env.redraw
+                    ?? (state === game ? newsym : () => {}),
+            },
         );
 
     /* "dead vault guard is actually kept at coordinate <0,0> until his
