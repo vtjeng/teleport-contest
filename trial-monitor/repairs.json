@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T23:08:44.104Z",
+  "asOf": "2026-10-25T23:26:54.020428Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16312,6 +16312,46 @@
       },
       "candidates": [],
       "note": "Prospective distinct225. C aliases rm.flags and rm.doormask. Ordinary level generation placed a closed shop door in flags; JS stock_room read stale doormask zero and opened it. Two named-hero C replays now strictly match through visible shop entry; an independently seeded open-door shop control remains strict. 149 focused/affected tests and focused ESLint pass. Carry verified repair224 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "scores-live-config-diagnostics",
+      "kind": "parity-repair",
+      "title": "Display live scores option errors through TTY",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T23:23:42.320845+00:00",
+          "end": "2026-10-25T23:26:47.878618+00:00",
+          "note": "Dedicated implementation and validation after C source and three live error witnesses were qualified during repair225 CI; previous survey interval is recorded separately in local repair225 timing."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:optfn_scores",
+          "nethack-c/upstream/src/cfgfiles.c:config_erradd",
+          "js/options.js:optfn_scores"
+        ],
+        "witness": [
+          "recipes/options.c/scores-live-negative-blocked.session.json",
+          "recipes/options.c/scores-live-missing-blocked.session.json",
+          "recipes/options.c/scores-live-unknown.session.json",
+          "recipes/options.c/scores-live-counts.session.json",
+          "recipes/options.c/scores-live-none.session.json",
+          "recipes/options.c/scores-live-letter-suffix.session.json"
+        ],
+        "test": [
+          "scripts/options-scores.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/startup-scores.test.mjs",
+          "scripts/tty-message.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct226. C cfgfiles.c prints punctuated live scores errors then wait_synch; JS had discarded them as an unported gap. Three C error recordings and three independently recorded valid-value controls now strictly replay. Startup frame, return code and partial option writes retain their source ordering. 249 focused/affected tests, focused ESLint and diff checks pass. Carry verified repair225 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }

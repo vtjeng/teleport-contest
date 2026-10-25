@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Blocked at cfgfiles.c:config_erradd1554–1562 live configuration diagnostic output. optfn_scores preserves return and partial state; the discarded live pline/wait_synch owner remains a named gap. Independent negative-token route, not completion evidence.",
+  "comment": "C-first live scores diagnostic witness for options.c:optfn_scores and cfgfiles.c:config_erradd. The error is printed with punctuation and TTY synchronization; source return and partial writes remain unchanged.",
   "segments": [
     {
       "seed": 15641031,

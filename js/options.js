@@ -4478,21 +4478,26 @@ export function optfn_scores(result, optidx, req, negated, opts, op) {
     if (req === DO_SET) {
         const reportError = message => {
             if (result.go?.opt_initial === false) {
-                // cfgfiles.c:1554-1562 has a live pline()/wait_synch() arm.
-                // Its result is discarded; the existing frame-only owner
-                // cannot supply that output, so preserve the named gap.
-                note_unported('cfgfiles.c config_erradd');
+                // cfgfiles.c:1554-1562 prints a live option error and then
+                // synchronizes the TTY, without touching the startup frame.
+                const punct = '.!?'.includes(message.at(-1)) ? '' : '.';
+                return (async () => {
+                    await ttyPline(`${message}${punct}`, result);
+                    const { tty_wait_synch } = await import('./tty_rawprint.js');
+                    await tty_wait_synch(result);
+                })();
             } else {
                 configErrorAdd(result, message);
             }
+            return null;
         };
         // string_for_opt(opts,FALSE) reports a missing value through the same
         // discarded diagnostic owner. Read its value with TRUE and route that
         // diagnostic here so a live call does not mutate a startup frame.
         op = string_for_opt(opts, true);
         if (op === '') {
-            reportError(`Missing parameter for '${opts}'`);
-            return optn_err;
+            const reported = reportError(`Missing parameter for '${opts}'`);
+            return reported ? reported.then(() => optn_err) : optn_err;
         }
         result.flags.end_top = 0;
         result.flags.end_around = 0;
@@ -4524,14 +4529,16 @@ export function optfn_scores(result, optidx, req, negated, opts, op) {
                 result.flags.end_own = false;
             } else if (initial === '-'
                        && /^[0-9]$/u.test(op[index + 1] ?? '')) {
-                reportError(
+                const reported = reportError(
                     `Values for ${allopt[optidx].name}:top and`
                     + ` ${allopt[optidx].name}:around must not be negative`,
                 );
-                return optn_silenterr;
+                return reported ? reported.then(() => optn_silenterr) : optn_silenterr;
             } else {
-                reportError(`Unknown ${allopt[optidx].name} parameter '${op.slice(index)}'`);
-                return optn_silenterr;
+                const reported = reportError(
+                    `Unknown ${allopt[optidx].name} parameter '${op.slice(index)}'`,
+                );
+                return reported ? reported.then(() => optn_silenterr) : optn_silenterr;
             }
             while (letter(op[index] ?? '')) ++index;
             while (op[index] === ' ') ++index;
