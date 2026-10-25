@@ -253,6 +253,7 @@ import {
 } from './monsters.js';
 import {
     haseyes,
+    has_head,
     is_demon,
     is_elf,
     is_human,
@@ -262,6 +263,7 @@ import {
     passes_walls,
     nolimbs,
     noit_mhim,
+    noit_mhis,
     pronoun_gender,
     resist_conflict,
     unique_corpstat,
@@ -4640,8 +4642,8 @@ export function setpaid(shopkeeper, state = game) {
 }
 
 // C ref: shk.c set_repo_loc() (2682-2720). Save the square where a
-// shopkeeper's takings will be deposited after disclosure. The current death
-// path has one shopkeeper, so the first repository location wins as in C.
+// shopkeeper's takings will be deposited after disclosure. The first
+// repository location wins even when several shopkeepers are present.
 function set_repo_loc(shopkeeper, state) {
     state.gr ??= {};
     state.gr.repo ??= { location: { x: 0, y: 0 }, shopkeeper: null };
@@ -4701,9 +4703,23 @@ async function inherits(shopkeeper, numsk, croaked, silently, state) {
     shopkeeper.perminvis = 0;
 
     if (numsk > 1) {
-        throw new UnsupportedShopError(
-            'inherits() for a second shopkeeper at the hero\'s death',
-        );
+        if (cansee(shopkeeper.mx, shopkeeper.my, state) && croaked && !silently) {
+            let gesture = '';
+            if (has_head(shopkeeper.data) && !rn2(2)) {
+                gesture = `, shakes ${noit_mhis(shopkeeper, { state })} ${mbodypart(shopkeeper, HEAD)},`;
+            }
+            await ttyPline(
+                `${Shknam(shopkeeper, state)} ${helpless(shopkeeper) ? 'wakes up, ' : ''}looks at your corpse${gesture} and ${!inhishop(shopkeeper, state) ? 'disappears' : 'sighs'}.`,
+                state,
+            );
+        }
+        const taken = uinshop;
+        await rouse_shk(shopkeeper, false, state);
+        if (!inhishop(shopkeeper, state))
+            await home_shk(shopkeeper, false, state);
+        setpaid(shopkeeper, state);
+        if (taken) set_repo_loc(shopkeeper, state);
+        return taken;
     }
     if (uinshop && inhishop(shopkeeper, state) && !eshkp.billct
         && !eshkp.robbed && !eshkp.debit && NOTANGRY(shopkeeper)

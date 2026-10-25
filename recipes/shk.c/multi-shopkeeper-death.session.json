@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8420150,
+      "datetime": "20351125165000",
+      "nethackrc": "OPTIONS=name:TwoShops,role:Healer,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen,!autopickup,!tips\n",
+      "moves": " #wizlevelport\n?\n w  \u0017uncursed wand of death\nzm.  y     "
+    }
+  ],
+  "comment": "Independent public C Minetown witness. Three live resident shopkeepers remain on the level when the hero dies peacefully inside Yad’s store. C shk.c paybill() processes the first keeper’s bequest and then each additional keeper through inherits(numsk > 1); the ordinary single-keeper bequest control is peaceful-inshop-bequest."
+}

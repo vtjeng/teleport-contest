@@ -15868,6 +15868,39 @@
       },
       "candidates": [],
       "note": "Prospective distinct213. On public C D:5 general store, peaceful hero dies inside without unpaid stock; C prints Tuktoyaktuk gratefully inherits all your possessions at step104. Old JS matches through Die? step103 then throws explicit inherits bequest refusal. New in-shop branch uses existing setpaid, set_repo_loc and finish_paybill, matching complete C strict replay (9505 RNG,110 screens/cursors); outside-shop no-bill control remains matching. 17 focused and114 affected tests plus lint pass. Carry accepted212 complete98 receipt in ordinary candidate commit. Hosted comparison/Main gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "shop-second-keeper-death",
+      "kind": "parity-repair",
+      "title": "Process additional shopkeepers after hero death",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T17:06:41Z",
+          "end": "2026-10-25T17:06:41Z",
+          "note": "Point-in-time registration of independent live C Minetown death witness and source review; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c:2483-2676",
+          "js/shk.js:inherits",
+          "js/shk.js:paybill"
+        ],
+        "witness": [
+          "recipes/shk.c/multi-shopkeeper-death.session.json",
+          "recipes/shk.c/peaceful-inshop-bequest.session.json"
+        ],
+        "test": [
+          "scripts/shop-death-settlement.test.mjs",
+          "scripts/shop-residency.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct214. On public C Minetown seed8420150, three shopkeepers remain when the hero dies in Yad’s store. C proceeds through the first bequest and additional keepers; old JS matches through Die? and Do not pass Go, then stops at explicit inherits() second-shopkeeper refusal. C and old JS consumed the same4427 RNG calls through the boundary. Source-ordered additional-keeper cleanup now completes a full strict C replay (4427 RNG,57 screens/cursors); single-keeper bequest control remains matching. 57 focused and109 affected existing tests, lint and diff pass. Carry accepted213 complete98 receipt in ordinary candidate commit. Hosted comparison and Main gates pending; no aggregate gain inferred."
     }
   ]
 }
