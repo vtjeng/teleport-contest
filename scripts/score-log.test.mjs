@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 
 import {
     appendRow,
+    appendRows,
     COLUMNS,
     generateNote,
     latestRow,
@@ -118,6 +119,75 @@ test('appendRow composes a full row and refuses malformed input', () => {
     writeFileSync(stalePath, `${COLUMNS.slice(0, 16).join('\t')}\n`);
     assert.throws(() => appendRow({ sha: 'e', event: 'goal' }, stalePath),
         /header differs/u);
+});
+
+test('batch append preserves row order and detects intervening ledger edits', () => {
+    const first = { sha: 'dddd444', event: 'goal', note: 'first' };
+    const second = { sha: 'eeee555', event: 'goal', note: 'second' };
+    const path = writeFixture('append-batch.tsv');
+    assert.deepEqual(appendRows([first, second], path).map(row => row.note), ['first', 'second']);
+    assert.deepEqual(readRows(path).slice(-2).map(row => row.note), ['first', 'second']);
+
+    const changed = writeFixture('append-external.tsv');
+    function* external() {
+        yield first;
+        appendRow({ sha: 'ffff666', event: 'goal', note: 'external' }, changed);
+        yield second;
+    }
+    appendRows(external(), changed);
+    assert.deepEqual(readRows(changed).slice(-3).map(row => row.note),
+        ['first', 'external', 'second']);
+
+    const malformed = writeFixture('append-malformed.tsv');
+    function* corrupt() {
+        yield first;
+        // Same-length edit must be detected even when file size is unchanged.
+        writeFileSync(malformed, readFileSync(malformed, 'utf8').replace('\tevent\t', '\tevont\t'));
+        yield second;
+    }
+    assert.throws(() => appendRows(corrupt(), malformed), /header differs/u);
+    assert.equal(readFileSync(malformed, 'utf8').includes('second'), false);
+
+    const truncated = writeFixture('append-truncated.tsv');
+    function* partial() {
+        yield first;
+        appendFileSync(truncated, 'incomplete\n');
+        yield second;
+    }
+    assert.throws(() => appendRows(partial(), truncated), /fields/u);
+    assert.equal(readFileSync(truncated, 'utf8').includes('second'), false);
+});
+
+test('batch append matches single-row writes at ledger line boundaries', () => {
+    const rows = [{ sha: 'a'.repeat(40), event: 'goal', note: 'first' },
+        { sha: 'b'.repeat(40), event: 'goal', note: 'second' }];
+    const header = COLUMNS.join('\t');
+    const existing = scoreRow({ utc: '2026-01-01', sha: 'c'.repeat(40), event: 'goal' });
+    const clock = Date;
+    globalThis.Date = class extends clock {
+        constructor(...args) { super(...(args.length ? args : ['2026-10-25T18:00:00.000Z'])); }
+    };
+    try {
+        for (const [name, initial] of [
+            ['row without LF', `${header}\n${existing}`],
+            ['header without LF', header],
+            ['header with LF', `${header}\n`],
+            ['CRLF header', `${header}\r\n`],
+            ['empty ledger', ''],
+        ]) {
+            const single = join(dir, `boundary-single-${name.replaceAll(' ', '-')}.tsv`);
+            const batch = join(dir, `boundary-batch-${name.replaceAll(' ', '-')}.tsv`);
+            writeFileSync(single, initial);
+            writeFileSync(batch, initial);
+            const outcome = run => { try { run(); return null; } catch (error) { return error.message; } };
+            const oldError = outcome(() => rows.forEach(row => appendRow(row, single)));
+            const newError = outcome(() => appendRows(rows, batch));
+            assert.equal(newError, oldError, name);
+            assert.equal(readFileSync(batch, 'utf8'), readFileSync(single, 'utf8'), name);
+        }
+    } finally {
+        globalThis.Date = clock;
+    }
 });
 
 test('challenge rows require a complete identity and isolated metrics', () => {

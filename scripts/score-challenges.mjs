@@ -7,7 +7,7 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { localTmpdir } from './local-tmpdir.mjs';
-import { appendRow, readRows } from './score-log.mjs';
+import { appendRows, readRows } from './score-log.mjs';
 import { challengeInputSnapshot, challengePath, corpusDigest, digest, evaluationBatch,
     evaluationFields, readChallengeBatches, readEvaluation, saveEvaluation, totalsFor } from './challenge-results.mjs';
 import { PROJECT_ROOT, createScoringWorkspace, parseRunnerBundle, removeScoringWorkspace,
@@ -120,7 +120,7 @@ export function recordEvaluations(root, relatives) {
         prior.push(evaluation);
         history.set(batch, prior);
     }
-    return fields.map(row => appendRow(row, join(root, 'SCORE.tsv')));
+    return appendRows(fields, join(root, 'SCORE.tsv'));
 }
 
 export function evaluateChallenges(root, relative, batchId = 'v1') {
