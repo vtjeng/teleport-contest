@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Ordinary-vision public C control for the same peaceful gnome two-chat route; Hallucination command removed without changing seed or monster input.",
+  "segments": [
+    {
+      "seed": 20261025124,
+      "datetime": "20271025172000",
+      "nethackrc": "OPTIONS=name:GnomeChatProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0007peaceful gnome\n#chat\nh#chat\nh "
+    }
+  ]
+}

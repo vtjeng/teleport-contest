@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first sounds.c peaceful gnome monochrome: odd rn2(4) follows an ordinary line in normal and monochrome; before-control stops after first even line.",
+  "segments": [
+    {
+      "seed": 20261025124,
+      "datetime": "20271025172000",
+      "nethackrc": "OPTIONS=name:GnomeChatProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\nOPTIONS=!color\n",
+      "moves": " #wizintrinsic\n800h\n \u0007peaceful gnome\n#chat\nh#chat\nh "
+    }
+  ]
+}
