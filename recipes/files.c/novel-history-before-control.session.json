@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 20261025531,
+      "datetime": "20300714122300",
+      "nethackrc": "OPTIONS=name:StudyProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " .\u0017novel\nro "
+    }
+  ],
+  "comment": "Private independent novel-reading probe during Death-quote Checkpoint; do not change candidate"
+}

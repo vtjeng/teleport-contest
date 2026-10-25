@@ -235,7 +235,15 @@ export async function read_tribute(
             ?? (await import('./tty_menu.js')).displayTtyMenuTextWindow;
         await displayTextWindow(state, passageLines);
         const { tty_putmsghistory } = await import('./topl.js');
-        tty_putmsghistory(lastline, false, state);
+        // C files.c read_tribute() puts a numbered attribution in history,
+        // even when the passage itself already has an attribution line.
+        let attribution = lastline.includes('[')
+            ? mungspaces(lastline)
+            : `[${tribtitle}, by Terry Pratchett]`;
+        const closing = attribution.lastIndexOf(']');
+        if (closing >= 0)
+            attribution = `${attribution.slice(0, closing)}; passage #${targetpassage}]`;
+        tty_putmsghistory(attribution, false, state);
         return true;
     }
     const message = env.message
