@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary-level control outside psychic blast feedback.",
+  "segments": [
+    {
+      "seed": 8432288,
+      "datetime": "20270719100000",
+      "nethackrc": "OPTIONS=name:SeenTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n",
+      "moves": "  l        h        l        "
+    }
+  ]
+}

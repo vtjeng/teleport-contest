@@ -731,13 +731,15 @@ function m_arrival(mon) {
 // blast that can hit the hero and other monsters on the level.
 async function mind_blast(mtmp, env = {}) {
     const state = env.state ?? game;
+    // Psychic feedback keeps canonical sensing and the active display owner.
+    const nameEnv = { ...env, canSpotMonster: env.canSpotMonster ?? canspotmon };
     const random = env.random ?? { rn2, rnd };
     const message = env.message ?? (async () => {});
 
     if (canseemon(mtmp, state)) {
         await message(
             messageAt(
-                `${capitalizedMonsterName(mtmp, state)} concentrates.`,
+                `${capitalizedMonsterName(mtmp, state, nameEnv)} concentrates.`,
                 mtmp.mx, mtmp.my, state,
             ),
             state,
@@ -796,7 +798,7 @@ async function mind_blast(mtmp, env = {}) {
             await wakeup(m2, false, { ...env, state, random, message });
             if (cansee(m2.mx, m2.my, state)) {
                 await message(
-                    `It locks on to ${monsterCommonName(m2, state)}.`,
+                    `It locks on to ${monsterCommonName(m2, state, 0, nameEnv)}.`,
                     state,
                     env,
                 );
