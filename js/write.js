@@ -24,7 +24,7 @@ import { update_inventory } from './invent.js';
 import { nohands } from './mondata.js';
 import { PM_WIZARD } from './monsters.js';
 import { bcsign, mksobj, objectType } from './obj.js';
-import { an, aobjnam, The, Tobjnam, yname } from './objnam.js';
+import { an, aobjnam, The, Tobjnam, ysimple_name } from './objnam.js';
 import { discover_object, observe_object } from './o_init.js';
 import {
     OBJ_DESCR,
@@ -176,11 +176,10 @@ export async function dowrite(pen, state = game, env = {}) {
             return ECMD_OK;
         } else if (paper.oclass === SPBOOK_CLASS) {
             /* can't write a magic book while blind */
-            // C: upstart(ysimple_name(pen)). yname() produces equivalent
-            // output for a simple tool like a magic marker: both return
-            // "your magic marker" for a non-shop-owned tool.
+            // C suppresses an individual marker's name here, even when the
+            // applied marker was wished as "magic marker named Quill".
             await ttyPline(
-                `${upstart(yname(pen, state))} can't create braille text.`,
+                `${upstart(ysimple_name(pen, state))} can't create braille text.`,
                 state,
             );
             return ECMD_OK;

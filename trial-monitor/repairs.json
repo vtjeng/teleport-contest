@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T21:54:25Z",
+  "asOf": "2026-10-25T22:38:00.055Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16236,6 +16236,44 @@
       },
       "candidates": [],
       "note": "Prospective distinct223. C allmain.c calls sink_into_lava on each elapsed hero action while trapped. Old JS skipped it: a public C stationary turn added rnd(4) and sinking feedback while JS diverged at the next RNG call; the earlier moving-in-lava path was a strict control. The repair ports the full trap.c function, including nonfatal counter/message behavior, stale trap release, invulnerability, fire-vulnerable damage, and dissolution with debug rescue. Two new complete C recordings plus the existing moving control strictly match JS after the fix; 138 focused/affected tests and full lint pass. Carry verified repair222 complete98 receipt in this ordinary repair commit. Full hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "write-blind-marker-simple-name",
+      "kind": "parity-repair",
+      "title": "Suppress a named marker in blind spellbook refusal",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T22:32:38.707188+00:00",
+          "end": "2026-10-25T22:35:30.935485+00:00",
+          "note": "Measured source and private C replay investigation. Two named-marker witnesses diverged at the refusal message; an unnamed marker and independent normal spellbook-writing path matched."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/write.c:dowrite",
+          "nethack-c/upstream/src/objnam.c:ysimple_name",
+          "js/write.js:dowrite"
+        ],
+        "witness": [
+          "recipes/write.c/blind-named-marker-spellbook.session.json",
+          "recipes/write.c/blind-named-marker-spellbook-variation.session.json",
+          "recipes/write.c/blind-unnamed-marker-spellbook-control.session.json"
+        ],
+        "test": [
+          "scripts/write-blind-marker-recordings.test.mjs",
+          "scripts/write.test.mjs",
+          "scripts/dowrite-glib.test.mjs",
+          "scripts/objnam.test.mjs",
+          "scripts/apply.test.mjs",
+          "scripts/invent.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct224. C uses ysimple_name for the blind-spellbook marker refusal, which strips an individual marker name; JS used yname and displayed it. Two independent named-marker C recordings exposed the same screen divergence with RNG and cursor still aligned. The unnamed control matched. Replaced the formatter with the existing source-shaped ysimple_name; 202 focused/affected tests and lint pass. Carry the previously verified repair223 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }

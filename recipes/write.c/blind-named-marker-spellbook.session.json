@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A blind Wizard wishes an individually named marker, then applies it to a blank spellbook. C ysimple_name suppresses that name in the braille refusal.",
+  "segments": [
+    {
+      "seed": 63827151,
+      "datetime": "20370927112210",
+      "nethackrc": "OPTIONS=name:MarkerWrite,role:Wizard,race:human,gender=male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017magic marker named Quill\n\u0017blank spellbook\n\u0017blindfold\nPpano "
+    }
+  ]
+}
