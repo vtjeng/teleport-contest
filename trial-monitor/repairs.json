@@ -15901,6 +15901,41 @@
       },
       "candidates": [],
       "note": "Prospective distinct214. On public C Minetown seed8420150, three shopkeepers remain when the hero dies in Yad’s store. C proceeds through the first bequest and additional keepers; old JS matches through Die? and Do not pass Go, then stops at explicit inherits() second-shopkeeper refusal. C and old JS consumed the same4427 RNG calls through the boundary. Source-ordered additional-keeper cleanup now completes a full strict C replay (4427 RNG,57 screens/cursors); single-keeper bequest control remains matching. 57 focused and109 affected existing tests, lint and diff pass. Carry accepted213 complete98 receipt in ordinary candidate commit. Hosted comparison and Main gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "shop-unpaid-stock-return",
+      "kind": "parity-repair",
+      "title": "Return plain unpaid stock to its shop floor",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T17:25:30Z",
+          "end": "2026-10-25T17:25:30Z",
+          "note": "Point-in-time registration of independent fresh C shop-drop witness, matched control and source review; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/do.c:786-840",
+          "nethack-c/upstream/src/shk.c:3927-3943",
+          "js/do.js:preflight_dropx",
+          "js/shk.js:sellobj"
+        ],
+        "witness": [
+          "recipes/do.c/unpaid-stock-return.session.json",
+          "recipes/do.c/owned-item-shop-drop-control.session.json"
+        ],
+        "test": [
+          "scripts/shop-unpaid-drop.test.mjs",
+          "scripts/drop-command.test.mjs",
+          "scripts/shop-billing.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct215. On independently selected seed8510310, C Healer picks up a 53-zorkmid scroll in a D:5 general store and drops it on the same costly square; C removes its bill entry. Old JS matches through the drop prompt then stops at explicit preflight_dropx unpaid-object refusal. Same generated setup dropping an owned item matches old JS fully. Admit only plain unpaid returns on a resident keeper’s costly square; shk.c sellobj already implements sub_one_frombill. Both full strict C replays pass after fix (5223 RNG,15 screens/cursors each), and direct runtime state confirms billct0, floor object no longer unpaid. 3 focused and144 affected tests, ESLint and diff pass. Carry accepted214 complete98 receipt in ordinary candidate commit. Hosted comparison and Main gates pending; no aggregate gain inferred."
     }
   ]
 }

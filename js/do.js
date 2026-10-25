@@ -365,7 +365,7 @@ import { delete_levelfile } from './files.js';
 import { cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
-import { fix_shop_damage, sellobj, sellobj_state } from './shk.js';
+import { costly_spot, fix_shop_damage, sellobj, sellobj_state } from './shk.js';
 import {
     container_impact_dmg, impact_drop, obj_delivery, ship_object,
 } from './dokick.js';
@@ -1930,8 +1930,9 @@ export function preflight_dropx(obj, env = {}) {
     // then stops the absorbed floor object's timer through timeout.c.
     // obfree()'s remaining operations are reached by an object the drop chain
     // already stops: canletgo() refuses a leash tied to a pet, the unpaid test
-    // below refuses a billed object and the shop-level test refuses an unpaid
-    // merge target. Only the box whose lock the hero is picking is left.
+    // below admits only a plain item returned to its shop's costly square,
+    // and the shop-level test refuses an unpaid merge target. Only the box
+    // whose lock the hero is picking is left.
     if (state.xlock?.box === obj)
         throw new UnsupportedDropError('the box whose lock is being picked');
     if (!u || u.uswallow)
@@ -1967,7 +1968,11 @@ export function preflight_dropx(obj, env = {}) {
         || state.uball === obj) {
         throw new UnsupportedDropError('a worn or attached object');
     }
-    if (obj.unpaid)
+    // do.c:dropz() places a returned shop item before shk.c:sellobj()
+    // removes it from the bill. Admit that source path for a plain unpaid
+    // item on the resident keeper's costly square; retain the boundary for
+    // unpaid containers and drops outside the shop.
+    if (obj.unpaid && (obj.cobj || !costly_spot(u.ux, u.uy, state)))
         throw new UnsupportedDropError('an unpaid object');
 
     const { ux: x, uy: y } = u;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510310,
+      "datetime": "20350108141619",
+      "nethackrc": "OPTIONS=name:ReturnStock,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n   , dk  "
+    }
+  ],
+  "comment": "Independent live C D:5 general-store witness. A newly chosen seed places the Healer on stock; pick up the 53-zorkmid unpaid scroll and drop it on the same costly square. C do.c:dropz calls shk.c:sellobj, which removes this plain item from the bill. Old JS stops at preflight_dropx unpaid-object refusal."
+}

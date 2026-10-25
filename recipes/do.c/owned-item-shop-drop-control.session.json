@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510310,
+      "datetime": "20350108141619",
+      "nethackrc": "OPTIONS=name:ReturnStock,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n   , de  "
+    }
+  ],
+  "comment": "Same independently generated D:5 store and unpaid pickup, but drop an owned starting item instead. Its complete C/JS replay protects ordinary shop-floor placement while the unpaid return path is repaired."
+}
