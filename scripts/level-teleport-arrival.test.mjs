@@ -11,6 +11,7 @@ import {
     ARROW_TRAP,
     CORR,
     DEAF,
+    D_ISOPEN,
     FAST,
     HALLUC,
     HALLUC_RES,
@@ -1780,6 +1781,9 @@ test('shop-edge should_block runs one real direct keeper action before return',
         assert.ok(door && Number.isInteger(door.x) && Number.isInteger(door.y));
         const entryCell = game.level.at(door.x, door.y);
         assert.ok(entryCell?.edge, 'shop door is on the source shop edge');
+        // This seed generates a closed door. The test exercises should_block
+        // with an open entrance, which is a separate valid source state.
+        entryCell.flags = entryCell.doormask = D_ISOPEN;
         assert.ok(accessible(door.x, door.y, game), 'shop door is open');
 
         const outside = [

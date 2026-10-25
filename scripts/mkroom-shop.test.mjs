@@ -5,6 +5,7 @@
 // nethack-c/upstream/src/shknam.c:206-350, not from a recorded session.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -16,6 +17,8 @@ import {
     FILL_NORMAL,
     COURT,
     DOOR,
+    D_CLOSED,
+    D_ISOPEN,
     FODDERSHOP,
     G_GONE,
     LOW_PM,
@@ -35,6 +38,7 @@ import {
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
+import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
@@ -147,6 +151,7 @@ import {
 // rtype - SHOPBASE, so these are also the rtype offsets mkroom.h's
 // ARMORSHOP..CANDLESHOP enumerate.
 const GENERAL_STORE = 0;
+
 const ARMOR_SHOP = 1;
 const SCROLL_SHOP = 2;
 const LIQUOR_EMPORIUM = 3;
@@ -640,6 +645,29 @@ test('nexttodoor checks doors and secret doors in the clipped 3-by-3 area', () =
     state.level.at(0, 0).typ = DOOR;
     assert.equal(nexttodoor(1, 0, state), false);
 });
+
+test('stock_room preserves a generated closed door and opens only an empty doorway',
+    async () => {
+        // shknam.c:739-749 sees rm.flags and rm.doormask as one bitfield.
+        // mklev.c:dosdoor populates flags on the ordinary generated level.
+        const closed = JSON.parse(readFileSync(new URL(
+            '../recipes/shknam.c/stock-room-closed-door.session.json', import.meta.url,
+        ))).segments[0];
+        const closedRun = await runSegment(closed);
+        const closedDoor = game.level.at(9, 7);
+        assert.equal(closedDoor.flags, D_CLOSED);
+        assert.equal(decodeScreen(closedRun.getScreens()[140])[8][8].ch, '+');
+
+        // The independent C shop-entry control starts with a genuine doorway;
+        // stock_room must still turn that into an open door.
+        const open = JSON.parse(readFileSync(new URL(
+            '../recipes/mkroom.c/shop-entry-seed9701133.session.json', import.meta.url,
+        ))).segments[0];
+        await runSegment(open);
+        const room = game.level.rooms[0];
+        const firstDoor = game.level.doors[room.fdoor];
+        assert.equal(game.level.at(firstDoor.x, firstDoor.y).flags, D_ISOPEN);
+    });
 
 test('stock_room rejects a row shtypes[] does not carry', () => {
     // Every row the table carries now stocks, so the only refusal left here is

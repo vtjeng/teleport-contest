@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T22:38:00.055Z",
+  "asOf": "2026-10-25T23:08:44.104Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16274,6 +16274,44 @@
       },
       "candidates": [],
       "note": "Prospective distinct224. C uses ysimple_name for the blind-spellbook marker refusal, which strips an individual marker name; JS used yname and displayed it. Two independent named-marker C recordings exposed the same screen divergence with RNG and cursor still aligned. The unnamed control matched. Replaced the formatter with the existing source-shaped ysimple_name; 202 focused/affected tests and lint pass. Carry the previously verified repair223 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "stock-room-door-bitfield",
+      "kind": "parity-repair",
+      "title": "Preserve generated closed shop doors while stocking",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T23:00:05.009654+00:00",
+          "end": "2026-10-25T23:06:20.119500+00:00",
+          "note": "Timed source and C replay diagnosis: generated room flags held D_CLOSED while stale doormask held zero; stock_room opened the door."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shknam.c:stock_room",
+          "nethack-c/upstream/src/mklev.c:dosdoor",
+          "js/shknam.js:stock_room"
+        ],
+        "witness": [
+          "recipes/shknam.c/stock-room-closed-door.session.json",
+          "recipes/mhitu.c/mattacku-shopkeeper-visible-blocked.session.json",
+          "recipes/mkroom.c/shop-entry-seed9701133.session.json"
+        ],
+        "test": [
+          "scripts/mkroom-shop.test.mjs",
+          "scripts/level-teleport-arrival.test.mjs",
+          "scripts/shk.test.mjs",
+          "scripts/mklev-special-rooms.test.mjs",
+          "scripts/mkroom.test.mjs",
+          "scripts/rooms.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct225. C aliases rm.flags and rm.doormask. Ordinary level generation placed a closed shop door in flags; JS stock_room read stale doormask zero and opened it. Two named-hero C replays now strictly match through visible shop entry; an independently seeded open-door shop control remains strict. 149 focused/affected tests and focused ESLint pass. Carry verified repair224 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }
