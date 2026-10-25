@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Before-drop control stops at item prompt before dropx; same independently selected setup.",
+  "segments": [
+    {
+      "seed": 8432202,
+      "datetime": "20270517100000",
+      "nethackrc": "OPTIONS=name:WaterDropProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>K                        nothing\n    d"
+    }
+  ]
+}

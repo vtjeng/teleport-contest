@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent normal public drop on Plane of Water, fresh Knight8432202 May17. Actual Water status, chosen object and floor effects must be observed. Setup reuses established public wizard-level menu recipe, not challenge inputs.",
+  "segments": [
+    {
+      "seed": 8432202,
+      "datetime": "20270517100000",
+      "nethackrc": "OPTIONS=name:WaterDropProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>K                        nothing\n    da "
+    }
+  ]
+}

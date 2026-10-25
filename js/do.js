@@ -1938,10 +1938,11 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('a swallowed hero');
     // Direct dropx()/dropz() callers, including confused reverse_loot(), do
     // not test can_reach_floor(). Underwater drops still reach flooreffects;
-    // its pool arm suppresses splash messages while Underwater is true. Keep
-    // Plane of Water display paths outside this ordinary drop admission.
-    // C dropx/dropz uses the ordinary floor tail on the Plane of Air.
-    if (on_level(u.uz, state.water_level))
+    // its pool arm suppresses splash messages while Underwater is true.
+    // C dropx/dropz has no plane exclusion on dry bubble floors. Keep the
+    // distinct Water-level liquid path outside this ordinary admission.
+    if (on_level(u.uz, state.water_level)
+        && (is_pool(u.ux, u.uy, state) || is_lava(u.ux, u.uy, state)))
         throw new UnsupportedDropError('special-level display');
     // dig.c:341 drops uwep directly; do.c:810 clears it in dropz after
     // extraction, shipping and altar handling. Admit only that primary mask.

@@ -1,0 +1,830 @@
+{
+  "version": 1,
+  "batch": "v47",
+  "manifestPath": "challenges/manifests/v47.json",
+  "sha": "192787079e5e1c151e0e44be2343a497b0b3615a",
+  "utc": "2026-10-25T01:46:16.313Z",
+  "status": "complete",
+  "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "e8fa974e490f15347b24d873ce74a3ec25ff7696677f85685860b68313c6310d",
+  "inputFiles": [
+    "challenges/cases/v47/v47-bar-filb-program.recipe.session.json",
+    "challenges/cases/v47/v47-bar-filb-program.session.json",
+    "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst.session.json",
+    "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.recipe.session.json",
+    "challenges/cases/v47/v47-earthquake-desecrates-generated-altar-attempt6-trap-avoided.session.json",
+    "challenges/cases/v47/v47-fire-trap-hero-dofiretrap-attempt1-attempt2-datetime-corrected.recipe.session.json",
+    "challenges/cases/v47/v47-fire-trap-hero-dofiretrap-attempt1-attempt2-datetime-corrected.session.json",
+    "challenges/cases/v47/v47-flip-long-worm-segments-attempt1-attempt2-datetime-corrected.recipe.session.json",
+    "challenges/cases/v47/v47-flip-long-worm-segments-attempt1-attempt2-datetime-corrected.session.json",
+    "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.recipe.session.json",
+    "challenges/cases/v47/v47-gremlin-pool-split-attempt6-pager-resume.session.json",
+    "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt7.recipe.session.json",
+    "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt7.session.json",
+    "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json",
+    "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+    "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.recipe.session.json",
+    "challenges/cases/v47/v47-hero-level-teleport-trap-attempt6-attempt8-datetime-corrected.session.json",
+    "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.recipe.session.json",
+    "challenges/cases/v47/v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst.session.json",
+    "challenges/cases/v47/v47-minetown-2-second-fountain-drink-attempt1.recipe.session.json",
+    "challenges/cases/v47/v47-minetown-2-second-fountain-drink-attempt1.session.json",
+    "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.recipe.session.json",
+    "challenges/cases/v47/v47-pestilence-red-mold-conflict-m2m-attempt6-tourist.session.json",
+    "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.recipe.session.json",
+    "challenges/cases/v47/v47-poly-energy-vortex-engulf-drain-attempt10.session.json",
+    "challenges/cases/v47/v47-punishment-ball-float-down-attempt4.recipe.session.json",
+    "challenges/cases/v47/v47-punishment-ball-float-down-attempt4.session.json",
+    "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.recipe.session.json",
+    "challenges/cases/v47/v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst.session.json",
+    "challenges/cases/v47/v47-rustm-rust-monster-wielded-metal-attempt4.recipe.session.json",
+    "challenges/cases/v47/v47-rustm-rust-monster-wielded-metal-attempt4.session.json",
+    "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.recipe.session.json",
+    "challenges/cases/v47/v47-see-invisible-grid-bug-missmu-seed47100104.session.json",
+    "challenges/cases/v47/v47-timed-egg-stack-split-attempt6.recipe.session.json",
+    "challenges/cases/v47/v47-timed-egg-stack-split-attempt6.session.json",
+    "challenges/cases/v47/v47-whip-captain-armed-state-scout-attempt8-six-turns.recipe.session.json",
+    "challenges/cases/v47/v47-whip-captain-armed-state-scout-attempt8-six-turns.session.json",
+    "challenges/cases/v47/v47-whip-captain-disarm-complete-attempt13-cfirst.recipe.session.json",
+    "challenges/cases/v47/v47-whip-captain-disarm-complete-attempt13-cfirst.session.json",
+    "challenges/cases/v47/v47-wiz-fila-program.recipe.session.json",
+    "challenges/cases/v47/v47-wiz-fila-program.session.json",
+    "challenges/cases/v47/v47-wiz-filb-program.recipe.session.json",
+    "challenges/cases/v47/v47-wiz-filb-program.session.json",
+    "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.recipe.session.json",
+    "challenges/cases/v47/v47-wizard-death-wizdeadorgone-cfirst-attempt6-final.session.json",
+    "challenges/manifests/v47.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/alloc.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/earth_level_data.js",
+    "js/earth_levels.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/knox_level_data.js",
+    "js/knox_levels.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon_loca_level_data.js",
+    "js/mon_strt_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlsel.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/ran_strt_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rnd.js",
+    "js/rng.js",
+    "js/rog_goal_level_data.js",
+    "js/rog_loca_level_data.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_filb_level_data.js",
+    "js/sam_goal_level_data.js",
+    "js/sam_loca_level_data.js",
+    "js/sam_strt_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout_property_data.js",
+    "js/timeout.js",
+    "js/topl.js",
+    "js/topten.js",
+    "js/tou_goal_level_data.js",
+    "js/tou_loca_level_data.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/utf8map.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/val_strt_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/water_levels.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wiz_goal_level_data.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v47-bar-filb-program",
+      "recordingSha256": "705eaed3bc449e259ad7cbe9cbb8710ce859c7a1d159680cb2d2c83f2220d400",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 8056,
+          "total": 8056
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-wiz-fila-program",
+      "recordingSha256": "51f81c08d5907bf79af11c624b781d3c099f4a368949be0815b2c00bfac104c9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 3391,
+          "total": 3391
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-wiz-filb-program",
+      "recordingSha256": "bdecf2e4e94928b7f9d07f13b20c8cbc7a25f8b306625ac6bcc154c35fb9efd3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 4467,
+          "total": 4467
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-punishment-ball-float-down",
+      "recordingSha256": "e1db151a9a2fcc899ef84afebf8ecfe1105a33203b248fd678f76f59f3aa458b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 103,
+          "total": 103
+        },
+        "rng": {
+          "matched": 1942,
+          "total": 1942
+        },
+        "cursors": {
+          "matched": 103,
+          "total": 103
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-hero-level-teleport-trap",
+      "recordingSha256": "f8ecd42405608bc3a91186f5a85d41eb6ddc7ee068f5474c64aaa85d33fcb673",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 48,
+          "total": 48
+        },
+        "rng": {
+          "matched": 3437,
+          "total": 3437
+        },
+        "cursors": {
+          "matched": 48,
+          "total": 48
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-flip-long-worm-level-segments",
+      "recordingSha256": "da3c867a40cfab92d69ce88ff4b218a67ea7ede7e9ea8bbd5b0f67957fd9da44",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2364,
+          "total": 2364
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-fire-trap-hero-dofiretrap",
+      "recordingSha256": "a91407db09c8c1cdd7cf8c3a19f60e0c32299b6eb7ccdc9931ca842421c522b2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 32,
+          "total": 32
+        },
+        "rng": {
+          "matched": 2819,
+          "total": 2819
+        },
+        "cursors": {
+          "matched": 32,
+          "total": 32
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-minetown-2-fountain-drink",
+      "recordingSha256": "c6f45355af60286b70012680e2fc86ea7054d608c90b7c69d4d6ccd9e0309a53",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 84,
+          "total": 84
+        },
+        "rng": {
+          "matched": 5334,
+          "total": 5334
+        },
+        "cursors": {
+          "matched": 84,
+          "total": 84
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-hallucinated-monster-missile-name",
+      "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 121,
+          "total": 121
+        },
+        "rng": {
+          "matched": 5548,
+          "total": 5548
+        },
+        "cursors": {
+          "matched": 121,
+          "total": 121
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-hallucinated-fountain-refresh-control",
+      "recordingSha256": "67bf3c3e14d20507d08d4591a49f2e01dd5c26c6e110f140c13198a5e52ce6e2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 110,
+          "total": 110
+        },
+        "rng": {
+          "matched": 4737,
+          "total": 4737
+        },
+        "cursors": {
+          "matched": 110,
+          "total": 110
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-earthquake-desecrates-generated-altar",
+      "recordingSha256": "49625b455cd146909fa6fe22482b9c1e8c2234bda49b786eef003bcbe04c67a0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 326,
+          "total": 326
+        },
+        "rng": {
+          "matched": 5897,
+          "total": 5897
+        },
+        "cursors": {
+          "matched": 326,
+          "total": 326
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-gremlin-pool-split",
+      "recordingSha256": "cec2aac1f4630221ca4cba8708f20db1a2ebe82d18391e4b42c7c782fbaed8cd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2714,
+          "total": 2714
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-itemactions-adjust-stack-egg-split",
+      "recordingSha256": "a7526166f2dcfafdf4a8c9907d557dc5991aa6b3e292945e360348a29455eba9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 247,
+          "total": 247
+        },
+        "rng": {
+          "matched": 5176,
+          "total": 5176
+        },
+        "cursors": {
+          "matched": 247,
+          "total": 247
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-poly-energy-vortex-engulf-drain-attempt10",
+      "recordingSha256": "2090d05e3e3a8d98b6aa17a8f06df4cf7ca8ea5cccd480e9411adb66f5d03164",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 92,
+          "total": 92
+        },
+        "rng": {
+          "matched": 2873,
+          "total": 2873
+        },
+        "cursors": {
+          "matched": 92,
+          "total": 92
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-rustm-rust-monster-wielded-metal-attempt4",
+      "recordingSha256": "bf16454ed980f94e0293497d24e89a8147cae0d19e6013aaacc4702a086835d2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 114,
+          "total": 114
+        },
+        "rng": {
+          "matched": 2869,
+          "total": 2869
+        },
+        "cursors": {
+          "matched": 114,
+          "total": 114
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-pestilence-red-mold-conflict-m2m-attempt6-tourist",
+      "recordingSha256": "0f1d6d274112816ddb7d06aa949908998b1236e9c10b468a799aa976a1ee5965",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 150,
+          "total": 150
+        },
+        "rng": {
+          "matched": 2669,
+          "total": 2669
+        },
+        "cursors": {
+          "matched": 150,
+          "total": 150
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-wizard-death-wizdeadorgone-cfirst-attempt6-final",
+      "recordingSha256": "055b0d2e456aa6703b9dacaeec95c64c71341abd4426922d7ec5bedce561cf6a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 61,
+          "total": 61
+        },
+        "rng": {
+          "matched": 2765,
+          "total": 2765
+        },
+        "cursors": {
+          "matched": 61,
+          "total": 61
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-whip-captain-armed-state-scout-attempt8-six-turns",
+      "recordingSha256": "eaca9e83fc6e090a82c0e550d3a68658df7f3bec843eab86494cd923ab83b147",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 98,
+          "total": 98
+        },
+        "rng": {
+          "matched": 4460,
+          "total": 4460
+        },
+        "cursors": {
+          "matched": 98,
+          "total": 98
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-see-invisible-grid-bug-missmu-seed47100104",
+      "recordingSha256": "500a4474ecfbd3e1db8eb7b0cd3e0330c37054f2c598231a142c5c7af16c6eed",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 69,
+          "total": 69
+        },
+        "rng": {
+          "matched": 3005,
+          "total": 3005
+        },
+        "cursors": {
+          "matched": 69,
+          "total": 69
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-mimic-hallucination-timeout-eatmupdate-attempt11-clean-cfirst",
+      "recordingSha256": "c73caebfb26486b81e5c00c865d3fc67fe6bf67213d962de5e43acb0a1edcff8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2667,
+          "total": 2667
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
+      "recordingSha256": "83c99cdd2588ce3a47187b1c7dced6adab338cc3945f05d341e30148ba2f9525",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 5406,
+          "total": 5406
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-rm-mapseen-after-wizmakemap-overview-attempt1-cfirst",
+      "recordingSha256": "1a058a4b18dcbf2754b4cca6cc2be1abec82a6f36a99e1a419423611a9b7790d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 24,
+          "total": 24
+        },
+        "rng": {
+          "matched": 5031,
+          "total": 5031
+        },
+        "cursors": {
+          "matched": 24,
+          "total": 24
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v47-whip-captain-disarm-complete-attempt13-cfirst",
+      "recordingSha256": "7f35e482e0f8aff0ef6a0da37b349401c03b33789f6cd135776364da2bcfac05",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 169,
+          "total": 169
+        },
+        "rng": {
+          "matched": 2609,
+          "total": 2609
+        },
+        "cursors": {
+          "matched": 169,
+          "total": 169
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 23,
+      "total": 23
+    },
+    "screens": {
+      "matched": 2136,
+      "total": 2136
+    },
+    "rng": {
+      "matched": 90236,
+      "total": 90236
+    },
+    "cursors": {
+      "matched": 2136,
+      "total": 2136
+    }
+  }
+}

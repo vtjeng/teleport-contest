@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap monochrome variation of independently chosen Water dry-bubble drop.",
+  "segments": [
+    {
+      "seed": 8432202,
+      "datetime": "20270517100000",
+      "nethackrc": "OPTIONS=name:WaterDropProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\nOPTIONS:!color\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>K                        nothing\n    da "
+    }
+  ]
+}

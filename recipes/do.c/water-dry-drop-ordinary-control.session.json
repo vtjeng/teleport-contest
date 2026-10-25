@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary-level control seed8432204 May19 dropping initial +1 long sword; includes harmless unknown spaces.",
+  "segments": [
+    {
+      "seed": 8432204,
+      "datetime": "20270519100000",
+      "nethackrc": "OPTIONS=name:WaterDropProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  da "
+    }
+  ]
+}

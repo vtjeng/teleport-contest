@@ -50,6 +50,7 @@ import {
     PIT,
     TT_PIT,
     ROOM,
+    WATER,
     FOUNTAIN,
     STAIRS,
     STONE_RES,
@@ -3671,6 +3672,17 @@ test('direct drop preflight admits an Air level without changing ownership', () 
     assert.deepEqual(lines, []);
 });
 
+test('direct drop preflight admits a dry Water-level floor without changing ownership', () => {
+    const { hooks, lines, obj, state } = ordinaryDropFixture();
+    state.water_level = { ...state.u.uz };
+    // C dropx/dropz uses the same floor tail on a dry Water bubble.
+    assert.doesNotThrow(() => preflight_dropx(obj, { state, hooks }));
+    assert.equal(state.invent, obj);
+    assert.equal(obj.where, OBJ_INVENT);
+    assert.equal(state.level.objects[10][5], null);
+    assert.deepEqual(lines, []);
+});
+
 test('ordinary drop preflight atomically refuses every excluded do.c tail',
     () => {
         const cases = [
@@ -3685,8 +3697,9 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['swallowed hero', /swallowed/u, ({ state }) => {
                 state.u.uswallow = true;
             }],
-            ['water level', /special-level/u, ({ state }) => {
+            ['water level liquid', /special-level/u, ({ state }) => {
                 state.water_level = { ...state.u.uz };
+                state.level.at(10, 5).typ = WATER;
             }],
             // Direct dropx has no reachability gate, but this trap still
             // belongs to the unported shipping/floor-effects dependency.
