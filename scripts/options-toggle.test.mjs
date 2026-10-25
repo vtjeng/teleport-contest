@@ -802,7 +802,7 @@ test('doset() applies its picks in menu order and answers ECMD_OK',
         assert.match(status, /Xp:1\/0 T:1$/u);
     });
 
-test('doset() handles help, cancelled values, and unsupported handlers', async () => {
+test('doset() handles help, cancelled values, and runmode choices', async () => {
     const state = await startStockGame();
     // HELP_IDX is SIZE(allopt), and the '?' entry's a_int is one more again.
     const menus = [];
@@ -838,14 +838,19 @@ test('doset() handles help, cancelled values, and unsupported handlers', async (
         ])),
         ECMD_OK,
     );
-    // 'runmode' is a compound option with a handler this port has not written.
+    // runmode's compound handler opens the C one-based choice menu.
     assert.equal(allopt[optionIndex('runmode')].has_handler, true);
-    await assert.rejects(
-        doset(state, menuHelpers([
+    const nestedMenus = [];
+    assert.equal(await doset(state, {
+        ...menuHelpers([
             { value: menuValue('runmode'), count: -1 },
-        ])),
-        (error) => error.what === "optfn_runmode()'s do_handler request",
-    );
+        ]),
+        selectMenu: spec => { nestedMenus.push(spec); return 3; },
+    }), ECMD_OK);
+    assert.equal(nestedMenus[0].title, 'Select run/travel display mode:');
+    assert.deepEqual(nestedMenus[0].items.map(item => item.text),
+        ['teleport', 'run', 'walk', 'crawl']);
+    assert.equal(state.flags.runmode, 2); // RUN_STEP, the third source mode.
 });
 
 test('doset() applies other picks selected with help without a second menu',

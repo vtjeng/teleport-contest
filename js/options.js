@@ -4260,6 +4260,24 @@ async function handler_menustyle(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c handler_runmode() (6124-6153).  The menu uses one-based
+// a_int values, while flags.runmode stores the zero-based runmodes index.
+async function handler_runmode(state, helpers) {
+    const selected = await optionMenuSelect(state, {
+        items: runmodes.map((name, index) => ({
+            text: name,
+            value: index + 1,
+            selector: name[0],
+        })),
+        how: PICK_ONE,
+        title: 'Select run/travel display mode:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length) state.flags.runmode = values[0] - 1;
+    return optn_ok;
+}
+
 // C ref: options.c handler_align_misc() (5586-5623).  The item values are
 // the alignment constants themselves, so the selected value can update the
 // corresponding field without another enum conversion.
@@ -8433,6 +8451,7 @@ const OPTION_HANDLERS = Object.freeze({
     pickup_types: (state, helpers) => optfn_pickup_types(
         state, DO_HANDLER, false, '', undefined, helpers,
     ),
+    runmode: handler_runmode,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
     o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
     petattr: handler_petattr,

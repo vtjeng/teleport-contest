@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T23:40:48.110387Z",
+  "asOf": "2026-10-25T23:56:33.956005Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16391,6 +16391,42 @@
       },
       "candidates": [],
       "note": "Prospective distinct227. options.c preserves accepted pickup classes but reports invalid live response through cfgfiles.c config_erradd, which prints punctuation then synchronizes TTY. JS previously discarded this as unported. Two C error witnesses and two valid controls now strictly replay; startup synchronous error frame and partial-state tests remain. 126 focused/affected tests and focused ESLint pass. Carry verified repair226 complete98 receipt in ordinary commit. Hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "runmode-choice-handler",
+      "kind": "parity-repair",
+      "title": "Open runmode choice menu from options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T23:55:13.753955+00:00",
+          "end": "2026-10-25T23:56:33.956005Z",
+          "note": "Dedicated runmode source implementation and affected validation after C menu witness and independent seeded control were qualified during repair227 CI; prior survey timing is in local repair227 profile."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:handler_runmode",
+          "js/options.js:OPTION_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/runmode-handler-menu.session.json",
+          "recipes/options.c/runmode-handler-walk.session.json",
+          "recipes/options.c/runmode-startup-control.session.json"
+        ],
+        "test": [
+          "scripts/options-runmode.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options-simple-menu.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct228. C optfn_runmode do_handler opens a four-item menu with one-based values; JS previously stopped at the missing handler. Two C handler replays including walk selection and a separate seeded startup/full-menu control now strictly match. 206 focused/affected tests and focused ESLint pass. Carry verified repair227 complete98 receipt in ordinary commit. Hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }
