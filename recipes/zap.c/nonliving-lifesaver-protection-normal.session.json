@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C canonical disintegration amulet predicate: normal; ordinary control is living wearer with effective life saving.",
+  "segments": [
+    {
+      "seed": 8432322,
+      "datetime": "20270823100000",
+      "nethackrc": "OPTIONS=name:DisintegrateLifeProbe,role:Wizard,race:human,gender:male,align:neutral,pettype:none,playmode:debug,!legacy,!tutorial,!splash_screen,!tips,!autopickup,!acoustics\nOPTIONS=montelecontrol\nOPTIONS=monpolycontrol\n",
+      "moves": "   #levelchange\n8\n            i        Tb        DAa\n                              i        \u0017amulet of life saving\n        \u00171 gold piece\n        \u0014@hhhh.    d$    \u0014@llll.    \u00171 gold piece\n        #wizgenesis\n1 hostile water nymph\n        t$y m.  @hhhh.m.\u0017food ration\n        tph m.m.\u0017wand of polymorph\n    #wiztelekinesis\n@hhhhk.j\u001bzqhhuman zombie\n#polyself\nblack dragon\n #monster\nh "
+    }
+  ]
+}
