@@ -2273,6 +2273,7 @@ export async function dofiretrap(box, rawEnv = {}) {
 // (1738-1819) is also the return-valued callee of trapeffect_magic_trap(); its
 // hero arm delegates to dofiretrap() and returns Trap_Effect_Finished.
 async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
+    // Both names use the active display owner, including speculative turns.
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
@@ -2296,7 +2297,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
         await message(
             messageAt(
                 `A tower of flame erupts from the ${surface(mtmp.mx, mtmp.my, state)}`
-                + ` under ${mon_nam(mtmp, state)}!`,
+                + ` under ${mon_nam(mtmp, state, env)}!`,
                 mtmp.mx,
                 mtmp.my,
                 state,
@@ -2324,7 +2325,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
             await shieldeff(mtmp.mx, mtmp.my, state);
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(mtmp, state)} is uninjured.`,
+                    `${capitalizedMonsterName(mtmp, state, env)} is uninjured.`,
                     mtmp.mx,
                     mtmp.my,
                     state,

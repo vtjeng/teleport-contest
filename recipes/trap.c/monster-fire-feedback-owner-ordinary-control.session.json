@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary-level control outside Fire monster trap feedback.",
+  "segments": [
+    {
+      "seed": 8432284,
+      "datetime": "20270715100000",
+      "nethackrc": "OPTIONS=name:SeenTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n",
+      "moves": "  l        h        l        "
+    }
+  ]
+}
