@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:PayCase,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l  #wizwish\n5000 gold pieces\nh\u0014hhhhhhhhhh.   \u0017uncursed wand of death\nzl.  y     ",
+      "comment": "Ordinary death control in the same generated store. The hero enters without picking up unpaid stock, leaves, then accepts death; C and old JS both reach full disclosure without debt settlement."
+    }
+  ]
+}

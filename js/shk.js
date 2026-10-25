@@ -118,7 +118,8 @@ import { y_n, yn_function } from './cmd.js';
 import { bot, map_invisible, newsym } from './display.js';
 import { assign_level, depth, ledger_no, mapseen_room, on_level } from './dungeon.js';
 import { migrate_to_level } from './dog.js';
-import { um_dist } from './apply.js';
+import { um_dist, unleash_all } from './apply.js';
+import { drop_upon_death } from './bones.js';
 import { game } from './gstate.js';
 import { del_engr_at } from './engrave.js';
 import { getpos } from './getpos.js';
@@ -260,7 +261,7 @@ import {
     locomotion,
     passes_walls,
     nolimbs,
-    mhim,
+    noit_mhim,
     pronoun_gender,
     resist_conflict,
     unique_corpstat,
@@ -4711,11 +4712,6 @@ async function inherits(shopkeeper, numsk, croaked, silently, state) {
             'inherits() bequeathing the hero\'s possessions to the shopkeeper',
         );
     }
-    if (eshkp.billct || eshkp.debit || eshkp.robbed) {
-        throw new UnsupportedShopError(
-            'inherits() settling an unpaid bill after death',
-        );
-    }
     let taken = false;
     let loss = 0;
     let take = false;
@@ -4762,7 +4758,7 @@ async function inherits(shopkeeper, numsk, croaked, silently, state) {
                     const customer = eshkp.customer ?? '';
                     const owesYou = customer.startsWith(state.plname ?? '');
                     await ttyPline(
-                        `${Shknam(shopkeeper, state)} ${takes} the ${loss} ${currency(loss, state)} ${owesYou ? 'you ' : ''}owed ${mhim(shopkeeper)}.`,
+                        `${Shknam(shopkeeper, state)} ${takes} the ${loss} ${currency(loss, state)} ${owesYou ? 'you ' : ''}owed ${noit_mhim(shopkeeper, { state })}.`,
                         state,
                     );
                 }
@@ -4850,6 +4846,24 @@ export async function paybill(croaked, silently, state = game) {
         if (!local) mongone(mtmp, { state });
     }
     return taken;
+}
+
+// C ref: shk.c finish_paybill() (2723-2756). After disclosure and before
+// bones, move any remaining money to the keeper and the pack to its shop.
+export async function finish_paybill(state = game) {
+    const repo = state.gr?.repo ?? {};
+    const shkp = repo.shopkeeper;
+    let { x, y } = repo.location ?? {};
+    if (!isok(x, y)) {
+        x = state.u.ux || state.u.ux0;
+        y = state.u.ux ? state.u.uy : state.u.uy0;
+    }
+    unleash_all(state);
+    if (shkp) {
+        const umoney = money_cnt(state.invent);
+        if (umoney) money2mon(shkp, umoney, state);
+    }
+    await drop_upon_death(null, null, x, y, state);
 }
 
 // Thrown where shk.c reaches shop bookkeeping this port has not ported.

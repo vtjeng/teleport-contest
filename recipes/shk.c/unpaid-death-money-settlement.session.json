@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:PayCase,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l, #wizwish\n5000 gold pieces\nh\u0014hhhhhhhhhh.   \u0017uncursed wand of death\nzl.  y     ",
+      "comment": "Public C Healer general-store death witness. On D:5, pick up an unpaid 38-zorkmid item, wish enough gold to pay, leave the shop, then accept self-zap death. C shk.c inherits() settles the debt, names the female shopkeeper with noit_mhim(), and leaves the pack with the hero."
+    }
+  ]
+}

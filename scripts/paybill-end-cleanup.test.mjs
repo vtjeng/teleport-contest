@@ -191,17 +191,16 @@ test('paybill riles and clears an angry shopkeeper', async () => {
     assert.equal(shkp.mextra.eshk.surcharge, true);
 });
 
-test('paybill refuses a shopkeeper the hero still owes', async () => {
-    // C ref: shk.c inherits():2620-2626. A debit reaches addupbill() and
-    // money2mon(), neither of which is ported.
+test('paybill clears an unpaid debit when the hero has no inventory', async () => {
+    // C ref: shk.c inherits():2620-2634. A keeper with a claim but no pack
+    // reaches skip and clear without taking anything.
     const state = makeState();
-    makeShopkeeper(state).mextra.eshk.debit = 60;
+    const shkp = makeShopkeeper(state);
+    shkp.mextra.eshk.debit = 60;
 
-    await assert.rejects(
-        paybill(1, true, state),
-        (err) => err instanceof UnsupportedShopError
-            && err.message.includes('unpaid bill'),
-    );
+    assert.equal(await paybill(1, true, state), false);
+    assert.equal(shkp.mextra.eshk.debit, 0);
+    assert.equal(state.gr.repo.shopkeeper, null);
 });
 
 test('paybill refuses a hero who dies inside the shop', async () => {

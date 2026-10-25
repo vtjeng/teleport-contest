@@ -46,6 +46,7 @@ import {
     gender,
     hates_blessings,
     mhis,
+    noit_mhim,
     pronoun_gender,
     hates_light,
     is_watch,
@@ -998,6 +999,9 @@ test('pronoun_gender picks the row role.c genders[] holds', () => {
         { ...unspotted, random: noDraw.random }), 2);
     assert.equal(pronoun_gender(gnomeLady, PRONOUN_NO_IT,
         { ...unspotted, random: noDraw.random }), 1);
+    // you.h noit_mhim() uses both NO_IT and HALLU, so an unseen female
+    // shopkeeper remains "her" on the death-settlement line.
+    assert.equal(noit_mhim(gnomeLady, { state, random: noDraw.random }), 'her');
 
     // mondata.c:1199-1200. Hallucination scrambles the row, and only with
     // PRONOUN_HALLU set. It is the one draw here, and it is rn2(4) because

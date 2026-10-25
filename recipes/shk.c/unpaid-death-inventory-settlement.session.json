@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:PayCase,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n d$    \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l, h\u0014hhhhhhhhhh.   \u0017uncursed wand of death\nzl.  y     ",
+      "comment": "Same generated store and unpaid item, with initial gold dropped before entering. On death outside the shop the debt exceeds carried gold, so C shk.c inherits() takes all possessions; end.c calls finish_paybill() after disclosure."
+    }
+  ]
+}

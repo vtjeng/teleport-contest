@@ -1911,6 +1911,12 @@ export function mhim(mtmp, env = {}) {
     return genders[pronoun_gender(mtmp, PRONOUN_HALLU, env)].him;
 }
 
+// C ref: you.h noit_mhim(). A death settlement can name a shopkeeper even
+// when the hero cannot see her; visibility alone must not turn her into "it".
+export function noit_mhim(mtmp, env = {}) {
+    return genders[pronoun_gender(mtmp, PRONOUN_NO_IT | PRONOUN_HALLU, env)].him;
+}
+
 // C ref: mondata.c big_little_match().
 export function big_little_match(montyp1, montyp2, state = game) {
     if (montyp1 === montyp2) return true;

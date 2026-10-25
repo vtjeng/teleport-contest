@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T15:39:46Z",
+  "asOf": "2026-10-25T16:12:41Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -15797,6 +15797,43 @@
       },
       "candidates": [],
       "note": "Prospective distinct211. Public wizard C giant with a boulder intercepted by a peaceful earth elemental: C mthrowu.c:395 prints The boulder hits the earth elemental but passes harmlessly through it. Old JS throws pronoun_gender requires the canSpotMonster owner at ohitmon; same setup with a shrieker intercepts a boulder and passes old JS. Passing state/random and current canSpotMonster owner to mhim repairs the elemental path. Full strict C replays pass after fix; focused test fails old JS and passes new. Carry accepted210 complete98 receipt in this ordinary repair commit. Hosted comparison and Main publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "shop-unpaid-death-settlement",
+      "kind": "parity-repair",
+      "title": "Settle unpaid shop debts before death disclosure",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T16:12:41Z",
+          "end": "2026-10-25T16:12:41Z",
+          "note": "Point-in-time source review and independent public C death witnesses; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c:2577-2756",
+          "nethack-c/upstream/src/end.c:1238-1302",
+          "nethack-c/upstream/include/you.h:326-330",
+          "js/shk.js:inherits",
+          "js/end.js:really_done"
+        ],
+        "witness": [
+          "recipes/shk.c/unpaid-death-money-settlement.session.json",
+          "recipes/shk.c/unpaid-death-inventory-settlement.session.json",
+          "recipes/shk.c/unpaid-death-no-bill-control.session.json"
+        ],
+        "test": [
+          "scripts/shop-death-settlement.test.mjs",
+          "scripts/paybill-end-cleanup.test.mjs",
+          "scripts/mondata-pure.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct212. Public C Healer shop-death witnesses match old JS through Die? then old JS refuses unpaid inherits. C pays 38 zorkmids to the female keeper when enough gold remains, or takes all possessions when gold was dropped; a no-bill death control matches old JS fully. Port C loss arms, noit_mhim and finish_paybill after disclosure. Strict full C replays and focused tests pass locally. Carry accepted211 complete98 receipt in next ordinary commit. Hosted comparison and Main gates pending; no aggregate gain inferred."
     }
   ]
 }

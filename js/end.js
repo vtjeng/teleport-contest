@@ -117,7 +117,7 @@ import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { make_grave } from './grave.js';
 import { clearpriests } from './priest.js';
-import { paybill } from './shk.js';
+import { finish_paybill, paybill } from './shk.js';
 import { paygd } from './vault.js';
 import { curs_on_u, nomul } from './hack.js';
 import { unstuck, zombie_maker } from './mon.js';
@@ -1337,11 +1337,9 @@ async function really_done(how, state) {
     if (how === ESCAPED || how === ASCENDED)
         await keepdogs(true, { state });
 
-    // C ref: end.c:1300-1302 finish_paybill() when bones_ok && taken.
-    // taken is always false here: js/shk.js inherits() refuses every arm
-    // that would take the hero's possessions and returns false from the
-    // `clear` arm, so finish_paybill() is unreachable until those arms are
-    // ported.
+    // C ref: end.c:1300-1302. Keep the keeper's inventory transfer after
+    // disclosure and before grave and bones creation.
+    if (bonesOk && taken) await finish_paybill(state);
 
     // -- Grave creation (C ref: end.c:1306-1319) --
     let corpse = null;
