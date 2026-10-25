@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Fresh C public ordinary-control control for dogmove.c dog_invent hallucinated pet pickup display owner.",
+  "segments": [
+    {
+      "seed": 2026091047,
+      "datetime": "20270913100000",
+      "nethackrc": "OPTIONS=name:PetPickupProbe,role:Healer,race:human,gender:female,align:neutral,pettype:dog,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,!acoustics\n",
+      "moves": "  m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    "
+    }
+  ]
+}

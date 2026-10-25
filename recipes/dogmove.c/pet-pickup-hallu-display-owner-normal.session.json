@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pet pickup under public wizard Hallucination; dogmove.c dog_invent visible Monnam. Compare JS only after C event is observed.",
+  "segments": [
+    {
+      "seed": 2026091047,
+      "datetime": "20270913100000",
+      "nethackrc": "OPTIONS=name:PetPickupProbe,role:Healer,race:human,gender:female,align:neutral,pettype:dog,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,!acoustics\n",
+      "moves": "  #wizintrinsic\n800h\nm.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    m.    "
+    }
+  ]
+}

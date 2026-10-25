@@ -15581,6 +15581,44 @@
       },
       "candidates": [],
       "note": "Prospective distinct205, separate Cmsg_mon_movement callback and mon_movement option from204notice_mon and169combatnames. C formatsMonnam once on actualmovement. JSm_move collects movement message before !env.planning deliveryguard; privatecollector calledcapitalizedMonsterName without displayRandom, soquietclone spentlive displaystream. Forwardonly active-state displayRandom toexisting canonicalnameowner. Preserveeligibility/mspotted/option, verb/distance/prose, coordinates, message/planningprotocol, movement/coreRNG; no new queue/CI/tooling. Missingownerf9f7ab6ac8July25 predatesexperiment. PublicWizard8432334/dateSep4 verifiedHallu/sleepinghuman/unblindprefix with mon_movement then8boundedrestcommands. Cactualmovementnoticescollected; allcore2708 matches butoldfirstscreen107/cursor107 before latermovement lines asplannedname skewsearlierwake. Isolatedfixedcomplete2708/156screens+cursors/0anim pass. Freshnormal/mono failold107/passfix;before2568/107, nonHalluordinary2815/136 andoptionoff2724/156 passboth. Native8 actualcollector plan/live xHallu/plain xenabled/off old7pass1fail/new8pass checksowneddisplay advance, core/TTY/liveclone invariants andordinarydistanceverb. Additional realpreflightSimpleMonsterActions enabled/off cases old1pass1fail displayleak/new2pass preservinglivecore/display/position/allocation/TTY. Isolated466 (8new+458existing), plusfixedpreflight2 andfocusedlint pass. Includesaccepted0a38complete98receipt. Primary/fullhosted/genuinearchive/exactMaingatesrequired before205acceptance; accepted204unchanged, no admission oraggregate gain. Finalprimary473tests (15newnative/C+458existing),22register,fullESLint anddiffcheckpass. Exactchanged-SHA hostedCheckpoint/genuinearchive/MainLintDashboard required beforeprospective205 acceptance; accepted204unchanged."
+    },
+    {
+      "id": "pet-pickup-hallu-display-owner",
+      "kind": "parity-repair",
+      "title": "Keep hallucinated pet pickup names on their planning display stream",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T13:26:13.865963+00:00",
+          "end": "2026-10-25T13:26:13.865963+00:00",
+          "note": "Point-in-time qualified source/C witness review; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dogmove.c:dog_invent440-466",
+          "js/dogmove.js:dog_invent inventory pickup",
+          "js/do_name.js:capitalizedMonsterName",
+          "js/rng.js:rn2_on_display_rng"
+        ],
+        "witness": [
+          "recipes/dogmove.c/pet-pickup-hallu-display-owner-normal.session.json",
+          "recipes/dogmove.c/pet-pickup-hallu-display-owner-monochrome.session.json",
+          "recipes/dogmove.c/pet-pickup-hallu-display-owner-before-control.session.json",
+          "recipes/dogmove.c/pet-pickup-hallu-display-owner-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/pet-pickup-hallu-display-owner.test.mjs",
+          "scripts/dogmove-inventory.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/do-name.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct206, C dog_invent pet pickup line versus repair205 monster movement option. Fresh publicHealer seed2026091047/date20270913 Hallucination reaches pickup boundary53: C iron piercer, oldJS tengu, core RNG3119 identical. Isolated source fix routes name display draw through supplied planning state. Old normal/mono fail53, before and ordinary pass; fixed all4 pass, including target142 screens/cursors and3119 core calls. Affected374 tests and full ESLint pass. No score gain or acceptance claimed until full hosted archive comparison and Main gates. Complete accepted205 receipt retained for next ordinary commit."
     }
   ]
 }

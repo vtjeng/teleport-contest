@@ -181,7 +181,7 @@ import {
     OBJ_NAME,
     TRIPE_RATION,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz, rn2_on_display_rng } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_sink } from './symbols.js';
@@ -914,7 +914,9 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
             if (state.flags?.verbose) {
                 await message(
                     messageAt(
-                        `${capitalizedMonsterName(monster, state)}`
+                        `${capitalizedMonsterName(monster, state, {
+                            displayRandom: bound => rn2_on_display_rng(bound, state),
+                        })}`
                         + ` picks up ${takenName}.`,
                         monster.mx,
                         monster.my,
