@@ -25,6 +25,12 @@ jobs:
           # Score history uses historical commits; worker timing uses the
           # tracked dashboard-snapshot.json made from the local event ledger.
           fetch-depth: 0
+          # The page does not read root-level source recordings. Keep full Git
+          # history while fetching current blobs only for the other paths.
+          sparse-checkout: |
+            /*
+            !/recordings/
+          sparse-checkout-cone-mode: false
       # The mismatch queue reads the C function index from the NetHack
       # submodule; without it the page shows the queue as unavailable. One
       # commit at depth 1 is enough, since nothing reads that history.
