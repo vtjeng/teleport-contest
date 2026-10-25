@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9701162,
+      "datetime": "20490417141500",
+      "nethackrc": "OPTIONS=name:LavaMoveProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " l\u0017uncursed ring of fire resistance\n Pnr\u0017lava\n hlhm.m.m.m."
+    }
+  ],
+  "comment": "C-first fire-resistant lava trap stationary-turn witness: trap.c sink_into_lava adds rnd(4) and nonrepeating feedback after the first forced wait."
+}

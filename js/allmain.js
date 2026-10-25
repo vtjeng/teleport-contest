@@ -107,6 +107,7 @@ import {
     runmode_delay_output,
     unmul,
 } from './hack.js';
+import { sink_into_lava } from './trap.js';
 import { encumber_msg } from './pickup.js';
 import { Glib } from './wield.js';
 import {
@@ -526,9 +527,10 @@ export async function finishHeroTimeEffects(state = game, env = {}) {
     if (state.iflags?.hilite_delta)
         status_eval_next_unhilite(state);
     await applyClairvoyancePlan(plan, state, env);
-    if (!state.u.utrap || state.u.utraptype !== TT_LAVA) {
-        if (!state.u.umoved) await pooleffects(false, state);
-    }
+    if (state.u.utrap && state.u.utraptype === TT_LAVA)
+        await sink_into_lava(state);
+    else if (!state.u.umoved)
+        await pooleffects(false, state);
 }
 
 export class UnsupportedTurnBoundaryError extends Error {

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T21:11:04Z",
+  "asOf": "2026-10-25T21:54:25Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16197,7 +16197,45 @@
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct222. Adapted a previously C-observed xorn edge setup to take an ordinary south step with mention_walls enabled. C says You have already gone as far south as possible; old JS stopped before that boundary with aligned 3128 RNG calls. C silent-option and pre-boundary controls strictly match old JS. C southeast off-map variation reports south because its x coordinate remains valid; repaired JS matches all four complete C recordings. Source order preserves force-fight preemption, diagonal direction reduction, nomul(0), context.move=0, and no turn cost. 93 focused/affected tests and ESLint/diff checks pass. Carry complete repair221 receipt into this ordinary candidate. Full hosted and publication gates pending; no aggregate gain inferred."
+      "note": "Prospective distinct222. Adapted a previously C-observed xorn edge setup to take an ordinary south step with mention_walls enabled. C says You have already gone as far south as possible; old JS stopped before that boundary with aligned 3128 RNG calls. C silent-option and pre-boundary controls strictly match old JS. C southeast off-map variation reports south because its x coordinate remains valid; repaired JS matches all four complete C recordings. Source order preserves force-fight preemption, diagonal direction reduction, nomul(0), context.move=0, and no turn cost. 93 focused/affected tests and ESLint/diff checks pass. Carry complete repair221 receipt into this ordinary candidate. Exact Checkpoint40234372287 and complete archived comparison against fd8ffa0 passed. Main e6aca26f3efa7f5a87ffae3ee8ac2852a5a55024 passed exact-SHA Lint40235216861 and Dashboard40235216932. Complete98 receipt verified and carried in the next ordinary repair commit. Accepted distinct222; no aggregate gain inferred."
+    },
+    {
+      "id": "lava-sink-elapsed-turn",
+      "kind": "parity-repair",
+      "title": "Apply lava sinking at each elapsed hero turn",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T21:54:25Z",
+          "end": "2026-10-25T21:54:25Z",
+          "note": "Point-in-time registration after C-first stationary and fatal lava recordings, source review, controls and strict local replay; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c:425-428",
+          "nethack-c/upstream/src/trap.c:6990-7034",
+          "js/allmain.js:finishHeroTimeEffects",
+          "js/trap.js:sink_into_lava"
+        ],
+        "witness": [
+          "recipes/trap.c/stationary-lava-sink-turns.session.json",
+          "recipes/trap.c/stationary-lava-dissolution-rescue.session.json",
+          "recipes/hack.c/lava-trap-movement-9701162.session.json"
+        ],
+        "test": [
+          "scripts/trap-sink-lava-recordings.test.mjs",
+          "scripts/trap-lava-effects.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/hero-death.test.mjs",
+          "scripts/hack-trapmove.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct223. C allmain.c calls sink_into_lava on each elapsed hero action while trapped. Old JS skipped it: a public C stationary turn added rnd(4) and sinking feedback while JS diverged at the next RNG call; the earlier moving-in-lava path was a strict control. The repair ports the full trap.c function, including nonfatal counter/message behavior, stale trap release, invulnerability, fire-vulnerable damage, and dissolution with debug rescue. Two new complete C recordings plus the existing moving control strictly match JS after the fix; 138 focused/affected tests and full lint pass. Carry verified repair222 complete98 receipt in this ordinary repair commit. Full hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }
