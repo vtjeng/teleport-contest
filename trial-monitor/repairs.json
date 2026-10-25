@@ -15656,6 +15656,42 @@
       },
       "candidates": [],
       "note": "Prospective distinct207, separate from pet-pickup display owner206. C peaceful gnome chats under Hallucination at level1: first ordinary line rn2(4)=2, then Phase three rn2(4)=3. Old JS spent an extra rn2(2) on the odd branch; first core divergence at call4467 after second chat, while 53 screens/cursors still matched. Fresh normal and monochrome C replays fail old; before and ordinary controls pass. JS reuses the one C plan draw for both eligibility and line. All four pass the source repair; exact hosted archive comparison and Main push gates remain required. Preserve accepted206 complete98 receipt for next ordinary commit; no aggregate score gain claimed."
+    },
+    {
+      "id": "death-quote-passage-count",
+      "kind": "parity-repair",
+      "title": "Use the C 30-slot Death quote reservoir",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T14:20:00Z",
+          "end": "2026-10-25T14:20:00Z",
+          "note": "Point-in-time C source and public Death-chat mismatch qualification; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/include/context.h:115-116",
+          "nethack-c/upstream/src/files.c:3424-3468",
+          "js/files.js:choose_passage"
+        ],
+        "witness": [
+          "recipes/files.c/death-quote-normal.session.json",
+          "recipes/files.c/death-quote-before-control.session.json",
+          "recipes/files.c/death-quote-monochrome.session.json",
+          "recipes/files.c/death-quote-seed-variation.session.json"
+        ],
+        "test": [
+          "scripts/death-quote-passage-count.test.mjs",
+          "scripts/read-tribute.test.mjs",
+          "scripts/tribute-data.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct208, separate from gnome plan RNG207. C context.h novel.pasg has 30 slots although files.c stale comment says 20. Death Quotes has 31 passages. C draws rn2(30) after 31 reservoir draws; JS drew rn2(20), first RNG divergence at call2788 and first screen divergence at step16. Fresh C normal, monochrome and independent-seed witnesses fail old JS; before-control passes. Setting JS MAXPASSAGES=30 makes all four strict replays pass. Hosted archive comparison and Main push gates remain required; accepted207 complete98 receipt travels in this ordinary repair commit. No aggregate score gain inferred."
     }
   ]
 }

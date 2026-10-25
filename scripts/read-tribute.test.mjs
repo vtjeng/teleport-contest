@@ -41,10 +41,10 @@ test('Death_quote uses its fixed id and bounds the C output buffer', async () =>
         'WHERE THE FIRST PRI', // C copies at most bufsz - 1 bytes.
     );
     assert.deepEqual(bounds, [
-        ...Array.from({ length: 31 }, (_, index) => 31 - index), 20,
+        ...Array.from({ length: 31 }, (_, index) => 31 - index), 30,
     ]);
     assert.equal(state.svc.context.novel.id, 1);
-    assert.equal(state.svc.context.novel.count, 19);
+    assert.equal(state.svc.context.novel.count, 29);
 });
 
 test('read_tribute clears an output buffer when its title is absent', async () => {

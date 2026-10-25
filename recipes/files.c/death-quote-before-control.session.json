@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first files.c Death_quote death-quote-before-control public input",
+  "segments": [
+    {
+      "seed": 20261025477,
+      "datetime": "20271025234000",
+      "nethackrc": "OPTIONS=name:DeathTalkProbe,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0007Death\ny#chat\n"
+    }
+  ]
+}

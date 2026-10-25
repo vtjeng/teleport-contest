@@ -70,7 +70,7 @@ export function livelog_add(llType, _text, state = game) {
     if (state === game) note_unported('files.c livelog_add');
 }
 
-const MAXPASSAGES = 20; // SIZE(svc.context.novel.pasg) in files.c.
+const MAXPASSAGES = 30; // SIZE(svc.context.novel.pasg) in context.h.
 const SECTION = 1;
 const TITLE = 2;
 const PASSAGE = 3;
