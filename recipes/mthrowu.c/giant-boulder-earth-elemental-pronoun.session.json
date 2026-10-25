@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Independent mountain-centaur missile intercepted by a shrieker. Seven genesis targets fill the nearby squares; wizard teleport selects a point three columns west, then nine waits/dismissals reach a miss and hit. Seed 8450001 was chosen before exploration; no fixed-workload input is copied.",
+  "segments": [
+    {
+      "seed": 8450201,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:MissileImpact,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0007giant\n\u0007shrieker\n\u0007peaceful earth elemental\n\u0007shrieker\n\u0007shrieker\n\u0007shrieker\n\u0007peaceful earth elemental\n\u0007shrieker\n\u0014  hhh.. . . . . . . . .  . . . . . . . . . . . . . ."
+    }
+  ],
+  "_comment": "Public C seed 8450201: giant boulder is intercepted by a wall-passing earth elemental at steps 120-121; C says it passes harmlessly through it. Strict old JS refuses the missing canSpotMonster owner."
+}

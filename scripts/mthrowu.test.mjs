@@ -49,6 +49,7 @@ import {
     AD_FIRE,
     AD_ACID,
     PM_GIANT_RAT,
+    PM_EARTH_ELEMENTAL,
     PM_NEWT,
     PM_STONE_GIANT,
     PM_URUK_HAI,
@@ -398,6 +399,17 @@ test('ohitmon gives unseen hit and miss feedback without touching the live tty',
         assert.equal(c.state._ttyToplines, prior);
         assert.deepEqual(c.settlement, missRoll ? [] : ['place', 'passive', 'stack']);
     }
+});
+
+test('ohitmon names a rock-passing elemental when a giant boulder is intercepted', async () => {
+    // C mthrowu.c:371,395. A stone missile hits a wall-passing solid
+    // elemental; mhim() needs the current visibility owner even though the
+    // elemental is not the intended target of the monster's throw.
+    const c = await impactCase({ visible: true, type: BOULDER });
+    c.target.data = c.state.mons[PM_EARTH_ELEMENTAL];
+    await ohitmon(c.target, c.object, 1, true, c.env);
+    assert.deepEqual(c.messages,
+        ['The boulder hits the earth elemental but passes harmlessly through it.']);
 });
 
 test('ohitmon suppresses unseen feedback for a designated monster target', async () => {

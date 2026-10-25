@@ -713,7 +713,10 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
                 if (!harmless)
                     how = exclam(damage); /* "!" or "." */
                 else
-                    how = ` but passes harmlessly through ${mhim(mtmp).slice(0, 9)}.`;
+                    how = ` but passes harmlessly through ${mhim(mtmp, {
+                        state, random,
+                        canSpotMonster: env.canSpotMonster ?? canspotmon,
+                    }).slice(0, 9)}.`;
                 await hit(
                     distant_name(otmp, mshot_xname, state),
                     mtmp,
