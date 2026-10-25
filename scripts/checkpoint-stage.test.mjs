@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { checkpointCommands, checkpointGroups } from './checkpoint-checks.mjs';
-import { combineStages, trialGroups, TEST_SHARDS, runIdentity } from './checkpoint-stage.mjs';
+import { combineStages, trialGroups, TEST_SHARDS, RECORDING_SHARDS, runIdentity } from './checkpoint-stage.mjs';
 
 // A fixed commit and workflow attempt let tests distinguish stale/mixed evidence.
 const COMMIT = 'a'.repeat(40);
@@ -73,6 +73,18 @@ test('the CI test jobs request each Node test shard exactly once', () => {
         assert.deepEqual(groups[`tests-${index}`][0].args,
             ['scripts/run-test-suite.mjs', 'default', '--shard', `${index}/${TEST_SHARDS}`]);
     }
+});
+
+test('the CI recording jobs cover every shard and a missing shard fails combination', () => {
+    const groups = trialGroups();
+    assert.deepEqual(Object.keys(groups).filter(group => group.startsWith('recordings-')),
+        Array.from({ length: RECORDING_SHARDS }, (_, index) => `recordings-${index + 1}`));
+    for (let index = 1; index <= RECORDING_SHARDS; index++) {
+        assert.deepEqual(groups[`recordings-${index}`][0].args,
+            ['scripts/score-recordings.mjs', '--shard', `${index}/${RECORDING_SHARDS}`]);
+    }
+    const incomplete = stages().filter(stage => stage.group !== `recordings-${RECORDING_SHARDS}`);
+    assert.throws(() => combineStages(incomplete, COMMIT, RUN), /missing or duplicate/u);
 });
 
 test('new commands in sharded groups require an explicit CI plan', () => {
