@@ -15486,6 +15486,11 @@
           "start": "2026-10-25T11:31:36.351876+00:00",
           "end": "2026-10-25T11:31:36.351876+00:00",
           "note": "Sequential primary integration after qualified C/native controls and complete accepted203 receipt."
+        },
+        {
+          "start": "2026-10-25T11:55:02.554147+00:00",
+          "end": "2026-10-25T11:55:02.554147+00:00",
+          "note": "Point observation: sequential canonical notice-name correction integration after original204 complete receipt verified; no elapsed active-work estimate."
         }
       ],
       "evidence": {
@@ -15494,14 +15499,23 @@
           "nethack-c/upstream/src/hack.c:notice_all_mons1744-1782",
           "nethack-c/upstream/src/hack.c:notice_mon1708-1732",
           "js/vision.js:vision_recalc",
-          "js/startup_a11y.js:collectMonsterNoticeMessages and existing async glyph-frame emitter"
+          "js/startup_a11y.js:collectMonsterNoticeMessages and existing async glyph-frame emitter",
+          "nethack-c/upstream/src/hack.c:notice_mon1719-1727 x_monnam",
+          "nethack-c/upstream/src/do_name.c:x_monnam",
+          "js/startup_a11y.js:noticeMonsterName",
+          "js/do_name.js:x_monnam"
         ],
         "witness": [
           "recipes/vision.c/vision-monster-notices-normal.session.json",
           "recipes/vision.c/vision-monster-notices-monochrome.session.json",
           "recipes/vision.c/vision-monster-notices-before-control.session.json",
           "recipes/vision.c/vision-monster-notices-ordinary-control.session.json",
-          "recipes/vision.c/vision-monster-notices-startup-control.session.json"
+          "recipes/vision.c/vision-monster-notices-startup-control.session.json",
+          "recipes/hack.c/monster-notice-name-owner-normal.session.json",
+          "recipes/hack.c/monster-notice-name-owner-monochrome.session.json",
+          "recipes/hack.c/monster-notice-name-owner-before-control.session.json",
+          "recipes/hack.c/monster-notice-name-owner-ordinary-control.session.json",
+          "recipes/hack.c/monster-notice-name-owner-invisible.session.json"
         ],
         "test": [
           "scripts/vision-monster-notices.test.mjs",
@@ -15509,11 +15523,14 @@
           "scripts/startup-a11y.test.mjs",
           "scripts/tty-message.test.mjs",
           "scripts/potion.test.mjs",
-          "scripts/allmain-turn.test.mjs"
+          "scripts/allmain-turn.test.mjs",
+          "scripts/monster-notice-name-owner.test.mjs",
+          "scripts/do-name.test.mjs",
+          "scripts/monmove.test.mjs"
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct204, new missing source callback rather than existing vision timing/buffer/point corrections. Cvision_recalc finishes both blind and ordinary paths by notice_all_mons(TRUE), gated by spot_monsters and noticeblocking. JS omitted it; afterblindfold removal a sleepingpeacefulhuman was not announced before monster movement, missingMore and consuming9prematurecorecalls. Reuse existing collected/sorted monster notice helper and existing source-ordered captured glyph-frame queue so asyncTTY drains before later messages or movement; share only exact framecapture block with existing glyphnotices. No new engineeringqueue/tooling/CI changes. Privatehelper and one exportedinternalcallback; no public UIsettings change. Origin vision epilogueMay5/July30 predatesexperiment. Independent Wizard8432334/date20270904, spot_monsters, observedblindfoldo, publicsleepingpeacefulhuman, blindfoldputonPo thenRauto-removal. InitialRo assumption wrong: C Rselects onlyblindfold immediately, oignoredatMore; preserved and minimizedRspace toactualack, no fabricatedtiming. Freshnormal/mono2584core/88screens+cursors/0animations oldfirst86/cursor86 andprematureNPCdraws, prototypefullpass; before2568/86, optionoff2584/88 and independentdefaultpetstartup8432336/dateSep6 3428/1 allpassboth. Native16 plan/live xenabled/off xblocked/unblocked xsighted/blind tests actualvision_recalc resetmspotted/queuedmessage and existingemitter, livecore/display/TTY/queue invariants; old12pass4fail,new16pass. Isolated257 (16new+241existing) plusfocusedESLintpass. Includesacceptedaf1complete98receipt. Primary/fullhosted/genuinearchive/Mainexactgates required before204acceptance; accepted203unchanged and no aggregate scoregain. Final primary362tests (21newnative/C+341existing),22register,fullESLint and diffcheck pass. Exact changed-SHA hostedCheckpoint/genuinearchive/MainLintDashboard required before prospective204 acceptance."
+      "note": "Prospective distinct204, new missing source callback rather than existing vision timing/buffer/point corrections. Cvision_recalc finishes both blind and ordinary paths by notice_all_mons(TRUE), gated by spot_monsters and noticeblocking. JS omitted it; afterblindfold removal a sleepingpeacefulhuman was not announced before monster movement, missingMore and consuming9prematurecorecalls. Reuse existing collected/sorted monster notice helper and existing source-ordered captured glyph-frame queue so asyncTTY drains before later messages or movement; share only exact framecapture block with existing glyphnotices. No new engineeringqueue/tooling/CI changes. Privatehelper and one exportedinternalcallback; no public UIsettings change. Origin vision epilogueMay5/July30 predatesexperiment. Independent Wizard8432334/date20270904, spot_monsters, observedblindfoldo, publicsleepingpeacefulhuman, blindfoldputonPo thenRauto-removal. InitialRo assumption wrong: C Rselects onlyblindfold immediately, oignoredatMore; preserved and minimizedRspace toactualack, no fabricatedtiming. Freshnormal/mono2584core/88screens+cursors/0animations oldfirst86/cursor86 andprematureNPCdraws, prototypefullpass; before2568/86, optionoff2584/88 and independentdefaultpetstartup8432336/dateSep6 3428/1 allpassboth. Native16 plan/live xenabled/off xblocked/unblocked xsighted/blind tests actualvision_recalc resetmspotted/queuedmessage and existingemitter, livecore/display/TTY/queue invariants; old12pass4fail,new16pass. Isolated257 (16new+241existing) plusfocusedESLintpass. Includesacceptedaf1complete98receipt. Primary/fullhosted/genuinearchive/Mainexactgates required before204acceptance; accepted203unchanged and no aggregate scoregain. Final primary362tests (21newnative/C+341existing),22register,fullESLint and diffcheck pass. Exact changed-SHA hostedCheckpoint/genuinearchive/MainLintDashboard required before prospective204 acceptance. Original204 accepted154e6: Checkpoint40189381579 success11:44:08Z, genuine archive44fixed/98synthetic2055 comparison versusaf1 unchanged; exactMainLint40190332504 success11:48:35Z andDashboard40190332465 success11:50:36Z/deploy11:50:35Z. Existingchecker43955 completedpending[]/failedfalse and all98hashesverified. Complete154e6receipt carried in this ordinary correction. Further grouped204 canonicalnotice-name correction, not distinct205. Cnotice_mon callsx_monnam with tame/article/given-name/proper-name/peaceful/saddle flags; JSprivatehelper manuallybuilt speciesname, missingHallucination andinvisibleadjective/canonicalnamebranches. Replaceonlyprivatehelper andsolecaller with existingcanonicalx_monnam, explicitactive state anddisplayRandom owner, sameCflags. Preserveotheraccessibilityspecies helpers, noticeeligibility/queue/frame/option/sorting/movement/coreRNG. Plainhelper8866764466/2b3266610dJuly22 predatesexperiment. Independent public8432334/dateSep4 verifiedsleepinghuman+blindfold, activateHalluwhileblind andackactualMore, Rauto-removeandactualMoreack: Cpeacefuliguana versusJSplainhuman. Freshnormal/mono2584core108screens/cursors0anim oldfirst107 andshiftedlatername/newallpass;before2568/106 andordinary2584/88 passboth. AdditionalSeeInvisiblepotionactualletterp producedMorethenCallprompt; originalspaces/genesis routefailed, preservednotcoverage; actualMore/Esc cancellation verified beforeinvisiblehumancreation. CactualYou see a peaceful invisiblehuman, oldfirst138/newfullpass. Native8 plan/live xHallu/plain xinvisible/visible checkscanonicaladjective, oneannouncement, owneddisplaystream advanceonlyHallu, coreandliveclonecontexts preserved; old2pass6fail/new8pass. Initial432affected431pass1oldinvisiblegoblinexpectationwrong; sourceandliveCconfirmadjective, strengthenedexpectation, correctedfile19pass. InitialunusedSADDLElintfailurepreserved, removedunusedimport, finalfocusedlintpass. All setupmisses retained. Primary/fullhosted/genuinearchive/exactMain gatesrequired; distinct204 unchanged, no aggregate gain. Finalprimary458tests (13newnative/C+445existing),22register,fullESLint anddiffcheckpass. Parentcompleteexacthead snapshot11:55:09UTC consumed andretained. Changed-SHA fullhosted/genuinearchive/exactMaingatesrequired beforethis groupedcorrection closes; distinct204 unchanged."
     }
   ]
 }

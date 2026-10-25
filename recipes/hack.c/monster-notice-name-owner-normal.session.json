@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C canonical monster notice naming normal; actualHalluactivationMore andblindfoldRauto-removal boundaries observed, originalfailedsetup retained.",
+  "segments": [
+    {
+      "seed": 8432334,
+      "datetime": "20270904100000",
+      "nethackrc": "OPTIONS=name:VisionNoticeProbe,role:Wizard,race:human,gender:male,align:neutral,pettype:none,playmode:debug,!legacy,!tutorial,!splash_screen,!tips,!autopickup,!acoustics,spot_monsters\n",
+      "moves": "   #levelchange\n8\n            \u0017blindfold\n    #wizgenesis\n1 sleeping peaceful human\nPo#wizintrinsic\n800h\n R "
+    }
+  ]
+}

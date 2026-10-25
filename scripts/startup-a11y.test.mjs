@@ -332,7 +332,8 @@ test('notice_all_mons distinguishes sight, infravision, and sensing', () => {
     const invisible = monster({ minvis: true });
     assert.deepEqual(notice(invisible), []);
     state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    assert.deepEqual(notice(invisible), ['You see a goblin.']);
+    // C hack.c notice_mon -> x_monnam retains the invisible adjective.
+    assert.deepEqual(notice(invisible), ['You see an invisible goblin.']);
 
     state.u.uprops[SEE_INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     state.viz_array[ordinary.my][ordinary.mx] = COULD_SEE;
