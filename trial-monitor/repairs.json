@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T04:00:53.180325+00:00",
+  "asOf": "2026-10-25T04:29:16.645566+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -14684,8 +14684,99 @@
           "scripts/inventory-substrate.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "33eb84560d62bc8f7b3715b94098bb8092183cb4",
+          "committedAt": "2026-10-25T04:09:11Z",
+          "runs": [
+            {
+              "id": 40160854280,
+              "name": "Checkpoint",
+              "sha": "33eb84560d62bc8f7b3715b94098bb8092183cb4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/water-bubble-boulder-20261025",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T04:09:33Z",
+              "completedAt": "2026-10-25T04:19:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40160854280"
+            },
+            {
+              "id": 40161720848,
+              "name": "Lint",
+              "sha": "33eb84560d62bc8f7b3715b94098bb8092183cb4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T04:23:43Z",
+              "completedAt": "2026-10-25T04:24:48Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40161720848"
+            },
+            {
+              "id": 40161720786,
+              "name": "Dashboard",
+              "sha": "33eb84560d62bc8f7b3715b94098bb8092183cb4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T04:23:43Z",
+              "completedAt": "2026-10-25T04:25:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40161720786"
+            }
+          ]
+        }
+      ],
+      "note": "Provisional distinct198 only after all exact gates; accepted197. Independent preexperiment missing recalcBlockPoint owner in Water movebubbles floor collection, not a vision algorithm correction. Callback bound to normalized objectEnv.state, preserves C remove_object order and existing canonical placement blockPoint. Final compact public female neutral Healer/cat8432250 June11 actual Water: take a boulder instead of declining the Amulet arrival wish, then forced m. rest triggers bubble collection. Normal+mono4247core119screens/cursors0animations strictpass; both baselinefail at4114core/116screens onmissingcallback. Beforeforcedrest4049/116/0 and independent ordinaryKnight8432254 June15 2227/29/0 passboth. First compact unforced dot was rejected by C as waiting to get hit and did not exercise collection; retained failed experiment and use canonical forced-rest input. Larger original discovery witnesses/matrices remain private:128737core2146screens21anim match through completed collection turn; later separate drowning/safe-teleport divergence preserved, no full-longcase pass claim for this callback alone. Supported onBoundary and all4actual stream hash equality verify original BOULDER475 refusal. Native22 initializedHealer8432252 June13:16 H/Blind/count1-2/direction boulder cases preserve complete object pile/level indexes/identity/quantity, coordinates, AIR terrain and boulder opacity; actual canonical removal callback reached. Supplied source RNGbounds3,3,20 with core/display unchanged;2nonbouldercontrols;ordinary+Air outsidecollection controls;2actual default-vs-realrn2-delegated owner comparisons. Baseline4pass18fail/prototype22pass. Actual primary682focused/affectedtests (22native+4original C+656existing),16register/fullESLint/diffcheck passed before replacing only the three long C assets with equivalent compact witnesses. Final26 native/compactC and register checks required. Includes verified accepted a564complete98receipt/SCORE/evals and grouped193 acceptance. No measured aggregate score gain or new challenge admission; full changed-SHA hosted/genuinearchive/Main gates required. Final26 actual primary native/compactC checks passed, final16register checks and diffcheck pass. Gameplay/test implementation unchanged from682pass run; only equivalent smaller C assets replaced, with independent old/new matrix verified. Full frozen-SHA Checkpoint/genuine archived comparison versusa564 and exact Main Lint/Dashboard gates still required; no acceptance yet. Accepted as distinct198 after full Checkpoint40160854280/genuine exact archive hash-admission44fixed98batch2055case comparison versus a564 with no regressions/deltas, Main Lint40161720848 and Dashboard40161720786. Normal checker90973 exit0 pending[], complete33eb98pointerandallhashesverified. Parent complete exactSHA discovery04:26:34Z corroborates all3success statuses; terminal workflow-summary times, no job times invented. Receipt/SCORE/evals shipped next ordinary source repair, no duplicate evaluation or dashboard-only refresh."
+    },
+    {
+      "id": "newsym-direct-monster-detection",
+      "kind": "parity-repair",
+      "title": "Use direct monster detection for submerged Water redraws",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T04:01:49.570972+00:00",
+          "end": "2026-10-25T04:01:49.570972+00:00",
+          "note": "Observed isolated source-predicate prototype investigation while prior candidate frozen; point observation only, no inferred active duration."
+        },
+        {
+          "start": "2026-10-25T04:29:16.645566+00:00",
+          "end": "2026-10-25T04:29:16.645566+00:00",
+          "note": "Sequential primary integration after accepted198 complete98receipt and isolated qualification; observation only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "C display.c newsym1010-1025 visible see_it/direct Detect_monsters and1046-1054 nonvisible tp_sensemon/warn/infra/direct Detect_monsters",
+          "C youprop.h188-190 Detect_monsters is intrinsic||extrinsic with no blocked term. Cdisplay.h _sensemon adds Underwater range/pool gates not present in these newsym branches; global newsym early Underwater gate excludes Waterlevel.",
+          "C display.c mon_overrides_region668-699 intentionally retains sensemon; preserve that separate branch.",
+          "Original JS nonvisible sensemon substitution efbda3264b October2; visible predicate9ddac6f1ca August29, before experiment.",
+          "js/display.js"
+        ],
+        "witness": [
+          "recipes/display.c/newsym-water-detection-normal.session.json",
+          "recipes/display.c/newsym-water-detection-monochrome.session.json",
+          "recipes/display.c/newsym-water-detection-before-control.session.json",
+          "recipes/display.c/newsym-water-detection-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/water-newsym-detection.test.mjs",
+          "scripts/display-symbols.test.mjs",
+          "scripts/display-visibility.test.mjs",
+          "scripts/light-vision.test.mjs",
+          "scripts/planning-isolation.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Provisional distinct198 only after all exact gates; accepted197. Independent preexperiment missing recalcBlockPoint owner in Water movebubbles floor collection, not a vision algorithm correction. Callback bound to normalized objectEnv.state, preserves C remove_object order and existing canonical placement blockPoint. Final compact public female neutral Healer/cat8432250 June11 actual Water: take a boulder instead of declining the Amulet arrival wish, then forced m. rest triggers bubble collection. Normal+mono4247core119screens/cursors0animations strictpass; both baselinefail at4114core/116screens onmissingcallback. Beforeforcedrest4049/116/0 and independent ordinaryKnight8432254 June15 2227/29/0 passboth. First compact unforced dot was rejected by C as waiting to get hit and did not exercise collection; retained failed experiment and use canonical forced-rest input. Larger original discovery witnesses/matrices remain private:128737core2146screens21anim match through completed collection turn; later separate drowning/safe-teleport divergence preserved, no full-longcase pass claim for this callback alone. Supported onBoundary and all4actual stream hash equality verify original BOULDER475 refusal. Native22 initializedHealer8432252 June13:16 H/Blind/count1-2/direction boulder cases preserve complete object pile/level indexes/identity/quantity, coordinates, AIR terrain and boulder opacity; actual canonical removal callback reached. Supplied source RNGbounds3,3,20 with core/display unchanged;2nonbouldercontrols;ordinary+Air outsidecollection controls;2actual default-vs-realrn2-delegated owner comparisons. Baseline4pass18fail/prototype22pass. Actual primary682focused/affectedtests (22native+4original C+656existing),16register/fullESLint/diffcheck passed before replacing only the three long C assets with equivalent compact witnesses. Final26 native/compactC and register checks required. Includes verified accepted a564complete98receipt/SCORE/evals and grouped193 acceptance. No measured aggregate score gain or new challenge admission; full changed-SHA hosted/genuinearchive/Main gates required. Final26 actual primary native/compactC checks passed, final16register checks and diffcheck pass. Gameplay/test implementation unchanged from682pass run; only equivalent smaller C assets replaced, with independent old/new matrix verified. Full frozen-SHA Checkpoint/genuine archived comparison versusa564 and exact Main Lint/Dashboard gates still required; no acceptance yet."
+      "note": "Provisional distinct199 only after full exact gates; accepted198. Translate complete related visible/nonvisible source predicates: see_it uses direct mon_visible or tp_sensemon/warning for head; Detect_monsters direct intrinsic||extrinsic, no extra sensemon underwater filter. Keep region override sensing unchanged. No RNG/vision-buffer/terminal algorithm changes. Independent public Healer/cat8432250June11 long Water after corrected bubble collection firstscreen2148/core2264 mismatched. Passive existing Cdisplay logging2151steps preserves allordinary originalCfields; output-only JS mixed/stack/order observers preserve all4actual streams. Actual LIVEteleds uinwatertrue skipped see_monsters/vision display draws165074; nextactualRN2 came from domove maybe_adjust_hero_bubble, whileC had cosmetic383 draws. Underlying source was missing redraw predicates, not an invented random call. Prototype strictly matches entire321834core4555screens/cursors42animations. New native70 Wizard8432258June19:64Water/ordinary,wet/dry,visible/blind,Hallu/non,intrinsic/extrinsic,blocked0/1 cases;4directtp/warning cases;2no-detectioncontrols. Real newsym with invisible goblin, actual glyph family, core/display state assertions. Baseline52pass18fail/new70pass. Initial wrong import names/modules corrected in harness; failurelogs retained, no assertion changes needed. Fresh compact Healer8432260June21 normal+mono7320core296screens/cursors0anim failold/passprototype; beforeteleportcommit4350/262/0 and independent ordinaryHealer8432262June23 2093/68/0 passboth. Actual public intrinsic menu hHallu/iBlind/tDetection/page2gMagicalBreathing allows legitimate Water1,1 teleport then submerged redraw. Earlier compact probes retained: intrinsicMore swallowedcommand causedcombat death, unansweredWizardprompt stoppedbeforeeffect, and unprotectedunsafe teleport correctly rejected byCteleok. None counted as qualifying evidence. Independent long Air234523/4555/46 and Water336038/4555/83 remain strictCmatches. Separate Archeologist359868core cosmetic mismatch3847 unchanged all4actual stream hashes, preserve unqualified lead. Isolated876focused/affectedtests including70native plus fullESLintpass; fourfreshCmatrixpass. Primary/fullhosted pending. Includes verified33ebcomplete98receipt/SCORE/evals and distinct198 acceptance; no new challenge admission or aggregate score gain. Actual integrated primary880tests (74new native/C plus806existing) passed,16register/fullESLint/diffcheck pass. Full changed-SHA hosted Checkpoint, genuine archived comparison versus accepted33eb and exactSHA Main Lint/Dashboard remain required before provisional199acceptance. No other source edit or acceptance increment."
     }
   ]
 }

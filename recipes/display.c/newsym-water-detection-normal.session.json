@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent compact direct-detection witness: actual public intrinsic menu hHallu/iBlind/tDetection/page2gMagicalBreathing. Safely teleport into Water1,1, then redraw while submerged. C newsym uses direct Detect_monsters; preserve its separate sensemon region predicate.",
+  "segments": [
+    {
+      "seed": 8432260,
+      "datetime": "20270621100000",
+      "nethackrc": "OPTIONS=name:WaterDetectProbe,role:Healer,race:human,gender:female,align:neutral,pettype:cat,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>K                        nothing\n    #wizintrinsic\n800h800i800t>800g\n                #teleport\n yhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkkkkkkkkkj.                \u0012                "
+    }
+  ]
+}

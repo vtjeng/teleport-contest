@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Before-submergence control: actual controlled teleport cursor at1,1 but destination not yet committed, so direct submerged newsym branch is not reached.",
+  "segments": [
+    {
+      "seed": 8432260,
+      "datetime": "20270621100000",
+      "nethackrc": "OPTIONS=name:WaterDetectProbe,role:Healer,race:human,gender:female,align:neutral,pettype:cat,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>K                        nothing\n    #wizintrinsic\n800h800i800t>800g\n                #teleport\n yhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkkkkkkkkkj"
+    }
+  ]
+}

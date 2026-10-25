@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary D1 Healer8432262 June23 direct-detection redraw control, no Water arrival or submergence.",
+  "segments": [
+    {
+      "seed": 8432262,
+      "datetime": "20270623100000",
+      "nethackrc": "OPTIONS=name:OrdinaryDetectProbe,role:Healer,race:human,gender:female,align:neutral,pettype:cat,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  #wizintrinsic\n800h800i800t>800g\n                \u0012                "
+    }
+  ]
+}

@@ -3809,9 +3809,14 @@ export function newsym(x, y) {
         monster
         && (sensedWithoutDetection || sensemon(monster, game)),
     );
-    const detectedOnly = monsterSensed
-        && !monsterDirectlyVisible
-        && !sensedWithoutDetection;
+    // C display.c newsym() uses see_it and Detect_monsters directly;
+    // sensemon() adds an underwater gate which this source branch lacks.
+    const detection = game.u?.uprops?.[DETECT_MONSTERS] ?? {};
+    const detectMonsters = Boolean(detection.intrinsic || detection.extrinsic);
+    const seeIt = Boolean(monster && (monsterDirectlyVisible
+        || (!wormTail && (tp_sensemon(monster, game)
+            || warningMatches(monster, game)))));
+    const detectedOnly = !seeIt && !wormTail && detectMonsters;
     const monsterWarning = Boolean(
         monster
         && !wormTail
@@ -3847,7 +3852,7 @@ export function newsym(x, y) {
     // detection only show the head. Keep the segment test coordinate based,
     // as display.c's is_worm_tail(mon) macro is.
     const shouldDisplayMonster = Boolean(
-        monster && (monsterDirectlyVisible || (!wormTail && monsterSensed)),
+        monster && (seeIt || (!wormTail && detectMonsters)),
     );
 
     // display.c:1032-1033, `else if (glyph_is_invisible(lev->glyph))
@@ -3955,7 +3960,7 @@ export function newsym(x, y) {
     const outOfSightSensed = Boolean(
         outOfSightSeeIt
         || (outOfSightMon && !outOfSightWormTail
-            && sensemon(outOfSightMon, game)),
+            && detectMonsters),
     );
     // C ref: display.c newsym() (1055-1056). mon_warning fires only when
     // the monster was not already handled by the sensed path above.
