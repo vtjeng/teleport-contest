@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Before-collection control: initial Water bubble holds the wished boulder; stop at forced-rest direction input before movebubbles removes it.",
+  "segments": [
+    {
+      "seed": 8432250,
+      "datetime": "20270611100000",
+      "nethackrc": "OPTIONS=name:HealerWaterProbe,role:Healer,race:human,gender:female,align:neutral,pettype:cat,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>K                        uncursed boulder\n        m"
+    }
+  ]
+}

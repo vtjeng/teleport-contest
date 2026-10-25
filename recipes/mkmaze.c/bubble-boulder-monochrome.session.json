@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent compact Water bubble collection witness. Replace declined public Amulet arrival wish with a boulder on the initial air bubble; rest to let actual Water bubbles collect and relocate it. No challenge source or private C instrumentation.",
+  "segments": [
+    {
+      "seed": 8432250,
+      "datetime": "20270611100000",
+      "nethackrc": "OPTIONS=name:HealerWaterProbe,role:Healer,race:human,gender:female,align:neutral,pettype:cat,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\nOPTIONS=!color\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>K                        uncursed boulder\n        m.  "
+    }
+  ]
+}

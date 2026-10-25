@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary dry-floor boulder wish control, Knight8432254 June15; no Water bubble collection.",
+  "segments": [
+    {
+      "seed": 8432254,
+      "datetime": "20270615100000",
+      "nethackrc": "OPTIONS=name:DryBoulderControl,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed boulder\n        "
+    }
+  ]
+}
