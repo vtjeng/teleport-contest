@@ -1196,6 +1196,8 @@ export function engulf_target(magr, mdef, state = game) {
 export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
     const env = attackEnv(rawEnv);
     const { state } = env;
+    // C names sensed monsters even when the combat sight hook cannot see them.
+    const nameEnv = { ...env, canSpotMonster: env.canSpotMonster ?? canspotmon };
     if (!engulf_target(magr, mdef, state)) return M_ATTK_MISS;
     const message = requireAttackOperation(env, 'message');
     const redraw = env.redraw ?? newsym;
@@ -1205,9 +1207,9 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
     const enfolds = () => magr.data.mattk.some(
         attack => attack.aatyp === AT_ENGL && attack.adtyp === AD_WRAP);
     if (state.gv.vis) {
-        await message(`${Monnam(magr, state, env)} `
+        await message(`${Monnam(magr, state, nameEnv)} `
             + `${digests() ? 'swallows' : enfolds() ? 'encloses' : 'engulfs'} `
-            + `${mon_nam(mdef, state, env)}.`, state, env);
+            + `${mon_nam(mdef, state, nameEnv)}.`, state, env);
     }
     if (!flaming(magr.data)) {
         for (let obj = mdef.minvent; obj; obj = obj.nobj)
@@ -1218,12 +1220,12 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
             ...env, ncflags: NO_NC_FLAGS,
         })) {
         if (state.gv.vis) {
-            await message(`${Monnam(magr, state, env)} expels `
+            await message(`${Monnam(magr, state, nameEnv)} expels `
                 + `${canspotmon(mdef, state) ? 'it' : 'something'}.`, state, env);
             if (canspotmon(mdef, state)) {
                 await message(`It turns into ${x_monnam(mdef, ARTICLE_A,
                     null, SUPPRESS_NAME | SUPPRESS_IT | SUPPRESS_INVISIBLE,
-                    false, state, env)}.`, state, env);
+                    false, state, nameEnv)}.`, state, env);
             }
         }
         return M_ATTK_HIT;
@@ -1263,7 +1265,7 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
         redraw(dx, dy, state);
     } else {
         if (cansee(dx, dy, state)) {
-            await message(`${Monnam(mdef, state, env)} is `
+            await message(`${Monnam(mdef, state, nameEnv)} is `
                 + `${digests() ? 'regurgitated' : enfolds() ? 'released' : 'expelled'}!`,
             state, env);
         }
