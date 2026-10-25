@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary Wizard8432274July5 floor-route control without any wished trap.",
+  "segments": [
+    {
+      "seed": 8432274,
+      "datetime": "20270705100000",
+      "nethackrc": "OPTIONS=name:SeenTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n",
+      "moves": "  l        h        l        "
+    }
+  ]
+}

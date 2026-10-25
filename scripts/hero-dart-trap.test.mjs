@@ -99,14 +99,13 @@ test('preflight_dotrap admits an ARROW_TRAP when the hero rides a steed',
         game.u.usteed = null;
     });
 
-test('preflight_dotrap refuses a seen DART_TRAP', async () => {
+test('preflight_dotrap admits a seen DART_TRAP', async () => {
     await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });
-    // A seen trap triggers dotrap()'s escape branch, which needs trapname().
+    // The completed common dotrap escape branch owns trapname(); admission is pure.
     const trap = { ttyp: DART_TRAP, once: false, tseen: true };
-    assert.throws(
-        () => preflight_dotrap(trap, game),
-        (error) => error.reason === 'a trap the hero has already seen',
-    );
+    const before = structuredClone({ core: game.coreCtx, display: game.displayCtx, trap });
+    assert.doesNotThrow(() => preflight_dotrap(trap, game));
+    assert.deepEqual({ core: game.coreCtx, display: game.displayCtx, trap }, before);
 });
 
 test('preflight_dotrap admits a DART_TRAP when the hero rides a steed',

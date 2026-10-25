@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T04:29:16.645566+00:00",
+  "asOf": "2026-10-25T05:23:57.577488+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -14775,8 +14775,100 @@
           "scripts/planning-isolation.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "20d43a1ee57828f6091c8b592bb5c98bed8108ed",
+          "committedAt": "2026-10-25T04:31:04Z",
+          "runs": [
+            {
+              "id": 40162189123,
+              "name": "Checkpoint",
+              "sha": "20d43a1ee57828f6091c8b592bb5c98bed8108ed",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/newsym-water-detection-20261025",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T04:31:23Z",
+              "completedAt": "2026-10-25T04:41:19Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40162189123"
+            },
+            {
+              "id": 40163319340,
+              "name": "Lint",
+              "sha": "20d43a1ee57828f6091c8b592bb5c98bed8108ed",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T04:50:04Z",
+              "completedAt": "2026-10-25T04:51:05Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40163319340"
+            },
+            {
+              "id": 40163319334,
+              "name": "Dashboard",
+              "sha": "20d43a1ee57828f6091c8b592bb5c98bed8108ed",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T04:50:04Z",
+              "completedAt": "2026-10-25T04:52:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40163319334"
+            }
+          ]
+        }
+      ],
+      "note": "Provisional distinct199 only after full exact gates; accepted198. Translate complete related visible/nonvisible source predicates: see_it uses direct mon_visible or tp_sensemon/warning for head; Detect_monsters direct intrinsic||extrinsic, no extra sensemon underwater filter. Keep region override sensing unchanged. No RNG/vision-buffer/terminal algorithm changes. Independent public Healer/cat8432250June11 long Water after corrected bubble collection firstscreen2148/core2264 mismatched. Passive existing Cdisplay logging2151steps preserves allordinary originalCfields; output-only JS mixed/stack/order observers preserve all4actual streams. Actual LIVEteleds uinwatertrue skipped see_monsters/vision display draws165074; nextactualRN2 came from domove maybe_adjust_hero_bubble, whileC had cosmetic383 draws. Underlying source was missing redraw predicates, not an invented random call. Prototype strictly matches entire321834core4555screens/cursors42animations. New native70 Wizard8432258June19:64Water/ordinary,wet/dry,visible/blind,Hallu/non,intrinsic/extrinsic,blocked0/1 cases;4directtp/warning cases;2no-detectioncontrols. Real newsym with invisible goblin, actual glyph family, core/display state assertions. Baseline52pass18fail/new70pass. Initial wrong import names/modules corrected in harness; failurelogs retained, no assertion changes needed. Fresh compact Healer8432260June21 normal+mono7320core296screens/cursors0anim failold/passprototype; beforeteleportcommit4350/262/0 and independent ordinaryHealer8432262June23 2093/68/0 passboth. Actual public intrinsic menu hHallu/iBlind/tDetection/page2gMagicalBreathing allows legitimate Water1,1 teleport then submerged redraw. Earlier compact probes retained: intrinsicMore swallowedcommand causedcombat death, unansweredWizardprompt stoppedbeforeeffect, and unprotectedunsafe teleport correctly rejected byCteleok. None counted as qualifying evidence. Independent long Air234523/4555/46 and Water336038/4555/83 remain strictCmatches. Separate Archeologist359868core cosmetic mismatch3847 unchanged all4actual stream hashes, preserve unqualified lead. Isolated876focused/affectedtests including70native plus fullESLintpass; fourfreshCmatrixpass. Primary/fullhosted pending. Includes verified33ebcomplete98receipt/SCORE/evals and distinct198 acceptance; no new challenge admission or aggregate score gain. Actual integrated primary880tests (74new native/C plus806existing) passed,16register/fullESLint/diffcheck pass. Full changed-SHA hosted Checkpoint, genuine archived comparison versus accepted33eb and exactSHA Main Lint/Dashboard remain required before provisional199acceptance. No other source edit or acceptance increment. Accepted as distinct199 after full Checkpoint40162189123/genuine exact archive hash-admission44fixed98batch2055case comparison versus33eb with no regressions/deltas, Main Lint40163319340 and Dashboard40163319334. Parent complete exactSHA discovery04:53:59Z corroborates normal checker6198 success; workflow-summary timestamps only. Checkerexit0 pending[], complete20d98pointerandallhashesverified. Receipt/SCORE/evals carried next ordinary source repair, no duplicate evaluation or dashboard-only refresh."
+    },
+    {
+      "id": "seen-trap-admission",
+      "kind": "parity-repair",
+      "title": "Admit supported seen traps to canonical escape handling",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T04:33:50.638115+00:00",
+          "end": "2026-10-25T04:33:50.638115+00:00",
+          "note": "Independent public Healer Fire investigation began while prior candidate frozen; point observation only, no inferred duration."
+        },
+        {
+          "start": "2026-10-25T05:23:57.577488+00:00",
+          "end": "2026-10-25T05:23:57.577488+00:00",
+          "note": "Sequential primary integration after accepted199 complete98receipt and isolated qualification; observation only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "C trap.c dotrap2995-3060, especially common3035-3043 already-seen escape gate and effect dispatch; unchanged JSdotrap already implements complete gate",
+          "Legacy JS preflight seen-trap whitelist2298aee594 September15 contradicts common escape gate83aa645023 September15; both preexperiment. Escape article fixf1a0e5e9c6 October9 also preexperiment.",
+          "Only remove obsolete seen-trap refusal; preserve initial supported-type guard, occupied fixed-teleport destination guard and mounted guard. No RNG/effect algorithm changes.",
+          "Ctrap.c trapname7100onward supplies normal/cosmetic names through existing canonical helper; source-owned nominal random calls remain in dotrap.",
+          "js/trap_effects.js"
+        ],
+        "witness": [
+          "recipes/trap.c/seen-trap-admission-rust.session.json",
+          "recipes/trap.c/seen-trap-admission-dart-hallu.session.json",
+          "recipes/trap.c/seen-trap-admission-before-control.session.json",
+          "recipes/trap.c/seen-trap-admission-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/seen-trap-admission.test.mjs",
+          "scripts/cmd.test.mjs",
+          "scripts/hero-dart-trap.test.mjs",
+          "scripts/trap-rust-trap.test.mjs",
+          "scripts/trap.test.mjs",
+          "scripts/hero-sleep-gas-trap.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Provisional distinct199 only after full exact gates; accepted198. Translate complete related visible/nonvisible source predicates: see_it uses direct mon_visible or tp_sensemon/warning for head; Detect_monsters direct intrinsic||extrinsic, no extra sensemon underwater filter. Keep region override sensing unchanged. No RNG/vision-buffer/terminal algorithm changes. Independent public Healer/cat8432250June11 long Water after corrected bubble collection firstscreen2148/core2264 mismatched. Passive existing Cdisplay logging2151steps preserves allordinary originalCfields; output-only JS mixed/stack/order observers preserve all4actual streams. Actual LIVEteleds uinwatertrue skipped see_monsters/vision display draws165074; nextactualRN2 came from domove maybe_adjust_hero_bubble, whileC had cosmetic383 draws. Underlying source was missing redraw predicates, not an invented random call. Prototype strictly matches entire321834core4555screens/cursors42animations. New native70 Wizard8432258June19:64Water/ordinary,wet/dry,visible/blind,Hallu/non,intrinsic/extrinsic,blocked0/1 cases;4directtp/warning cases;2no-detectioncontrols. Real newsym with invisible goblin, actual glyph family, core/display state assertions. Baseline52pass18fail/new70pass. Initial wrong import names/modules corrected in harness; failurelogs retained, no assertion changes needed. Fresh compact Healer8432260June21 normal+mono7320core296screens/cursors0anim failold/passprototype; beforeteleportcommit4350/262/0 and independent ordinaryHealer8432262June23 2093/68/0 passboth. Actual public intrinsic menu hHallu/iBlind/tDetection/page2gMagicalBreathing allows legitimate Water1,1 teleport then submerged redraw. Earlier compact probes retained: intrinsicMore swallowedcommand causedcombat death, unansweredWizardprompt stoppedbeforeeffect, and unprotectedunsafe teleport correctly rejected byCteleok. None counted as qualifying evidence. Independent long Air234523/4555/46 and Water336038/4555/83 remain strictCmatches. Separate Archeologist359868core cosmetic mismatch3847 unchanged all4actual stream hashes, preserve unqualified lead. Isolated876focused/affectedtests including70native plus fullESLintpass; fourfreshCmatrixpass. Primary/fullhosted pending. Includes verified33ebcomplete98receipt/SCORE/evals and distinct198 acceptance; no new challenge admission or aggregate score gain. Actual integrated primary880tests (74new native/C plus806existing) passed,16register/fullESLint/diffcheck pass. Full changed-SHA hosted Checkpoint, genuine archived comparison versus accepted33eb and exactSHA Main Lint/Dashboard remain required before provisional199acceptance. No other source edit or acceptance increment."
+      "note": "Provisional distinct200 only after full exact gates; accepted199. Original preexperiment unsupported seen-trap whitelist blocks six otherwise-supported types before the already-ported canonical common escape/effect path: dart,fire,sleepgas,rust,teleport,poly. Remove only that obsolete refusal and its redundant force predicate/comment; no shared effect or RNG algorithm changes. Independent public Healer/cat8432264June25 actual Fire, baseline16135RNG400screens/cursors100animations exact then supported onBoundary seen-trap refusal during LIVE savelife->expels->spoteffects->dotrap. All4actual observer stream hashes equal baseline. Source Cstep400 towerofflame confirms Firetrap. Prototype strict private prefix37980core1017screens/cursors417animations; later separate firstscreen1017/message, firstcore38716at1063confdir remains unqualified, no full166456/4555/1395match claim. Native182 Wizard8432272July3:120pure admission flags/Hallu/Blind/new6types preserving complete core/display/u/context/map/traps/TTY;48actual canonical zero-escape calls overtype/Hallu/Blind/ownership pin source messages, RN5bound, liveHP/trap/grid/core unchanged and cosmetic context ownership;6unseencontrols;2unknown/occupied-fixedteleportrefusalcontrols;6actualdefault-vs-realrn2delegated complete-call comparisons. Baseline56pass126fail/new182pass. Fresh ordinary Wizard8432266June27 compactRust3104/63/0 and DartHallu confirmed return3136/99/0 failold/passprototype; beforesecondRustentry3088/54/0 and independent ordinaryWizard8432274July5 floorroute1796/30/0 passboth. DartHallu explicitly answersyes to Cparanoia prompt and actualCdotrap RN5 then dart creation/hit/poison completes. Earlier refused stairtrap wish, first unseen activation, and declined second-entry confirmation preserved as nonqualifying probes. No fabricated reachability. Existing dart/rust negative admission tests now assert source-correct pure admission; generic cmd error/FIFO/run-loop tests use a real remaining occupied fixed-teleport destination with sleepingfrozen distant newt onexistingROOM, retaining all original atomicity assertions, no terrain/vision mutation. Isolated729focused/affectedtests pass; fullESLintpass after removing one now-unused FIRE_TRAP fixture import. Cmatrix4cases old/newverified and privateprefixstrictpass. Primary and all hosted/publication gates pending. Includes verified20dcomplete98receipt/SCORE/evals and accepted199; no cohort admission or aggregate score gain. Actual integrated primary733tests (186new native/C and547existing) pass,16register/fullESLint/diffcheck pass. Full changed-SHA Checkpoint/genuine exact archived comparison versus accepted20d and exact Main Lint/Dashboard required before provisional200acceptance. No acceptance increment yet."
     }
   ]
 }

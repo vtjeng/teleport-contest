@@ -66,12 +66,12 @@ test('preflight_dotrap admits an unseen RUST_TRAP', async () => {
     assert.doesNotThrow(() => preflight_dotrap(trap(state), state));
 });
 
-test('preflight_dotrap still refuses a seen RUST_TRAP', async () => {
+test('preflight_dotrap admits a seen RUST_TRAP', async () => {
     const state = await stateReady();
-    assert.throws(
-        () => preflight_dotrap(trap(state, true), state),
-        (error) => error.reason === 'a trap the hero has already seen',
-    );
+    const seen = trap(state, true);
+    const before = structuredClone({ core: state.coreCtx, display: state.displayCtx, seen });
+    assert.doesNotThrow(() => preflight_dotrap(seen, state));
+    assert.deepEqual({ core: state.coreCtx, display: state.displayCtx, seen }, before);
 });
 
 test('preflight_dotrap admits an unseen RUST_TRAP with a steed', async () => {

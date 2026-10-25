@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Before-second-entry control: rust trap triggered once and now seen; hero has left it but has not returned to the common already_seen escape gate.",
+  "segments": [
+    {
+      "seed": 8432266,
+      "datetime": "20270627100000",
+      "nethackrc": "OPTIONS=name:SeenTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n",
+      "moves": "  l    \u0017rust trap\n        h        l        h        "
+    }
+  ]
+}

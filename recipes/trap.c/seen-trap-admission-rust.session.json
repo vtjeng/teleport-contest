@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent common seen-trap escape witness: step off initial stair, wish rust trap, trigger once, leave and enter a second time. Only second entry exercises already_seen common gate.",
+  "segments": [
+    {
+      "seed": 8432266,
+      "datetime": "20270627100000",
+      "nethackrc": "OPTIONS=name:SeenTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n",
+      "moves": "  l    \u0017rust trap\n        h        l        h        l        "
+    }
+  ]
+}
