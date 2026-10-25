@@ -725,7 +725,10 @@ export async function explode(
                     state.killer.format = NO_KILLER_PREFIX;
                 } else {
                     state.killer.name = generic ? 'explosion' : str;
+                    // C explode.c:662-667 uses an article for a fireball or
+                    // tower of flame, even when the source is a scroll.
                     state.killer.format = olet === MON_EXPLODE
+                        || ['tower of flame', 'fireball'].includes(str.toLowerCase())
                         ? KILLED_BY_AN : KILLED_BY;
                 }
                 // explode.c:668-673 checks the last pline after item effects:

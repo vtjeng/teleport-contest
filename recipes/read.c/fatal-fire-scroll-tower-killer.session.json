@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9102672,
+      "datetime": "20360913130100",
+      "nethackrc": "OPTIONS=name:FireScrollProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017blessed scroll of fire\nre    .  yn      "
+    }
+  ],
+  "comment": "Independent C-first fatal blessed fire-scroll: a debug Valkyrie wishes the scroll, reads it and centers its tower of flame on herself. The C tombstone says burned by a tower of flame; the old JS replay matches all 2183 RNG calls and 43 cursors but differs on that final screen. The nonfatal read-fire-blessed-highlight recording is a separate control."
+}

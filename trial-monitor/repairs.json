@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T18:05:31Z",
+  "asOf": "2026-10-25T18:24:48Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16005,7 +16005,43 @@
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct217. Independent debug Valkyrie C witness wishes a polymorph trap off the upstairs and a cancellation wand, zaps down, and dies from TRAP_EXPLODE; C tombstone says caught herself in a magical blast. Old JS matches2510 RNG and52 cursors, first diverging at final tombstone. C explode.c sets NO_KILLER_PREFIX and source-owned trap text before the generic killer branch. Narrow fix handles TRAP_EXPLODE; full fatal C replay now matches. Independent magic-resistant Wizard control matches C/JS fully (2760 RNG,44 screens/cursors,21 animation frames). Focused+affected tests passed97/97. Carry accepted216 complete98 receipt into ordinary candidate commit. Hosted comparison/Main gates pending; no aggregate gain inferred."
+      "note": "Prospective distinct217. Independent debug Valkyrie C witness wishes a polymorph trap off the upstairs and a cancellation wand, zaps down, and dies from TRAP_EXPLODE; C tombstone says caught herself in a magical blast. Old JS matches2510 RNG and52 cursors, first diverging at final tombstone. C explode.c sets NO_KILLER_PREFIX and source-owned trap text before the generic killer branch. Narrow fix handles TRAP_EXPLODE; full fatal C replay now matches. Independent magic-resistant Wizard control matches C/JS fully (2760 RNG,44 screens/cursors,21 animation frames). Focused+affected tests passed97/97. Carry accepted216 complete98 receipt into ordinary candidate commit. Exact Checkpoint40219651260 and complete archived baseline comparison passed; Main 6150140b4a4774238092a4ed290d628be4588ea4 passed exact-SHA Lint40220567828 and Dashboard40220567786. Complete98 receipt independently hash-verified for next ordinary commit. Accepted distinct217; no aggregate gain inferred."
+    },
+    {
+      "id": "fatal-fire-scroll-tower-killer",
+      "kind": "parity-repair",
+      "title": "Give a fatal tower of flame its source article",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T18:24:48Z",
+          "end": "2026-10-25T18:24:48Z",
+          "note": "Point-in-time registration of independent live C fire-scroll death witness, source review and existing nonfatal control; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/explode.c:662-667",
+          "nethack-c/upstream/src/read.c:1851-1915",
+          "js/explode.js:explode",
+          "js/end.js:really_done"
+        ],
+        "witness": [
+          "recipes/read.c/fatal-fire-scroll-tower-killer.session.json",
+          "recipes/read.c/read-fire-blessed-highlight.session.json"
+        ],
+        "test": [
+          "scripts/fatal-fire-scroll-killer.test.mjs",
+          "scripts/explode.test.mjs",
+          "scripts/read.test.mjs",
+          "scripts/hero-death.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct218. An independent debug Valkyrie wishes a blessed scroll of fire and centers its tower of flame on herself; C tombstone says burned by a tower of flame. Old JS matches all2183 RNG calls and43 cursors but diverges only on the final tombstone because explode.c selects KILLED_BY_AN for tower of flame or fireball while JS selected KILLED_BY. Narrow killer-format fix preserves source case-insensitive spellings. Full fatal C replay now matches; the existing nonfatal blessed fire-scroll control remains strict match (2149 RNG,34 screens/cursors). 2 focused and157 affected tests pass. Carry accepted217 complete98 receipt in ordinary candidate commit. Hosted comparison/Main gates pending; no aggregate gain inferred."
     }
   ]
 }
