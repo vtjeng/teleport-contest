@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public Air Plane witness for C vision.c dig_point/fill_point incremental boundary endpoints; no challenge admission or score claim.",
+  "segments": [
+    {
+      "seed": 8432136,
+      "datetime": "20270312100000",
+      "nethackrc": "OPTIONS=name:AirPlaneProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed +0 helm of opposite alignment\n    #wizlevelport\n?\n>>M                        nothing\n    #wizintrinsic\n800h800i800j800t>>800h\n    m.    n    \nm.    n    \nm.    n    \nm.    n    \nm.    n    "
+    }
+  ]
+}

@@ -214,8 +214,8 @@ export function does_block(x, y, _location = null, state = game) {
 // C vision.c block_point/unblock_point explicitly change one obstruction.
 // Rebuilding from does_block would erase forced openings such as Water bubbles.
 function updateVisionPoint(x, y, state, blocked) {
-    viz_clear[y][x] = blocked ? 0 : 1;
-    rebuildTransparencyRow(y);
+    if (blocked) fill_point(y, x);
+    else dig_point(y, x);
     if (state.viz_array?.[y]?.[x]) state.vision_full_recalc = 1;
 }
 
@@ -231,8 +231,96 @@ export function recalc_block_point(x, y, state = game) {
     updateVisionPoint(x, y, state, blocksVisionAt(x, y, state));
 }
 
-// C dig_point/fill_point maintain these run endpoints incrementally. A row
-// rebuild has the same endpoints and preserves every other explicit point.
+// C ref: vision.c dig_point() (967-1050). Preserve incremental endpoint
+// writes, including the boundary entries; they are not a geometric row rebuild.
+function dig_point(row, col) {
+    let i;
+    if (viz_clear[row][col]) return;
+    viz_clear[row][col] = 1;
+    if (col === 0) {
+        if (viz_clear[row][1]) right_ptrs[row][0] = right_ptrs[row][1];
+        else {
+            right_ptrs[row][0] = 1;
+            for (i = 1; i <= right_ptrs[row][1]; ++i) left_ptrs[row][i] = 1;
+        }
+    } else if (col === COLNO - 1) {
+        if (viz_clear[row][COLNO - 2]) left_ptrs[row][COLNO - 1] = left_ptrs[row][COLNO - 2];
+        else {
+            left_ptrs[row][COLNO - 1] = COLNO - 2;
+            for (i = left_ptrs[row][COLNO - 2]; i < COLNO - 1; ++i) right_ptrs[row][i] = COLNO - 2;
+        }
+    } else if (viz_clear[row][col - 1] && viz_clear[row][col + 1]) {
+        for (i = left_ptrs[row][col - 1]; i <= col; ++i) {
+            if (!viz_clear[row][i]) continue;
+            right_ptrs[row][i] = right_ptrs[row][col + 1];
+        }
+        for (i = col; i <= right_ptrs[row][col + 1]; ++i) {
+            if (!viz_clear[row][i]) continue;
+            left_ptrs[row][i] = left_ptrs[row][col - 1];
+        }
+    } else if (viz_clear[row][col - 1]) {
+        for (i = col + 1; i <= right_ptrs[row][col + 1]; ++i) left_ptrs[row][i] = col + 1;
+        for (i = left_ptrs[row][col - 1]; i <= col; ++i) {
+            if (!viz_clear[row][i]) continue;
+            right_ptrs[row][i] = col + 1;
+        }
+        left_ptrs[row][col] = left_ptrs[row][col - 1];
+    } else if (viz_clear[row][col + 1]) {
+        for (i = left_ptrs[row][col - 1]; i < col; ++i) right_ptrs[row][i] = col - 1;
+        for (i = col; i <= right_ptrs[row][col + 1]; ++i) {
+            if (!viz_clear[row][i]) continue;
+            left_ptrs[row][i] = col - 1;
+        }
+        right_ptrs[row][col] = right_ptrs[row][col + 1];
+    } else {
+        for (i = left_ptrs[row][col - 1]; i < col; ++i) right_ptrs[row][i] = col - 1;
+        for (i = col + 1; i <= right_ptrs[row][col + 1]; ++i) left_ptrs[row][i] = col + 1;
+        left_ptrs[row][col] = col - 1;
+        right_ptrs[row][col] = col + 1;
+    }
+}
+
+// C ref: vision.c fill_point() (1053-1132). In particular, retain C's
+// endpoint writes at columns 0 and COLNO-1 when an interior point closes.
+function fill_point(row, col) {
+    let i;
+    if (!viz_clear[row][col]) return;
+    viz_clear[row][col] = 0;
+    if (col === 0) {
+        if (viz_clear[row][1]) right_ptrs[row][0] = 0;
+        else {
+            right_ptrs[row][0] = right_ptrs[row][1];
+            for (i = 1; i <= right_ptrs[row][1]; ++i) left_ptrs[row][i] = 0;
+        }
+    } else if (col === COLNO - 1) {
+        if (viz_clear[row][COLNO - 2]) left_ptrs[row][COLNO - 1] = COLNO - 1;
+        else {
+            left_ptrs[row][COLNO - 1] = left_ptrs[row][COLNO - 2];
+            for (i = left_ptrs[row][COLNO - 2]; i < COLNO - 1; ++i) right_ptrs[row][i] = COLNO - 1;
+        }
+    } else if (viz_clear[row][col - 1] && viz_clear[row][col + 1]) {
+        for (i = left_ptrs[row][col - 1] + 1; i <= col; ++i) right_ptrs[row][i] = col;
+        if (!left_ptrs[row][col - 1]) right_ptrs[row][0] = col;
+        for (i = col; i < right_ptrs[row][col + 1]; ++i) left_ptrs[row][i] = col;
+        if (right_ptrs[row][col + 1] === COLNO - 1) left_ptrs[row][COLNO - 1] = col;
+    } else if (viz_clear[row][col - 1]) {
+        for (i = col; i <= right_ptrs[row][col + 1]; ++i) left_ptrs[row][i] = col;
+        for (i = left_ptrs[row][col - 1] + 1; i < col; ++i) right_ptrs[row][i] = col;
+        if (!left_ptrs[row][col - 1]) right_ptrs[row][i] = col;
+        right_ptrs[row][col] = right_ptrs[row][col + 1];
+    } else if (viz_clear[row][col + 1]) {
+        for (i = left_ptrs[row][col - 1]; i <= col; ++i) right_ptrs[row][i] = col;
+        for (i = col + 1; i < right_ptrs[row][col + 1]; ++i) left_ptrs[row][i] = col;
+        if (right_ptrs[row][col + 1] === COLNO - 1) left_ptrs[row][i] = col;
+        left_ptrs[row][col] = left_ptrs[row][col - 1];
+    } else {
+        for (i = left_ptrs[row][col - 1]; i <= col; ++i) right_ptrs[row][i] = right_ptrs[row][col + 1];
+        for (i = col; i <= right_ptrs[row][col + 1]; ++i) left_ptrs[row][i] = left_ptrs[row][col - 1];
+    }
+}
+
+// vision_reset() initializes rows from the new level; point updates above
+// preserve the C incremental representation, including its boundary entries.
 function rebuildTransparencyRow(y) {
     for (let start = 0; start < COLNO;) {
         const clear = viz_clear[y][start];
