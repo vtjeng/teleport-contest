@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary dry-floor boulder wish control, Knight8432214 May29; observe actual drop/placement and ordinary level.",
+  "segments": [
+    {
+      "seed": 8432214,
+      "datetime": "20270529100000",
+      "nethackrc": "OPTIONS=name:DryBoulderControl,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed boulder\n        "
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Blocked future do.c dropx/flooreffects/boulder_hits_pool case: after the Water teleport repair, JS preflight_dropx still refuses Water-level liquid/boulder-pool admission. Independent public Knight8432208 May23 magical-breathing setup; Cwish slips boulder into water at240. Not a passing regression, admitted challenge or score gain; actual C recording and prefix comparison retained privately.",
+  "_comment": "Previously blocked Water boulder wish, now covered by grouped196 live-submerged admission. Original public seed/date/options/inputs preserved; source do.c boulder_hits_pool skips splash/wakeup and never fills on Water. Surface/private paths remain refused.",
   "segments": [
     {
       "seed": 8432208,

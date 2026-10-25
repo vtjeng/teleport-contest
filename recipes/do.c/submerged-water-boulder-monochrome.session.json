@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap monochrome variation of public submerged Water boulder wish.",
+  "segments": [
+    {
+      "seed": 8432208,
+      "datetime": "20270523100000",
+      "nethackrc": "OPTIONS=name:WetBoulderProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\nOPTIONS:!color\n",
+      "moves": "  \u0017uncursed amulet of magical breathing\nPi    #wizlevelport\n?\n>>K                        nothing\n    #teleport\n yhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkkkkkkkkkj.        \u0017uncursed boulder\n        "
+    }
+  ]
+}
