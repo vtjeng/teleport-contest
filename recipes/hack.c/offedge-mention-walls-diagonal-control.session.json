@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Diagonal countercase: the C source reduces southeast to south when only y is off-map; xorn setup and option are otherwise identical to the ordinary south witness.",
+  "segments": [
+    {
+      "seed": 17933002,
+      "datetime": "20410922113000",
+      "nethackrc": "OPTIONS=name:A179Edge,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,mention_walls\n",
+      "moves": "        #polyself\nxorn\n        da        jjjjjjjjjjjjjn"
+    }
+  ]
+}

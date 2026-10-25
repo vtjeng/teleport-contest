@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T20:38:15Z",
+  "asOf": "2026-10-25T21:11:04Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16156,7 +16156,48 @@
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct221. A C-created peaceful hobbit has 5 maximum HP. One public-input kick deals 3 damage; at 2 HP, C integer 5/2 does not choose healing and the hobbit complains, while old JS fractional division asked for healing. A second kick deals 1; at 1 HP, C integer 5/4 does not choose moaning and instead asks for healing, while old JS moaned. Blessed taming restores peaceful #chat after each injury. Both old-JS mismatches are first and only screen differences with aligned RNG/cursors; healthy control is a full strict C/JS match. Math.trunc matches C positive integer division. Carry complete Medusa and dashboard-tooling receipts into this ordinary gameplay candidate. Hosted Checkpoint and publication gates pending."
+      "note": "Prospective distinct221. A C-created peaceful hobbit has 5 maximum HP. One public-input kick deals 3 damage; at 2 HP, C integer 5/2 does not choose healing and the hobbit complains, while old JS fractional division asked for healing. A second kick deals 1; at 1 HP, C integer 5/4 does not choose moaning and instead asks for healing, while old JS moaned. Blessed taming restores peaceful #chat after each injury. Both old-JS mismatches are first and only screen differences with aligned RNG/cursors; healthy control is a full strict C/JS match. Math.trunc matches C positive integer division. Carry complete Medusa and dashboard-tooling receipts into this ordinary gameplay candidate. Focused and affected tests passed; exact Checkpoint40231807386 and complete archived comparison against 10b15b6c passed. Main fd8ffa0f71245190bd185061d3aefbe220bf9baa passed exact-SHA Lint40232643894 and Dashboard40232643898. Complete98 receipt verified for the next ordinary repair commit. Accepted distinct221; no aggregate gain inferred."
+    },
+    {
+      "id": "offedge-mention-walls-direction",
+      "kind": "parity-repair",
+      "title": "Report the blocked direction at the map edge",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T21:11:04Z",
+          "end": "2026-10-25T21:11:04Z",
+          "note": "Point-in-time registration after C-first off-map south witness, silent/before/diagonal controls and strict local replay; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c:2584-2612",
+          "nethack-c/upstream/src/cmd.c:3846-3856",
+          "nethack-c/upstream/src/cmd.c:4313-4325",
+          "js/hack.js:move_out_of_bounds",
+          "js/cmd.js:xytodir",
+          "js/cmd.js:directionname"
+        ],
+        "witness": [
+          "recipes/hack.c/offedge-mention-walls-south.session.json",
+          "recipes/hack.c/offedge-mention-walls-diagonal-control.session.json",
+          "recipes/hack.c/offedge-silent-south-control.session.json",
+          "recipes/hack.c/offedge-before-south-control.session.json"
+        ],
+        "test": [
+          "scripts/offedge-mention-walls.test.mjs",
+          "scripts/closed-door-autoopen.test.mjs",
+          "scripts/force-fight.test.mjs",
+          "scripts/rush-runs.test.mjs",
+          "scripts/cmd-span.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct222. Adapted a previously C-observed xorn edge setup to take an ordinary south step with mention_walls enabled. C says You have already gone as far south as possible; old JS stopped before that boundary with aligned 3128 RNG calls. C silent-option and pre-boundary controls strictly match old JS. C southeast off-map variation reports south because its x coordinate remains valid; repaired JS matches all four complete C recordings. Source order preserves force-fight preemption, diagonal direction reduction, nomul(0), context.move=0, and no turn cost. 93 focused/affected tests and ESLint/diff checks pass. Carry complete repair221 receipt into this ordinary candidate. Full hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }

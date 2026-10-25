@@ -383,8 +383,8 @@ test('the closed-door arm owns its capability and impairment branches', async ()
 // context.move = 0 beside it were both deletable with the suite green.
 //
 // The force-fight arm is scripts/force-fight.test.mjs's; this file keeps the
-// two arms that leave the hero where he stood.
-test('an off-map step refuses silently, or fails closed when it would speak', async () => {
+// two ordinary arms that leave the hero where he stood.
+test('an off-map step refuses silently or reports its direction', async () => {
     const { segments } = loadClosedDoorAutoopenRecipe();
     const base = segments.find(seg => seg.moves[0] === 'h');
 
@@ -404,18 +404,20 @@ test('an off-map step refuses silently, or fails closed when it would speak', as
     assert.equal(game.multi, 0);
     assert.equal(game.moves, movesBefore);
 
-    // hack.c:2592-2606, the arm C prints through. It needs cmd.c
-    // directionname(), which is unported, so it fails closed. The step still
-    // spends no turn in C, so the refusal drops a line and nothing else.
+    // hack.c:2592-2606 names the blocked direction without spending a turn.
     await runSegment({ ...base, moves: '' });
     game.u.ux = 1;
     game.context.forcefight = 0;
     game.flags.mention_walls = true;
+    const beforeMessage = game.moves;
     game.nhDisplay.pushKey(walkWest);
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error.reason === 'move out of bounds',
-    );
+    await moveloop_core();
+    assert.equal(game._ttyToplines,
+        'You have already gone as far west as possible.');
+    assert.equal(game.u.ux, 1);
+    assert.equal(game.context.move, 0);
+    assert.equal(game.multi, 0);
+    assert.equal(game.moves, beforeMessage);
 });
 
 // Replay each prefix of a segment and report where the hero stands, what the

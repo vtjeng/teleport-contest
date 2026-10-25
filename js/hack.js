@@ -232,8 +232,10 @@ import {
     cmdq_clear,
     cmdq_peek,
     confdir,
+    directionname,
     paranoid_query,
     reset_occupations,
+    xytodir,
 } from './cmd.js';
 import {
     createCommandBindingModel,
@@ -3608,19 +3610,22 @@ export function impaired_movement(x, y, state = game) {
 // happened by accident, through an admission seam that answered "blocked" for a
 // square outside the map.
 //
-// The force-fight arm at 2589-2590 returns before the flags.mention_walls block
-// at 2592-2606, so a force-fight off the edge never reaches that line whatever
-// the option is set to, and needs nothing from it. It also returns above
-// nomul(0) and `context.move = 0`, so the turn-cost claim above is about the
-// ordinary arm alone: a force-fight off the edge spends the turn, which is
-// what C's own comment calls "specifying 'F' with no monster wastes a turn". That line needs cmd.c
-// directionname() (4312-4323), which has no port, so an ordinary step off the
-// edge refuses while mention_walls is on.
+// The force-fight arm returns before the flags.mention_walls block. For an
+// ordinary diagonal step, C reports only the blocked cardinal direction when
+// the other candidate coordinate is still within the map.
 async function move_out_of_bounds(x, y, state) {
     if (isok(x, y)) return false;
     if (state.context.forcefight) return domove_fight_empty(x, y, state);
     if (state.flags?.mention_walls) {
-        throw new UnsupportedHeroMoveBoundaryError('move out of bounds');
+        let { dx, dy } = state.u;
+        if (dx && dy) {
+            if (isok(x, state.u.uy)) dx = 0;
+            else if (isok(state.u.ux, y)) dy = 0;
+        }
+        await ttyPline(
+            `You have already gone as far ${directionname(xytodir(dx, dy))} as possible.`,
+            state,
+        );
     }
     nomul(0, state);
     state.context.move = 0;
