@@ -4787,10 +4787,12 @@ function _propertyActiveUnblocked(u, index) {
 // the canspotself() arm.
 function heroCanSpotSelf(state) {
     const hero = state.u;
+    // C Invisible is Invis && !See_invisible, not the raw invisibility.
+    const invisible = _propertyActiveUnblocked(hero, INVIS)
+        && !_propertyActive(hero, SEE_INVIS);
     const canSeeSelf = _propertyActiveUnblocked(hero, BLINDED)
         || hero?.uswallow
-        || (!_propertyActiveUnblocked(hero, INVIS)
-            && !hero?.uundetected);
+        || (!invisible && !hero?.uundetected);
     const unblindTelepathy = Boolean(hero?.uprops?.[TELEPAT]?.extrinsic);
     const detectsMonsters = _propertyActive(hero, DETECT_MONSTERS);
     return Boolean(canSeeSelf || unblindTelepathy || detectsMonsters);

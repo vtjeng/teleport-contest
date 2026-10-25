@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public self-perception witness: black-dragon form supplies see-invisible, then potion of invisibility. C display.h Invisible excludes See_invisible; actual C drink lettero recorded. No challenge admission.",
+  "segments": [
+    {
+      "seed": 8432322,
+      "datetime": "20270823100000",
+      "nethackrc": "OPTIONS=name:DisintegrateLifeProbe,role:Wizard,race:human,gender:male,align:neutral,pettype:none,playmode:debug,!legacy,!tutorial,!splash_screen,!tips,!autopickup,!acoustics\n",
+      "moves": "   #levelchange\n8\n            #polyself\nblack dragon\n        \u0017blessed potion of invisibility\n       qo        "
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T08:44:09.107768+00:00",
+  "asOf": "2026-10-25T09:14:24.668205+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -15249,8 +15249,104 @@
           "scripts/unported-monster-actions.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "81fe6e0c99f3b3637dd2726134fbd688e08d7711",
+          "committedAt": "2026-10-25T08:46:04Z",
+          "runs": [
+            {
+              "id": 40177973142,
+              "name": "Checkpoint",
+              "sha": "81fe6e0c99f3b3637dd2726134fbd688e08d7711",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-item-timer-owner-20261025",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T08:46:42Z",
+              "completedAt": "2026-10-25T08:56:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40177973142"
+            },
+            {
+              "id": 40178749570,
+              "name": "Lint",
+              "sha": "81fe6e0c99f3b3637dd2726134fbd688e08d7711",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T08:58:37Z",
+              "completedAt": "2026-10-25T08:59:59Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40178749570"
+            },
+            {
+              "id": 40178749586,
+              "name": "Dashboard",
+              "sha": "81fe6e0c99f3b3637dd2726134fbd688e08d7711",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T08:58:37Z",
+              "completedAt": "2026-10-25T09:02:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40178749586"
+            }
+          ]
+        }
+      ],
+      "note": "Distinct pending timer-lifecycle repair, not feedback-owner correction145/169 or container-owner186. C m_useupall extracts then obfree; food_disappears and dealloc_obj stop active object timers. JS helper forwarded raw env without canonical lifecycle defaults, so disposing a monster-carried timed green-slime glob273 failed at stopObjectTimers after extraction. Compose existing objectGenerationEnv once and pass it to extraction/freeing; preserve overrides and source operations, no new timer/deletion algorithm. Defect predates experiment: obfree forwarding e3ac015Sep6 and extractionenv60819eddSep17. Independent public male lawful human Knight8432312/date20270813100000 uses default starting pet and reaches verified C Astral. Original fullC268527RNG/4554screens+cursors/131animations; accepted0df strict169541RNG/3632screens then unported stopObjectTimers boundary. Output-only boundaryobserver all4actualoutputhashes identical, real stackdisintegrate_mon\u2192m_useupall\u2192obfree. Isolated prototype fullstrict268527/4554/131pass. Four freshC recordings: normal/monochrome failold at3632/passprototype; before/ordinary controls passboth. Eight initialized native live/planning x timedglob/untimedration x default/injectedowner verify deletion, timerqueue removal, unchanged live core, clone liveinventory/timer preservation and callbackoverride; old6pass2fail, new8pass. Initial native wrong add_to_minv import preserved and corrected asfixture only. Isolated729focused+affected tests and lint pass; primary/fullhosted/exactarchive/Main gates required. Separate preexisting disintegrate_mon silentlyfalse versus Ctrue noted but not changed or claimed fixed. Completeaccepted0df98receipt included. Acceptedcount remains200 until all gates pass; no challenge admission or measured aggregate score gain. Primary integration733tests including12new native/C plus721existing,22register,fullESLint and diffcheck pass. Fresh normal/mono each170385core/3641screens+cursors strictlypass; before169410/3632 and ordinary2704/30 controls passboth. Changed-SHA fullhosted Checkpoint, genuine archive comparison versus0df, and exactMainLint/Dashboard required before acceptance; count remains200. Accepted distinct201 after CP40177973142, genuine archive/hash/admission/44fixed98synthetic2055 comparison versus0df with no missing/drop/regression/issues/deltas, exact Main Lint40178749570 and Dashboard40178749586 success. Parent complete exacthead09:07:45Z snapshot retained and consumed during active turn; terminal fields are workflow-summary timestamps, direct deploy09:02:25Z separately verified. Complete98 receipt checker81879exit0 pending[], exact81fe pointer and all98SHA256 verified; shipped in this next ordinary source repair. Aggregate synthetic score remains2051/2055, no admission or gain."
+    },
+    {
+      "id": "self-see-invisible",
+      "kind": "parity-repair",
+      "title": "Respect see-invisible in hero self-display",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T09:08:18.771940+00:00",
+          "end": "2026-10-25T09:08:18.771940+00:00",
+          "note": "Retained instantaneous source-confirmation observation from independent disintegration setup; no inferred active-work duration."
+        },
+        {
+          "start": "2026-10-25T09:14:24.668205+00:00",
+          "end": "2026-10-25T09:14:24.668205+00:00",
+          "note": "Sequential primary integration after completeaccepted201 receipt and isolated qualification; point observation only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/include/display.h:canseeself",
+          "nethack-c/upstream/include/youprop.h:Invisible",
+          "nethack-c/upstream/include/youprop.h:See_invisible",
+          "nethack-c/upstream/src/display.c:newsym",
+          "js/display.js:heroCanSpotSelf"
+        ],
+        "witness": [
+          "recipes/display.c/self-see-invisible-normal.session.json",
+          "recipes/display.c/self-see-invisible-monochrome.session.json",
+          "recipes/display.c/self-see-invisible-hallucinating.session.json",
+          "recipes/display.c/self-see-invisible-before-control.session.json",
+          "recipes/display.c/self-see-invisible-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/self-see-invisible.test.mjs",
+          "scripts/display.test.mjs",
+          "scripts/potion.test.mjs",
+          "scripts/polyself.test.mjs",
+          "scripts/whatis-command.test.mjs",
+          "scripts/vision.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Distinct pending timer-lifecycle repair, not feedback-owner correction145/169 or container-owner186. C m_useupall extracts then obfree; food_disappears and dealloc_obj stop active object timers. JS helper forwarded raw env without canonical lifecycle defaults, so disposing a monster-carried timed green-slime glob273 failed at stopObjectTimers after extraction. Compose existing objectGenerationEnv once and pass it to extraction/freeing; preserve overrides and source operations, no new timer/deletion algorithm. Defect predates experiment: obfree forwarding e3ac015Sep6 and extractionenv60819eddSep17. Independent public male lawful human Knight8432312/date20270813100000 uses default starting pet and reaches verified C Astral. Original fullC268527RNG/4554screens+cursors/131animations; accepted0df strict169541RNG/3632screens then unported stopObjectTimers boundary. Output-only boundaryobserver all4actualoutputhashes identical, real stackdisintegrate_mon\u2192m_useupall\u2192obfree. Isolated prototype fullstrict268527/4554/131pass. Four freshC recordings: normal/monochrome failold at3632/passprototype; before/ordinary controls passboth. Eight initialized native live/planning x timedglob/untimedration x default/injectedowner verify deletion, timerqueue removal, unchanged live core, clone liveinventory/timer preservation and callbackoverride; old6pass2fail, new8pass. Initial native wrong add_to_minv import preserved and corrected asfixture only. Isolated729focused+affected tests and lint pass; primary/fullhosted/exactarchive/Main gates required. Separate preexisting disintegrate_mon silentlyfalse versus Ctrue noted but not changed or claimed fixed. Completeaccepted0df98receipt included. Acceptedcount remains200 until all gates pass; no challenge admission or measured aggregate score gain. Primary integration733tests including12new native/C plus721existing,22register,fullESLint and diffcheck pass. Fresh normal/mono each170385core/3641screens+cursors strictlypass; before169410/3632 and ordinary2704/30 controls passboth. Changed-SHA fullhosted Checkpoint, genuine archive comparison versus0df, and exactMainLint/Dashboard required before acceptance; count remains200."
+      "note": "Pending distinct self-perception correction: C canseeself uses !Invisible, where Invisible=Invis&&!See_invisible. JS heroCanSpotSelf used !rawINVIS, so an invisible hero with see-invisible lost its glyph. Compute existing unblockedINVIS&&!SEE_INVIS predicate; preserve blindness/swallowing/hiding/senseself branches. No core RNG or property/form initialization change; existing draw and memory operations retained. Bug predates experiment ebb9dbSep11. Independent Wizard8432322/date20270823100000 blackdragonform grants canonical SeeInvisible, then actual public potionlettero consumed. Fresh normal/mono2694core/111screens+cursors/0anim each failoldfirstscreen102 heroD versus flooritem, passprototype; before2683/101 and ordinaryhuman2684/88 controls passboth. Additional publicHallu2694/137/0 failsold128/passprototype. Full incidentalhostilepickup3483/752/0 also strictlypasses onepredicateprototype. Eight initialized actualnewsym cases invis/seeInvisible/blind exercise external glyph_at hero/floor and unchangedcore; old7pass1fail,new8pass. Isolated608focused+affected pluslint pass. Initial missingformproperty hypothesis rejected: both C/JS canonicalformprops alreadysetSeeInvisible. Original separate disintegratelifesaver feedback question remainsunqualified;40level0humaninventorysetupmiss andpeacefulpickupmiss preserved, no acceptance claimed for them. Includescompleteaccepted20181fe98receipt. Primarytests/fullhosted/archivecomparison/Mainexactgates required; accepted201 unchanged, no admission or measured aggregate scoregain. Primary integration613tests including13new native/C plus600existing,22register,fullESLint and diffcheck pass. Full changed-SHA hostedCheckpoint, genuine archive comparison versus81fe and exactMainLint/Dashboard required before acceptance; accepted201 unchanged."
     }
   ]
 }
