@@ -179,7 +179,7 @@ import {
 import {
     d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz, } from './rng.js';
 import {
-    killed, shieldeff_mon, monkilled, normal_shape, replmon, restore_cham, seemimic, healmon, hideunder, maybe_unhide_at, m_respond, m_in_air, newcham, wake_nearto, wakeup, xkilled, check_gear_next_turn, set_ustuck, unstuck, mimic_hit_msg, } from './mon.js';
+    killed, shieldeff_mon, monkilled, mlifesaver, normal_shape, replmon, restore_cham, seemimic, healmon, hideunder, maybe_unhide_at, m_respond, m_in_air, newcham, wake_nearto, wakeup, xkilled, check_gear_next_turn, set_ustuck, unstuck, mimic_hit_msg, } from './mon.js';
 import { dmgval } from './weapon.js';
 import { expels, u_slow_down } from './mhitu.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
@@ -5658,9 +5658,13 @@ async function disintegrate_mon(mon, type, fltxt, state, random, env) {
     const visible = canseemon(mon, state);
     const message = env.message ?? ttyPline;
     if (visible) {
-        await message(
-            `${Monnam(mon, state, env)} is disintegrated!`, state, env,
-        );
+        if (mlifesaver(mon, state)) {
+            await hit(fltxt, mon, '!', state, env);
+        } else {
+            await message(
+                `${Monnam(mon, state, env)} is disintegrated!`, state, env,
+            );
+        }
     }
     for (let obj = mon.minvent; obj;) {
         const next = obj.nobj;
