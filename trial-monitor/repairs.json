@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T19:46:03Z",
+  "asOf": "2026-10-25T20:38:15Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16122,7 +16122,41 @@
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct220. Fresh debug Valkyrie C witness forces Medusa adjacent, waits into a visible fatal petrifying gaze and completes the final display. Old JS matched every screen/cursor but made one extra rn2(5) after C stopped, because monmove.c m_respond invokes nonreturning done() while JS resumed dochug after gameover. A blindfolded Medusa control prevents fatal gaze and strictly matches C. Narrow gameover guard immediately after m_respond preserves the nonfatal path; both full C replays and374 focused/affected tests pass. Carry accepted219 complete98 receipt into the next ordinary repair commit. Full hosted and publication gates remain pending."
+      "note": "Prospective distinct220. Fresh debug Valkyrie C witness forces Medusa adjacent, waits into a visible fatal petrifying gaze and completes the final display. Old JS matched every screen/cursor but made one extra rn2(5) after C stopped, because monmove.c m_respond invokes nonreturning done() while JS resumed dochug after gameover. A blindfolded Medusa control prevents fatal gaze and strictly matches C. Narrow gameover guard immediately after m_respond preserves the nonfatal path; both full C replays and374 focused/affected tests pass. Carry accepted219 complete98 receipt into the next ordinary repair commit. Exact Checkpoint40227636994 and full archived baseline comparison passed; Main 9c8b4b9505d7e4f1af013072d2c653cc31e8b13a passed exact-SHA Lint40228545441 and Dashboard40228545451. Complete98 receipt verified for the next ordinary repair commit. Accepted distinct220; no aggregate gain inferred."
+    },
+    {
+      "id": "humanoid-wounded-speech-thresholds",
+      "kind": "parity-repair",
+      "title": "Use C integer health thresholds for peaceful humanoid speech",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T20:38:15Z",
+          "end": "2026-10-25T20:38:15Z",
+          "note": "Point-in-time registration after C-first five-HP hobbit half/quarter threshold witnesses, healthy control and strict frozen-workspace replay; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sounds.c:1036-1049",
+          "js/sounds.js:domonnoise"
+        ],
+        "witness": [
+          "recipes/sounds.c/humanoid-health-half-boundary.session.json",
+          "recipes/sounds.c/humanoid-health-quarter-boundary.session.json",
+          "recipes/sounds.c/humanoid-health-healthy-control.session.json"
+        ],
+        "test": [
+          "scripts/humanoid-health-speech.test.mjs",
+          "scripts/sounds.test.mjs",
+          "scripts/chat-command.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct221. A C-created peaceful hobbit has 5 maximum HP. One public-input kick deals 3 damage; at 2 HP, C integer 5/2 does not choose healing and the hobbit complains, while old JS fractional division asked for healing. A second kick deals 1; at 1 HP, C integer 5/4 does not choose moaning and instead asks for healing, while old JS moaned. Blessed taming restores peaceful #chat after each injury. Both old-JS mismatches are first and only screen differences with aligned RNG/cursors; healthy control is a full strict C/JS match. Math.trunc matches C positive integer division. Carry complete Medusa and dashboard-tooling receipts into this ordinary gameplay candidate. Hosted Checkpoint and publication gates pending."
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 20261025712,
+      "datetime": "20271026131900",
+      "nethackrc": "OPTIONS=name:HumanoidThresholdProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\npeaceful hobbit\n\u0004jy#wizwish\nblessed scroll of taming\nrf #chat\nh"
+    }
+  ],
+  "_comment": "C-first half-health witness: hobbit starts at 5 HP, kick deals 3, blessed scroll of taming restores conversation, and #chat at 2 HP reaches sounds.c:domonnoise. C integer 5/2 does not select healing; JS fractional division did."
+}

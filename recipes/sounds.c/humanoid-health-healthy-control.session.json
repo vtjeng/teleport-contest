@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 20261025712,
+      "datetime": "20271026131900",
+      "nethackrc": "OPTIONS=name:HumanoidThresholdProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\npeaceful hobbit\n#chat\nj"
+    }
+  ],
+  "_comment": "Healthy peaceful hobbit control: #wizgenesis and #chat reach sounds.c:domonnoise MS_HUMANOID at full health. Full C and JS replay matched before the repair."
+}

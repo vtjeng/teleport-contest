@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 20261025712,
+      "datetime": "20271026131900",
+      "nethackrc": "OPTIONS=name:HumanoidThresholdProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\npeaceful hobbit\n\u0004jy\u0004j#wizwish\nblessed scroll of taming\nrf #chat\nj"
+    }
+  ],
+  "_comment": "C-first quarter-health witness: same 5-HP hobbit takes kicks of 3 then 1, blessed taming restores conversation, and #chat at 1 HP reaches sounds.c:domonnoise. C integer 5/4 does not select moaning; JS fractional division did."
+}

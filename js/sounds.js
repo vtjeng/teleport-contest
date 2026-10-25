@@ -1251,7 +1251,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
             break;
         }
         if (mtmp.mflee) plineMsg = 'wants nothing to do with you.';
-        else if (mtmp.mhp < mtmp.mhpmax / 4) plineMsg = 'moans.';
+        else if (mtmp.mhp < Math.trunc(mtmp.mhpmax / 4)) plineMsg = 'moans.';
         else if (mtmp.mconf || mtmp.mstun)
             verbalMsg = !random.rn2(3) ? 'Huh?' : random.rn2(2) ? 'What?' : 'Eh?';
         else if (!mtmp.mcansee) verbalMsg = "I can't see!";
@@ -1259,7 +1259,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
             const trap = t_at(mtmp.mx, mtmp.my, state);
             if (trap) trap.tseen = 1;
             verbalMsg = "I'm trapped!";
-        } else if (mtmp.mhp < mtmp.mhpmax / 2) {
+        } else if (mtmp.mhp < Math.trunc(mtmp.mhpmax / 2)) {
             plineMsg = 'asks for a potion of healing.';
         } else if (mtmp.mtame && !mtmp.isminion && moves > dogHungryTime) {
             verbalMsg = "I'm hungry.";
