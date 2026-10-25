@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 
 import {
     appendRow,
+    appendRows,
     COLUMNS,
     generateNote,
     latestRow,
@@ -118,6 +119,43 @@ test('appendRow composes a full row and refuses malformed input', () => {
     writeFileSync(stalePath, `${COLUMNS.slice(0, 16).join('\t')}\n`);
     assert.throws(() => appendRow({ sha: 'e', event: 'goal' }, stalePath),
         /header differs/u);
+});
+
+test('batch append preserves row order and detects intervening ledger edits', () => {
+    const first = { sha: 'dddd444', event: 'goal', note: 'first' };
+    const second = { sha: 'eeee555', event: 'goal', note: 'second' };
+    const path = writeFixture('append-batch.tsv');
+    assert.deepEqual(appendRows([first, second], path).map(row => row.note), ['first', 'second']);
+    assert.deepEqual(readRows(path).slice(-2).map(row => row.note), ['first', 'second']);
+
+    const changed = writeFixture('append-external.tsv');
+    function* external() {
+        yield first;
+        appendRow({ sha: 'ffff666', event: 'goal', note: 'external' }, changed);
+        yield second;
+    }
+    appendRows(external(), changed);
+    assert.deepEqual(readRows(changed).slice(-3).map(row => row.note),
+        ['first', 'external', 'second']);
+
+    const malformed = writeFixture('append-malformed.tsv');
+    function* corrupt() {
+        yield first;
+        // Same-length edit must be detected even when file size is unchanged.
+        writeFileSync(malformed, readFileSync(malformed, 'utf8').replace('\tevent\t', '\tevont\t'));
+        yield second;
+    }
+    assert.throws(() => appendRows(corrupt(), malformed), /header differs/u);
+    assert.equal(readFileSync(malformed, 'utf8').includes('second'), false);
+
+    const truncated = writeFixture('append-truncated.tsv');
+    function* partial() {
+        yield first;
+        appendFileSync(truncated, 'incomplete\n');
+        yield second;
+    }
+    assert.throws(() => appendRows(partial(), truncated), /fields/u);
+    assert.equal(readFileSync(truncated, 'utf8').includes('second'), false);
 });
 
 test('challenge rows require a complete identity and isolated metrics', () => {

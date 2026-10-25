@@ -93,7 +93,11 @@ export const DEFAULT_PATH = fileURLToPath(new URL('../SCORE.tsv',
 
 /** Parse SCORE.tsv into row objects keyed by column name. */
 export function readRows(path = DEFAULT_PATH) {
-    const lines = readFileSync(path, 'utf8').split('\n')
+    return parseRows(readFileSync(path, 'utf8'));
+}
+
+function parseRows(contents) {
+    const lines = contents.split('\n')
         .filter((line) => line !== '');
     const header = lines[0].split('\t');
     if (header.join(',') !== COLUMNS.join(','))
@@ -110,8 +114,7 @@ export function readRows(path = DEFAULT_PATH) {
     });
 }
 
-/** Compose one row and append it. Empty string for any column not given. */
-export function appendRow(fields, path = DEFAULT_PATH) {
+function validateAppendFields(fields) {
     for (const key of Object.keys(fields)) {
         if (!COLUMNS.includes(key))
             throw new Error(`unknown SCORE.tsv column: ${key}`);
@@ -121,9 +124,9 @@ export function appendRow(fields, path = DEFAULT_PATH) {
     if (!EVENTS.includes(fields.event))
         throw new Error(`event must be one of ${EVENTS.join(', ')}`);
     validateEventFields(fields, { strictEmpty: true });
-    // Refuse to append to a stale or malformed ledger. Every writer must use
-    // the authoritative current schema.
-    readRows(path);
+}
+
+function composeRow(fields) {
     const row = { utc: new Date().toISOString(), ...fields };
     const cells = COLUMNS.map((column) => {
         const value = String(row[column] ?? '');
@@ -131,8 +134,40 @@ export function appendRow(fields, path = DEFAULT_PATH) {
             throw new Error(`value for ${column} contains a tab, newline, or double quote`);
         return value;
     });
-    appendFileSync(path, `${cells.join('\t')}\n`);
-    return Object.fromEntries(COLUMNS.map((column, i) => [column, cells[i]]));
+    return { bytes: Buffer.from(`${cells.join('\t')}\n`), row: Object.fromEntries(COLUMNS.map((column, i) => [column, cells[i]])) };
+}
+
+/** Compose one row and append it. Empty string for any column not given. */
+export function appendRow(fields, path = DEFAULT_PATH) {
+    validateAppendFields(fields);
+    // Refuse to append to a stale or malformed ledger. Every writer must use
+    // the authoritative current schema.
+    readRows(path);
+    const { bytes, row } = composeRow(fields);
+    appendFileSync(path, bytes);
+    return row;
+}
+
+// One invocation may append many already-reviewed evaluations. Inspect the
+// exact ledger bytes before each row; reparse whenever another writer changed
+// them. This keeps appendRow's stale/malformed ledger rejection without
+// parsing the same growing history once per row.
+export function appendRows(fieldsList, path = DEFAULT_PATH) {
+    const rows = [];
+    let expected = null;
+    for (const fields of fieldsList) {
+        validateAppendFields(fields);
+        const current = readFileSync(path);
+        if (!expected || current.length !== expected[0].length + expected[1].length
+            || !current.subarray(0, expected[0].length).equals(expected[0])
+            || !current.subarray(expected[0].length).equals(expected[1]))
+            parseRows(current.toString('utf8'));
+        const { bytes, row } = composeRow(fields);
+        appendFileSync(path, bytes);
+        expected = [current, bytes];
+        rows.push(row);
+    }
+    return rows;
 }
 
 /** Last row, optionally the last row of one event. */
