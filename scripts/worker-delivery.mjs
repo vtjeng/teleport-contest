@@ -16,6 +16,8 @@ import { readAdmissionReceipt } from './admission-proof.mjs';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { acceptedMain } from './worker-backlog.mjs';
 import {requireNoSnapshotRefresh, verifySnapshotPublication} from './snapshot-publication.mjs';
+import {gunzipSync} from 'node:zlib';
+import {validateDashboardPacket} from './dashboard-packet.mjs';
 
 const INVESTIGATION_PATH = /^investigations\/((?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*))\.json$/u;
 
@@ -460,6 +462,23 @@ export function verifyPublicationChanges(root, tested, published, admission) {
             'admission must follow the gameplay checkpoint and precede publication');
         verifyPublicationChanges(root, tested, receipt.base);
         tested = receipt.commit;
+    }
+    // A public packet is a separate, regular report commit immediately after
+    // the source commit it describes. Hosted Dashboard CI rederives and checks
+    // its exact bytes before publication can be marked complete.
+    if (git(root, 'diff', '--name-only', tested, published, '--', 'dashboard-data.json.gz')) {
+        const parent = git(root, 'rev-parse', `${published}^`);
+        check(git(root, 'diff', '--name-only', parent, published) === 'dashboard-data.json.gz',
+            'dashboard data must be the final data-only report commit');
+        check(git(root, 'ls-tree', published, '--', 'dashboard-data.json.gz').startsWith('100644 blob '),
+            'dashboard data must be a regular file');
+        const bytes = spawnSync('git', ['-C', root, 'show', `${published}:dashboard-data.json.gz`],
+            {maxBuffer: 64 * 1024 * 1024});
+        check(bytes.status === 0, 'dashboard data blob unavailable');
+        let packet;
+        try {packet = validateDashboardPacket(JSON.parse(gunzipSync(bytes.stdout)));}
+        catch {throw new Error('invalid dashboard data packet');}
+        check(packet.sourceSha === parent, 'dashboard data source differs from its parent commit');
     }
     // Keep checkpoint reuse conservative. Publication alone permits checked
     // reports written after closure; the original tested commit stays intact.

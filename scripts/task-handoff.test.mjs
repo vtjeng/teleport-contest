@@ -277,6 +277,8 @@ test('publication resumes after the report commit and after a successful push wi
     writeDashboardSnapshot({ ledger: f.options.ledger, checkpoint: f.candidateCheckpoint,
         output: 'dashboard-snapshot.json' }, f.root);
     f.git('add', 'QUALITY.json', 'dashboard-snapshot.json'); f.git('commit', '-qm', 'Interrupted report packet');
+    f.writeData('dashboard-data.json.gz');
+    f.git('add', 'dashboard-data.json.gz'); f.git('commit', '-qm', 'Interrupted data packet');
     const packet = f.git('rev-parse', 'HEAD');
     f.git('push', '-q', 'origin', 'main'); // Simulate an interruption between push and publication event.
     const report = publishTask(f.options, f.root, f);

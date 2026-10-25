@@ -3,7 +3,7 @@
 // Usage: NODE_PATH=<playwright modules> node scripts/dashboard-overview.browser.mjs <url> [screenshot-directory]
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 const [url, directory] = process.argv.slice(2);
 if (!url) throw new Error('Expected a generated dashboard URL');
@@ -15,6 +15,12 @@ try {
   const page = await browser.newPage({viewport: {width: 1440, height: 1100}, timezoneId: process.env.DASHBOARD_TIMEZONE});
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
+  if (process.env.DASHBOARD_PACKET_FIXTURE) {
+    const bytes = readFileSync(process.env.DASHBOARD_PACKET_FIXTURE);
+    await page.route('https://raw.githubusercontent.com/vtjeng/teleport-contest/main/dashboard-data.json.gz**',
+      route => route.fulfill({status:200, contentType:'application/octet-stream', body:bytes,
+        headers:{'access-control-allow-origin':'*'}}));
+  }
   // Deterministic saved-data view, including the explicit refresh-failure state.
   await page.route('https://api.github.com/**', route => route.abort());
   await page.goto(url);

@@ -13,8 +13,11 @@ import { BOOKKEEPING_FILES } from './checkpoint-reuse.mjs';
 import { admittedBatchIds } from './challenge-results.mjs';
 import { reviewTask } from './task-verdict.mjs';
 import { writeDashboardSnapshot } from './dashboard-snapshot.mjs';
+import {writeDashboardData} from './write-dashboard-data.mjs';
 import { checkPublishedCI } from './check-published-ci.mjs';
 import { readRows } from './score-log.mjs';
+import {gunzipSync} from 'node:zlib';
+import {validateDashboardPacket} from './dashboard-packet.mjs';
 
 const USAGE = `Usage: node scripts/task-handoff.mjs <review|accept|publish> --task <id> --ledger <file>
   review:  [--baseline <accepted-checkpoint-summary>] [--evaluations <directory>]
@@ -64,7 +67,8 @@ export { reviewTask } from './task-verdict.mjs';
 export function publishTask(options,root=process.cwd(),dependencies) {
     return withMainWork(root,()=>publishTaskOwned(options,root,dependencies));
 }
-function publishTaskOwned(options, root = process.cwd(), { checkCI = (args, cwd) => checkPublishedCI(args, {
+function publishTaskOwned(options, root = process.cwd(), { writeData = writeDashboardData,
+    checkCI = (args, cwd) => checkPublishedCI(args, {
     gh: values => execFileSync('gh', values, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }),
 }) } = {}) {
     const ctx = context(options, root);
@@ -106,7 +110,23 @@ function publishTaskOwned(options, root = process.cwd(), { checkCI = (args, cwd)
             if (git(ctx.root, 'diff', '--cached', '--name-only'))
                 git(ctx.root, 'commit', '-m', `Record ${options.task} acceptance`, '--trailer', 'Assisted-by: Codex');
         }
-        commit = git(ctx.root, 'rev-parse', 'HEAD');
+        // The packet is a separate report commit because its source identity
+        // includes the complete acceptance report commit above. This prevents
+        // mixed fields from different publication boundaries.
+        const reportCommit = git(ctx.root, 'rev-parse', 'HEAD');
+        verifyPublicationChanges(ctx.root, ctx.delivery.integration, reportCommit, options.admission);
+        const parent = git(ctx.root, 'rev-parse', 'HEAD^');
+        const dataOnly = git(ctx.root, 'diff', '--name-only', parent, reportCommit) === 'dashboard-data.json.gz';
+        const existing = dataOnly ? validateDashboardPacket(JSON.parse(gunzipSync(
+            readFileSync(join(ctx.root, 'dashboard-data.json.gz'))))) : null;
+        if (existing && existing.sourceSha === parent) commit = reportCommit;
+        else {
+            const data = writeData('dashboard-data.json.gz', ctx.root);
+            if (data.sourceSha !== reportCommit) throw new Error('dashboard source changed during publication');
+            git(ctx.root, 'add', '--', 'dashboard-data.json.gz');
+            git(ctx.root, 'commit', '-m', `Record ${options.task} dashboard data`, '--trailer', 'Assisted-by: Codex');
+            commit = git(ctx.root, 'rev-parse', 'HEAD');
+        }
         // Reuse the same content checks the published ledger event applies,
         // before allowing any push. A bad report leaves a recoverable local commit.
         verifyPublicationChanges(ctx.root, ctx.delivery.integration, commit, options.admission);

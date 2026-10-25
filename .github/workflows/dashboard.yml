@@ -14,22 +14,43 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  verify-data:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.changes.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Detect page changes
+        id: changes
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [[ '${{ github.event_name }}' == 'workflow_dispatch' ]] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "$BEFORE" "$GITHUB_SHA" | grep -Eq '^(scripts/(build-dashboard(-shell)?\.mjs|dashboard-loader\.js|dashboard-packet\.mjs|dashboard\.template\.html|dashboard-local-time\.mjs|dashboard-time-range\.mjs|dashboard-activity\.mjs|single-worker-activity\.mjs|published-synthetic\.mjs|trial-monitor\.mjs|worker-backlog\.mjs)|\.github/workflows/dashboard\.yml)$'; then
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'deploy=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Check out the C source
+        run: git submodule update --init --depth 1 -- nethack-c/upstream
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Verify complete dashboard packet
+        run: node scripts/verify-dashboard-data.mjs
+
   deploy:
+    needs: verify-data
+    if: github.ref == 'refs/heads/main' && needs.verify-data.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
-        with:
-          # Score history uses historical commits; worker timing uses the
-          # tracked dashboard-snapshot.json made from the local event ledger.
-          fetch-depth: 0
-      # The mismatch queue reads the C function index from the NetHack
-      # submodule; without it the page shows the queue as unavailable. One
-      # commit at depth 1 is enough, since nothing reads that history.
-      - name: Check out the C source
-        run: git submodule update --init --depth 1 -- nethack-c/upstream
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
@@ -37,7 +58,8 @@ jobs:
       - name: Build dashboard
         run: |
           mkdir _site
-          node scripts/build-dashboard.mjs _site/index.html
+          node scripts/build-dashboard-shell.mjs _site/index.html
+          cp scripts/dashboard-loader.js scripts/dashboard-packet.mjs _site/
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

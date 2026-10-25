@@ -1005,6 +1005,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 .trial-freshness { overflow-wrap:anywhere; border-top:1px solid var(--border); padding-top:10px; color:var(--ink-secondary); font-size:12px; }
 .trial-note { margin-top:9px; color:var(--ink-secondary); font-size:12px; }
 .trial-legacy-note { color:var(--ink-muted); font-size:12px; margin:0 0 16px; }
+.dashboard-data-status { font-size:12px; color:var(--ink-secondary); overflow-wrap:anywhere; }
 @media (max-width:600px) {
   .trial-monitor { padding:12px; }
   .trial-tiles,.trial-details { grid-template-columns:minmax(0,1fr); }
@@ -1063,6 +1064,7 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
 <div class="header">
   <h1>NetHack Port Progress</h1>
   <span class="updated" id="displayTimezone"></span>
+  <p class="dashboard-data-status" id="dashboardDataStatus" role="status" aria-live="polite"></p>
 </div>
 
 <section class="section current-status" aria-labelledby="currentStatusTitle">
@@ -1265,6 +1267,7 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       + (baseline.carryInCount ?? 'unknown') + ' carry-in; '
       + rate(baseline.withoutCarryInRate) + ' excluding carry-in. Observational.');
     syntheticMonitorView = view;
+    window.syntheticMonitorView = view;
     singleWorkerSnapshot = singleWorkerActivity(view);
     text('trialHeadline', 'Single Standard engineer · investigation may overlap CI; edits and publication stay sequential.');
     const accepted = singleWorkerSnapshot.tasks.filter(task => task.publishedAt)

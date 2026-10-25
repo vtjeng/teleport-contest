@@ -38,7 +38,9 @@ function ensureFullHistory() {
 // --- Parse git log ---
 
 ensureFullHistory();
-const gitLog = run(`git log --format="%H %aI %cI %s" --reverse`);
+const sourceSha = process.env.DASHBOARD_SOURCE_SHA;
+if (sourceSha && !/^[a-f0-9]{40}$/u.test(sourceSha)) throw new Error('Invalid dashboard source SHA');
+const gitLog = run(`git log --format="%H %aI %cI %s" --reverse ${sourceSha ?? 'HEAD'}`);
 
 const commits = gitLog.split('\n').map(line => {
   const [sha, iso, committedAt, ...rest] = line.split(' ');
@@ -51,7 +53,7 @@ for (const c of commits) {
   commitBySha.set(c.sha.slice(0, 7), c);
 }
 
-const headFullSha = run('git rev-parse HEAD');
+const headFullSha = run(`git rev-parse ${sourceSha ?? 'HEAD'}`);
 
 // --- Parse SCORE.tsv ---
 
@@ -403,7 +405,7 @@ const scoreHistory = [
 const latest = progress[progress.length - 1];
 const summary = {
   dataset: 'development',
-  generatedAt: new Date().toISOString(),
+  generatedAt: process.env.DASHBOARD_GENERATED_AT ?? new Date().toISOString(),
   totalGoals: [...goalRecords.values()].filter(goal => goal.status === 'closed').length,
   screens: latest?.screens,
   screensTotal: latest?.screensTotal,

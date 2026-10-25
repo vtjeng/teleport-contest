@@ -55,6 +55,20 @@ export function injectDashboardData(template, data, queueData, commit, trialData
   return `<meta name="dashboard-commit" content="${commit}">\n${html}`;
 }
 
+// The deployed shell keeps the existing renderer and styles, but starts it only
+// after one complete, versioned public snapshot has been loaded.
+export function buildDashboardShell(template, commit) {
+  const rendered = injectDashboardData(template, 'null', 'null', commit);
+  const opening = '<script>\n';
+  if (!rendered.includes(opening)) throw new Error('Dashboard script missing');
+  return rendered.replace(opening, `<script type="module">\n` +
+    `import {loadDashboardSnapshot} from './dashboard-loader.js';\n` +
+    `const snapshot = await loadDashboardSnapshot();\n`)
+    .replace('const DATA = null;', 'const DATA = snapshot.data;')
+    .replace('const TRIAL_DATA = null;', 'const TRIAL_DATA = snapshot.trial;')
+    .replace('const QUEUE = null;', 'const QUEUE = snapshot.queue;');
+}
+
 function main() {
   const data = execSync('node scripts/dashboard-data.mjs', {
     encoding: 'utf8', maxBuffer: DASHBOARD_DATA_MAX_BYTES,

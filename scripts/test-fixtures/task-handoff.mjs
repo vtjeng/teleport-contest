@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {createLedger, recordEvent, summarizeLedger} from '../worker-state.mjs';
 import {challengeInputSnapshot, corpusDigest, digest, totalsFor} from '../challenge-results.mjs';
 import {COLUMNS} from '../score-log.mjs';
+import {dashboardPacketBytes, makeDashboardPacket} from '../write-dashboard-data.mjs';
 
 export function handoffFixture(t, { preparation = false, acceptance = false, fixedTarget = false,
     scriptsRoot = dirname(dirname(fileURLToPath(import.meta.url))) } = {}) {
@@ -128,6 +129,15 @@ export function handoffFixture(t, { preparation = false, acceptance = false, fix
     };
     const calls = [];
     const checkCI = args => { calls.push(args); return { checked: 0, pending: [], completed: [], failed: false }; };
+    const writeData = output => {
+        const sourceSha = git('rev-parse', 'HEAD');
+        const packet = makeDashboardPacket({sourceSha, generatedAt:'2026-10-25T00:00:00.000Z',
+            data:{scoreHistory:[],progress:[],scores:{},challenges:{},activity:{}},
+            queue:{status:'ready'},trial:{manifest:{},register:{}}});
+        write(output,dashboardPacketBytes(packet));
+        return {sourceSha};
+    };
     return { root, parent, git, write, json, options, baseline, candidate, baselineCheckpoint, candidateCheckpoint,
-        accept, send, calls, checkCI, state: () => summarizeLedger(JSON.parse(readFileSync(join(root, options.ledger), 'utf8'))) };
+        accept, send, calls, checkCI, writeData,
+        state: () => summarizeLedger(JSON.parse(readFileSync(join(root, options.ledger), 'utf8'))) };
 }
