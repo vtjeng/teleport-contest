@@ -8178,10 +8178,19 @@ export function optfn_pickup_types(
         state.flags.pickup_types = parsed.types;
         if (parsed.badopt) {
             // C advances op to its terminating NUL before reporting it.
-            if (initial) configErrorAdd(
-                state, `Unknown ${allopt[optidx].name} parameter ''`,
-            );
-            else note_unported('cfgfiles.c config_error_add');
+            const message = `Unknown ${allopt[optidx].name} parameter ''`;
+            if (initial) {
+                configErrorAdd(state, message);
+            } else {
+                // cfgfiles.c:config_erradd() prints the live error and then
+                // synchronizes the TTY without changing the startup frame.
+                return (async () => {
+                    await ttyPline(`${message}.`, state);
+                    const { tty_wait_synch } = await import('./tty_rawprint.js');
+                    await tty_wait_synch(state);
+                    return optn_err;
+                })();
+            }
             return optn_err;
         }
         return optn_ok;

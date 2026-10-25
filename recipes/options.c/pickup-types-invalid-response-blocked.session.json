@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Outside-limit error output: cfgfiles.c config_erradd runtime pline/wait_synch is unported. Accepted classes and optn_err remain source state; invalid input emits the missing error.",
+  "comment": "C-first invalid live pickup_types response witness for options.c:optfn_pickup_types and cfgfiles.c:config_erradd; after parsing, C prints the error and synchronizes the TTY.",
   "segments": [
     {
       "seed": 17932015,

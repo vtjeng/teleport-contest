@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first invalid live pickup_types response witness for options.c:optfn_pickup_types and cfgfiles.c:config_erradd; after parsing, C prints the error and synchronizes the TTY.",
+  "segments": [
+    {
+      "seed": 17932033,
+      "datetime": "20531018112133",
+      "nethackrc": "OPTIONS=name:Mara,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:traditional,pickup_types:)\n",
+      "moves": ".OoZ\n\u001b."
+    }
+  ]
+}

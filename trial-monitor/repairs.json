@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T23:26:54.020428Z",
+  "asOf": "2026-10-25T23:40:48.110387Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16352,6 +16352,45 @@
       },
       "candidates": [],
       "note": "Prospective distinct226. C cfgfiles.c prints punctuated live scores errors then wait_synch; JS had discarded them as an unported gap. Three C error recordings and three independently recorded valid-value controls now strictly replay. Startup frame, return code and partial option writes retain their source ordering. 249 focused/affected tests, focused ESLint and diff checks pass. Carry verified repair225 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "pickup-types-live-error",
+      "kind": "parity-repair",
+      "title": "Display invalid live pickup-type option errors",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T23:39:43.030403+00:00",
+          "end": "2026-10-25T23:40:48.110387Z",
+          "note": "Dedicated repair after two C invalid-response witnesses and two valid controls were qualified during repair226 CI; the earlier independent survey has its own local timing."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:optfn_pickup_types",
+          "nethack-c/upstream/src/cfgfiles.c:config_erradd",
+          "js/options.js:optfn_pickup_types"
+        ],
+        "witness": [
+          "recipes/options.c/pickup-types-invalid-response-blocked.session.json",
+          "recipes/options.c/pickup-types-invalid-Z.session.json",
+          "recipes/options.c/pickup-types-traditional-full.session.json",
+          "recipes/options.c/pickup-types-traditional-simple-restore.session.json"
+        ],
+        "test": [
+          "scripts/options-pickup-types.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-simple-menu.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/tty-message.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct227. options.c preserves accepted pickup classes but reports invalid live response through cfgfiles.c config_erradd, which prints punctuation then synchronizes TTY. JS previously discarded this as unported. Two C error witnesses and two valid controls now strictly replay; startup synchronous error frame and partial-state tests remain. 126 focused/affected tests and focused ESLint pass. Carry verified repair226 complete98 receipt in ordinary commit. Hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }
