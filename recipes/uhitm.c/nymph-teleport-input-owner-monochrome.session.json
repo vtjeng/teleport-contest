@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent public nymph controlledteleport input-order witness; CtheftMore must precedegetpos, frozen public keys from observed setup.",
+  "segments": [
+    {
+      "seed": 8432322,
+      "datetime": "20270823100000",
+      "nethackrc": "OPTIONS=name:DisintegrateLifeProbe,role:Wizard,race:human,gender:male,align:neutral,pettype:none,playmode:debug,!legacy,!tutorial,!splash_screen,!tips,!autopickup,!acoustics\nOPTIONS=montelecontrol\nOPTIONS=!color\n",
+      "moves": "   #levelchange\n8\n            i        Tb        DAa\n                              i        \u0017amulet of life saving\n        \u00171 gold piece\n        \u0014@hhhh.    d$    \u0014@llll.    \u00171 gold piece\n        #wizgenesis\n1 hostile water nymph\n        t$y m.  @hhhh.m."
+    }
+  ]
+}

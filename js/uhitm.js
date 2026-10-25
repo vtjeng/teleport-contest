@@ -4143,7 +4143,10 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         // C ref: teleport.c rloc() with RLOC_MSG. The rloc env threads the
         // display and movement hooks that preflightOrdinaryRloc() requires
         // alongside the attack env's message function.
+        // Controlled relocation must retain the planner input boundary so
+        // getpos is replayed live after the theft message.
         const rlocEnv = {
+            ...env,
             state,
             random: env.random,
             newsym,

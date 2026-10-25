@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T09:14:24.668205+00:00",
+  "asOf": "2026-10-25T10:15:58.673395+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -15345,8 +15345,104 @@
           "scripts/monmove.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "ceb158c57d5972ea84af539188192c3a52c94339",
+          "committedAt": "2026-10-25T09:17:00Z",
+          "runs": [
+            {
+              "id": 40180021459,
+              "name": "Checkpoint",
+              "sha": "ceb158c57d5972ea84af539188192c3a52c94339",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/self-see-invisible-20261025",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T09:17:22Z",
+              "completedAt": "2026-10-25T09:27:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40180021459"
+            },
+            {
+              "id": 40181128717,
+              "name": "Lint",
+              "sha": "ceb158c57d5972ea84af539188192c3a52c94339",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T09:33:20Z",
+              "completedAt": "2026-10-25T09:34:43Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40181128717"
+            },
+            {
+              "id": 40181128702,
+              "name": "Dashboard",
+              "sha": "ceb158c57d5972ea84af539188192c3a52c94339",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T09:33:20Z",
+              "completedAt": "2026-10-25T09:36:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40181128702"
+            }
+          ]
+        }
+      ],
+      "note": "Pending distinct self-perception correction: C canseeself uses !Invisible, where Invisible=Invis&&!See_invisible. JS heroCanSpotSelf used !rawINVIS, so an invisible hero with see-invisible lost its glyph. Compute existing unblockedINVIS&&!SEE_INVIS predicate; preserve blindness/swallowing/hiding/senseself branches. No core RNG or property/form initialization change; existing draw and memory operations retained. Bug predates experiment ebb9dbSep11. Independent Wizard8432322/date20270823100000 blackdragonform grants canonical SeeInvisible, then actual public potionlettero consumed. Fresh normal/mono2694core/111screens+cursors/0anim each failoldfirstscreen102 heroD versus flooritem, passprototype; before2683/101 and ordinaryhuman2684/88 controls passboth. Additional publicHallu2694/137/0 failsold128/passprototype. Full incidentalhostilepickup3483/752/0 also strictlypasses onepredicateprototype. Eight initialized actualnewsym cases invis/seeInvisible/blind exercise external glyph_at hero/floor and unchangedcore; old7pass1fail,new8pass. Isolated608focused+affected pluslint pass. Initial missingformproperty hypothesis rejected: both C/JS canonicalformprops alreadysetSeeInvisible. Original separate disintegratelifesaver feedback question remainsunqualified;40level0humaninventorysetupmiss andpeacefulpickupmiss preserved, no acceptance claimed for them. Includescompleteaccepted20181fe98receipt. Primarytests/fullhosted/archivecomparison/Mainexactgates required; accepted201 unchanged, no admission or measured aggregate scoregain. Primary integration613tests including13new native/C plus600existing,22register,fullESLint and diffcheck pass. Full changed-SHA hostedCheckpoint, genuine archive comparison versus81fe and exactMainLint/Dashboard required before acceptance; accepted201 unchanged. Accepted distinct202 after CP40180021459, genuine archive/hash/admission/44fixed98synthetic2055 comparison versus81fe with no drops/missing/regressions/issues/deltas, exact Main Lint40181128717 and Dashboard40181128702 success. Parent complete exacthead09:39:02Z snapshot retained and consumed in active turn; terminal fields are workflow-summary updates, directdeploy09:36:06Z separately verified. Complete98 receipt checker42680exit0 pending[], exactceb pointer and all98SHA256 verified; shipped in this next ordinary source repair. Full preserved Archeologist review vs81fe all4actualoutputhashes unchanged, existing3847displaygap/corefullmatch retained; independent Monk246597/4554/116 andgnomeHealer212256/4554/40 strictpass. Aggregate2051/2055 unchanged, no admission or gain."
+    },
+    {
+      "id": "nymph-teleport-input-owner",
+      "kind": "parity-repair",
+      "title": "Preserve planner input ownership for nymph teleportation",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T10:03:32.075521+00:00",
+          "end": "2026-10-25T10:03:32.075521+00:00",
+          "note": "Retained instantaneous source-confirmation observation from independent controlled nymph setup; no inferred active-work duration."
+        },
+        {
+          "start": "2026-10-25T10:15:58.673395+00:00",
+          "end": "2026-10-25T10:15:58.673395+00:00",
+          "note": "Sequential primary integration after completeaccepted202receipt and isolated qualification; point observation only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/uhitm.c:mhitm_ad_sedu4623-4748",
+          "nethack-c/upstream/src/teleport.c:rloc",
+          "nethack-c/upstream/src/teleport.c:control_mon_tele1897-1933",
+          "js/uhitm.js:mhitm_ad_sedu rlocEnv",
+          "js/teleport.js:teleportInput",
+          "js/unported_monster_actions.js:planSimpleMonsterScan requestPlanningInput"
+        ],
+        "witness": [
+          "recipes/uhitm.c/nymph-teleport-input-owner-normal.session.json",
+          "recipes/uhitm.c/nymph-teleport-input-owner-monochrome.session.json",
+          "recipes/uhitm.c/nymph-teleport-input-owner-before-control.session.json",
+          "recipes/uhitm.c/nymph-teleport-input-owner-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/nymph-teleport-input-owner.test.mjs",
+          "scripts/uhitm.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/teleport.test.mjs",
+          "scripts/steal.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/do-name.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Pending distinct self-perception correction: C canseeself uses !Invisible, where Invisible=Invis&&!See_invisible. JS heroCanSpotSelf used !rawINVIS, so an invisible hero with see-invisible lost its glyph. Compute existing unblockedINVIS&&!SEE_INVIS predicate; preserve blindness/swallowing/hiding/senseself branches. No core RNG or property/form initialization change; existing draw and memory operations retained. Bug predates experiment ebb9dbSep11. Independent Wizard8432322/date20270823100000 blackdragonform grants canonical SeeInvisible, then actual public potionlettero consumed. Fresh normal/mono2694core/111screens+cursors/0anim each failoldfirstscreen102 heroD versus flooritem, passprototype; before2683/101 and ordinaryhuman2684/88 controls passboth. Additional publicHallu2694/137/0 failsold128/passprototype. Full incidentalhostilepickup3483/752/0 also strictlypasses onepredicateprototype. Eight initialized actualnewsym cases invis/seeInvisible/blind exercise external glyph_at hero/floor and unchangedcore; old7pass1fail,new8pass. Isolated608focused+affected pluslint pass. Initial missingformproperty hypothesis rejected: both C/JS canonicalformprops alreadysetSeeInvisible. Original separate disintegratelifesaver feedback question remainsunqualified;40level0humaninventorysetupmiss andpeacefulpickupmiss preserved, no acceptance claimed for them. Includescompleteaccepted20181fe98receipt. Primarytests/fullhosted/archivecomparison/Mainexactgates required; accepted201 unchanged, no admission or measured aggregate scoregain. Primary integration613tests including13new native/C plus600existing,22register,fullESLint and diffcheck pass. Full changed-SHA hostedCheckpoint, genuine archive comparison versus81fe and exactMainLint/Dashboard required before acceptance; accepted201 unchanged."
+      "note": "Pending distinct caller input-owner repair, separate from the muse.c wand-context, stealamulet naming and doseduce sensing repairs. Future extensions of this mhitm_ad_sedu rlocEnv correction group here. C theft output completes before rloc asks controlled destination. JS rebuilt rlocEnv without planning/requestPlanningInput, so speculative scan entered live getpos early and consumed keys intended for the theftMore boundary. Preserve active env before existing explicit relocation bindings; existing MonsterInputPlanningBoundaryError protocol hands the action back for live replay. No new boundary/input/teleport algorithm, RNG or CIsetting change. Context omission predatesexperiment4ae38cSep5. Independent public Wizard8432322/date20270823100000 sourcevalidhumanhands, emptyinventory/solelifeamulet, onecoin wake ofsleepingnymph, actualtheft andmontelecontrol getpos plusfixedpublicdestination keys. Fresh normal/mono2784core/254screens+cursors/0anim each failcebfirstscreen243 theftMore versusprematurepositioncursor andJS2761core, passprototype; before2761/242 and ordinaryuncontrolled2962/481 controls passboth. Four initialized realpreflightSimpleMonsterActions cases consumeHeroRationtrue/false xmontelecontroltrue/false; controlledreturnsgetposboundary, ordinarynone, preservinglivecore/display/TTYframes/cursors/inventory/monsterposition/heroallocation. Old2controlledfail2ordinarypass,new4pass. Isolated674focused+affected andlint pass. Original independent disintegratelifesaver feedbackquestion remainsunqualified: nymphcarriesbutdoesnotwear stolenamulet; goldbaitineligible, furthergearsetup not partof thisrepair. Dragonthrowrefusal andall failedsetups retained, no coverage claimed for them. Includescompleteceb98receipt. Primary/fullhosted/genuinearchive/Mainexactgatesrequired; accepted202 unchanged; no admission or measured aggregate gain. Primary integration678tests including8new native/C plus670existing,22register,fullESLint and diffcheck pass. Full changed-SHA hostedCheckpoint, genuine archive comparison versusceb and exactMainLint/Dashboard required before acceptance; accepted202 unchanged."
     }
   ]
 }
