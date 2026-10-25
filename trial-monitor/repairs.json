@@ -15936,6 +15936,42 @@
       },
       "candidates": [],
       "note": "Prospective distinct215. On independently selected seed8510310, C Healer picks up a 53-zorkmid scroll in a D:5 general store and drops it on the same costly square; C removes its bill entry. Old JS matches through the drop prompt then stops at explicit preflight_dropx unpaid-object refusal. Same generated setup dropping an owned item matches old JS fully. Admit only plain unpaid returns on a resident keeper’s costly square; shk.c sellobj already implements sub_one_frombill. Both full strict C replays pass after fix (5223 RNG,15 screens/cursors each), and direct runtime state confirms billct0, floor object no longer unpaid. 3 focused and144 affected tests, ESLint and diff pass. Carry accepted214 complete98 receipt in ordinary candidate commit. Hosted comparison and Main gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "fatal-wand-blast-killer",
+      "kind": "parity-repair",
+      "title": "Attribute fatal wand blasts to the hero",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T17:45:14Z",
+          "end": "2026-10-25T17:45:14Z",
+          "note": "Point-in-time registration of live C male/female fatal wand witnesses and source review; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/explode.c:650-660",
+          "nethack-c/upstream/include/you.h:315-316",
+          "js/explode.js:explode",
+          "js/end.js:really_done"
+        ],
+        "witness": [
+          "recipes/explode.c/fatal-wand-killer-male.session.json",
+          "recipes/explode.c/fatal-wand-killer-female.session.json",
+          "recipes/explode.c/wand-strike-wizard.session.json"
+        ],
+        "test": [
+          "scripts/fatal-wand-killer.test.mjs",
+          "scripts/explode.test.mjs",
+          "scripts/apply-break-wand.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct216. Independent C Caveman ten-charge magic-missile wand break is fatal and shows caught himself in his own magical blast on the tombstone; female variation shows herself/her. Old JS matches through the final prompt, all3105 RNG calls and52 cursors, but records generic killer name/format and differs on the final tombstone. Narrow source-ordered wand fatal arm sets NO_KILLER_PREFIX with original hero gender. Both strict C death replays now match completely (3105 RNG,52 screens/cursors each); nonfatal Wizard wand-break control remains matching (2702 RNG,76 screens/cursors). 3 focused and106 affected tests, ESLint and diff pass. Carry accepted215 complete98 receipt in ordinary candidate commit. Hosted comparison/Main gates pending; no aggregate gain inferred."
     }
   ]
 }

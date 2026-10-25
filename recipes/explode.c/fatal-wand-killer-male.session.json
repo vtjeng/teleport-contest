@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent public C fatal wand-break witness. A normal male Caveman breaks a ten-charge magic-missile wand and accepts death; explode.c:650-660 supplies NO_KILLER_PREFIX and the reflexive magical-blast killer text visible on the tombstone. The wizard nonfatal wand-break recording is the control.",
+  "segments": [
+    {
+      "seed": 93171015,
+      "datetime": "20781113120704",
+      "nethackrc": "OPTIONS=name:BlastCase,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h\u0017uncursed wand of magic missile (0:10)\nafy  y     "
+    }
+  ]
+}

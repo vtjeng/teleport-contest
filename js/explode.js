@@ -29,6 +29,7 @@ import {
     LARGEST_INT,
     KILLED_BY,
     KILLED_BY_AN,
+    NO_KILLER_PREFIX,
     LOST_EXPLODING,
     MON_EXPLODE,
     BURNING_OIL,
@@ -53,6 +54,7 @@ import {
     Upolyd,
     engulfing_u,
     u_at,
+    uhim,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { exercise } from './attrib.js';
@@ -710,8 +712,17 @@ export async function explode(
             if (Upolyd(state.u)) await rehumanize(state, env);
             else {
                 state.killer ??= { name: '', format: KILLED_BY };
-                state.killer.name = generic ? 'explosion' : str;
-                state.killer.format = olet === MON_EXPLODE ? KILLED_BY_AN : KILLED_BY;
+                if (olet === WAND_CLASS && type >= 0) {
+                    // C explode.c:656-660 attributes a fatal self-inflicted
+                    // wand blast to the original hero gender, without a
+                    // prefixed "killed by" on the tombstone.
+                    state.killer.name = `caught ${uhim(state)}self in ${state.flags?.female ? 'her' : 'his'} own ${str}`;
+                    state.killer.format = NO_KILLER_PREFIX;
+                } else {
+                    state.killer.name = generic ? 'explosion' : str;
+                    state.killer.format = olet === MON_EXPLODE
+                        ? KILLED_BY_AN : KILLED_BY;
+                }
                 // explode.c:668-673 checks the last pline after item effects:
                 // an intervening message replaces the blast's antecedent.
                 const lastMessage = state.iflags?.last_msg;

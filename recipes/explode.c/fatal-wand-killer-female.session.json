@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Female-hero variation of the fatal magic-missile wand break. C uses herself and her on the tombstone, from the original hero gender flags; the nonfatal wand-break control remains unchanged.",
+  "segments": [
+    {
+      "seed": 93171015,
+      "datetime": "20781113120704",
+      "nethackrc": "OPTIONS=name:BlastWoman,role:Caveman,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h\u0017uncursed wand of magic missile (0:10)\nafy  y     "
+    }
+  ]
+}
