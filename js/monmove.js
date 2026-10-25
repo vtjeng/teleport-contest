@@ -2541,6 +2541,10 @@ export async function dochug(monster, rawEnv = {}) {
     // C ref: monmove.c:753-755. Respond after the optional flee teleport for
     // every monster; a Medusa gaze can kill it, so test death before recovery.
     await m_respond(monster, env);
+    // A fatal Medusa gaze calls C's nonreturning done() from m_respond().
+    // JavaScript returns after painting the final screen; stop this monster's
+    // turn before any further movement or attack can consume random draws.
+    if (state.program_state?.gameover) return 1;
     if (monster.mhp < 1) return 1;
 
     // C ref: monmove.c:758-760. Only fleeing monsters might regain courage.
