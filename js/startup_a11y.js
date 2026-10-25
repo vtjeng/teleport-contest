@@ -543,15 +543,7 @@ export function queueGlyphUpdateNotice(
 
     const description = describeGlyphUpdate(current, x, y, state);
     if (!description) return false;
-    let glyphFrame;
-    const frameTracker = state._glyphNoticeFrameTracker;
-    if (frameTracker) {
-        glyphFrame = { changes: frameTracker.pending };
-        frameTracker.pending = new Map();
-    } else {
-        glyphFrame = { base: captureGlyphBuffer(state) };
-        state._glyphNoticeFrameTracker = { pending: new Map() };
-    }
+    const glyphFrame = takeNoticeGlyphFrame(state);
     const notice = {
         x,
         y,
@@ -568,6 +560,30 @@ export function queueGlyphUpdateNotice(
     };
     (state._glyphUpdateNotices ??= []).push(notice);
     return true;
+}
+
+function takeNoticeGlyphFrame(state) {
+    let glyphFrame;
+    const frameTracker = state._glyphNoticeFrameTracker;
+    if (frameTracker) {
+        glyphFrame = { changes: frameTracker.pending };
+        frameTracker.pending = new Map();
+    } else {
+        glyphFrame = { base: captureGlyphBuffer(state) };
+        state._glyphNoticeFrameTracker = { pending: new Map() };
+    }
+    return glyphFrame;
+}
+
+// C vision.c vision_recalc() ends with hack.c notice_all_mons(TRUE).
+// Capture its messages on the existing source-ordered TTY frame queue; the
+// async emitter drains it before later messages or monster movement.
+export function queueVisionMonsterNotices(state) {
+    if (!state.a11y?.mon_notices || state.a11y.mon_notices_blocked) return;
+    for (const message of collectMonsterNoticeMessages(state)) {
+        const glyphFrame = takeNoticeGlyphFrame(state);
+        (state._glyphUpdateNotices ??= []).push({ message, glyphFrame });
+    }
 }
 
 export async function emitGlyphUpdateNotices(state, env = {}) {

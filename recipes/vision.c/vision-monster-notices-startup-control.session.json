@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8432336,
+      "datetime": "20270906100000",
+      "nethackrc": "OPTIONS=name:VisionNoticeStartupControl,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!tips,!autopickup,!acoustics,spot_monsters\n",
+      "moves": ""
+    }
+  ],
+  "_comment": "Independent C vision monster-notice startup-control. Public option spot_monsters, sleepingpeacefulhuman and realblindfoldremoval; Rautoselects soleblindfold, following space acknowledges actualMore."
+}

@@ -1,3 +1,4 @@
+import { queueVisionMonsterNotices } from './startup_a11y.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
 import { game } from './gstate.js';
@@ -918,6 +919,7 @@ export function vision_recalc(control = 0, env = {}) {
         if (!state.program_state?.panicking) redraw(ux, uy);
         state._viz_rmin = next_rmin;
         state._viz_rmax = next_rmax;
+        queueVisionMonsterNotices(state);
         return;
     }
 
@@ -1080,6 +1082,7 @@ export function vision_recalc(control = 0, env = {}) {
 
     state._viz_rmin = next_rmin;
     state._viz_rmax = next_rmax;
+    queueVisionMonsterNotices(state);
 }
 
 // C ref: cansee(x, y). The optional state keeps focused rendering calls on
