@@ -250,6 +250,7 @@ import {
 } from './weapon.js';
 import { spec_abon, Stone_resistance } from './artifacts.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { mwelded } from './wield.js';
 import { dobuzz, exclam, hit, miss } from './zap.js';
 import { harmless_missile } from './dothrow.js';
@@ -1728,10 +1729,13 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
 // C ref: mthrowu.c m_useupall() (1153-1158). Remove an item from a monster's
 // inventory, unequipping it first, and free it.
 export async function m_useupall(mon, obj, env = {}) {
+    // C frees every extracted item, including objects with active timers.
+    // Bind the existing lifecycle owners and preserve caller overrides.
+    const lifecycleEnv = objectGenerationEnv({ ...env, state: env.state ?? game });
     const extractionEnv = {
-        ...env,
+        ...lifecycleEnv,
         hooks: {
-            ...(env.hooks ?? {}),
+            ...lifecycleEnv.hooks,
             // C m_useupall() reaches weapon.c mwepgone() through
             // extract_from_minvent() for a wielded object.  Supply that
             // canonical owner when the caller has no test-specific hook.
@@ -1740,7 +1744,7 @@ export async function m_useupall(mon, obj, env = {}) {
         },
     };
     await extract_from_minvent(mon, obj, true, false, extractionEnv);
-    obfree(obj, null, env);
+    obfree(obj, null, lifecycleEnv);
 }
 
 // C ref: mthrowu.c m_useup() (1160-1170). Remove one instance of an item from

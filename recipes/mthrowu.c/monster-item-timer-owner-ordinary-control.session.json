@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Ordinary-level control outside monster inventory destruction.",
+  "segments": [
+    {
+      "seed": 8432316,
+      "datetime": "20270817100000",
+      "nethackrc": "OPTIONS=name:SeenTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n",
+      "moves": "  l        h        l        "
+    }
+  ]
+}
