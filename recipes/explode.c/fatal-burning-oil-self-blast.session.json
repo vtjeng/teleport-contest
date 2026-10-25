@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9102678,
+      "datetime": "20360913131700",
+      "nethackrc": "OPTIONS=name:OilSelfBlast,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017lit potion of oil\nto<    yn      "
+    }
+  ],
+  "comment": "Independent C-first fatal burning-oil blast: debug Wizard wishes a lit oil potion, throws it upward, and is killed when it falls on his head. C explode.c:656-660 attributes the positive-type BURNING_OIL explosion as caught himself in his own burning oil. Old JS matches 2772 RNG and 36 cursors, differing only on the final tombstone. The existing lit-oil monster-target recording is a nonfatal blast control."
+}

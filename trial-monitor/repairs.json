@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T18:24:48Z",
+  "asOf": "2026-10-25T19:02:05Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -15950,6 +15950,11 @@
           "start": "2026-10-25T17:45:14Z",
           "end": "2026-10-25T17:45:14Z",
           "note": "Point-in-time registration of live C male/female fatal wand witnesses and source review; no active-work duration inferred."
+        },
+        {
+          "start": "2026-10-25T19:02:05Z",
+          "end": "2026-10-25T19:02:05Z",
+          "note": "Point-in-time registration of independent fatal burning-oil self-throw C witness, matching nonfatal oil control and same explode.c positive-type arm; grouped correction to repair216, no active-work duration inferred."
         }
       ],
       "evidence": {
@@ -15957,21 +15962,26 @@
           "nethack-c/upstream/src/explode.c:650-660",
           "nethack-c/upstream/include/you.h:315-316",
           "js/explode.js:explode",
-          "js/end.js:really_done"
+          "js/end.js:really_done",
+          "nethack-c/upstream/src/explode.c:950-982",
+          "nethack-c/upstream/src/dothrow.c:2493-2506"
         ],
         "witness": [
           "recipes/explode.c/fatal-wand-killer-male.session.json",
           "recipes/explode.c/fatal-wand-killer-female.session.json",
-          "recipes/explode.c/wand-strike-wizard.session.json"
+          "recipes/explode.c/wand-strike-wizard.session.json",
+          "recipes/explode.c/fatal-burning-oil-self-blast.session.json",
+          "recipes/explode.c/lit-oil-potionhit-monster-target-b67-samurai-hit.session.json"
         ],
         "test": [
           "scripts/fatal-wand-killer.test.mjs",
           "scripts/explode.test.mjs",
-          "scripts/apply-break-wand.test.mjs"
+          "scripts/apply-break-wand.test.mjs",
+          "scripts/fatal-burning-oil-killer.test.mjs"
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct216. Independent C Caveman ten-charge magic-missile wand break is fatal and shows caught himself in his own magical blast on the tombstone; female variation shows herself/her. Old JS matches through the final prompt, all3105 RNG calls and52 cursors, but records generic killer name/format and differs on the final tombstone. Narrow source-ordered wand fatal arm sets NO_KILLER_PREFIX with original hero gender. Both strict C death replays now match completely (3105 RNG,52 screens/cursors each); nonfatal Wizard wand-break control remains matching (2702 RNG,76 screens/cursors). 3 focused and106 affected tests, ESLint and diff pass. Carry accepted215 complete98 receipt in ordinary candidate commit. Exact Checkpoint40218027854 and complete archived baseline comparison passed; Main f9b887cfee1269bc9a4a735929085f8d71d57870 passed exact-SHA Lint40218958087 and Dashboard40218958142. Complete98 receipt independently hash-verified for next ordinary commit. Accepted distinct216; no aggregate gain inferred."
+      "note": "Prospective distinct216. Independent C Caveman ten-charge magic-missile wand break is fatal and shows caught himself in his own magical blast on the tombstone; female variation shows herself/her. Old JS matches through the final prompt, all3105 RNG calls and52 cursors, but records generic killer name/format and differs on the final tombstone. Narrow source-ordered wand fatal arm sets NO_KILLER_PREFIX with original hero gender. Both strict C death replays now match completely (3105 RNG,52 screens/cursors each); nonfatal Wizard wand-break control remains matching (2702 RNG,76 screens/cursors). 3 focused and106 affected tests, ESLint and diff pass. Carry accepted215 complete98 receipt in ordinary candidate commit. Exact Checkpoint40218027854 and complete archived baseline comparison passed; Main f9b887cfee1269bc9a4a735929085f8d71d57870 passed exact-SHA Lint40218958087 and Dashboard40218958142. Complete98 receipt independently hash-verified for next ordinary commit. Accepted distinct216; no aggregate gain inferred. Follow-on grouped216 correction: C positive-type BURNING_OIL self-explosion says caught himself in his own burning oil, while old JS stored generic burning oil. The independent C/JS death replay matches2772 RNG and36 cursors before the tombstone; source arm is the same explode.c:656-660 as the accepted wand repair. Broaden its guard to positive-type non-scroll, non-monster explosions; full fatal and nonfatal C controls pass. 2 focused and296 affected tests, ESLint/diff pass. Keep accepted distinct total218 unchanged; fresh hosted comparison/Main gates pending for this correction."
     },
     {
       "id": "fatal-trap-blast-killer",
@@ -16041,7 +16051,7 @@
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct218. An independent debug Valkyrie wishes a blessed scroll of fire and centers its tower of flame on herself; C tombstone says burned by a tower of flame. Old JS matches all2183 RNG calls and43 cursors but diverges only on the final tombstone because explode.c selects KILLED_BY_AN for tower of flame or fireball while JS selected KILLED_BY. Narrow killer-format fix preserves source case-insensitive spellings. Full fatal C replay now matches; the existing nonfatal blessed fire-scroll control remains strict match (2149 RNG,34 screens/cursors). 2 focused and157 affected tests pass. Carry accepted217 complete98 receipt in ordinary candidate commit. Hosted comparison/Main gates pending; no aggregate gain inferred."
+      "note": "Prospective distinct218. An independent debug Valkyrie wishes a blessed scroll of fire and centers its tower of flame on herself; C tombstone says burned by a tower of flame. Old JS matches all2183 RNG calls and43 cursors but diverges only on the final tombstone because explode.c selects KILLED_BY_AN for tower of flame or fireball while JS selected KILLED_BY. Narrow killer-format fix preserves source case-insensitive spellings. Full fatal C replay now matches; the existing nonfatal blessed fire-scroll control remains strict match (2149 RNG,34 screens/cursors). 2 focused and157 affected tests pass. Carry accepted217 complete98 receipt in ordinary candidate commit. Exact Checkpoint40221181742 and complete archived baseline comparison passed; Main 55d9bce558b7e581b4493f6f66469134d0ea318a passed exact-SHA Lint40222038599 and Dashboard40222038576. Complete98 receipt independently hash-verified; accepted distinct218. The later separate tooling commit 736b8cd0424817ab9838e29b7ffb7e04228a354b also passed its own full gates without changing parity count; its complete98 receipt is verified for next ordinary commit. No aggregate gain inferred."
     }
   ]
 }

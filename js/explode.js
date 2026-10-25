@@ -717,10 +717,11 @@ export async function explode(
                     // blast to the hero without a prefixed "killed by".
                     state.killer.name = `caught ${uhim(state)}self in a ${str}`;
                     state.killer.format = NO_KILLER_PREFIX;
-                } else if (olet === WAND_CLASS && type >= 0) {
+                } else if (type >= 0 && olet !== SCROLL_CLASS
+                    && olet !== MON_EXPLODE) {
                     // C explode.c:656-660 attributes a fatal self-inflicted
-                    // wand blast to the original hero gender, without a
-                    // prefixed "killed by" on the tombstone.
+                    // blast, including burning oil and wands, to the hero
+                    // without a prefixed "killed by" on the tombstone.
                     state.killer.name = `caught ${uhim(state)}self in ${state.flags?.female ? 'her' : 'his'} own ${str}`;
                     state.killer.format = NO_KILLER_PREFIX;
                 } else {
