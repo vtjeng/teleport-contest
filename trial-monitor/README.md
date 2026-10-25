@@ -6,7 +6,8 @@ status `not-started` and start/end null. The audited Oct 21 11:50–15:50 UTC
 baseline remains frozen: 13 accepted repairs, one carry-in, 3.25/hour including
 it and 3.00/hour excluding it. These are elapsed wall-time observations.
 
-The current lane selects repairs with `window: "single-worker"`. This register
+The current lane selects repairs with `window: "single-worker"` or
+`window: "post-trial"`. Frozen baseline and trial records stay outside it. This register
 has partial historical coverage: recent repairs and their corrections are
 recorded, not the whole earlier single-worker history. Retired worker
 ledger lanes and their metrics remain separately selectable. Neither missing

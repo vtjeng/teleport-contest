@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-24T23:48:47.483773+00:00",
+  "asOf": "2026-10-25T00:06:47.327662+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -13547,19 +13547,32 @@
           "start": "2026-10-24T18:51:12.446831+00:00",
           "end": "2026-10-24T18:51:12.446831+00:00",
           "note": "Sequential primary integration after verified accepted189 complete98receipt. Observation only, no elapsed active-work claim."
+        },
+        {
+          "start": "2026-10-24T23:57:17.381290+00:00",
+          "end": "2026-10-24T23:57:17.381290+00:00",
+          "note": "Output-only cloned-constructor message observer log modification time; observation only, no inferred active-work duration."
         }
       ],
       "evidence": {
         "source": [
-          "C wizard.c clonewiz517-533 final newsym after final attitudes, optional fakeamulet, M_AP_MONSTER disguise. JS wizard.js existing callback-only redraw from99e9b62810 Oct13 predates experiment."
+          "C wizard.c clonewiz517-533 final newsym after final attitudes, optional fakeamulet, M_AP_MONSTER disguise. JS wizard.js existing callback-only redraw from99e9b62810 Oct13 predates experiment.",
+          "C wizard.c clonewiz517-533 delegates initial creation to makemon then final attitudes/disguise/newsym",
+          "C makemon.c runtime appearance Norep tail, mirrored in makemon_create.js finishRuntimeCreationTail3014",
+          "JS wizard.js constructor env250 originated99e9b62810 October13 before experiment; existing190 owned final clone redraw but missed nested constructor message owner",
+          "makemon_runtime3407-3410 defaults omitted message to ttyPline and planning norepMessage to message; clone constructor must provide its planner-owned sink"
         ],
         "witness": [
           "recipes/wizard.c/clone-final-redraw-normal.session.json",
           "recipes/wizard.c/clone-final-redraw-monochrome.session.json",
-          "recipes/wizard.c/clone-final-redraw-before-control.session.json"
+          "recipes/wizard.c/clone-final-redraw-before-control.session.json",
+          "recipes/wizard.c/clone-constructor-message-normal.session.json",
+          "recipes/wizard.c/clone-constructor-message-monochrome.session.json",
+          "recipes/wizard.c/clone-constructor-message-before-control.session.json"
         ],
         "test": [
-          "scripts/clone-final-redraw.test.mjs"
+          "scripts/clone-final-redraw.test.mjs",
+          "scripts/clone-constructor-message.test.mjs"
         ]
       },
       "candidates": [
@@ -13609,7 +13622,7 @@
           ]
         }
       ],
-      "note": "Provisional distinct190 only after189 acceptance and all gates. No current count. C wizard.c clonewiz517-533 final newsym after final attitudes, optional fakeamulet, M_AP_MONSTER disguise. JS wizard.js existing callback-only redraw from99e9b62810 Oct13 predates experiment. Add canonical newsym default only for active global state and nonplanning; preserve explicit redraw/redrawSquare and await. Reuse existing display import edge. No RNG algorithm/helper changes. Independent Fire plane Wizard dog8432130 March6, after separate187/188/189 prerequisites. Ten screen boundaries3718-3727 differ; all core/cursor/animation match. Output-only context observer preserves all4 streams: global LIVE move137 actor411 Wizard285[32,20]HP155/max155 NONPM, sleepfalse/tame0/peacefulfalse, M_AP_MONSTER3 appearance117, neither redraw nor redrawSquare supplied. Move4 explicit supplied callback is a separate control. Passive C prefix and output-only JS observer each preserve ordinary4 streams. First mixed disagreement187099 C ~drn2(383)=28 clonewiz530 before next coreRN25; JS skips final displaydraw until later. No C rebuild. normal and monochrome123429RNG3751screens/cursors52animations; before120779/3681/52. All3 fixed strictpass. Baseline3 replay check in progress separately. Baseline normal/mono both fail at firstscreen3718, beforecontrolpasses (three-baseline exit0). 8 initialized real clonewiz/makemon_runtime cases xdefaultLIVE/explicitdelegatedLIVE/planning=24 constructions. H/non visible/blinddetected/blindunknown plus protectedshape. Full defaultLIVE vs delegatedLIVE core/display/grid/messages/fields/inventory equality. Plan/live gameplaycore/fields/inventory equality; planning global core/display/grid/vitals/context/originalmonster guards. HLU planned appearance text legitimately differs due suppressed initial glyphs, excluded only planned text equality; full LIVE strict. Old3Hallu spotted fail5controls, fixed8pass. 596 assembled =11focused(8native3C)+585affected passed; full assembled ESLint passed. Primary integration16register/fullLint/tests and all hosted gates still required after189receipt. Wrong nativegrid guard[7][9] corrected canonical[x][y] to[9][7]; tightened ident9985; removed invalid plannedHLU appearance-text equality while preserving full LIVE equality; logs retained. Native-corrected8pass, assembled596pass supersede native-final intermediate failure. Isolated fix with187/188/189 full147813core4555screens/cursors71animations strictPASS. Private control only; no admission/aggregate gain. Includes accepted189 complete98receipt, to ship in this ordinary repair commit. Primary integration and hosted exact-SHA gates required; accepted distinct189 until all gates. Final primary11focused+585affected=596 unique passed,16register/fullESLint/diff passed. Require full hosted exactSHA archive comparison and Main Lint/Dashboard before provisional190 acceptance. Accepted distinct190 after exact Checkpoint40122741233/Lint40123584269/Dashboard40123584299 success; completed-workflow metadata updatedAt supplies completion timestamps, not active work time. Genuine archive/hash/admission/44fixed98batch2055 comparison vs0bf unchanged. Complete98 receipt exit0/pending[]/pointer733 verified before next primary edit, carried in next ordinary repair. No admission or aggregate score gain."
+      "note": "Provisional distinct190 only after189 acceptance and all gates. No current count. C wizard.c clonewiz517-533 final newsym after final attitudes, optional fakeamulet, M_AP_MONSTER disguise. JS wizard.js existing callback-only redraw from99e9b62810 Oct13 predates experiment. Add canonical newsym default only for active global state and nonplanning; preserve explicit redraw/redrawSquare and await. Reuse existing display import edge. No RNG algorithm/helper changes. Independent Fire plane Wizard dog8432130 March6, after separate187/188/189 prerequisites. Ten screen boundaries3718-3727 differ; all core/cursor/animation match. Output-only context observer preserves all4 streams: global LIVE move137 actor411 Wizard285[32,20]HP155/max155 NONPM, sleepfalse/tame0/peacefulfalse, M_AP_MONSTER3 appearance117, neither redraw nor redrawSquare supplied. Move4 explicit supplied callback is a separate control. Passive C prefix and output-only JS observer each preserve ordinary4 streams. First mixed disagreement187099 C ~drn2(383)=28 clonewiz530 before next coreRN25; JS skips final displaydraw until later. No C rebuild. normal and monochrome123429RNG3751screens/cursors52animations; before120779/3681/52. All3 fixed strictpass. Baseline3 replay check in progress separately. Baseline normal/mono both fail at firstscreen3718, beforecontrolpasses (three-baseline exit0). 8 initialized real clonewiz/makemon_runtime cases xdefaultLIVE/explicitdelegatedLIVE/planning=24 constructions. H/non visible/blinddetected/blindunknown plus protectedshape. Full defaultLIVE vs delegatedLIVE core/display/grid/messages/fields/inventory equality. Plan/live gameplaycore/fields/inventory equality; planning global core/display/grid/vitals/context/originalmonster guards. HLU planned appearance text legitimately differs due suppressed initial glyphs, excluded only planned text equality; full LIVE strict. Old3Hallu spotted fail5controls, fixed8pass. 596 assembled =11focused(8native3C)+585affected passed; full assembled ESLint passed. Primary integration16register/fullLint/tests and all hosted gates still required after189receipt. Wrong nativegrid guard[7][9] corrected canonical[x][y] to[9][7]; tightened ident9985; removed invalid plannedHLU appearance-text equality while preserving full LIVE equality; logs retained. Native-corrected8pass, assembled596pass supersede native-final intermediate failure. Isolated fix with187/188/189 full147813core4555screens/cursors71animations strictPASS. Private control only; no admission/aggregate gain. Includes accepted189 complete98receipt, to ship in this ordinary repair commit. Primary integration and hosted exact-SHA gates required; accepted distinct189 until all gates. Final primary11focused+585affected=596 unique passed,16register/fullESLint/diff passed. Require full hosted exactSHA archive comparison and Main Lint/Dashboard before provisional190 acceptance. Accepted distinct190 after exact Checkpoint40122741233/Lint40123584269/Dashboard40123584299 success; completed-workflow metadata updatedAt supplies completion timestamps, not active work time. Genuine archive/hash/admission/44fixed98batch2055 comparison vs0bf unchanged. Complete98 receipt exit0/pending[]/pointer733 verified before next primary edit, carried in next ordinary repair. No admission or aggregate score gain. Further grouped190 correction: Only when planning and message===undefined, supply silent message in clone constructor environment. Preserve explicit message/norepMessage, invalid null fail-closed behavior and live ttyNorep defaults. Preserve constructor/random/object/disguise/final redraw ordering. No TTY/RNG/planner protocol/CI changes. Knight8432180 April25 Air, move50 hero53,5; invisible Wizard198 type285 at49,2 HP120. Corrected prefix and supported diagnostic observers preserve all4 actual streams. Passive C810 inputs retain811 exact ordinary steps; mixed trace agrees through all72894 JS core+display calls. Output-only tty observer shows clone-state makemon_runtime->finishRuntimeCreationTail using live ttyPline for crocodile suddenly-appears message while thin-air line pending, causing extra More before real Wizard relocation. Actual stack mcast_clone_wiz->clonewiz; no alleged missing cosmetic call. Fresh normal/monochrome1000-input targets75567core1001screens/cursors7animations strict pass; old targets fail. Before808-input control62057/809/6 passes old/new. Two initial concurrent C recordings exited1 after1 boundary while third passed; shared recorder setup not concurrency-safe. Failed logs retained, normal/mono sequential recordings completed exit0. No access denial or fixture rewriting. 21 initialized Healer8432184 April29 tests. H/non x visible/blind-detected/blind-unknown x protection/non =12, each actual live plus default/message/norep planned variants. Real runtime Wizard constructor, inventory/core/attitudes/disguise/count equal live; provided sinks called once only where source spots monster. Default clone pending message remains unchanged. Both real preflights H/non xsuccess/throw=8 restore global core/display/grid/buffers/index/world/u/context/vitals/monster/TTY pending/toplines/previous/stopped/cursor. Explicit invalid null still fails closed. New21pass; old5controls pass16fail. First four simple-preflight tests did not reach callback until fixture hero movement initialized0; failure preserved, no production workaround. Isolated757 unique24focused21native3C+733affected, including dashboard76 and register16; fullESLint pass. First assembled fixture missed trial-monitor link,14ENOENT failures retained, corrected fixture757allpass. Primary integration tests still required. Full Air first output failure advances809 to2367;176016 matching core prefix, later fail-closed unsupported drop special-level display at move151 hero79,19. Supported boundary observer all4 actual hashes identical. No full-session pass, aggregate gain or admission claim. Includes user-approved dashboard e4724788 post-trial filter fix, preserving baseline exclusion, first acceptance order, correction grouping and partial-register labels. UI is excluded from parity count. Includes accepted195 complete98 receipt; distinct195 unchanged. Local Chromium file navigation was blocked ERR_BLOCKED_BY_ADMINISTRATOR before page load, no alternate route attempted. Author supplied independent rendered checks; primary generation and hosted gates still required. Final actual primary757 unique tests (24focused21native3C+733affected, including16 register checks and dashboard integration tests), fullESLint and diffcheck passed. Real primary dashboard generation exited0 without fallback warnings; adapter verifies136 partial registered accepted repairs, latestSteam195, frozen baseline13. Global accepted195 remains separate. Requires full exact-SHA Checkpoint/archive comparison/Main Lint and Dashboard before this correction/UI deployment is accepted."
     },
     {
       "id": "opaque-region-drop",
@@ -14007,8 +14020,54 @@
           "scripts/steam-vortex-death-cloud.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Provisional distinct195 only after all publication gates. Owns mondead Steam-vortex cloud creation, separate from repair181 region-upkeep feedback,185 make_corpse object constructors and183 meal names. Supply existing operation owners: canonical live block_point/cansee/newsym; silent clone redraw and existing planned vision-admission callback before each shared opacity mutation. Preserve supplied operations, cloud-size and BFS RNG, harmless damage0, lifesaving/vampshifter/death order. No RNG/terminal/region algorithm/planner protocol/CI changes. Independent male lawful human Knight8432180 April25 default pony on Air: at turn17 hero[57,7] swallowed by dying Steam-vortex192/type110 at hero square; supported boundary callback shows missing blockPoint operation in mondead->xkilled. Diagnostic actual core/screens/cursors/animation hashes identical to normal unmodified replay. Baseline stops at input365 (21825core,365screens/cursors); C next rn2(4)=1 create_gas_cloud. Fresh normal/monochrome targets25530core421screens/cursors1animation strict after fix; before21820/365/1 passes old/new. Color options differ. Native35 initialized Healer8432182 April27 tests: Steam/Fog xHallu/non xBlind/non xhero/monster-caused live defaults vs explicit canonical owners, both real preflight success/throw with borrowed index/buffers/world/grid/core/display/u/iflags/disp/context/vitals/monster restoration and private region/nextdraw matching LIVE, missing-admission fail-closed, two actual swallowed-hero detach/cloud cases. Old8 fog controls pass27 fail; fixed35 pass. First draft planned fixture needed actual monster-round context; newest swallowed fixture needed queued More input for canonical docrt; failed logs retained, no source workaround. Full Air replay progresses past repaired failure but later screen809 and core input828 divergence remains unqualified; no full-session pass claim. No admission or aggregate score gain. Isolated815 unique tests38focused35native3C+777affected and fullESLint pass. Includes previous accepted7de complete98 receipt. Primary and full hosted validation still required. Final primary815 tests,16 register checks, fullESLint and diffcheck passed. Failed register invocation named a nonexistent file; corrected to existing trial-monitor.test.mjs,16pass. Requires fresh full hosted Checkpoint, exact archive/admission/baseline comparison and Main Lint/Dashboard before acceptance."
+      "candidates": [
+        {
+          "sha": "ae5fb2ef8e994a7963c5e9a050c7cf1f9e1da393",
+          "committedAt": "2026-10-24T23:49:53Z",
+          "runs": [
+            {
+              "id": 40144324490,
+              "name": "Checkpoint",
+              "sha": "ae5fb2ef8e994a7963c5e9a050c7cf1f9e1da393",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/steam-vortex-death-cloud-20261024",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-24T23:50:04Z",
+              "completedAt": "2026-10-24T23:58:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40144324490"
+            },
+            {
+              "id": 40145028004,
+              "name": "Lint",
+              "sha": "ae5fb2ef8e994a7963c5e9a050c7cf1f9e1da393",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T00:01:01Z",
+              "completedAt": "2026-10-25T00:02:14Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40145028004"
+            },
+            {
+              "id": 40145027989,
+              "name": "Dashboard",
+              "sha": "ae5fb2ef8e994a7963c5e9a050c7cf1f9e1da393",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-25T00:01:01Z",
+              "completedAt": "2026-10-25T00:03:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40145027989"
+            }
+          ]
+        }
+      ],
+      "note": "Provisional distinct195 only after all publication gates. Owns mondead Steam-vortex cloud creation, separate from repair181 region-upkeep feedback,185 make_corpse object constructors and183 meal names. Supply existing operation owners: canonical live block_point/cansee/newsym; silent clone redraw and existing planned vision-admission callback before each shared opacity mutation. Preserve supplied operations, cloud-size and BFS RNG, harmless damage0, lifesaving/vampshifter/death order. No RNG/terminal/region algorithm/planner protocol/CI changes. Independent male lawful human Knight8432180 April25 default pony on Air: at turn17 hero[57,7] swallowed by dying Steam-vortex192/type110 at hero square; supported boundary callback shows missing blockPoint operation in mondead->xkilled. Diagnostic actual core/screens/cursors/animation hashes identical to normal unmodified replay. Baseline stops at input365 (21825core,365screens/cursors); C next rn2(4)=1 create_gas_cloud. Fresh normal/monochrome targets25530core421screens/cursors1animation strict after fix; before21820/365/1 passes old/new. Color options differ. Native35 initialized Healer8432182 April27 tests: Steam/Fog xHallu/non xBlind/non xhero/monster-caused live defaults vs explicit canonical owners, both real preflight success/throw with borrowed index/buffers/world/grid/core/display/u/iflags/disp/context/vitals/monster restoration and private region/nextdraw matching LIVE, missing-admission fail-closed, two actual swallowed-hero detach/cloud cases. Old8 fog controls pass27 fail; fixed35 pass. First draft planned fixture needed actual monster-round context; newest swallowed fixture needed queued More input for canonical docrt; failed logs retained, no source workaround. Full Air replay progresses past repaired failure but later screen809 and core input828 divergence remains unqualified; no full-session pass claim. No admission or aggregate score gain. Isolated815 unique tests38focused35native3C+777affected and fullESLint pass. Includes previous accepted7de complete98 receipt. Primary and full hosted validation still required. Final primary815 tests,16 register checks, fullESLint and diffcheck passed. Failed register invocation named a nonexistent file; corrected to existing trial-monitor.test.mjs,16pass. Requires fresh full hosted Checkpoint, exact archive/admission/baseline comparison and Main Lint/Dashboard before acceptance. Accepted distinct195 at ae5fb2ef8 after successful exact-SHA Checkpoint40144324490, genuine archived evidence/hash/admission/fixed44/synthetic98 comparison vs7de unchanged, Main Lint40145028004 and Dashboard40145027989 success. Parent active-turn pending snapshot supplied IDs; normal known-ID summaries confirmed final completion without denied discovery retries or terminal handoff. Times are terminal workflow summary updates, not active-work duration. Complete98 receipt checker exit0/pending[]/pointerae5 verified before source edits, carried in next ordinary grouped190 repair with requested dashboard maintenance. Synthetic2051/2055 unchanged; distinct total195."
     }
   ]
 }

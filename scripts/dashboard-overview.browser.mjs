@@ -12,7 +12,7 @@ const browser = await chromium.launch({headless: true,
   ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? {executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE} : {})});
 if (directory) mkdirSync(directory, {recursive: true});
 try {
-  const page = await browser.newPage({viewport: {width: 1440, height: 1100}});
+  const page = await browser.newPage({viewport: {width: 1440, height: 1100}, timezoneId: process.env.DASHBOARD_TIMEZONE});
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   // Deterministic saved-data view, including the explicit refresh-failure state.
@@ -25,10 +25,28 @@ try {
   assert.equal(await page.getByText('Freshness and evidence', {exact:true}).count(), 0);
   assert.equal(await page.locator('#activitySnapshotTime, #workerEvidence, #updated').count(), 0);
   assert.match(await page.locator('#stats').innerText(), /98 batches · 2,055 cases/);
-  const expected = await page.evaluate(() => singleWorkerSnapshot.tasks.filter(task => task.publishedAt)
-    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt)).slice(0, 5).map(task => task.label));
+  // Compute expectations from the unfiltered register, not the adapter under test.
+  const registered = await page.evaluate(() => syntheticMonitorView.results
+    .filter(result => ['single-worker','post-trial'].includes(result.repair.window) && result.accepted)
+    .sort((a,b) => Date.parse(b.accepted.closureAt) - Date.parse(a.accepted.closureAt))
+    .map(result => ({title:result.repair.title, at:result.accepted.closureAt, window:result.repair.window})));
+  const expected = registered.slice(0,5).map(result => result.title);
   assert.deepEqual(await page.locator('#recentRepairs a').allTextContents(), expected);
   assert.ok(expected.length > 0);
+  assert.match(await page.locator('#repairCount').innerText(), new RegExp('^' + registered.length + ' registered'));
+  assert.deepEqual(await page.locator('#recentRepairs time').evaluateAll(nodes => nodes.map(node => node.dateTime)),
+    registered.slice(0,5).map(result => result.at), 'latest five retain first-acceptance order');
+  const newestPostTrial = registered.find(result => result.window === 'post-trial');
+  if (newestPostTrial) {
+    const barIndex = await page.locator('.activity-bar').evaluateAll((nodes, title) =>
+      nodes.findIndex(node => node.getAttribute('aria-label').includes(title)), newestPostTrial.title);
+    assert.ok(barIndex >= 0, 'newest post-trial repair has a real timeline bar');
+    await page.locator('.activity-details > summary').click();
+    await page.locator('.activity-bar').nth(barIndex).focus();
+    await page.locator('.activity-bar').nth(barIndex).press('Enter');
+    assert.ok((await page.locator('#timelineReadout').innerText()).includes(newestPostTrial.title));
+    await page.locator('.activity-details > summary').click();
+  }
   for (const id of ['legacyBacklog', 'sessionDisclosure', 'scoreHistoryDisclosure', 'integrationDisclosure', 'goalHistoryDisclosure'])
     assert.equal(await page.locator('#' + id).evaluate(node => node.open), false, id + ' starts collapsed');
   for (const theme of ['light', 'dark']) {

@@ -247,7 +247,11 @@ export async function clonewiz(state = game, rawEnv = {}) {
     if (!species)
         throw new Error('clonewiz requires the Wizard monster record');
 
-    const env = { ...rawEnv, state, random, _cloneWizard: true };
+    const env = {
+        ...rawEnv, state, random, _cloneWizard: true,
+        ...(rawEnv.planning && rawEnv.message === undefined
+            ? { message: async () => {} } : {}),
+    };
     const monster = await createMonster(
         species,
         state.u.ux,
