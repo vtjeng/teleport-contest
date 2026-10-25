@@ -46,8 +46,14 @@ test('monster teleport wand preserves clone RNG, message and missile redraw owne
     }
     assert.ok(destination);
     const calls = [], redraws = [], messages = [];
-    await mbhitm(planned.youmonst, wand, planned, {
+    const boundary = new Error('arrival replay');
+    const operations = [];
+    await assert.rejects(() => mbhitm(planned.youmonst, wand, planned, {
         planning: true,
+        requestPlanningInput(operation) {
+            operations.push(operation);
+            throw boundary;
+        },
         random: {
             rn2(bound) {
                 calls.push(['rn2', bound]);
@@ -62,7 +68,8 @@ test('monster teleport wand preserves clone RNG, message and missile redraw owne
         message: async line => messages.push(line),
         newsym: (x, y) => redraws.push([x, y]),
         displayRandom: () => 0,
-    });
+    }), error => error === boundary);
+    assert.deepEqual(operations, ['hack.c spoteffects']);
     assert.deepEqual(calls.slice(0, 3), [['rn2', 3], ['rnd', COLNO - 1], ['rn2', ROWNO]]);
     assert.deepEqual([planned.u.ux, planned.u.uy], [destination.x, destination.y]);
     assert.ok(redraws.length > 0);

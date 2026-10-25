@@ -348,6 +348,7 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
 test('planned teleport uses its cloned RNG and map redraw seams', async () => {
     // This independently chosen initialized game supplies a real map; the
     // cloned amulet forces C's rn2(3) gate before safe_teleds uses rnd/rn2.
+    // Each placement stops at its input-capable arrival replay boundary.
     await runSegment({
         seed: 29,
         datetime: '20420101090000',
@@ -383,9 +384,17 @@ test('planned teleport uses its cloned RNG and map redraw seams', async () => {
     const randomCalls = [];
     const redrawCalls = [];
     const messages = [];
-    await tele(planned, {
+    const replayBoundary = new Error('arrival replay');
+    const replayOperations = [];
+    const requestPlanningInput = operation => {
+        replayOperations.push(operation);
+        assert.equal(operation, 'hack.c spoteffects');
+        throw replayBoundary;
+    };
+    await assert.rejects(() => tele(planned, {
         state: planned,
         planning: true,
+        requestPlanningInput,
         random: {
             rn2(bound) {
                 randomCalls.push(['rn2', bound]);
@@ -403,7 +412,7 @@ test('planned teleport uses its cloned RNG and map redraw seams', async () => {
         message: async (line) => messages.push(line),
         redraw: (x, y) => redrawCalls.push([x, y]),
         displayRandom: () => 0,
-    });
+    }), error => error === replayBoundary);
 
     assert.deepEqual(randomCalls.slice(0, 3), [
         ['rn2', 3],
@@ -428,9 +437,10 @@ test('planned teleport uses its cloned RNG and map redraw seams', async () => {
     const controlledMessages = [];
     const selected = { ...livePosition };
     let getposCalls = 0;
-    await scrolltele(null, planned, {
+    await assert.rejects(() => scrolltele(null, planned, {
         state: planned,
         planning: true,
+        requestPlanningInput,
         random: { rn2: () => 1, rnd: () => 1, d: () => 1 },
         message: async (line) => controlledMessages.push(line),
         getpos: async (coordinate) => {
@@ -441,7 +451,10 @@ test('planned teleport uses its cloned RNG and map redraw seams', async () => {
         },
         redraw: (x, y) => redrawCalls.push([x, y]),
         displayRandom: () => 0,
-    });
+    }), error => error === replayBoundary);
+    assert.deepEqual(replayOperations, [
+        'hack.c spoteffects', 'hack.c spoteffects',
+    ]);
     assert.equal(getposCalls, 1);
     assert.ok(controlledMessages.some((line) =>
         line.startsWith('Where do you want to be teleported?')));
