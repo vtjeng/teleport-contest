@@ -5544,6 +5544,14 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
     }
     if (state.iflags?.in_lava_effects) return;
 
+    // Arrival can run input-capable liquid, room and trap effects before
+    // inspecting the floor. Commit the complete source call live, then replan.
+    if (pick && rawEnv.planning) {
+        if (typeof rawEnv.requestPlanningInput !== 'function')
+            throw new TypeError('planned arrival pickup requires a replay boundary');
+        rawEnv.requestPlanningInput('hack.c spoteffects');
+    }
+
     ++staticState.depth;
     staticState.terrain = location?.typ ?? STONE;
     staticState.x = u.ux;

@@ -30,11 +30,13 @@ import {
     ACH_MINE,
     ACH_SOKO,
     A_DEX,
+    AIR,
     ALTAR,
     AM_NONE,
     Align2amask,
     BOTH_SIDES,
     BLINDED,
+    CLOUD,
     COLNO,
     DEAF,
     CORR,
@@ -1937,8 +1939,9 @@ export function preflight_dropx(obj, env = {}) {
     // Direct dropx()/dropz() callers, including confused reverse_loot(), do
     // not test can_reach_floor(). Underwater drops still reach flooreffects;
     // its pool arm suppresses splash messages while Underwater is true. Keep
-    // special-level display paths outside this ordinary drop admission.
-    if (on_level(u.uz, state.air_level) || on_level(u.uz, state.water_level))
+    // Plane of Water display paths outside this ordinary drop admission.
+    // C dropx/dropz uses the ordinary floor tail on the Plane of Air.
+    if (on_level(u.uz, state.water_level))
         throw new UnsupportedDropError('special-level display');
     // dig.c:341 drops uwep directly; do.c:810 clears it in dropz after
     // extraction, shipping and altar handling. Admit only that primary mask.
@@ -1999,6 +2002,7 @@ export function preflight_dropx(obj, env = {}) {
         && location.typ !== DOOR && location.typ !== SINK
         && location.typ !== THRONE && location.typ !== FOUNTAIN
         && !IS_ALTAR(location.typ) && !IS_STWALL(location.typ) && !stway
+        && location.typ !== AIR && location.typ !== CLOUD
         && !ordinaryLiquid) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }

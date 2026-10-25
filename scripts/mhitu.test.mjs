@@ -2702,8 +2702,8 @@ test('getmattk separates the two damage types its holder guard names',
 test('planned expulsion keeps terrain transition output off the live stream',
     async () => {
     // mhitu.c:302-306 calls spoteffects() after relocation.  The planning
-    // clone must carry its display environment through that call, so the
-    // newly reached hack.c switch_terrain() messages do not reach live TTY.
+    // clone must replay that input-capable arrival live, without writing
+    // terrain or floor-observation output while planning the release.
     const state = await meleeHero(MELEE_DATETIME, 'Wizard');
     const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0, {
         m_lev: 5,
@@ -2725,18 +2725,22 @@ test('planned expulsion keeps terrain transition output off the live stream',
     const planned = meleeEnv(state, []);
     const liveMessage = state.nhDisplay.topMessage;
     const plannedPainted = [];
-    await expels(vortex, {
+    const boundary = new Error('arrival replay');
+    let operation;
+    await assert.rejects(() => expels(vortex, {
         ...planned.env,
         planning: true,
+        requestPlanningInput: name => { operation = name; throw boundary; },
         newsym: (x, y) => plannedPainted.push([x, y]),
-    });
+    }), error => error === boundary);
+    assert.equal(operation, 'hack.c spoteffects');
     assert.deepEqual(planned.lines, []);
     assert.deepEqual(plannedPainted, []);
     assert.equal(state.nhDisplay.topMessage, liveMessage);
 
     // Keep the same planning display seam on a direct terrain transition as
-    // the expels() caller does. This reaches the blocked flight branch after
-    // expels() has completed its relocation and proves the state transition
+    // the expels() caller does. The release prefix completed before its
+    // arrival handoff; a direct non-pickup call still proves the state transition
     // still occurs while its message remains suppressed.
     state.u.ux0 = state.u.ux - 1;
     state.u.uy0 = state.u.uy;
@@ -2786,11 +2790,15 @@ test('expels TRUE formats the C message arm before its shared release transition
         state.u.uswldtim = 2;
         const output = meleeEnv(state, []);
 
-        await expels(monster, {
+        const boundary = new Error('arrival replay');
+        let operation;
+        await assert.rejects(() => expels(monster, {
             ...output.env,
             expulsionMessage: true,
             planning: true,
-        });
+            requestPlanningInput: name => { operation = name; throw boundary; },
+        }), error => error === boundary);
+        assert.equal(operation, 'hack.c spoteffects');
 
         if (expected instanceof RegExp)
             assert.match(output.lines[0], expected, `PM ${pmidx}`);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary-level Knight8432190May5 weapon drop control. Input-only public setup; inspect C observed outcome. No score/admission claim.",
+  "segments": [
+    {
+      "seed": 8432190,
+      "datetime": "20270505100000",
+      "nethackrc": "OPTIONS=name:KnightAirProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  da "
+    }
+  ]
+}
