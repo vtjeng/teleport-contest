@@ -2,11 +2,12 @@
 
 // Generates a self-contained HTML dashboard by injecting data into the template.
 
-import { execSync } from 'node:child_process';
+import { execFile, execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import { activityUtilization, integrationDurations } from './dashboard-activity.mjs';
 import { workerWork } from './worker-backlog.mjs';
 import { createDashboardTime } from './dashboard-local-time.mjs';
@@ -20,6 +21,7 @@ import { renderWorkflow } from './dashboard-workflow-view.mjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The history and per-case challenge data can exceed execSync's 1 MiB default.
 const DASHBOARD_DATA_MAX_BYTES = 64 * 1024 * 1024;
+const execFileAsync = promisify(execFile);
 
 // JSON is placed inside a classic script element. Escape characters that can
 // be interpreted as markup or JavaScript line terminators at that boundary.
@@ -71,19 +73,24 @@ export function injectDashboardData(template, data, queueData, commit, trialData
   return `<meta name="dashboard-commit" content="${commit}">\n${html}`;
 }
 
-function main() {
-  const data = execSync('node scripts/dashboard-data.mjs', {
-    encoding: 'utf8', maxBuffer: DASHBOARD_DATA_MAX_BYTES,
-  });
-
+async function main() {
   // Fixed regressions and synthetic diagnostics share the work queue. Synthetic
   // counts come from saved evaluations; building does not record a new score.
-  let queueData = 'null';
-  try {
-    queueData = execSync('node scripts/mismatch-queue.mjs --work --json', {
+  // These independent derivations can run together. Preserve the
+  // queue's existing unavailable fallback and the data command's hard failure.
+  const [dataResult, queueResult] = await Promise.allSettled([
+    execFileAsync(process.execPath, ['scripts/dashboard-data.mjs'], {
+      encoding: 'utf8', maxBuffer: DASHBOARD_DATA_MAX_BYTES,
+    }),
+    execFileAsync(process.execPath, ['scripts/mismatch-queue.mjs', '--work', '--json'], {
       encoding: 'utf8', timeout: 600000, maxBuffer: DASHBOARD_DATA_MAX_BYTES,
-    });
-  } catch {
+    }),
+  ]);
+  if (dataResult.status === 'rejected') throw dataResult.reason;
+  const data = dataResult.value.stdout;
+  let queueData = 'null';
+  if (queueResult.status === 'fulfilled') queueData = queueResult.value.stdout;
+  else {
     console.error('Warning: mismatch queue unavailable; completion is unknown');
   }
 
@@ -109,4 +116,4 @@ function main() {
   console.error('Dashboard written to ' + outPath);
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) await main();
