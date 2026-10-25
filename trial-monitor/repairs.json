@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T16:12:41Z",
+  "asOf": "2026-10-25T16:46:36Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -15834,6 +15834,40 @@
       },
       "candidates": [],
       "note": "Prospective distinct212. Public C Healer shop-death witnesses match old JS through Die? then old JS refuses unpaid inherits. C pays 38 zorkmids to the female keeper when enough gold remains, or takes all possessions when gold was dropped; a no-bill death control matches old JS fully. Port C loss arms, noit_mhim and finish_paybill after disclosure. Strict full C replays and focused tests pass locally. Carry accepted211 complete98 receipt in next ordinary commit. Hosted comparison and Main gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "shop-peaceful-inshop-bequest",
+      "kind": "parity-repair",
+      "title": "Bequeath possessions to a peaceful in-shop keeper",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T16:46:36Z",
+          "end": "2026-10-25T16:46:36Z",
+          "note": "Point-in-time public C in-shop death witness and source review; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c:2607-2614",
+          "nethack-c/upstream/src/end.c:1300-1302",
+          "js/shk.js:inherits",
+          "js/shk.js:finish_paybill"
+        ],
+        "witness": [
+          "recipes/shk.c/peaceful-inshop-bequest.session.json",
+          "recipes/shk.c/unpaid-death-no-bill-control.session.json"
+        ],
+        "test": [
+          "scripts/shop-death-settlement.test.mjs",
+          "scripts/paybill-end-cleanup.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct213. On public C D:5 general store, peaceful hero dies inside without unpaid stock; C prints Tuktoyaktuk gratefully inherits all your possessions at step104. Old JS matches through Die? step103 then throws explicit inherits bequest refusal. New in-shop branch uses existing setpaid, set_repo_loc and finish_paybill, matching complete C strict replay (9505 RNG,110 screens/cursors); outside-shop no-bill control remains matching. 17 focused and114 affected tests plus lint pass. Carry accepted212 complete98 receipt in ordinary candidate commit. Hosted comparison/Main gates pending; no aggregate gain inferred."
     }
   ]
 }

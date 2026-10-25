@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:PayCase,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l  \u0017uncursed wand of death\nzk.  y     ",
+      "comment": "Public C peaceful in-shop death witness. Enter the generated D:5 general store without taking merchandise, wish a death wand, and accept death while inside. C shk.c inherits() bequeaths the pack and end.c finish_paybill() moves it after disclosure. The outside-shop no-bill control is recorded separately in unpaid-death-no-bill-control."
+    }
+  ]
+}

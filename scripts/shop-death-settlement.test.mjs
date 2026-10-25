@@ -8,11 +8,13 @@ import { createScoringWorkspace, removeScoringWorkspace }
     from './scoring-workspace.mjs';
 
 // Public C shop-death paths: enough gold to settle the stolen bill, no gold
-// so the keeper takes the pack, and a shop visit with no unpaid goods.
+// so the keeper takes the pack, a shop visit with no unpaid goods, and a
+// peaceful death inside that shop where the keeper inherits the pack.
 for (const [name, message] of [
     ['unpaid-death-money-settlement', 'takes the 38 zorkmids you owed her'],
     ['unpaid-death-inventory-settlement', 'takes all your possessions'],
     ['unpaid-death-no-bill-control', null],
+    ['peaceful-inshop-bequest', 'gratefully inherits all your possessions'],
 ]) {
     test(`${name} matches the complete C death recording`, async () => {
         const recipe = validateCleanRecipe(JSON.parse(readFileSync(new URL(

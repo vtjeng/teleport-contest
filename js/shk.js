@@ -4708,9 +4708,12 @@ async function inherits(shopkeeper, numsk, croaked, silently, state) {
     if (uinshop && inhishop(shopkeeper, state) && !eshkp.billct
         && !eshkp.robbed && !eshkp.debit && NOTANGRY(shopkeeper)
         && !eshkp.following && state.u.ugrave_arise < LOW_PM) {
-        throw new UnsupportedShopError(
-            'inherits() bequeathing the hero\'s possessions to the shopkeeper',
-        );
+        const taken = Boolean(state.invent);
+        if (taken && !silently)
+            await ttyPline(`${Shknam(shopkeeper, state)} gratefully inherits all your possessions.`, state);
+        setpaid(shopkeeper, state);
+        if (taken) set_repo_loc(shopkeeper, state);
+        return taken;
     }
     let taken = false;
     let loss = 0;

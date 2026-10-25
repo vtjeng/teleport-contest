@@ -17,7 +17,7 @@ import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { NON_PM, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { COIN_CLASS } from '../js/objects.js';
 import { clearpriests } from '../js/priest.js';
-import { paybill, UnsupportedShopError } from '../js/shk.js';
+import { paybill } from '../js/shk.js';
 import { findgd, paygd } from '../js/vault.js';
 
 // The hero's level. Room 0 is the shop, room 1 an ordinary room, so a
@@ -203,18 +203,15 @@ test('paybill clears an unpaid debit when the hero has no inventory', async () =
     assert.equal(state.gr.repo.shopkeeper, null);
 });
 
-test('paybill refuses a hero who dies inside the shop', async () => {
-    // C ref: shk.c inherits():2607-2614. Dying in a peaceful keeper's shop
-    // hands it the whole pack ("gratefully inherits"), which needs
-    // set_repo_loc() and finish_paybill().
+test('paybill clears a peaceful in-shop keeper when the pack is empty', async () => {
+    // C ref: shk.c inherits():2607-2614. The peaceful in-shop bequest arm
+    // returns FALSE without a pack; the full taken path is in the C replay.
     const state = makeState({ ushops: [ROOMOFFSET, 0, 0, 0, 0] });
-    makeShopkeeper(state);
+    const shkp = makeShopkeeper(state);
 
-    await assert.rejects(
-        paybill(1, true, state),
-        (err) => err instanceof UnsupportedShopError
-            && err.message.includes('bequeathing'),
-    );
+    assert.equal(await paybill(1, true, state), false);
+    assert.equal(shkp.mextra.eshk.billct, 0);
+    assert.equal(state.gr.repo.shopkeeper, null);
 });
 
 test('paygd returns when no vault guard is on the level', async () => {
