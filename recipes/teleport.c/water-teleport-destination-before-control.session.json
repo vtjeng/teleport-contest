@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Before-liquid-teleport control stops at selected coordinate before accepting the target.",
+  "segments": [
+    {
+      "seed": 8432208,
+      "datetime": "20270523100000",
+      "nethackrc": "OPTIONS=name:WetBoulderProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed amulet of magical breathing\nPi    #wizlevelport\n?\n>>K                        nothing\n    #teleport\n yhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkkkkkkkkkj"
+    }
+  ]
+}

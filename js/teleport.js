@@ -1837,6 +1837,15 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     if (state !== game && typeof env.redraw !== 'function') {
         throw new TypeError('teleds on a non-live state requires a redraw callback');
     }
+    // C teleds() owns the vision rebuild before input-capable Water arrival,
+    // drowning and inventory damage. Replay the whole call on live state:
+    // its vision buffers must not be written by the private planning pass.
+    if (env.planning && on_level(state.u?.uz, state.water_level)
+        && is_pool(nux, nuy, state)) {
+        if (typeof env.requestPlanningInput !== 'function')
+            throw new TypeError('planned Water teleport requires a replay boundary');
+        env.requestPlanningInput('teleport.c teleds');
+    }
     const redraw = env.redraw ?? newsym;
     const u = state.u;
     let allow_drag = (teleds_flags & TELEDS_ALLOW_DRAG) !== 0;

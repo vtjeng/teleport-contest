@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Public controlled teleport targets1,1 via clamped cursor; verify actual arrival and liquid state from C output, do not assume success.",
+  "segments": [
+    {
+      "seed": 8432208,
+      "datetime": "20270523100000",
+      "nethackrc": "OPTIONS=name:WetBoulderProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  \u0017uncursed amulet of magical breathing\nPi    #wizlevelport\n?\n>>K                        nothing\n    #teleport\n yhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkkkkkkkkkj.        "
+    }
+  ]
+}

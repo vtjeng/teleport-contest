@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent dry teleport control: initial Cmap hero35,7 and west34,7 visibly normal floor, select h. from ordinary wizard controlled teleport prompt; verify real relocation.",
+  "segments": [
+    {
+      "seed": 8432210,
+      "datetime": "20270525100000",
+      "nethackrc": "OPTIONS=name:DryTeleportControl,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,acoustics,!autopickup,!tips\n",
+      "moves": "  #teleport\nh.    "
+    }
+  ]
+}

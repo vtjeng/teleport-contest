@@ -1530,6 +1530,12 @@ export function requireSimpleHeroDestination(
     const location = state.level?.at(x, y);
     const walkingLiquid = pushesBoulder
         && is_pool_or_lava(x, y, state);
+    // C teleport.c teleds() does not call test_move() or the walking danger
+    // warning. Water-level pool arrivals reach its ordinary spoteffects()
+    // owner; other non-walking liquid destinations retain this boundary.
+    const teleportWater = !pushesBoulder
+        && on_level(state.u?.uz, state.water_level)
+        && is_pool(x, y, state);
     // hack.c domove_core():2843-2856 admits liquid through test_move(), then
     // asks swim_move_danger() before moving the hero or applying any arrival
     // effect.  A warning which is certain to stop the step therefore needs no
@@ -1563,7 +1569,7 @@ export function requireSimpleHeroDestination(
     const mask = doorMask(location);
     const doorway = location?.typ === DOOR
         && (mask === D_NODOOR || mask === D_BROKEN || mask === D_ISOPEN);
-    const ordinaryDestination = location && (walkingLiquid
+    const ordinaryDestination = location && (walkingLiquid || teleportWater
             || location.typ === ROOM
             || location.typ === CORR
             // hack.c:test_move()'s obstacle chain only blocks IS_OBSTRUCTED
