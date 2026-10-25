@@ -614,6 +614,13 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
         },
     };
 
+    // C names the petrifying pair even while the movement pass is planned.
+    // Keep those cosmetic draws on the active state, like the pronoun below.
+    const nameEnv = {
+        ...operationEnv,
+        canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
+    };
+
     if (!magr || !mdef || magr === mdef) return M_ATTK_MISS;
     const pa = magr.data;
     const pd = mdef.data;
@@ -654,7 +661,7 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
         if (!quietly && canspotmon(magr, state)) {
             if (state.gv.vis) {
                 await message(
-                    `${Monnam(magr, state)} tries to move ${mon_nam(mdef, state)}`
+                    `${Monnam(magr, state, nameEnv)} tries to move ${mon_nam(mdef, state, nameEnv)}`
                         + ` out of ${is_rider(pa) ? 'the' : mhis(magr, {
                             ...rawEnv,
                             state,
@@ -665,7 +672,7 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
                 );
             }
             await message(
-                `${Monnam(magr, state)} turns to stone!`,
+                `${Monnam(magr, state, nameEnv)} turns to stone!`,
                 state,
                 rawEnv,
             );
@@ -693,7 +700,7 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
 
     if (state.gv.vis && !quietly && !planning) {
         await message(
-            `${Monnam(magr, state)} moves ${mon_nam(mdef, state)}`
+            `${Monnam(magr, state, nameEnv)} moves ${mon_nam(mdef, state, nameEnv)}`
                 + ` out of ${is_rider(pa) ? 'the' : mhis(magr, {
                     ...rawEnv,
                     state,
