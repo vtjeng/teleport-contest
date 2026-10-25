@@ -3659,6 +3659,18 @@ test('direct drop preflight admits levitation without changing ownership', () =>
     assert.deepEqual(lines, []);
 });
 
+test('direct drop preflight admits an Air level without changing ownership', () => {
+    const { hooks, lines, obj, state } = ordinaryDropFixture();
+    state.air_level = { ...state.u.uz };
+    // C do.c dropx/dropz has no Air-level exclusion. Its ordinary floor
+    // admission remains pure; the separate Water-level refusal stays below.
+    assert.doesNotThrow(() => preflight_dropx(obj, { state, hooks }));
+    assert.equal(state.invent, obj);
+    assert.equal(obj.where, OBJ_INVENT);
+    assert.equal(state.level.objects[10][5], null);
+    assert.deepEqual(lines, []);
+});
+
 test('ordinary drop preflight atomically refuses every excluded do.c tail',
     () => {
         const cases = [
@@ -3672,9 +3684,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             }],
             ['swallowed hero', /swallowed/u, ({ state }) => {
                 state.u.uswallow = true;
-            }],
-            ['air level', /special-level/u, ({ state }) => {
-                state.air_level = { ...state.u.uz };
             }],
             ['water level', /special-level/u, ({ state }) => {
                 state.water_level = { ...state.u.uz };
