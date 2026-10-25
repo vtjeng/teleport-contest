@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9102657,
+      "datetime": "20360913124500",
+      "nethackrc": "OPTIONS=name:BlastTrapProbe,role:Valkyrie,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " l\u0017polymorph trap\n\u0017wand of cancellation\nzf> yn     "
+    }
+  ],
+  "comment": "Independent C-first fatal trap blast: a debug Valkyrie steps off the upstairs, wishes a polymorph trap underfoot, wishes a cancellation wand, and zaps downward. C zap.c:maybe_explode_trap enters explode.c with TRAP_EXPLODE; the blast kills her and the tombstone says caught herself in a magical blast. Seed and clock differ from the fatal wand witnesses."
+}

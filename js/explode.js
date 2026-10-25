@@ -712,7 +712,12 @@ export async function explode(
             if (Upolyd(state.u)) await rehumanize(state, env);
             else {
                 state.killer ??= { name: '', format: KILLED_BY };
-                if (olet === WAND_CLASS && type >= 0) {
+                if (olet === TRAP_EXPLODE) {
+                    // C explode.c:651-655 attributes a magical trap's fatal
+                    // blast to the hero without a prefixed "killed by".
+                    state.killer.name = `caught ${uhim(state)}self in a ${str}`;
+                    state.killer.format = NO_KILLER_PREFIX;
+                } else if (olet === WAND_CLASS && type >= 0) {
                     // C explode.c:656-660 attributes a fatal self-inflicted
                     // wand blast to the original hero gender, without a
                     // prefixed "killed by" on the tombstone.

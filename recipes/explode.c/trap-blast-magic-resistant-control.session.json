@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9102658,
+      "datetime": "20360913124600",
+      "nethackrc": "OPTIONS=name:BlastTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " l\u0017polymorph trap\n\u0017wand of cancellation\nzp>"
+    }
+  ],
+  "comment": "Independent nonfatal control: a debug Wizard with magic resistance wishes a polymorph trap underfoot, then zaps it downward with cancellation. The C and JS replays match through the blast without death; seed and clock differ from the fatal witness."
+}
