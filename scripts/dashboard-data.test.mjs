@@ -1740,6 +1740,10 @@ test('recent accepted repairs and timeline include newer post-trial work in firs
         newest.map(result => result.accepted.closureAt));
     assert.match(rendered.get('repairCount').textContent, new RegExp('^' + expected.length + ' registered'));
     assert.equal(new Set(expected.map(result => result.repair.id)).size, expected.length);
+    // The default six-hour view can move past the latest accepted repair while
+    // newer investigations remain unaccepted; inspect the complete timeline.
+    rendered.get('activityWindow').value = 'all';
+    rendered.get('activityWindow').listeners.change[0]();
     assert.ok(rendered.get('timeline').innerHTML.includes(newest[0].repair.title), 'actual post-trial CI bars are rendered');
     assert.equal(createTrialMonitor(snapshot).summarize().baseline.acceptedCount, 13, 'frozen baseline unchanged');
     assert.ok(rendered.get('goalTable').innerHTML, 'strict DOM startup reaches the final section');
