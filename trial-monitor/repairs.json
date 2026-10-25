@@ -15726,6 +15726,44 @@
       },
       "candidates": [],
       "note": "Prospective distinct209. C read_tribute mungspaces the final attribution (or constructs one), appends passage number, then saves it to message history. JS saved raw lastline. Public wizard-wished novel seed20261025531/date from recipe reads Thief of Time passage13; first RNG and screens match through reading, then ^P reveals C [Thief of Time, by Terry Pratchett; passage #13] where JS history lacks the numbered attribution. Before-control passes old JS, normal and monochrome history fail old and pass the source repair. Keep accepted208 complete98 receipt for next ordinary commit. Hosted comparison/publication still required; no aggregate gain inferred."
+    },
+    {
+      "id": "monster-chat-pronoun-owner",
+      "kind": "parity-repair",
+      "title": "Supply monster visibility when chat formats possessive pronouns",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-25T15:00:48Z",
+          "end": "2026-10-25T15:00:48Z",
+          "note": "Point-in-time C witness and existing-owner review; no active-work duration inferred."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sounds.c:823-835",
+          "nethack-c/upstream/src/sounds.c:1006-1025",
+          "js/sounds.js:domonnoise",
+          "js/mondata.js:pronoun_gender"
+        ],
+        "witness": [
+          "recipes/sounds.c/were-pronoun-full-moon.session.json",
+          "recipes/sounds.c/were-pronoun-before-control.session.json",
+          "recipes/sounds.c/were-pronoun-not-full-moon.session.json",
+          "recipes/sounds.c/giant-gem-pronoun.session.json"
+        ],
+        "test": [
+          "scripts/monster-chat-pronoun-owner.test.mjs",
+          "scripts/sounds.test.mjs",
+          "scripts/sounds-span.test.mjs",
+          "scripts/sounds-doseduce.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct210, after novel history209. C full-moon hostile human wererat chat seed20261025591/date20271015 draws rn2(13)=4, prints shriek with his; giant seed20261025597 draws rn2(4)=0 and prints her gem collection. Old JS refused both at pronoun_gender because domonnoise omitted the canSpotMonster owner. Before-direction and non-full-moon controls pass old JS. Pass state, random and canSpotMonster to both mhis calls; all four strict C replays pass. Preserve accepted209 complete98 receipt for next ordinary commit. Exact hosted comparison/Main gates pending; no aggregate gain inferred."
     }
   ]
 }

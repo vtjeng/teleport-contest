@@ -981,6 +981,7 @@ export class UnsupportedChatError extends Error {
 export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? { rn2, rnd, rn1 };
     const message = rawEnv.message ?? ttyPline;
+    const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
     const markInvisible = rawEnv.mapInvisible ?? rawEnv.markInvisible
         ?? (rawEnv.planning ? () => {} : map_invisible);
     const ptr = mtmp.data;
@@ -1094,7 +1095,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         if (state.flags?.moonphase === FULL_MOON
             && (night(state) ^ !random.rn2(13))) {
             await message(
-                `${capitalizedMonsterName(mtmp, state, rawEnv)} throws back ${mhis(mtmp)} head `
+                `${capitalizedMonsterName(mtmp, state, rawEnv)} throws back ${mhis(mtmp, { state, random, canSpotMonster: spotMonster })} head `
                 + `and lets out a blood curdling ${ptr === state.mons?.[PM_HUMAN_WERERAT]
                     ? 'shriek' : 'howl'}!`, state,
             );
@@ -1226,7 +1227,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
             switch (random.rn2(4)) {
             case 0:
                 await message(
-                    `${capitalizedMonsterName(mtmp, state, rawEnv)} boasts about ${mhis(mtmp)} gem collection.`,
+                    `${capitalizedMonsterName(mtmp, state, rawEnv)} boasts about ${mhis(mtmp, { state, random, canSpotMonster: spotMonster })} gem collection.`,
                     state,
                 );
                 break;

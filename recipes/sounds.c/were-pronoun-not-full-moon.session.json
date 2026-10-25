@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first wererat non-full-moon source control",
+  "segments": [
+    {
+      "seed": 20261025591,
+      "datetime": "20271025234000",
+      "nethackrc": "OPTIONS=name:DeathTalkProbe,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0007human wererat\n#chat\nj "
+    }
+  ]
+}
