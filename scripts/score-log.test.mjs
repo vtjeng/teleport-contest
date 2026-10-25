@@ -158,6 +158,38 @@ test('batch append preserves row order and detects intervening ledger edits', ()
     assert.equal(readFileSync(truncated, 'utf8').includes('second'), false);
 });
 
+test('batch append matches single-row writes at ledger line boundaries', () => {
+    const rows = [{ sha: 'a'.repeat(40), event: 'goal', note: 'first' },
+        { sha: 'b'.repeat(40), event: 'goal', note: 'second' }];
+    const header = COLUMNS.join('\t');
+    const existing = scoreRow({ utc: '2026-01-01', sha: 'c'.repeat(40), event: 'goal' });
+    const clock = Date;
+    globalThis.Date = class extends clock {
+        constructor(...args) { super(...(args.length ? args : ['2026-10-25T18:00:00.000Z'])); }
+    };
+    try {
+        for (const [name, initial] of [
+            ['row without LF', `${header}\n${existing}`],
+            ['header without LF', header],
+            ['header with LF', `${header}\n`],
+            ['CRLF header', `${header}\r\n`],
+            ['empty ledger', ''],
+        ]) {
+            const single = join(dir, `boundary-single-${name.replaceAll(' ', '-')}.tsv`);
+            const batch = join(dir, `boundary-batch-${name.replaceAll(' ', '-')}.tsv`);
+            writeFileSync(single, initial);
+            writeFileSync(batch, initial);
+            const outcome = run => { try { run(); return null; } catch (error) { return error.message; } };
+            const oldError = outcome(() => rows.forEach(row => appendRow(row, single)));
+            const newError = outcome(() => appendRows(rows, batch));
+            assert.equal(newError, oldError, name);
+            assert.equal(readFileSync(batch, 'utf8'), readFileSync(single, 'utf8'), name);
+        }
+    } finally {
+        globalThis.Date = clock;
+    }
+});
+
 test('challenge rows require a complete identity and isolated metrics', () => {
     const path = writeFixture('challenge.tsv');
     const fields = {

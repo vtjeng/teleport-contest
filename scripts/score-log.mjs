@@ -164,7 +164,10 @@ export function appendRows(fieldsList, path = DEFAULT_PATH) {
             parseRows(current.toString('utf8'));
         const { bytes, row } = composeRow(fields);
         appendFileSync(path, bytes);
-        expected = [current, bytes];
+        // readRows accepts a valid final row without LF. Appending to that
+        // row makes the file malformed, so the next append must parse and
+        // reject it just as appendRow does.
+        expected = current.at(-1) === 10 ? [current, bytes] : null;
         rows.push(row);
     }
     return rows;
