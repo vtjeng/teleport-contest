@@ -520,7 +520,8 @@ export function mon_set_minvis(monster, cursedPotion, state = game, rawEnv = {})
 // C ref: worn.c mon_adjust_speed() (488-578). The adjustment changes only
 // permanent speed; active speed is then recalculated from any equipped FAST
 // object. The message and learnwand hooks keep this source-shaped helper
-// usable by tests without changing the production defaults.
+// usable by tests without changing the production defaults. Speculative
+// callers retain their display owner and suppress fallback terminal output.
 export async function mon_adjust_speed(
     monster,
     adjust,
@@ -588,14 +589,14 @@ export async function mon_adjust_speed(
     let text = null;
     if (petrify) {
         if (state.flags?.verbose)
-            text = `${Monnam(monster, state)} is slowing down.`;
+            text = `${Monnam(monster, state, rawEnv)} is slowing down.`;
     } else if (adjust > 0 || monster.mspeed === MFAST) {
-        text = `${Monnam(monster, state)} is suddenly moving ${howMuch}faster.`;
+        text = `${Monnam(monster, state, rawEnv)} is suddenly moving ${howMuch}faster.`;
     } else {
-        text = `${Monnam(monster, state)} seems to be moving ${howMuch}slower.`;
+        text = `${Monnam(monster, state, rawEnv)} seems to be moving ${howMuch}slower.`;
     }
 
-    const message = rawEnv.message ?? ttyPline;
+    const message = rawEnv.message ?? (rawEnv.planning ? async () => {} : ttyPline);
     if (text != null)
         await message(messageAt(text, monster.mx, monster.my, state), state);
     if (obj != null)

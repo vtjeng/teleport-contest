@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary-level control for monster speed-name ownership; outside the hallucinated Fire target.",
+  "segments": [
+    {
+      "seed": 8432278,
+      "datetime": "20270709100000",
+      "nethackrc": "OPTIONS=name:SeenTrapProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n",
+      "moves": "  l        h        l        "
+    }
+  ]
+}
