@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T21:42:53Z",
+  "asOf": "2026-10-26T22:05:01Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19989,6 +19989,82 @@
         }
       ],
       "note": "Pinned C gd_move picks up pre-existing gold at the guard next corridor square and reports it if visible. An initialized-game focused fixture with coherent vault occupancy failed at the previous undefined gdEnv reference and passed a no-gold movement control. The repaired branch uses the caller environment, picks up gold, and reports the visible guard. Source-grounded expectation; no fresh C gameplay recording was made."
+    },
+    {
+      "id": "shopkeeper-following-speech",
+      "kind": "parity-repair",
+      "title": "Complete following shopkeeper customer and reminder turns",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c:shk_move",
+          "js/shk.js:shk_move"
+        ],
+        "witness": [
+          "scripts/shk-move.test.mjs"
+        ],
+        "test": [
+          "scripts/shk-move.test.mjs",
+          "scripts/shop-billing.test.mjs",
+          "scripts/shopkeeper-return-migration.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "8ecbdaed3ed63833785e291489828d7b0d42f362",
+          "committedAt": "2026-10-26T21:49:12Z",
+          "sourceCommit": "8ecbdaed3ed63833785e291489828d7b0d42f362",
+          "sourceCommittedAt": "2026-10-26T21:49:12Z",
+          "runs": [
+            {
+              "id": 40407558965,
+              "name": "Checkpoint",
+              "sha": "8ecbdaed3ed63833785e291489828d7b0d42f362",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/shopkeeper-following-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:49:27Z",
+              "completedAt": "2026-10-26T22:01:44Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40407558965"
+            },
+            {
+              "id": 40409377605,
+              "name": "Lint",
+              "sha": "8ecbdaed3ed63833785e291489828d7b0d42f362",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:03:02Z",
+              "completedAt": "2026-10-26T22:04:13Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40409377605"
+            },
+            {
+              "id": 40409377581,
+              "name": "Dashboard",
+              "sha": "8ecbdaed3ed63833785e291489828d7b0d42f362",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:03:02Z",
+              "completedAt": "2026-10-26T22:05:01Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40409377581"
+            }
+          ]
+        }
+      ],
+      "note": "C shk_move handles a following shopkeeper's wrong-customer greeting, timed payment reminder and adjacent stopping before movement selection. Focused initialized shopkeeper fixtures replaced a stale UnsupportedShopError expectation; wrong- and same-customer cases failed before the fix. The implementation preserves the customer check, shared followmsg timer and rn2(9) draw. Source-grounded expectation with nearby controls, not a new C gameplay recording."
     }
   ]
 }
