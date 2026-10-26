@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 39261011,
+      "datetime": "20431009123456",
+      "nethackrc": "OPTIONS=name:HatchAudit,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait,debug_mongen\n",
+      "moves": "\u0017blessed scroll of genocide\nro  *\n\u0017giant ant egg\n#optionsfull\n:debug_mongen\n\n................................................................................................................................................................#optionsfull\n:debug_mongen\n\n..........     "
+    }
+  ]
+}

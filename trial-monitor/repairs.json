@@ -17541,6 +17541,35 @@
       },
       "candidates": [],
       "note": "Prospective distinct 246. Constructed C special-level overwrite opens a shop doorway; no-overwrite control stays closed, with identical C RNG. Existing JS left stale flags after replacing doormask, causing shop stock/render/movement divergence. Targeted coordinate writer synchronizes both fields; two focused tests cover overwrite, closed, and ordinary flags-only control. C witness is a custom wizard-level API fixture, not evidence of a shipped-level occurrence or hidden-score effect. Full final-SHA hosted and Main gates pending; carry the complete repair245 receipt."
+    },
+    {
+      "id": "egg-hatch-occupation-stop",
+      "kind": "parity-repair",
+      "title": "Interrupt occupations when a timed egg hatches",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/timeout.c:hatch_egg",
+          "nethack-c/upstream/src/makemon.c:makemon",
+          "js/allmain.js:finishElapsedTurn",
+          "js/timeout.js:timerFireEnv"
+        ],
+        "witness": [
+          "recipes/timeout.c/egg-hatch-occupied.session.json",
+          "recipes/timeout.c/egg-hatch-burdened-occupied.session.json",
+          "recipes/timeout.c/egg-hatch-unoccupied.session.json"
+        ],
+        "test": [
+          "scripts/egg-hatch-occupation.test.mjs",
+          "scripts/timeout.test.mjs",
+          "scripts/mkroom-shop.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct 247. C egg hatching during an occupation calls dochugw and interrupts the occupation; JS timer-driven runtime monster creation refused because timeout env lacked stopOccupation. Ordinary and burdened occupied C recordings diverged at the boundary, while unoccupied control matched. The timeout now supplies a clone/live-safe stop hook. Three complete strict C replays, 396 focused/affected tests, ESLint and diff checks passed. Full final-SHA hosted and Main gates pending; no hidden-score effect inferred."
     }
   ]
 }

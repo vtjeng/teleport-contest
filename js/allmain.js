@@ -939,6 +939,15 @@ export async function finishElapsedTurn(
         // with the clone -- but newsym() paints the live map whatever state it
         // is handed, so the clone must draw nothing.
         newsym: planning ? () => {} : newsym,
+        // timeout.c hatch_egg() can create a monster during an occupation.
+        // makemon.c's dochugw() then interrupts that occupation. Use the
+        // timeout's own state and message seam so a dry run changes only its
+        // planning clone and the live pass writes the actual interruption.
+        hooks: {
+            stopOccupation: (_monster, hookEnv) => stop_occupation(
+                hookEnv.state, hookEnv,
+            ),
+        },
     });
     // C's fatal timeout never reaches the remaining upkeep. JS's end-game
     // owner returns so the recorder can retain its final capture.
