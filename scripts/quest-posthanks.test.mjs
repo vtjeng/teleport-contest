@@ -13,6 +13,10 @@ for (const [name, path] of [
         '../recordings/quest.c/leader-next-repeat.session.json'],
     ['first audience before quest assignment control',
         '../recordings/quest.c/leader-next-first-audience-control.session.json'],
+    ['encouragement after quest assignment',
+        '../recordings/quest.c/leader-encourage-repeat.session.json'],
+    ['first assignment before encouragement control',
+        '../recordings/quest.c/leader-encourage-first-assignment-control.session.json'],
 ]) {
     test(`quest leader ${name} matches the C recording`, async () => {
         const recording = JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));

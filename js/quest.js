@@ -311,8 +311,8 @@ export async function finish_quest(obj, env = {}) {
 }
 
 // C ref: quest.c chat_with_leader() (281-368). Rules 1 and 3 now wire the
-// complete finish_quest() owner. The encourage text and the remaining
-// first-meeting verdicts retain their existing bounded refusals.
+// complete finish_quest() owner. The remaining first-meeting verdicts retain
+// their bounded refusals.
 async function chat_with_leader(mtmp, ops) {
     const state = ops.state;
     const qs = state.svq.quest_status;
@@ -338,7 +338,7 @@ async function chat_with_leader(mtmp, ops) {
         await finish_quest(otmp, ops);
     } else if (qs.got_quest) {
         /* Rule 4: you haven't got the artifact yet. */
-        ops.unsupported('a quest leader encouraging the hero');
+        await ops.pager('encourage');
     } else {
         /* Rule 5: You aren't yet acceptable - or are you? */
         let purity = 0;
