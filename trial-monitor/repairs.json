@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T12:14:36Z",
+  "asOf": "2026-10-26T13:40:34Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -18943,6 +18943,83 @@
         }
       ],
       "note": "C's martial burden-gate goto skips later Fumbling and bulky-armor checks. The independent C rerecord matched byte for byte; the burdened witness and low-weight kick control now match strictly."
+    },
+    {
+      "id": "lookaround-scorr-known-room",
+      "kind": "parity-repair",
+      "title": "Describe the area when looking around from a secret corridor",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:dolookaround",
+          "js/cmd.js:dolookaround"
+        ],
+        "witness": [
+          "recipes/cmd.c/trial-lookaround-scorr-witness.session.json",
+          "recipes/cmd.c/trial-lookaround-room-control.session.json"
+        ],
+        "test": [
+          "scripts/lookaround-scorr.test.mjs",
+          "scripts/cmd-span.test.mjs",
+          "scripts/extended-command-prompt.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+          "committedAt": "2026-10-26T13:24:05Z",
+          "sourceCommit": "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+          "sourceCommittedAt": "2026-10-26T13:24:05Z",
+          "runs": [
+            {
+              "id": 40330623919,
+              "name": "Checkpoint",
+              "sha": "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch8-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T13:26:45Z",
+              "completedAt": "2026-10-26T13:37:10Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40330623919"
+            },
+            {
+              "id": 40332385581,
+              "name": "Lint",
+              "sha": "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T13:38:41Z",
+              "completedAt": "2026-10-26T13:40:10Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40332385581"
+            },
+            {
+              "id": 40332385655,
+              "name": "Dashboard",
+              "sha": "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T13:38:41Z",
+              "completedAt": "2026-10-26T13:40:34Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40332385655"
+            }
+          ]
+        }
+      ],
+      "note": "C calls lookaround_known_room while the hero stands on SCORR. The C witness was independently rerecorded byte-identically; its first difference was isolated to #lookaround, and the same-seed room control matches strictly."
     }
   ]
 }

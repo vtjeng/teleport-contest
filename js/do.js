@@ -3338,7 +3338,7 @@ export async function goto_level(
 // C ref: do.c u_collide_m() (1410-1445). The hero has arrived on a square a
 // monster already holds -- one that came down with her, or one mklev() put on
 // the up staircase -- and one of the two has to move.
-async function u_collide_m(mtmp, state = game) {
+export async function u_collide_m(mtmp, state = game) {
     if (!mtmp || mtmp === state.u.usteed
         || mtmp !== m_at(state.u.ux, state.u.uy, state)) {
         // C's impossible() returns without moving anybody.

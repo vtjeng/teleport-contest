@@ -143,6 +143,7 @@ import {
     dodrop, doddrop,
     dowipe,
     doup,
+    u_collide_m,
     UnsupportedDropError,
     UnsupportedLevelChangeError,
 } from './do.js';
@@ -2648,8 +2649,8 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     );
     await losedogs({ state });
     await kill_genocided_monsters(state);
-    if (m_at(state.u.ux, state.u.uy, state))
-        note_unported('do.c u_collide_m');
+    const arrivalOccupant = m_at(state.u.ux, state.u.uy, state);
+    if (arrivalOccupant) await u_collide_m(arrivalOccupant, state);
     initrack(state);
     if (Punished(state)) {
         unplacebc(state);
