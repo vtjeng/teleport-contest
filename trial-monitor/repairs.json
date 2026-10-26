@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T01:05:02.932815+00:00",
+  "asOf": "2026-10-26T01:23:13.277117+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16584,6 +16584,46 @@
       },
       "candidates": [],
       "note": "Prospective distinct232. C handler_whatis_coord opens five selectable coordinate modes plus tty examples whose suffixes depend on verbose; JS omitted that handler. Menu, map selection, cancel, nonverbose menu and independently seeded startup/full-menu control now strictly replay. 264 focused/affected options/getpos tests and focused ESLint pass. Carry verified repair231 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "versinfo-choice-handler",
+      "kind": "parity-repair",
+      "title": "Open version-information choice menu from options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T01:20:56.435820+00:00",
+          "end": "2026-10-26T01:23:13.277117+00:00",
+          "note": "Dedicated implementation and candidate-owned validation after C menu, game-name selection, cancellation and independent startup control were qualified during repair232 CI; prior survey timestamp recorded locally."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:optfn_versinfo",
+          "nethack-c/upstream/src/options.c:handler_versinfo",
+          "js/options.js:OPTION_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/versinfo-handler-menu.session.json",
+          "recipes/options.c/versinfo-handler-game.session.json",
+          "recipes/options.c/versinfo-handler-cancel.session.json",
+          "recipes/options.c/versinfo-startup-control.session.json"
+        ],
+        "test": [
+          "scripts/options-versinfo.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/status-hilite-lifecycle.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/status-field-data.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct233, first locally tested-ready fix for authorized bounded batch pilot. C handler_versinfo opens PICK_ANY bit choices and reports changed/not-changed state; changed choice requests redraw. JS omitted the handler. Four strict C replays, 257 focused/affected options/status tests and focused ESLint pass. Carry verified repair232 complete98 receipt in first ordinary repair commit. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }

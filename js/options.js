@@ -4392,6 +4392,43 @@ async function handler_whatis_coord(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c handler_versinfo() (6573-6620) and its optfn do_handler
+// arm.  The release build has no development-branch label, but keeps the
+// branch bit selectable in the PICK_ANY menu.
+async function handler_versinfo(state, helpers) {
+    const old = state.flags.versinfo;
+    const selected = await optionMenuSelect(state, {
+        items: [
+            [1, 'n', 'version number'],
+            [2, 'g', 'game name'],
+            [4, 'b', '(not applicable)'],
+        ].map(([value, selector, text]) => ({
+            value,
+            selector,
+            text,
+            selected: Boolean(old & value),
+        })),
+        how: PICK_ANY,
+        title: 'Select version information flags:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length) {
+        const bits = values.reduce((acc, value) => acc | value, 0) & 7;
+        if (bits) state.flags.versinfo = bits;
+    }
+    await ttyPline(
+        `'versinfo' ${state.flags.versinfo === old
+            ? 'not changed, still' : 'changed to'} ${state.flags.versinfo}.`,
+        state,
+    );
+    if (state.flags.versinfo !== old) {
+        state.go ??= {};
+        state.go.opt_need_redraw = true;
+    }
+    return optn_ok;
+}
+
 // C ref: options.c handler_align_misc() (5586-5623).  The item values are
 // the alignment constants themselves, so the selected value can update the
 // corresponding field without another enum conversion.
@@ -8570,6 +8607,7 @@ const OPTION_HANDLERS = Object.freeze({
     sortvanquished: handler_sortvanquished,
     whatis_filter: handler_whatis_filter,
     whatis_coord: handler_whatis_coord,
+    versinfo: handler_versinfo,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
     o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
     petattr: handler_petattr,
