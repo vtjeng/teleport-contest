@@ -1,7 +1,7 @@
 # Source-audit triage at `d5b4ccf871320b8a292636b7acfd4fcad0e74c8d`
 
 The scan emitted 12,622 entries. These are source leads, not defects. The
-companion `source-audit-20261026.json` records four exact evidence-keyed review
+companion `source-audit-20261026.json` records five exact evidence-keyed review
 decisions for reuse with `source-audit.mjs classify`. The broader explanations
 below are source-identity notes for related warnings; they do not classify every
 edge from an owner. Recheck on a changed source or compiler configuration.
@@ -52,3 +52,11 @@ recorded, so no lead-to-handoff duration is asserted. The first combined
 Checkpoint failed one stale throw-expectation test, then passed on the
 corrected SHA; retain that rework evidence instead of counting it as another
 repair.
+
+Later focused follow-up: `src/vault.c:gd_move`'s visible guard picking up
+pre-existing gold at its new corridor square was test-ready at 21:26 UTC.
+`scripts/vault-guard-newspot-gold.test.mjs` constructs a coherent initialized
+vault-room/escort state. The no-gold control passes; the gold case originally
+threw `ReferenceError: gdEnv is not defined`. The focused fix passes both
+cases and affected escort tests. This is C-source-derived evidence, not an
+executed C recording; publication remains subject to the usual combined gates.

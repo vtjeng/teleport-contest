@@ -48,5 +48,18 @@
     ],
     "reviewedAt": "2026-10-26T20:59:35.000Z",
     "candidateGroup": "message:src/engrave.c:doengrave:c959c16f9f9cfaeb"
+  },
+  {
+    "id": "message:src/vault.c:gd_move:1f48adf14cf3fb49",
+    "evidenceKey": "9922c3a80ae88f68a4d9d705d8be406cb0bfa9457e3ce87f3f271d4aa5617952",
+    "classification": "confirmed-missing-behavior",
+    "rationale": "C gd_move picks up pre-existing gold at the guard next square and reports it when visible. An initialized-game supported API fixture reaches the newpos branch with a physically coherent vault room: no-gold control moves normally, while the gold case throws ReferenceError because gdEnv is undefined. The expected message is source-derived, not newly C-replayed.",
+    "sourceRefs": [
+      "nethack-c/upstream/src/vault.c:1192",
+      "js/vault.js:1005",
+      "scripts/vault-guard-newspot-gold.test.mjs"
+    ],
+    "reviewedAt": "2026-10-26T21:26:18.000Z",
+    "candidateGroup": "message:src/vault.c:gd_move:1f48adf14cf3fb49"
   }
 ]
