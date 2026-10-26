@@ -17735,6 +17735,22 @@
       },
       "candidates": [],
       "note": "Prospective distinct249; carry-in investigator C witness. A confused owlbear moves outside hero adjacency while grabbing: C calls unstuck before helpless/ranged checks and draws rnd(2) cooldown; JS kept a distant holder and missed the RNG draw. State-aware unstuck now runs at that source position with caller RNG in live and planning clone. Full C recording matches 3083 RNG calls/143 screens; held-prefix and no-holder/step-away controls pass. Worker commit 9ef359a29fcc26e2f73645924f4c189abbee712f; 202 focused/affected tests and full lint passed. Full combined-SHA hosted and Main gates pending; no hidden-score effect inferred."
+    },
+    {
+      "id": "getdir-help-retry",
+      "kind": "parity-repair",
+      "title": "Retry direction prompt after help",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": ["nethack-c/upstream/src/cmd.c:getdir", "js/cmd.js:getdir"],
+        "witness": ["recipes/cmd.c/trial-getdir-help-retry.session.json", "recipes/cmd.c/trial-getdir-help-control.session.json", "recipes/cmd.c/trial-getdir-invalid-control.session.json"],
+        "test": ["scripts/getdir-help-retry.test.mjs", "scripts/help-dir.test.mjs", "scripts/ride-direction.test.mjs"]
+      },
+      "candidates": [],
+      "note": "Prospective distinct250, discovered and verified during trial. C retries getdir after requested help; JS previously threw UnsupportedDirectionBoundaryError and truncated output. Witness and two controls strictly match C after correction. Luna worker commit 309b4410ef9744ab4f7781efafc46fb2653d8f4c, 30 focused/affected tests and focused ESLint passed. Combined-SHA hosted and Main gates pending."
     }
   ]
 }

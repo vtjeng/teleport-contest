@@ -91,23 +91,22 @@ test('help_dir displays the direction-key window for an invalid direction '
     assert.equal(displayRow(23), '--More--');
 });
 
-test('help_dir with cmdassist off and help_requested fires the deferred '
-    + 'retry boundary', async () => {
+test('help_dir with cmdassist off and help_requested retries getdir', async () => {
     // With cmdassist off, '?' still triggers help_dir through help_requested.
-    // After the text window is dismissed, the deferred retry path throws.
+    // Dismissing its window re-prompts, and h then reaches the kick result.
     let boundary = null;
     await runSegment(
         {
             seed: SEED,
             datetime: DATETIME,
             nethackrc: BASE_RC.replace('!acoustics', '!acoustics,!cmdassist'),
-            // Wait, kick, '?' (help_requested), space (dismiss --More--).
-            moves: `.${KICK_KEY}? `,
+            // Wait, kick, '?' (help_requested), space (dismiss --More--),
+            // h (the retried direction), then period to finish the turn.
+            moves: `.${KICK_KEY}? h.`,
         },
         { onBoundary: (error) => { boundary = error; } },
     );
-    assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /help_requested retry path/u);
+    assert.equal(boundary, null);
 });
 
 test('without cmdassist a non-direction non-help key prints the strange '

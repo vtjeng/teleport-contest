@@ -1553,11 +1553,11 @@ export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
 // C ref: cmd.c getdir() (3958-4098). Returns 1 when u.dx/u.dy/u.dz name a
 // direction and 0 otherwise, exactly as C does.
 //
-// Three inputs stop here. The simulated-mouse key needs getpos(); '^R' needs
+// Two inputs stop here. The simulated-mouse key needs getpos(); '^R' needs
 // docrt_flags() and the retry loop above got_dirsym; and confdir() stops for
 // an impaired hero. help_dir() is ported and displays the direction-key window
-// when cmdassist is set (the default). The help_requested retry path
-// (cmd.c:4106 goto retry) is deferred.
+// when cmdassist is set (the default). A requested help page retries the
+// direction prompt as cmd.c does at its retry label.
 export async function getdir(s, state = game) {
     const u = state.u;
     state.program_state ??= {};
@@ -1578,116 +1578,116 @@ export async function getdir(s, state = game) {
         cmdq_clear(CQ_CANNED, state);
         dirsym = 0;
     }
-    // retry: -- only the '^R' arm jumps back here, and it is refused below.
-    if (dirsym === undefined) {
-        state.program_state.input_state = 'getdir';
-        if (state.in_doagain || state.readchar_queue)
-            dirsym = await readchar(state);
-        else
-            dirsym = await yn_function(
-                (s && s[0] !== '^') ? s : 'In what direction?',
-                null,
-                '\0',
-                false,
+    const spkeys = commandBindings(state).specialKeys;
+    // C's retry label is reached after the help page is dismissed.  Each
+    // prompted answer is added to CQ_REPEAT before direction interpretation;
+    // a key consumed from cmdq jumps to got_dirsym and is not recorded here.
+    let needsPrompt = dirsym === undefined;
+    while (true) {
+        let fromPrompt = false;
+        if (needsPrompt) {
+            state.program_state.input_state = 'getdir';
+            if (state.in_doagain || state.readchar_queue)
+                dirsym = await readchar(state);
+            else
+                dirsym = await yn_function(
+                    (s && s[0] !== '^') ? s : 'In what direction?',
+                    null,
+                    '\0',
+                    false,
+                    state,
+                );
+            // "remove the prompt string so caller won't have to"
+            clearTtyMessageWindow(state);
+            fromPrompt = true;
+        }
+        needsPrompt = true;
+
+        if (redraw_cmd(dirsym, state)) {
+            throw new UnsupportedDirectionBoundaryError(
+                "'^R' repaints the screen and reissues the direction prompt",
+            );
+        }
+        if (fromPrompt && !state.in_doagain)
+            cmdq_add_key(CQ_REPEAT, dirsym, state);
+
+        // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
+        // only in the final `else if`, so the self arm writes <0,0,0> and returns
+        // it without movecmd() ever running.
+        if (dirsym === spkeys['getdir.self']
+            || dirsym === spkeys['getdir.self2']) {
+            u.dx = 0;
+            u.dy = 0;
+            u.dz = 0;
+        } else if (dirsym === spkeys['getdir.mouse']) {
+            const pickKeys = commandBindings(state).specialKeys;
+            const cc = { x: u.ux, y: u.uy };
+            const pos = await getpos(
+                cc,
+                true,
+                `desired location, then type '${visctrl(pickKeys['getpos.pick.quick'])}' for left click, `
+                    + `'${visctrl(pickKeys['getpos.pick'])}' for right`,
                 state,
             );
-        // "remove the prompt string so caller won't have to"
-        clearTtyMessageWindow(state);
-    }
-
-    if (redraw_cmd(dirsym, state)) {
-        throw new UnsupportedDirectionBoundaryError(
-            "'^R' repaints the screen and reissues the direction prompt",
-        );
-    }
-    // C jumps straight to got_dirsym for every queued node, so only a
-    // direction read from the prompt is recorded for a later do-again.
-    if (!queued && !state.in_doagain)
-        cmdq_add_key(CQ_REPEAT, dirsym, state);
-
-    const spkeys = commandBindings(state).specialKeys;
-    // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
-    // only in the final `else if`, so the self arm writes <0,0,0> and returns
-    // it without movecmd() ever running.
-    if (dirsym === spkeys['getdir.self']
-        || dirsym === spkeys['getdir.self2']) {
-        u.dx = 0;
-        u.dy = 0;
-        u.dz = 0;
-    } else if (dirsym === spkeys['getdir.mouse']) {
-        const pickKeys = commandBindings(state).specialKeys;
-        const cc = { x: u.ux, y: u.uy };
-        const pos = await getpos(
-            cc,
-            true,
-            `desired location, then type '${visctrl(pickKeys['getpos.pick.quick'])}' for left click, `
-                + `'${visctrl(pickKeys['getpos.pick'])}' for right`,
-            state,
-        );
-        let mod = 0;
-        if (pos < 0) {
-            // C cmd.c:getdir() turns Escape/rejection into a zero direction.
-            u.dx = u.dy = u.dz = 0;
-        } else {
-            u.dx = cc.x - u.ux;
-            u.dy = cc.y - u.uy;
-            if (!state.iflags.getdir_click) {
-                u.dx = sgn(u.dx);
-                u.dy = sgn(u.dy);
-            }
-            u.dz = 0;
-
-            if (pos === LOOK_QUICK || pos === LOOK_ONCE) {
-                mod = CLICK_1;
-            } else if (pos === LOOK_TRADITIONAL || pos === LOOK_VERBOSE) {
-                mod = CLICK_2;
+            let mod = 0;
+            if (pos < 0) {
+                // C cmd.c:getdir() turns Escape/rejection into a zero direction.
+                u.dx = u.dy = u.dz = 0;
             } else {
-                // getpos() only returns these four PICK_ONE results. Keep
-                // C's defensive failure result if that contract changes.
-                mod = 0;
+                u.dx = cc.x - u.ux;
+                u.dy = cc.y - u.uy;
+                if (!state.iflags.getdir_click) {
+                    u.dx = sgn(u.dx);
+                    u.dy = sgn(u.dy);
+                }
+                u.dz = 0;
+
+                if (pos === LOOK_QUICK || pos === LOOK_ONCE) {
+                    mod = CLICK_1;
+                } else if (pos === LOOK_TRADITIONAL || pos === LOOK_VERBOSE) {
+                    mod = CLICK_2;
+                } else {
+                    // getpos() only returns these four PICK_ONE results. Keep
+                    // C's defensive failure result if that contract changes.
+                    mod = 0;
+                }
             }
-        }
-        if (state.iflags.getdir_click)
-            state.iflags.getdir_click = mod;
-        return pos >= 0 && pos <= LOOK_VERBOSE;
-    } else {
-        const is_mov = movecmd(dirsym, MV_ANY, state);
-        if (!is_mov && !u.dz) {
-            let did_help = false;
-            if (!quitchars.includes(String.fromCharCode(dirsym))) {
-                const help_requested = dirsym === spkeys['getdir.help'];
-                if (help_requested || state.iflags.cmdassist) {
-                    // help_dir()'s `!viawindow` early return is inside an
-                    // `#if 0` block, so with cmdassist set it always opens a
-                    // window and always answers TRUE.
-                    did_help = await help_dir(
-                        (s && s[0] === '^') ? dirsym : 0,
-                        spkeys.escape,
-                        help_requested ? null : 'Invalid direction key!',
-                        state,
-                    );
-                    if (help_requested) {
-                        // The C source jumps to `retry:` (cmd.c:4106),
-                        // re-prompting for a direction. Not exercised by any
-                        // witness session; deferred.
-                        throw new UnsupportedDirectionBoundaryError(
-                            'help_requested retry path re-prompts for direction',
+            if (state.iflags.getdir_click)
+                state.iflags.getdir_click = mod;
+            return pos >= 0 && pos <= LOOK_VERBOSE;
+        } else {
+            const is_mov = movecmd(dirsym, MV_ANY, state);
+            if (!is_mov && !u.dz) {
+                let did_help = false;
+                if (!quitchars.includes(String.fromCharCode(dirsym))) {
+                    const help_requested = dirsym === spkeys['getdir.help'];
+                    if (help_requested || state.iflags.cmdassist) {
+                        // help_dir()'s `!viawindow` early return is inside an
+                        // `#if 0` block, so with cmdassist set it always opens a
+                        // window and always answers TRUE.
+                        did_help = await help_dir(
+                            (s && s[0] === '^') ? dirsym : 0,
+                            spkeys.escape,
+                            help_requested ? null : 'Invalid direction key!',
+                            state,
                         );
+                        if (help_requested) continue;
+                    }
+                    if (!did_help) {
+                        await ttyPline('What a strange direction!', state);
                     }
                 }
-                if (!did_help) {
-                    await ttyPline('What a strange direction!', state);
-                }
+                return 0;
             }
-            return 0;
+            if (is_mov && !dxdy_moveok(state)) {
+                await ttyPline(
+                    "You can't orient yourself that direction.",
+                    state,
+                );
+                return 0;
+            }
         }
-        if (is_mov && !dxdy_moveok(state)) {
-            await ttyPline(
-                "You can't orient yourself that direction.",
-                state,
-            );
-            return 0;
-        }
+        break;
     }
     if (!u.dz) confdir(false, state);
     return 1;

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 274913,
+      "datetime": "20411203111420",
+      "nethackrc": "OPTIONS=name:HelpRetry,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "ox."
+    }
+  ]
+}
