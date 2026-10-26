@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T00:48:16.828921+00:00",
+  "asOf": "2026-10-26T01:05:02.932815+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16544,6 +16544,46 @@
       },
       "candidates": [],
       "note": "Prospective distinct231. C handler_whatis_filter opens three choices with zero-based filter state, one-based menu values and current-mode preselection; JS previously stopped before the menu. Menu, area selection, cancel and independently seeded startup/full-menu control now strictly replay. 259 focused/affected option/getpos tests and focused ESLint pass. Carry verified repair230 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "whatis-coord-choice-handler",
+      "kind": "parity-repair",
+      "title": "Open coordinate display choices from options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T01:03:33.648601+00:00",
+          "end": "2026-10-26T01:05:02.932815+00:00",
+          "note": "Dedicated C handler implementation and affected validation after menu, map selection, cancel, nonverbose and independent seeded startup control qualified during repair230 and 231 CI; prior survey timing is local."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:handler_whatis_coord",
+          "js/options.js:OPTION_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/whatis-coord-handler-menu.session.json",
+          "recipes/options.c/whatis-coord-handler-map.session.json",
+          "recipes/options.c/whatis-coord-handler-cancel.session.json",
+          "recipes/options.c/whatis-coord-handler-nonverbose.session.json",
+          "recipes/options.c/whatis-coord-startup-control.session.json"
+        ],
+        "test": [
+          "scripts/options-whatis-coord.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/getpos.test.mjs",
+          "scripts/getpos-show-valid.test.mjs",
+          "scripts/getpos-cycle.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct232. C handler_whatis_coord opens five selectable coordinate modes plus tty examples whose suffixes depend on verbose; JS omitted that handler. Menu, map selection, cancel, nonverbose menu and independently seeded startup/full-menu control now strictly replay. 264 focused/affected options/getpos tests and focused ESLint pass. Carry verified repair231 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }

@@ -15,6 +15,7 @@ import {
     BUFSZ,
     CLR_MAX,
     COLNO,
+    ROWNO,
     DISCLOSE_PROMPT_DEFAULT_NO,
     DISCLOSE_PROMPT_DEFAULT_YES,
     DISCLOSE_PROMPT_DEFAULT_SPECIAL,
@@ -4350,6 +4351,47 @@ async function handler_whatis_filter(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c handler_whatis_coord() (6206-6277).  The five selectable
+// rows are followed by the tty coordinate examples; PICK_ONE may return the
+// preselected old row before the newly selected row.
+async function handler_whatis_coord(state, helpers) {
+    const old = state.iflags.getpos_coords;
+    const choices = [
+        [GPCOORDS_COMPASS, "compass ('east' or '3s' or '2n,4w')"],
+        [GPCOORDS_COMFULL, "full compass ('east' or '3south' or '2north,4west')"],
+        [GPCOORDS_MAP, 'map <x,y>'],
+        [GPCOORDS_SCREEN, 'screen [row,column]'],
+        [GPCOORDS_NONE, 'none (no coordinates displayed)'],
+    ];
+    const verbose = state.flags.verbose;
+    const items = choices.map(([value, text]) => ({
+        value,
+        selector: value,
+        text,
+        selected: value === old,
+    }));
+    items.push(
+        { text: '' },
+        { text: `map: upper-left: <1,0>, lower-right: <${COLNO - 1},${ROWNO - 1}>`
+            + (verbose ? '; column 0 unused, off left edge' : '') },
+        { text: `screen: upper-left: [02,01], lower-right: [${ROWNO - 1 + 2},${COLNO - 1}]`
+            + (COLNO === 80 && verbose ? '; column 80 is not used' : '') },
+        { text: '' },
+    );
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Select coordinate display when auto-describing a map position:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length) {
+        state.iflags.getpos_coords = values.length > 1 && values[0] === old
+            ? values[1] : values[0];
+    }
+    return optn_ok;
+}
+
 // C ref: options.c handler_align_misc() (5586-5623).  The item values are
 // the alignment constants themselves, so the selected value can update the
 // corresponding field without another enum conversion.
@@ -8527,6 +8569,7 @@ const OPTION_HANDLERS = Object.freeze({
     sortloot: handler_sortloot,
     sortvanquished: handler_sortvanquished,
     whatis_filter: handler_whatis_filter,
+    whatis_coord: handler_whatis_coord,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
     o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
     petattr: handler_petattr,
