@@ -1963,6 +1963,7 @@ async function ensureSpecialLevelLoaders() {
     const { WIZARD1_LEVEL_LOADERS } = await import('./wizard1_levels.js');
     const { WIZARD2_LEVEL_LOADERS } = await import('./wizard2_levels.js');
     const { WIZARD3_LEVEL_LOADERS } = await import('./wizard3_levels.js');
+    const { FAKEWIZ1_LEVEL_LOADERS } = await import('./fakewiz1_levels.js');
     const { KNOX_LEVEL_LOADERS } = await import('./knox_levels.js');
     const { TUTORIAL_LEVEL_LOADERS } = await import('./tutorial_level.js');
     SPECIAL_LEVEL_LOADERS = {
@@ -1986,6 +1987,7 @@ async function ensureSpecialLevelLoaders() {
         ...WIZARD1_LEVEL_LOADERS,
         ...WIZARD2_LEVEL_LOADERS,
         ...WIZARD3_LEVEL_LOADERS,
+        ...FAKEWIZ1_LEVEL_LOADERS,
         ...KNOX_LEVEL_LOADERS,
         ...TUTORIAL_LEVEL_LOADERS,
     };
