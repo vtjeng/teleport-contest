@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T17:24:42Z",
+  "asOf": "2026-10-26T17:41:23Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19123,8 +19123,109 @@
           "scripts/quest-finish.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "362972c8776200aa1afa01b960c8d82b3f26839a",
+          "committedAt": "2026-10-26T17:28:28Z",
+          "sourceCommit": "362972c8776200aa1afa01b960c8d82b3f26839a",
+          "sourceCommittedAt": "2026-10-26T17:28:28Z",
+          "runs": [
+            {
+              "id": 40368998748,
+              "name": "Checkpoint",
+              "sha": "362972c8776200aa1afa01b960c8d82b3f26839a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/quest-leader-posthanks-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:28:49Z",
+              "completedAt": "2026-10-26T17:38:34Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40368998748"
+            },
+            {
+              "id": 40370732117,
+              "name": "Lint",
+              "sha": "362972c8776200aa1afa01b960c8d82b3f26839a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:39:55Z",
+              "completedAt": "2026-10-26T17:41:08Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40370732117"
+            },
+            {
+              "id": 40370732066,
+              "name": "Dashboard",
+              "sha": "362972c8776200aa1afa01b960c8d82b3f26839a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:39:55Z",
+              "completedAt": "2026-10-26T17:41:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40370732066"
+            }
+          ]
+        }
+      ],
       "note": "C prints posthanks and continues the repeat conversation after the artifact has been returned without the Amulet. JavaScript previously threw at the second chat. The C witness was independently rerecorded byte-identically; its prefix and the original first-audience control pass strictly."
+    },
+    {
+      "id": "quest-leader-next-repeat",
+      "kind": "parity-repair",
+      "title": "Continue a repeat quest leader audience before assignment",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/quest.c:chat_with_leader",
+          "js/quest.js:chat_with_leader"
+        ],
+        "witness": [
+          "recipes/quest.c/leader-next-repeat.session.json",
+          "recipes/quest.c/leader-next-first-audience-control.session.json"
+        ],
+        "test": [
+          "scripts/quest-posthanks.test.mjs",
+          "scripts/quest-finish.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "C delivers leader_next on the repeat audience and returns on a non-quest level. The full C witness rerecorded byte-identically, its first-audience control and matching prefix pass strictly."
+    },
+    {
+      "id": "quest-leader-encourage",
+      "kind": "parity-repair",
+      "title": "Continue quest leader encouragement after assignment",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/quest.c:chat_with_leader",
+          "js/quest.js:chat_with_leader"
+        ],
+        "witness": [
+          "recipes/quest.c/leader-encourage-repeat.session.json",
+          "recipes/quest.c/leader-encourage-first-assignment-control.session.json"
+        ],
+        "test": [
+          "scripts/quest-posthanks.test.mjs",
+          "scripts/quest-finish.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "C delivers encourage when the quest is assigned but the artifact is missing. The C witness rerecorded byte-identically; the assigned-quest control and matching prefix pass strictly."
     }
   ]
 }
