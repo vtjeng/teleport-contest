@@ -97,5 +97,9 @@ test('ordinary flags-only shop door is not mistaken for an open doorway', async 
     assert.equal(r.loc.doormask, D_NODOOR);
     assert.equal(r.child.resident?.mx, 41);
     assert.equal(r.child.resident?.my, 9);
+    assert.equal(r.presentation.ch, '+');
+    assert.equal(r.canStep, false);
     assert.equal(r.log.length, 73);
+    assert.equal(createHash('sha256').update(JSON.stringify(r.log))
+        .digest('hex'), '2be106c8df3cfb90bf0276eccb2fecab34c4550f552ce4c636f5f07533bb7f5b');
 });
