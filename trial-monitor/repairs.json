@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T17:41:23Z",
+  "asOf": "2026-10-26T17:59:31Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19199,7 +19199,58 @@
           "scripts/quest-finish.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+          "committedAt": "2026-10-26T17:43:21Z",
+          "sourceCommit": "31ff0967e40690a429f0565faed1f15b18a378b8",
+          "sourceCommittedAt": "2026-10-26T17:43:20Z",
+          "runs": [
+            {
+              "id": 40371466682,
+              "name": "Checkpoint",
+              "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/quest-leader-followup-batch-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:44:40Z",
+              "completedAt": "2026-10-26T17:56:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40371466682"
+            },
+            {
+              "id": 40373424847,
+              "name": "Lint",
+              "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:57:19Z",
+              "completedAt": "2026-10-26T17:58:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40373424847"
+            },
+            {
+              "id": 40373424983,
+              "name": "Dashboard",
+              "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:57:20Z",
+              "completedAt": "2026-10-26T17:59:31Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40373424983"
+            }
+          ]
+        }
+      ],
       "note": "C delivers leader_next on the repeat audience and returns on a non-quest level. The full C witness rerecorded byte-identically, its first-audience control and matching prefix pass strictly."
     },
     {
@@ -19224,8 +19275,84 @@
           "scripts/quest-finish.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+          "committedAt": "2026-10-26T17:43:21Z",
+          "sourceCommit": "9bedae28a45a79361b5511e550302631d19c93ad",
+          "sourceCommittedAt": "2026-10-26T17:43:21Z",
+          "runs": [
+            {
+              "id": 40371466682,
+              "name": "Checkpoint",
+              "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/quest-leader-followup-batch-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:44:40Z",
+              "completedAt": "2026-10-26T17:56:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40371466682"
+            },
+            {
+              "id": 40373424847,
+              "name": "Lint",
+              "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:57:19Z",
+              "completedAt": "2026-10-26T17:58:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40373424847"
+            },
+            {
+              "id": 40373424983,
+              "name": "Dashboard",
+              "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:57:20Z",
+              "completedAt": "2026-10-26T17:59:31Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40373424983"
+            }
+          ]
+        }
+      ],
       "note": "C delivers encourage when the quest is assigned but the artifact is missing. The C witness rerecorded byte-identically; the assigned-quest control and matching prefix pass strictly."
+    },
+    {
+      "id": "quest-leader-hostile-final-speech",
+      "kind": "parity-repair",
+      "title": "Continue hostile quest leader speech and movement after an attack",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/quest.c:leader_speaks",
+          "js/quest.js:leader_speaks"
+        ],
+        "witness": [
+          "recipes/quest.c/leader-angry-final-speech.session.json",
+          "recipes/quest.c/leader-angry-before-turn-control.session.json"
+        ],
+        "test": [
+          "scripts/quest-posthanks.test.mjs",
+          "scripts/quest-nemesis-chat.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "After the hero attacks the quest leader, C displays leader_last once, sets pissed_off, and clears STRAT_WAITMASK before the next action. JavaScript previously stopped at an UnsupportedTurnBoundaryError. The C witness rerecorded byte-identically; its matching-prefix control and state assertions pass."
     }
   ]
 }
