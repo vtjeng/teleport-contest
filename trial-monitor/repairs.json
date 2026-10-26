@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T23:10:09Z",
+  "asOf": "2026-10-26T23:33:54Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -20298,6 +20298,159 @@
         }
       ],
       "note": "C source gives a visible monster jumping from a closing portcullis into the moat a drink-and-disappear line under Hallucination. An initialized drawbridge/gnome focused test was red on that message; ordinary fall, death and exact local miss/jump draws are controls. Source-derived oracle; no new C gameplay recording."
+    },
+    {
+      "id": "grid-bug-diagonal-command",
+      "kind": "parity-repair",
+      "title": "Reject grid-bug diagonal movement commands",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:rhack",
+          "nethack-c/upstream/src/cmd.c:dxdy_moveok",
+          "js/cmd.js:executeMovement"
+        ],
+        "witness": [
+          "scripts/grid-bug-command-diagonal.test.mjs"
+        ],
+        "test": [
+          "scripts/grid-bug-command-diagonal.test.mjs",
+          "scripts/cmd.test.mjs",
+          "scripts/cmd-counted-movement.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+          "committedAt": "2026-10-26T23:18:07Z",
+          "sourceCommit": "fb2b4c33aed28df36bda5d8cbeeab27894f3fd2b",
+          "sourceCommittedAt": "2026-10-26T23:18:02Z",
+          "runs": [
+            {
+              "id": 40418946278,
+              "name": "Checkpoint",
+              "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/grid-swallowed-batch-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:19:24Z",
+              "completedAt": "2026-10-26T23:30:06Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40418946278"
+            },
+            {
+              "id": 40420358234,
+              "name": "Lint",
+              "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:31:38Z",
+              "completedAt": "2026-10-26T23:32:51Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40420358234"
+            },
+            {
+              "id": 40420358242,
+              "name": "Dashboard",
+              "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:31:38Z",
+              "completedAt": "2026-10-26T23:33:54Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40420358242"
+            }
+          ]
+        }
+      ],
+      "note": "Source-derived oracle: a polymorphed grid bug must refuse diagonal rhack movement before domove, zero direction and keep position and turn. Cardinal grid-bug and ordinary human diagonal movement are controls; no new C gameplay recording."
+    },
+    {
+      "id": "swallowed-hero-minventory-row",
+      "kind": "parity-repair",
+      "title": "Show swallowed hero in monster inventory",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/invent.c:display_minventory",
+          "nethack-c/upstream/src/pickup.c:query_objlist",
+          "js/invent.js:display_minventory"
+        ],
+        "witness": [
+          "scripts/swallowed-hero-minventory.test.mjs"
+        ],
+        "test": [
+          "scripts/swallowed-hero-minventory.test.mjs",
+          "scripts/invent-display-span.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+          "committedAt": "2026-10-26T23:18:07Z",
+          "sourceCommit": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+          "sourceCommittedAt": "2026-10-26T23:18:07Z",
+          "runs": [
+            {
+              "id": 40418946278,
+              "name": "Checkpoint",
+              "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/grid-swallowed-batch-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:19:24Z",
+              "completedAt": "2026-10-26T23:30:06Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40418946278"
+            },
+            {
+              "id": 40420358234,
+              "name": "Lint",
+              "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:31:38Z",
+              "completedAt": "2026-10-26T23:32:51Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40420358234"
+            },
+            {
+              "id": 40420358242,
+              "name": "Dashboard",
+              "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:31:38Z",
+              "completedAt": "2026-10-26T23:33:54Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40420358242"
+            }
+          ]
+        }
+      ],
+      "note": "Source-derived oracle: an engulfing monster inventory includes the hero row after object rows, with a Creatures heading when objects exist. Empty non-engulfing inventory is the control; no new C gameplay recording."
     }
   ]
 }

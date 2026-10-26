@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "sha": "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
-  "baseline": "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+  "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+  "baseline": "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
   "totals": {
     "sessions": {
       "matched": 2051,
@@ -20,716 +20,716 @@
       "total": 301874
     }
   },
-  "measuredFrom": "2026-10-26T22:56:57.769Z",
-  "measuredThrough": "2026-10-26T22:57:18.486Z",
-  "checkpointCompletedAt": "2026-10-26T23:07:25Z",
+  "measuredFrom": "2026-10-26T23:21:06.754Z",
+  "measuredThrough": "2026-10-26T23:21:22.971Z",
+  "checkpointCompletedAt": "2026-10-26T23:30:06Z",
   "checkpoint": {
-    "id": 40416072674,
+    "id": 40418946278,
     "attempt": 1,
-    "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40416072674"
+    "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40418946278"
   },
   "publication": [
     {
       "workflow": ".github/workflows/lint.yml",
-      "id": 40417641465,
+      "id": 40420358234,
       "status": "completed",
       "conclusion": "success",
-      "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40417641465"
+      "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40420358234"
     },
     {
       "workflow": ".github/workflows/dashboard.yml",
-      "id": 40417641626,
+      "id": 40420358242,
       "status": "completed",
       "conclusion": "success",
-      "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40417641626"
+      "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40420358242"
     }
   ],
   "entries": [
     {
       "batch": "v1",
       "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
-      "inputsSha256": "05d550dbdc81b6e6b91c0bf6c33a6509f88d69445a4c4ba604daf4a26a53ff4e",
-      "path": "challenges/evaluations/hosted-40416072674-1-v1.json",
-      "sha256": "25c4836ab8c37efb278535942d4e02ca75a078c80f6df699022a59b19b2be99e"
+      "inputsSha256": "e584589b7741de59e4b67f6b21daec6611b36becf0b791b62aad7bf3a2bf05b6",
+      "path": "challenges/evaluations/hosted-40418946278-1-v1.json",
+      "sha256": "6b281b150c201686ecbc6863429de79a52b862efb2ce893e952ae252e2b9ee60"
     },
     {
       "batch": "v10",
       "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
-      "inputsSha256": "7a6568e00e87b26da775630f7faf121a900a7d2613a077a28023dc4e6811c2f5",
-      "path": "challenges/evaluations/hosted-40416072674-1-v10.json",
-      "sha256": "c76615c2b348d3109de7bddc56ca50cb6f9caa8effdd7bb8372b2a81173df86c"
+      "inputsSha256": "8cedd036c9eaec25c1bdaff5a15d7991d2848642bb92d83f6d67f6097f2489ea",
+      "path": "challenges/evaluations/hosted-40418946278-1-v10.json",
+      "sha256": "a0ec9e212d06bfd974e479fdd2d26921bf66e149b5b2c0b231372caffada823c"
     },
     {
       "batch": "v11",
       "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
-      "inputsSha256": "3d5c16e45c1391a1b94181fb792f6ef8abd0adf7a954c7c7eb54086c092a26d9",
-      "path": "challenges/evaluations/hosted-40416072674-1-v11.json",
-      "sha256": "fb244ddece1ab2d6c9a519e41dc0d161ea4a26745bf0c32b86947a7bccbe636c"
+      "inputsSha256": "c237a5df186f32dddc47b2f3b762fd4fc0f1128878e3108a51ffa89bf48cb53d",
+      "path": "challenges/evaluations/hosted-40418946278-1-v11.json",
+      "sha256": "61ad0361e66d83e5bcc1a2ebce1c58298481f2d7d72745d2767b83bf4871f8d4"
     },
     {
       "batch": "v12",
       "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
-      "inputsSha256": "39cd5210f255a20d6672d55a38061da176049e6a2d653daee6ff07ad7dee3834",
-      "path": "challenges/evaluations/hosted-40416072674-1-v12.json",
-      "sha256": "2c65fd3ecf2c63283551afa70bbe64f58d9023146a7eb9ca51ebe6554c7f2147"
+      "inputsSha256": "f127d5ba6f0c232c959e81dfa93d7e8cf4c413db84337b326cc1f5915b421f80",
+      "path": "challenges/evaluations/hosted-40418946278-1-v12.json",
+      "sha256": "07edccc6dd090ddcef46805e79fc5de9ddb6f5680b331062321414548e6b832f"
     },
     {
       "batch": "v13",
       "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
-      "inputsSha256": "76569a4fe74e65c3e191d7fc428bc93e95d190c7de31c864f6a38ee5608130c6",
-      "path": "challenges/evaluations/hosted-40416072674-1-v13.json",
-      "sha256": "0f1d6fb716069a3c61be3ce9bcb62c96ab392e97c1cd778ddb3029b5f5365717"
+      "inputsSha256": "bfbd35229e963f0a0186b664ca3934a3dccc5629ca3755e72bbced3af70fe9dc",
+      "path": "challenges/evaluations/hosted-40418946278-1-v13.json",
+      "sha256": "103abb182d37237f2704ca5ada5b039c8cd02744c0be8ed4433054b1db513f59"
     },
     {
       "batch": "v14",
       "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
-      "inputsSha256": "8c5eab60b3bd85f84814c7d8e2ee763a6481272d36212df8cf000b7d93d7ddc9",
-      "path": "challenges/evaluations/hosted-40416072674-1-v14.json",
-      "sha256": "8c0f8b66e61cfd2a53d49d5b022b7bf20ec32bddb3822715eedda51e24d34fb6"
+      "inputsSha256": "2db1b0534a150fca40efbae4f5837830cde003baf1df4e28f8aeecd40e1b54af",
+      "path": "challenges/evaluations/hosted-40418946278-1-v14.json",
+      "sha256": "e9d0b0eef088f6b06bdcd1783cf67ddc41846df5e0122b4eaa562e9873cae0cc"
     },
     {
       "batch": "v15",
       "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
-      "inputsSha256": "6259883e949426026b2e04abc57844e623ce69058cecc9db977cafb8625e7edc",
-      "path": "challenges/evaluations/hosted-40416072674-1-v15.json",
-      "sha256": "233d4b58796b5b2df8501bf10203fa47f5d411ee0b9f8edebcfc1cd60f517f15"
+      "inputsSha256": "0e4bb5a9af2ad180dcf95b2012f07379c2e387ea38260b28325f375b3977a3e9",
+      "path": "challenges/evaluations/hosted-40418946278-1-v15.json",
+      "sha256": "3af7e1b274c40bb1bd4b3eb6fd29ddc3a53c898dc4e60f49106782b82005f78b"
     },
     {
       "batch": "v16",
       "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
-      "inputsSha256": "d1efe216ff96760942e86edef64f16489284a12becf08a034368f75a489f6028",
-      "path": "challenges/evaluations/hosted-40416072674-1-v16.json",
-      "sha256": "b075119c1939fe952d0e54ca18ebc39de985b775d0ac6b6dc1007e199081dcb4"
+      "inputsSha256": "ee4e846435a44b70fc21756117068d37a6f158fe48a160f01de0b51c2035b623",
+      "path": "challenges/evaluations/hosted-40418946278-1-v16.json",
+      "sha256": "243c3b35d360cd77d5e60940ec9284818095b51ba381f4f9c65bfe07f6012a7d"
     },
     {
       "batch": "v17",
       "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
-      "inputsSha256": "c678506f656e2700e87d4ccb8a04fc6050211a493c02d23ad04660f8e8fc0da5",
-      "path": "challenges/evaluations/hosted-40416072674-1-v17.json",
-      "sha256": "d38e3b8d9c1ae1e2e1000bc9de84b0ae312291d8254d34f7ce24797b873106ab"
+      "inputsSha256": "186b3b3473e185286de2ee483d7ca88906e52dfb1adfc58521a3c1b27db5442b",
+      "path": "challenges/evaluations/hosted-40418946278-1-v17.json",
+      "sha256": "c346382be49e248ce74d54f4bd59696e0e2ac9d51a60abe44f87a46f5b76eb77"
     },
     {
       "batch": "v18",
       "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
-      "inputsSha256": "166fd15ff4d48e97ac3c810ac99cc3c53a28cf5718cdd5bb2ef42a1b4d86d223",
-      "path": "challenges/evaluations/hosted-40416072674-1-v18.json",
-      "sha256": "87442c268b5318c63a7967ea073f99283ed31b9d6161cb791a978e31a4be2f8e"
+      "inputsSha256": "7840711df8daf6a76439d0c316dc490c291b9bdcf9a35ff7353981936cde3ca6",
+      "path": "challenges/evaluations/hosted-40418946278-1-v18.json",
+      "sha256": "1fb1c27353a795858ff4e4bce105cda3c61c4357a360d8594127f335fe14e277"
     },
     {
       "batch": "v19",
       "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
-      "inputsSha256": "69af2e86e5e6f2c85fe235b739f7abc610cd798bab07f61d1b1c28b034cd967e",
-      "path": "challenges/evaluations/hosted-40416072674-1-v19.json",
-      "sha256": "fb8702de8663f7a0a653677d8b3b864cb4d82534936a55943768e2b06d502c96"
+      "inputsSha256": "2c30633abdf9b5c66f0e5f8f3e0f988ed0ecfd585992961826cd9671713fb18a",
+      "path": "challenges/evaluations/hosted-40418946278-1-v19.json",
+      "sha256": "f27f0fb16c0c4481822cfa865253f4d32d6164900156068bd55ab5efeb2a0eaa"
     },
     {
       "batch": "v2",
       "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
-      "inputsSha256": "eb9d3389f09a0d3baa212580514e19ba7be69094cfb0364de69ea656a1c3cf00",
-      "path": "challenges/evaluations/hosted-40416072674-1-v2.json",
-      "sha256": "f16ce2d09b5b519549fac3b6984976cb85e09928fae98d0d1bcfae6ff93b47b9"
+      "inputsSha256": "ac3562e2bc1cb531954166f68577d3c20e118589e3d186da769b637255547e9f",
+      "path": "challenges/evaluations/hosted-40418946278-1-v2.json",
+      "sha256": "7547e8e7b7db50697403acb5791f73cf1784d7fc3c0a1f2e5b0713934310595e"
     },
     {
       "batch": "v20",
       "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
-      "inputsSha256": "cdf7688edb193862276ae063d380fb38ff72d3185bce261f98ff5f22594ebab1",
-      "path": "challenges/evaluations/hosted-40416072674-1-v20.json",
-      "sha256": "5d0ef13a96fb29f3b7fec8756315792122de65dd15eba004935288cb7ddc36a6"
+      "inputsSha256": "88b99f868d088e92e412d078af0ca7cf2cfaf3d1b30fd3f72449b1bf1a1c28f4",
+      "path": "challenges/evaluations/hosted-40418946278-1-v20.json",
+      "sha256": "81fe95e9bade625bab53797b4a9adfe9977012da0be032bfb7cf50d219c4cfec"
     },
     {
       "batch": "v21",
       "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
-      "inputsSha256": "99c3d9b2d4e0349632c488c66cd742cb1c8f1431a4355dd3ab4e2d6d4b4079a5",
-      "path": "challenges/evaluations/hosted-40416072674-1-v21.json",
-      "sha256": "a214e32d9ec65f8e8760067a755372a7a89f3eea79c579bb58a5e88b99950cd3"
+      "inputsSha256": "145b5e67886d7c7c52165450685b0381439266a66a86798413b3dc14c4eac070",
+      "path": "challenges/evaluations/hosted-40418946278-1-v21.json",
+      "sha256": "b07aa98cebd20fed75734c314f944b554261511de00a07fc9903f20a0fa93c98"
     },
     {
       "batch": "v22",
       "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
-      "inputsSha256": "5803f7c357168601e83949c98ac2143c8f332911e98d9f9148971d126bff1814",
-      "path": "challenges/evaluations/hosted-40416072674-1-v22.json",
-      "sha256": "22857d84865c16dd387a4b865e399534408c1d7d7fe1f9d51475afb0d5b0ecb7"
+      "inputsSha256": "602b950f8658337c872832d36beb164d8344cd1e8466968271e4f39cf61e81a3",
+      "path": "challenges/evaluations/hosted-40418946278-1-v22.json",
+      "sha256": "ebd1de83663a9cab4e471ca481428e0de84adce60c55ff5442acb860f1bb45ff"
     },
     {
       "batch": "v23",
       "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
-      "inputsSha256": "806b59053d1ac0ebf1ce79150b0497441ffdcf19b4e5a33f25aff8598f2db821",
-      "path": "challenges/evaluations/hosted-40416072674-1-v23.json",
-      "sha256": "267be5546a2a110993804e4feab2484b246ada16884af1af5224768a37ec1b2d"
+      "inputsSha256": "e6ce4dc9fd58da857888cc3b7804a4c3c5566a7427eedd0ae9bb3154db830c18",
+      "path": "challenges/evaluations/hosted-40418946278-1-v23.json",
+      "sha256": "8ccfabda37d3dde08ecd01cee551a92a165ee071960d78b3314177b40ec1c88d"
     },
     {
       "batch": "v24",
       "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
-      "inputsSha256": "71decfa77a843407df5195783759a27a4a01dc1a1620d823510b03db0d52b878",
-      "path": "challenges/evaluations/hosted-40416072674-1-v24.json",
-      "sha256": "465658656a645095b2d3cc37a213cd5469059e9a5ecdf387e82d99d036c95705"
+      "inputsSha256": "2f0474ba54c4c2661518176f34f10c27b8e596c0d9485c40f191f293616d47ca",
+      "path": "challenges/evaluations/hosted-40418946278-1-v24.json",
+      "sha256": "9c8ab0e7649d828cbaa55c2ac61de5c1db6fa2a18c2c272845f3c36dabc514f2"
     },
     {
       "batch": "v25",
       "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
-      "inputsSha256": "1c6bd0faefcf6a7f54dabbb92e0a2252e926735a332417c4118dc48a8897ad94",
-      "path": "challenges/evaluations/hosted-40416072674-1-v25.json",
-      "sha256": "b1abba370a9bf8a889be74d4147a900477da6ed6a5a82b42f6f618ed42c2828e"
+      "inputsSha256": "f03665c734ec7ba3b0f863e31f3ede715fdfcaf92f3aacc93c9f63bdbbb3c1b3",
+      "path": "challenges/evaluations/hosted-40418946278-1-v25.json",
+      "sha256": "393c1f877f530c7d470942240176a3e3171986dd123e052bf956af3e45f80282"
     },
     {
       "batch": "v26",
       "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
-      "inputsSha256": "da72749a4d446b958e84eacc6aeaefcf3c5da35b0257e068aeee521a5a7eac58",
-      "path": "challenges/evaluations/hosted-40416072674-1-v26.json",
-      "sha256": "91e6b6104024863e92c361db3edb8de462b7aecc3fe6a2df3ce76fbe135396fe"
+      "inputsSha256": "a946937ebc3b1b7baaf57946b09b33daf28673b5f3abcdab0e8eda38358fa387",
+      "path": "challenges/evaluations/hosted-40418946278-1-v26.json",
+      "sha256": "8a5dc442732278833055d79524b3325c0d8fab537c2ec6f1c35a051bcc613d08"
     },
     {
       "batch": "v27",
       "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
-      "inputsSha256": "25acaacc184720dba8f0e32604d44063b99be790d34741616806d98089636ac8",
-      "path": "challenges/evaluations/hosted-40416072674-1-v27.json",
-      "sha256": "4d5016b8d04f2be255bb0a4095911685067349e9bfebb0cea711b3283b97f277"
+      "inputsSha256": "cdc8168cc5b7140c6dd6be4e8db47f50b3eeb4d99371c7df019807d43163a77f",
+      "path": "challenges/evaluations/hosted-40418946278-1-v27.json",
+      "sha256": "a33b88d40dc0992bb8733a964cf7aa57a33abf0888af71e2fda81dd9d6e6dacc"
     },
     {
       "batch": "v28",
       "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
-      "inputsSha256": "2e36e16ad2cbb8e810a2f06fe9eaecd0ad04eb1ddd3158a59a8d9dce3689132b",
-      "path": "challenges/evaluations/hosted-40416072674-1-v28.json",
-      "sha256": "560885d8e186a2be120cb2e50b1c5291df476986a5a205a7ee706bb06e0847fb"
+      "inputsSha256": "8ad01318a4bfa892841ee990c5a2b78c9fc83c584ce5dd468c5658e81e8f4628",
+      "path": "challenges/evaluations/hosted-40418946278-1-v28.json",
+      "sha256": "29bc7417651417f8d647d5015bfcdedcbde24af966d48e0e0696de1bc3c2f9a7"
     },
     {
       "batch": "v29",
       "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
-      "inputsSha256": "6ef4e3e62adc3fbc566e440fc48cb44d9c6ac08c78543dec5cf60cd7252ee188",
-      "path": "challenges/evaluations/hosted-40416072674-1-v29.json",
-      "sha256": "629a55fd5374723a8f95a09cb12e07288c0572dfb0a7084e2a0b2356be2b20f7"
+      "inputsSha256": "e8d7718fec44a5a44cf29a94ffd24374840d876c9b6e7dd07e408c327712eeed",
+      "path": "challenges/evaluations/hosted-40418946278-1-v29.json",
+      "sha256": "44c495afc17c3f23410815c73ff0c0a3f4071f35024c244f15257ea940e17e28"
     },
     {
       "batch": "v3",
       "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
-      "inputsSha256": "fc78787e01dedc38d439e6fd61858bef8715c61794faf12f2af6db50b85c8bab",
-      "path": "challenges/evaluations/hosted-40416072674-1-v3.json",
-      "sha256": "d510c42239748d8bc347c4f66aade1a5e22512c00ebc0f94f73e950c7c3aa2bb"
+      "inputsSha256": "72003e5a6f01dcfcc8221999e2146e2cee4bfae8d80272148c228bbc730b382d",
+      "path": "challenges/evaluations/hosted-40418946278-1-v3.json",
+      "sha256": "4ca909c67fc1ae0cbf572f0768fcd529be04fdde9dcf74f821277979910a0e55"
     },
     {
       "batch": "v30",
       "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
-      "inputsSha256": "9efafc681ff4b77dc61fb423d19f17565c88d86ec9d3084c2450b18237fa547f",
-      "path": "challenges/evaluations/hosted-40416072674-1-v30.json",
-      "sha256": "b376353d2c0a863903353bfb24d2f27fefcff19fc652ce2fb59e8eda659ef46b"
+      "inputsSha256": "02200951aaef9b898409e504c1cee6817f4edd9373ce05515f11519a788301e1",
+      "path": "challenges/evaluations/hosted-40418946278-1-v30.json",
+      "sha256": "504c55d80edd1f7fef143b99f068c543a01a2e183ca4bf6e6554e4f125ab6c35"
     },
     {
       "batch": "v31",
       "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
-      "inputsSha256": "a50572eebd90d7576e91b95cd921269acdb4756b2ffb12e4ea232bf2f6ed5108",
-      "path": "challenges/evaluations/hosted-40416072674-1-v31.json",
-      "sha256": "8e49d12256d342f40202dc735d5d7dee64578448f5bdd9b34bb71342344b9936"
+      "inputsSha256": "9a211f92e691f1bd8f2986f9d9edb94f6ad62d5db5c90dd0c95d7ea5858b172c",
+      "path": "challenges/evaluations/hosted-40418946278-1-v31.json",
+      "sha256": "8fe9377911bab88b65cb39b3e53f317f6741c3202fcd1cb41a2ce3e7d0d531bb"
     },
     {
       "batch": "v32",
       "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
-      "inputsSha256": "dac5332ba51a8611fbee086793913c28c9875456b6e4bd90075819fd16cb01d6",
-      "path": "challenges/evaluations/hosted-40416072674-1-v32.json",
-      "sha256": "d6b1bd88c40106409027687677cf96a7bb671146cd2f3bd01ad4bf306efc4c4e"
+      "inputsSha256": "242a954f0a2c4bfe86be29768ca9377d2d622e886b241acf615053a82433a156",
+      "path": "challenges/evaluations/hosted-40418946278-1-v32.json",
+      "sha256": "4a4ae1497be5057904d024e376d7d1186e8fbd39156c70a9d80723ebf630bbe2"
     },
     {
       "batch": "v33",
       "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
-      "inputsSha256": "13ed0eb9ef875e2ca6fd60637640157a3f7a9e7545a5fdfd7b2b2755b651835f",
-      "path": "challenges/evaluations/hosted-40416072674-1-v33.json",
-      "sha256": "6ea9b4e31a6dde29d08bdc1f267dc2d3e54c16709139033f47fd91410cbaea6b"
+      "inputsSha256": "0b79835c6c2183bb783be81480308ef47eda90b31a570581b3c4ec0e94999e0e",
+      "path": "challenges/evaluations/hosted-40418946278-1-v33.json",
+      "sha256": "445eee88326ac314e51db403b01abef753fb39975d722b70670da723c97001f8"
     },
     {
       "batch": "v34",
       "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
-      "inputsSha256": "d9209ae83b336fb3048c672bd47de0bc4b1e179f0f8f47b2692853139d5ced57",
-      "path": "challenges/evaluations/hosted-40416072674-1-v34.json",
-      "sha256": "0b89f62384d7625ad5b178cdc8d5f43b7564d433fde812eaac09b1391c74b6eb"
+      "inputsSha256": "e30ce0383eeaf7c1df025ee106af97569dffa64c8e738197aef71ec9dea6b6d7",
+      "path": "challenges/evaluations/hosted-40418946278-1-v34.json",
+      "sha256": "5302d6af00fda385b7d7bf0298829769554d7e176e87165c69f9397243716d8a"
     },
     {
       "batch": "v35",
       "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
-      "inputsSha256": "94238274a8ed890f76e71aa89d1d65de5ea3e1c3b10510d897f38853db1b7dcc",
-      "path": "challenges/evaluations/hosted-40416072674-1-v35.json",
-      "sha256": "0b982d97dda76427dd0d20ec67df45bdca37c95c205b76ff6e8f77ffa0fe2127"
+      "inputsSha256": "51d5364dfdd46bea3436b1219b4e1b7515ac93f480b1d6bdc1c9d046e2ea59cb",
+      "path": "challenges/evaluations/hosted-40418946278-1-v35.json",
+      "sha256": "3e011efa3637f818cc84f937f15056f05f0d8a775f3ba132b539567789a2fa75"
     },
     {
       "batch": "v36",
       "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
-      "inputsSha256": "119ef2721d8d1e7e8a21ead8d170a45231fcf3e351c0d9183ebec27613ff0dc5",
-      "path": "challenges/evaluations/hosted-40416072674-1-v36.json",
-      "sha256": "38668fe1a678be43a0bb0c34bf68ea473d59c019edaa76baae2ff0d26160b746"
+      "inputsSha256": "dd12e83bf4bad72a4b983ea3be530b060ad780931d82d235cfee2826bb68397d",
+      "path": "challenges/evaluations/hosted-40418946278-1-v36.json",
+      "sha256": "d3a235b59e5a994d574025f773bf871ea0770885b470a2c91144b6ea03dba8a4"
     },
     {
       "batch": "v37",
       "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
-      "inputsSha256": "1bd86d2709344a49dddcaba20038a36e5211234cac928c26a6d1ff5e1c47d220",
-      "path": "challenges/evaluations/hosted-40416072674-1-v37.json",
-      "sha256": "fc4f314eae6aa8334c1b7de488f868fb23c5ce917438b2cf15aa55935edd8865"
+      "inputsSha256": "647386c26b8f0667bcb98c294460aa43dd92919d15ffe7c5b184bca9d82afb31",
+      "path": "challenges/evaluations/hosted-40418946278-1-v37.json",
+      "sha256": "727f3a6344a15f9aff00329d62c60ebae7a288e49ca26ee9bac43944555ddbbf"
     },
     {
       "batch": "v38",
       "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
-      "inputsSha256": "2c3b96b58850e58d48716baa1bca5b5338836f3b6ba71366968258b1aa6cf652",
-      "path": "challenges/evaluations/hosted-40416072674-1-v38.json",
-      "sha256": "9aa0bd6b193b3a5cec9af3447d08c8915d3b37358dddacff6871f39bccaffa87"
+      "inputsSha256": "efe7bd0744eed58d3832455a6fa9e51c13ef2b9d2b3dc24d9b33285ffbb3ee2f",
+      "path": "challenges/evaluations/hosted-40418946278-1-v38.json",
+      "sha256": "292765507a2069661d758e754311d4e05cd0894c6a951ea5bf93f4e49b6bb435"
     },
     {
       "batch": "v39",
       "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
-      "inputsSha256": "3aa2d37243041730d33b193ef24909071039c9a264033999d034c27d0e419240",
-      "path": "challenges/evaluations/hosted-40416072674-1-v39.json",
-      "sha256": "934315c3fc95963446f1a443216d7f26e8ae4392ad0eb43a4d3c9279cf9ac57e"
+      "inputsSha256": "d20063cba3cc4c5f480e5d53b7a956267330b4657d37c356bbd484ab1bef7aeb",
+      "path": "challenges/evaluations/hosted-40418946278-1-v39.json",
+      "sha256": "3c64871f3d53448612ff14e66a3b049f40ed6dda146198b5db1c8556b01149e6"
     },
     {
       "batch": "v4",
       "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
-      "inputsSha256": "844d4e958f2ab0ee3288c983d92f54b17d2e32858183852cc7f378d01fd5f6f2",
-      "path": "challenges/evaluations/hosted-40416072674-1-v4.json",
-      "sha256": "68a984b56e29e1d5b4a383cb582efbc8cfa40ff1e27701dfcd125569024497f2"
+      "inputsSha256": "60ea0216b4858160bbcb6099300a287b3bfdd83b46575f6a4db57d79b9e7e142",
+      "path": "challenges/evaluations/hosted-40418946278-1-v4.json",
+      "sha256": "ae683ff3df4b1137174d0b6febb90a28a60c2d64f6ea8ab4af815a0c9cebd62a"
     },
     {
       "batch": "v40",
       "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
-      "inputsSha256": "4f0712297acb8ecdcaa8276ae96d9dc0bf95ebf31e2883a5feec4d42395f743c",
-      "path": "challenges/evaluations/hosted-40416072674-1-v40.json",
-      "sha256": "96bd4fc4db2038c85c52bd356884268933a088315f3cfd130ac201c0ba700f58"
+      "inputsSha256": "51c624430a024842289337b59045b2e031836f68dfcbd7df8605b760eff00e90",
+      "path": "challenges/evaluations/hosted-40418946278-1-v40.json",
+      "sha256": "1fe0cbe00526a4a35efaa33e070cd634139d1cc8f00177f6cb36c599c9b75e92"
     },
     {
       "batch": "v41",
       "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
-      "inputsSha256": "6558a6d9b03442d2f22fbcdcae2d11f6023d88ee92d31af0ff2f79295aa4d0af",
-      "path": "challenges/evaluations/hosted-40416072674-1-v41.json",
-      "sha256": "0f572f9bb5a76667c96dfe00bf5312cb0df6d63fbfc496d89f184923bd51dfd0"
+      "inputsSha256": "77143ff6ec4f8467fc669bd7229044176fa154e7385318b3ca69bc1677d84e98",
+      "path": "challenges/evaluations/hosted-40418946278-1-v41.json",
+      "sha256": "15b21b89cc73aa93fc3370612e55144fdee1f412f84f00188626854713f8598c"
     },
     {
       "batch": "v42",
       "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
-      "inputsSha256": "4706c1b7db9fe41a13ee7ca1eb705c13ec9d384177a83080876c19369e797497",
-      "path": "challenges/evaluations/hosted-40416072674-1-v42.json",
-      "sha256": "7d903e76c69bdbc47033599528f0804deb14de6a970e593caf08526622a0c3d2"
+      "inputsSha256": "0f5ac8b5ae3fc60d25c6efc9126690fbadeae60069528bf1db43d1cdb608e9ad",
+      "path": "challenges/evaluations/hosted-40418946278-1-v42.json",
+      "sha256": "a27e3b18a1aa996bc212f1e14ffc391258c9090e54be883b1780c89f0377a040"
     },
     {
       "batch": "v43",
       "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
-      "inputsSha256": "402843b79c75aa75f970ce9b290ca61fce8789ed211b9d8f6fcaf4be4596e1bd",
-      "path": "challenges/evaluations/hosted-40416072674-1-v43.json",
-      "sha256": "d9d77806416746efcfb7b908300ed97a3c1da1cffef1fc8c56d8b5987b6e2465"
+      "inputsSha256": "6e25a2c21cbc1010d2a2175c11800d0f7900a1bc06a8ef87d7c931559485c409",
+      "path": "challenges/evaluations/hosted-40418946278-1-v43.json",
+      "sha256": "8731ff4a0faaf05da388e3f1685ced66e53eaf955472c0061ebfd122ab49e94c"
     },
     {
       "batch": "v44",
       "manifestSha256": "4eb8b2949c1c27ac716c7914f50df8f84e883a415fd05262428c2743f75841d0",
-      "inputsSha256": "9ec56d7c143119c616f40d78bc9205eb8f5eec15d6e2cdc50ecdeb85c0e79175",
-      "path": "challenges/evaluations/hosted-40416072674-1-v44.json",
-      "sha256": "4b4f90001bb0e45fce3c6e39e6fd7b48d263eab5348deac66872c99f7e411f7b"
+      "inputsSha256": "2c48af8585d29c8b15d761a3ae9cbcd322baaf49e9172a4c421db8e823614af2",
+      "path": "challenges/evaluations/hosted-40418946278-1-v44.json",
+      "sha256": "0d8634833d76001da1044f068f18f46805941dce19c0381715283f00ccc3dfdc"
     },
     {
       "batch": "v45",
       "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
-      "inputsSha256": "344838c9840adf73eeea839e8b830bbc23dd15228ba1535d8febd2971a64692c",
-      "path": "challenges/evaluations/hosted-40416072674-1-v45.json",
-      "sha256": "7dd1b0e559d73d19d5d7280c26989c466078c93415e43669538c8a50184e9d81"
+      "inputsSha256": "e6044e805120e243866e40c1271d333f492df3c15b2480b920faa725b2a6ee13",
+      "path": "challenges/evaluations/hosted-40418946278-1-v45.json",
+      "sha256": "ad33c1d95af0f95e956cb1dbb3e51c1fb542cbce818e8dabc9d1db0b7f71960d"
     },
     {
       "batch": "v46",
       "manifestSha256": "6c3ad7b6252d4409a66ab8dc37fb48579afddd9634285292eb1a52a83c93d33c",
-      "inputsSha256": "26670d53d86b4cb22fe7ea4dfacd5e89909654d5d11213620b57295ba9c43de7",
-      "path": "challenges/evaluations/hosted-40416072674-1-v46.json",
-      "sha256": "46842da58cbceb77acd6eeabebe5c8c4653f3147929254409bf5da5759844112"
+      "inputsSha256": "c6abe7df08c479a8db6a0e15b087b4a3eac4a1ddce5a58b652ebfc509590556e",
+      "path": "challenges/evaluations/hosted-40418946278-1-v46.json",
+      "sha256": "7dc727259e5ae4fcfc41c78e4045305935cba34c6df7118d4b41acfad44d983d"
     },
     {
       "batch": "v47",
       "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
-      "inputsSha256": "0d0f536489045222c8ebd247be016945d75aa3944cf534bf16296033be4b6b13",
-      "path": "challenges/evaluations/hosted-40416072674-1-v47.json",
-      "sha256": "35a3cb0c2563ba2d132e4a8827621c1186af8405cb112e9948a7c35609c16794"
+      "inputsSha256": "f5ebade72c50d97959996e1687e51c2899b0cbd5d5a478bc06ad2321a566e244",
+      "path": "challenges/evaluations/hosted-40418946278-1-v47.json",
+      "sha256": "2e21027412a934e8c22d7a81ea8160989a78e5cb3e85a72e5775532d9753a27f"
     },
     {
       "batch": "v48",
       "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
-      "inputsSha256": "22d8ad9e76c8ff8894532716f5bd3611de20290af1c70a7b425148628702bdbb",
-      "path": "challenges/evaluations/hosted-40416072674-1-v48.json",
-      "sha256": "d3d0bcc912b25b2a70f0cd0793b7e2dbc9847aecb64ab936cc5dc56db407f78c"
+      "inputsSha256": "3ff2856b8a3ff53e8178c50dc05a0426b907424a027c37b943aaee755ba49beb",
+      "path": "challenges/evaluations/hosted-40418946278-1-v48.json",
+      "sha256": "2eef20126652156abb27be28ee58ff67fabfe0a1c02191941427b155ba9b5dab"
     },
     {
       "batch": "v49",
       "manifestSha256": "2a25560958d36826aca0890df75e19dbd7f05f39c412fca68134bdcb4fc51eb6",
-      "inputsSha256": "42c7bfae040bc882bd4e1814f75eb4dcc4b43c8413f7c587f4327de9583ff417",
-      "path": "challenges/evaluations/hosted-40416072674-1-v49.json",
-      "sha256": "f93b0b968d59ee0686a605a6b48be9e1c63146084b8b1ef3ac1ac73fecd2962b"
+      "inputsSha256": "91ca22bbc5d366d344043ab0b270063c920d24d7e70ec83c3fd4cbfe871d297d",
+      "path": "challenges/evaluations/hosted-40418946278-1-v49.json",
+      "sha256": "ef807eb5299426b938129a1022dc99a2fc9c42472c2aa90a0ac1c95f1d763bf2"
     },
     {
       "batch": "v5",
       "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
-      "inputsSha256": "9dca0f76c9b74b857eb72f736a9a88e1fe1cf98bbd4ba211c25e1208f15da2e8",
-      "path": "challenges/evaluations/hosted-40416072674-1-v5.json",
-      "sha256": "6511afdcac90102cebf07fdd7a9432b62ebe0d30840a4eb4bbd712694c8503cd"
+      "inputsSha256": "d414db115479f27bd10f41141b5db3ef25cba350efd9a2172b48fd3bd5e093b3",
+      "path": "challenges/evaluations/hosted-40418946278-1-v5.json",
+      "sha256": "00c7dbfbd5b9326a950ed17caf60a8b6849f21ce5941bb462a77962f044c202e"
     },
     {
       "batch": "v50",
       "manifestSha256": "55d6471f89cc756d95c6c366b52c7e0138ba0ac53f5eabbc63367d4396e95cf5",
-      "inputsSha256": "49f5dd1b7f2c85ed2c78087e9c81df1f6c28c1d899bf2087985cb20fd9b3d303",
-      "path": "challenges/evaluations/hosted-40416072674-1-v50.json",
-      "sha256": "4a6f4b9ea4567c0789d32f6df8404f9e0c5cbbeb211d66015e390726fce53294"
+      "inputsSha256": "2099f99f99c1b78b3e7f99947a1bcf708551bd591070a427e92630a7ae545e61",
+      "path": "challenges/evaluations/hosted-40418946278-1-v50.json",
+      "sha256": "17178490d3a4a25f95a8c573f1a26b095e1be625428d29b90209008e83057818"
     },
     {
       "batch": "v51",
       "manifestSha256": "6b55c947f71b1bda9d36f54408b7820add2d1b35d2069f6f3f382a3d3087540c",
-      "inputsSha256": "7989d9e41c79b99ca9edac6d258428353999e1fed5f1dc37c8a7c7cfb714d470",
-      "path": "challenges/evaluations/hosted-40416072674-1-v51.json",
-      "sha256": "ffd90c93f9e63ae7c11fde43a9785bb66805eb95c43a543f66434d86a5d068ef"
+      "inputsSha256": "febb384e407df360e3b78282dd94bf2da82d77590bac217aad257fd1ccc47498",
+      "path": "challenges/evaluations/hosted-40418946278-1-v51.json",
+      "sha256": "ea23ba752d571cab3c2ef0f25d6a15322acc3e46c1fb85e277d5309e032e7e6c"
     },
     {
       "batch": "v52",
       "manifestSha256": "38c5e274ac970a16df08fb372269edc360f8c61f507020f29f71d9335ea9f29e",
-      "inputsSha256": "93c47282bb23e087eab77cbb9ba8b2c188813e03d84ac17956e23ca2433900d0",
-      "path": "challenges/evaluations/hosted-40416072674-1-v52.json",
-      "sha256": "14abd3556c3bc7b6169a837e359810ef5d35482395e9b794cea46405300c1990"
+      "inputsSha256": "a4da37282f50f709538592d3fb48ea8a7014a5231e181b229b4e27da6bc15db5",
+      "path": "challenges/evaluations/hosted-40418946278-1-v52.json",
+      "sha256": "6cb8f5d9560042a4ff77b662dcc7a826a6f38d5f1b8eb892f1d0878727bac7a1"
     },
     {
       "batch": "v53",
       "manifestSha256": "fc1feb3315c077db151a113cf6f5c2e1b26ed181b953547e7d3fcf1ad1f51e39",
-      "inputsSha256": "a4cc17dc7785872a9dd29d5700ff88d4ae631953bd662792aa3833a1c2b67235",
-      "path": "challenges/evaluations/hosted-40416072674-1-v53.json",
-      "sha256": "ae2a4756bb722dd42bcdb58f6c33d2803f70576a2c450a38c633adc34a625a1e"
+      "inputsSha256": "4d553332a21615d6eba873a43a5d4d7c4829016dfb51f18c0eaa250f4b436dcc",
+      "path": "challenges/evaluations/hosted-40418946278-1-v53.json",
+      "sha256": "a0978b2a5da0abf855e2a2000a0ab706236865128b2f769d7451b85b3bbf06ca"
     },
     {
       "batch": "v54",
       "manifestSha256": "cc258ba889b65b063f34199074d3313017b5d89ce3c175bb5443889ef9713e8e",
-      "inputsSha256": "2b02605816747d5681551aedca67e6f80d73eb271a280bac44c86d9823e4d39f",
-      "path": "challenges/evaluations/hosted-40416072674-1-v54.json",
-      "sha256": "f2d09db67a94516fd26c9121502ae08f48994880ef9e40d8dcabc2c41153076a"
+      "inputsSha256": "f35a88eb51af06f14f73f414bab993fa7c9ad2bc68492b8039a2245bbef27558",
+      "path": "challenges/evaluations/hosted-40418946278-1-v54.json",
+      "sha256": "15e95e242e2d28078d1e3def5c5f25c4fc82c2b765c10e1befeae5344db6a7f9"
     },
     {
       "batch": "v55",
       "manifestSha256": "3c17045e325445fd449f429e13ff79d2eb858dc308a82f9e2a7c371ad9c56105",
-      "inputsSha256": "c11fb7a61463c72d7a8eab1e06e34438e65c80564175f4929dc3d0de7c21339a",
-      "path": "challenges/evaluations/hosted-40416072674-1-v55.json",
-      "sha256": "68c713d967b872ee4f8e2f84dbc5bd46289c5fb0250dda6a4b6a68d0c706f438"
+      "inputsSha256": "dff9ff4cb4f4541f43ada14414a8f8b190f413c6a756487467fcc6897a0a1260",
+      "path": "challenges/evaluations/hosted-40418946278-1-v55.json",
+      "sha256": "93a94920b7f560f38ca2db1e2434e571b8787c1ecfb6c83987627d052fbac98d"
     },
     {
       "batch": "v56",
       "manifestSha256": "a05e102b18a6c939cbe407c82a83d058037489ba53df8cab9ee52a2568727d74",
-      "inputsSha256": "c518f5e22c431cab38b91bbdd6b9069406d603ad2c5a02955c241f38376f2576",
-      "path": "challenges/evaluations/hosted-40416072674-1-v56.json",
-      "sha256": "d213a1a37a27faa4d0949ba91f9f19f8cf560c69b5ffaa68eb90149841f34ad2"
+      "inputsSha256": "4a7fc09c2dc3220187f074155f4f4586af1322d44f8e6059cd32072b6412e94e",
+      "path": "challenges/evaluations/hosted-40418946278-1-v56.json",
+      "sha256": "d6a6475a0040cb630bfd55a7a11c0e45f43c1b2e501fdb9d2a945f395be8ded7"
     },
     {
       "batch": "v57",
       "manifestSha256": "9d357944cc12ddc677f3afeccc2016496764f6ecb2cb5748aafdfa885fcd2007",
-      "inputsSha256": "74c8227b717ceba6c5054952b132d85f4759a5084730a0932b732d4c0ff5a32e",
-      "path": "challenges/evaluations/hosted-40416072674-1-v57.json",
-      "sha256": "94556ed5952235518ac795dae45b6b4a5b6853f9d747f5fd0f814696a4692394"
+      "inputsSha256": "a3ae2a24471c9628e11007946f3af2596bccd93df987af8fa6431dd957f9d6b6",
+      "path": "challenges/evaluations/hosted-40418946278-1-v57.json",
+      "sha256": "1d749520f42c014b795c2fb8b6ae4b5c41204983263abe4e86da793d38d3c848"
     },
     {
       "batch": "v58",
       "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
-      "inputsSha256": "4cb4e13e10ffd95b732fb21d5f1368abaea30d3b5163752fe35d12ea2cc5cef3",
-      "path": "challenges/evaluations/hosted-40416072674-1-v58.json",
-      "sha256": "c30d7fd8fb9452ac744f7195a07de3e649236395935ee4765764401745ce69a8"
+      "inputsSha256": "a6482e10eed65ff7d72d1174f209c172d192b449d54da86145dc480d8c7d9ec9",
+      "path": "challenges/evaluations/hosted-40418946278-1-v58.json",
+      "sha256": "b4bb1dcec9a3aba129d19896d9069f2fac55052bd8039d7b4a54c2a250b78932"
     },
     {
       "batch": "v59",
       "manifestSha256": "2f55f6f34298abb9bb979d1586361bbf220ac4367059378a60717c31158bbfdf",
-      "inputsSha256": "152cce94da035ca6a6beed655a519b126c2648414529258ac81f346b90ea8196",
-      "path": "challenges/evaluations/hosted-40416072674-1-v59.json",
-      "sha256": "f3d36114b1067a80712a16b10e576cc7e1c88b0fcec9876b3f48303543b9098f"
+      "inputsSha256": "4e2957bedbfa44db947df1fcc1a6d2a558b99949616c7abd92e96445cbdbc7b1",
+      "path": "challenges/evaluations/hosted-40418946278-1-v59.json",
+      "sha256": "c72b06fb4e7e67f7f57f85d5ccb6daea91fd8a8021ca55480f230e439242cb64"
     },
     {
       "batch": "v6",
       "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
-      "inputsSha256": "2c73833aa8b904e04cc0b97acb0ca8159cad9c47beb3327fcca819bd63fc1667",
-      "path": "challenges/evaluations/hosted-40416072674-1-v6.json",
-      "sha256": "67537356fa4edf58ccfe67b2508960e6ffb974d8511f719f8c621c87f79be085"
+      "inputsSha256": "909cb9a7a2472354ab032e73e50aac2e3f2d1b93f3f3434f7678d687a82ef954",
+      "path": "challenges/evaluations/hosted-40418946278-1-v6.json",
+      "sha256": "2a3eeaf827e800bf9f05316251392a4ce66314f384d6decd3d63c824cc711747"
     },
     {
       "batch": "v60",
       "manifestSha256": "8d47d06f16ee303a31fae9b2226419578a27facb04cdf34ad408e2971932f5b0",
-      "inputsSha256": "cfda3e9658563437c04f7b351e18df1350f2267d4c71fd3cd216fdea5fac631a",
-      "path": "challenges/evaluations/hosted-40416072674-1-v60.json",
-      "sha256": "abbbd7525b6f81d18c24b151f05c8963c2b3bd6e486963993c18bd43100690e9"
+      "inputsSha256": "ebc3ccbca417131ff3527d4e116738e28085ccc1ccca15dd3435e33235cf9010",
+      "path": "challenges/evaluations/hosted-40418946278-1-v60.json",
+      "sha256": "43ce14f25a67ad56d723c528961ca97203196ca6c13ecfdd5447503f1f6f9de4"
     },
     {
       "batch": "v61",
       "manifestSha256": "febc3833cd1f31a86f513e8cc8c95a24b3d97bb5d80a16cd588b66d86fa8e0f8",
-      "inputsSha256": "ec18d11df85ea56b8311469192303271a60c252e4720729c739840955e47ee23",
-      "path": "challenges/evaluations/hosted-40416072674-1-v61.json",
-      "sha256": "95e3c66653b18fd07b5addc12d7157ff85e0a8a32ddbf35fc6587595064230ae"
+      "inputsSha256": "1b553c18ba1b103e3e0e4b9cf29eb5859ec8d19a1f6f5b6ad19d78cf3975e109",
+      "path": "challenges/evaluations/hosted-40418946278-1-v61.json",
+      "sha256": "82d36ddb4a6c0fd4d8b3d0bd15d271e135f48cb373c8260a5121bd51ec771226"
     },
     {
       "batch": "v62",
       "manifestSha256": "f8986ddbe3c550b93dacce17f7002d32cc076d63a0cd4eed44512c59dbf42947",
-      "inputsSha256": "2b35bc7ced83f489e4f216f29691ed7af29ddf762d461bb5195139c545f61c46",
-      "path": "challenges/evaluations/hosted-40416072674-1-v62.json",
-      "sha256": "3e6dfa83999f95e7a68c6e2f3f34f5583daf6adb6766b50e36258908fb66e12c"
+      "inputsSha256": "e0f92e4548b57959de9271c223da2cf7a3e0566ff540cc17d0da1a75b0f4611f",
+      "path": "challenges/evaluations/hosted-40418946278-1-v62.json",
+      "sha256": "9193b2fe478c8268635869eadf9731d40424bba60890641530f201cc69d5b579"
     },
     {
       "batch": "v63",
       "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
-      "inputsSha256": "d4106e576b9bc0b6cc62b6ef4233ae21c5ec0de5198d5f8714c2fe34c85502f6",
-      "path": "challenges/evaluations/hosted-40416072674-1-v63.json",
-      "sha256": "81927a9d454328b6871ed7ff5f26b758778827502ea966e47b318a0e1d96a911"
+      "inputsSha256": "662bfd12705e16632a796ccf53104740dae7ebc6091041e9f999ce8b2a46aafc",
+      "path": "challenges/evaluations/hosted-40418946278-1-v63.json",
+      "sha256": "4d548430cb9f98526da09b7af170f97e41203aadc21b671a1f9f4ff482499372"
     },
     {
       "batch": "v64",
       "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
-      "inputsSha256": "78cc7c327b4e55b9fa185c4c3a413078dd14f0d51e1718e68cecbeb18cc27aea",
-      "path": "challenges/evaluations/hosted-40416072674-1-v64.json",
-      "sha256": "dd7d88033b9c51f7058f1a78ac8454447c71835f21962670021d6725b272cc9a"
+      "inputsSha256": "e2d57d4f80563fa61f030ea76122a319b9fc7a25ef1df8b09306d72161a4e1aa",
+      "path": "challenges/evaluations/hosted-40418946278-1-v64.json",
+      "sha256": "5faafbf6d68645df49d3b45fc5afab3375f239f19924a8e99de215b672cb930a"
     },
     {
       "batch": "v65",
       "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
-      "inputsSha256": "c3286221c541a775311c750e18ee72a0f9434f249cfae97f41233a79a206ca47",
-      "path": "challenges/evaluations/hosted-40416072674-1-v65.json",
-      "sha256": "47720619a7acdfc9badcb5dd0460a9e96c420de5f079b3e3557f60fdb599ca19"
+      "inputsSha256": "ad67b1b2b425780956aae5d373023695d372dfac42e182aa430790c944bde619",
+      "path": "challenges/evaluations/hosted-40418946278-1-v65.json",
+      "sha256": "af7099a7e15159fb84c8aa7f1f31992c6bd120882cd5ea65105bb05013a355a8"
     },
     {
       "batch": "v66",
       "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
-      "inputsSha256": "d84bf194a6cca0efd9573aa995c586da8f6080d1557e149b70b3adc63ad26c19",
-      "path": "challenges/evaluations/hosted-40416072674-1-v66.json",
-      "sha256": "a21b9e5cb16ae705c8296bdb9f204ac38dfbfea50ac7e93dc8a04ebba9ed18f7"
+      "inputsSha256": "ee243a579ea4d0a0673749e93a9b6e96d7f62934e390659e99482de2fad2f846",
+      "path": "challenges/evaluations/hosted-40418946278-1-v66.json",
+      "sha256": "c8e877a56a60ae461a57c9149de1a828e53df904a61da02e0a8767691d5e2372"
     },
     {
       "batch": "v67",
       "manifestSha256": "81ba9593c8fc99da2c548fe51197cb11d0674f386b21216d1bbfaaf27dfe3196",
-      "inputsSha256": "7dfed597fe39e3b5e9e976e4d5ea47aa447706ff1357fe12a0b8790ce7f77007",
-      "path": "challenges/evaluations/hosted-40416072674-1-v67.json",
-      "sha256": "96bc481544104326696d1d3147f2338862d5da944699b910265ce361eb32e4f7"
+      "inputsSha256": "e967e2294e5cc2fcf2f9f319ceefa9499630e91934ed4334650e8085539d949b",
+      "path": "challenges/evaluations/hosted-40418946278-1-v67.json",
+      "sha256": "1af4059bc51b95b3c0e7d9bcbd7c5f5c56880753e06fe8988e7edee7a760a6a8"
     },
     {
       "batch": "v68",
       "manifestSha256": "f24f70ec92301004f8c070fdf94a3a2d318a19231ca193ce52e888320beaaa3e",
-      "inputsSha256": "e3cde6bfcca772b456bbe56a4ffc3e88124759d08ca3d717e828c7a785bec04f",
-      "path": "challenges/evaluations/hosted-40416072674-1-v68.json",
-      "sha256": "6843f8ef14b8686debd6e67a8481399abc2b13cdc9beba221ceb068fc2d6aeaf"
+      "inputsSha256": "41650fa87a7911e64f1371054e70396f4c731545d0f36c1724c5cd1b19a91112",
+      "path": "challenges/evaluations/hosted-40418946278-1-v68.json",
+      "sha256": "cce599e528d3b802bcd73437f96c5da7be952e0c487c28d53976d4e08f8044ce"
     },
     {
       "batch": "v69",
       "manifestSha256": "12a5d44891f8681f06d1c769bbee98f7851412aa1f53402ac106a9046acf7bd9",
-      "inputsSha256": "2b78834c8da779c5d2f1d693d9cfba5480374487d575126edd90782049b88cdc",
-      "path": "challenges/evaluations/hosted-40416072674-1-v69.json",
-      "sha256": "c48d766bd56360bf063f80693d3cb233026cb65ad8fdbfffa74d06a954f6a83e"
+      "inputsSha256": "760b915f34ab2ba85e5a116dc169394cc2e645c7be3519892ab4e1eafa780d3e",
+      "path": "challenges/evaluations/hosted-40418946278-1-v69.json",
+      "sha256": "ccee2c153d8543013f1b9ac7c7168d16ca18fbd78a2f5d620da192161eb5f6db"
     },
     {
       "batch": "v7",
       "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
-      "inputsSha256": "0860f067244fd1cd83982750ff75002bec647cff742eaf5ae3e7a08a3a22a05e",
-      "path": "challenges/evaluations/hosted-40416072674-1-v7.json",
-      "sha256": "bbc7bfb1e791293152f609d99c9b869531357fe30907a9ca3933ee3d15430c79"
+      "inputsSha256": "2309190b9bfdaaa27259cf17e85dfb25b4b60ac6e1d03f14d2865bd8ef2e82a4",
+      "path": "challenges/evaluations/hosted-40418946278-1-v7.json",
+      "sha256": "c7d9dc67dfc4bd4fac93437e40ab7fa13c3f40b77a4ad5a32333426ff955efce"
     },
     {
       "batch": "v70",
       "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
-      "inputsSha256": "aa101e318728ae9b2e4f5593ead72c7cc15efd9e2dd534e044a65287cfe060c6",
-      "path": "challenges/evaluations/hosted-40416072674-1-v70.json",
-      "sha256": "7818c5758ccc4eb971453150abbb54c7d04d801b1361d38e319921fd89b84c46"
+      "inputsSha256": "01a9f1ae09e5bcfd4aa2163c74dac8012012795f43996d9b337962e09a093f7e",
+      "path": "challenges/evaluations/hosted-40418946278-1-v70.json",
+      "sha256": "009144f958a465fe0b104433edcd3daddc061d312ebc9f34f50d9da5f801e617"
     },
     {
       "batch": "v71",
       "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
-      "inputsSha256": "d08496720093b8f91f2941c0140e2e9fbb8f8f8df5df462fd78c538a02c7b15e",
-      "path": "challenges/evaluations/hosted-40416072674-1-v71.json",
-      "sha256": "d32b7fb2a21bac00611f3fb770ceff5b82cac7cca5f760b0c9be4aeab2109736"
+      "inputsSha256": "eed0aef502b1c9e4277cb5756a6aeb0dccc1a156602e791483fcfdfe04ce4bac",
+      "path": "challenges/evaluations/hosted-40418946278-1-v71.json",
+      "sha256": "be133b8b9b1c06e460a95625c76effc6d8ae2fd07676d08168a3006541aa5354"
     },
     {
       "batch": "v72",
       "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
-      "inputsSha256": "87dce3901815c2e8f618554ae0dad29e0c7b91cdbf8eeecbd9c41dee84578412",
-      "path": "challenges/evaluations/hosted-40416072674-1-v72.json",
-      "sha256": "e4d6526f38875d6b91c310a0d755175c621ddb18981d776938db871d03385417"
+      "inputsSha256": "57d1c8943ad99811f9e78ba6d1d81267d3e8477fc40804ec53e4eb786e5c0f95",
+      "path": "challenges/evaluations/hosted-40418946278-1-v72.json",
+      "sha256": "fd1eba24ad282827fa64c8ce94683606a5f586ca719d7cf9004f27ebb8d46348"
     },
     {
       "batch": "v73",
       "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
-      "inputsSha256": "a7ca37316b0d5dfa5275beed00229e827af48e109cb5353dcebcf43f94ae3da1",
-      "path": "challenges/evaluations/hosted-40416072674-1-v73.json",
-      "sha256": "c70a4afa93a5f6e177062e9129ef278e3fd7e70270e5bce145dcc1ff09808f69"
+      "inputsSha256": "278d0a0b3dd01a3510605736dd423c05fd619a8d33a64e491215b77b432746e0",
+      "path": "challenges/evaluations/hosted-40418946278-1-v73.json",
+      "sha256": "3dfe234195ea095e7dcefcc52b9e5eb05c23bdffbd41c8a7eef25b32d4569fd5"
     },
     {
       "batch": "v74",
       "manifestSha256": "2f8d334ae844f56696df7867dd49618afeb825238b3adca4d38910d1c3e0bafb",
-      "inputsSha256": "79776fd6f5a81cff5b585061522ad8736db981f1b6aed4033bc9c698df1edbe1",
-      "path": "challenges/evaluations/hosted-40416072674-1-v74.json",
-      "sha256": "7f344e109d4fe339efdd33bbaf237767958c71500e997ab8709b4d3f6aacc7e6"
+      "inputsSha256": "0191a797fd8a0359d0d303b3569372f3d27586a62d88d387b94b776cf8619d07",
+      "path": "challenges/evaluations/hosted-40418946278-1-v74.json",
+      "sha256": "83def83d0aa19ab6601944b4634c1428ba83dbf5b72ec665b28af6a4f89ab790"
     },
     {
       "batch": "v75",
       "manifestSha256": "870c7ca83e7e5e4f26ee492a289d903858a34cf02a3d61969330a25886086800",
-      "inputsSha256": "fbaae724963ead15497578014830ac93ff59d9f6a02d08fe7d2a4d736e33cc2b",
-      "path": "challenges/evaluations/hosted-40416072674-1-v75.json",
-      "sha256": "ea44f95fdc5845249bfd1f6093b0eccc15a9628af771d5582b86838a94d2821d"
+      "inputsSha256": "aca61d4bcba9ca52495d1551b6f5ceba4679f792fab02ef34b2e804c3ff65363",
+      "path": "challenges/evaluations/hosted-40418946278-1-v75.json",
+      "sha256": "4ef38b540bf2cc2e07f2ad1167e3dcc8c4d44cae67b5ebc4d5bbab179cb2a06d"
     },
     {
       "batch": "v76",
       "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
-      "inputsSha256": "a3f5199ce5207316df0f8806828014e53af1437e9406149cb87e3178a8fd351d",
-      "path": "challenges/evaluations/hosted-40416072674-1-v76.json",
-      "sha256": "ce3c1450c8e254fae968000c2178c2d6a2dd18608c305cac54c0ae3c726fa482"
+      "inputsSha256": "6cb825160ddd4edc8dace7a9ceb4ee005b0ed77774243b8a14def60d35b54ac6",
+      "path": "challenges/evaluations/hosted-40418946278-1-v76.json",
+      "sha256": "570844ad1963d471577c429b169b10872184fd76a7f1b254977f655d3fee4253"
     },
     {
       "batch": "v77",
       "manifestSha256": "3759e9b61a09e894472cb20eec4390d09989315d6436b02406acc2e54ae7020c",
-      "inputsSha256": "5ed97847f995a8eeaaa1237c15c886831f04e958702c598bd3231b229cbbb27c",
-      "path": "challenges/evaluations/hosted-40416072674-1-v77.json",
-      "sha256": "8c618218192fafbd3a43e76502a4e9a67b49d632d39bc24aa6ac6dd0f47bc2ce"
+      "inputsSha256": "bf1afc368ae52127a0a4b1cb4b73eb3ca177a460b253d23479f8a39c26fed7ab",
+      "path": "challenges/evaluations/hosted-40418946278-1-v77.json",
+      "sha256": "996ae6b0938941a011eb2da81b1ee667287ce7f135100f407a3306787fd04d2b"
     },
     {
       "batch": "v78",
       "manifestSha256": "c1a8ffd3120ea04a074a6152e263cdf3ab5f003aecb3436b4f90eae12ec50338",
-      "inputsSha256": "9816aa633fe8f2fd13f3e179a69668b998e8381c839cc6f54b21b62a2fb36e8f",
-      "path": "challenges/evaluations/hosted-40416072674-1-v78.json",
-      "sha256": "1055b058fb06ab87dd4967b0d21151d21ae059b437704729a3fef5ba9a5c53b0"
+      "inputsSha256": "9f5e88d32bf37b9e21198386ca0c08fadf838bfc0c9938b41fbf45092f71cd0c",
+      "path": "challenges/evaluations/hosted-40418946278-1-v78.json",
+      "sha256": "0a61a777cf4c150e4c708357297f76b2174916fab728379f179ac03ec774724b"
     },
     {
       "batch": "v79",
       "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
-      "inputsSha256": "8af71aece44648ee448fe15646c2300ea41a7877903d8e21d2fd6f06f0a912fe",
-      "path": "challenges/evaluations/hosted-40416072674-1-v79.json",
-      "sha256": "36d07cf99a224789145b8f2e21d629975dc80a872b370a5d5cb598734c9404a1"
+      "inputsSha256": "950ba09dbe1fc3ca3cfdc1d35d6c8ab70f4fd80a70d89fe7993958a184015ee0",
+      "path": "challenges/evaluations/hosted-40418946278-1-v79.json",
+      "sha256": "45363bd06bc456ba34bdba8774e26aa890c838e948d79ce67637133291ef1aa8"
     },
     {
       "batch": "v8",
       "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
-      "inputsSha256": "4c88ceba02559977a967c00416220d74d32eec6e604cdb5fa9efa1901855ae06",
-      "path": "challenges/evaluations/hosted-40416072674-1-v8.json",
-      "sha256": "e583fbce2799a95980aad277fa7f98ce5a709713a51889ff8f7475ce7aca4417"
+      "inputsSha256": "26927af31e9de88f0261b3cd8dc6648b5e195406b2ba61b70ac59914f11e26ff",
+      "path": "challenges/evaluations/hosted-40418946278-1-v8.json",
+      "sha256": "1b6a6f1c9bd70527b2adef764486b2401cfde5a6a3dec6270a7b81329043179b"
     },
     {
       "batch": "v80",
       "manifestSha256": "d93240125061a2615e1b88578e4df27e8e768e5983ac90dedd7feafa385c989c",
-      "inputsSha256": "33c0c6595dc0a4069c841be7bcc8fa6a61b7b4c9c483440a722de630f2c9029d",
-      "path": "challenges/evaluations/hosted-40416072674-1-v80.json",
-      "sha256": "ad04ddf2c139b373bc137129a5bd6aa7ea2bd669ec0e3b7e5470e6f39ef39869"
+      "inputsSha256": "9cb2d306000185b4d9ebf6b78ecc1bfcaff3ed91a1d1e542eb78da7ec58f1c2e",
+      "path": "challenges/evaluations/hosted-40418946278-1-v80.json",
+      "sha256": "4547b023981c7be384911c8f780f13748caffb3dca96a6c1d9d83f39dbf9e3f1"
     },
     {
       "batch": "v81",
       "manifestSha256": "95c7d20527ca43b24899457cfb466e98c6a75df18a930c091d90aa398173f9c3",
-      "inputsSha256": "a49213b1fa217438609bfae0ecbff64a4aa8eef1e2e6c43c7fecc9800474db8d",
-      "path": "challenges/evaluations/hosted-40416072674-1-v81.json",
-      "sha256": "c8e61f7af9ba7c144851c1064aa88d2de9e803ef29516355acbcae17f31e78aa"
+      "inputsSha256": "c7201898a39d11d73e58415eaa7c0b8c96b3e7a67d575f74f3a4960ad1e69969",
+      "path": "challenges/evaluations/hosted-40418946278-1-v81.json",
+      "sha256": "f5f8681f432a28465e19f0480f9dbb1de24210a6b14a6db030d5038cf8374771"
     },
     {
       "batch": "v82",
       "manifestSha256": "ca8e541f698e67c3c9ff87c56b94f7e938a5398675e65f7410bf0faf8ec0eca3",
-      "inputsSha256": "168a9b27d73baed77ca76e1ef1738ff5d66457cd1b1173e07c85d7e2d77a0cf3",
-      "path": "challenges/evaluations/hosted-40416072674-1-v82.json",
-      "sha256": "8785b7c59cb0b8fa400dc81219169d802f3db53137a4bd8bc094132653522561"
+      "inputsSha256": "df2c7fd1c6d0e1df9436533f04c8f6f390336bbb70377c6a8744cb9dd85f5a8a",
+      "path": "challenges/evaluations/hosted-40418946278-1-v82.json",
+      "sha256": "6632b707df96b68dedb3cf3825c013d559d43ae63254d04387d1dc9b6b40a686"
     },
     {
       "batch": "v83",
       "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
-      "inputsSha256": "2680aa559c8a51a36177540463feab217764bdba0a53ffae8d60d36eceec24e4",
-      "path": "challenges/evaluations/hosted-40416072674-1-v83.json",
-      "sha256": "88570c77ced1bef368c40db61e6ac3ebc6a3be15b09ec83d0511b4a593dc0cbe"
+      "inputsSha256": "ed3c2e1edf985350744f81130e11cabe3a26029922db95caeb34de43e4aac86b",
+      "path": "challenges/evaluations/hosted-40418946278-1-v83.json",
+      "sha256": "096c7d4c31218f3938d8f1a92bb522f19d943cd4030b70b4dd444e48b61dcbbe"
     },
     {
       "batch": "v84",
       "manifestSha256": "2281de291fa33f6633420c5c8e4c3d6cd8d49d55a415a9397d2486f4035dd43f",
-      "inputsSha256": "38047dbd1e664916636c12feac10d4888c0dad6cb2feedf2b99af978bd36061b",
-      "path": "challenges/evaluations/hosted-40416072674-1-v84.json",
-      "sha256": "821736e5ceef658587a1a44159ab78f0d70d8808c5be2cc508c4c3efc69f7776"
+      "inputsSha256": "bb4547ffdb872a2c0dc4a95b852eda6ee0b94225de742334a42c2488f6d171e2",
+      "path": "challenges/evaluations/hosted-40418946278-1-v84.json",
+      "sha256": "adc280716e27006eb886569da653d983eb45c847ead324b136a68f6718c98aa5"
     },
     {
       "batch": "v85",
       "manifestSha256": "8a3ca1a027101c88d1a5274290b74fb189e91fe4d4a290d79feec50b03bedecc",
-      "inputsSha256": "630ad63e976ae94d664a4011fd2a13576a8f89fe3b49d6082c8f4a84953860d6",
-      "path": "challenges/evaluations/hosted-40416072674-1-v85.json",
-      "sha256": "b8c3665d1a41b257121f3b07ea597b4aa59970f7a556d85efe29c23c401f7851"
+      "inputsSha256": "890fd9d518fe56dd08bb784bf81c767cfab3746802b679b7cba956c5153f339f",
+      "path": "challenges/evaluations/hosted-40418946278-1-v85.json",
+      "sha256": "d5abaaec98ed47c586af7c716a44d508f6e6f61f32e8a6f45e6cd960c450600d"
     },
     {
       "batch": "v86",
       "manifestSha256": "8e73321b8157f181a0a50f6d3b523a0478d5ada99076c7e895ccff559326396f",
-      "inputsSha256": "25d25978b6d9c73192cb511c87b7b2d43c7400d5f468f4c948a92826d18bbcb9",
-      "path": "challenges/evaluations/hosted-40416072674-1-v86.json",
-      "sha256": "288a18d65c117df53372946c7b3f248046f398e65e876d16754e1601eaac01be"
+      "inputsSha256": "7bd0ef2aca80dffb98b795869c5b889119528bfcbe642970fb2b51accf891710",
+      "path": "challenges/evaluations/hosted-40418946278-1-v86.json",
+      "sha256": "2d19db11045b91d2522fc1e093e10b602c7d17dce97ab2ec0bbcaee5d4c54127"
     },
     {
       "batch": "v87",
       "manifestSha256": "352611920596cbae080df663a87c9f52ecd64076560c0999b21e89453728d5b8",
-      "inputsSha256": "3291f212d29813df43d1d75781f202c3da2de4481a6377e589e460a9dd5eb8fa",
-      "path": "challenges/evaluations/hosted-40416072674-1-v87.json",
-      "sha256": "61e3f9a20820a05c9b08207303e10c4b5ea3be5df8fae698427d89cbc9819cd6"
+      "inputsSha256": "2f6936b4567c42bfb872c418b6c08ff007f4ae7bbbda55720ea95a3d7eea323d",
+      "path": "challenges/evaluations/hosted-40418946278-1-v87.json",
+      "sha256": "6312ce7a106bc19d8f6e50cc3cd422a0b2decbe4b4f49905565b5ba84daf282e"
     },
     {
       "batch": "v88",
       "manifestSha256": "7611419ea44e4abe0f942f9d95386a7cf7c3871e34cc4d2c24c72b9d5a7adbb5",
-      "inputsSha256": "2321f49496d9d6e5b8bd4087cb257afbf7ff8f81ef9557905446fec9dd0b49ca",
-      "path": "challenges/evaluations/hosted-40416072674-1-v88.json",
-      "sha256": "428cfaabd58cf003b8aded40768b584226ea6a712dd72ed29dc7a12e905453ad"
+      "inputsSha256": "a5e671b0d995692fb89254780a01103a393132fc242a154f8e5d14ad724f1284",
+      "path": "challenges/evaluations/hosted-40418946278-1-v88.json",
+      "sha256": "a58b1c01fb80d6bf419b239a00feee888aa059cccead52e5e4a750de9be05686"
     },
     {
       "batch": "v89",
       "manifestSha256": "2ea0f3d499811a861d3e2671b3a191e96dcb94c21cf410492dbdb7ae6e04915c",
-      "inputsSha256": "162b5f9dca3c1c3f39d64e940c2406a331b80418a3aebe37c148d0eb74594169",
-      "path": "challenges/evaluations/hosted-40416072674-1-v89.json",
-      "sha256": "960a0868eb45ffdef6836897aec034cab9913cccbf7f6bfeb7ff102380cd9cd2"
+      "inputsSha256": "2657ee68bf74e8130688dcaa2cf2a2b26e6a8b10e1783b6d70936ac7464cde3a",
+      "path": "challenges/evaluations/hosted-40418946278-1-v89.json",
+      "sha256": "b2c5a97ba75c866f8516d100d6e08fb1205ce33951d3914f1a1b45f151abd672"
     },
     {
       "batch": "v9",
       "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
-      "inputsSha256": "ed88d817fc48cc8ff35ea9c474ae28b5136c5df8ebc7a3bce922c4e96f8e2e3b",
-      "path": "challenges/evaluations/hosted-40416072674-1-v9.json",
-      "sha256": "198d880c56a4cd559e2f48447c9674861314b50423654fbb03bce8a8f308c13b"
+      "inputsSha256": "032b50734eaa2c46fedd9fa53c9a99ea074f1386946ac8dc219e824203ee4d83",
+      "path": "challenges/evaluations/hosted-40418946278-1-v9.json",
+      "sha256": "9d40f91fa5664a6d4a4b1017ed1ce48a05d462d86a9512bafc60772c93d0d9b9"
     },
     {
       "batch": "v90",
       "manifestSha256": "9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d",
-      "inputsSha256": "aeb696a6a54d49cd6123b5d1caa254fb97e2731a3e8021e0eef8a5ccc7693de6",
-      "path": "challenges/evaluations/hosted-40416072674-1-v90.json",
-      "sha256": "b1befb43fd9530b2e19b8336b0f0fb7d4ef6fbbd20eac136d28cd4bb2f3ae591"
+      "inputsSha256": "da023124dbe6dfa8873ad09e425fb9bd4bd44589b3d3ebf3b9a2d39c6aa208c2",
+      "path": "challenges/evaluations/hosted-40418946278-1-v90.json",
+      "sha256": "f4da05c52f24d6081ecbc1a35c854fa022e3feb8aed635db53a258855a6b8c6e"
     },
     {
       "batch": "v91",
       "manifestSha256": "ccaa0d1ea77de5f8004ca0547902178a75ccfae07366cfc363ddd6df081da439",
-      "inputsSha256": "b51f1150006f993e4031b667a28b55f5dcf428d8aba56ceff950ced3605e0d0f",
-      "path": "challenges/evaluations/hosted-40416072674-1-v91.json",
-      "sha256": "6df9af527bde4939a80871a4e59bdaf857c1677238e01a927c7643228fda2eed"
+      "inputsSha256": "b3835c903e807c9dc9b5a3045f7f2d50f3511f05909a005e139e6a575a138d6a",
+      "path": "challenges/evaluations/hosted-40418946278-1-v91.json",
+      "sha256": "c4278969f86737474dc300bd7f5befee2f5cd5ca438aa6274cbfd0d2941f8a6d"
     },
     {
       "batch": "v92",
       "manifestSha256": "a59dd01491b216c843972a68463374c83162c6122be09837657eab56beba2f56",
-      "inputsSha256": "64c5a6a5cfc31e034dbebee93ab2354852c0de10c733f581abb91b447d2e0eed",
-      "path": "challenges/evaluations/hosted-40416072674-1-v92.json",
-      "sha256": "662f1b6ceed6ee8f616e831624aaa0886112a86a291b923efdd4fee4058a2752"
+      "inputsSha256": "450c98e7c595cbd60a865ca4583399b099baed964d301d77a4999ff05093a5ce",
+      "path": "challenges/evaluations/hosted-40418946278-1-v92.json",
+      "sha256": "00e478828490111774d5073a5362b09e07d7eb7ec4d6f04cc5b943285448729f"
     },
     {
       "batch": "v93",
       "manifestSha256": "d73ab9b51babf24f7599ca48a6f5cb635f4860eaac6c69cc6ddd42316fbaa05c",
-      "inputsSha256": "8505d9116b6b89cd13597bf3a0450939f96b173c8c9f4e766cee312599e24e5f",
-      "path": "challenges/evaluations/hosted-40416072674-1-v93.json",
-      "sha256": "038c79d1ce79be14a9a5b08dccab50dc6a9fb9c7451c72af08cd35bf096e6841"
+      "inputsSha256": "117574433b2c496e0e355dff370fda4bd2e1def807884071cfcc4ac38d1d6d07",
+      "path": "challenges/evaluations/hosted-40418946278-1-v93.json",
+      "sha256": "d2cfd706377af7797c8d55bf5575d0e227346936d7cec1d21953d300e9995d74"
     },
     {
       "batch": "v94",
       "manifestSha256": "9f32409aee87755cc84ccc61902d560b436db92951c4d1184ca2bd5a77d99df4",
-      "inputsSha256": "40eabbc262ede1989b6a804e6ab60d005f00edfc2bea2158a7b0979c6682c0d6",
-      "path": "challenges/evaluations/hosted-40416072674-1-v94.json",
-      "sha256": "192a015873bc2c4cedcb92686e9df732969e3a53fcd561e53f57eb5f13ef2a97"
+      "inputsSha256": "f7f68fdbf2eaee73c6283a03bdb6275c5e64ef0098ebf227b5adfc3f20a98af3",
+      "path": "challenges/evaluations/hosted-40418946278-1-v94.json",
+      "sha256": "f17749d08cb41a03d0a2e7af76832f342ac580dd2a1a5d84c2380ba78293e752"
     },
     {
       "batch": "v95",
       "manifestSha256": "5a96212046a856d9019b871d79c55335b3e1a0f73e6511510b43ee0784d7224c",
-      "inputsSha256": "48a4c9f655b3f1fa5432dcd8a16ff747da433ad78b03c5e465fbacf3247d74b4",
-      "path": "challenges/evaluations/hosted-40416072674-1-v95.json",
-      "sha256": "ff6f26919ba7045310baceecf5d47d426d4bec6bf5932785ed21e3870c23d9e6"
+      "inputsSha256": "503bdf00de77bd0626ad9b8fca3852e1f6e64c048ff68b3b9f6d2103c4d5357c",
+      "path": "challenges/evaluations/hosted-40418946278-1-v95.json",
+      "sha256": "c66c72db33b8a64d23f70cf6a8be7bcdf24dc81d4b16e3a54a3023c20ae68adf"
     },
     {
       "batch": "v96",
       "manifestSha256": "7abdfc0c7ee427b3522ac727b412e3012267629bea9efbb3673823607210838c",
-      "inputsSha256": "c39605dd5da2364d52ec412ade82c14a2f115d9ac736c32f5886076f01dd7691",
-      "path": "challenges/evaluations/hosted-40416072674-1-v96.json",
-      "sha256": "6a332acd2308934a4238c582cb0ad0e0819344246b41d80cf80efb7367cc2ba0"
+      "inputsSha256": "d659a023ee76830d586f377ad2a4c1ff8b0b100119d3ef60f6af7f61a2ecdabc",
+      "path": "challenges/evaluations/hosted-40418946278-1-v96.json",
+      "sha256": "847bb325a9ffab4c0a7451eff09b99a160b9ece691a0e1f66e243d71fabcb86f"
     },
     {
       "batch": "v97",
       "manifestSha256": "d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882",
-      "inputsSha256": "8d929e119b1922aebe08f180b62fc8012ab5492bb0855f5bf6037f2a4d8b173a",
-      "path": "challenges/evaluations/hosted-40416072674-1-v97.json",
-      "sha256": "6543cf362e7f8a19e6457808e8f280b1e161889d12b5e0aed93a1ca1c0142546"
+      "inputsSha256": "236ecabc4811c92986dafd0d423da1cb144d8ebac50729ac6f30581632362230",
+      "path": "challenges/evaluations/hosted-40418946278-1-v97.json",
+      "sha256": "508454ce341dc99c7139070f0fa70caaaf29c3cd88a3c00afd281ccceb70127e"
     },
     {
       "batch": "v98",
       "manifestSha256": "a9329bc55dcd9027cba3a314aa9300f06347958b8280c296655e2ae8fb67096c",
-      "inputsSha256": "ae0d14baadcd3ab650f4581a42d0dc64f25d6c72a760e4c186dca05764ade43a",
-      "path": "challenges/evaluations/hosted-40416072674-1-v98.json",
-      "sha256": "48773bd4d8d3e380c9f007f5555feb30507bb226cebd5793874dee01f52c3303"
+      "inputsSha256": "282ae45a1aeb6af5685c362402c34121a8001a4d625273ec1f7c24eff8074595",
+      "path": "challenges/evaluations/hosted-40418946278-1-v98.json",
+      "sha256": "c3e7a7b28a01a89f884035d6404580b6039963cb90569d3152875d23f01be4ca"
     }
   ]
 }

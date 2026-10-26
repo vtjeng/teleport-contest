@@ -88,6 +88,7 @@ import {
     SORTLOOT_LOOT,
     SORTLOOT_PACK,
     SORTLOOT_PETRIFY,
+    SHOPBASE,
     is_pit,
     Is_airlevel,
     Is_waterlevel,
@@ -6118,35 +6119,43 @@ export async function doprgold(state = game) {
 // C ref: shk.c shopper_financial_report(). Reports shop credit and debt.
 async function shopper_financial_report(state) {
     const { inside_shop, shop_keeper } = await import('./shk.js');
+    const { shkname } = await import('./shknam.js');
+    const { SHTYPES } = await import('./shtypes_data.js');
     const thisShkp = shop_keeper(inside_shop(state.u.ux, state.u.uy, state), state);
-    if (thisShkp && !thisShkp.mextra?.eshk?.credit
-        && !shop_debt(thisShkp.mextra.eshk)) {
+    let current = thisShkp;
+    if (current && !current.mextra?.eshk?.credit
+        && !shop_debt(current.mextra.eshk)) {
         await ttyPline('You have no credit or debt in here.', state);
-        return;
+        current = null;
     }
-    if (!thisShkp) {
+    // C shk.c reports the current shop first, then every other shopkeeper.
+    for (let pass = current ? 0 : 1; pass <= 1; pass++) {
         for (let mtmp = state.level?.monlist ?? state.fmon;
             mtmp;
             mtmp = mtmp.nmon) {
             if ((mtmp.mhp ?? 0) < 1 || !mtmp.isshk) continue;
+            if ((mtmp !== current) !== Boolean(pass)) continue;
             const eshk = mtmp.mextra?.eshk;
             if (!eshk) continue;
             if (eshk.credit) {
+                const name = s_suffix(shkname(mtmp, state));
+                const shop = SHTYPES[eshk.shoptype - SHOPBASE]?.name ?? 'shop';
                 await ttyPline(
                     `You have ${eshk.credit} ${currency(eshk.credit, state)} `
-                    + `credit at ${mtmp.mname || 'the shopkeeper'}'s `
-                    + `${eshk.shopName || 'shop'}.`,
+                    + `credit at ${name} ${shop}.`,
                     state,
                 );
-            }
+            } else if (mtmp === current)
+                await ttyPline('You have no credit in here.', state);
             const debt = shop_debt(eshk);
             if (debt) {
                 await ttyPline(
-                    `You owe ${mtmp.mname || 'the shopkeeper'} `
+                    `You owe ${shkname(mtmp, state)} `
                     + `${debt} ${currency(debt, state)}.`,
                     state,
                 );
-            }
+            } else if (mtmp === current)
+                await ttyPline("You don't owe any gold here.", state);
         }
     }
 }
