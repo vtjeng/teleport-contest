@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { NROFARTIFACTS } from '../js/artifacts.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import {
     discovered_cmp,
     doclassdisco,
@@ -195,11 +197,10 @@ test('sortloot_descr formats invent.c loot_classify ordering fields', () => {
     assert.equal(sortloot_descr(POT_WATER, state), '05012 ');
 });
 
-test('doclassdisco keeps the artifact dump caller after the skipped void helper', async () => {
-    const state = discoveryState();
-    discover(state, POT_WATER); // Give the class chooser a discovered class.
-    state.flags.menu_style = MENU_TRADITIONAL;
-    state.wizard = true;
+test('doclassdisco includes the wizard artifact dump in its text window', async () => {
+    await runSegment({ seed: 901730, datetime: '20320405060710',
+        nethackrc: 'OPTIONS=name:ArtifactAudit,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,menustyle:traditional,pettype:none,!legacy,!tutorial,!splash_screen\n', moves: '' });
+    const state = game;
     const answers = ['a', 'y']; // Select artifacts, then the C wizard dump arm.
     const windows = [];
     const result = await doclassdisco(state, {
@@ -212,10 +213,11 @@ test('doclassdisco keeps the artifact dump caller after the skipped void helper'
         },
         textWindow: async (lines) => windows.push(lines),
     });
-    // o_init.c sets ct=NROFARTIFACTS and reaches display_nhwindow even
-    // when the unported void dump helper contributes no output.
+    // o_init.c sets ct=NROFARTIFACTS and displays the helper's rows.
     assert.equal(result, ECMD_OK);
-    assert.deepEqual(windows, [[]]);
+    assert.equal(windows.length, 1);
+    assert.equal(windows[0][0].text, 'Artifacts');
+    assert.equal(windows[0].length, NROFARTIFACTS + 1);
 });
 
 test('doclassdisco clears the message window on traditional cancellation', async () => {
