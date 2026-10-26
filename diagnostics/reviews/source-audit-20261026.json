@@ -1,0 +1,52 @@
+[
+  {
+    "id": "message:src/sit.c:dosit:7290a5b03c48a8ed",
+    "evidenceKey": "40f14e8abc31a4b09b09350eaab15218daa228c873e064ee2bb0270c60363b2a",
+    "classification": "alternate-implementation",
+    "rationale": "The ice feedback already exists in js/sit.js; this literal mismatch does not show an omitted branch.",
+    "sourceRefs": [
+      "nethack-c/upstream/src/sit.c",
+      "js/sit.js:955"
+    ],
+    "reviewedAt": "2026-10-26T20:59:35.000Z",
+    "candidateGroup": "message:src/sit.c:dosit:7290a5b03c48a8ed"
+  },
+  {
+    "id": "message:src/pickup.c:query_objlist:562670ba62b4f88d",
+    "evidenceKey": "7831fea9f942eb17476de39dca8b915b20d67c08d0b27ad2c94a3a9904a8de65",
+    "classification": "unreachable",
+    "rationale": "The C message requires a fake hero object in the queried object list; normal supported inventory/floor object lists do not contain that object.",
+    "sourceRefs": [
+      "nethack-c/upstream/src/pickup.c",
+      "js/pickup.js"
+    ],
+    "reviewedAt": "2026-10-26T20:59:35.000Z",
+    "candidateGroup": "message:src/pickup.c:query_objlist:562670ba62b4f88d"
+  },
+  {
+    "id": "message:src/mon.c:monkilled:bd6e197b01e1b5dd",
+    "evidenceKey": "e937e39bd9101ac33f18fc343f5d5f2b152b802ea64aad5990461c448819380c",
+    "classification": "confirmed-missing-behavior",
+    "rationale": "A tame golem reaches the unsupported JS farewell; the focused supported-API test fails for three tame golems and passes nearby wild controls. Repair candidate 325dd704 is pending full gates.",
+    "sourceRefs": [
+      "nethack-c/upstream/src/mon.c",
+      "js/mon.js",
+      "scripts/monkilled-pet-golem-farewell.test.mjs"
+    ],
+    "reviewedAt": "2026-10-26T20:59:35.000Z",
+    "candidateGroup": "message:src/mon.c:monkilled:bd6e197b01e1b5dd"
+  },
+  {
+    "id": "message:src/engrave.c:doengrave:c959c16f9f9cfaeb",
+    "evidenceKey": "923a62f361b54834a79cb0076ee97fcbe48c7d6b4d1fbefdeed3bdf309525f7a",
+    "classification": "confirmed-missing-behavior",
+    "rationale": "Cancelled negative-charge wand uses C dust feedback; focused sighted and blind supported-API tests fail before repair candidate ee16ba2d, which is pending full gates.",
+    "sourceRefs": [
+      "nethack-c/upstream/src/engrave.c",
+      "js/engrave.js",
+      "scripts/engrave-cancelled-wand.test.mjs"
+    ],
+    "reviewedAt": "2026-10-26T20:59:35.000Z",
+    "candidateGroup": "message:src/engrave.c:doengrave:c959c16f9f9cfaeb"
+  }
+]

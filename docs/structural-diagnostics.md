@@ -115,6 +115,43 @@ Revalidate decisions against newly generated evidence keys before using them
 for current execution. `review-history.json` is an illustration of the append-only
 history; applying it to a changed source hash intentionally fails.
 
+## Focused source-to-test handoff
+
+Use the ranked backlog as a lead list, not a fix list. For each distinct source
+identity, check the current accepted Main and the existing repair register before
+writing a test. Resolve renamed, moved or split implementations; check whether
+the C branch is compiled and reachable under a supported setup. Record an
+explained negative, setup-blocked case, or existing repair with the current
+`id`/`evidenceKey` through `source-audit.mjs classify`, then pass the resulting
+backlog as `--previous` on the next scan. Do not re-triage unchanged evidence.
+
+A candidate is implementation-ready when its handoff contains:
+
+- C file/function/branch and the corresponding JS path, plus the behavior that
+  differs. Label the expected result **C-source-derived** or **C-executed**;
+  a source claim must not be presented as a measured C replay.
+- A small focused test that fails on current Main using a valid supported API
+  or reachable game setup, and a nearby control that passes. Test the observable
+  output and any affected state, input, or RNG ordering. State setup limits and
+  remaining parity uncertainty plainly.
+- The exact red-test command, base SHA, affected files, source identity,
+  existing repair/owner overlap, and suggested fix scope. Keep independent fixes
+  distinct even if they later share one validated batch SHA.
+
+Full gameplay recordings are optional for admission. Use one when the focused
+setup cannot establish reachability or when a replay is needed to protect
+cross-turn behavior. Run candidate-owned and affected tests before freezing,
+then preserve the full combined-SHA Checkpoint, genuine archived comparison,
+exact-SHA Main gates, and receipt. A passing focused test alone is not
+acceptance.
+
+For lightweight measurement, record available UTC times for audit/triage start,
+focused test ready, implementation ready, CI freeze, and acceptance. Count only
+independent test-ready handoffs, explained negatives/setup blocks, merge overlap,
+and validation rework. Do not count raw warnings or repeated variants as repairs,
+or infer active work time from timestamp gaps. A failed full gate is retained and
+corrected on a fresh SHA; it is not waived by the focused test.
+
 ## Bounded matrix and differential execution
 
 Expand supported existing generators without running games:
