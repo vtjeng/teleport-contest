@@ -18010,7 +18010,23 @@
         "test": ["scripts/previous-level-annotation.test.mjs", "scripts/annotate-command.test.mjs"]
       },
       "candidates": [],
-      "note": "Prospective distinct252, discovered and verified during trial. C permits annotating a previous level from the overview menu with a selected-level description; JS previously threw. Luna worker commit 7d6b3e76f34a6cf40f9ab753acc631d3587155b4. Strict C witness and two controls, 6 affected annotation tests, focused describe_level test and full lint passed. A broad sparse-worktree insight aggregate had one unrelated missing-fixture ENOENT; complete hosted tests still required."
+      "note": "Prospective distinct252, discovered and verified during trial. C permits annotating a previous level from the overview menu with a selected-level description; JS previously threw. Luna worker commit 7d6b3e76f34a6cf40f9ab753acc631d3587155b4. Strict C witness and two controls, 6 affected annotation tests, focused describe_level test and full lint passed. A broad sparse-worktree insight aggregate had one unrelated missing-fixture ENOENT; the same integrated aggregate passed 90/90 in the full root checkout. Complete hosted tests still required."
+    },
+    {
+      "id": "posixregex-repeated-capture",
+      "kind": "parity-repair",
+      "title": "Match finite repeated POSIX captures",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": ["nethack-c/upstream/sys/share/posixregex.c:regex_match", "js/posixregex.js:regex_match", "nethack-c/upstream/src/options.c:msgtype_type"],
+        "witness": ["recipes/posixregex.c/trial-repeated-greeting.session.json", "recipes/posixregex.c/trial-greeting-unfiltered-control.session.json", "recipes/posixregex.c/trial-simple-greeting-control.session.json"],
+        "test": ["scripts/posixregex-repeated-greeting.test.mjs", "scripts/startup-msgtype.test.mjs", "scripts/startup-autopickup-exception.test.mjs"]
+      },
+      "candidates": [],
+      "note": "Prospective distinct253, discovered and verified during trial. A finite repeated capture referenced by a backreference in MSGTYPE hid the startup greeting in C but caused a named JS refusal. Worker commit 19ff69d340545e9e691c55cbfc1f11970194602f admits finite supported endpoints while retaining the refusal for unverified unbounded nullable shapes. Exact C witness and two controls match; 63 affected tests pass and 889 supported pattern/input pairs matched a libc oracle. Full combined-SHA hosted and Main gates pending."
     }
   ]
 }

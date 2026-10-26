@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 671204,
+      "datetime": "20461117112342",
+      "nethackrc": "OPTIONS=name:RegexTrial,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=pettype:none,!autopickup,!debug_mongen\nMSGTYPE=hide \"^He((l)|x){1,2}\\2o\"\n",
+      "moves": "."
+    }
+  ]
+}
