@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T03:10:19.000Z",
+  "asOf": "2026-10-26T03:11:50.816Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -17055,6 +17055,46 @@
       },
       "candidates": [],
       "note": "Prospective distinct243, third locally tested-ready fix in default cap-four batch. C live editor stores Probe, reports empty input and leaves cancelled entry unchanged; JS startup parser existed but live handler was absent. Four strict C replays and 216 focused/affected tests pass; focused ESLint/diff pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "crash-email-live-choice-handler",
+      "kind": "parity-repair",
+      "title": "Set crash report email from live options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T03:10:46Z",
+          "end": "2026-10-26T03:11:50.816Z",
+          "note": "C live submission mismatch qualified during default-batch preparation; wall span includes four witness recordings and local tests, not active-work duration."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:doset",
+          "nethack-c/upstream/src/options.c:optfn_crash_email",
+          "js/options.js:OPTION_SET_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/crash-email-live-valid.session.json",
+          "recipes/options.c/crash-email-live-empty.session.json",
+          "recipes/options.c/crash-email-live-cancel.session.json",
+          "recipes/options.c/crash-email-live-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/options-crash-email-live.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-simple-menu.test.mjs",
+          "scripts/startup-crash-identity.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct244, fourth locally tested-ready fix in default cap-four batch. C live editor stores probe@example.invalid, reports empty input and leaves cancelled entry unchanged; JS startup parser existed but live handler was absent. Four strict C replays and 212 focused/affected tests pass; focused ESLint/diff pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }

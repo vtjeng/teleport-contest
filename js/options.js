@@ -8468,6 +8468,18 @@ const OPTION_SET_HANDLERS = Object.freeze({
         }
         return optn_ok;
     },
+    // options.c optfn_crash_email(do_set) stores the running-game prompt value.
+    crash_email: async (state, _optidx, _negated, opts) => {
+        const value = string_for_opt(opts, true);
+        if (value === '') {
+            await ttyPline(`Missing parameter for '${opts}'.`, state);
+            const { tty_wait_synch } = await import('./tty_rawprint.js');
+            await tty_wait_synch(state);
+            return optn_err;
+        }
+        state.gc.crash_email = value;
+        return optn_ok;
+    },
     // options.c optfn_crash_name(do_set) stores the running-game prompt value.
     crash_name: async (state, _optidx, _negated, opts) => {
         const value = string_for_opt(opts, true);
