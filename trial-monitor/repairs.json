@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T07:28:24Z",
+  "asOf": "2026-10-26T08:04:57Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -17707,7 +17707,58 @@
           "scripts/options.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+          "committedAt": "2026-10-26T07:51:08Z",
+          "sourceCommit": "d0af437ed909a8bb2e9a4a5c7c945937f12bab42",
+          "sourceCommittedAt": "2026-10-26T07:43:53Z",
+          "runs": [
+            {
+              "id": 40288393795,
+              "name": "Checkpoint",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch1-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T07:51:43Z",
+              "completedAt": "2026-10-26T08:01:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40288393795"
+            },
+            {
+              "id": 40289622391,
+              "name": "Lint",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:03:06Z",
+              "completedAt": "2026-10-26T08:04:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40289622391"
+            },
+            {
+              "id": 40289622236,
+              "name": "Dashboard",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:03:06Z",
+              "completedAt": "2026-10-26T08:04:57Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40289622236"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct248; carry-in C-qualified live option gap adapted by Luna worker from isolated commit 571d6ec. C stores 75, rejects 74, reports empty input, preserves cancel and ordinary control. Five strict C replays, 149 affected tests, focused ESLint and diff checks pass. Optional check:options could not run locally without clang; generated options data is unchanged and the full hosted source gate remains required. Trial worker commit e67a3f9618039642b08e26b43837a0c87f84c516; integrated source SHA is the ordinary repair commit. Full combined-SHA and Main gates pending; no score gain inferred."
     },
     {
@@ -17733,7 +17784,58 @@
           "scripts/monmove.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+          "committedAt": "2026-10-26T07:51:08Z",
+          "sourceCommit": "b07f50fb0f818c8ec3e86aa55966fc78dd55101b",
+          "sourceCommittedAt": "2026-10-26T07:45:34Z",
+          "runs": [
+            {
+              "id": 40288393795,
+              "name": "Checkpoint",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch1-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T07:51:43Z",
+              "completedAt": "2026-10-26T08:01:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40288393795"
+            },
+            {
+              "id": 40289622391,
+              "name": "Lint",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:03:06Z",
+              "completedAt": "2026-10-26T08:04:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40289622391"
+            },
+            {
+              "id": 40289622236,
+              "name": "Dashboard",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:03:06Z",
+              "completedAt": "2026-10-26T08:04:57Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40289622236"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct249; carry-in investigator C witness. A confused owlbear moves outside hero adjacency while grabbing: C calls unstuck before helpless/ranged checks and draws rnd(2) cooldown; JS kept a distant holder and missed the RNG draw. State-aware unstuck now runs at that source position with caller RNG in live and planning clone. Full C recording matches 3083 RNG calls/143 screens; held-prefix and no-holder/step-away controls pass. Worker commit 9ef359a29fcc26e2f73645924f4c189abbee712f; 202 focused/affected tests and full lint passed. Full combined-SHA hosted and Main gates pending; no hidden-score effect inferred."
     },
     {
@@ -17745,11 +17847,73 @@
       "investigator": null,
       "carryIn": false,
       "evidence": {
-        "source": ["nethack-c/upstream/src/cmd.c:getdir", "js/cmd.js:getdir"],
-        "witness": ["recipes/cmd.c/trial-getdir-help-retry.session.json", "recipes/cmd.c/trial-getdir-help-control.session.json", "recipes/cmd.c/trial-getdir-invalid-control.session.json"],
-        "test": ["scripts/getdir-help-retry.test.mjs", "scripts/help-dir.test.mjs", "scripts/ride-direction.test.mjs"]
+        "source": [
+          "nethack-c/upstream/src/cmd.c:getdir",
+          "js/cmd.js:getdir"
+        ],
+        "witness": [
+          "recipes/cmd.c/trial-getdir-help-retry.session.json",
+          "recipes/cmd.c/trial-getdir-help-control.session.json",
+          "recipes/cmd.c/trial-getdir-invalid-control.session.json"
+        ],
+        "test": [
+          "scripts/getdir-help-retry.test.mjs",
+          "scripts/help-dir.test.mjs",
+          "scripts/ride-direction.test.mjs"
+        ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+          "committedAt": "2026-10-26T07:51:08Z",
+          "sourceCommit": "31c06a1840696aa879ef4f13f64671231bb18459",
+          "sourceCommittedAt": "2026-10-26T07:49:50Z",
+          "runs": [
+            {
+              "id": 40288393795,
+              "name": "Checkpoint",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch1-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T07:51:43Z",
+              "completedAt": "2026-10-26T08:01:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40288393795"
+            },
+            {
+              "id": 40289622391,
+              "name": "Lint",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:03:06Z",
+              "completedAt": "2026-10-26T08:04:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40289622391"
+            },
+            {
+              "id": 40289622236,
+              "name": "Dashboard",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:03:06Z",
+              "completedAt": "2026-10-26T08:04:57Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40289622236"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct250, discovered and verified during trial. C retries getdir after requested help; JS previously threw UnsupportedDirectionBoundaryError and truncated output. Witness and two controls strictly match C after correction. Luna worker commit 309b4410ef9744ab4f7781efafc46fb2653d8f4c, 30 focused/affected tests and focused ESLint passed. Combined-SHA hosted and Main gates pending."
     },
     {
@@ -17761,12 +17925,92 @@
       "investigator": null,
       "carryIn": false,
       "evidence": {
-        "source": ["nethack-c/upstream/include/hack.h:EXACT_NAME", "js/const.js:EXACT_NAME", "nethack-c/upstream/src/do_name.c", "js/do_name.js"],
-        "witness": ["recipes/do_name.c/trial-exact-name-bump.session.json", "recipes/do_name.c/trial-exact-name-named-control.session.json", "recipes/do_name.c/trial-exact-name-unnamed-control.session.json"],
-        "test": ["scripts/exact-name-bump.test.mjs", "scripts/do-name.test.mjs", "scripts/cmd.test.mjs"]
+        "source": [
+          "nethack-c/upstream/include/hack.h:EXACT_NAME",
+          "js/const.js:EXACT_NAME",
+          "nethack-c/upstream/src/do_name.c",
+          "js/do_name.js"
+        ],
+        "witness": [
+          "recipes/do_name.c/trial-exact-name-bump.session.json",
+          "recipes/do_name.c/trial-exact-name-named-control.session.json",
+          "recipes/do_name.c/trial-exact-name-unnamed-control.session.json"
+        ],
+        "test": [
+          "scripts/exact-name-bump.test.mjs",
+          "scripts/do-name.test.mjs",
+          "scripts/cmd.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+          "committedAt": "2026-10-26T07:51:08Z",
+          "sourceCommit": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+          "sourceCommittedAt": "2026-10-26T07:51:08Z",
+          "runs": [
+            {
+              "id": 40288393795,
+              "name": "Checkpoint",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch1-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T07:51:43Z",
+              "completedAt": "2026-10-26T08:01:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40288393795"
+            },
+            {
+              "id": 40289622391,
+              "name": "Lint",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:03:06Z",
+              "completedAt": "2026-10-26T08:04:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40289622391"
+            },
+            {
+              "id": 40289622236,
+              "name": "Dashboard",
+              "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:03:06Z",
+              "completedAt": "2026-10-26T08:04:57Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40289622236"
+            }
+          ]
+        }
+      ],
+      "note": "Prospective distinct251, discovered and verified during trial. Compiled C EXACT_NAME is 0x1F; JS was 39 and suppressed a named dog's proper name. Witness and two controls strictly match C after correction with aligned RNG and cursors. Luna worker commit b01b13d168be47c6c4ef5b8ba67dec410d569c41; 157 focused/affected tests and full lint passed. Combined-SHA hosted and Main gates pending."
+    },
+    {
+      "id": "previous-level-annotation",
+      "kind": "parity-repair",
+      "title": "Describe selected earlier levels when annotating",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": ["nethack-c/upstream/src/dungeon.c:query_annotation", "js/dungeon.js:query_annotation", "js/display.js:describe_level"],
+        "witness": ["recipes/dungeon.c/trial-previous-level-annotation.session.json", "recipes/dungeon.c/trial-current-level-annotation-control.session.json", "recipes/dungeon.c/trial-first-level-annotation-control.session.json"],
+        "test": ["scripts/previous-level-annotation.test.mjs", "scripts/annotate-command.test.mjs"]
       },
       "candidates": [],
-      "note": "Prospective distinct251, discovered and verified during trial. Compiled C EXACT_NAME is 0x1F; JS was 39 and suppressed a named dog's proper name. Witness and two controls strictly match C after correction with aligned RNG and cursors. Luna worker commit b01b13d168be47c6c4ef5b8ba67dec410d569c41; 157 focused/affected tests and full lint passed. Combined-SHA hosted and Main gates pending."
+      "note": "Prospective distinct252, discovered and verified during trial. C permits annotating a previous level from the overview menu with a selected-level description; JS previously threw. Luna worker commit 7d6b3e76f34a6cf40f9ab753acc631d3587155b4. Strict C witness and two controls, 6 affected annotation tests, focused describe_level test and full lint passed. A broad sparse-worktree insight aggregate had one unrelated missing-fixture ENOENT; complete hosted tests still required."
     }
   ]
 }

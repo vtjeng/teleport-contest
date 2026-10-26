@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 923801,
+      "datetime": "20460517124511",
+      "nethackrc": "OPTIONS=name:EarlierLevel,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,playmode:debug\nOPTIONS=pettype:none,!debug_mongen\n",
+      "moves": "\u00162\nm#overview\na\u001b"
+    }
+  ]
+}
