@@ -2047,20 +2047,18 @@ test('disintegration skips corpse creation and paper golems leave paper',
         assert.deepEqual(newtEnv.bounds, ['rn2(3)'], 'a corpse was attempted');
     });
 
-// mon.c monkilled():3409-3415. C prints "May <pet> rest in peace." after the
-// death, so the stop that stands in for it is below m_detach() -- that is
-// where C puts the line, and the state it follows is C's own. `rxt` is what
-// guards it, not mtame alone.
-test('the pet golem farewell stops where C prints it', async () => {
+// mon.c monkilled():3409-3415. C prints the extra pet-golem farewell after
+// m_detach(). `rxt` guards it, not mtame alone.
+test('the pet golem farewell follows the completed death', async () => {
     await hero();
 
     const pet = spawn(PM_PAPER_GOLEM, { mtame: 1 });
     const env = killEnv();
-    await refusesAsync(
-        () => monkilled(pet, '', AD_FIRE, game, env),
-        'the farewell for a destroyed pet golem',
-    );
-    assert.deepEqual(env.lines, ['The paper golem is destroyed!']);
+    await monkilled(pet, '', AD_FIRE, game, env);
+    assert.deepEqual(env.lines, [
+        'The paper golem is destroyed!',
+        'May your paper golem roast in peace.',
+    ]);
     assert.equal((pet.mstate ?? 0) & MON_DETACH, MON_DETACH, 'detached');
 
     // A pet whose species matches none of the three rxt tests passes through.
