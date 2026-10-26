@@ -18247,7 +18247,7 @@
         "test": ["scripts/display-time-width-refresh.test.mjs", "scripts/display-symbols.test.mjs", "scripts/display.test.mjs"]
       },
       "candidates": [],
-      "note": "Prospective distinct255, discovered and verified during trial. At turn 9 to 10, C refits the status row and shortens condition labels while JS previously threw UnsupportedStatusRefreshError. Worker commit 978d31b923a20ac103ccc3c92d95220278d632c9 reuses the existing row fit routine and preserves non-time cached status fields. Strict C witness and three controls match; 214 display/affected tests and focused lint passed. A temporary worker model-capacity interruption was recovered without duplicating validation. Full combined-SHA hosted and Main gates pending."
+      "note": "Prospective distinct255, discovered and verified during trial. At turn 9 to 10, C refits the status row and shortens condition labels while JS previously threw UnsupportedStatusRefreshError. Original worker commit 978d31b923a20ac103ccc3c92d95220278d632c9 passed its initial witness, but combined Checkpoint 40293591635 failed test shard 4 on an unconscious-rest animation frame. Cross-review also found a missing two-row blank capacity field. Correction worker commit 8b8296b62eac31eeb1e7580ee44e5388ff19b31e adds a C padding witness/control, preserves cached values until width overflow, and passes six strict C cases, 216 display tests and 12 incapacitation animation tests. One grouped repair only; fresh combined-SHA hosted and Main gates pending."
     },
     {
       "id": "pager-engraving-list-coordinates",

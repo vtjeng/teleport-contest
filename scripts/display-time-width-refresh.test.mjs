@@ -17,6 +17,8 @@ for (const name of [
     'prefix-control',
     'no-gold-control',
     'no-blind-control',
+    'capacity-padding-probe',
+    'capacity-padding-control',
 ]) {
     test(`time-width C replay: ${name}`, async () => {
         const recording = JSON.parse(readFileSync(new URL(
@@ -34,6 +36,13 @@ for (const name of [
                 assert.ok(screens.some((screen) => screen.includes(expected)),
                     expected);
             }
+        }
+        if (name === 'capacity-padding-probe') {
+            const screens = recording.segments[0].steps.map(
+                ({ screen }) => screen ?? '',
+            );
+            assert.ok(screens.some((screen) => screen.includes('T:11  Bl')),
+                'C shrink_enc() retains a blank BL_CAP before conditions');
         }
 
         const root = createScoringWorkspace(process.cwd(), []);

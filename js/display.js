@@ -5619,7 +5619,9 @@ function _statusLine2Fields(capacityValue) {
             ),
         );
     }
-    if (capacityPadding) fields.push(_statusField(capacityPadding));
+    if (capacityPadding) {
+        fields.push({ kind: 'capacity-padding', text: capacityPadding });
+    }
     fields.push(_conditionStatusField(
         _statusConditionEntries(u, conditionLevel),
         false,
@@ -6976,24 +6978,50 @@ function _stat_update_time() {
         if (refreshed?.fields && layouts[timeRow]?.fields) {
             const freshByOwner = new Map();
             for (const field of refreshed.fields) {
-                const key = field.kind === 'condition'
-                    ? 'condition'
-                    : field.owner?.field;
+                const key = field.kind === 'condition' ? 'condition'
+                    : field.kind === 'capacity-padding' ? 'capacity-padding'
+                        : field.owner?.field;
                 if (key) freshByOwner.set(key, field);
             }
-            const fields = layouts[timeRow].fields.map((field) => {
-                const key = field.kind === 'condition'
-                    ? 'condition'
-                    : field.owner?.field;
-                // BL_FLUSH reruns make_things_fit() from core status_vals.
-                // Only these fields can change rung; preserve every other
-                // cached status value because stat_update_time() updates only
-                // BL_TIME.
-                return ['time', 'condition', 'carrying-capacity',
-                    'dungeon-level'].includes(key)
-                    ? (freshByOwner.get(key) ?? field)
-                    : field;
+            const cachedFields = layouts[timeRow].fields;
+            const timeField = freshByOwner.get('time');
+            let fields = cachedFields.map((field) => {
+                const key = field.kind === 'condition' ? 'condition'
+                    : field.kind === 'capacity-padding' ? 'capacity-padding'
+                        : field.owner?.field;
+                // stat_update_time() updates only BL_TIME. Keep the rest of
+                // the last supplied status values unless the wider counter
+                // makes this row overflow and invokes make_things_fit().
+                return key === 'time' ? (timeField ?? field) : field;
             });
+            const nominalWidth = (list) => list.reduce(
+                (width, field) => width + (field.text?.length ?? 0), 0,
+            );
+            if (nominalWidth(fields) > TTY_STATUS_WIDTH) {
+                // C restarts its shrink ladder at BL_FLUSH. Reuse only the
+                // fields that ladder can shorten; keep core status values
+                // from the previous update, even when the world changed
+                // during an animation frame.
+                fields = fields.map((field) => {
+                    const key = field.kind === 'condition' ? 'condition'
+                        : field.kind === 'capacity-padding'
+                            ? 'capacity-padding' : field.owner?.field;
+                    return ['condition', 'capacity-padding',
+                        'carrying-capacity', 'dungeon-level'].includes(key)
+                        ? (freshByOwner.get(key) ?? field)
+                        : field;
+                });
+                const padding = freshByOwner.get('capacity-padding');
+                const conditionIndex = fields.findIndex(
+                    (field) => field.kind === 'condition',
+                );
+                if (padding && conditionIndex >= 0
+                    && !cachedFields.some(
+                        (field) => field.kind === 'capacity-padding',
+                    )) {
+                    fields.splice(conditionIndex, 0, padding);
+                }
+            }
             const hungerX = layouts[timeRow].hungerX ?? null;
             const { row } = _renderStatusFields(fields, hungerX);
             layouts[timeRow] = { ...row.finish(), fields, hungerX };

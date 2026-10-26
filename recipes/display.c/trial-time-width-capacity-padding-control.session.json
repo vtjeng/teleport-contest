@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 393157,
+      "datetime": "20491213121212",
+      "nethackrc": "OPTIONS=name:StatusWidth,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,time,showexp,showvers,weaponstatus,armorstatus,terrainstatus,blind,!autopickup,playmode:debug\nOPTIONS=pettype:none,!debug_mongen\n",
+      "moves": "\u001710 gold pieces\n..........."
+    }
+  ]
+}
