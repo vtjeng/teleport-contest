@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Trial C witness for hero-standing SCORR dolookaround; preserve existing route prefix and invoke #lookaround before moving off the wished corridor.",
+  "segments": [
+    {
+      "seed": 12510731,
+      "datetime": "20951007144500",
+      "nethackrc": "OPTIONS=name:TerrainKick,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "hhhh\u0017secret corridor\n#lookaround\n"
+    }
+  ]
+}

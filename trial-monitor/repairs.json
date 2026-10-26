@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T11:24:18Z",
+  "asOf": "2026-10-26T12:14:36Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -18865,6 +18865,84 @@
         }
       ],
       "note": "The cure-blindness spell previously threw an unsupported command boundary. Its C witness and cure-sickness control now strictly match, including the existing healup state and messages."
+    },
+    {
+      "id": "martial-kick-burden-goto",
+      "kind": "parity-repair",
+      "title": "Bypass later clumsiness checks after a martial burdened kick",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dokick.c:kick_monster",
+          "js/dokick.js:kick_monster"
+        ],
+        "witness": [
+          "recipes/dokick.c/trial-samurai-martial-bulky-kick.session.json",
+          "recipes/dokick.c/trial-samurai-kick-low-weight-control.session.json"
+        ],
+        "test": [
+          "scripts/kick-martial-burden-clumsiness.test.mjs",
+          "scripts/dokick.test.mjs",
+          "scripts/dokick-terrain.test.mjs",
+          "scripts/kick-command.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "a417b8757506d80247d65920f56fbd80cfcb802e",
+          "committedAt": "2026-10-26T11:59:37Z",
+          "sourceCommit": "a417b8757506d80247d65920f56fbd80cfcb802e",
+          "sourceCommittedAt": "2026-10-26T11:59:37Z",
+          "runs": [
+            {
+              "id": 40319371268,
+              "name": "Checkpoint",
+              "sha": "a417b8757506d80247d65920f56fbd80cfcb802e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch7-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T12:01:23Z",
+              "completedAt": "2026-10-26T12:11:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40319371268"
+            },
+            {
+              "id": 40320788821,
+              "name": "Lint",
+              "sha": "a417b8757506d80247d65920f56fbd80cfcb802e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T12:12:44Z",
+              "completedAt": "2026-10-26T12:13:50Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40320788821"
+            },
+            {
+              "id": 40320788970,
+              "name": "Dashboard",
+              "sha": "a417b8757506d80247d65920f56fbd80cfcb802e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T12:12:44Z",
+              "completedAt": "2026-10-26T12:14:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40320788970"
+            }
+          ]
+        }
+      ],
+      "note": "C's martial burden-gate goto skips later Fumbling and bulky-armor checks. The independent C rerecord matched byte for byte; the burdened witness and low-weight kick control now match strictly."
     }
   ]
 }

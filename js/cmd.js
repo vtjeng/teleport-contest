@@ -2568,7 +2568,7 @@ export async function dolookaround(state = game) {
                 if (isok(x, y) && (state.level?.at(x, y)?.typ ?? -1) >= ROOM)
                     await lookaround_known_room(x, y, state);
             }
-        } else if (here !== SCORR) {
+        } else {
             await lookaround_known_room(ux, uy, state);
         }
         // The room/area description above is emitted by this cmd.c function;
