@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T13:40:34Z",
+  "asOf": "2026-10-26T17:24:42Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19020,6 +19020,111 @@
         }
       ],
       "note": "C calls lookaround_known_room while the hero stands on SCORR. The C witness was independently rerecorded byte-identically; its first difference was isolated to #lookaround, and the same-seed room control matches strictly."
+    },
+    {
+      "id": "wiz-makemap-arrival-collision",
+      "kind": "parity-repair",
+      "title": "Resolve pet arrival collision after wizard map generation",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:makemap_prepost",
+          "nethack-c/upstream/src/do.c:u_collide_m",
+          "js/cmd.js:makemap_prepost",
+          "js/do.js:u_collide_m"
+        ],
+        "witness": [
+          "recipes/cmd.c/makemap-arrival-collision.session.json",
+          "recipes/cmd.c/makemap-arrival-no-collision.session.json"
+        ],
+        "test": [
+          "scripts/wizcmds.test.mjs",
+          "scripts/cmd.test.mjs",
+          "scripts/do.test.mjs",
+          "scripts/dodown.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "f1b5c013ff2d7a792a1a21af1ca449db85af97ee",
+          "committedAt": "2026-10-26T17:05:35Z",
+          "sourceCommit": "0a858777abe969c404a84965138f99cf78ce9725",
+          "sourceCommittedAt": "2026-10-26T16:46:12Z",
+          "runs": [
+            {
+              "id": 40366196704,
+              "name": "Checkpoint",
+              "sha": "f1b5c013ff2d7a792a1a21af1ca449db85af97ee",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/single-makemap-collision-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:10:56Z",
+              "completedAt": "2026-10-26T17:21:28Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40366196704"
+            },
+            {
+              "id": 40368068721,
+              "name": "Lint",
+              "sha": "f1b5c013ff2d7a792a1a21af1ca449db85af97ee",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:22:53Z",
+              "completedAt": "2026-10-26T17:24:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40368068721"
+            },
+            {
+              "id": 40368068419,
+              "name": "Dashboard",
+              "sha": "f1b5c013ff2d7a792a1a21af1ca449db85af97ee",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T17:22:53Z",
+              "completedAt": "2026-10-26T17:24:42Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40368068419"
+            }
+          ]
+        }
+      ],
+      "note": "Wizard map generation can place a pet on the hero. C resolves the collision and consumes its RNG draw; JavaScript previously only recorded the gap. The C witness and no-collision control match strictly after the fix. The initial hosted Checkpoint failed on a test source anchor changed by the export; a test-only correction then passed full hosted validation."
+    },
+    {
+      "id": "quest-leader-posthanks-repeat",
+      "kind": "parity-repair",
+      "title": "Continue quest leader chat after returning the artifact before the Amulet",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/quest.c:chat_with_leader",
+          "js/quest.js:chat_with_leader"
+        ],
+        "witness": [
+          "recipes/quest.c/leader-posthanks-repeat.session.json",
+          "recipes/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json"
+        ],
+        "test": [
+          "scripts/quest-posthanks.test.mjs",
+          "scripts/quest-finish.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "C prints posthanks and continues the repeat conversation after the artifact has been returned without the Amulet. JavaScript previously threw at the second chat. The C witness was independently rerecorded byte-identically; its prefix and the original first-audience control pass strictly."
     }
   ]
 }

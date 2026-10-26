@@ -311,7 +311,7 @@ export async function finish_quest(obj, env = {}) {
 }
 
 // C ref: quest.c chat_with_leader() (281-368). Rules 1 and 3 now wire the
-// complete finish_quest() owner. The posthanks/encourage text and the remaining
+// complete finish_quest() owner. The encourage text and the remaining
 // first-meeting verdicts retain their existing bounded refusals.
 async function chat_with_leader(mtmp, ops) {
     const state = ops.state;
@@ -329,7 +329,7 @@ async function chat_with_leader(mtmp, ops) {
         if (u.uhave.amulet)
             await finish_quest(null, ops);
         else
-            ops.unsupported('returning the quest artifact before the Amulet');
+            await ops.pager('posthanks');
     } else if (u.uhave.questart) {
         /* Rule 3: you've got the artifact and are back to return it. */
         let otmp = state.invent;

@@ -123,3 +123,17 @@ test('quest_chat uses the hasamulet pager after the leader already thanked the h
     assert.equal(state.svq.quest_status.got_thanks, true);
     assert.equal(Object.hasOwn(state.u.uevent, 'qcompleted'), false);
 });
+
+test('quest_chat repeats the post-thanks advice before the Amulet', async () => {
+    assert.match(QUEST_CHAT_C,
+        /if \(Qstat\(got_thanks\)\)[\s\S]*?if \(u\.uhave\.amulet\)[\s\S]*?else\s+qt_pager\("posthanks"\);/u);
+    const state = leaderState({ gotThanks: true });
+    const pages = [];
+    await quest_chat(leader(), state, {
+        pager: async (msgid) => pages.push(msgid),
+        unsupported: (reason) => assert.fail(`unexpected quest refusal: ${reason}`),
+    });
+    assert.deepEqual(pages, ['posthanks']);
+    assert.equal(state.svq.quest_status.got_thanks, true);
+    assert.equal(Object.hasOwn(state.u.uevent, 'qcompleted'), false);
+});
