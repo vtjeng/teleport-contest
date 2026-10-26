@@ -107,7 +107,7 @@ import {
     breaks,
     hero_breaks,
 } from './dothrow.js';
-import { m_carrying, mondied, seemimic, setmangry, wake_nearto, xkilled } from './mon.js';
+import { m_carrying, monkilled, mondied, seemimic, setmangry, wake_nearto, xkilled } from './mon.js';
 import { m_at } from './monst.js';
 import { minstapetrify } from './trap.js';
 import { down_gate, ship_object } from './dokick.js';
@@ -145,6 +145,7 @@ import {
     AD_ACID,
     AD_BLND,
     AD_DRST,
+    AD_PHYS,
     AD_SLEE,
     AT_SPIT,
     AT_WEAP,
@@ -1393,7 +1394,8 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                 note_unported('artifact.c artifact_hit');
             magr.mhp -= dmg;
             if (magr.mhp < 1) /* DEADMONSTER */
-                note_unported('mon.c monkilled');
+                await monkilled(magr, canspotmon(magr, state) ? '' : null,
+                    AD_PHYS, state, { ...env, message: env.message ?? ttyPline });
         }
         if (notcaught) {
             await snuff_candle(otmp, env);
