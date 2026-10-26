@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T21:04:40Z",
+  "asOf": "2026-10-26T21:21:16Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19836,6 +19836,82 @@
         }
       ],
       "note": "Pinned C doengrave consumes a cancelled wand and says it turns to dust, with a glow clause only when sighted. A supported-API focused test failed on the prior turnses/fades text and passes for sighted and blind cases. Source-grounded expectation; no new C gameplay recording was made."
+    },
+    {
+      "id": "visible-hero-portcullis-feedback",
+      "kind": "parity-repair",
+      "title": "Report visible hero entering a closed portcullis",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dbridge.c:do_entity",
+          "js/dbridge.js:do_entity"
+        ],
+        "witness": [
+          "scripts/dbridge-visible-hero-portcullis.test.mjs"
+        ],
+        "test": [
+          "scripts/dbridge-visible-hero-portcullis.test.mjs",
+          "scripts/dbridge-entity.test.mjs",
+          "scripts/dbridge.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "cf8d38f4effcba3efd874c31b5e6fe6b52df1f5b",
+          "committedAt": "2026-10-26T21:08:48Z",
+          "sourceCommit": "0d693cf362aab175af64b73f46e0613534ac510e",
+          "sourceCommittedAt": "2026-10-26T21:08:43Z",
+          "runs": [
+            {
+              "id": 40401908644,
+              "name": "Checkpoint",
+              "sha": "cf8d38f4effcba3efd874c31b5e6fe6b52df1f5b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/dbridge-audit-handoff-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:09:10Z",
+              "completedAt": "2026-10-26T21:18:27Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40401908644"
+            },
+            {
+              "id": 40403364350,
+              "name": "Lint",
+              "sha": "cf8d38f4effcba3efd874c31b5e6fe6b52df1f5b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:19:21Z",
+              "completedAt": "2026-10-26T21:20:27Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40403364350"
+            },
+            {
+              "id": 40403364397,
+              "name": "Dashboard",
+              "sha": "cf8d38f4effcba3efd874c31b5e6fe6b52df1f5b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:19:21Z",
+              "completedAt": "2026-10-26T21:21:16Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40403364397"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C do_entity reports the visible hero tumbling toward the portcullis, then the closing bridge. A focused initialized-game API test failed on the omitted messages and passed an empty-bridge control. This expectation is C-source-derived; no fresh C gameplay recording was made. The separate source-audit guidance commit adds no distinct gameplay repair."
     }
   ]
 }
