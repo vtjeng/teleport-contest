@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T01:23:13.277117+00:00",
+  "asOf": "2026-10-26T02:17:46.064Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16708,7 +16708,7 @@
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct235, first locally tested-ready fix of bounded batch-pilot group two. C live autopickup-exception editor adds, lists, removes and exits; JS had startup parser but omitted interactive handler. Seven strict C replays, 208 focused/affected options tests and focused ESLint/diff pass. Carry complete verified group-one receipt in this ordinary repair commit. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+      "note": "Main 625a7134f5ca64a3d4fd9c8cb31c571a5f74f6d2 passed exact Checkpoint 40256117269, Lint 40257355636 and Dashboard 40257355593; complete archived comparison and 98-batch receipt verified. No aggregate gain inferred."
     },
     {
       "id": "status-condition-choice-handler",
@@ -16751,7 +16751,49 @@
         ]
       },
       "candidates": [],
-      "note": "Prospective distinct236, second locally tested-ready fix in bounded batch-pilot group two. C cond_menu chooses alphabetical or rank order and applies PICK_ANY condition flags; JS lacked live handler. Five strict C replays, 213 focused/affected options/status tests and focused ESLint/diff pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+      "note": "Main 625a7134f5ca64a3d4fd9c8cb31c571a5f74f6d2 passed exact Checkpoint 40256117269, Lint 40257355636 and Dashboard 40257355593; complete archived comparison and 98-batch receipt verified. No aggregate gain inferred."
+    },
+    {
+      "id": "pile-limit-live-choice-handler",
+      "kind": "parity-repair",
+      "title": "Set pile limit from live options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T02:14:05.369Z",
+          "end": "2026-10-26T02:17:46.064Z",
+          "note": "Fresh C menu submission diverged while cancellation matched. Wall span includes five C recordings and focused/affected checks; it is not active-work duration."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:doset",
+          "nethack-c/upstream/src/options.c:parseoptions",
+          "nethack-c/upstream/src/options.c:optfn_pile_limit",
+          "nethack-c/upstream/src/cfgfiles.c:config_erradd",
+          "js/options.js:OPTION_SET_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/pile-limit-live-set-two.session.json",
+          "recipes/options.c/pile-limit-live-negative.session.json",
+          "recipes/options.c/pile-limit-live-empty.session.json",
+          "recipes/options.c/pile-limit-live-cancel.session.json",
+          "recipes/options.c/pile-limit-live-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/options-pile-limit-live.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-simple-menu.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct237, first locally tested-ready fix in bounded batch-pilot group three. C live #optionsfull prompt changes pile_limit and emits a synchronized missing-parameter message on empty input; JS startup parsing existed but live parseoptions omitted this handler. Five strict C replays, 206 focused/affected options tests, and focused ESLint/diff pass. Carry complete verified group-two receipt in this ordinary repair commit. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }

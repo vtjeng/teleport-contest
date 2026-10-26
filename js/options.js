@@ -8458,6 +8458,22 @@ const OPTION_SET_HANDLERS = Object.freeze({
     scores: (state, optidx, negated, opts) => optfn_scores(
         state, optidx, DO_SET, negated, opts, undefined,
     ),
+    // options.c optfn_pile_limit()'s do_set arm is also reached when doset()
+    // prompts for a new value and passes the statement to parseoptions().
+    pile_limit: async (state, _optidx, negated, opts) => {
+        // cfgfiles.c config_erradd() uses pline() and wait_synch() when a
+        // live prompt submits an empty value, before optfn_pile_limit()
+        // restores its default. The startup parser has its own error frame.
+        if (!negated && string_for_opt(opts, true) === '') {
+            await ttyPline(`Missing parameter for '${opts}'.`, state);
+            const { tty_wait_synch } = await import('./tty_rawprint.js');
+            await tty_wait_synch(state);
+            state.flags.pile_limit = PILE_LIMIT_DFLT;
+            return optn_ok;
+        }
+        setPileLimit(state, opts, negated);
+        return optn_ok;
+    },
     pickup_types: (state, optidx, negated, opts, helpers) => optfn_pickup_types(
         state, DO_SET, negated, opts, optidx, helpers,
     ),
