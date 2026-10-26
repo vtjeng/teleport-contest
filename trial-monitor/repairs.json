@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T02:23:41.272Z",
+  "asOf": "2026-10-26T02:42:26.954Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16880,6 +16880,51 @@
       },
       "candidates": [],
       "note": "Prospective distinct239, third independently qualified fix in bounded batch-pilot group three. C live menu inversion editor accepts 0\u20132 and synchronizes invalid diagnostics; JS startup parsing existed but live parseoptions omitted this handler. Five strict C replays and focused ESLint pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "statuslines-live-choice-handler",
+      "kind": "parity-repair",
+      "title": "Set status line count from live options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T02:25:44.946579Z",
+          "end": "2026-10-26T02:42:26.954Z",
+          "note": "Source-qualified C live value mismatch and cancellation control during frozen pilot group three; implementation began only after group acceptance. Wall span includes unrelated hosted validation, publication, receipt and tests, not active-work duration."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:doset",
+          "nethack-c/upstream/src/options.c:parseoptions",
+          "nethack-c/upstream/src/options.c:optfn_statuslines",
+          "nethack-c/upstream/src/cfgfiles.c:config_erradd",
+          "js/options.js:OPTION_SET_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/statuslines-live-valid-three.session.json",
+          "recipes/options.c/statuslines-live-invalid-one.session.json",
+          "recipes/options.c/statuslines-live-empty.session.json",
+          "recipes/options.c/statuslines-live-cancel.session.json",
+          "recipes/options.c/statuslines-live-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/options-statuslines-live.test.mjs",
+          "scripts/options-simple-menu.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/status-field-data.test.mjs",
+          "scripts/status-hilite-menu.test.mjs",
+          "scripts/startup-status-hilites.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct240. C live #optionsfull statuslines editor sets 2 or 3 and emits synchronized invalid/missing diagnostics; JS startup parsing existed but live parseoptions omitted this handler. Five strict C replays and 222 focused/affected tests pass after updating one stale refusal assertion to check the now-supported behavior; ESLint/diff pass. Carry complete verified group-three receipt in this ordinary repair commit. Hosted comparison and Main gates pending; no aggregate gain inferred."
     }
   ]
 }

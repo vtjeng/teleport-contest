@@ -8472,6 +8472,24 @@ const OPTION_SET_HANDLERS = Object.freeze({
     scores: (state, optidx, negated, opts) => optfn_scores(
         state, optidx, DO_SET, negated, opts, undefined,
     ),
+    // options.c optfn_statuslines(do_set) is also reached by the live editor.
+    statuslines: async (state, _optidx, _negated, opts) => {
+        const value = string_for_opt(opts, true);
+        const { tty_wait_synch } = await import('./tty_rawprint.js');
+        if (value === '') {
+            await ttyPline(`Missing parameter for '${opts}'.`, state);
+            await tty_wait_synch(state);
+        }
+        const lines = value === '' ? 0 : atoi(value);
+        if (lines < 2 || lines > 3) {
+            await ttyPline(`'statuslines:${value}' is invalid; must be 2 or 3.`, state);
+            await tty_wait_synch(state);
+            return optn_silenterr;
+        }
+        state.iflags.wc2_statuslines = lines;
+        state.go.opt_need_redraw = true;
+        return optn_ok;
+    },
     // options.c optfn_pile_limit()'s do_set arm is also reached when doset()
     // prompts for a new value and passes the statement to parseoptions().
     pile_limit: async (state, _optidx, negated, opts) => {
