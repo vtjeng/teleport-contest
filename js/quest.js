@@ -348,7 +348,7 @@ async function chat_with_leader(mtmp, ops) {
             qs.met_leader = true;
             qs.not_ready = 0;
         } else {
-            ops.unsupported('a repeat audience with the quest leader');
+            await ops.pager('leader_next');
         }
 
         /* the quest leader might have passed through the portal into

@@ -9,6 +9,10 @@ for (const [name, path] of [
         '../recordings/quest.c/leader-posthanks-repeat.session.json'],
     ['first audience and artifact return control',
         '../recordings/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json'],
+    ['repeat audience before quest assignment',
+        '../recordings/quest.c/leader-next-repeat.session.json'],
+    ['first audience before quest assignment control',
+        '../recordings/quest.c/leader-next-first-audience-control.session.json'],
 ]) {
     test(`quest leader ${name} matches the C recording`, async () => {
         const recording = JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
