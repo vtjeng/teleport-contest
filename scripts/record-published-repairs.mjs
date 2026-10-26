@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 
 const SHA = /^[a-f0-9]{40}$/u;
-const ID = /^[a-z0-9][a-z0-9-]*$/u;
+const ID = /^[a-z0-9][a-z0-9-]{0,127}$/u;
 const names = ['Checkpoint', 'Lint', 'Dashboard'];
 
 export function parseRepairMembers(value) {
@@ -17,6 +17,7 @@ export function parseRepairMembers(value) {
       throw new Error('Expected repair-id:full-source-sha for each member');
     return { id, sourceCommit };
   });
+  if (members.length > 32) throw new Error('Too many repair members in one receipt');
   if (new Set(members.map(member => member.id)).size !== members.length
       || new Set(members.map(member => member.sourceCommit)).size !== members.length)
     throw new Error('Duplicate repair member or source commit');
@@ -24,7 +25,7 @@ export function parseRepairMembers(value) {
 }
 
 export function preparePublishedRepairs(root, { commit, baseline, members, publication,
-  publicationRuns, checkpointRun, checkpointCompletedAt, git = args =>
+  publicationRuns, checkpointRun, checkpointCompletedAt, gh, git = args =>
     execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim() }) {
   if (!SHA.test(commit) || !SHA.test(baseline) || !Array.isArray(members) || !members.length
       || !publication?.passed || publication.commit !== commit)
@@ -53,19 +54,47 @@ export function preparePublishedRepairs(root, { commit, baseline, members, publi
         || !Number.isFinite(Date.parse(run.updated_at))
         || Date.parse(run.updated_at) < Date.parse(run.created_at))
       throw new Error(`Invalid ${name} run for repair group`);
-    if (name === 'Checkpoint' && (!Number.isFinite(Date.parse(checkpointCompletedAt))
-        || Date.parse(run.updated_at) < Date.parse(checkpointCompletedAt)))
-      throw new Error('Checkpoint completion differs from verified receipt');
+    let completedAt;
+    if (name === 'Checkpoint') {
+      // The synthetic receipt already verified this run's complete attempt job
+      // list and recorded its final job time. Reuse it without a second call.
+      completedAt = checkpointCompletedAt;
+    } else {
+      // Workflow updated_at can lag the final job. Exact gate time requires the
+      // complete job list for this attempt; these are metadata-only GitHub reads.
+      if (typeof gh !== 'function') throw new Error('Publication job evidence unavailable');
+      const jobs = JSON.parse(gh(['api',
+        `repos/vtjeng/teleport-contest/actions/runs/${run.id}/attempts/${run.run_attempt}/jobs?per_page=100`]));
+      if (!Array.isArray(jobs.jobs) || !jobs.jobs.length || jobs.jobs.length !== jobs.total_count
+          || jobs.jobs.some(job => job.status !== 'completed'
+            || !['success', 'skipped'].includes(job.conclusion)
+            || !Number.isFinite(Date.parse(job.completed_at))))
+        throw new Error(`Incomplete ${name} job completion evidence`);
+      completedAt = jobs.jobs.map(job => job.completed_at).sort().at(-1);
+    }
+    if (!Number.isFinite(Date.parse(completedAt))
+        || Date.parse(completedAt) < Date.parse(run.created_at)
+        || Date.parse(completedAt) > Date.parse(run.updated_at))
+      throw new Error(`Invalid ${name} final job time`);
     return { id: run.id, name, sha: commit, attempt: run.run_attempt,
       event: run.event, branch: run.head_branch, status: run.status,
       conclusion: run.conclusion, createdAt: run.created_at,
-      completedAt: run.updated_at, url: run.html_url };
+      completedAt, completedAtSource: 'final-job', url: run.html_url };
   });
   const path = join(root, 'trial-monitor/repairs.json');
   const original = readFileSync(path, 'utf8');
   const register = JSON.parse(original);
   if (register.version !== 1 || !Array.isArray(register.repairs))
     throw new Error('Invalid repair register');
+  const previousMembers = register.repairs.flatMap(repair =>
+    repair.candidates?.filter(candidate => candidate.sha === commit)
+      .map(candidate => ({ id: repair.id, sourceCommit: candidate.sourceCommit })) ?? []);
+  if (previousMembers.length && (previousMembers.length !== members.length
+      || previousMembers.some(previous => !members.some(member =>
+        member.id === previous.id && member.sourceCommit === previous.sourceCommit))
+      || new Set(previousMembers.map(member => member.id)).size !== previousMembers.length
+      || new Set(previousMembers.map(member => member.sourceCommit)).size !== previousMembers.length))
+    throw new Error('Existing validated SHA has different repair membership');
   const committedAt = git(['show', '-s', '--format=%cI', commit]);
   if (!Number.isFinite(Date.parse(committedAt))) throw new Error('Invalid group commit time');
   const ids = new Set(), sources = new Set();
@@ -92,7 +121,8 @@ export function preparePublishedRepairs(root, { commit, baseline, members, publi
     if (!existing) matches[0].candidates.push(candidate);
   }
   const completedAt = runs.map(run => run.completedAt).sort().at(-1);
-  if (!Number.isFinite(Date.parse(register.asOf)) || register.asOf < completedAt)
+  if (!Number.isFinite(Date.parse(register.asOf))
+      || Date.parse(register.asOf) < Date.parse(completedAt))
     register.asOf = completedAt;
   const updated = JSON.stringify(register, null, 2) + '\n';
   return () => {

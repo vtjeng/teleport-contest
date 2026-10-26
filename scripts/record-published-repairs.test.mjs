@@ -14,7 +14,8 @@ const run = (id, name, branch) => ({ id, name, head_sha: commit,
   conclusion: 'success', created_at: '2026-10-26T03:00:00Z',
   updated_at: at, html_url: `https://github.com/vtjeng/teleport-contest/actions/runs/${id}` });
 const checkpointRun = run(10, 'Checkpoint', 'integration-checkpoint/group');
-const publicationRuns = [run(11, 'Lint', 'main'), run(12, 'Dashboard', 'main')];
+const publicationRuns = [run(11, 'Lint', 'main'), run(12, 'Dashboard', 'main')]
+  .map(item => ({ ...item, updated_at: '2026-10-26T04:01:00Z' }));
 const publication = { commit, passed: true, workflows: [
   { workflow: '.github/workflows/lint.yml', id: 11, status: 'completed', conclusion: 'success' },
   { workflow: '.github/workflows/dashboard.yml', id: 12, status: 'completed', conclusion: 'success' },
@@ -37,9 +38,14 @@ const git = args => {
   if (args[0] === 'show') return at;
   throw new Error('unexpected Git command');
 };
+const gh = args => {
+  assert.match(args[1], /\/attempts\/1\/jobs\?per_page=100$/u);
+  return JSON.stringify({ total_count: 1, jobs: [{ status: 'completed',
+    conclusion: 'success', completed_at: at }] });
+};
 const prepare = (root, overrides = {}) => preparePublishedRepairs(root, {
   commit, baseline, members, publication, publicationRuns, checkpointRun,
-  checkpointCompletedAt: at, git, ...overrides,
+  checkpointCompletedAt: at, git, gh, ...overrides,
 });
 
 test('explicit members have unique IDs and full source commits', () => {
@@ -47,6 +53,8 @@ test('explicit members have unique IDs and full source commits', () => {
   for (const text of ['', `repair-one:${source1},repair-one:${source2}`,
     `repair-one:${source1},repair-two:${source1}`, 'repair-one:short',
     `repair-one:${source1}:extra`]) assert.throws(() => parseRepairMembers(text));
+  assert.throws(() => parseRepairMembers(Array.from({ length: 33 }, (_, index) =>
+    `repair-${index}:${index.toString(16).padStart(40, '0')}`).join(',')), /Too many/);
 });
 
 test('records one shared exact-SHA group, preserves old records, and retries without changes', t => {
@@ -63,6 +71,9 @@ test('records one shared exact-SHA group, preserves old records, and retries wit
     assert.equal(candidate.sourceCommit, member.sourceCommit);
     assert.deepEqual(candidate.runs.map(item => item.name), ['Checkpoint', 'Lint', 'Dashboard']);
     assert.ok(candidate.runs.every(item => item.sha === commit && item.conclusion === 'success'));
+    assert.ok(candidate.runs.every(item => item.completedAtSource === 'final-job'));
+    assert.ok(candidate.runs.every(item => item.completedAt === at),
+      'workflow updated_at must not masquerade as final job time');
   }
   assert.deepEqual(prepare(root)(), { changed: false, members: 2 });
   assert.equal(readFileSync(path, 'utf8'), saved);
@@ -76,6 +87,10 @@ test('rejects missing, failed, wrong-SHA and stale run evidence before changing 
     { publicationRuns: publicationRuns.map((item, i) => i ? { ...item, head_sha: baseline } : item) },
     { checkpointRun: { ...checkpointRun, updated_at: '2026-10-26T03:59:00Z' } },
     { publication: { ...publication, passed: false } },
+    { gh: () => JSON.stringify({ total_count: 2, jobs: [{ status: 'completed',
+      conclusion: 'success', completed_at: at }] }) },
+    { gh: () => JSON.stringify({ total_count: 1, jobs: [{ status: 'completed',
+      conclusion: 'success', completed_at: null }] }) },
   ];
   for (const changes of cases) {
     assert.throws(() => prepare(root, changes));
@@ -93,11 +108,27 @@ test('rejects unknown members, stale source ancestry, conflicting records and co
     return at;
   } }), /not an ancestor/);
   const register = JSON.parse(original);
-  register.repairs[0].candidates.push({ sha: commit, runs: [] });
+  register.repairs[0].candidates.push({ sha: commit, sourceCommit: source1, runs: [] });
+  register.repairs[1].candidates.push({ sha: commit, sourceCommit: source2, runs: [] });
   writeFileSync(path, JSON.stringify(register, null, 2) + '\n');
   assert.throws(() => prepare(root), /Conflicting existing candidate/);
   writeFileSync(path, original);
   const write = prepare(root);
   writeFileSync(path, original + ' ');
   assert.throws(write, /changed during publication/);
+});
+
+test('incremental calls cannot silently add a member or reuse a source for one validated SHA', t => {
+  const { root, path } = fixture(t);
+  prepare(root)();
+  const original = readFileSync(path, 'utf8');
+  assert.throws(() => prepare(root, { members: [members[0]] }), /different repair membership/);
+  assert.throws(() => prepare(root, { members: [members[0],
+    { id: 'repair-two', sourceCommit: 'e'.repeat(40) }] }), /different repair membership/);
+  const register = JSON.parse(original);
+  register.repairs.push({ id: 'repair-three', window: 'post-trial', candidates: [] });
+  writeFileSync(path, JSON.stringify(register, null, 2) + '\n');
+  assert.throws(() => prepare(root, { members: [members[0], members[1],
+    { id: 'repair-three', sourceCommit: 'e'.repeat(40) }] }), /different repair membership/);
+  assert.equal(JSON.parse(readFileSync(path)).repairs[3].candidates.length, 0);
 });
