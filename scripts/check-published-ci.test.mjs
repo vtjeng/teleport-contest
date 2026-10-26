@@ -88,6 +88,23 @@ test('API failures preserve cache bytes, release locks, and allow retry', t => {
     assert.equal(checkPublishedCI({ file }, { gh: client(passing(commit)) }).completed.length, 1);
 });
 
+test('repair members require receipt validation; pending and failed gates do no register work', t => {
+    const file = fixture(t);
+    const members = `repair-one:${other}`;
+    assert.throws(() => checkPublishedCI({ file, commit, repairMembers: members }),
+        /requires --commit and --synthetic-baseline/);
+    assert.throws(() => checkPublishedCI({ file, commit, syntheticBaseline: other,
+        repairMembers: '' }), /Expected repair members/);
+    const pending = checkPublishedCI({ file, commit, syntheticBaseline: other,
+        repairMembers: members }, { gh: client([]) });
+    assert.equal(pending.pending.length, 1);
+    assert.equal(pending.synthetic, undefined);
+    const failed = passing(commit);
+    failed[0].conclusion = 'failure';
+    assert.equal(checkPublishedCI({ file, commit, syntheticBaseline: other,
+        repairMembers: members }, { gh: client(failed) }).failed, true);
+});
+
 test('rejects concurrent changes, competing checkers and malformed API responses', t => {
     const file = fixture(t);
     writeFileSync(file, JSON.stringify({ commits: [{ commit, runs: [] }] }));

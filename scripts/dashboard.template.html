@@ -1277,7 +1277,7 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       : 'Latest ' + progress.groupCount + ' complete validation groups · '
         + progress.repairCount + ' registered repairs in '
         + Math.round(progress.elapsedHours * 60) + ' minutes wall time · '
-        + rate(progress.rate) + '. First repair commit to last exact-SHA gate; shared CI counted once.');
+        + rate(progress.rate) + '. Earliest recorded repair/candidate time to last exact-SHA gate; shared CI counted once.');
     const recent = node('recentRepairs');
     recent.replaceChildren();
     if (!accepted.length) {
@@ -1331,7 +1331,8 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       + (selection?.unrecordedNewerCount ? ' · ' + selection.unrecordedNewerCount
         + (selection.unrecordedNewerCount === 1 ? ' newer repair awaits candidate evidence' : ' newer repairs await candidate evidence') : '')
       + (selection?.legacyPointerMismatch ? ' · saved status differs; using dated candidate evidence' : '')
-      + (view.api.status === 'fresh' ? ' · CI checked ' + stamp(view.api.checkedAt) : ' · CI: last-known snapshot'));
+      + (view.api.status === 'fresh' ? ' · CI checked ' + stamp(view.api.checkedAt) : ' · CI: last-known snapshot')
+      + ' · accepted repair membership is recorded with the next Main commit');
 
   }
   // Compare evidence, not the successful check's timestamp or elapsed clock.

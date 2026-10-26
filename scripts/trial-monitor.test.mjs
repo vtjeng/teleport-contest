@@ -149,6 +149,52 @@ test('a revalidated correction shares CI without becoming another accepted repai
   assert.equal(view.recentProgress.repairCount, 2, 'the correction is not a third acceptance');
 });
 
+test('an incomplete earlier shared group does not hide a later complete group', () => {
+  const firstSha = sha('a'), laterSha = sha('b');
+  const full = candidateSha => ['Checkpoint', 'Lint', 'Dashboard'].map((name, index) =>
+    run(name, candidateSha, `2026-10-22T00:${20 + index * 5}:00Z`,
+      { id: (candidateSha === firstSha ? 700 : 710) + index }));
+  const first = repair('first', firstSha, full(firstSha), { window: 'post-trial' });
+  const second = repair('second', firstSha, full(firstSha).slice(0, 2), { window: 'post-trial' });
+  for (const row of [first, second]) row.candidates.push({ sha: laterSha,
+    committedAt: '2026-10-22T00:40:00Z', runs: full(laterSha).map(item => ({
+      ...item, createdAt: '2026-10-22T00:45:00Z', completedAt: '2026-10-22T00:50:00Z',
+    })) });
+  const view = createTrialMonitor(running([first, second])).summarize('2026-10-22T01:00:00Z');
+  assert.equal(view.results.filter(result => result.accepted).length, 2);
+  assert.ok(view.results.every(result => result.accepted.candidate.sha === laterSha));
+  assert.equal(view.recentProgress.groupCount, 1);
+  assert.equal(view.recentProgress.repairCount, 2);
+});
+
+test('different passing run identities in one group do not publish partial acceptance', () => {
+  const groupSha = sha('a');
+  const runs = ['Checkpoint', 'Lint', 'Dashboard'].map((name, index) =>
+    run(name, groupSha, `2026-10-22T00:${20 + index * 5}:00Z`, { id: 800 + index }));
+  const first = repair('first', groupSha, copy(runs), { window: 'post-trial' });
+  const second = repair('second', groupSha, copy(runs), { window: 'post-trial' });
+  second.candidates[0].runs[2].id = 999;
+  const view = createTrialMonitor(running([first, second])).summarize();
+  assert.equal(view.results.filter(result => result.accepted).length, 0);
+  assert.equal(view.recentProgress.groupCount, 0);
+});
+
+test('shared group requires every member witness and includes members with different timestamps', () => {
+  const groupSha = sha('a');
+  const runs = ['Checkpoint', 'Lint', 'Dashboard'].map((name, index) =>
+    run(name, groupSha, `2026-10-22T00:${20 + index * 5}:00Z`, { id: 900 + index }));
+  const first = repair('first', groupSha, copy(runs), { window: 'post-trial' });
+  const second = repair('second', groupSha, copy(runs), { window: 'post-trial' });
+  first.candidates[0].committedAt = '2026-10-22T00:08:00Z';
+  second.candidates[0].committedAt = '2026-10-22T00:09:00Z';
+  second.evidence.test = [];
+  const view = createTrialMonitor(running([first, second])).summarize();
+  assert.equal(view.results.filter(result => result.accepted).length, 0);
+  assert.equal(view.currentCandidate.groupSize, 2);
+  assert.equal(view.currentCandidate.state, 'pending');
+  assert.equal(view.recentProgress.groupCount, 0);
+});
+
 test('non-repairs, wrong SHA, manual Dashboard, and missing gates never count', () => {
   const validSha = sha('a');
   const passed = ['Checkpoint', 'Lint', 'Dashboard'].map(name =>
