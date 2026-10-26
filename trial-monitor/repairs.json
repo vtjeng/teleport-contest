@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T18:26:06Z",
+  "asOf": "2026-10-26T18:50:41Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19404,6 +19404,84 @@
         }
       ],
       "note": "After the hero attacks the quest leader, C displays leader_last once, sets pissed_off, and clears STRAT_WAITMASK before the next action. JavaScript previously stopped at an UnsupportedTurnBoundaryError. The C witness rerecorded byte-identically; its matching-prefix control and state assertions pass."
+    },
+    {
+      "id": "potion-sleeping-holder-release-order",
+      "kind": "parity-repair",
+      "title": "Release a sleeping grabber before potion-hit continuation",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/potion.c:potionhit",
+          "nethack-c/upstream/src/mon.c:slept_monst",
+          "js/potion.js:potionhit"
+        ],
+        "witness": [
+          "recipes/potion.c/sleeping-holder-potion-release.session.json",
+          "recipes/potion.c/sleeping-potion-no-holder-control.session.json"
+        ],
+        "test": [
+          "scripts/potion-sleep-holder.test.mjs",
+          "scripts/potion.test.mjs",
+          "scripts/monster-hurls-potion.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+          "committedAt": "2026-10-26T18:38:36Z",
+          "sourceCommit": "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+          "sourceCommittedAt": "2026-10-26T18:38:36Z",
+          "runs": [
+            {
+              "id": 40379586990,
+              "name": "Checkpoint",
+              "sha": "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/sleeping-holder-potion-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T18:38:59Z",
+              "completedAt": "2026-10-26T18:47:28Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40379586990"
+            },
+            {
+              "id": 40381062471,
+              "name": "Lint",
+              "sha": "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T18:48:46Z",
+              "completedAt": "2026-10-26T18:50:01Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40381062471"
+            },
+            {
+              "id": 40381062296,
+              "name": "Dashboard",
+              "sha": "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T18:48:46Z",
+              "completedAt": "2026-10-26T18:50:41Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40381062296"
+            }
+          ]
+        }
+      ],
+      "note": "C waits for slept_monst to release a sleeping owlbear holding the hero and draw its cooldown before potionhit continues. JavaScript had left that asynchronous call unawaited. The C witness and no-holder control rerecorded byte-identically and now replay with complete RNG, screen and cursor parity."
     }
   ]
 }
