@@ -17431,6 +17431,38 @@
       },
       "candidates": [],
       "note": "Prospective distinct244, fourth locally tested-ready fix in default cap-four batch. C live editor stores probe@example.invalid, reports empty input and leaves cancelled entry unchanged; JS startup parser existed but live handler was absent. Four strict C replays and 212 focused/affected tests pass; focused ESLint/diff pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "bind-existing-key-live-feedback",
+      "kind": "parity-repair",
+      "title": "Preserve C feedback when rebinding an existing key",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:cmdbind_add",
+          "nethack-c/upstream/src/cmd.c:handler_rebind_keys_add",
+          "js/cmd.js:handler_rebind_keys_add"
+        ],
+        "witness": [
+          "recipes/cmd.c/bind-existing-key-live.session.json",
+          "recipes/cmd.c/bind-new-key-live.session.json",
+          "recipes/cmd.c/unbind-key-live.session.json",
+          "recipes/cmd.c/bind-key-menu-cancel.session.json"
+        ],
+        "test": [
+          "scripts/bind-keys-live.test.mjs",
+          "scripts/cmd.test.mjs",
+          "scripts/cmd-span.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options-simple-menu.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Locally qualified after accepting the default option batch. Existing-key rebind in C mutates the same Cmd_bind node, suppressing the changed-key message; JS emitted an extra --More-- screen and consumed the next input. Four independent strict C replays and 198 focused/affected tests pass, with focused lint. Hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }

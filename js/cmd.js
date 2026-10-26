@@ -3982,7 +3982,11 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
         await ttyPline('Key binding failed?!', state);
         return;
     }
-    if (previous && (!command || previous.cmd !== command)) {
+    // cmdbind_add() overwrites an existing C Cmd_bind in place. `prevcmd`
+    // therefore sees the new command after bind_key() and the changed-key
+    // message is suppressed for a successful rebind. Unbinding removes that
+    // node and follows the separate `nothing` message arm below.
+    if (previous && !command) {
         await ttyPline(
             "Changed key '" + key2txt(key) + "' from \""
             + previous.cmd.ef_txt + "\" to \"" + commandText + '".',

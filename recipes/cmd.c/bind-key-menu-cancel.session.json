@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C live autocomplete menu probe",
+  "segments": [
+    {
+      "seed": 15641653,
+      "datetime": "20560120101507",
+      "nethackrc": "OPTIONS=name:Holt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n      r\n\u001b.#optionsfull\n\u001b."
+    }
+  ]
+}
