@@ -46,7 +46,8 @@ function fixture(t) {
   const run = { id: 123, run_attempt: 1, head_sha: sha, status: 'completed', conclusion: 'success',
     repository: { full_name: 'vtjeng/teleport-contest' }, head_repository: { full_name: 'vtjeng/teleport-contest' },
     path: '.github/workflows/checkpoint-trial.yml', html_url: 'https://github.com/vtjeng/teleport-contest/actions/runs/123' };
-  const gh = args => JSON.stringify(args[1].includes('/jobs?') ? { total_count: 1, jobs: [{ status: 'completed', conclusion: 'success', completed_at: '2026-10-22T07:01:00Z' }] } : run);
+  const gh = args => JSON.stringify(args[1].includes('/jobs?') ? { total_count: 1, jobs: [{ status: 'completed', conclusion: 'success', completed_at:
+    args[1].includes('/runs/123/') ? '2026-10-22T07:01:00Z' : '2026-10-22T07:03:00Z' }] } : run);
   const options = { git: args => args[0] === 'ls-remote' ? sha + '\trefs/heads/main' : '', checkpoint: (_, commit) => summaries[commit] };
   const record = () => recordPublishedSynthetic(root, sha, base, publication, gh, options);
   const view = { batches: batches.map(batch => ({ ...batch, freshness: { expected: challengeInputSnapshot(root, batch).sha256 } })), status: 'incomplete', totals: null };

@@ -73,7 +73,7 @@ export function recordPublishedSynthetic(root, commit, baseline, publication, gh
     publication: publication.workflows, entries };
   const recordRepairs = repairMembers && preparePublishedRepairs(root, {
     commit, baseline, members: repairMembers, publication, publicationRuns,
-    checkpointRun: run, checkpointCompletedAt, git,
+    checkpointRun: run, checkpointCompletedAt, gh, git,
   });
   const pointer = join(root, 'challenges/published.json');
   if (existsSync(pointer)) {

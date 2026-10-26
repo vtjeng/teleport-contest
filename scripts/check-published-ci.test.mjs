@@ -99,10 +99,30 @@ test('repair members require receipt validation; pending and failed gates do no 
         repairMembers: members }, { gh: client([]) });
     assert.equal(pending.pending.length, 1);
     assert.equal(pending.synthetic, undefined);
+    assert.deepEqual(JSON.parse(readFileSync(file)).commits[0].syntheticBaseline, other);
+    assert.deepEqual(JSON.parse(readFileSync(file)).commits[0].repairMembers, members);
     const failed = passing(commit);
     failed[0].conclusion = 'failure';
     assert.equal(checkPublishedCI({ file, commit, syntheticBaseline: other,
         repairMembers: members }, { gh: client(failed) }).failed, true);
+    assert.equal(JSON.parse(readFileSync(file)).commits[0].repairMembers, members);
+    assert.throws(() => checkPublishedCI({ file, commit, syntheticBaseline: 'c'.repeat(40),
+        repairMembers: members }, { gh: client([]) }), /baseline differs/);
+    assert.throws(() => checkPublishedCI({ file, commit, syntheticBaseline: other,
+        repairMembers: `different:${other}` }, { gh: client([]) }), /membership differs/);
+    assert.throws(() => checkPublishedCI({ file }, { gh: client(passing(commit)),
+        recordSynthetic: () => { throw new Error('receipt unavailable'); } }), /receipt unavailable/);
+    assert.equal(JSON.parse(readFileSync(file)).commits[0].repairMembers, members,
+        'a failed receipt must stay pending for the next check');
+    const calls = [];
+    const complete = checkPublishedCI({ file }, { gh: client(passing(commit)),
+        recordSynthetic: (...args) => { calls.push(args); return { changed: true }; } });
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0][1], commit);
+    assert.equal(calls[0][2], other);
+    assert.deepEqual(calls[0][5].repairMembers, [{ id: 'repair-one', sourceCommit: other }]);
+    assert.deepEqual(complete.receipts, [{ commit, result: { changed: true } }]);
+    assert.deepEqual(JSON.parse(readFileSync(file)).commits, []);
 });
 
 test('rejects concurrent changes, competing checkers and malformed API responses', t => {
