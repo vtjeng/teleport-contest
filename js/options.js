@@ -5688,7 +5688,7 @@ function pickupTypesFromSymbols(symbols) {
 // each bad, disallowed, or non-final repeated symbol, but still installs the
 // good classes.  Gold leads only when omitted; every other omitted class
 // follows in the order that was active before this statement.
-export function change_inv_order(result, op) {
+export function change_inv_order(result, op, reportError = configErrorAdd) {
     const symbols = encodeUtf8ByteString(op);
     const previous = result.flags.inv_order;
     const reordered = [];
@@ -5704,13 +5704,13 @@ export function change_inv_order(result, op) {
         let rejected = false;
 
         if (objectClass === MAXOCLASSES) {
-            configErrorAdd(result, `Not an object class '${symbol}'`);
+            reportError(result, `Not an object class '${symbol}'`);
             rejected = true;
         } else if (!previous.includes(objectClass)) {
-            configErrorAdd(result, `Object class '${symbol}' not allowed`);
+            reportError(result, `Object class '${symbol}' not allowed`);
             rejected = true;
         } else if (symbols.includes(byte, index + 1)) {
-            configErrorAdd(result, `Duplicate object class '${symbol}'`);
+            reportError(result, `Duplicate object class '${symbol}'`);
             rejected = true;
         }
         if (rejected) accepted = false;
@@ -8473,6 +8473,25 @@ const OPTION_SET_HANDLERS = Object.freeze({
         }
         setPileLimit(state, opts, negated);
         return optn_ok;
+    },
+    // options.c optfn_packorder() uses the same change_inv_order() as startup,
+    // but cfgfiles.c prints each live diagnostic and synchronizes the TTY.
+    packorder: async (state, _optidx, _negated, opts) => {
+        const value = string_for_opt(opts, true);
+        if (value === '') return optn_err;
+        const errors = [];
+        const accepted = change_inv_order(
+            state, value, (_result, message) => errors.push(message),
+        );
+        if (errors.length) {
+            const { tty_wait_synch } = await import('./tty_rawprint.js');
+            for (const message of errors) {
+                const punct = '.!?'.includes(message.at(-1)) ? '' : '.';
+                await ttyPline(`${message}${punct}`, state);
+                await tty_wait_synch(state);
+            }
+        }
+        return accepted ? optn_ok : optn_err;
     },
     pickup_types: (state, optidx, negated, opts, helpers) => optfn_pickup_types(
         state, DO_SET, negated, opts, optidx, helpers,

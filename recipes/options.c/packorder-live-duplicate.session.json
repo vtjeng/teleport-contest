@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed live packorder editor duplicate",
+  "segments": [
+    {
+      "seed": 15641305,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:packorder\n\n??\n"
+    }
+  ]
+}

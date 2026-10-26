@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T02:17:46.064Z",
+  "asOf": "2026-10-26T02:20:53.324Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16794,6 +16794,50 @@
       },
       "candidates": [],
       "note": "Prospective distinct237, first locally tested-ready fix in bounded batch-pilot group three. C live #optionsfull prompt changes pile_limit and emits a synchronized missing-parameter message on empty input; JS startup parsing existed but live parseoptions omitted this handler. Five strict C replays, 206 focused/affected options tests, and focused ESLint/diff pass. Carry complete verified group-two receipt in this ordinary repair commit. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "packorder-live-choice-handler",
+      "kind": "parity-repair",
+      "title": "Set inventory pack order from live options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T02:19:13.224Z",
+          "end": "2026-10-26T02:20:53.324Z",
+          "note": "C live editor submission diverged while cancellation matched. Wall span includes C recordings and tests, not active-work time."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:doset",
+          "nethack-c/upstream/src/options.c:parseoptions",
+          "nethack-c/upstream/src/options.c:optfn_packorder",
+          "nethack-c/upstream/src/options.c:change_inv_order",
+          "nethack-c/upstream/src/cfgfiles.c:config_erradd",
+          "js/options.js:OPTION_SET_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/packorder-live-valid.session.json",
+          "recipes/options.c/packorder-live-invalid.session.json",
+          "recipes/options.c/packorder-live-duplicate.session.json",
+          "recipes/options.c/packorder-live-empty.session.json",
+          "recipes/options.c/packorder-live-cancel.session.json",
+          "recipes/options.c/packorder-live-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/options-packorder-live.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-simple-menu.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct238, second locally tested-ready fix in bounded batch-pilot group three. C live packorder editor reorders inventory classes and synchronizes invalid/duplicate diagnostics; JS startup parsing existed but live parseoptions omitted this handler. Six strict C replays, 207 focused/affected options tests, and focused ESLint/diff pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }
