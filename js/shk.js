@@ -3929,8 +3929,7 @@ export async function fix_shop_damage(state = game, env = {}) {
 // C ref: shk.c shk_move() (4880-4993). Covers the ordinary peaceful path and
 // hands candidate selection to priest.c move_special(), which is shared by
 // both special movers. Adjacent combat awaits mattacku in C order; following
-// speech and repair still stop at
-// their source branches.
+// Following speech and shop repairs run before movement target selection.
 //
 // Return values match C: 1 = moved, 0 = didn't, -1 = let m_move do it,
 // -2 = died.
@@ -3973,8 +3972,48 @@ export async function shk_move(shkp, state, rawEnv = {}) {
                 return 0;
             })();
         }
-        if (eshkp.following)
-            throw new UnsupportedShopError('shk_move following speech');
+        if (eshkp.following) {
+            // C shk.c:4903-4931 handles a pursuing shopkeeper before its
+            // ordinary movement target is selected. A different customer
+            // ends the pursuit even when the keeper cannot speak.
+            const playerName = state.plname ?? '';
+            if (truncateByteString(eshkp.customer ?? '', PL_NSIZ)
+                !== truncateByteString(playerName, PL_NSIZ)) {
+                if (!heroIsDeaf(state) && !muteshk(shkp)) {
+                    set_voice(shkp, 0, 80, 0, state);
+                    await verbalize(
+                        `${Hello(state.urole, { shopkeeper: true })}, ${playerName}!  I was looking for ${eshkp.customer}.`,
+                        state, { message: env.message ?? ttyPline },
+                    );
+                }
+                eshkp.following = false;
+                return 0;
+            }
+            const globals = state.gf ??= {};
+            if ((state.moves ?? 0) > (globals.followmsg ?? 0) + 4) {
+                if (!heroIsDeaf(state) && !muteshk(shkp)) {
+                    set_voice(shkp, 0, 80, 0, state);
+                    await verbalize(
+                        `${Hello(state.urole, { shopkeeper: true })}, ${playerName}!  Didn't you forget to pay?`,
+                        state, { message: env.message ?? ttyPline },
+                    );
+                } else {
+                    await (env.message ?? ttyPline)(
+                        `${Shknam(shkp, state)} holds out ${noit_mhis(shkp, { state })} upturned ${mbodypart(shkp, HAND)}.`,
+                        state, env,
+                    );
+                }
+                globals.followmsg = state.moves;
+                if (!(env.random?.rn2 ?? rn2)(9)) {
+                    await (env.message ?? ttyPline)(
+                        `${Shknam(shkp, state)} doesn't like customers who don't pay.`,
+                        state, env,
+                    );
+                    rile_shk(shkp);
+                }
+            }
+            if (udist < 2) return 0;
+        }
     }
 
     let appr = 1;

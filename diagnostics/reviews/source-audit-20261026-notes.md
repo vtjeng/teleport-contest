@@ -60,3 +60,13 @@ vault-room/escort state. The no-gold control passes; the gold case originally
 threw `ReferenceError: gdEnv is not defined`. The focused fix passes both
 cases and affected escort tests. This is C-source-derived evidence, not an
 executed C recording; publication remains subject to the usual combined gates.
+
+Shopkeeper throw-site follow-up: `src/shk.c:shk_move:4903-4931` handles a
+following shopkeeper beside the hero. `scripts/shk-move.test.mjs` replaced an
+obsolete throw expectation with valid shopkeeper/customer state and three
+source-derived cases: a different customer ends pursuit, a current customer
+stays adjacent before the reminder deadline, and a later reminder updates
+`gf.followmsg` with exactly one `rn2(9)` draw. The wrong-customer and
+same-customer cases were red on the unsupported boundary before the fix.
+Adjacent non-following movement remains a passing control. No new C recording
+was made; full checkpoint and publication gates remain required.

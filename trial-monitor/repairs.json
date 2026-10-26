@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T21:21:16Z",
+  "asOf": "2026-10-26T21:42:53Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19912,6 +19912,83 @@
         }
       ],
       "note": "Pinned C do_entity reports the visible hero tumbling toward the portcullis, then the closing bridge. A focused initialized-game API test failed on the omitted messages and passed an empty-bridge control. This expectation is C-source-derived; no fresh C gameplay recording was made. The separate source-audit guidance commit adds no distinct gameplay repair."
+    },
+    {
+      "id": "vault-guard-newspot-gold-pickup",
+      "kind": "parity-repair",
+      "title": "Handle vault guard pickup on a new corridor square",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c:gd_move",
+          "js/vault.js:gd_move_proceed"
+        ],
+        "witness": [
+          "scripts/vault-guard-newspot-gold.test.mjs"
+        ],
+        "test": [
+          "scripts/vault-guard-newspot-gold.test.mjs",
+          "scripts/vault-guard-escort.test.mjs",
+          "scripts/vault-guard-corridor-gold.test.mjs",
+          "scripts/vault-guard-distant-gold.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "a22105b4ee6a9e0182b3e118d97a0c817fee9632",
+          "committedAt": "2026-10-26T21:27:41Z",
+          "sourceCommit": "72899cc3a69cf4ec0e7d29f90b54768d5139850c",
+          "sourceCommittedAt": "2026-10-26T21:27:37Z",
+          "runs": [
+            {
+              "id": 40404579484,
+              "name": "Checkpoint",
+              "sha": "a22105b4ee6a9e0182b3e118d97a0c817fee9632",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-newspot-gold-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:27:57Z",
+              "completedAt": "2026-10-26T21:39:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40404579484"
+            },
+            {
+              "id": 40406390193,
+              "name": "Lint",
+              "sha": "a22105b4ee6a9e0182b3e118d97a0c817fee9632",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:40:55Z",
+              "completedAt": "2026-10-26T21:41:59Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40406390193"
+            },
+            {
+              "id": 40406390219,
+              "name": "Dashboard",
+              "sha": "a22105b4ee6a9e0182b3e118d97a0c817fee9632",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:40:55Z",
+              "completedAt": "2026-10-26T21:42:53Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40406390219"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C gd_move picks up pre-existing gold at the guard next corridor square and reports it if visible. An initialized-game focused fixture with coherent vault occupancy failed at the previous undefined gdEnv reference and passed a no-gold movement control. The repaired branch uses the caller environment, picks up gold, and reports the visible guard. Source-grounded expectation; no fresh C gameplay recording was made."
     }
   ]
 }

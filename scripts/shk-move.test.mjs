@@ -21,7 +21,6 @@ import {
     repairable_damage,
     shk_impaired,
     shk_move,
-    UnsupportedShopError,
 } from '../js/shk.js';
 import { m_move } from '../js/monmove.js';
 import { monst_globals_init, PM_SHOPKEEPER } from '../js/monsters.js';
@@ -179,19 +178,71 @@ test('shk_move completes adjacent angry combat before returning zero', async () 
     assert.deepEqual(order, ['attack completed']);
 });
 
-test('shk_move refuses a following shopkeeper', async () => {
-    // C ref: shk.c:4903-4931.  A following shopkeeper would talk to the hero
+test('following shopkeeper recognizes a different customer and stops', async () => {
+    // C shk.c:4903-4911 clears following after speaking to a different
+    // customer. Source-derived expectation; no fresh C recording.
     const shkp = makeStationaryShopkeeper();
     shkp.mextra.eshk.following = true;
-    // C checks following speech only while the hero is within dist2 < 3.
+    shkp.mextra.eshk.customer = 'Mira';
     const state = makeShopState({ ux: 4, uy: 5 });
+    state.plname = 'Aster';
     state.level.rooms[0].resident = shkp;
+    const messages = [];
 
-    await assert.rejects(
-        () => shk_move(shkp, state),
-        (err) => err instanceof UnsupportedShopError
-            && err.message.includes('following'),
-    );
+    assert.equal(await shk_move(shkp, state, {
+        message: async line => messages.push(line),
+    }), 0);
+    assert.equal(shkp.mextra.eshk.following, false);
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /Aster!  I was looking for Mira\./u);
+});
+
+test('following shopkeeper stays beside the same customer before reminder', async () => {
+    const shkp = makeStationaryShopkeeper();
+    shkp.mextra.eshk.following = true;
+    shkp.mextra.eshk.customer = 'Aster';
+    const state = makeShopState({ ux: 4, uy: 5 });
+    state.plname = 'Aster';
+    state.moves = 1;
+    state.level.rooms[0].resident = shkp;
+    const messages = [];
+
+    assert.equal(await shk_move(shkp, state, {
+        message: async line => messages.push(line),
+    }), 0);
+    assert.equal(shkp.mextra.eshk.following, true);
+    assert.deepEqual(messages, []);
+});
+
+test('following shopkeeper reminds the customer once per five turns', async () => {
+    // C shk.c:4912-4931 sets the shared followmsg clock, takes rn2(9),
+    // and stays adjacent. The nonzero draw leaves the keeper peaceful.
+    const shkp = makeStationaryShopkeeper();
+    shkp.mextra.eshk.following = true;
+    shkp.mextra.eshk.customer = 'Aster';
+    const state = makeShopState({ ux: 4, uy: 5 });
+    state.plname = 'Aster';
+    state.moves = 5;
+    state.gf = { followmsg: 0 };
+    state.level.rooms[0].resident = shkp;
+    const messages = [];
+    const draws = [];
+    const env = {
+        message: async line => messages.push(line),
+        random: { rn2(n) { draws.push(n); return 1; } },
+    };
+
+    assert.equal(await shk_move(shkp, state, env), 0);
+    assert.equal(state.gf.followmsg, 5);
+    assert.deepEqual(draws, [9]);
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /Aster!  Didn't you forget to pay\?/u);
+    assert.equal(shkp.mpeaceful, true);
+
+    state.moves = 6;
+    assert.equal(await shk_move(shkp, state, env), 0);
+    assert.deepEqual(draws, [9]);
+    assert.equal(messages.length, 1);
 });
 
 test('shk_move moves an indebted shopkeeper toward its guard', async () => {
