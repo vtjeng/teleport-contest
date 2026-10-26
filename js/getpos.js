@@ -31,6 +31,8 @@ import {
     LOOK_QUICK,
     LOOK_TRADITIONAL,
     LOOK_VERBOSE,
+    NO_CURS_ON_U,
+    OVERRIDE_MSGTYPE,
     ROWNO,
     CMDQ_DIR,
     CMDQ_KEY,
@@ -42,6 +44,7 @@ import {
     TER_MON,
     TER_OBJ,
     TIP_GETPOS,
+    SUPPRESS_HISTORY,
     VIBRATING_SQUARE,
     quitchars,
 } from './const.js';
@@ -121,7 +124,7 @@ import {
     S_water,
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
-import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import { clearTtyMessageWindow, ttyCustomPline, ttyPline } from './tty_message.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
 import { tty_create_nhwindow, tty_curs } from './wintty.js';
@@ -518,8 +521,7 @@ export function truncate_to_map(cx, cy, dx, dy) {
 }
 
 // C ref: getpos.c auto_describe() (640-662), under default getpos_coords.
-// ttyPline() flushes with the cursor on the hero, so restore the selected map
-// coordinate after it writes the source firstmatch text.
+// C custompline() overrides MSGTYPE and keeps the current cursor while flushing.
 async function auto_describe(cx, cy, state) {
     const noTravelPath = state.iflags?.getloc_travelmode
         && !await is_valid_travelpt(cx, cy, state);
@@ -532,11 +534,12 @@ async function auto_describe(cx, cy, state) {
                 && state.getpos_getvalid
                 && !await state.getpos_getvalid(cx, cy, state);
             const coordinate = coord_desc(cx, cy, state);
-            await ttyPline(
+            await ttyCustomPline(
                 description.firstmatch
                 + (coordinate ? ` ${coordinate}` : '')
                 + (invalidTarget ? ' (invalid target)' : '')
                 + (noTravelPath ? ' (no travel path)' : ''),
+                SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U,
                 state,
             );
         }

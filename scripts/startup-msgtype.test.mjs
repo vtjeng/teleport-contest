@@ -11,7 +11,6 @@ import {
     PLINE_NOREPEAT,
     PLINE_SPEECH,
     PLINE_VERBALIZE,
-    SUPPRESS_HISTORY,
     URGENT_MESSAGE,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -932,8 +931,7 @@ test('custompline refuses every unsupported flag before effects', async () => {
         URGENT_MESSAGE,
         PLINE_VERBALIZE,
         PLINE_SPEECH,
-        NO_CURS_ON_U,
-        OVERRIDE_MSGTYPE | SUPPRESS_HISTORY,
+        NO_CURS_ON_U | 0x80,
         0x80,
     ]) {
         const state = messageState('', 'X');

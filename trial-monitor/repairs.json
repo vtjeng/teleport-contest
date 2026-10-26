@@ -18027,6 +18027,22 @@
       },
       "candidates": [],
       "note": "Prospective distinct253, discovered and verified during trial. A finite repeated capture referenced by a backreference in MSGTYPE hid the startup greeting in C but caused a named JS refusal. Worker commit 19ff69d340545e9e691c55cbfc1f11970194602f admits finite supported endpoints while retaining the refusal for unverified unbounded nullable shapes. Exact C witness and two controls match; 63 affected tests pass and 889 supported pattern/input pairs matched a libc oracle. Full combined-SHA hosted and Main gates pending."
+    },
+    {
+      "id": "getpos-autodescribe-msgtype",
+      "kind": "parity-repair",
+      "title": "Honor C message flags in getpos descriptions",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": ["nethack-c/upstream/src/getpos.c:auto_describe", "nethack-c/upstream/src/pline.c:custompline", "js/getpos.js:auto_describe", "js/tty_message.js:ttyCustomPline"],
+        "witness": ["recipes/getpos.c/trial-autodescribe-msgtype-hide.session.json", "recipes/getpos.c/trial-autodescribe-no-filter-control.session.json", "recipes/getpos.c/trial-autodescribe-other-filter-control.session.json"],
+        "test": ["scripts/autodescribe-msgtype-hide.test.mjs", "scripts/startup-msgtype.test.mjs", "scripts/getpos.test.mjs"]
+      },
+      "candidates": [],
+      "note": "Prospective distinct254, discovered and verified during trial. C cursor descriptions use custompline to override MSGTYPE hide without recording history or moving the cursor; JS plain ttyPline suppressed the description. Luna worker commit ef6b7eb06c9a4923fabaaebbc815d4cc6d9ffecd. Strict C witness and two controls match with aligned 2395 RNG; 72 focused/affected tests and full lint passed. The shared startup-msgtype test file merged without conflict with the preceding POSIX fix. Full combined-SHA hosted and Main gates pending."
     }
   ]
 }

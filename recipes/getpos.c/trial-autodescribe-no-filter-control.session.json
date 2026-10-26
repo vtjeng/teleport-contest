@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 232497,
+      "datetime": "20470819131907",
+      "nethackrc": "OPTIONS=name:CursorHelp,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\nOPTIONS=pettype:none,!debug_mongen\n",
+      "moves": "#name\nmj\u001b"
+    }
+  ]
+}
