@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9701162,
+      "datetime": "20490417141500",
+      "nethackrc": "OPTIONS=name:SleepHolderProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " l\u00176 blessed potions of full healing\nqnqnqnqnqnqn\u00173 potions of sleeping\n#wizgenesis\nhostile owlbear\nm.   tou  \nm.   m.   m.   "
+    }
+  ],
+  "_comment": "Same C setup with the sleeping potion thrown before the owlbear grabs the hero. C recording reran byte-identically; confirms the ordinary sleeping-potion path without an unstuck draw."
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T17:59:31Z",
+  "asOf": "2026-10-26T18:26:06Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19351,7 +19351,58 @@
           "scripts/quest-nemesis-chat.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+          "committedAt": "2026-10-26T18:01:37Z",
+          "sourceCommit": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+          "sourceCommittedAt": "2026-10-26T18:01:37Z",
+          "runs": [
+            {
+              "id": 40374247397,
+              "name": "Checkpoint",
+              "sha": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/quest-leader-hostile-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T18:02:55Z",
+              "completedAt": "2026-10-26T18:14:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40374247397"
+            },
+            {
+              "id": 40377400642,
+              "name": "Lint",
+              "sha": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T18:24:09Z",
+              "completedAt": "2026-10-26T18:25:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40377400642"
+            },
+            {
+              "id": 40377400344,
+              "name": "Dashboard",
+              "sha": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T18:24:09Z",
+              "completedAt": "2026-10-26T18:26:06Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40377400344"
+            }
+          ]
+        }
+      ],
       "note": "After the hero attacks the quest leader, C displays leader_last once, sets pissed_off, and clears STRAT_WAITMASK before the next action. JavaScript previously stopped at an UnsupportedTurnBoundaryError. The C witness rerecorded byte-identically; its matching-prefix control and state assertions pass."
     }
   ]
