@@ -8612,6 +8612,7 @@ const OPTION_HANDLERS = Object.freeze({
     o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
     petattr: handler_petattr,
     o_menu_colors: (state, helpers) => optfn_o_menu_colors(state, DO_HANDLER, '', helpers),
+    o_message_types: handler_msgtype,
 });
 
 // C ref: options.c reset_needed_visuals() (8977-9010), which doset() runs once
@@ -9109,4 +9110,58 @@ export function optfn_o_menu_colors(state, request, opts = '', helpers) {
     if (request === GET_VAL || request === GET_CNF_VAL) return opts == null ? optn_err : n_currently_set(count_menucolors(state));
     if (request === DO_HANDLER) return handler_menu_colors(state, helpers);
     return optn_ok;
+}
+
+// C ref: options.c handler_msgtype(), query_msgtype(), free_one_msgtype().
+// The live editor shares its list with startup MSGTYPE declarations.
+export async function handler_msgtype(state, helpers) {
+    for (;;) {
+        const action = await handle_add_list_remove(state, 'message type', msgtype_count(state), helpers);
+        if (action === 3) return optn_ok;
+        if (action === 0) {
+            const pattern = helpers?.getlin ? await helpers.getlin('What new message pattern?') : await getlin('What new message pattern?', state);
+            if (pattern?.[0] === '\x1b') return optn_ok;
+            if (pattern && test_regex_pattern(state, pattern, 'MSGTYPE regex')) {
+                const choices = MSGTYPE_NAMES.filter(({ name }) => !['noshow', 'more'].includes(name));
+                const descriptions = ['Show message normally', 'Hide message',
+                    'Prompt for more after the message', 'Do not repeat the message'];
+                const selected = await optionMenuSelect(state, {
+                    items: choices.map(({ msgtype }, i) => ({ text: descriptions[i], value: msgtype + 1 })),
+                    title: 'How to show the message', how: PICK_ONE,
+                }, helpers);
+                const picks = menuSelectionValues(selected);
+                if (picks.length && !msgtype_add(state, picks[0] - 1, pattern)) {
+                    await ttyPline('Error adding the message type.', state);
+                    note_unported('windows.c wait_synch');
+                }
+            }
+            continue;
+        }
+        const items = [];
+        for (let rule = state.gp?.plinemsg_types; rule; rule = rule.next) {
+            const name = MSGTYPE_NAMES.find(({ msgtype, name }) =>
+                msgtype === rule.msgtype && !['noshow', 'more'].includes(name))?.name ?? '(null)';
+            const prefix = `${name.padEnd(5)} "`;
+            const available = BUFSZ - prefix.length - 2;
+            const pattern = encodeUtf8ByteString(rule.pattern).length > available
+                ? `${truncateByteString(rule.pattern, available - 3)}...` : rule.pattern;
+            items.push({ text: `${prefix}${pattern}"`, value: items.length + 1 });
+        }
+        const selected = await optionMenuSelect(state, {
+            items, title: `${action === 1 ? 'List of' : 'Remove which'} message types`,
+            how: action === 1 ? PICK_NONE : PICK_ANY, emptyValue: [],
+        }, helpers);
+        const picks = menuSelectionValues(selected);
+        for (let i = 0; i < picks.length; ++i) {
+            const index = picks[i] - 1 - i;
+            let previous = null;
+            let node = state.gp?.plinemsg_types;
+            for (let n = 0; node && n < index; ++n) { previous = node; node = node.next; }
+            if (node) {
+                if (previous) previous.next = node.next;
+                else state.gp.plinemsg_types = node.next;
+            }
+        }
+        if (selected == null) return optn_ok;
+    }
 }
