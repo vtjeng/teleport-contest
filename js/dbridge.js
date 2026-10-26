@@ -785,8 +785,17 @@ async function do_entity(entity, state, env = {}) {
     }
     const pool = is_pool(entity.ex, entity.ey, state);
     const lava = is_lava(entity.ex, entity.ey, state);
-    if ((pool || lava) && inview && !is_u(entity, state))
-        await message(`${E_phrase(entity, pool ? 'fall' : 'fall', state)} into the ${pool ? 'moat' : 'lava'}.`, state);
+    if ((pool || lava) && inview && !is_u(entity, state)) {
+        // C dbridge.c:743-753 uses a different visible-monster line while
+        // hallucinating; its liquid name is literal in that arm.
+        if (heroHallucinating(state)) {
+            await message(`${E_phrase(entity, 'drink', state)} the `
+                + `${lava ? 'lava' : 'moat'} and disappears.`, state);
+        } else {
+            await message(`${E_phrase(entity, 'fall', state)} into the `
+                + `${lava ? 'lava' : 'moat'}.`, state);
+        }
+    }
     state.killer ??= {};
     state.killer.format = NO_KILLER_PREFIX;
     state.killer.name = 'fell from a drawbridge';

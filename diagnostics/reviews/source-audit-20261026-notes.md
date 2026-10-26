@@ -70,3 +70,19 @@ stays adjacent before the reminder deadline, and a later reminder updates
 same-customer cases were red on the unsupported boundary before the fix.
 Adjacent non-following movement remains a passing control. No new C recording
 was made; full checkpoint and publication gates remain required.
+
+Drawbridge follow-up: `src/dbridge.c:do_entity:743-753` gives a visible
+monster a drink-and-disappear line under Hallucination when it jumps from a
+closing portcullis into the moat. `scripts/dbridge-hallu-fall.test.mjs` uses
+an initialized drawbridge and mobile gnome; the ordinary fall line and local
+miss/jump rolls are controls. The hallucinated line was red on Main before
+the narrow message fix. Its expected text is source-derived, without a new C
+recording, and still requires the normal hosted gates.
+
+Two tempting gaps remain unqualified: `steed.c:mount_steed`'s petrification
+call cannot be reached with an ordinarily saddled cockatrice because
+`can_saddle` excludes its class; polymorph of an already saddled mount was
+not established. `do.c:dodown` records `goto_hell` as unported, but a fresh
+Castle trapdoor recording with `#wizmap` then `>` matched JS exactly across
+25,853 RNG calls and 60 screens/cursors, with both reaching the Valley.
+Neither source warning alone justifies a repair.

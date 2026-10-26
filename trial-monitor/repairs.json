@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T22:23:33Z",
+  "asOf": "2026-10-26T22:44:26Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -20143,6 +20143,84 @@
         }
       ],
       "note": "C create_gas_cloud_selection passes positive damage through make_gas_cloud when a special-level selection creates a harmful cloud. A focused in_mklev selection case failed on JS UnsupportedRegionCallbackError before selection traversal; zero-damage control already worked. The repaired helper records the positive damage and poison-cloud glyph, and existing callback tests cover harmful upkeep. Source-derived C oracle, without a new C gameplay recording."
+    },
+    {
+      "id": "quest-expulsion-destination-trap-removal",
+      "kind": "parity-repair",
+      "title": "Remove destination trap after sealed Quest expulsion",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/quest.c:expulsion",
+          "nethack-c/upstream/src/do.c:deferred_goto",
+          "js/do.js:deferred_goto"
+        ],
+        "witness": [
+          "scripts/deferred-portal-removal.test.mjs"
+        ],
+        "test": [
+          "scripts/deferred-portal-removal.test.mjs",
+          "scripts/ball-fall.test.mjs",
+          "scripts/wizard-level-tele.test.mjs",
+          "scripts/makemon.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+          "committedAt": "2026-10-26T22:30:36Z",
+          "sourceCommit": "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+          "sourceCommittedAt": "2026-10-26T22:30:36Z",
+          "runs": [
+            {
+              "id": 40413014537,
+              "name": "Checkpoint",
+              "sha": "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/deferred-portal-removal-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:30:52Z",
+              "completedAt": "2026-10-26T22:41:28Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40413014537"
+            },
+            {
+              "id": 40414491313,
+              "name": "Lint",
+              "sha": "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:42:30Z",
+              "completedAt": "2026-10-26T22:43:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40414491313"
+            },
+            {
+              "id": 40414491348,
+              "name": "Dashboard",
+              "sha": "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:42:30Z",
+              "completedAt": "2026-10-26T22:44:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40414491348"
+            }
+          ]
+        }
+      ],
+      "note": "Source-derived C oracle: the sealed Quest sets UTOTYPE_RMPORTAL; C removes the trap on the arrival square after goto_level. Focused initialized two-level setup failed on UnsupportedLevelChangeError before correction; ordinary portal and trap-free sealed arrival are controls. No new C gameplay recording."
     }
   ]
 }
