@@ -1962,6 +1962,7 @@ async function ensureSpecialLevelLoaders() {
     const { ORCUS_LEVEL_LOADERS } = await import('./orcus_levels.js');
     const { WIZARD1_LEVEL_LOADERS } = await import('./wizard1_levels.js');
     const { WIZARD2_LEVEL_LOADERS } = await import('./wizard2_levels.js');
+    const { FAKEWIZ2_LEVEL_LOADERS } = await import('./fakewiz2_level.js');
     const { WIZARD3_LEVEL_LOADERS } = await import('./wizard3_levels.js');
     const { FAKEWIZ1_LEVEL_LOADERS } = await import('./fakewiz1_levels.js');
     const { KNOX_LEVEL_LOADERS } = await import('./knox_levels.js');
@@ -1986,6 +1987,7 @@ async function ensureSpecialLevelLoaders() {
         ...ORCUS_LEVEL_LOADERS,
         ...WIZARD1_LEVEL_LOADERS,
         ...WIZARD2_LEVEL_LOADERS,
+        ...FAKEWIZ2_LEVEL_LOADERS,
         ...WIZARD3_LEVEL_LOADERS,
         ...FAKEWIZ1_LEVEL_LOADERS,
         ...KNOX_LEVEL_LOADERS,

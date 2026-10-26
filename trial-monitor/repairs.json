@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T08:31:58Z",
+  "asOf": "2026-10-26T09:11:24Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -18242,11 +18242,75 @@
       "investigator": null,
       "carryIn": false,
       "evidence": {
-        "source": ["nethack-c/upstream/win/tty/wintty.c:make_things_fit", "nethack-c/upstream/src/botl.c:stat_update_time", "js/display.js:_stat_update_time"],
-        "witness": ["recipes/display.c/trial-time-width-probe.session.json", "recipes/display.c/trial-time-width-prefix-control.session.json", "recipes/display.c/trial-time-width-no-gold-control.session.json", "recipes/display.c/trial-time-width-no-blind-control.session.json"],
-        "test": ["scripts/display-time-width-refresh.test.mjs", "scripts/display-symbols.test.mjs", "scripts/display.test.mjs"]
+        "source": [
+          "nethack-c/upstream/win/tty/wintty.c:make_things_fit",
+          "nethack-c/upstream/src/botl.c:stat_update_time",
+          "js/display.js:_stat_update_time"
+        ],
+        "witness": [
+          "recipes/display.c/trial-time-width-probe.session.json",
+          "recipes/display.c/trial-time-width-prefix-control.session.json",
+          "recipes/display.c/trial-time-width-no-gold-control.session.json",
+          "recipes/display.c/trial-time-width-no-blind-control.session.json"
+        ],
+        "test": [
+          "scripts/display-time-width-refresh.test.mjs",
+          "scripts/display-symbols.test.mjs",
+          "scripts/display.test.mjs"
+        ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+          "committedAt": "2026-10-26T08:56:58Z",
+          "sourceCommit": "047103bd88541bea2cef67d5bc27a7fe73fd8f93",
+          "sourceCommittedAt": "2026-10-26T08:56:13Z",
+          "runs": [
+            {
+              "id": 40296002204,
+              "name": "Checkpoint",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch3-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:58:13Z",
+              "completedAt": "2026-10-26T09:08:15Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40296002204"
+            },
+            {
+              "id": 40297419454,
+              "name": "Lint",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T09:09:40Z",
+              "completedAt": "2026-10-26T09:10:48Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40297419454"
+            },
+            {
+              "id": 40297419473,
+              "name": "Dashboard",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T09:09:40Z",
+              "completedAt": "2026-10-26T09:11:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40297419473"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct255, discovered and verified during trial. At turn 9 to 10, C refits the status row and shortens condition labels while JS previously threw UnsupportedStatusRefreshError. Original worker commit 978d31b923a20ac103ccc3c92d95220278d632c9 passed its initial witness, but combined Checkpoint 40293591635 failed test shard 4 on an unconscious-rest animation frame. Cross-review also found a missing two-row blank capacity field. Correction worker commit 8b8296b62eac31eeb1e7580ee44e5388ff19b31e adds a C padding witness/control, preserves cached values until width overflow, and passes six strict C cases, 216 display tests and 12 incapacitation animation tests. One grouped repair only; fresh combined-SHA hosted and Main gates pending."
     },
     {
@@ -18258,11 +18322,73 @@
       "investigator": null,
       "carryIn": false,
       "evidence": {
-        "source": ["nethack-c/upstream/src/pager.c:look_engrs", "js/pager.js:look_engrs"],
-        "witness": ["recipes/pager.c/trial-engraving-screen-coords-probe.session.json", "recipes/pager.c/trial-engraving-compass-coords-probe.session.json", "recipes/pager.c/trial-engraving-map-coords-control.session.json", "recipes/pager.c/trial-engraving-none-coords-control.session.json"],
-        "test": ["scripts/engraving-list-coordinates.test.mjs", "scripts/whatis-command.test.mjs"]
+        "source": [
+          "nethack-c/upstream/src/pager.c:look_engrs",
+          "js/pager.js:look_engrs"
+        ],
+        "witness": [
+          "recipes/pager.c/trial-engraving-screen-coords-probe.session.json",
+          "recipes/pager.c/trial-engraving-compass-coords-probe.session.json",
+          "recipes/pager.c/trial-engraving-map-coords-control.session.json",
+          "recipes/pager.c/trial-engraving-none-coords-control.session.json"
+        ],
+        "test": [
+          "scripts/engraving-list-coordinates.test.mjs",
+          "scripts/whatis-command.test.mjs"
+        ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+          "committedAt": "2026-10-26T08:56:58Z",
+          "sourceCommit": "a055456935507c605949174214825c4099fd9874",
+          "sourceCommittedAt": "2026-10-26T08:35:04Z",
+          "runs": [
+            {
+              "id": 40296002204,
+              "name": "Checkpoint",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch3-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:58:13Z",
+              "completedAt": "2026-10-26T09:08:15Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40296002204"
+            },
+            {
+              "id": 40297419454,
+              "name": "Lint",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T09:09:40Z",
+              "completedAt": "2026-10-26T09:10:48Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40297419454"
+            },
+            {
+              "id": 40297419473,
+              "name": "Dashboard",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T09:09:40Z",
+              "completedAt": "2026-10-26T09:11:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40297419473"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct256, discovered and verified during trial. C lists nearby engravings in configured screen or compass coordinates, but JS previously refused nondefault coordinate modes. Worker commit d3db2abaf4065c8133ca702694f643f5ef01f763 ports C coordinate formatting and glyph placement. Strict C screen/compass witnesses and map/none controls match; 62 focused/affected tests and lint passed. Full combined-SHA hosted and Main gates pending."
     },
     {
@@ -18274,11 +18400,73 @@
       "investigator": null,
       "carryIn": false,
       "evidence": {
-        "source": ["nethack-c/upstream/src/write.c:dowrite", "nethack-c/upstream/src/invent.c:merged", "js/write.js:writeEnv", "js/invent.js:hold_another_object"],
-        "witness": ["recipes/write.c/trial-marker-stack-merge.session.json", "recipes/write.c/trial-marker-no-stack-control.session.json"],
-        "test": ["scripts/write-marker-stack.test.mjs", "scripts/write.test.mjs"]
+        "source": [
+          "nethack-c/upstream/src/write.c:dowrite",
+          "nethack-c/upstream/src/invent.c:merged",
+          "js/write.js:writeEnv",
+          "js/invent.js:hold_another_object"
+        ],
+        "witness": [
+          "recipes/write.c/trial-marker-stack-merge.session.json",
+          "recipes/write.c/trial-marker-no-stack-control.session.json"
+        ],
+        "test": [
+          "scripts/write-marker-stack.test.mjs",
+          "scripts/write.test.mjs"
+        ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+          "committedAt": "2026-10-26T08:56:58Z",
+          "sourceCommit": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+          "sourceCommittedAt": "2026-10-26T08:56:58Z",
+          "runs": [
+            {
+              "id": 40296002204,
+              "name": "Checkpoint",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch3-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:58:13Z",
+              "completedAt": "2026-10-26T09:08:15Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40296002204"
+            },
+            {
+              "id": 40297419454,
+              "name": "Lint",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T09:09:40Z",
+              "completedAt": "2026-10-26T09:10:48Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40297419454"
+            },
+            {
+              "id": 40297419473,
+              "name": "Dashboard",
+              "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T09:09:40Z",
+              "completedAt": "2026-10-26T09:11:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40297419473"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct257, discovered and verified during trial. C prints a comparison-discovery message when a newly written scroll joins an existing stack; JS previously threw because writeEnv lacked the inventoryComparisonDiscovered hook. Worker commit eb1e9bf804632d9d2c4d56114a91a227216fb39c adds the live callback. Strict C merge witness and no-stack control match, with 26 focused write tests and lint passing. An unrelated broader glob-qualification subprocess failed in the sparse worker; the previously blocked glob area was not investigated. Full combined-SHA hosted and Main gates pending."
     }
   ]
