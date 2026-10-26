@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T23:33:54Z",
+  "asOf": "2026-10-26T23:40:10.273Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -20451,6 +20451,85 @@
         }
       ],
       "note": "Source-derived oracle: an engulfing monster inventory includes the hero row after object rows, with a Creatures heading when objects exist. Empty non-engulfing inventory is the control; no new C gameplay recording."
+    },
+    {
+      "id": "current-shop-financial-report",
+      "kind": "parity-repair",
+      "title": "Report credit and debt in the current shop",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c:shopper_financial_report",
+          "js/invent.js:shopper_financial_report"
+        ],
+        "witness": [
+          "scripts/shop-financial-current-shop.test.mjs"
+        ],
+        "test": [
+          "scripts/shop-financial-current-shop.test.mjs",
+          "scripts/invent.test.mjs",
+          "scripts/shop-payment.test.mjs",
+          "scripts/shop-billing.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Reviewed Q4 source-derived oracle with coherent shop state: debit17 reports zero credit then debt; debit0 control reports neither. No C execution or new gameplay recording."
+    },
+    {
+      "id": "wizard-artifact-discovery-dump",
+      "kind": "parity-repair",
+      "title": "Render Wizard artifact status in discovery window",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/o_init.c:doclassdisco",
+          "nethack-c/upstream/src/artifact.c:dump_artifact_info",
+          "js/o_init.js:doclassdisco"
+        ],
+        "witness": [
+          "scripts/artifact-discovery-dump-window.test.mjs"
+        ],
+        "test": [
+          "scripts/artifact-discovery-dump-window.test.mjs",
+          "scripts/o_init-discoveries.test.mjs",
+          "scripts/artifacts.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Reviewed Q5 source-derived Wizard-debug UI oracle: yes dumps one window with header and all artifacts; no answer control leaves no window. No ordinary-gameplay score claim or C execution."
+    },
+    {
+      "id": "returning-aklys-lethal-cleanup",
+      "kind": "parity-repair",
+      "title": "Complete lethal returning aklys monster death",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mthrowu.c:return_from_mtoss",
+          "nethack-c/upstream/src/mon.c:monkilled",
+          "js/mthrowu.js:return_from_mtoss"
+        ],
+        "witness": [
+          "scripts/returning-aklys-lethal-cleanup.test.mjs"
+        ],
+        "test": [
+          "scripts/returning-aklys-lethal-cleanup.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/mon-kill.test.mjs",
+          "scripts/aklys-return-throttle.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Reviewed Q3 source-derived lethal returning-weapon oracle enters through actual m_throw: HP2 death detaches monster and preserves floor weapon; HP3 control remains alive. No C execution or new gameplay recording."
     }
   ]
 }
