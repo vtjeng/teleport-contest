@@ -4303,6 +4303,24 @@ async function handler_sortloot(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c optfn_sortvanquished() do_handler arm (3997-4009).
+// insight.c owns the ordering menu; import it when invoked because insight.js
+// imports this module for its options value formatting.
+async function handler_sortvanquished(state, helpers) {
+    const old = state.flags.vanq_sortmode;
+    const { set_vanq_order } = await import('./insight.js');
+    await set_vanq_order(true, state, {
+        menu: (menuState, spec) => optionMenuSelect(menuState, spec, helpers),
+    });
+    const [name, description] = vanqorders[state.flags.vanq_sortmode];
+    await ttyPline(
+        `'sortvanquished' ${state.flags.vanq_sortmode === old
+            ? 'not changed, still' : 'changed to'} "${name}: ${description}".`,
+        state,
+    );
+    return optn_ok;
+}
+
 // C ref: options.c handler_align_misc() (5586-5623).  The item values are
 // the alignment constants themselves, so the selected value can update the
 // corresponding field without another enum conversion.
@@ -8478,6 +8496,7 @@ const OPTION_HANDLERS = Object.freeze({
     ),
     runmode: handler_runmode,
     sortloot: handler_sortloot,
+    sortvanquished: handler_sortvanquished,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
     o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
     petattr: handler_petattr,
