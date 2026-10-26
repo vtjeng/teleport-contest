@@ -5045,6 +5045,8 @@ async function doextcmd(key, state, onSelectedEntry = null) {
             return doextcmd(key, state, onSelectedEntry);
         case 'do_fight':
             return await do_fight(state);
+        case 'do_reqmenu':
+            return await do_reqmenu(state);
         case 'doclose':
             return await doclose(state);
         case 'dofire':

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T09:11:24Z",
+  "asOf": "2026-10-26T10:23:28Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -18468,6 +18468,168 @@
         }
       ],
       "note": "Prospective distinct257, discovered and verified during trial. C prints a comparison-discovery message when a newly written scroll joins an existing stack; JS previously threw because writeEnv lacked the inventoryComparisonDiscovered hook. Worker commit eb1e9bf804632d9d2c4d56114a91a227216fb39c adds the live callback. Strict C merge witness and no-stack control match, with 26 focused write tests and lint passing. An unrelated broader glob-qualification subprocess failed in the sparse worker; the previously blocked glob area was not investigated. Full combined-SHA hosted and Main gates pending."
+    },
+    {
+      "id": "fakewiz1-special-loader",
+      "kind": "parity-repair",
+      "title": "Generate the first false Wizard tower level",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/dat/fakewiz1.lua",
+          "nethack-c/upstream/dat/dungeon.lua:fakewiz1",
+          "nethack-c/upstream/src/mklev.c:makelevel",
+          "js/mklev.js:ensureSpecialLevelLoaders",
+          "js/fakewiz1_levels.js"
+        ],
+        "witness": [
+          "recipes/mklev.c/trial-fakewiz1-levelport.session.json",
+          "recipes/mklev.c/trial-fakewiz-minetn-control.session.json"
+        ],
+        "test": [
+          "scripts/fakewiz1-level-generation.test.mjs",
+          "scripts/wizard1-level-generation.test.mjs",
+          "scripts/wizard2-level-generation.test.mjs",
+          "scripts/wizard3-level-generation.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+          "committedAt": "2026-10-26T10:03:55Z",
+          "sourceCommit": "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+          "sourceCommittedAt": "2026-10-26T09:56:47Z",
+          "runs": [
+            {
+              "id": 40304776029,
+              "name": "Checkpoint",
+              "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch4-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:06:24Z",
+              "completedAt": "2026-10-26T10:16:51Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40304776029"
+            },
+            {
+              "id": 40306566759,
+              "name": "Lint",
+              "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:19:57Z",
+              "completedAt": "2026-10-26T10:21:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40306566759"
+            },
+            {
+              "id": 40306566644,
+              "name": "Dashboard",
+              "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:19:57Z",
+              "completedAt": "2026-10-26T10:23:28Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40306566644"
+            }
+          ]
+        }
+      ],
+      "note": "Wizard level menu reaches fakewiz1 in C; JavaScript previously stopped at an unsupported special-loader boundary. Strict C witness and same-menu Minetown control match after the source-backed loader."
+    },
+    {
+      "id": "fakewiz2-special-loader",
+      "kind": "parity-repair",
+      "title": "Generate the second false Wizard tower level",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/dat/fakewiz2.lua",
+          "nethack-c/upstream/dat/dungeon.lua:fakewiz2",
+          "nethack-c/upstream/src/mklev.c:makelevel",
+          "js/mklev.js:ensureSpecialLevelLoaders",
+          "js/fakewiz2_level.js"
+        ],
+        "witness": [
+          "recipes/trial-fakewiz2-levelport.session.json",
+          "recipes/trial-fakewiz2-minetn-control.session.json"
+        ],
+        "test": [
+          "scripts/fakewiz2-level-generation.test.mjs",
+          "scripts/wizard1-level-generation.test.mjs",
+          "scripts/wizard2-level-generation.test.mjs",
+          "scripts/wizard3-level-generation.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+          "committedAt": "2026-10-26T10:03:55Z",
+          "sourceCommit": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+          "sourceCommittedAt": "2026-10-26T10:03:55Z",
+          "runs": [
+            {
+              "id": 40304776029,
+              "name": "Checkpoint",
+              "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch4-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:06:24Z",
+              "completedAt": "2026-10-26T10:16:51Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40304776029"
+            },
+            {
+              "id": 40306566759,
+              "name": "Lint",
+              "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:19:57Z",
+              "completedAt": "2026-10-26T10:21:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40306566759"
+            },
+            {
+              "id": 40306566644,
+              "name": "Dashboard",
+              "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:19:57Z",
+              "completedAt": "2026-10-26T10:23:28Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40306566644"
+            }
+          ]
+        }
+      ],
+      "note": "Wizard level menu reaches fakewiz2 in C; JavaScript previously stopped at an unsupported special-loader boundary. Strict C witness and same-menu Minetown control match after the source-backed loader."
     }
   ]
 }
