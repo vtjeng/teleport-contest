@@ -18248,6 +18248,22 @@
       },
       "candidates": [],
       "note": "Prospective distinct255, discovered and verified during trial. At turn 9 to 10, C refits the status row and shortens condition labels while JS previously threw UnsupportedStatusRefreshError. Worker commit 978d31b923a20ac103ccc3c92d95220278d632c9 reuses the existing row fit routine and preserves non-time cached status fields. Strict C witness and three controls match; 214 display/affected tests and focused lint passed. A temporary worker model-capacity interruption was recovered without duplicating validation. Full combined-SHA hosted and Main gates pending."
+    },
+    {
+      "id": "pager-engraving-list-coordinates",
+      "kind": "parity-repair",
+      "title": "Format engraving list coordinates in configured modes",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": ["nethack-c/upstream/src/pager.c:look_engrs", "js/pager.js:look_engrs"],
+        "witness": ["recipes/pager.c/trial-engraving-screen-coords-probe.session.json", "recipes/pager.c/trial-engraving-compass-coords-probe.session.json", "recipes/pager.c/trial-engraving-map-coords-control.session.json", "recipes/pager.c/trial-engraving-none-coords-control.session.json"],
+        "test": ["scripts/engraving-list-coordinates.test.mjs", "scripts/whatis-command.test.mjs"]
+      },
+      "candidates": [],
+      "note": "Prospective distinct256, discovered and verified during trial. C lists nearby engravings in configured screen or compass coordinates, but JS previously refused nondefault coordinate modes. Worker commit d3db2abaf4065c8133ca702694f643f5ef01f763 ports C coordinate formatting and glyph placement. Strict C screen/compass witnesses and map/none controls match; 62 focused/affected tests and lint passed. Full combined-SHA hosted and Main gates pending."
     }
   ]
 }

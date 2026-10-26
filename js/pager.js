@@ -837,12 +837,6 @@ export function look_region_nearby(nearby, state = game) {
     };
 }
 
-function trapOrEngravingMapCoordinate(x, y) {
-    // Unlike look_all(), pager.c look_traps() and look_engrs() do not append
-    // the single-digit-y alignment space before applying the width-eight pad.
-    return `<${x},${y}>`.padStart(8);
-}
-
 // C ref: pager.c look_all() (1979-2074). The source scans y-major, then
 // x-minor, and formats the explicit coordinate mode before decoding glyphs.
 export async function look_all(nearby, doMons, state = game) {
@@ -953,14 +947,6 @@ export function add_quoted_engraving(x, y, buffer, force, state = game) {
     return `${buffer} ${unread} you haven't read`;
 }
 
-function assertDefaultListCoordinates(state) {
-    const coordinateMode = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
-    if (coordinateMode !== GPCOORDS_NONE
-        && coordinateMode !== GPCOORDS_MAP) {
-        throw new UnsupportedWhatisError('alternate list coordinates');
-    }
-}
-
 function encodedGlyphCharacter(glyph, state) {
     return visibleGlyphCharacter(map_glyphinfo(glyph, state));
 }
@@ -1045,8 +1031,10 @@ function isCmapEngraving(index) {
 
 // C ref: pager.c look_engrs(). The scan is y-major, then x-minor.
 export async function look_engrs(nearby, state = game) {
-    assertDefaultListCoordinates(state);
     const { loX, loY, hiX, hiY } = look_region_nearby(nearby, state);
+    const configured = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+    const mode = configured !== GPCOORDS_NONE
+        ? configured : GPCOORDS_MAP;
     const lines = [];
     for (let y = loY; y <= hiY; ++y) {
         for (let x = loX; x <= hiX; ++x) {
@@ -1092,9 +1080,16 @@ export async function look_engrs(nearby, state = game) {
                 lines.push({ text: '    ' });
             }
             const renderedSymbol = encodedGlyphCharacter(glyph, state);
-            const prefix = trapOrEngravingMapCoordinate(x, y);
+            let coordinate = coord_desc(x, y, state, mode);
+            if (mode !== GPCOORDS_SCREEN)
+                coordinate = coordinate.padStart(
+                    mode === GPCOORDS_MAP ? 8 : 12,
+                );
+            const prefix = coordinate;
             const text = `${prefix}  ${renderedSymbol} ${description}`;
-            const glyphCells = [{ column: 10, ch: renderedSymbol }];
+            const glyphCells = [{
+                column: prefix.length + 2, ch: renderedSymbol,
+            }];
             if (obscuring) {
                 glyphCells.push({
                     column: text.length - obscuring.length,
