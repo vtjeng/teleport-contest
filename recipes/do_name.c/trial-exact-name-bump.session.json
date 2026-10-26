@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 982134,
+      "datetime": "20420314125805",
+      "nethackrc": "OPTIONS=name:ExactBump,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,playmode:debug\nOPTIONS=pettype:none,!debug_mongen\n",
+      "moves": " #wizgenesis\ntame sleeping little dog\n#name\nmb.Rex\nmb"
+    }
+  ]
+}

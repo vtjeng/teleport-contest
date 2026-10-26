@@ -1169,7 +1169,9 @@ test('the remaining do_name monster wrappers preserve source article rules', () 
     assert.equal(y_monnam(monster, state), 'Fido');
     assert.equal(YMonnam(monster, state), 'Fido');
     assert.equal(Adjmonnam(monster, 'angry', state), 'The angry Fido');
-    assert.equal(m_monnam(monster, state), 'saddled gnome queen');
+    // m_monnam() uses EXACT_NAME (0x1f): it suppresses monster appearance
+    // but deliberately does not include SUPPRESS_NAME (0x20).
+    assert.equal(m_monnam(monster, state), 'Fido');
 
     // noname_monnam() suppresses the given name only after the visibility
     // gate.  The source's ARTICLE_A therefore yields the gendered species.

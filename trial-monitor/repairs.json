@@ -17751,6 +17751,22 @@
       },
       "candidates": [],
       "note": "Prospective distinct250, discovered and verified during trial. C retries getdir after requested help; JS previously threw UnsupportedDirectionBoundaryError and truncated output. Witness and two controls strictly match C after correction. Luna worker commit 309b4410ef9744ab4f7781efafc46fb2653d8f4c, 30 focused/affected tests and focused ESLint passed. Combined-SHA hosted and Main gates pending."
+    },
+    {
+      "id": "exact-name-mask",
+      "kind": "parity-repair",
+      "title": "Use the C exact monster naming mask",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": ["nethack-c/upstream/include/hack.h:EXACT_NAME", "js/const.js:EXACT_NAME", "nethack-c/upstream/src/do_name.c", "js/do_name.js"],
+        "witness": ["recipes/do_name.c/trial-exact-name-bump.session.json", "recipes/do_name.c/trial-exact-name-named-control.session.json", "recipes/do_name.c/trial-exact-name-unnamed-control.session.json"],
+        "test": ["scripts/exact-name-bump.test.mjs", "scripts/do-name.test.mjs", "scripts/cmd.test.mjs"]
+      },
+      "candidates": [],
+      "note": "Prospective distinct251, discovered and verified during trial. Compiled C EXACT_NAME is 0x1F; JS was 39 and suppressed a named dog's proper name. Witness and two controls strictly match C after correction with aligned RNG and cursors. Luna worker commit b01b13d168be47c6c4ef5b8ba67dec410d569c41; 157 focused/affected tests and full lint passed. Combined-SHA hosted and Main gates pending."
     }
   ]
 }
