@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T11:01:05Z",
+  "asOf": "2026-10-26T11:24:18Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -18788,6 +18788,83 @@
         }
       ],
       "note": "Named #reqmenu previously reached an unsupported doextcmd default. Strict C named-cancel witness and bound-key control now match; no world action on cancel."
+    },
+    {
+      "id": "cure-blindness-spell",
+      "kind": "parity-repair",
+      "title": "Apply the cure-blindness spell effect",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/spell.c:spelleffects",
+          "nethack-c/upstream/src/potion.c:healup",
+          "js/spell.js:spelleffects",
+          "js/potion.js:healup"
+        ],
+        "witness": [
+          "recipes/spell.c/trial-cure-blindness-curespell.session.json",
+          "recipes/spell.c/trial-cure-sickness-curespell-control.session.json"
+        ],
+        "test": [
+          "scripts/cure-blindness-spell.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+          "committedAt": "2026-10-26T11:09:08Z",
+          "sourceCommit": "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+          "sourceCommittedAt": "2026-10-26T11:09:08Z",
+          "runs": [
+            {
+              "id": 40313075858,
+              "name": "Checkpoint",
+              "sha": "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch6-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T11:10:33Z",
+              "completedAt": "2026-10-26T11:20:43Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40313075858"
+            },
+            {
+              "id": 40314567244,
+              "name": "Lint",
+              "sha": "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T11:22:21Z",
+              "completedAt": "2026-10-26T11:23:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40314567244"
+            },
+            {
+              "id": 40314567215,
+              "name": "Dashboard",
+              "sha": "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T11:22:21Z",
+              "completedAt": "2026-10-26T11:24:18Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40314567215"
+            }
+          ]
+        }
+      ],
+      "note": "The cure-blindness spell previously threw an unsupported command boundary. Its C witness and cure-sickness control now strictly match, including the existing healup state and messages."
     }
   ]
 }

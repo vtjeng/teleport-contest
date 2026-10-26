@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Low-weight control for dokick.c:kick_monster(). A Samurai exercises the same ordinary #kick route against a hostile adjacent giant ant without the wished plate mail load; it should bypass the martial burden goto branch and strictly match JS.",
+  "segments": [
+    {
+      "seed": 39817603,
+      "datetime": "20461026141300",
+      "nethackrc": "OPTIONS=name:SamuraiKickControl,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile giant ant\n#kick\ny"
+    }
+  ]
+}

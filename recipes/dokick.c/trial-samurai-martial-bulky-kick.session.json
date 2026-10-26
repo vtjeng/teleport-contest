@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe of dokick.c:kick_monster(). A Samurai (martial) carries a wished plate mail load above the kick clumsiness threshold and kicks an adjacent monster while wearing bulky starting armor. On a zero result from the initial weight check, C's martial goto-doit skips the bulky-armor dexterity check; JS currently continues to it.",
+  "segments": [
+    {
+      "seed": 39817601,
+      "datetime": "20461026141000",
+      "nethackrc": "OPTIONS=name:SamuraiKickProbe,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nplate mail\n#wizgenesis\nhostile giant ant\n#kick\nk"
+    }
+  ]
+}
