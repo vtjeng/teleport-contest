@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T06:35:52Z",
+  "asOf": "2026-10-26T07:28:24Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -17539,7 +17539,58 @@
           "scripts/mkroom-shop.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+          "committedAt": "2026-10-26T06:44:23Z",
+          "sourceCommit": "0833c1638473e40b5c32ba7b04d676652f9c3681",
+          "sourceCommittedAt": "2026-10-26T06:43:58Z",
+          "runs": [
+            {
+              "id": 40281613927,
+              "name": "Checkpoint",
+              "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+              "attempt": 2,
+              "event": "push",
+              "branch": "integration-checkpoint/door-egg-boundaries-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T06:44:43Z",
+              "completedAt": "2026-10-26T07:24:47Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40281613927"
+            },
+            {
+              "id": 40285816502,
+              "name": "Lint",
+              "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T07:26:36Z",
+              "completedAt": "2026-10-26T07:27:51Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40285816502"
+            },
+            {
+              "id": 40285816413,
+              "name": "Dashboard",
+              "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T07:26:36Z",
+              "completedAt": "2026-10-26T07:28:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40285816413"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct 246. Constructed C special-level overwrite opens a shop doorway; no-overwrite control stays closed, with identical C RNG. Existing JS left stale flags after replacing doormask, causing shop stock/render/movement divergence. Targeted coordinate writer synchronizes both fields; two focused tests cover overwrite, closed, and ordinary flags-only control. C witness is a custom wizard-level API fixture, not evidence of a shipped-level occurrence or hidden-score effect. Full final-SHA hosted and Main gates pending; carry the complete repair245 receipt."
     },
     {
@@ -17568,8 +17619,96 @@
           "scripts/mkroom-shop.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+          "committedAt": "2026-10-26T06:44:23Z",
+          "sourceCommit": "f6988a18345ae14398fa41873c39a177b04545e3",
+          "sourceCommittedAt": "2026-10-26T06:44:23Z",
+          "runs": [
+            {
+              "id": 40281613927,
+              "name": "Checkpoint",
+              "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+              "attempt": 2,
+              "event": "push",
+              "branch": "integration-checkpoint/door-egg-boundaries-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T06:44:43Z",
+              "completedAt": "2026-10-26T07:24:47Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40281613927"
+            },
+            {
+              "id": 40285816502,
+              "name": "Lint",
+              "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T07:26:36Z",
+              "completedAt": "2026-10-26T07:27:51Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40285816502"
+            },
+            {
+              "id": 40285816413,
+              "name": "Dashboard",
+              "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T07:26:36Z",
+              "completedAt": "2026-10-26T07:28:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40285816413"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct 247. C egg hatching during an occupation calls dochugw and interrupts the occupation; JS timer-driven runtime monster creation refused because timeout env lacked stopOccupation. Ordinary and burdened occupied C recordings diverged at the boundary, while unoccupied control matched. The timeout now supplies a clone/live-safe stop hook. Three complete strict C replays, 396 focused/affected tests, ESLint and diff checks passed. Full final-SHA hosted and Main gates pending; no hidden-score effect inferred."
+    },
+    {
+      "id": "crash-urlmax-live",
+      "kind": "parity-repair",
+      "title": "Port live crash URL length option setting",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": true,
+      "investigations": [
+        {
+          "start": "2026-10-26T03:14:03.530Z",
+          "end": "2026-10-26T03:26:07.811Z",
+          "note": "Original C live option qualification before trial; wall span includes separate blocked archive import and local branch testing, not active compute."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:optfn_crash_urlmax",
+          "js/options.js:OPTION_SET_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/crash-urlmax-live-valid-75.session.json",
+          "recipes/options.c/crash-urlmax-live-invalid-74.session.json",
+          "recipes/options.c/crash-urlmax-live-empty.session.json",
+          "recipes/options.c/crash-urlmax-live-cancel.session.json",
+          "recipes/options.c/crash-urlmax-live-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/options-crash-urlmax-live.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct248; carry-in C-qualified live option gap adapted by Luna worker from isolated commit 571d6ec. C stores 75, rejects 74, reports empty input, preserves cancel and ordinary control. Five strict C replays, 149 affected tests, focused ESLint and diff checks pass. Optional check:options could not run locally without clang; generated options data is unchanged and the full hosted source gate remains required. Trial worker commit e67a3f9618039642b08e26b43837a0c87f84c516; integrated source SHA is the ordinary repair commit. Full combined-SHA and Main gates pending; no score gain inferred."
     }
   ]
 }

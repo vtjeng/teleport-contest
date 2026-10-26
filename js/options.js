@@ -8430,6 +8430,27 @@ const MENU_OPTION_SET_HANDLERS = Object.freeze(Object.fromEntries([
 // name, as OPTION_VALUE_HANDLERS' keys are.
 const OPTION_SET_HANDLERS = Object.freeze({
     boolean: optfn_boolean,
+    // options.c optfn_crash_urlmax(do_set) also accepts a live value.  C's
+    // config_error_add() reports these errors to the TTY.
+    crash_urlmax: async (state, _optidx, _negated, opts) => {
+        const value = string_for_opt(opts, true);
+        let message;
+        if (value === '') {
+            message = `Missing parameter for '${opts}'.`;
+        } else {
+            const limit = atoi(value);
+            if (limit < 75)
+                message = `Invalid value ${limit} for crash_urlmax.  Minimum value is 75.`;
+            else state.gc.crash_urlmax = limit;
+        }
+        if (message) {
+            await ttyPline(message, state);
+            const { tty_wait_synch } = await import('./tty_rawprint.js');
+            await tty_wait_synch(state);
+            return optn_err;
+        }
+        return optn_ok;
+    },
     // options.c optfn_boulder(do_set) is also reached from a running game's
     // generic compound-option editor, after initialization has finished.
     boulder: async (state, _optidx, _negated, opts) => {

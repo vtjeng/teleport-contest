@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed live crash_urlmax invalid-74",
+  "segments": [
+    {
+      "seed": 15641642,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:crash_urlmax\n\n74\n#optionsfull\n       "
+    }
+  ]
+}
