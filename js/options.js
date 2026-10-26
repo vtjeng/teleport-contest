@@ -206,7 +206,7 @@ import {
 } from './display.js';
 import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
-import { STATUS_FIELDS } from './status_field_data.js';
+import { STATUS_CONDITIONS, STATUS_FIELDS } from './status_field_data.js';
 import { tty_preference_update } from './wintty.js';
 import { vision_recalc } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
@@ -8614,6 +8614,7 @@ const OPTION_HANDLERS = Object.freeze({
     o_menu_colors: (state, helpers) => optfn_o_menu_colors(state, DO_HANDLER, '', helpers),
     o_message_types: handler_msgtype,
     o_autopickup_exceptions: handler_autopickup_exception,
+    o_status_cond: handler_status_conditions,
 });
 
 // C ref: options.c reset_needed_visuals() (8977-9010), which doset() runs once
@@ -9208,5 +9209,57 @@ export async function handler_autopickup_exception(state, helpers) {
             }
         }
         if (selected == null) return optn_ok;
+    }
+}
+
+// C refs: options.c optfn_o_status_cond() and botl.c cond_menu(). The
+// condition table in status_field_data.js retains condtests[]'s source order.
+const CONDITION_RANKS = Object.freeze([
+    20, 10, 20, 10, 10, 15, 10, 6, 20, 2,
+    10, 20, 20, 8, 10, 20, 10, 20, 6, 20,
+    6, 4, 10, 15, 6, 20, 20, 20, 20, 20,
+]);
+
+export async function handler_status_conditions(state, helpers) {
+    const conditions = state.iflags.status_conditions;
+    for (;;) {
+        const rankSort = Boolean(state.gc?.condmenu_sortorder);
+        const names = STATUS_CONDITIONS.map(({ option }, index) => ({ option, index }));
+        names.sort((a, b) => (rankSort ? CONDITION_RANKS[a.index] - CONDITION_RANKS[b.index] : 0)
+            || a.option.toLowerCase().localeCompare(b.option.toLowerCase(), 'en'));
+        const title = rankSort ? 'by ranking' : 'alphabetically';
+        const other = rankSort ? 'alphabetically' : 'by ranking';
+        const items = [{
+            text: `change sort order from "${title}" to "${other}"`,
+            value: 1, selector: 'S', skipinvert: true,
+        }, add_menu_heading(`sorted ${title}`, state),
+        ...names.map(({ option, index }) => ({
+            text: `cond_${(option === 'foodpois' ? 'foodPois'
+                : option === 'termill' ? 'termIll' : option).padEnd(14)}`,
+            value: index + 2,
+            selected: Boolean(conditions[option]),
+        }))];
+        const selected = await optionMenuSelect(state, {
+            items, title: 'Choose status conditions to toggle', how: PICK_ANY,
+            emptyValue: [],
+        }, helpers);
+        if (selected == null) return optn_ok;
+        const picks = menuSelectionValues(selected);
+        if (picks.includes(1)) {
+            (state.gc ??= {}).condmenu_sortorder = rankSort ? 0 : 1;
+            continue;
+        }
+        const chosen = new Set(picks);
+        let changed = false;
+        for (let i = 0; i < STATUS_CONDITIONS.length; ++i) {
+            const option = STATUS_CONDITIONS[i].option;
+            const enabled = chosen.has(i + 2);
+            if (Boolean(conditions[option]) !== enabled) {
+                condopt(state, option, !enabled);
+                changed = true;
+            }
+        }
+        if (changed) (state.disp ??= {}).botl = true;
+        return optn_ok;
     }
 }
