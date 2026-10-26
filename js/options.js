@@ -4278,6 +4278,31 @@ async function handler_runmode(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c handler_sortloot() (6166-6206).  The current mode is
+// preselected; selecting another row can return both it and the new choice.
+async function handler_sortloot(state, helpers) {
+    const old = state.flags.sortloot;
+    const selected = await optionMenuSelect(state, {
+        items: sortltype.map((name) => ({
+            text: name,
+            value: name[0],
+            selector: name[0],
+            selected: name[0] === old,
+        })),
+        how: PICK_ONE,
+        title: 'Select loot sorting type:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length) {
+        const choice = values.length > 1 && values[0] === old
+            ? values[1] : values[0];
+        state.flags.sortloot = choice;
+        if (state.iflags.perm_invent) update_inventory({ state });
+    }
+    return optn_ok;
+}
+
 // C ref: options.c handler_align_misc() (5586-5623).  The item values are
 // the alignment constants themselves, so the selected value can update the
 // corresponding field without another enum conversion.
@@ -8452,6 +8477,7 @@ const OPTION_HANDLERS = Object.freeze({
         state, DO_HANDLER, false, '', undefined, helpers,
     ),
     runmode: handler_runmode,
+    sortloot: handler_sortloot,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
     o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
     petattr: handler_petattr,

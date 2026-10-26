@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-25T23:56:33.956005Z",
+  "asOf": "2026-10-26T00:14:22.103870+00:00",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16427,6 +16427,44 @@
       },
       "candidates": [],
       "note": "Prospective distinct228. C optfn_runmode do_handler opens a four-item menu with one-based values; JS previously stopped at the missing handler. Two C handler replays including walk selection and a separate seeded startup/full-menu control now strictly match. 206 focused/affected tests and focused ESLint pass. Carry verified repair227 complete98 receipt in ordinary commit. Hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "sortloot-choice-handler",
+      "kind": "parity-repair",
+      "title": "Open loot sorting choice menu from options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T00:12:28.329314+00:00",
+          "end": "2026-10-26T00:14:22.103870+00:00",
+          "note": "Dedicated implementation and affected validation after C handler menu, full selection and independent startup control were qualified during repair227 CI; prior survey timing is local."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:handler_sortloot",
+          "js/options.js:OPTION_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/sortloot-handler-menu.session.json",
+          "recipes/options.c/sortloot-handler-full.session.json",
+          "recipes/options.c/sortloot-startup-control.session.json"
+        ],
+        "test": [
+          "scripts/options-sortloot.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options-simple-menu.test.mjs",
+          "scripts/invent.test.mjs",
+          "scripts/invent-display-span.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct229. C handler_sortloot opens a three-item menu with the current mode preselected and changes inventory when persistent inventory is active; JS previously stopped at the missing handler. Two C handler replays including full selection and a separate seeded startup/full-menu control now strictly match. 254 focused/affected tests, focused ESLint and diff checks pass. Carry verified repair228 complete98 receipt in this ordinary repair commit. Hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }
