@@ -1748,3 +1748,26 @@ test('recent accepted repairs and timeline include newer post-trial work in firs
     assert.equal(createTrialMonitor(snapshot).summarize().baseline.acceptedCount, 13, 'frozen baseline unchanged');
     assert.ok(rendered.get('goalTable').innerHTML, 'strict DOM startup reaches the final section');
 });
+
+test('recent repair panel shows individual pilot members and shared validation wall rate', () => {
+    const load = file => JSON.parse(readFileSync(join(PROJECT_ROOT, 'trial-monitor', file), 'utf8'));
+    const ids = new Set(['versinfo-choice-handler', 'message-types-choice-handler',
+        'autopickup-exceptions-choice-handler', 'status-condition-choice-handler',
+        'pile-limit-live-choice-handler', 'packorder-live-choice-handler',
+        'menuinvertmode-live-choice-handler']);
+    const register = load('repairs.json');
+    register.repairs = register.repairs.filter(repair => ids.has(repair.id));
+    const rendered = renderDashboard(sourceDashboardData(), null, { singleWorkerData: {
+        manifest: load('manifest.json'), register, buildSha: 'f'.repeat(40),
+        builtAt: '2026-10-26T02:38:00Z',
+    }});
+    assert.match(rendered.get('repairCount').textContent, /^7 registered/u);
+    assert.match(rendered.get('recentRepairRate').textContent,
+        /3 complete validation groups · 7 registered repairs.*5\.66 accepted repairs\/hour.*shared CI counted once/u);
+    assert.match(rendered.get('trialCandidate').textContent, /^3 repairs · shared validation/u);
+    assert.equal(rendered.get('recentRepairs').children.length, 5);
+    assert.match(rendered.get('recentRepairs').children[0].children[2].textContent,
+        /Shared validation with 3 repairs/u);
+    assert.match(rendered.get('recentRepairs').children[0].children[0].href,
+        /\/commit\/04476af09075f3142326db6be3674ce1869dc0e7$/u);
+});

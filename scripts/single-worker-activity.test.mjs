@@ -93,14 +93,38 @@ test('post-trial repairs share the current lane without admitting baseline or do
   data.register.repairs.push(pending, baseline);
   const summarized = view(data), activity = singleWorkerActivity(summarized);
   assert.equal(activity.tasks.length, 3);
-  assert.equal(activity.acceptedCount, 2, 'two stable repair identities, not candidate or commit counts');
+  assert.equal(activity.acceptedCount, 1,
+    'an incomplete shared SHA keeps both siblings pending; the earlier correction stays accepted');
   assert.equal(activity.tasks.filter(task => task.id === corrected.id).length, 1);
   assert.equal(activity.tasks.find(task => task.id === corrected.id).publishedAt,
     summarized.results.find(result => result.repair.id === corrected.id).accepted.closureAt,
     'grouped correction retains first acceptance time');
   assert.equal(activity.tasks.find(task => task.id === pending.id).publishedAt, undefined);
+  assert.equal(activity.tasks.find(task => task.id === data.register.repairs[1].id).publishedAt, undefined);
   assert.ok(activity.segments.some(segment => segment.task === corrected.id));
   assert.ok(activity.tasks.every(task => task.worker === 'Standard engineer'));
   assert.ok(!activity.tasks.some(task => task.id === baseline.id));
   assert.ok(!activity.segments.some(segment => segment.task === baseline.id));
+});
+
+test('published 2/2/3 pilot has seven repairs and only three shared CI spans per phase', () => {
+  const data = saved();
+  const ids = new Set(['versinfo-choice-handler', 'message-types-choice-handler',
+    'autopickup-exceptions-choice-handler', 'status-condition-choice-handler',
+    'pile-limit-live-choice-handler', 'packorder-live-choice-handler',
+    'menuinvertmode-live-choice-handler']);
+  data.register.repairs = read('../trial-monitor/repairs.json').repairs
+    .filter(repair => ids.has(repair.id));
+  const summarized = view(data), activity = singleWorkerActivity(summarized);
+  assert.equal(activity.acceptedCount, 7);
+  assert.equal(activity.segments.filter(row => row.phase === 'validation').length, 3);
+  assert.equal(activity.segments.filter(row => row.phase === 'publication').length, 3);
+  assert.equal(summarized.recentProgress.groupCount, 3);
+  assert.equal(summarized.recentProgress.repairCount, 7);
+  assert.equal(summarized.recentProgress.rate.toFixed(2), '5.66');
+  assert.equal(summarized.currentCandidate.groupSize, 3);
+  const first = activity.tasks.find(task => task.id === 'versinfo-choice-handler');
+  assert.equal(first.validationGroupSize, 2);
+  assert(first.links.some(link => link.url.endsWith('/commit/4b227e84c703872a8553f369007f177d8bbc27f5')));
+  assert.match(activity.segments.find(row => row.phase === 'validation').reason, /Shared by 2 repairs/u);
 });
