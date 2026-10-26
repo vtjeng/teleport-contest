@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T18:50:41Z",
+  "asOf": "2026-10-26T19:09:30Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19482,6 +19482,82 @@
         }
       ],
       "note": "C waits for slept_monst to release a sleeping owlbear holding the hero and draw its cooldown before potionhit continues. JavaScript had left that asynchronous call unawaited. The C witness and no-holder control rerecorded byte-identically and now replay with complete RNG, screen and cursor parity."
+    },
+    {
+      "id": "drawbridge-visible-monster-relocation-message",
+      "kind": "parity-repair",
+      "title": "Report a visible monster behind the rising drawbridge",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dbridge.c:do_entity",
+          "js/dbridge.js:do_entity"
+        ],
+        "witness": [
+          "recipes/dbridge.c/portcullis-visible-monster.session.json",
+          "recipes/dbridge.c/portcullis-empty-control.session.json"
+        ],
+        "test": [
+          "scripts/dbridge-entity.test.mjs",
+          "scripts/dbridge.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "462b798181c86d27e4b2664619c16287156784f0",
+          "committedAt": "2026-10-26T18:56:02Z",
+          "sourceCommit": "462b798181c86d27e4b2664619c16287156784f0",
+          "sourceCommittedAt": "2026-10-26T18:56:02Z",
+          "runs": [
+            {
+              "id": 40382199518,
+              "name": "Checkpoint",
+              "sha": "462b798181c86d27e4b2664619c16287156784f0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/drawbridge-visible-monster-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T18:56:23Z",
+              "completedAt": "2026-10-26T19:06:27Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40382199518"
+            },
+            {
+              "id": 40383895728,
+              "name": "Lint",
+              "sha": "462b798181c86d27e4b2664619c16287156784f0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T19:07:30Z",
+              "completedAt": "2026-10-26T19:08:48Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40383895728"
+            },
+            {
+              "id": 40383896613,
+              "name": "Dashboard",
+              "sha": "462b798181c86d27e4b2664619c16287156784f0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T19:07:30Z",
+              "completedAt": "2026-10-26T19:09:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40383896613"
+            }
+          ]
+        }
+      ],
+      "note": "With a peaceful newt on the bridge, C reports that it disappears behind the rising drawbridge before further input. JavaScript omitted this source message. The C witness rerecorded byte-identically; after the fix it and the empty-bridge control replay with complete RNG, screen and cursor parity."
     }
   ]
 }

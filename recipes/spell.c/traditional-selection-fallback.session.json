@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 802700,
+      "datetime": "20320405060708",
+      "nethackrc": "OPTIONS=name:SpellMenuAudit,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,menustyle:traditional\n",
+      "moves": ".Z?a    "
+    }
+  ],
+  "comment": "Traditional spell-selection fallback control: question mark opens dospellmenu, then a selects healing."
+}

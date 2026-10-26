@@ -1,0 +1,832 @@
+{
+  "version": 1,
+  "batch": "v43",
+  "manifestPath": "challenges/manifests/v43.json",
+  "sha": "462b798181c86d27e4b2664619c16287156784f0",
+  "utc": "2026-10-26T18:58:11.101Z",
+  "status": "complete",
+  "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "68ad68c752b89360f5e7469d43cf759f2f8fed1e8b214e1c3eca24a06d8073bd",
+  "inputFiles": [
+    "challenges/cases/v43/v43-artifact-hit-zombie-east-corrected.recipe.session.json",
+    "challenges/cases/v43/v43-artifact-hit-zombie-east-corrected.session.json",
+    "challenges/cases/v43/v43-castle-special-program.recipe.session.json",
+    "challenges/cases/v43/v43-castle-special-program.session.json",
+    "challenges/cases/v43/v43-demonpet-barbed-devil-one-attack-seed2-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-demonpet-barbed-devil-one-attack-seed2-cfirst.session.json",
+    "challenges/cases/v43/v43-healing-potion-strong-weapon-complete-messages-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-healing-potion-strong-weapon-complete-messages-cfirst.session.json",
+    "challenges/cases/v43/v43-healing-potion-wounded-monster-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-healing-potion-wounded-monster-corrected-cfirst.session.json",
+    "challenges/cases/v43/v43-keystone-kop-return-startup2-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-keystone-kop-return-startup2-cfirst.session.json",
+    "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-leprechaun-attacks-after-wake-cfirst.session.json",
+    "challenges/cases/v43/v43-lit-lamp-light-radius-transition-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-lit-lamp-light-radius-transition-cfirst.session.json",
+    "challenges/cases/v43/v43-minetn-6-special-program.recipe.session.json",
+    "challenges/cases/v43/v43-minetn-6-special-program.session.json",
+    "challenges/cases/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst.session.json",
+    "challenges/cases/v43/v43-monster-teleport-trap-relocation-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-monster-teleport-trap-relocation-cfirst.session.json",
+    "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+    "challenges/cases/v43/v43-poisoned-fountain-drink-seed3-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-poisoned-fountain-drink-seed3-cfirst.session.json",
+    "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst.session.json",
+    "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-prayer-grants-spell-seed43050443-exact-cfirst.session.json",
+    "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-priest-ghod-hitsu-north-corrected-cfirst.session.json",
+    "challenges/cases/v43/v43-priest-temple-eight-direction-probe-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-priest-temple-eight-direction-probe-cfirst.session.json",
+    "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.session.json",
+    "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst.session.json",
+    "challenges/cases/v43/v43-vorpal-jabberwock-level30-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-vorpal-jabberwock-level30-corrected-cfirst.session.json",
+    "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.recipe.session.json",
+    "challenges/cases/v43/v43-wiz-loca-special-program-cfirst.session.json",
+    "challenges/cases/v43/v43-wizard1-special-program.recipe.session.json",
+    "challenges/cases/v43/v43-wizard1-special-program.session.json",
+    "challenges/cases/v43/v43-wizard3-special-program.recipe.session.json",
+    "challenges/cases/v43/v43-wizard3-special-program.session.json",
+    "challenges/manifests/v43.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/alloc.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/earth_level_data.js",
+    "js/earth_levels.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/fakewiz1_levels.js",
+    "js/fakewiz2_level.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/knox_level_data.js",
+    "js/knox_levels.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon_loca_level_data.js",
+    "js/mon_strt_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlsel.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/ran_strt_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rnd.js",
+    "js/rng.js",
+    "js/rog_goal_level_data.js",
+    "js/rog_loca_level_data.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_filb_level_data.js",
+    "js/sam_goal_level_data.js",
+    "js/sam_loca_level_data.js",
+    "js/sam_strt_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout_property_data.js",
+    "js/timeout.js",
+    "js/topl.js",
+    "js/topten.js",
+    "js/tou_goal_level_data.js",
+    "js/tou_loca_level_data.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/utf8map.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/val_strt_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/water_levels.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wiz_goal_level_data.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v43-minetn-6-special-program",
+      "recordingSha256": "bf7c0c53f52c3941081d3c62997da266e15ebdbf94f30a0aca3ec9db1218c8c9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 6529,
+          "total": 6529
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-artifact-hit-zombie-east-corrected",
+      "recordingSha256": "73f1ecc55d79aa2a56f2c685e4ab80d3009c6c6f3884d9cecdfbbf500972f7a4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 52,
+          "total": 52
+        },
+        "rng": {
+          "matched": 4476,
+          "total": 4476
+        },
+        "cursors": {
+          "matched": 52,
+          "total": 52
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-healing-potion-strong-weapon-complete-messages-cfirst",
+      "recordingSha256": "94e06076e3d0cf5a975b4c183a1d9dc21d5dae35ea7923ea99f601faf5a2dfc9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 75,
+          "total": 75
+        },
+        "rng": {
+          "matched": 3019,
+          "total": 3019
+        },
+        "cursors": {
+          "matched": 75,
+          "total": 75
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-healing-potion-wounded-monster-corrected-cfirst",
+      "recordingSha256": "3bd7852561a7e7ca187cf8810b58c2a8bf6e5d898dc90ce624a98c2e3f9c8d40",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2899,
+          "total": 2899
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
+      "recordingSha256": "5943595e0e52793b6553dad2bb2a314b48c7c8424fc4509d3f05724740b6cb16",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 112,
+          "total": 112
+        },
+        "rng": {
+          "matched": 2793,
+          "total": 2793
+        },
+        "cursors": {
+          "matched": 112,
+          "total": 112
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-monster-teleport-trap-relocation-cfirst",
+      "recordingSha256": "9e9e745839dcab194336c61375be87fe707f4471264d41d334e55ced1122b041",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 43,
+          "total": 43
+        },
+        "rng": {
+          "matched": 2882,
+          "total": 2882
+        },
+        "cursors": {
+          "matched": 43,
+          "total": 43
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-demonpet-barbed-devil-one-attack-seed2-cfirst",
+      "recordingSha256": "d89e2544a5eaf25f56cb0f07301005791ae18e1000deb1cc123a017c2377b930",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2094,
+          "total": 2094
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-lit-lamp-light-radius-transition-cfirst",
+      "recordingSha256": "8cafc44350185adbff05dae37b0e80fea0ebab4d94d21a0b15f50f816d1e86d0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2686,
+          "total": 2686
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-quest-nemesis-death-wizard-corrected-cfirst",
+      "recordingSha256": "ab1bd854844156185abb66f58ce22e0eabc7c035cf7ad7018e8555b3b160949d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 3235,
+          "total": 3235
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-poisoned-fountain-drink-seed3-cfirst",
+      "recordingSha256": "a5952fbe8e1639bca627749f2229ff01ec62470c06c81e2644dc5653c4877e26",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 13,
+          "total": 13
+        },
+        "rng": {
+          "matched": 2586,
+          "total": 2586
+        },
+        "cursors": {
+          "matched": 13,
+          "total": 13
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-priest-temple-eight-direction-probe-cfirst",
+      "recordingSha256": "3e150365f6ff77eefd7101f2c4e1b89d05751802bd8399708a92559e8abac448",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 8772,
+          "total": 8772
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-wiz-loca-special-program-cfirst",
+      "recordingSha256": "f5578c98ed2a0a8ef6a279c3944b2861ef68eee0120c01c9937fdf2b8579f224",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 4322,
+          "total": 4322
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-leprechaun-attacks-after-wake-cfirst",
+      "recordingSha256": "7c49b4d17f6d9860f9450517594a95c4b12c068206314812ea46c629f0e4933d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 77,
+          "total": 77
+        },
+        "rng": {
+          "matched": 2267,
+          "total": 2267
+        },
+        "cursors": {
+          "matched": 77,
+          "total": 77
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-pray-sacrifice-human-chaotic-kni-shrine-priest-turn-cfirst",
+      "recordingSha256": "fe726abaade0a3907af6c0b88a27374e2a5c9191b5507a0d59298cfa81a79090",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 110,
+          "total": 110
+        },
+        "rng": {
+          "matched": 8697,
+          "total": 8697
+        },
+        "cursors": {
+          "matched": 110,
+          "total": 110
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-priest-ghod-hitsu-north-corrected-cfirst",
+      "recordingSha256": "6a5fa06ef12755b7e11646d925f485a25d422f08ff7c6c16ee918f7ffa90fb3c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 80,
+          "total": 80
+        },
+        "rng": {
+          "matched": 8788,
+          "total": 8788
+        },
+        "cursors": {
+          "matched": 80,
+          "total": 80
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-rolling-boulder-trap-level4-successful-launch-walkcursor-cfirst",
+      "recordingSha256": "af6ecccfdeb743dd8ecd0fc23d3b502b98e9d4e8342983ac87f660e7ca19341e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 106,
+          "total": 106
+        },
+        "rng": {
+          "matched": 4807,
+          "total": 4807
+        },
+        "cursors": {
+          "matched": 106,
+          "total": 106
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-makewish-red-dragon-corpse-stack-seed43050443-cfirst",
+      "recordingSha256": "de14d5d47f0b485008108b1984601246a0b04046e81e951d371edb473f2abf63",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 301,
+          "total": 301
+        },
+        "rng": {
+          "matched": 2617,
+          "total": 2617
+        },
+        "cursors": {
+          "matched": 301,
+          "total": 301
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-keystone-kop-return-startup2-cfirst",
+      "recordingSha256": "4dc4b309d5caabe7b740d7273767504c387c8d121b544b5dbc95c6083c053c93",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 38,
+          "total": 38
+        },
+        "rng": {
+          "matched": 2086,
+          "total": 2086
+        },
+        "cursors": {
+          "matched": 38,
+          "total": 38
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+      "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 166,
+          "total": 166
+        },
+        "rng": {
+          "matched": 6320,
+          "total": 6320
+        },
+        "cursors": {
+          "matched": 166,
+          "total": 166
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-castle-special-program",
+      "recordingSha256": "e52dddc127af59b9d6fbd754f54fad269937d650fdeb3ee17ce2d9494d7050f6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 10965,
+          "total": 10965
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-wizard1-special-program",
+      "recordingSha256": "ed81212bc0b0bb135b0ab95c5845deaa03b0bc072598df01059f566bda78c247",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 4734,
+          "total": 4734
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-wizard3-special-program",
+      "recordingSha256": "667ee8369a413cf7365620f160c1dcad9402825158b33d54eda265e92ad4d455",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 5571,
+          "total": 5571
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v43-vorpal-jabberwock-level30-corrected-cfirst",
+      "recordingSha256": "251ffda2171c478649f71f38fa88406d73ef1e626abf0f15be645f23d8545096",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 119,
+          "total": 119
+        },
+        "rng": {
+          "matched": 2842,
+          "total": 2842
+        },
+        "cursors": {
+          "matched": 119,
+          "total": 119
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 23,
+      "total": 23
+    },
+    "screens": {
+      "matched": 1664,
+      "total": 1664
+    },
+    "rng": {
+      "matched": 105987,
+      "total": 105987
+    },
+    "cursors": {
+      "matched": 1664,
+      "total": 1664
+    }
+  }
+}

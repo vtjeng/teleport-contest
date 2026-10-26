@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 802700,
+      "datetime": "20320405060708",
+      "nethackrc": "OPTIONS=name:SpellMenuAudit,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,menustyle:traditional\n",
+      "moves": ".Zz a   "
+    }
+  ],
+  "comment": "C-first traditional spell-selection witness: Priest starts with healing and extra healing. Invalid z reports unknown spell, More dismissal reprompts, then a casts healing; source spell.c:getspell()."
+}
