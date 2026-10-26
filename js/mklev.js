@@ -3420,6 +3420,9 @@ function sel_set_door(dx, dy, typ, frame, state = game) {
             typ = D_CLOSED;
     }
     set_door_orientation(x, y, state); /* set/clear levl[x][y].horizontal */
+    // C's doormask aliases rm.flags. Coordinate doors can overwrite a
+    // room-wall door, so clear its prior flags when replacing the mask.
+    loc.flags = typ;
     loc.doormask = typ;
     frame.splevMap[x][y] = 1;
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T03:11:50.816Z",
+  "asOf": "2026-10-26T06:35:52Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -17215,7 +17215,7 @@
           ]
         }
       ],
-      "note": "Prospective distinct239, third independently qualified fix in bounded batch-pilot group three. C live menu inversion editor accepts 0\u20132 and synchronizes invalid diagnostics; JS startup parsing existed but live parseoptions omitted this handler. Five strict C replays and focused ESLint pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+      "note": "Prospective distinct239, third independently qualified fix in bounded batch-pilot group three. C live menu inversion editor accepts 0–2 and synchronizes invalid diagnostics; JS startup parsing existed but live parseoptions omitted this handler. Five strict C replays and focused ESLint pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
     },
     {
       "id": "statuslines-live-choice-handler",
@@ -17461,8 +17461,86 @@
           "scripts/options-simple-menu.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+          "committedAt": "2026-10-26T06:22:35Z",
+          "sourceCommit": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+          "sourceCommittedAt": "2026-10-26T06:22:35Z",
+          "runs": [
+            {
+              "id": 40279534857,
+              "name": "Checkpoint",
+              "sha": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/bind-existing-key-feedback-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T06:23:27Z",
+              "completedAt": "2026-10-26T06:32:38Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40279534857"
+            },
+            {
+              "id": 40280567432,
+              "name": "Lint",
+              "sha": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T06:33:55Z",
+              "completedAt": "2026-10-26T06:34:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40280567432"
+            },
+            {
+              "id": 40280567493,
+              "name": "Dashboard",
+              "sha": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T06:33:56Z",
+              "completedAt": "2026-10-26T06:35:52Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40280567493"
+            }
+          ]
+        }
+      ],
+      "note": "Distinct repair 245. Existing-key rebind in C mutates the same Cmd_bind node, suppressing the changed-key message; JS emitted an extra --More-- screen and consumed the next input. Four strict C replays and 198 focused/affected tests passed. Exact hosted Checkpoint 40279534857, archived comparison, and Main Lint 40280567432/Dashboard 40280567493 passed for 276b544bc83ab41acc0424c1ff57eaa3d7d2fe99. Complete 98-batch receipt verified for the next ordinary repair commit; no aggregate gain inferred."
+    },
+    {
+      "id": "shop-coordinate-door-mask",
+      "kind": "parity-repair",
+      "title": "Synchronize coordinate door overwrites with the C mask",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:sel_set_door",
+          "nethack-c/upstream/include/rm.h:doormask",
+          "js/mklev.js:sel_set_door",
+          "js/shknam.js:stock_room"
+        ],
+        "witness": [
+          "scripts/shop-coordinate-door.test.mjs"
+        ],
+        "test": [
+          "scripts/shop-coordinate-door.test.mjs",
+          "scripts/mklev-themerooms.test.mjs",
+          "scripts/mkroom-shop.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Locally qualified after accepting the default option batch. Existing-key rebind in C mutates the same Cmd_bind node, suppressing the changed-key message; JS emitted an extra --More-- screen and consumed the next input. Four independent strict C replays and 198 focused/affected tests pass, with focused lint. Hosted and publication gates pending; no aggregate gain inferred."
+      "note": "Prospective distinct 246. Constructed C special-level overwrite opens a shop doorway; no-overwrite control stays closed, with identical C RNG. Existing JS left stale flags after replacing doormask, causing shop stock/render/movement divergence. Targeted coordinate writer synchronizes both fields; two focused tests cover overwrite, closed, and ordinary flags-only control. C witness is a custom wizard-level API fixture, not evidence of a shipped-level occurrence or hidden-score effect. Full final-SHA hosted and Main gates pending; carry the complete repair245 receipt."
     }
   ]
 }
