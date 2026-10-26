@@ -242,6 +242,7 @@ import { check_enhanced_colors, wc_color_name } from './coloratt.js';
 import {
     get_current_feature_ver,
     get_feature_notice_ver,
+    NETHACK_VERSION,
     status_version,
     VI_BRANCH,
     VI_NAME,
@@ -8527,6 +8528,26 @@ const OPTION_SET_HANDLERS = Object.freeze({
         }
         state.iflags.wc2_statuslines = lines;
         state.go.opt_need_redraw = true;
+        return optn_ok;
+    },
+    // options.c optfn_suppress_alert(do_set) uses feature_alert_opts() for
+    // live edits too, with pline() feedback instead of config-file errors.
+    suppress_alert: async (state, _optidx, _negated, opts) => {
+        const value = string_for_opt(opts, true);
+        if (value === '') return optn_ok;
+        const version = get_feature_notice_ver(value);
+        if (version === 0n) return optn_ok;
+        if (version > get_current_feature_ver()) {
+            await ttyPline(
+                "You can't disable new feature alerts for future versions.", state,
+            );
+            return optn_ok;
+        }
+        state.flags.suppress_alert = Number(version);
+        await ttyPline(
+            `Feature change alerts disabled for NetHack ${NETHACK_VERSION}`
+            + ' features and prior.', state,
+        );
         return optn_ok;
     },
     // options.c optfn_pile_limit()'s do_set arm is also reached when doset()

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T03:04:15.447Z",
+  "asOf": "2026-10-26T03:06:53.844Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -16972,6 +16972,50 @@
       },
       "candidates": [],
       "note": "Prospective distinct241, first locally tested-ready fix in the approved default cap-four batch. C live editor accepts caret, rejects warning/monster symbol conflicts, reports empty input, and redraws under a new boulder symbol; JS startup parser existed but live parseoptions omitted this handler. Six strict C replays, 420 focused/affected tests and focused ESLint/diff pass. Carry complete verified statuslines receipt and minimal approved batching-policy instruction in this ordinary repair commit. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "suppress-alert-live-choice-handler",
+      "kind": "parity-repair",
+      "title": "Set feature alert suppression from live options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T02:58:57.701236Z",
+          "end": "2026-10-26T03:06:53.844Z",
+          "note": "Source-qualified C live submission and matching cancellation during the preceding repair\u2019s Main publication wait. Wall span includes that publication and focused work, not active-work duration."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:doset",
+          "nethack-c/upstream/src/options.c:optfn_suppress_alert",
+          "nethack-c/upstream/src/options.c:feature_alert_opts",
+          "nethack-c/upstream/src/version.c:get_feature_notice_ver",
+          "js/options.js:OPTION_SET_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/suppress-alert-live-valid-current.session.json",
+          "recipes/options.c/suppress-alert-live-future.session.json",
+          "recipes/options.c/suppress-alert-live-empty.session.json",
+          "recipes/options.c/suppress-alert-live-cancel.session.json",
+          "recipes/options.c/suppress-alert-live-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/options-suppress-alert-live.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-simple-menu.test.mjs",
+          "scripts/startup-suppress-alert.test.mjs",
+          "scripts/version.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct242, second locally tested-ready fix in approved default cap-four batch. C live editor stores accepted 5.0.0 and prints the feature-alert message, refuses future 6.0.0 with a live message, leaves empty and cancelled entries unchanged. JS startup parser existed but live parseoptions omitted the handler. Five strict C replays and 218 focused/affected tests pass, including a displayed accepted value; ESLint/diff pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }
