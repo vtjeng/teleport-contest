@@ -288,7 +288,7 @@ import {
     reset_customcolors,
 } from './glyphs.js';
 import { reset_customsymbols } from './utf8map.js';
-import { choose_classes_menu, getlin, select_menu } from './windows.js';
+import { add_menu_heading, choose_classes_menu, getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow, menuTitleStyle } from './tty_menu.js';
 import { note_unported } from './unported.js';
 import { choose_disco_sort } from './o_init.js';
@@ -8613,6 +8613,7 @@ const OPTION_HANDLERS = Object.freeze({
     petattr: handler_petattr,
     o_menu_colors: (state, helpers) => optfn_o_menu_colors(state, DO_HANDLER, '', helpers),
     o_message_types: handler_msgtype,
+    o_autopickup_exceptions: handler_autopickup_exception,
 });
 
 // C ref: options.c reset_needed_visuals() (8977-9010), which doset() runs once
@@ -9160,6 +9161,50 @@ export async function handler_msgtype(state, helpers) {
             if (node) {
                 if (previous) previous.next = node.next;
                 else state.gp.plinemsg_types = node.next;
+            }
+        }
+        if (selected == null) return optn_ok;
+    }
+}
+
+// C ref: options.c handler_autopickup_exception(). The startup parser and
+// live editor share ga.apelist, with the newest exception at its head.
+export async function handler_autopickup_exception(state, helpers) {
+    for (;;) {
+        const action = await handle_add_list_remove(
+            state, 'autopickup exception', count_apes(state), helpers,
+        );
+        if (action === 3) return optn_ok;
+        if (action === 0) {
+            const answer = helpers?.getlin
+                ? await helpers.getlin('What new autopickup exception pattern?')
+                : await getlin('What new autopickup exception pattern?', state);
+            const pattern = mungspaces(answer ?? '');
+            if (pattern[0] === '\x1b') return optn_ok;
+            if (pattern) add_autopickup_exception(state, `"${pattern}"`);
+            continue;
+        }
+        const exceptions = [];
+        for (let ape = state.ga?.apelist; ape; ape = ape.next) exceptions.push(ape);
+        const items = [add_menu_heading("Always pickup '<'; never pickup '>'", state),
+            ...exceptions.map((ape, i) => ({
+                text: `"${ape.grab ? '<' : '>'}${ape.pattern}"`,
+                ...(action === 2 ? { value: i + 1 } : {}),
+            }))];
+        const selected = await optionMenuSelect(state, {
+            items, title: `${action === 1 ? 'List of' : 'Remove which'} autopickup exceptions`,
+            how: action === 1 ? PICK_NONE : PICK_ANY, emptyValue: [],
+        }, helpers);
+        const picks = new Set(menuSelectionValues(selected).map((value) => exceptions[value - 1]));
+        if (picks.size) {
+            let previous = null;
+            let ape = state.ga?.apelist;
+            while (ape) {
+                if (picks.has(ape)) {
+                    if (previous) previous.next = ape.next;
+                    else state.ga.apelist = ape.next;
+                } else previous = ape;
+                ape = ape.next;
             }
         }
         if (selected == null) return optn_ok;

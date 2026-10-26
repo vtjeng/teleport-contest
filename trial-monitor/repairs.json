@@ -16666,6 +16666,49 @@
       },
       "candidates": [],
       "note": "Prospective distinct234, second locally tested-ready fix for authorized bounded batch pilot. C live message-type editor adds, lists, removes and exits via menus; JS had startup MSGTYPE parsing but omitted the live handler. Six strict C replays, 207 focused/affected options tests and focused ESLint/diff pass. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
+    },
+    {
+      "id": "autopickup-exceptions-choice-handler",
+      "kind": "parity-repair",
+      "title": "Edit live autopickup exceptions from options",
+      "window": "post-trial",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-26T01:45:03+00:00",
+          "end": "2026-10-26T01:46:18+00:00",
+          "note": "Dedicated implementation and candidate-owned tests after source-qualified C menu witness at 01:30:42 UTC and add/list/remove/control recording during frozen batch-one Checkpoint."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/options.c:optfn_o_autopickup_exceptions",
+          "nethack-c/upstream/src/options.c:handler_autopickup_exception",
+          "nethack-c/upstream/src/options.c:add_autopickup_exception",
+          "js/options.js:OPTION_HANDLERS"
+        ],
+        "witness": [
+          "recipes/options.c/autopickup-exceptions-handler-menu.session.json",
+          "recipes/options.c/autopickup-exceptions-handler-add.session.json",
+          "recipes/options.c/autopickup-exceptions-handler-list.session.json",
+          "recipes/options.c/autopickup-exceptions-handler-remove.session.json",
+          "recipes/options.c/autopickup-exceptions-handler-exit.session.json",
+          "recipes/options.c/autopickup-exceptions-handler-control.session.json",
+          "recipes/options.c/autopickup-exceptions-handler-cancel.session.json"
+        ],
+        "test": [
+          "scripts/options-autopickup-exceptions.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-full-command.test.mjs",
+          "scripts/options.test.mjs",
+          "scripts/options-toggle.test.mjs",
+          "scripts/options-simple-menu.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct235, first locally tested-ready fix of bounded batch-pilot group two. C live autopickup-exception editor adds, lists, removes and exits; JS had startup parser but omitted interactive handler. Seven strict C replays, 208 focused/affected options tests and focused ESLint/diff pass. Carry complete verified group-one receipt in this ordinary repair commit. Final combined-SHA hosted and publication gates pending; no aggregate gain inferred."
     }
   ]
 }
