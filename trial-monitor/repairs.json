@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T22:05:01Z",
+  "asOf": "2026-10-26T22:23:33Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -20065,6 +20065,84 @@
         }
       ],
       "note": "C shk_move handles a following shopkeeper's wrong-customer greeting, timed payment reminder and adjacent stopping before movement selection. Focused initialized shopkeeper fixtures replaced a stale UnsupportedShopError expectation; wrong- and same-customer cases failed before the fix. The implementation preserves the customer check, shared followmsg timer and rn2(9) draw. Source-grounded expectation with nearby controls, not a new C gameplay recording."
+    },
+    {
+      "id": "gas-cloud-selection-positive-damage",
+      "kind": "parity-repair",
+      "title": "Admit harmful selected-area gas clouds",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/region.c:create_gas_cloud_selection",
+          "nethack-c/upstream/src/sp_lev.c:lspo_gas_cloud",
+          "js/region.js:create_gas_cloud_selection"
+        ],
+        "witness": [
+          "scripts/region.test.mjs"
+        ],
+        "test": [
+          "scripts/region.test.mjs",
+          "scripts/region-feedback-owner.test.mjs",
+          "scripts/opaque-region-drop.test.mjs",
+          "scripts/sp-lev-create-helpers.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+          "committedAt": "2026-10-26T22:10:41Z",
+          "sourceCommit": "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+          "sourceCommittedAt": "2026-10-26T22:10:41Z",
+          "runs": [
+            {
+              "id": 40410423520,
+              "name": "Checkpoint",
+              "sha": "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/gas-cloud-selection-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:10:56Z",
+              "completedAt": "2026-10-26T22:20:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40410423520"
+            },
+            {
+              "id": 40411739971,
+              "name": "Lint",
+              "sha": "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:21:01Z",
+              "completedAt": "2026-10-26T22:22:09Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40411739971"
+            },
+            {
+              "id": 40411739985,
+              "name": "Dashboard",
+              "sha": "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:21:01Z",
+              "completedAt": "2026-10-26T22:23:33Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40411739985"
+            }
+          ]
+        }
+      ],
+      "note": "C create_gas_cloud_selection passes positive damage through make_gas_cloud when a special-level selection creates a harmful cloud. A focused in_mklev selection case failed on JS UnsupportedRegionCallbackError before selection traversal; zero-damage control already worked. The repaired helper records the positive damage and poison-cloud glyph, and existing callback tests cover harmful upkeep. Source-derived C oracle, without a new C gameplay recording."
     }
   ]
 }

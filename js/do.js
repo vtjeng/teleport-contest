@@ -383,6 +383,7 @@ import { enexto, rloc, safe_teleds } from './teleport.js';
 import { burn_away_slime, obj_has_timer, obj_stop_timers, preflight_end_burn, rider_revival_time, run_timers, start_timer } from './timeout.js';
 import {
     climb_pit,
+    deltrap,
     fill_pit,
     maketrap,
     Flying,
@@ -784,7 +785,7 @@ export function schedule_goto(
 
 // C ref: do.c deferred_goto() (2074-2102). This is async only because the
 // port's messages and goto_level() are async; their order is C's order.
-export async function deferred_goto(state = game) {
+export async function deferred_goto(state = game, rawEnv = {}) {
     const u = state.u;
     state.gd ??= {};
     if (!on_level(u.uz, u.utolev)) {
@@ -794,7 +795,7 @@ export async function deferred_goto(state = game) {
 
         if (state.gd.dfr_pre_msg)
             await ttyPline(state.gd.dfr_pre_msg, state);
-        await goto_level(
+        await (rawEnv.gotoLevel ?? goto_level)(
             dest,
             Boolean(typmask & UTOTYPE_ATSTAIRS),
             Boolean(typmask & UTOTYPE_FALLING),
@@ -806,11 +807,13 @@ export async function deferred_goto(state = game) {
         // be captured; do not resume this deferred transition's tail.
         if (state.program_state?.gameover) return;
         if (typmask & UTOTYPE_RMPORTAL) {
-            // trap.c deltrap() is not ported. No level-teleport transition
-            // carries this flag; portal ejection owns the first live use.
-            throw new UnsupportedLevelChangeError(
-                'deferred_goto() removing a destination portal',
-            );
+            // C do.c:2088-2094 removes whatever trap occupies the arrival
+            // square after goto_level(), leaving other destination traps.
+            const trap = t_at(u.ux, u.uy, state);
+            if (trap) {
+                deltrap(trap, state);
+                (rawEnv.newsym ?? newsym)(u.ux, u.uy, state);
+            }
         }
         if (state.gd.dfr_post_msg) {
             if (!on_level(u.uz, oldlev))
