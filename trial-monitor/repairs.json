@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T19:39:56Z",
+  "asOf": "2026-10-26T20:09:45Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19631,6 +19631,56 @@
               "completedAt": "2026-10-26T19:39:56Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40388506550"
+            }
+          ]
+        },
+        {
+          "sha": "f5dd54670288f3071f763cfa1e371097e5a256e2",
+          "committedAt": "2026-10-26T19:43:27Z",
+          "sourceCommit": "f5dd54670288f3071f763cfa1e371097e5a256e2",
+          "sourceCommittedAt": "2026-10-26T19:43:27Z",
+          "runs": [
+            {
+              "id": 40389306698,
+              "name": "Checkpoint",
+              "sha": "f5dd54670288f3071f763cfa1e371097e5a256e2",
+              "attempt": 2,
+              "event": "push",
+              "branch": "integration-checkpoint/spell-traditional-witnesses-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T19:43:40Z",
+              "completedAt": "2026-10-26T20:07:02Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40389306698"
+            },
+            {
+              "id": 40392903181,
+              "name": "Lint",
+              "sha": "f5dd54670288f3071f763cfa1e371097e5a256e2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T20:08:00Z",
+              "completedAt": "2026-10-26T20:09:18Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40392903181"
+            },
+            {
+              "id": 40392903314,
+              "name": "Dashboard",
+              "sha": "f5dd54670288f3071f763cfa1e371097e5a256e2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T20:08:00Z",
+              "completedAt": "2026-10-26T20:09:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40392903314"
             }
           ]
         }
