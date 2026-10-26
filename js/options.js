@@ -276,6 +276,7 @@ import {
     assign_graphics,
     known_handling,
     finish_boulder_symbol,
+    get_othersym,
     do_symset,
     MAXMCLASSES,
     switch_symbols,
@@ -8428,6 +8429,44 @@ const MENU_OPTION_SET_HANDLERS = Object.freeze(Object.fromEntries([
 // name, as OPTION_VALUE_HANDLERS' keys are.
 const OPTION_SET_HANDLERS = Object.freeze({
     boolean: optfn_boolean,
+    // options.c optfn_boulder(do_set) is also reached from a running game's
+    // generic compound-option editor, after initialization has finished.
+    boulder: async (state, _optidx, _negated, opts) => {
+        const value = string_for_opt(opts, true);
+        const { tty_wait_synch } = await import('./tty_rawprint.js');
+        if (value === '') {
+            await ttyPline(`Missing parameter for '${opts}'.`, state);
+            await tty_wait_synch(state);
+            return optn_err;
+        }
+        const byte = escapes(value)[0] ?? 0;
+        const monsterClass = def_char_to_monclass(byte);
+        const clash = monsterClass !== MAXMCLASSES && byte !== 0
+            ? 'monster'
+            : byte >= 0x31 && byte < 0x30 + WARNCOUNT ? 'warning' : null;
+        const signedByte = byte >= 0x80 ? byte - 0x100 : byte;
+        if (signedByte < 0x20) {
+            await ttyPline('boulder symbol cannot be a control character.', state);
+            await tty_wait_synch(state);
+        } else if (clash) {
+            await ttyPline(
+                `Badoption - boulder symbol '${visctrl(byte)}' would conflict`
+                + ` with a ${clash} symbol.`, state,
+            );
+            await tty_wait_synch(state);
+        } else {
+            const index = SYM_OFF_X + SYM_BOULDER;
+            state.go.ov_primary_syms[index] = byte;
+            state.go.ov_rogue_syms[index] = byte;
+            const symbol = get_othersym(
+                SYM_BOULDER, Is_rogue_level(state.u.uz) ? ROGUESET : PRIMARYSET,
+                state,
+            );
+            if (symbol) state.gs.showsyms[index] = symbol;
+            state.go.opt_need_redraw = true;
+        }
+        return optn_ok;
+    },
     petattr: (state, _optidx, negated, opts, helpers) => optfn_petattr(state, DO_SET, negated, opts, helpers),
     o_status_hilites: () => optn_ok,
     o_menu_colors: () => optn_ok,
