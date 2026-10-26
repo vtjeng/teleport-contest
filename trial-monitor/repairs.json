@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T19:09:30Z",
+  "asOf": "2026-10-26T19:39:56Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19558,6 +19558,84 @@
         }
       ],
       "note": "With a peaceful newt on the bridge, C reports that it disappears behind the rising drawbridge before further input. JavaScript omitted this source message. The C witness rerecorded byte-identically; after the fix it and the empty-bridge control replay with complete RNG, screen and cursor parity."
+    },
+    {
+      "id": "traditional-spell-selection-prompt-retry",
+      "kind": "parity-repair",
+      "title": "Use the traditional spell-selection prompt and retry invalid choices",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/spell.c:getspell",
+          "js/spell.js:getspell"
+        ],
+        "witness": [
+          "recipes/spell.c/traditional-selection-invalid.session.json",
+          "recipes/spell.c/traditional-selection-control.session.json",
+          "recipes/spell.c/traditional-selection-cancel.session.json",
+          "recipes/spell.c/traditional-selection-fallback.session.json"
+        ],
+        "test": [
+          "scripts/spell-traditional-selection.test.mjs",
+          "scripts/spell.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+          "committedAt": "2026-10-26T19:27:41Z",
+          "sourceCommit": "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+          "sourceCommittedAt": "2026-10-26T19:27:41Z",
+          "runs": [
+            {
+              "id": 40386985048,
+              "name": "Checkpoint",
+              "sha": "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/spell-traditional-prompt-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T19:28:00Z",
+              "completedAt": "2026-10-26T19:36:47Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40386985048"
+            },
+            {
+              "id": 40388506452,
+              "name": "Lint",
+              "sha": "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T19:38:14Z",
+              "completedAt": "2026-10-26T19:39:22Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40388506452"
+            },
+            {
+              "id": 40388506550,
+              "name": "Dashboard",
+              "sha": "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T19:38:14Z",
+              "completedAt": "2026-10-26T19:39:56Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40388506550"
+            }
+          ]
+        }
+      ],
+      "note": "C prompts for a spell letter in traditional menu style, retries invalid choices, accepts cancellation, and opens the menu for ? or *. JavaScript previously opened the menu immediately. Fresh C witness and controls now replay with complete RNG, screen, and cursor parity."
     }
   ]
 }
