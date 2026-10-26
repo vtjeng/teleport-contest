@@ -5192,6 +5192,11 @@ async function doextcmd(key, state, onSelectedEntry = null) {
             return await dowhatdoes(state);
         case 'doset':
             return await runOptionsCommand(key, state, doset);
+        case 'doset_simple':
+            // C ref: options.c doset_simple(), the #options handler. The
+            // shared wrapper supplies the same menu and option seams used
+            // by the bound O command and #optionsfull.
+            return await runOptionsCommand(key, state, doset_simple);
         case 'dowhatis':
             return await runWhatisCommand(key, state);
         case 'doidtrap':

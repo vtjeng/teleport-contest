@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Passing #attributes control for the clean-start #options boundary recipe, using independent seed and otherwise matching conditions.",
+  "segments": [
+    {
+      "seed": 28741066,
+      "datetime": "20541217102133",
+      "nethackrc": "OPTIONS=name:OptionControl2,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+      "moves": ".#attributes\n "
+    }
+  ]
+}
