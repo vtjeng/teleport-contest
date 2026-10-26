@@ -753,10 +753,18 @@ async function do_entity(entity, state, env = {}) {
         inview = entityCanSee(entity, state);
     }
     if (is_db_wall(entity.ex, entity.ey, state)) {
-        // C dbridge.c:do_entity() reports a visible monster relocating into
-        // the portcullis chamber before checking whether it survives there.
-        if (inview && !is_u(entity, state))
-            await message(`${E_phrase(entity, 'disappear', state)} behind the drawbridge.`, state);
+        // C dbridge.c:do_entity() reports a visible occupant's arrival
+        // before checking whether the portcullis chamber kills it.
+        if (inview) {
+            if (is_u(entity, state)) {
+                await message('You tumble towards the closed portcullis!', state);
+                await message(automiss(entity, state)
+                    ? 'You pass through it!'
+                    : 'The drawbridge closes in...', state);
+            } else {
+                await message(`${E_phrase(entity, 'disappear', state)} behind the drawbridge.`, state);
+            }
+        }
         if (!e_survives_at(entity, entity.ex, entity.ey, state)) {
             state.killer ??= {};
             state.killer.format = KILLED_BY_AN;

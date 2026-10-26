@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T20:09:45Z",
+  "asOf": "2026-10-26T21:04:40Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -19686,6 +19686,156 @@
         }
       ],
       "note": "C prompts for a spell letter in traditional menu style, retries invalid choices, accepts cancellation, and opens the menu for ? or *. JavaScript previously opened the menu immediately. Fresh C witness and controls now replay with complete RNG, screen, and cursor parity."
+    },
+    {
+      "id": "pet-golem-destruction-farewell",
+      "kind": "parity-repair",
+      "title": "Print the destroyed pet golem farewell",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c:monkilled",
+          "js/mon.js:monkilled"
+        ],
+        "witness": [
+          "scripts/monkilled-pet-golem-farewell.test.mjs"
+        ],
+        "test": [
+          "scripts/monkilled-pet-golem-farewell.test.mjs",
+          "scripts/mon-kill.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+          "committedAt": "2026-10-26T20:48:11Z",
+          "sourceCommit": "325dd70469f91f4feedc42dadaccbd859016d8a3",
+          "sourceCommittedAt": "2026-10-26T20:37:13Z",
+          "runs": [
+            {
+              "id": 40399074396,
+              "name": "Checkpoint",
+              "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/pet-golem-wand-dust-corrected-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T20:49:36Z",
+              "completedAt": "2026-10-26T21:01:43Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40399074396"
+            },
+            {
+              "id": 40400960301,
+              "name": "Lint",
+              "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:02:38Z",
+              "completedAt": "2026-10-26T21:03:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40400960301"
+            },
+            {
+              "id": 40400960298,
+              "name": "Dashboard",
+              "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:02:38Z",
+              "completedAt": "2026-10-26T21:04:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40400960298"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C monkilled prints the roast, rust or rot farewell after a tame golem is completely destroyed. A supported-API focused test failed at the former unsupported throw and passes for three tame cases and three wild controls; an older throw-expectation test was updated. Source-grounded expectation; no new C gameplay recording was made."
+    },
+    {
+      "id": "cancelled-wand-engraving-dust",
+      "kind": "parity-repair",
+      "title": "Match cancelled wand dust feedback while engraving",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/engrave.c:doengrave",
+          "js/engrave.js:doengrave"
+        ],
+        "witness": [
+          "scripts/engrave-cancelled-wand.test.mjs"
+        ],
+        "test": [
+          "scripts/engrave-cancelled-wand.test.mjs",
+          "scripts/engrave-command.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+          "committedAt": "2026-10-26T20:48:11Z",
+          "sourceCommit": "ee16ba2d55e473c23a3b8622e38518fb07d6fa71",
+          "sourceCommittedAt": "2026-10-26T20:37:17Z",
+          "runs": [
+            {
+              "id": 40399074396,
+              "name": "Checkpoint",
+              "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/pet-golem-wand-dust-corrected-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T20:49:36Z",
+              "completedAt": "2026-10-26T21:01:43Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40399074396"
+            },
+            {
+              "id": 40400960301,
+              "name": "Lint",
+              "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:02:38Z",
+              "completedAt": "2026-10-26T21:03:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40400960301"
+            },
+            {
+              "id": 40400960298,
+              "name": "Dashboard",
+              "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T21:02:38Z",
+              "completedAt": "2026-10-26T21:04:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40400960298"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C doengrave consumes a cancelled wand and says it turns to dust, with a glow clause only when sighted. A supported-API focused test failed on the prior turnses/fades text and passes for sighted and blind cases. Source-grounded expectation; no new C gameplay recording was made."
     }
   ]
 }
