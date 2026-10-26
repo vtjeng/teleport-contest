@@ -211,7 +211,7 @@ import {
 } from './symbols.js';
 import { hides_under, poly_when_stoned, touch_petrifies } from './mondata.js';
 import { hideunder, maybe_unhide_at } from './mon.js';
-import { newsym, obj_to_glyph } from './display.js';
+import { newsym, obj_to_glyph, mon_to_glyph } from './display.js';
 import { livelog_printf } from './pline.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { visible_region_at } from './region.js';
@@ -233,7 +233,8 @@ import { hidden_gold } from './vault.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
-import { ice_descr } from './pager.js';
+import { ice_descr, self_lookat } from './pager.js';
+import { digests } from './dothrow.js';
 import { can_reach_floor } from './engrave.js';
 import { add_valid_menu_class, allow_all, allow_category, force_decor, query_objlist, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
@@ -5820,11 +5821,6 @@ export async function display_minventory(
     if (!(doAll ? haveAny : (mon?.misc_worn_check || mon?.mw)))
         return invdisp_nothing(title || heading, '(none)', state, hooks);
 
-    // C's swallowed-hero row is a fake object owned by query_objlist(). The
-    // current callers only use this branch with PICK_NONE; retain the source
-    // dependency marker while preserving all actual monster rows.
-    if (includeHero) note_unported('pickup.c query_objlist swallowed hero');
-
     const oldData = state.youmonst?.data;
     const oldSuppressPrice = state.iflags?.suppress_price;
     if (state.youmonst) state.youmonst.data = mon.data;
@@ -5886,6 +5882,28 @@ export async function display_minventory(
                 selector: undefined,
                 label,
                 value: obj,
+                glyphInfo,
+            });
+        }
+        if (includeHero) {
+            // pickup.c query_objlist():1151-1171 adds this after every monster
+            // object, even when an engulfer's inventory is empty.  The menu
+            // row uses a fake object and the temporarily substituted monster
+            // species, while self_lookat() still names the hero.
+            if (sorted.some((entry) => allow(entry.obj))) {
+                items.push(add_menu_heading(
+                    `${digests(state.u.ustuck.data)
+                        ? 'Swallowed' : 'Engulfed'} Creatures`, state,
+                ));
+            }
+            const glyphInfo = mon_to_glyph(
+                state.youmonst, state, rn2_on_display_rng,
+            );
+            const label = an(self_lookat(state));
+            items.push({
+                selector: CONTAINED_SYM,
+                label,
+                value: { quan: 1 },
                 glyphInfo,
             });
         }
