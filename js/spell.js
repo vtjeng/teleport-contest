@@ -1760,6 +1760,11 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     const role_skill = P_SKILL(skill, state);
 
     switch (otyp) {
+    // C spell.c:1549; potion.c healup(0, 0, FALSE, TRUE) clears blindness,
+    // cream, and deafness through the shared source-owned condition helpers.
+    case SPE_CURE_BLINDNESS:
+        await healup(0, 0, false, true, state, env);
+        break;
     case SPE_CURE_SICKNESS: {
         const wasSick = Boolean(state.u.uprops[SICK].intrinsic);
         const wasSlimed = Boolean(state.u.uprops[SLIMED].intrinsic);

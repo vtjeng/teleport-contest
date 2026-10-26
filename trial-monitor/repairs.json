@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T10:23:28Z",
+  "asOf": "2026-10-26T11:01:05Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -18630,6 +18630,164 @@
         }
       ],
       "note": "Wizard level menu reaches fakewiz2 in C; JavaScript previously stopped at an unsupported special-loader boundary. Strict C witness and same-menu Minetown control match after the source-backed loader."
+    },
+    {
+      "id": "options-simple-extcmd",
+      "kind": "parity-repair",
+      "title": "Dispatch the named simple options command",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:doextcmd",
+          "nethack-c/upstream/src/options.c:doset_simple",
+          "js/cmd.js:doextcmd",
+          "js/options.js:doset_simple"
+        ],
+        "witness": [
+          "recipes/cmd.c/trial-options-simple-boundary-retry.session.json",
+          "recipes/cmd.c/trial-options-simple-control-retry.session.json"
+        ],
+        "test": [
+          "scripts/options-simple-extcmd.test.mjs",
+          "scripts/options-menu.test.mjs",
+          "scripts/options-simple-menu.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+          "committedAt": "2026-10-26T10:48:12Z",
+          "sourceCommit": "24829e0c969d64aa54602a69e80e336866efef98",
+          "sourceCommittedAt": "2026-10-26T10:42:38Z",
+          "runs": [
+            {
+              "id": 40310419298,
+              "name": "Checkpoint",
+              "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch5-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:49:41Z",
+              "completedAt": "2026-10-26T10:58:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40310419298"
+            },
+            {
+              "id": 40311628439,
+              "name": "Lint",
+              "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:59:16Z",
+              "completedAt": "2026-10-26T11:00:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40311628439"
+            },
+            {
+              "id": 40311629715,
+              "name": "Dashboard",
+              "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:59:17Z",
+              "completedAt": "2026-10-26T11:01:05Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40311629715"
+            }
+          ]
+        }
+      ],
+      "note": "Named #options previously reached an unsupported doextcmd default instead of the existing simple options handler. Strict C menu witness and neighboring #attributes control now match."
+    },
+    {
+      "id": "reqmenu-named-extcmd",
+      "kind": "parity-repair",
+      "title": "Dispatch the named request-menu prefix command",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:do_reqmenu",
+          "nethack-c/upstream/src/cmd.c:doextcmd",
+          "js/cmd.js:doextcmd",
+          "js/cmd.js:do_reqmenu"
+        ],
+        "witness": [
+          "recipes/trial-reqmenu-named-cancel.session.json",
+          "recipes/trial-reqmenu-key-control.session.json"
+        ],
+        "test": [
+          "scripts/reqmenu-named-cancel.test.mjs",
+          "scripts/cmd.test.mjs",
+          "scripts/extended-command-prompt.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+          "committedAt": "2026-10-26T10:48:12Z",
+          "sourceCommit": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+          "sourceCommittedAt": "2026-10-26T10:48:12Z",
+          "runs": [
+            {
+              "id": 40310419298,
+              "name": "Checkpoint",
+              "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch5-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:49:41Z",
+              "completedAt": "2026-10-26T10:58:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40310419298"
+            },
+            {
+              "id": 40311628439,
+              "name": "Lint",
+              "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:59:16Z",
+              "completedAt": "2026-10-26T11:00:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40311628439"
+            },
+            {
+              "id": 40311629715,
+              "name": "Dashboard",
+              "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T10:59:17Z",
+              "completedAt": "2026-10-26T11:01:05Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40311629715"
+            }
+          ]
+        }
+      ],
+      "note": "Named #reqmenu previously reached an unsupported doextcmd default. Strict C named-cancel witness and bound-key control now match; no world action on cancel."
     }
   ]
 }

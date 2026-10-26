@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first test of spell.c:spelleffects(SPE_CURE_BLINDNESS); #wizcast selects the valid cure-blindness spell object without a learned-book setup.",
+  "segments": [
+    {
+      "seed": 70404001,
+      "datetime": "20540608162319",
+      "nethackrc": "OPTIONS=name:CureBlindSpell,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " #wizintrinsic\n50i\n #wizcast\nm"
+    }
+  ]
+}
