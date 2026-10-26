@@ -37,6 +37,9 @@ export function createTrialMonitor(initial, options = {}) {
       for (const candidate of repair.candidates) {
         if (!shaPattern.test(candidate.sha) || !Array.isArray(candidate.runs))
           throw new Error('Invalid candidate SHA or run history');
+        if ((candidate.sourceCommit && !shaPattern.test(candidate.sourceCommit))
+            || (candidate.sourceCommittedAt && !timestamp(candidate.sourceCommittedAt)))
+          throw new Error('Invalid repair source commit');
       }
     }
   }
@@ -102,16 +105,22 @@ export function createTrialMonitor(initial, options = {}) {
     const undatedCount = entries.length - dated.length;
     const unrecordedCount = data.register.repairs.filter(repair => repair.window === 'single-worker' && !repair.candidates.length).length;
     const latest = dated[0];
+    const unrecordedNewerCount = latest ? data.register.repairs.filter(repair =>
+      ['single-worker', 'post-trial'].includes(repair.window) && !repair.candidates.length
+      && (repair.investigations ?? []).some(event =>
+        (timestamp(event.end) ?? timestamp(event.start) ?? -Infinity) > latest.at)).length : 0;
     const tied = latest && dated.some(entry => entry.at === latest.at
-      && (entry.candidate.sha !== latest.candidate.sha || entry.repair.id !== latest.repair.id));
+      && entry.candidate.sha !== latest.candidate.sha);
     const selected = tied ? null : latest ?? null;
+    const members = selected ? dated.filter(entry => entry.at === selected.at
+      && entry.candidate.sha === selected.candidate.sha) : [];
     const pointer = data.manifest.operations?.currentCandidate;
-    return {selected, selection: {
-      source: 'repair-register', undatedCount, unrecordedCount,
+    return {selected, members, selection: {
+      source: 'repair-register', undatedCount, unrecordedCount, unrecordedNewerCount,
       status: tied ? 'ambiguous' : !entries.length ? 'none' : !selected ? 'undated'
         : undatedCount || unrecordedCount ? 'partial' : 'selected',
       legacyPointerMismatch: Boolean(pointer && (!selected || pointer.sha !== selected.candidate.sha
-        || pointer.repairId !== selected.repair.id)),
+        || !members.some(entry => entry.repair.id === pointer.repairId))),
     }};
   }
 
@@ -120,6 +129,42 @@ export function createTrialMonitor(initial, options = {}) {
     const manifest = current.manifest;
     const results = current.register.repairs.map(repair =>
       repairResult(repair, current.apiRuns ?? []));
+    // Count repairs individually, but use each validated SHA only once as a
+    // publication group. These are wall-clock rates for recorded candidates,
+    // never an estimate of active engineering or CI compute time.
+    const bySha = new Map();
+    for (const result of results) {
+      if (!['single-worker', 'post-trial'].includes(result.repair.window)) continue;
+      for (const item of result.candidates) {
+        const group = bySha.get(item.candidate.sha) ?? [];
+        group.push({ result, item });
+        bySha.set(item.candidate.sha, group);
+      }
+    }
+    // A shared candidate is accepted as one indivisible validation group. A
+    // partial or contradictory member record must not publish only siblings.
+    for (const members of bySha.values()) if (members.length > 1
+        && members.some(({ item }) => !item.closureAt))
+      for (const { result, item } of members)
+        if (result.accepted === item) result.accepted = null;
+    const completeGroups = [...bySha.entries()].flatMap(([sha, members]) => {
+      if (!members.every(({ item }) => item.closureAt)) return [];
+      // A correction to an already accepted repair can share a new repair's
+      // SHA. It is group membership, not another distinct acceptance.
+      const newlyAccepted = members.filter(({ result, item }) => result.accepted === item);
+      if (!newlyAccepted.length) return [];
+      const starts = members.map(({ item }) => timestamp(item.candidate.sourceCommittedAt
+        ?? item.candidate.committedAt ?? item.candidate.startedAt));
+      const ends = members.map(({ item }) => timestamp(item.closureAt));
+      if (starts.some(start => start === null) || ends.some(end => end === null)) return [];
+      return [{ sha, repairs: newlyAccepted.length, start: Math.min(...starts), end: Math.max(...ends) }];
+    }).sort((a, b) => a.end - b.end);
+    const recentGroups = completeGroups.slice(-3);
+    const recentStart = recentGroups.length ? Math.min(...recentGroups.map(group => group.start)) : null;
+    const recentEnd = recentGroups.length ? Math.max(...recentGroups.map(group => group.end)) : null;
+    const recentRepairs = recentGroups.reduce((sum, group) => sum + group.repairs, 0);
+    const recentHours = recentStart !== null && recentEnd > recentStart
+      ? (recentEnd - recentStart) / 3600000 : null;
     function windowResult(window, start, end, elapsedHours, coverage) {
       const startMs = timestamp(start), endMs = timestamp(end);
       const accepted = results.filter(result => result.accepted
@@ -160,7 +205,7 @@ export function createTrialMonitor(initial, options = {}) {
         new Date(Math.min(plannedEnd, trial.status === 'completed'
           ? timestamp(trial.end) : now)).toISOString(),
         trialHours, trial.coverage);
-    const {selected, selection} = selectCandidate(current);
+    const {selected, members, selection} = selectCandidate(current);
     const selectedCandidate = selected ? candidateResult(selected.candidate,
       (current.apiRuns ?? []).filter(run => run.sha === selected.candidate.sha)) : null;
     const evidenceAt = selected ? new Date(selected.at).toISOString() : null;
@@ -170,13 +215,20 @@ export function createTrialMonitor(initial, options = {}) {
         plannedHours: trial.plannedHours, start: trial.start, end: trial.end,
         coverage: trial.coverage },
       selection,
+      recentProgress: { groupCount: recentGroups.length, repairCount: recentRepairs,
+        start: recentStart === null ? null : new Date(recentStart).toISOString(),
+        end: recentEnd === null ? null : new Date(recentEnd).toISOString(),
+        elapsedHours: recentHours, rate: recentHours === null ? null : recentRepairs / recentHours },
       currentCandidate: selectedCandidate ? { repairId: selected.repair.id,
+        repairIds: members.map(entry => entry.repair.id), groupSize: members.length,
         sha: selected.candidate.sha, origin: selected.repair.origin ?? null,
         investigator: selected.repair.investigator ?? null, registered: true,
         evidenceAt, evidenceAgeMs,
         freshness: evidenceAgeMs === null ? 'unknown' : evidenceAgeMs < 0 ? 'clock-ahead'
           : evidenceAgeMs > 3600000 ? 'stale' : 'recent',
-        state: selectedCandidate.closureAt ? 'completed' : 'pending', ...selectedCandidate } : null,
+        state: members.every(entry => results.find(result => result.repair.id === entry.repair.id)
+          ?.candidates.find(item => item.candidate === entry.candidate)?.closureAt)
+          ? 'completed' : 'pending', ...selectedCandidate } : null,
       investigators: manifest.operations?.investigators ?? null,
       waitingHandoffs: manifest.operations?.waitingHandoffs ?? null,
       buildAt: current.builtAt, buildSha: current.buildSha,

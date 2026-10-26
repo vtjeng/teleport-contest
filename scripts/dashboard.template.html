@@ -1081,6 +1081,7 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
 <section class="section" aria-labelledby="recentRepairsTitle">
   <div class="section-toolbar"><h2 class="section-title" id="recentRepairsTitle">Recent accepted repairs</h2><span class="compact-note" id="repairCount"></span></div>
   <ol class="recent-repairs" id="recentRepairs"></ol>
+  <p class="compact-note" id="recentRepairRate"></p>
   <p class="compact-note">Distinct repairs; corrections stay with their original repair. Register coverage is partial.</p>
 </section>
 
@@ -1270,6 +1271,13 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
     const accepted = singleWorkerSnapshot.tasks.filter(task => task.publishedAt)
       .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
     text('repairCount', accepted.length + ' registered · latest ' + Math.min(5, accepted.length) + ' shown');
+    const progress = view.recentProgress;
+    text('recentRepairRate', progress?.rate == null
+      ? 'Recent rate unknown: no complete dated validation group is recorded.'
+      : 'Latest ' + progress.groupCount + ' complete validation groups · '
+        + progress.repairCount + ' registered repairs in '
+        + Math.round(progress.elapsedHours * 60) + ' minutes wall time · '
+        + rate(progress.rate) + '. First repair commit to last exact-SHA gate; shared CI counted once.');
     const recent = node('recentRepairs');
     recent.replaceChildren();
     if (!accepted.length) {
@@ -1279,12 +1287,15 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       const item = document.createElement('li');
       const title = document.createElement('a'); title.textContent = task.label;
       const result = view.results.find(result => result.repair.id === task.id);
-      title.href = 'https://github.com/vtjeng/teleport-contest/commit/' + result.accepted.candidate.sha;
+      title.href = 'https://github.com/vtjeng/teleport-contest/commit/'
+        + (result.accepted.candidate.sourceCommit || result.accepted.candidate.sha);
       const time = document.createElement('time'); time.dateTime = task.publishedAt;
       time.textContent = stamp(task.publishedAt);
       const detail = document.createElement('span'); detail.className = 'repair-detail';
-      detail.textContent = task.status.includes('correction')
-        ? task.status.split(' · ')[1] : '';
+      detail.textContent = [task.status.includes('correction')
+        ? task.status.split(' · ')[1] : '', task.validationGroupSize > 1
+          ? 'Shared validation with ' + task.validationGroupSize + ' repairs · '
+            + task.validationSha.slice(0, 12) : ''].filter(Boolean).join(' · ');
       item.append(title, time, detail); recent.append(item);
     }
     window.dispatchEvent(new Event('single-worker-status'));
@@ -1295,8 +1306,10 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       text('trialCandidate', 'Unknown — no uniquely dated candidate in the repair register');
       gates.textContent = 'Checkpoint · Lint · Dashboard: unknown';
     } else {
-      text('trialCandidate', (view.results.find(result => result.repair.id === candidate.repairId)?.repair.title
-        ?? candidate.repairId ?? 'Unregistered candidate') + ' · ' + candidate.sha.slice(0, 12));
+      text('trialCandidate', (candidate.groupSize > 1
+        ? candidate.groupSize + ' repairs · shared validation'
+        : view.results.find(result => result.repair.id === candidate.repairId)?.repair.title
+          ?? candidate.repairId ?? 'Unregistered candidate') + ' · ' + candidate.sha.slice(0, 12));
       for (const name of ['Checkpoint', 'Lint', 'Dashboard']) {
         const gate = candidate.gates[name];
         const span = document.createElement('span');
@@ -1315,6 +1328,8 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       : 'Candidate evidence: unknown')
       + warning
       + (selection?.unrecordedCount ? ' · ' + selection.unrecordedCount + (selection.unrecordedCount === 1 ? ' repair has no candidate recorded' : ' repairs have no candidate recorded') : '')
+      + (selection?.unrecordedNewerCount ? ' · ' + selection.unrecordedNewerCount
+        + (selection.unrecordedNewerCount === 1 ? ' newer repair awaits candidate evidence' : ' newer repairs await candidate evidence') : '')
       + (selection?.legacyPointerMismatch ? ' · saved status differs; using dated candidate evidence' : '')
       + (view.api.status === 'fresh' ? ' · CI checked ' + stamp(view.api.checkedAt) : ' · CI: last-known snapshot'));
 

@@ -5,6 +5,15 @@ export function singleWorkerActivity(view) {
   const iso = value => new Date(value).toISOString();
   const root = 'https://github.com/vtjeng/teleport-contest';
   const tasks = [], segments = [];
+  const membersBySha = new Map(), shownValidation = new Set(), shownPublication = new Set();
+  for (const result of view?.results ?? []) {
+    if (!['single-worker', 'post-trial'].includes(result.repair.window)) continue;
+    for (const item of result.candidates) {
+      const members = membersBySha.get(item.candidate.sha) ?? new Set();
+      members.add(result.repair.id);
+      membersBySha.set(item.candidate.sha, members);
+    }
+  }
   for (const result of view?.results ?? []) {
     const repair = result.repair;
     // Both tags belong to the continuing Standard engineer lane. Keep the
@@ -15,6 +24,9 @@ export function singleWorkerActivity(view) {
       status: result.accepted ? 'Accepted repair' : 'Not fully accepted',
       source: repair.evidence?.source?.join(', '), outcome: repair.note,
       publishedAt: result.accepted?.closureAt,
+      validationSha: result.accepted?.candidate.sha ?? latest?.candidate.sha ?? null,
+      validationGroupSize: membersBySha.get(result.accepted?.candidate.sha
+        ?? latest?.candidate.sha)?.size ?? 0,
       investigation: 'Investigation timestamps unknown', links: [],
     };
     if (result.candidates.length > 1) task.status += latest?.closureAt
@@ -36,6 +48,9 @@ export function singleWorkerActivity(view) {
       const candidate = item.candidate;
       const commit = { url: `${root}/commit/${candidate.sha}`, label: candidate.sha.slice(0, 12) };
       task.links.push(commit);
+      if (candidate.sourceCommit && candidate.sourceCommit !== candidate.sha)
+        task.links.push({ url: `${root}/commit/${candidate.sourceCommit}`,
+          label: `Repair commit ${candidate.sourceCommit.slice(0, 12)}` });
       const runs = new Map();
       for (const gate of Object.values(item.gates)) {
         for (const run of gate.runs) {
@@ -58,17 +73,26 @@ export function singleWorkerActivity(view) {
         if (!checkpoint && !publication) continue;
         const ongoing = ['queued', 'in_progress'].includes(run.status);
         const end = ongoing ? view.api.checkedAt ?? view.registerAsOf : run.completedAt;
-        if (checkpoint) span('validation', run.createdAt, end,
-          `${link.label}. Elapsed CI span includes queue time.`, [commit, link], ongoing);
+        if (checkpoint) {
+          const key = `${candidate.sha}:${run.id}:${run.attempt}`;
+          if (!shownValidation.has(key) && span('validation', run.createdAt, end,
+            `${link.label}. Shared by ${membersBySha.get(candidate.sha)?.size ?? 1} repairs. Elapsed CI span includes queue time.`,
+            [commit, link], ongoing)) shownValidation.add(key);
+        }
         if (publication && valid(run.createdAt) && valid(end)) publications.push({ run, end, ongoing, link });
       }
       // Parallel Lint/Pages runs are one elapsed publication span per candidate.
-      if (publications.length) span('publication',
+      const publicationKey = `${candidate.sha}:${publications.map(row =>
+        `${row.run.id}:${row.run.attempt}`).sort().join(',')}`;
+      if (publications.length && !shownPublication.has(publicationKey)
+          && span('publication',
         iso(Math.min(...publications.map(row => Date.parse(row.run.createdAt)))),
         iso(Math.max(...publications.map(row => Date.parse(row.end)))),
         (item.closureAt ? 'All exact-SHA gates passed. ' : 'Acceptance incomplete. ')
+          + `Shared by ${membersBySha.get(candidate.sha)?.size ?? 1} repairs. `
           + 'Publication checks include queue time; missing gate times are unknown.',
-        [commit, ...publications.map(row => row.link)], publications.some(row => row.ongoing));
+        [commit, ...publications.map(row => row.link)], publications.some(row => row.ongoing)))
+        shownPublication.add(publicationKey);
       const missing = Object.entries(item.gates).filter(([, gate]) => gate.status !== 'passed');
       if (missing.length) task.status += ' · ' + candidate.sha.slice(0, 8) + ': '
         + missing.map(([name, gate]) => `${name} ${gate.status}`).join(', ');
