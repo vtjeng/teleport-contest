@@ -17709,6 +17709,32 @@
       },
       "candidates": [],
       "note": "Prospective distinct248; carry-in C-qualified live option gap adapted by Luna worker from isolated commit 571d6ec. C stores 75, rejects 74, reports empty input, preserves cancel and ordinary control. Five strict C replays, 149 affected tests, focused ESLint and diff checks pass. Optional check:options could not run locally without clang; generated options data is unchanged and the full hosted source gate remains required. Trial worker commit e67a3f9618039642b08e26b43837a0c87f84c516; integrated source SHA is the ordinary repair commit. Full combined-SHA and Main gates pending; no score gain inferred."
+    },
+    {
+      "id": "confused-holder-wander-release",
+      "kind": "parity-repair",
+      "title": "Release a confused grabber after it wanders away",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": true,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c:dochug",
+          "nethack-c/upstream/src/mon.c:unstuck",
+          "js/monmove.js:dochug",
+          "js/mon.js:unstuck"
+        ],
+        "witness": [
+          "recipes/monmove/confused-holder-wanders-away.session.json"
+        ],
+        "test": [
+          "scripts/monmove-dochug.test.mjs",
+          "scripts/monmove.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Prospective distinct249; carry-in investigator C witness. A confused owlbear moves outside hero adjacency while grabbing: C calls unstuck before helpless/ranged checks and draws rnd(2) cooldown; JS kept a distant holder and missed the RNG draw. State-aware unstuck now runs at that source position with caller RNG in live and planning clone. Full C recording matches 3083 RNG calls/143 screens; held-prefix and no-holder/step-away controls pass. Worker commit 9ef359a29fcc26e2f73645924f4c189abbee712f; 202 focused/affected tests and full lint passed. Full combined-SHA hosted and Main gates pending; no hidden-score effect inferred."
     }
   ]
 }
