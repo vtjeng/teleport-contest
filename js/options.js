@@ -8446,6 +8446,20 @@ const OPTION_SET_HANDLERS = Object.freeze({
     name: (state, optidx, negated, opts) => optfn_name(
         state, optidx, DO_SET, negated, opts,
     ),
+    // options.c optfn_menuinvertmode(do_set) also serves the live editor.
+    menuinvertmode: async (state, _optidx, _negated, opts) => {
+        const value = string_for_opt(opts, true);
+        if (value === '') return optn_ok;
+        const mode = atoi(value);
+        if (mode < 0 || mode > 2) {
+            await ttyPline(`Illegal menuinvertmode parameter '${value}'.`, state);
+            const { tty_wait_synch } = await import('./tty_rawprint.js');
+            await tty_wait_synch(state);
+            return optn_err;
+        }
+        state.iflags.menuinvertmode = mode;
+        return optn_ok;
+    },
     number_pad: (state, optidx, negated, opts, helpers) => optfn_number_pad(
         state, optidx, DO_SET, negated, opts, undefined, helpers,
     ),
