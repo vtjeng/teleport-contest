@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C witness for write.c:dowrite returning a successfully written enchant-weapon scroll into an existing same-type inventory stack. Seed and clock fixed before the source probe. C merges the new scroll and prints invent.c:merged comparison-discovery; JS stops at the missing inventoryComparisonDiscovered hook. Wizard wishes a blank scroll and charged marker, then applies marker to blank scroll and types the known scroll name.",
+  "segments": [
+    {
+      "seed": 78102213,
+      "datetime": "20430917135128",
+      "nethackrc": "OPTIONS=name:TrialMarker,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blank paper\n\u0017magic marker (0:10)\nanoScroll of enchant weapon\n"
+    }
+  ]
+}

@@ -18264,6 +18264,22 @@
       },
       "candidates": [],
       "note": "Prospective distinct256, discovered and verified during trial. C lists nearby engravings in configured screen or compass coordinates, but JS previously refused nondefault coordinate modes. Worker commit d3db2abaf4065c8133ca702694f643f5ef01f763 ports C coordinate formatting and glyph placement. Strict C screen/compass witnesses and map/none controls match; 62 focused/affected tests and lint passed. Full combined-SHA hosted and Main gates pending."
+    },
+    {
+      "id": "write-marker-stack-merge-comparison",
+      "kind": "parity-repair",
+      "title": "Report comparison discovery when written items merge",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": ["nethack-c/upstream/src/write.c:dowrite", "nethack-c/upstream/src/invent.c:merged", "js/write.js:writeEnv", "js/invent.js:hold_another_object"],
+        "witness": ["recipes/write.c/trial-marker-stack-merge.session.json", "recipes/write.c/trial-marker-no-stack-control.session.json"],
+        "test": ["scripts/write-marker-stack.test.mjs", "scripts/write.test.mjs"]
+      },
+      "candidates": [],
+      "note": "Prospective distinct257, discovered and verified during trial. C prints a comparison-discovery message when a newly written scroll joins an existing stack; JS previously threw because writeEnv lacked the inventoryComparisonDiscovered hook. Worker commit eb1e9bf804632d9d2c4d56114a91a227216fb39c adds the live callback. Strict C merge witness and no-stack control match, with 26 focused write tests and lint passing. An unrelated broader glob-qualification subprocess failed in the sparse worker; the previously blocked glob area was not investigated. Full combined-SHA hosted and Main gates pending."
     }
   ]
 }

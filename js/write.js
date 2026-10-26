@@ -525,7 +525,15 @@ export function new_book_description(booktype, state) {
 // or shop bill, so obfree needs no lifecycle hooks. useup's paper is ordinary
 // blank paper -- not worn, not timed, not an artifact, not a leash.
 function writeEnv(state) {
-    return { state, hooks: { encumberMessage: encumber_msg } };
+    return {
+        state,
+        hooks: {
+            encumberMessage: encumber_msg,
+            inventoryComparisonDiscovered: () => ttyPline(
+                'You learn more about your items by comparing them.', state,
+            ),
+        },
+    };
 }
 
 // C ref: apply.js heroHallucinating(), duplicated here to match the youprop.h
