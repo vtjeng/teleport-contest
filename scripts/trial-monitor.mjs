@@ -89,7 +89,7 @@ export function createTrialMonitor(initial, options = {}) {
       candidateResult(candidate, extraRuns.filter(run => run.sha === candidate.sha)));
     const accepted = supported ? candidates.filter(item => item.closureAt)
       .sort((a, b) => a.closureAt.localeCompare(b.closureAt))[0] ?? null : null;
-    return { repair, candidates, accepted };
+    return { repair, candidates, accepted, supported };
   }
 
   // Candidate identity and ordering come from persisted candidate evidence, never
@@ -112,8 +112,8 @@ export function createTrialMonitor(initial, options = {}) {
     const tied = latest && dated.some(entry => entry.at === latest.at
       && entry.candidate.sha !== latest.candidate.sha);
     const selected = tied ? null : latest ?? null;
-    const members = selected ? dated.filter(entry => entry.at === selected.at
-      && entry.candidate.sha === selected.candidate.sha) : [];
+    const members = selected ? entries.filter(entry =>
+      entry.candidate.sha === selected.candidate.sha) : [];
     const pointer = data.manifest.operations?.currentCandidate;
     return {selected, members, selection: {
       source: 'repair-register', undatedCount, unrecordedCount, unrecordedNewerCount,
@@ -141,14 +141,25 @@ export function createTrialMonitor(initial, options = {}) {
         bySha.set(item.candidate.sha, group);
       }
     }
-    // A shared candidate is accepted as one indivisible validation group. A
-    // partial or contradictory member record must not publish only siblings.
-    for (const members of bySha.values()) if (members.length > 1
-        && members.some(({ item }) => !item.closureAt))
-      for (const { result, item } of members)
-        if (result.accepted === item) result.accepted = null;
+    // Select each repair's earliest fully valid candidate only after checking
+    // the whole group. A blocked earlier group must not hide a valid correction.
+    const validGroups = new Set([...bySha.entries()].filter(([, members]) => {
+      if (!members.every(({ result, item }) => result.supported && item.closureAt)) return false;
+      return names.every(name => members.every(({ item }) => {
+        const first = members[0].item.gates[name].run;
+        const run = item.gates[name].run;
+        return run?.id === first?.id && run?.attempt === first?.attempt
+          && run?.completedAt === first?.completedAt;
+      }));
+    }).map(([sha]) => sha));
+    for (const result of results) {
+      if (!['single-worker', 'post-trial'].includes(result.repair.window)) continue;
+      result.accepted = result.candidates.filter(item => item.closureAt
+        && validGroups.has(item.candidate.sha))
+        .sort((a, b) => a.closureAt.localeCompare(b.closureAt))[0] ?? null;
+    }
     const completeGroups = [...bySha.entries()].flatMap(([sha, members]) => {
-      if (!members.every(({ item }) => item.closureAt)) return [];
+      if (!validGroups.has(sha)) return [];
       // A correction to an already accepted repair can share a new repair's
       // SHA. It is group membership, not another distinct acceptance.
       const newlyAccepted = members.filter(({ result, item }) => result.accepted === item);
@@ -226,9 +237,8 @@ export function createTrialMonitor(initial, options = {}) {
         evidenceAt, evidenceAgeMs,
         freshness: evidenceAgeMs === null ? 'unknown' : evidenceAgeMs < 0 ? 'clock-ahead'
           : evidenceAgeMs > 3600000 ? 'stale' : 'recent',
-        state: members.every(entry => results.find(result => result.repair.id === entry.repair.id)
-          ?.candidates.find(item => item.candidate === entry.candidate)?.closureAt)
-          ? 'completed' : 'pending', ...selectedCandidate } : null,
+        state: validGroups.has(selected.candidate.sha) ? 'completed' : 'pending',
+        ...selectedCandidate } : null,
       investigators: manifest.operations?.investigators ?? null,
       waitingHandoffs: manifest.operations?.waitingHandoffs ?? null,
       buildAt: current.builtAt, buildSha: current.buildSha,

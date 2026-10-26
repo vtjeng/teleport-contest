@@ -128,3 +128,17 @@ test('published 2/2/3 pilot has seven repairs and only three shared CI spans per
   assert(first.links.some(link => link.url.endsWith('/commit/4b227e84c703872a8553f369007f177d8bbc27f5')));
   assert.match(activity.segments.find(row => row.phase === 'validation').reason, /Shared by 2 repairs/u);
 });
+
+test('partial sibling evidence yields one incomplete publication span for a shared SHA', () => {
+  const data = saved();
+  const first = data.register.repairs[1];
+  const second = structuredClone(first);
+  second.id = 'partial-sibling'; second.window = first.window;
+  second.candidates[0].runs = second.candidates[0].runs.filter(run => run.name !== 'Dashboard');
+  data.register.repairs = [first, second];
+  const activity = singleWorkerActivity(view(data));
+  const spans = activity.segments.filter(row => row.phase === 'publication');
+  assert.equal(spans.length, 1);
+  assert.match(spans[0].reason, /Acceptance incomplete/);
+  assert.equal(activity.acceptedCount, 0);
+});
