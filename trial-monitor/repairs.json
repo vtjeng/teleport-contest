@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T22:44:26Z",
+  "asOf": "2026-10-26T23:10:09Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -20221,6 +20221,83 @@
         }
       ],
       "note": "Source-derived C oracle: the sealed Quest sets UTOTYPE_RMPORTAL; C removes the trap on the arrival square after goto_level. Focused initialized two-level setup failed on UnsupportedLevelChangeError before correction; ordinary portal and trap-free sealed arrival are controls. No new C gameplay recording."
+    },
+    {
+      "id": "drawbridge-hallucinated-moat-fall",
+      "kind": "parity-repair",
+      "title": "Match hallucinated drawbridge moat-fall message",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dbridge.c:do_entity",
+          "js/dbridge.js:do_entity"
+        ],
+        "witness": [
+          "scripts/dbridge-hallu-fall.test.mjs"
+        ],
+        "test": [
+          "scripts/dbridge-hallu-fall.test.mjs",
+          "scripts/dbridge.test.mjs",
+          "scripts/dbridge-entity.test.mjs",
+          "scripts/dbridge-visible-hero-portcullis.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+          "committedAt": "2026-10-26T22:55:00Z",
+          "sourceCommit": "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+          "sourceCommittedAt": "2026-10-26T22:55:00Z",
+          "runs": [
+            {
+              "id": 40416072674,
+              "name": "Checkpoint",
+              "sha": "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/drawbridge-hallu-fall-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T22:55:19Z",
+              "completedAt": "2026-10-26T23:07:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40416072674"
+            },
+            {
+              "id": 40417641465,
+              "name": "Lint",
+              "sha": "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:08:21Z",
+              "completedAt": "2026-10-26T23:09:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40417641465"
+            },
+            {
+              "id": 40417641626,
+              "name": "Dashboard",
+              "sha": "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:08:21Z",
+              "completedAt": "2026-10-26T23:10:09Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40417641626"
+            }
+          ]
+        }
+      ],
+      "note": "C source gives a visible monster jumping from a closing portcullis into the moat a drink-and-disappear line under Hallucination. An initialized drawbridge/gnome focused test was red on that message; ordinary fall, death and exact local miss/jump draws are controls. Source-derived oracle; no new C gameplay recording."
     }
   ]
 }

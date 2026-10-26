@@ -2777,6 +2777,17 @@ async function dotravel_target(state = game) {
 async function executeMovement(command, key, firstTime, state) {
     const [dx, dy, run] = MOVEMENT_INTENTS[command];
 
+    // C rhack():3779-3783 checks dxdy_moveok() after set_move_cmd() and
+    // before domove(). A grid bug's diagonal command is refused without
+    // entering destination admission or consuming a turn.
+    if (dx && dy && NODIAG(state.u.umonnum)) {
+        set_move_cmd(xytodir(dx, dy), run, state);
+        dxdy_moveok(state);
+        await ttyPline("You can't get there from here...", state);
+        resetCommandVars(state);
+        return;
+    }
+
     // moveloop_core() optimistically sets context.move before rhack(), as C
     // does. This port's temporary hack.c admission seam must run before
     // movement intent is committed; otherwise the next loop mistakes the
