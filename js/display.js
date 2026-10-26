@@ -6954,73 +6954,57 @@ function _stat_update_time() {
     // moveloop_preamble() sets disp.botlx, so a full pass always precedes the
     // first turn that can set disp.time_botl, and C's blstats[] is likewise
     // unpopulated until then.
-    const layouts = rendered
-        ? rendered.map((layout) => _refreshTimeField(layout))
-        : statusLayouts();
+    let layouts;
+    if (!rendered) {
+        layouts = statusLayouts();
+    } else {
+        // wintty.c make_things_fit() restarts its shrink ladder at every
+        // BL_FLUSH, including the one stat_update_time() requests. Re-layout
+        // the time-bearing row from the last core capacity snapshot; the
+        // other row(s) have no field update and keep their cached values.
+        layouts = [...rendered];
+        const timeRow = layouts.length - 1;
+        let refreshed;
+        if (layouts.length === 2) {
+            const capacity = game._statusCapacitySnapshot ?? near_capacity(game);
+            refreshed = _statusLine2Layout(capacity);
+        } else if (layouts.length === 3) {
+            refreshed = _statusLine3DetailsLayout({
+                initialTtyRefresh: false,
+            });
+        }
+        if (refreshed?.fields && layouts[timeRow]?.fields) {
+            const freshByOwner = new Map();
+            for (const field of refreshed.fields) {
+                const key = field.kind === 'condition'
+                    ? 'condition'
+                    : field.owner?.field;
+                if (key) freshByOwner.set(key, field);
+            }
+            const fields = layouts[timeRow].fields.map((field) => {
+                const key = field.kind === 'condition'
+                    ? 'condition'
+                    : field.owner?.field;
+                // BL_FLUSH reruns make_things_fit() from core status_vals.
+                // Only these fields can change rung; preserve every other
+                // cached status value because stat_update_time() updates only
+                // BL_TIME.
+                return ['time', 'condition', 'carrying-capacity',
+                    'dungeon-level'].includes(key)
+                    ? (freshByOwner.get(key) ?? field)
+                    : field;
+            });
+            const hungerX = layouts[timeRow].hungerX ?? null;
+            const { row } = _renderStatusFields(fields, hungerX);
+            layouts[timeRow] = { ...row.finish(), fields, hungerX };
+        }
+    }
     game._renderedStatusLayouts = layouts;
     _collectStatusHilites(layouts, 'time');
     const styles = game.iflags?.status_updates === false
         ? layouts.map(() => []) : _statusStyleRows(layouts);
     game._renderedStatusStyles = styles;
     writeStatusRows(game?.nhDisplay, layouts, styles);
-}
-
-export class UnsupportedStatusRefreshError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'UnsupportedStatusRefreshError';
-    }
-}
-
-// C ref: wintty.c make_things_fit() (4583-4636), which runs on every BL_FLUSH,
-// stat_update_time()'s included, and restarts its shrink ladder from the
-// unshrunk strings the core last sent.
-//
-// A turn-counter refresh moves only BL_TIME's length, and the counter only
-// grows, so a row that still fits keeps the rung the full status pass chose: a
-// shorter rung did not fit the narrower counter and cannot fit the wider one.
-// A row that no longer fits needs a rung this port cannot reach from the
-// rendered strings, because shrinking the condition words, the encumbrance
-// word and Dlvl each read the value the core sent rather than the text on the
-// row. C's fit test is rowsz[condrow] - 1 <= cw->cols - 1, which is the sum of
-// the row's field lengths against TTY_STATUS_WIDTH.
-// The test is relative, comparing the row before and after the counter is
-// replaced. An absolute test would throw on every later refresh once a row
-// stood over the limit, including refreshes that change no width at all, such
-// as T:10 to T:11. Only a refresh that carries the row across the limit needs
-// a rung the last full pass did not already choose.
-function _rowWidth(fields) {
-    return fields.reduce((total, { text }) => total + text.length, 0);
-}
-
-function _refuseUnfittableStatusRow(cached, refreshed) {
-    if (_rowWidth(refreshed) > TTY_STATUS_WIDTH
-        && _rowWidth(cached) <= TTY_STATUS_WIDTH) {
-        throw new UnsupportedStatusRefreshError(
-            'make_things_fit() shrinking a row on a turn-counter refresh',
-        );
-    }
-}
-
-function _isTimeField({ owner }) {
-    return owner?.kind === 'field' && owner.field === 'time';
-}
-
-// One status row laid out again with BL_TIME's cached string replaced by the
-// current turn counter. A row that holds no BL_TIME comes back untouched,
-// which is every row when the 'time' option is off and every row but the last
-// when it is on.
-function _refreshTimeField(layout) {
-    const cached = layout.fields?.find(_isTimeField);
-    if (!cached) return layout;
-    const refreshed = _statusField(_statusTimeText(), _fieldOwner('time'));
-    const fields = layout.fields.map(
-        (field) => (field === cached ? refreshed : field),
-    );
-    _refuseUnfittableStatusRow(layout.fields, fields);
-    const hungerX = layout.hungerX ?? null;
-    const { row } = _renderStatusFields(fields, hungerX);
-    return { ...row.finish(), fields, hungerX };
 }
 
 // Bounded display.c reset_glyphmap field access for wizcmds.c diagnostics.

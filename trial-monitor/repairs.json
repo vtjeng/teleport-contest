@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T08:04:57Z",
+  "asOf": "2026-10-26T08:31:58Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -18005,11 +18005,73 @@
       "investigator": null,
       "carryIn": false,
       "evidence": {
-        "source": ["nethack-c/upstream/src/dungeon.c:query_annotation", "js/dungeon.js:query_annotation", "js/display.js:describe_level"],
-        "witness": ["recipes/dungeon.c/trial-previous-level-annotation.session.json", "recipes/dungeon.c/trial-current-level-annotation-control.session.json", "recipes/dungeon.c/trial-first-level-annotation-control.session.json"],
-        "test": ["scripts/previous-level-annotation.test.mjs", "scripts/annotate-command.test.mjs"]
+        "source": [
+          "nethack-c/upstream/src/dungeon.c:query_annotation",
+          "js/dungeon.js:query_annotation",
+          "js/display.js:describe_level"
+        ],
+        "witness": [
+          "recipes/dungeon.c/trial-previous-level-annotation.session.json",
+          "recipes/dungeon.c/trial-current-level-annotation-control.session.json",
+          "recipes/dungeon.c/trial-first-level-annotation-control.session.json"
+        ],
+        "test": [
+          "scripts/previous-level-annotation.test.mjs",
+          "scripts/annotate-command.test.mjs"
+        ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "c6453133a27510c5a393eb474d74359703628de6",
+          "committedAt": "2026-10-26T08:14:52Z",
+          "sourceCommit": "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+          "sourceCommittedAt": "2026-10-26T08:09:41Z",
+          "runs": [
+            {
+              "id": 40291266332,
+              "name": "Checkpoint",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch2-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:17:46Z",
+              "completedAt": "2026-10-26T08:28:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40291266332"
+            },
+            {
+              "id": 40292634927,
+              "name": "Lint",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:29:40Z",
+              "completedAt": "2026-10-26T08:30:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40292634927"
+            },
+            {
+              "id": 40292634966,
+              "name": "Dashboard",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:29:40Z",
+              "completedAt": "2026-10-26T08:31:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40292634966"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct252, discovered and verified during trial. C permits annotating a previous level from the overview menu with a selected-level description; JS previously threw. Luna worker commit 7d6b3e76f34a6cf40f9ab753acc631d3587155b4. Strict C witness and two controls, 6 affected annotation tests, focused describe_level test and full lint passed. A broad sparse-worktree insight aggregate had one unrelated missing-fixture ENOENT; the same integrated aggregate passed 90/90 in the full root checkout. Complete hosted tests still required."
     },
     {
@@ -18021,11 +18083,74 @@
       "investigator": null,
       "carryIn": false,
       "evidence": {
-        "source": ["nethack-c/upstream/sys/share/posixregex.c:regex_match", "js/posixregex.js:regex_match", "nethack-c/upstream/src/options.c:msgtype_type"],
-        "witness": ["recipes/posixregex.c/trial-repeated-greeting.session.json", "recipes/posixregex.c/trial-greeting-unfiltered-control.session.json", "recipes/posixregex.c/trial-simple-greeting-control.session.json"],
-        "test": ["scripts/posixregex-repeated-greeting.test.mjs", "scripts/startup-msgtype.test.mjs", "scripts/startup-autopickup-exception.test.mjs"]
+        "source": [
+          "nethack-c/upstream/sys/share/posixregex.c:regex_match",
+          "js/posixregex.js:regex_match",
+          "nethack-c/upstream/src/options.c:msgtype_type"
+        ],
+        "witness": [
+          "recipes/posixregex.c/trial-repeated-greeting.session.json",
+          "recipes/posixregex.c/trial-greeting-unfiltered-control.session.json",
+          "recipes/posixregex.c/trial-simple-greeting-control.session.json"
+        ],
+        "test": [
+          "scripts/posixregex-repeated-greeting.test.mjs",
+          "scripts/startup-msgtype.test.mjs",
+          "scripts/startup-autopickup-exception.test.mjs"
+        ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "c6453133a27510c5a393eb474d74359703628de6",
+          "committedAt": "2026-10-26T08:14:52Z",
+          "sourceCommit": "d10c2ca001b6e37c226338c6327fe20140f67af4",
+          "sourceCommittedAt": "2026-10-26T08:13:20Z",
+          "runs": [
+            {
+              "id": 40291266332,
+              "name": "Checkpoint",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch2-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:17:46Z",
+              "completedAt": "2026-10-26T08:28:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40291266332"
+            },
+            {
+              "id": 40292634927,
+              "name": "Lint",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:29:40Z",
+              "completedAt": "2026-10-26T08:30:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40292634927"
+            },
+            {
+              "id": 40292634966,
+              "name": "Dashboard",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:29:40Z",
+              "completedAt": "2026-10-26T08:31:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40292634966"
+            }
+          ]
+        }
+      ],
       "note": "Prospective distinct253, discovered and verified during trial. A finite repeated capture referenced by a backreference in MSGTYPE hid the startup greeting in C but caused a named JS refusal. Worker commit 19ff69d340545e9e691c55cbfc1f11970194602f admits finite supported endpoints while retaining the refusal for unverified unbounded nullable shapes. Exact C witness and two controls match; 63 affected tests pass and 889 supported pattern/input pairs matched a libc oracle. Full combined-SHA hosted and Main gates pending."
     },
     {
@@ -18037,12 +18162,92 @@
       "investigator": null,
       "carryIn": false,
       "evidence": {
-        "source": ["nethack-c/upstream/src/getpos.c:auto_describe", "nethack-c/upstream/src/pline.c:custompline", "js/getpos.js:auto_describe", "js/tty_message.js:ttyCustomPline"],
-        "witness": ["recipes/getpos.c/trial-autodescribe-msgtype-hide.session.json", "recipes/getpos.c/trial-autodescribe-no-filter-control.session.json", "recipes/getpos.c/trial-autodescribe-other-filter-control.session.json"],
-        "test": ["scripts/autodescribe-msgtype-hide.test.mjs", "scripts/startup-msgtype.test.mjs", "scripts/getpos.test.mjs"]
+        "source": [
+          "nethack-c/upstream/src/getpos.c:auto_describe",
+          "nethack-c/upstream/src/pline.c:custompline",
+          "js/getpos.js:auto_describe",
+          "js/tty_message.js:ttyCustomPline"
+        ],
+        "witness": [
+          "recipes/getpos.c/trial-autodescribe-msgtype-hide.session.json",
+          "recipes/getpos.c/trial-autodescribe-no-filter-control.session.json",
+          "recipes/getpos.c/trial-autodescribe-other-filter-control.session.json"
+        ],
+        "test": [
+          "scripts/autodescribe-msgtype-hide.test.mjs",
+          "scripts/startup-msgtype.test.mjs",
+          "scripts/getpos.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "c6453133a27510c5a393eb474d74359703628de6",
+          "committedAt": "2026-10-26T08:14:52Z",
+          "sourceCommit": "c6453133a27510c5a393eb474d74359703628de6",
+          "sourceCommittedAt": "2026-10-26T08:14:52Z",
+          "runs": [
+            {
+              "id": 40291266332,
+              "name": "Checkpoint",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trial-batch2-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:17:46Z",
+              "completedAt": "2026-10-26T08:28:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40291266332"
+            },
+            {
+              "id": 40292634927,
+              "name": "Lint",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:29:40Z",
+              "completedAt": "2026-10-26T08:30:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40292634927"
+            },
+            {
+              "id": 40292634966,
+              "name": "Dashboard",
+              "sha": "c6453133a27510c5a393eb474d74359703628de6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T08:29:40Z",
+              "completedAt": "2026-10-26T08:31:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40292634966"
+            }
+          ]
+        }
+      ],
+      "note": "Prospective distinct254, discovered and verified during trial. C cursor descriptions use custompline to override MSGTYPE hide without recording history or moving the cursor; JS plain ttyPline suppressed the description. Luna worker commit ef6b7eb06c9a4923fabaaebbc815d4cc6d9ffecd. Strict C witness and two controls match with aligned 2395 RNG; 72 focused/affected tests and full lint passed. The shared startup-msgtype test file merged without conflict with the preceding POSIX fix. Full combined-SHA hosted and Main gates pending."
+    },
+    {
+      "id": "status-time-width-refresh",
+      "kind": "parity-repair",
+      "title": "Refit status row as the turn counter widens",
+      "window": "post-trial",
+      "origin": "multi-agent-trial-luna-implementer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": ["nethack-c/upstream/win/tty/wintty.c:make_things_fit", "nethack-c/upstream/src/botl.c:stat_update_time", "js/display.js:_stat_update_time"],
+        "witness": ["recipes/display.c/trial-time-width-probe.session.json", "recipes/display.c/trial-time-width-prefix-control.session.json", "recipes/display.c/trial-time-width-no-gold-control.session.json", "recipes/display.c/trial-time-width-no-blind-control.session.json"],
+        "test": ["scripts/display-time-width-refresh.test.mjs", "scripts/display-symbols.test.mjs", "scripts/display.test.mjs"]
       },
       "candidates": [],
-      "note": "Prospective distinct254, discovered and verified during trial. C cursor descriptions use custompline to override MSGTYPE hide without recording history or moving the cursor; JS plain ttyPline suppressed the description. Luna worker commit ef6b7eb06c9a4923fabaaebbc815d4cc6d9ffecd. Strict C witness and two controls match with aligned 2395 RNG; 72 focused/affected tests and full lint passed. The shared startup-msgtype test file merged without conflict with the preceding POSIX fix. Full combined-SHA hosted and Main gates pending."
+      "note": "Prospective distinct255, discovered and verified during trial. At turn 9 to 10, C refits the status row and shortens condition labels while JS previously threw UnsupportedStatusRefreshError. Worker commit 978d31b923a20ac103ccc3c92d95220278d632c9 reuses the existing row fit routine and preserves non-time cached status fields. Strict C witness and three controls match; 214 display/affected tests and focused lint passed. A temporary worker model-capacity interruption was recovered without duplicating validation. Full combined-SHA hosted and Main gates pending."
     }
   ]
 }
