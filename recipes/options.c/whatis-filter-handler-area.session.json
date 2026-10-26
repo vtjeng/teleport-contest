@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Private C-first whatis_filter same-area selection probe",
+  "segments": [
+    {
+      "seed": 15641097,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:whatis_filter\n\na\n"
+    }
+  ]
+}

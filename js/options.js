@@ -4321,6 +4321,35 @@ async function handler_sortvanquished(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c handler_whatis_filter() (6279-6314).  The menu returns
+// one-based a_char values, while iflags.getloc_filter stores a zero-based
+// GFILTER value.  PICK_ONE can include both the old preselection and new row.
+async function handler_whatis_filter(state, helpers) {
+    const old = state.iflags.getloc_filter;
+    const choices = [
+        [GFILTER_NONE, 'n', 'no filtering'],
+        [GFILTER_VIEW, 'v', 'in view only'],
+        [GFILTER_AREA, 'a', 'in same area'],
+    ];
+    const selected = await optionMenuSelect(state, {
+        items: choices.map(([value, selector, text]) => ({
+            value: value + 1,
+            selector,
+            text,
+            selected: value === old,
+        })),
+        how: PICK_ONE,
+        title: 'Select location filtering when going for next/previous map position:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length) {
+        state.iflags.getloc_filter = values.length > 1 && values[0] - 1 === old
+            ? values[1] - 1 : values[0] - 1;
+    }
+    return optn_ok;
+}
+
 // C ref: options.c handler_align_misc() (5586-5623).  The item values are
 // the alignment constants themselves, so the selected value can update the
 // corresponding field without another enum conversion.
@@ -8497,6 +8526,7 @@ const OPTION_HANDLERS = Object.freeze({
     runmode: handler_runmode,
     sortloot: handler_sortloot,
     sortvanquished: handler_sortvanquished,
+    whatis_filter: handler_whatis_filter,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
     o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
     petattr: handler_petattr,
