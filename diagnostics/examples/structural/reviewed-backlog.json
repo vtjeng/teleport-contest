@@ -1,0 +1,999 @@
+{
+  "version": 1,
+  "sourceHash": "789c0bbf052981fb06331c9505a4c6fb54e7f94eefff664cd4e90b3bfe0d98c5",
+  "exampleMetadata": {
+    "kind": "historical-reviewed-subset",
+    "measuredMain": "362972c8776200aa1afa01b960c8d82b3f26839a",
+    "infrastructureCommit": "ea95ae9828977b0865ef883edeb2ed042f84954d",
+    "resolutionCommit": "f81be9025870aa2e902900b8a41de051f6f96259",
+    "prBase": "462b798181c86d27e4b2664619c16287156784f0",
+    "usage": "Review history example only. Regenerate scan and revalidate decisions before current execution. Original evidence refs preserve their archived paths; local resolution receipt is resolution-evidence.json.",
+    "currentReviewedCounts": {
+      "alternate-implementation": 5,
+      "unreachable": 2,
+      "already-fixed": 1,
+      "needs-investigation": 2
+    }
+  },
+  "entries": [
+    {
+      "id": "message:src/mkmaze.c:mv_bubble:456c977a75732b3d",
+      "kind": "message",
+      "owner": "src/mkmaze.c:mv_bubble",
+      "target": "456c977a75732b3d",
+      "confidence": "literal-absent",
+      "rank": 110,
+      "sites": [
+        {
+          "file": "nethack-c/upstream/src/mkmaze.c",
+          "line": 1989,
+          "conditions": [
+            "ifndef SFCTOOL"
+          ],
+          "context": {
+            "startLine": 1986,
+            "endLine": 1992,
+            "text": "            b->y = gbymin;\n        }\n        if ((int) (b->x + b->bm[0] - 1) > gbxmax) {\n            pline(\"bubble xmax: x = %d, xmax = %d\", b->x + b->bm[0] - 1,\n                  gbxmax);\n            b->x = gbxmax - b->bm[0] + 1;\n        }"
+          }
+        }
+      ],
+      "details": {
+        "literal": "bubble xmax: x = %d, xmax = %d",
+        "fragment": "bubble xmax: x =",
+        "match": "absent",
+        "fileCategory": "gameplay",
+        "api": "pline"
+      },
+      "signals": {
+        "commandPath": [
+          "src/save.c:dosave",
+          "src/save.c:dosave0",
+          "src/restore.c:getlev",
+          "src/restore.c:rest_bubbles",
+          "src/mkmaze.c:restore_waterlevel",
+          "src/mkmaze.c:mv_bubble"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/mkmaze.c:movebubbles",
+          "src/mkmaze.c:mv_bubble"
+        ],
+        "callers": 3,
+        "effects": {
+          "rng": 5,
+          "message": 5,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 4
+      },
+      "repairOverlap": [
+        "forced-arrival-planning",
+        "level-phase-boundary",
+        "elemental-level-upkeep",
+        "water-bubble-collection-order",
+        "water-punishment-restriction",
+        "monster-overcrowding-completion",
+        "water-bubble-boulder-collection"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "01aca26d037eb803c30cb0e0b16dc3f58930ee083590837c8d5e50e3479d0e1a",
+      "observed": true,
+      "classification": "needs-investigation",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "message:src/mkmaze.c:mv_bubble:456c977a75732b3d",
+          "evidenceKey": "01aca26d037eb803c30cb0e0b16dc3f58930ee083590837c8d5e50e3479d0e1a",
+          "classification": "needs-investigation",
+          "rationale": "C emits a bounds diagnostic when bubble.x+mask exceeds xmax; JS clamps the same bound without the print. Whether a supported game can reach the abnormal bound is unproven. Keep this and the C-only pline edge as one investigation group; no gameplay defect claim.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/mkmaze.c:1988",
+            "js/mkmaze.js:319"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "bubble-bounds-diagnostic"
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "edge-stub:src/end.c:fuzzer_savelife:peffects",
+      "kind": "edge-stub",
+      "owner": "src/end.c:fuzzer_savelife",
+      "target": "peffects",
+      "confidence": "explicit-stub",
+      "rank": 101,
+      "sites": [
+        {
+          "file": "nethack-c/upstream/src/end.c",
+          "line": 967,
+          "conditions": [
+            "ifndef SFCTOOL"
+          ],
+          "context": {
+            "startLine": 964,
+            "endLine": 969,
+            "text": "            if (ismnum(u.ulycn) && !rn2(3)) {\n                potion = mksobj(POT_WATER, TRUE, FALSE);\n                bless(potion);\n                (void) peffects(potion);\n                obfree(potion, (struct obj *) 0);\n                ++remedies;"
+          },
+          "branchContext": {
+            "startLine": 948,
+            "endLine": 969,
+            "text": "     * Some debugging code pulled out of done() to unclutter it.\n     * 'done_seq' is maintained in done().\n     */\n    if (!program_state.panicking && how != PANICKED && how != TRICKED) {\n        savelife(how);\n\n        /* periodically restore characteristics plus lost experience\n           levels or cure lycanthropy or both; those conditions make the\n           hero vulnerable to repeat deaths (often by becoming surrounded\n           while being too encumbered to do anything) */\n        if (!rn2((gd.done_seq > gh.hero_seq + 2L) ? 2 : 10)) {\n            struct obj *potion;\n            int propidx, proptim, remedies = 0;\n\n            /* get rid of temporary potion with obfree() rather than useup()\n               because it doesn't get entered into inventory */\n            if (ismnum(u.ulycn) && !rn2(3)) {\n                potion = mksobj(POT_WATER, TRUE, FALSE);\n                bless(potion);\n                (void) peffects(potion);\n                obfree(potion, (struct obj *) 0);\n                ++remedies;"
+          }
+        },
+        {
+          "file": "nethack-c/upstream/src/end.c",
+          "line": 974,
+          "conditions": [
+            "ifndef SFCTOOL"
+          ],
+          "context": {
+            "startLine": 971,
+            "endLine": 976,
+            "text": "            if (!remedies || rn2(3)) {\n                potion = mksobj(POT_RESTORE_ABILITY, TRUE, FALSE);\n                bless(potion);\n                (void) peffects(potion);\n                obfree(potion, (struct obj *) 0);\n                ++remedies;"
+          },
+          "branchContext": {
+            "startLine": 955,
+            "endLine": 976,
+            "text": "           levels or cure lycanthropy or both; those conditions make the\n           hero vulnerable to repeat deaths (often by becoming surrounded\n           while being too encumbered to do anything) */\n        if (!rn2((gd.done_seq > gh.hero_seq + 2L) ? 2 : 10)) {\n            struct obj *potion;\n            int propidx, proptim, remedies = 0;\n\n            /* get rid of temporary potion with obfree() rather than useup()\n               because it doesn't get entered into inventory */\n            if (ismnum(u.ulycn) && !rn2(3)) {\n                potion = mksobj(POT_WATER, TRUE, FALSE);\n                bless(potion);\n                (void) peffects(potion);\n                obfree(potion, (struct obj *) 0);\n                ++remedies;\n            }\n            if (!remedies || rn2(3)) {\n                potion = mksobj(POT_RESTORE_ABILITY, TRUE, FALSE);\n                bless(potion);\n                (void) peffects(potion);\n                obfree(potion, (struct obj *) 0);\n                ++remedies;"
+          }
+        }
+      ],
+      "details": {
+        "js": "js/end.js:fuzzer_savelife",
+        "stubSites": [
+          {
+            "file": "js/end.js",
+            "line": 394,
+            "text": "potion.c peffects",
+            "context": {
+              "startLine": 379,
+              "endLine": 396,
+              "text": "        state.done_seq > (state.hero_seq ?? 0) + 2 ? 2 : 10,\n    )) {\n        const u = state.u;\n        let remedies = 0;\n        let potion;\n\n        // Both peffects() return values are discarded by C.  Its effect\n        // implementation remains an explicit gap, but mksobj/bless/obfree\n        // still execute in source order around that call boundary.\n        if (ismnum(u.ulycn) && !random.rn2(3)) {\n            const objectEnv = source.random\n                ? { state, random: source.random }\n                : { state };\n            potion = mksobj(POT_WATER, true, false, objectEnv);\n            bless(potion);\n            note_unported('potion.c peffects');\n            obfree(potion, null, { state });\n            ++remedies;"
+            }
+          },
+          {
+            "file": "js/end.js",
+            "line": 404,
+            "text": "potion.c peffects",
+            "context": {
+              "startLine": 389,
+              "endLine": 406,
+              "text": "            const objectEnv = source.random\n                ? { state, random: source.random }\n                : { state };\n            potion = mksobj(POT_WATER, true, false, objectEnv);\n            bless(potion);\n            note_unported('potion.c peffects');\n            obfree(potion, null, { state });\n            ++remedies;\n        }\n        if (!remedies || random.rn2(3)) {\n            const objectEnv = source.random\n                ? { state, random: source.random }\n                : { state };\n            potion = mksobj(POT_RESTORE_ABILITY, true, false, objectEnv);\n            bless(potion);\n            note_unported('potion.c peffects');\n            obfree(potion, null, { state });\n            ++remedies;"
+            }
+          }
+        ],
+        "stubScope": "caller-explicitly-omits-target"
+      },
+      "signals": {
+        "commandPath": [
+          "src/end.c:done2",
+          "src/end.c:done",
+          "src/end.c:fuzzer_savelife"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/end.c:done",
+          "src/end.c:fuzzer_savelife"
+        ],
+        "callers": 1,
+        "effects": {
+          "rng": 6,
+          "message": 0,
+          "stateWriteHeuristic": false
+        },
+        "missingMessageOverlap": 0
+      },
+      "repairOverlap": [
+        "vault-guard-settlement",
+        "water-punishment-restriction",
+        "shop-unpaid-death-settlement",
+        "fatal-wand-blast-killer",
+        "fatal-fire-scroll-tower-killer"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "ba251ac1e774d0daf418a9cfa4bb6fd1b0e8c01d9b347afb4f806736b4cb03c7",
+      "observed": true,
+      "classification": "unreachable",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "edge-stub:src/end.c:fuzzer_savelife:peffects",
+          "evidenceKey": "ba251ac1e774d0daf418a9cfa4bb6fd1b0e8c01d9b347afb4f806736b4cb03c7",
+          "classification": "unreachable",
+          "rationale": "For the evaluated standard recorder configuration, debug_fuzzer is not enabled. C and JS guard fuzzer_savelife at done with that flag. This classification is scoped to ordinary recorder inputs, not a proof for every possible debug build; the source omission remains relevant if that configuration is later supported.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/end.c:1056",
+            "js/end.js:755"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "edge-stub:src/end.c:fuzzer_savelife:peffects"
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "message:src/dbridge.c:do_entity:28e4e102b5d875dc",
+      "kind": "message",
+      "owner": "src/dbridge.c:do_entity",
+      "target": "28e4e102b5d875dc",
+      "confidence": "literal-absent",
+      "rank": 100,
+      "sites": [
+        {
+          "file": "nethack-c/upstream/src/dbridge.c",
+          "line": 713,
+          "conditions": [],
+          "context": {
+            "startLine": 710,
+            "endLine": 716,
+            "text": "                else\n                    pline_The(\"drawbridge closes in...\");\n            } else\n                pline(\"%s behind the drawbridge.\",\n                      E_phrase(etmp, \"disappear\"));\n        }\n        if (!e_survives_at(etmp, etmp->ex, etmp->ey)) {"
+          }
+        }
+      ],
+      "details": {
+        "literal": "%s behind the drawbridge.",
+        "fragment": "behind the drawbridge.",
+        "match": "absent",
+        "fileCategory": "gameplay",
+        "api": "pline"
+      },
+      "signals": {
+        "commandPath": [
+          "src/zap.c:dozap",
+          "src/zap.c:weffects",
+          "src/zap.c:zap_updown",
+          "src/dbridge.c:open_drawbridge",
+          "src/dbridge.c:do_entity"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/allmain.c:maybe_generate_rnd_mon",
+          "src/makemon.c:makemon",
+          "src/monmove.c:dochugw",
+          "src/monmove.c:dochug",
+          "src/muse.c:use_defensive",
+          "src/muse.c:mbhit",
+          "src/dbridge.c:destroy_drawbridge",
+          "src/dbridge.c:do_entity"
+        ],
+        "callers": 4,
+        "effects": {
+          "rng": 0,
+          "message": 30,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 5
+      },
+      "repairOverlap": [],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "dc3d51e06248fe8f9f87d21d8f713859eb7a0e1f9a0b22b8601e40508ddc5528",
+      "observed": true,
+      "classification": "already-fixed",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "message:src/dbridge.c:do_entity:28e4e102b5d875dc",
+          "evidenceKey": "dc3d51e06248fe8f9f87d21d8f713859eb7a0e1f9a0b22b8601e40508ddc5528",
+          "classification": "confirmed-missing-behavior",
+          "rationale": "The C final is_db_wall branch emits a visible-monster disappearance message (and related hero portcullis text). The corresponding JS branch immediately tests survival/death and returns with no visible message branch. This is source-confirmed omitted behavior, independent of exact string construction; no C recording or root-cause novelty claim yet.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/dbridge.c:701",
+            "js/dbridge.js:756"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "message:src/dbridge.c:do_entity:28e4e102b5d875dc"
+        },
+        {
+          "id": "message:src/dbridge.c:do_entity:28e4e102b5d875dc",
+          "evidenceKey": "dc3d51e06248fe8f9f87d21d8f713859eb7a0e1f9a0b22b8601e40508ddc5528",
+          "classification": "already-fixed",
+          "reviewedAt": "2026-10-26T19:17:45.909Z",
+          "rationale": "The main workflow reports the do_entity disappearance-message omission repaired and accepted at 462b798181c86d27e4b2664619c16287156784f0. Mark resolved for upstream-work deduplication. The isolated diagnostic baseline remains unchanged and still contains the historical omission; this review is not evidence that the repair was applied locally.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/dbridge.c:701",
+            "js/dbridge.js:756",
+            "diagnostics/source-audit-20261026/main-workflow-resolution-evidence.json"
+          ],
+          "resolution": {
+            "kind": "accepted-upstream-repair",
+            "evidenceOrigin": "parent-reported",
+            "receipt": "diagnostics/source-audit-20261026/main-workflow-resolution-evidence.json",
+            "supersedesClassification": "confirmed-missing-behavior",
+            "acceptedCommit": "462b798181c86d27e4b2664619c16287156784f0",
+            "appliedToLocalBaseline": false
+          }
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "edge-c-only:src/mkmaze.c:mv_bubble:pline",
+      "kind": "edge-c-only",
+      "owner": "src/mkmaze.c:mv_bubble",
+      "target": "pline",
+      "confidence": "missing-resolved-edge",
+      "rank": 95,
+      "sites": [
+        {
+          "file": "nethack-c/upstream/src/mkmaze.c",
+          "line": 1981,
+          "conditions": [
+            "ifndef SFCTOOL"
+          ],
+          "context": {
+            "startLine": 1978,
+            "endLine": 1983,
+            "text": "            colli |= 1;\n\n        if (b->x < gbxmin) {\n            pline(\"bubble xmin: x = %d, xmin = %d\", b->x, gbxmin);\n            b->x = gbxmin;\n        }"
+          },
+          "branchContext": {
+            "startLine": 1962,
+            "endLine": 1983,
+            "text": "            /* pline(\"mv_bubble: dx = %d, dy = %d\", dx, dy); */\n            dx = sgn(dx);\n            dy = sgn(dy);\n        }\n\n        /*\n         * collision with level borders?\n         *      1 = horizontal border, 2 = vertical, 3 = corner\n         */\n        if (b->x <= gbxmin)\n            colli |= 2;\n        if (b->y <= gbymin)\n            colli |= 1;\n        if ((int) (b->x + b->bm[0] - 1) >= gbxmax)\n            colli |= 2;\n        if ((int) (b->y + b->bm[1] - 1) >= gbymax)\n            colli |= 1;\n\n        if (b->x < gbxmin) {\n            pline(\"bubble xmin: x = %d, xmin = %d\", b->x, gbxmin);\n            b->x = gbxmin;\n        }"
+          }
+        },
+        {
+          "file": "nethack-c/upstream/src/mkmaze.c",
+          "line": 1985,
+          "conditions": [
+            "ifndef SFCTOOL"
+          ],
+          "context": {
+            "startLine": 1982,
+            "endLine": 1987,
+            "text": "            b->x = gbxmin;\n        }\n        if (b->y < gbymin) {\n            pline(\"bubble ymin: y = %d, ymin = %d\", b->y, gbymin);\n            b->y = gbymin;\n        }"
+          },
+          "branchContext": {
+            "startLine": 1966,
+            "endLine": 1987,
+            "text": "\n        /*\n         * collision with level borders?\n         *      1 = horizontal border, 2 = vertical, 3 = corner\n         */\n        if (b->x <= gbxmin)\n            colli |= 2;\n        if (b->y <= gbymin)\n            colli |= 1;\n        if ((int) (b->x + b->bm[0] - 1) >= gbxmax)\n            colli |= 2;\n        if ((int) (b->y + b->bm[1] - 1) >= gbymax)\n            colli |= 1;\n\n        if (b->x < gbxmin) {\n            pline(\"bubble xmin: x = %d, xmin = %d\", b->x, gbxmin);\n            b->x = gbxmin;\n        }\n        if (b->y < gbymin) {\n            pline(\"bubble ymin: y = %d, ymin = %d\", b->y, gbymin);\n            b->y = gbymin;\n        }"
+          }
+        },
+        {
+          "file": "nethack-c/upstream/src/mkmaze.c",
+          "line": 1989,
+          "conditions": [
+            "ifndef SFCTOOL"
+          ],
+          "context": {
+            "startLine": 1986,
+            "endLine": 1991,
+            "text": "            b->y = gbymin;\n        }\n        if ((int) (b->x + b->bm[0] - 1) > gbxmax) {\n            pline(\"bubble xmax: x = %d, xmax = %d\", b->x + b->bm[0] - 1,\n                  gbxmax);\n            b->x = gbxmax - b->bm[0] + 1;"
+          },
+          "branchContext": {
+            "startLine": 1970,
+            "endLine": 1991,
+            "text": "         */\n        if (b->x <= gbxmin)\n            colli |= 2;\n        if (b->y <= gbymin)\n            colli |= 1;\n        if ((int) (b->x + b->bm[0] - 1) >= gbxmax)\n            colli |= 2;\n        if ((int) (b->y + b->bm[1] - 1) >= gbymax)\n            colli |= 1;\n\n        if (b->x < gbxmin) {\n            pline(\"bubble xmin: x = %d, xmin = %d\", b->x, gbxmin);\n            b->x = gbxmin;\n        }\n        if (b->y < gbymin) {\n            pline(\"bubble ymin: y = %d, ymin = %d\", b->y, gbymin);\n            b->y = gbymin;\n        }\n        if ((int) (b->x + b->bm[0] - 1) > gbxmax) {\n            pline(\"bubble xmax: x = %d, xmax = %d\", b->x + b->bm[0] - 1,\n                  gbxmax);\n            b->x = gbxmax - b->bm[0] + 1;"
+          }
+        },
+        {
+          "file": "nethack-c/upstream/src/mkmaze.c",
+          "line": 1994,
+          "conditions": [
+            "ifndef SFCTOOL"
+          ],
+          "context": {
+            "startLine": 1991,
+            "endLine": 1996,
+            "text": "            b->x = gbxmax - b->bm[0] + 1;\n        }\n        if ((int) (b->y + b->bm[1] - 1) > gbymax) {\n            pline(\"bubble ymax: y = %d, ymax = %d\", b->y + b->bm[1] - 1,\n                  gbymax);\n            b->y = gbymax - b->bm[1] + 1;"
+          },
+          "branchContext": {
+            "startLine": 1975,
+            "endLine": 1996,
+            "text": "        if ((int) (b->x + b->bm[0] - 1) >= gbxmax)\n            colli |= 2;\n        if ((int) (b->y + b->bm[1] - 1) >= gbymax)\n            colli |= 1;\n\n        if (b->x < gbxmin) {\n            pline(\"bubble xmin: x = %d, xmin = %d\", b->x, gbxmin);\n            b->x = gbxmin;\n        }\n        if (b->y < gbymin) {\n            pline(\"bubble ymin: y = %d, ymin = %d\", b->y, gbymin);\n            b->y = gbymin;\n        }\n        if ((int) (b->x + b->bm[0] - 1) > gbxmax) {\n            pline(\"bubble xmax: x = %d, xmax = %d\", b->x + b->bm[0] - 1,\n                  gbxmax);\n            b->x = gbxmax - b->bm[0] + 1;\n        }\n        if ((int) (b->y + b->bm[1] - 1) > gbymax) {\n            pline(\"bubble ymax: y = %d, ymax = %d\", b->y + b->bm[1] - 1,\n                  gbymax);\n            b->y = gbymax - b->bm[1] + 1;"
+          }
+        }
+      ],
+      "details": {
+        "js": "js/mkmaze.js:mv_bubble",
+        "jsContext": {
+          "startLine": 299,
+          "endLine": 316,
+          "text": "    location.roomno = 0;\n}\n\nexport function mv_bubble(bubble, dx, dy, initial, state = game,\n                          random = rn2) {\n    const bounds = airBubbleBounds(state);\n    const waterLevel = on_level(state.u?.uz, state.water_level);\n    const airLevel = on_level(state.u?.uz, state.air_level);\n    let collision = 0;\n    // mkmaze.c:1702-1704. Clouds move only when the one-in-six test passes.\n    if (!airLevel || !random(6)) {\n        if (dx < -1 || dx > 1 || dy < -1 || dy > 1) {\n            dx = Math.sign(dx);\n            dy = Math.sign(dy);\n        }\n\n        if (bubble.x <= bounds.xmin) collision |= 2;\n        if (bubble.y <= bounds.ymin) collision |= 1;"
+        },
+        "unresolvedCalls": [],
+        "declaredAlternative": null
+      },
+      "signals": {
+        "commandPath": [
+          "src/save.c:dosave",
+          "src/save.c:dosave0",
+          "src/restore.c:getlev",
+          "src/restore.c:rest_bubbles",
+          "src/mkmaze.c:restore_waterlevel",
+          "src/mkmaze.c:mv_bubble"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/mkmaze.c:movebubbles",
+          "src/mkmaze.c:mv_bubble"
+        ],
+        "callers": 3,
+        "effects": {
+          "rng": 5,
+          "message": 5,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 4
+      },
+      "repairOverlap": [
+        "forced-arrival-planning",
+        "level-phase-boundary",
+        "elemental-level-upkeep",
+        "water-bubble-collection-order",
+        "water-punishment-restriction",
+        "monster-overcrowding-completion",
+        "water-bubble-boulder-collection"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "6fe74d97e1042d6794ce76763b675e8cb524f6de58dceeb38a10c5be5fb4638c",
+      "observed": true,
+      "classification": "needs-investigation",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "edge-c-only:src/mkmaze.c:mv_bubble:pline",
+          "evidenceKey": "6fe74d97e1042d6794ce76763b675e8cb524f6de58dceeb38a10c5be5fb4638c",
+          "classification": "needs-investigation",
+          "rationale": "Same bounded-bubble diagnostic omission as the selected message lead. Both IDs are retained but linked to one candidate cause; valid runtime reachability of the out-of-bounds correction is not established.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/mkmaze.c:1981",
+            "js/mkmaze.js:319"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "bubble-bounds-diagnostic"
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "edge-js-only:src/mkmaze.c:mv_bubble:on_level",
+      "kind": "edge-js-only",
+      "owner": "src/mkmaze.c:mv_bubble",
+      "target": "on_level",
+      "confidence": "lexical",
+      "rank": 95,
+      "sites": [
+        {
+          "file": "js/mkmaze.js",
+          "line": 305,
+          "context": {
+            "startLine": 302,
+            "endLine": 307,
+            "text": "export function mv_bubble(bubble, dx, dy, initial, state = game,\n                          random = rn2) {\n    const bounds = airBubbleBounds(state);\n    const waterLevel = on_level(state.u?.uz, state.water_level);\n    const airLevel = on_level(state.u?.uz, state.air_level);\n    let collision = 0;"
+          }
+        }
+      ],
+      "details": {
+        "c": "src/mkmaze.c:mv_bubble",
+        "cContext": {
+          "startLine": 1949,
+          "endLine": 1966,
+          "text": " * This property also makes leaving a bubble slightly difficult.\n */\nstaticfn void\nmv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)\n{\n    int i, j, colli = 0;\n    coordxy x, y;\n    struct container *cons, *ctemp;\n\n    /* clouds move slowly */\n    if (!Is_airlevel(&u.uz) || !rn2(6)) {\n        /* move bubble */\n        if (dx < -1 || dx > 1 || dy < -1 || dy > 1) {\n            /* pline(\"mv_bubble: dx = %d, dy = %d\", dx, dy); */\n            dx = sgn(dx);\n            dy = sgn(dy);\n        }\n"
+        },
+        "jsTarget": "js/dungeon.js:on_level",
+        "cTargets": [
+          "src/dungeon.c:on_level"
+        ],
+        "warning": "May be helper extraction, macro expansion or adapter; source review required."
+      },
+      "signals": {
+        "commandPath": [
+          "src/save.c:dosave",
+          "src/save.c:dosave0",
+          "src/restore.c:getlev",
+          "src/restore.c:rest_bubbles",
+          "src/mkmaze.c:restore_waterlevel",
+          "src/mkmaze.c:mv_bubble"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/mkmaze.c:movebubbles",
+          "src/mkmaze.c:mv_bubble"
+        ],
+        "callers": 3,
+        "effects": {
+          "rng": 5,
+          "message": 5,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 4
+      },
+      "repairOverlap": [
+        "forced-arrival-planning",
+        "level-phase-boundary",
+        "elemental-level-upkeep",
+        "water-bubble-collection-order",
+        "water-punishment-restriction",
+        "monster-overcrowding-completion",
+        "water-bubble-boulder-collection"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "2477996dbfc0a2f163e8be9080981e16acdd36c779892f09855a60e459880b3e",
+      "observed": true,
+      "classification": "alternate-implementation",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "edge-js-only:src/mkmaze.c:mv_bubble:on_level",
+          "evidenceKey": "2477996dbfc0a2f163e8be9080981e16acdd36c779892f09855a60e459880b3e",
+          "classification": "alternate-implementation",
+          "rationale": "The reverse JS on_level edge implements C Is_airlevel/Is_waterlevel macro checks. It is a macro-to-function representation change, not an extra gameplay operation.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/mkmaze.c:1959",
+            "nethack-c/upstream/include/dungeon.h:117",
+            "js/mkmaze.js:305"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "edge-js-only:src/mkmaze.c:mv_bubble:on_level"
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "edge-c-only:src/polyself.c:polyself:monst_to_any",
+      "kind": "edge-c-only",
+      "owner": "src/polyself.c:polyself",
+      "target": "monst_to_any",
+      "confidence": "missing-resolved-edge",
+      "rank": 81,
+      "sites": [
+        {
+          "file": "nethack-c/upstream/src/polyself.c",
+          "line": 724,
+          "conditions": [],
+          "context": {
+            "startLine": 721,
+            "endLine": 726,
+            "text": "    new_light = emits_light(gy.youmonst.data);\n    if (old_light != new_light) {\n        if (old_light)\n            del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));\n        if (new_light == 1)\n            ++new_light; /* otherwise it's undetectable */"
+          },
+          "branchContext": {
+            "startLine": 705,
+            "endLine": 726,
+            "text": "        } while (--tryct > 0);\n    }\n\n    /* The below polyok() fails either if everything is genocided, or if\n     * we deliberately chose something illegal to force newman().\n     */\n    gs.sex_change_ok++;\n    if (!polyok(&mons[mntmp]) || (!forcecontrol && !rn2(5))\n        || your_race(&mons[mntmp])) {\n        newman();\n    } else {\n        (void) polymon(mntmp);\n    }\n    gs.sex_change_ok--; /* reset */\n\n made_change:\n    new_light = emits_light(gy.youmonst.data);\n    if (old_light != new_light) {\n        if (old_light)\n            del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));\n        if (new_light == 1)\n            ++new_light; /* otherwise it's undetectable */"
+          }
+        },
+        {
+          "file": "nethack-c/upstream/src/polyself.c",
+          "line": 729,
+          "conditions": [],
+          "context": {
+            "startLine": 726,
+            "endLine": 731,
+            "text": "            ++new_light; /* otherwise it's undetectable */\n        if (new_light)\n            new_light_source(u.ux, u.uy, new_light, LS_MONSTER,\n                             monst_to_any(&gy.youmonst));\n    }\n}"
+          },
+          "branchContext": {
+            "startLine": 710,
+            "endLine": 731,
+            "text": "     */\n    gs.sex_change_ok++;\n    if (!polyok(&mons[mntmp]) || (!forcecontrol && !rn2(5))\n        || your_race(&mons[mntmp])) {\n        newman();\n    } else {\n        (void) polymon(mntmp);\n    }\n    gs.sex_change_ok--; /* reset */\n\n made_change:\n    new_light = emits_light(gy.youmonst.data);\n    if (old_light != new_light) {\n        if (old_light)\n            del_light_source(LS_MONSTER, monst_to_any(&gy.youmonst));\n        if (new_light == 1)\n            ++new_light; /* otherwise it's undetectable */\n        if (new_light)\n            new_light_source(u.ux, u.uy, new_light, LS_MONSTER,\n                             monst_to_any(&gy.youmonst));\n    }\n}"
+          }
+        }
+      ],
+      "details": {
+        "js": "js/polyself.js:polyself",
+        "jsContext": {
+          "startLine": 1704,
+          "endLine": 1721,
+          "text": "// input or random numbers before the next candidate is considered.  The\n// actual body transition remains in the existing polymon/newman owners; their\n// still-unported branches are recorded at those discarded-call boundaries.\nexport async function polyself(psflags, state = game, env = {}) {\n    const u = state.u;\n    let forcecontrol = (psflags & POLY_CONTROLLED) !== 0;\n    const low_control = (psflags & POLY_LOW_CTRL) !== 0;\n    let monsterpoly = (psflags & POLY_MONSTER) !== 0;\n    const formrevert = (psflags & POLY_REVERT) !== 0;\n    const draconian = Boolean(state.uarm && Is_dragon_armor(state.uarm));\n    const iswere = ismnum(u.ulycn);\n    const isvamp = Boolean(is_vampire(state.youmonst.data)\n                           || is_vampshifter(state.youmonst));\n    let controllable_poly = Polymorph_control(state)\n        && !(Boolean(uprop(state, STUNNED).intrinsic)\n             || (Math.trunc(state.multi ?? 0) < 0\n                 && (unconscious(state) || u.uhs === FAINTED)));\n"
+        },
+        "unresolvedCalls": [],
+        "declaredAlternative": null
+      },
+      "signals": {
+        "commandPath": [
+          "src/cmd.c:domonability",
+          "src/polyself.c:dopoly",
+          "src/polyself.c:polyself"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/polyself.c:polyself"
+        ],
+        "callers": 13,
+        "effects": {
+          "rng": 11,
+          "message": 9,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 0
+      },
+      "repairOverlap": [
+        "tactile-hero-object"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "ee7eacce96b98ee401bc030f6a25801f82d2fc960bd5a21d97fd4cc1147ea07c",
+      "observed": true,
+      "classification": "alternate-implementation",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "edge-c-only:src/polyself.c:polyself:monst_to_any",
+          "evidenceKey": "ee7eacce96b98ee401bc030f6a25801f82d2fc960bd5a21d97fd4cc1147ea07c",
+          "classification": "alternate-implementation",
+          "rationale": "C monst_to_any packages the monster pointer for the light API. JS passes state.youmonst directly to its object-valued light API. Both old-light deletion and new-light creation are present; no omitted light transition is established by the wrapper edge.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/polyself.c:722",
+            "js/polyself.js:1985"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "edge-c-only:src/polyself.c:polyself:monst_to_any"
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "edge-js-only:src/polyself.c:polyself:acurr",
+      "kind": "edge-js-only",
+      "owner": "src/polyself.c:polyself",
+      "target": "acurr",
+      "confidence": "lexical",
+      "rank": 81,
+      "sites": [
+        {
+          "file": "js/polyself.js",
+          "line": 1730,
+          "context": {
+            "startLine": 1727,
+            "endLine": 1732,
+            "text": "    // Being stunned or unaware does not negate the force-control aspect of\n    // polymorph control.  The shock draw occurs before old_light is captured.\n    if (!Polymorph_control(state) && !forcecontrol && !draconian && !iswere\n        && !isvamp && rn2(20) > acurr(state, A_CON)) {\n        await ttyPline('You shudder for a moment.', state);\n        await losehp(rnd(30), 'system shock', KILLED_BY_AN, state);"
+          }
+        }
+      ],
+      "details": {
+        "c": "src/polyself.c:polyself",
+        "cContext": {
+          "startLine": 466,
+          "endLine": 483,
+          "text": "}\n\nvoid\npolyself(int psflags)\n{\n    char buf[BUFSZ];\n    int old_light, new_light, mntmp, class, tryct, gvariant = NEUTRAL;\n    boolean forcecontrol = ((psflags & POLY_CONTROLLED) != 0),\n            low_control = ((psflags & POLY_LOW_CTRL) != 0),\n            monsterpoly = ((psflags & POLY_MONSTER) != 0),\n            formrevert = ((psflags & POLY_REVERT) != 0),\n            draconian = (uarm && Is_dragon_armor(uarm)),\n            iswere = (ismnum(u.ulycn)),\n            isvamp = (is_vampire(gy.youmonst.data)\n                      || is_vampshifter(&gy.youmonst)),\n            controllable_poly = Polymorph_control && !(Stunned || Unaware);\n\n    if (Unchanging) {"
+        },
+        "jsTarget": "js/attrib.js:acurr",
+        "cTargets": [
+          "src/attrib.c:acurr"
+        ],
+        "warning": "May be helper extraction, macro expansion or adapter; source review required."
+      },
+      "signals": {
+        "commandPath": [
+          "src/cmd.c:domonability",
+          "src/polyself.c:dopoly",
+          "src/polyself.c:polyself"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/polyself.c:polyself"
+        ],
+        "callers": 13,
+        "effects": {
+          "rng": 11,
+          "message": 9,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 0
+      },
+      "repairOverlap": [
+        "tactile-hero-object"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "c2b19699716ecd6f19d6579d27504a7fd21401598067c3235cb258c255a7b392",
+      "observed": true,
+      "classification": "alternate-implementation",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "edge-js-only:src/polyself.c:polyself:acurr",
+          "evidenceKey": "c2b19699716ecd6f19d6579d27504a7fd21401598067c3235cb258c255a7b392",
+          "classification": "alternate-implementation",
+          "rationale": "C ACURR(A_CON) expands to acurr(x); JS calls acurr(state,A_CON). The reverse edge is a header macro expansion, not extra behavior.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/polyself.c:490",
+            "nethack-c/upstream/include/attrib.h:24",
+            "js/polyself.js:1730"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.972Z",
+          "candidateGroup": "edge-js-only:src/polyself.c:polyself:acurr"
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "edge-stub:src/polyself.c:polymon:instapetrify",
+      "kind": "edge-stub",
+      "owner": "src/polyself.c:polymon",
+      "target": "instapetrify",
+      "confidence": "callee-contains-stub",
+      "rank": 79,
+      "sites": [
+        {
+          "file": "nethack-c/upstream/src/polyself.c",
+          "line": 961,
+          "conditions": [],
+          "context": {
+            "startLine": 958,
+            "endLine": 963,
+            "text": "                  mon_nam(u.usteed));\n            Sprintf(buf, \"riding %s\",\n                    an(pmname(u.usteed->data, Mgender(u.usteed))));\n            instapetrify(buf);\n        }\n        if (!can_ride(u.usteed))"
+          },
+          "branchContext": {
+            "startLine": 942,
+            "endLine": 963,
+            "text": "               && (sticks(gy.youmonst.data) || unsolid(gy.youmonst.data))) {\n        /* u.ustuck name was saved above in case we're changing from can-see\n           to can't-see; but might have changed from can't-see to can-see so\n           override here if hero knows who u.ustuck is */\n        if (canspotmon(u.ustuck))\n            Strcpy(ustuckNam, Monnam(u.ustuck));\n        set_ustuck((struct monst *) 0);\n        pline(\"%s loses its grip on you.\", ustuckNam);\n    } else if (sticking && !sticks(gy.youmonst.data)) {\n        /* was holding onto u.ustuck but no longer capable of that */\n        uunstick();\n    }\n\n    if (u.usteed) {\n        if (touch_petrifies(u.usteed->data) && !Stone_resistance && rnl(3)) {\n            pline(\"%s touch %s.\", no_longer_petrify_resistant,\n                  mon_nam(u.usteed));\n            Sprintf(buf, \"riding %s\",\n                    an(pmname(u.usteed->data, Mgender(u.usteed))));\n            instapetrify(buf);\n        }\n        if (!can_ride(u.usteed))"
+          }
+        }
+      ],
+      "details": {
+        "js": "js/polyself.js:polymon",
+        "stubSites": [
+          {
+            "file": "js/polyself.js",
+            "line": 1245,
+            "text": "trap.c instapetrify",
+            "context": {
+              "startLine": 1230,
+              "endLine": 1247,
+              "text": "            ustuckName = Monnam(u.ustuck, state, env);\n        set_ustuck(null, state);\n        await message(`${ustuckName} loses its grip on you.`, state, env);\n    } else if (sticking && !sticks(state.youmonst.data)) {\n        await uunstick(state, env);\n    }\n\n    if (u.usteed) {\n        if (touch_petrifies(u.usteed.data) && !Stone_resistance(state)\n            && random.rnl(3)) {\n            await message(\n                `No longer petrify-resistant, you touch ${mon_nam(u.usteed, state, env)}.`,\n                state,\n                env,\n            );\n            note_unported('trap.c instapetrify');\n        }\n        const { can_ride, dismount_steed } = await import('./steed.js');"
+            }
+          }
+        ],
+        "stubScope": "caller-explicitly-omits-target"
+      },
+      "signals": {
+        "commandPath": [
+          "src/zap.c:dozap",
+          "src/zap.c:zapyourself",
+          "src/polyself.c:polymon"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/polyself.c:polyself",
+          "src/polyself.c:polymon"
+        ],
+        "callers": 16,
+        "effects": {
+          "rng": 7,
+          "message": 28,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 0
+      },
+      "repairOverlap": [
+        "tactile-hero-object"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "3f1c608305860f9f88229cb8fe022d9b874f03d0ab63d5898415d09822bdc318",
+      "observed": true,
+      "classification": "unreachable",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "edge-stub:src/polyself.c:polymon:instapetrify",
+          "evidenceKey": "3f1c608305860f9f88229cb8fe022d9b874f03d0ab63d5898415d09822bdc318",
+          "classification": "confirmed-missing-behavior",
+          "rationale": "C polymon calls instapetrify after losing stone resistance while riding a touch-petrifying steed and rnl(3) succeeds. The corresponding JS branch prints the warning then note_unported, omitting the fatal/petrification operation. This is an explicit semantic omission; supported full-game construction and actual reachability have not been validated.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/polyself.c:955",
+            "js/polyself.js:1238"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "edge-stub:src/polyself.c:polymon:instapetrify"
+        },
+        {
+          "id": "edge-stub:src/polyself.c:polymon:instapetrify",
+          "evidenceKey": "3f1c608305860f9f88229cb8fe022d9b874f03d0ab63d5898415d09822bdc318",
+          "classification": "unreachable",
+          "reviewedAt": "2026-10-26T19:17:45.909Z",
+          "rationale": "The literal C call is absent in JS, but the main workflow established that supported gameplay cannot reach the relevant mounted-petrifying-steed state: saddle rules exclude cockatrices/chickatrices, and polymorphing a mounted steed into them dismounts first. The reported controlled pony-to-cockatrice replay matched 2866 RNG entries and 129 screens plus cursors. Supersedes the earlier semantic-omission classification; no supported gameplay defect is established.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/polyself.c:955",
+            "js/polyself.js:1238",
+            "diagnostics/source-audit-20261026/main-workflow-resolution-evidence.json"
+          ],
+          "resolution": {
+            "kind": "supported-gameplay-negative",
+            "evidenceOrigin": "parent-reported",
+            "receipt": "diagnostics/source-audit-20261026/main-workflow-resolution-evidence.json",
+            "supersedesClassification": "confirmed-missing-behavior",
+            "structuralDifference": "missing-call",
+            "supportedReachability": "unreachable",
+            "reportedReplay": {
+              "setup": "Controlled pony-to-cockatrice transformation",
+              "outcome": "parity",
+              "rngEntries": 2866,
+              "screens": 129,
+              "cursors": "matched",
+              "recipeProvided": false,
+              "recordingProvided": false,
+              "resultReceiptProvided": false
+            }
+          }
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "edge-stub:src/teleport.c:teleds:docrt",
+      "kind": "edge-stub",
+      "owner": "src/teleport.c:teleds",
+      "target": "docrt",
+      "confidence": "callee-contains-stub",
+      "rank": 63,
+      "sites": [
+        {
+          "file": "nethack-c/upstream/src/teleport.c",
+          "line": 503,
+          "conditions": [],
+          "context": {
+            "startLine": 500,
+            "endLine": 505,
+            "text": "            ball_active = TRUE; /* to put chain and non-carried ball on map */\n            ball_still_in_range = allow_drag = FALSE; /* (redundant) */\n        }\n        docrt();\n    }\n    if (ball_active && (ball_still_in_range || allow_drag)) {"
+          },
+          "branchContext": {
+            "startLine": 484,
+            "endLine": 505,
+            "text": "        else if (!allow_drag)\n            unplacebc(); /* have to move the ball */\n    }\n    reset_utrap(FALSE);\n    was_swallowed = u.uswallow; /* set_ustuck(Null) clears uswallow */\n    set_ustuck((struct monst *) 0);\n    u.ux0 = u.ux;\n    u.uy0 = u.uy;\n\n    if (!hideunder(&gy.youmonst) && gy.youmonst.data->mlet == S_MIMIC) {\n        /* mimics stop being unnoticed */\n        gy.youmonst.m_ap_type = M_AP_NOTHING;\n    }\n\n    if (was_swallowed) {\n        if (Punished) { /* ball&chain are off map while swallowed */\n            ball_active = TRUE; /* to put chain and non-carried ball on map */\n            ball_still_in_range = allow_drag = FALSE; /* (redundant) */\n        }\n        docrt();\n    }\n    if (ball_active && (ball_still_in_range || allow_drag)) {"
+          }
+        }
+      ],
+      "details": {
+        "js": "js/teleport.js:teleds",
+        "stubSites": [
+          {
+            "file": "js/teleport.js",
+            "line": 1906,
+            "text": "display.c docrt",
+            "context": {
+              "startLine": 1891,
+              "endLine": 1908,
+              "text": "    if (!concealed && state.youmonst?.data?.mlet === S_MIMIC) {\n        // C teleds():493 clears a mimic's appearance only when hideunder()\n        // says the hero is no longer concealed.\n        state.youmonst.m_ap_type = M_AP_NOTHING;\n    }\n    if (was_swallowed) {\n        // C teleds():498-503 restores punishment-ball state after set_ustuck()\n        // clears swallowing, then redraws the ordinary map before relocation.\n        // Punished(state) is Boolean(state.uball) in steed.js; keep this test\n        // local to avoid a teleport.js <-> steed.js import cycle.\n        if (state.uball) {\n            ball_active = true;\n            ball_still_in_range = allow_drag = false;\n        }\n        if (state === game) await docrt();\n        else note_unported('display.c docrt');\n    }\n"
+            }
+          }
+        ],
+        "stubScope": "caller-explicitly-omits-target"
+      },
+      "signals": {
+        "commandPath": [
+          "src/steed.c:doride",
+          "src/steed.c:dismount_steed",
+          "src/teleport.c:teleds"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/teleport.c:tele",
+          "src/teleport.c:scrolltele",
+          "src/teleport.c:teleds"
+        ],
+        "callers": 11,
+        "effects": {
+          "rng": 0,
+          "message": 1,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 0
+      },
+      "repairOverlap": [
+        "level-teleport-escape-message",
+        "vampire-door-display-owner",
+        "nymph-teleport-input-owner"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "fc657814ce161fdd9f660fc55b568066626984b045d01371d36c76915326eda6",
+      "observed": true,
+      "classification": "alternate-implementation",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "edge-stub:src/teleport.c:teleds:docrt",
+          "evidenceKey": "fc657814ce161fdd9f660fc55b568066626984b045d01371d36c76915326eda6",
+          "classification": "alternate-implementation",
+          "rationale": "JS executes docrt for the production singleton state. The stub is only the alternate injected-state branch. A lexical stub anywhere in the owner does not prove production omission.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/teleport.c:498",
+            "js/teleport.js:1896"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "edge-stub:src/teleport.c:teleds:docrt"
+        }
+      ],
+      "reviewState": "current"
+    },
+    {
+      "id": "edge-stub:src/sounds.c:domonnoise:quest_chat",
+      "kind": "edge-stub",
+      "owner": "src/sounds.c:domonnoise",
+      "target": "quest_chat",
+      "confidence": "callee-contains-stub",
+      "rank": 61,
+      "sites": [
+        {
+          "file": "nethack-c/upstream/src/sounds.c",
+          "line": 731,
+          "conditions": [],
+          "context": {
+            "startLine": 728,
+            "endLine": 733,
+            "text": "    case MS_LEADER:\n    case MS_NEMESIS:\n    case MS_GUARDIAN:\n        quest_chat(mtmp);\n        break;\n    case MS_SELL: /* pitch, pay, total */"
+          },
+          "branchContext": {
+            "startLine": 712,
+            "endLine": 733,
+            "text": "    /* silliness; formerly had a slight chance to interfere with shopping */\n    else if (Hallucination && mon_is_gecko(mtmp))\n        msound = MS_SELL;\n\n    /* be sure to do this before talking; the monster might teleport away, in\n     * which case we want to check its pre-teleport position\n     */\n    if (!canspotmon(mtmp))\n        map_invisible(mtmp->mx, mtmp->my);\n\n    switch (msound) {\n    case MS_ORACLE:\n        return doconsult(mtmp); /* check this */\n    case MS_PRIEST:\n        priest_talk(mtmp);\n        break;\n    case MS_LEADER:\n    case MS_NEMESIS:\n    case MS_GUARDIAN:\n        quest_chat(mtmp);\n        break;\n    case MS_SELL: /* pitch, pay, total */"
+          }
+        }
+      ],
+      "details": {
+        "js": "js/sounds.js:domonnoise",
+        "stubSites": [
+          {
+            "file": "js/sounds.js",
+            "line": 1034,
+            "text": "quest.c quest_chat impossible unknown character",
+            "context": {
+              "startLine": 1019,
+              "endLine": 1036,
+              "text": "        ?? mtmp.hungrytime ?? 0;\n    const moves = state.moves ?? state.svm?.moves ?? 0;\n\n    switch (msound) {\n    case MS_ORACLE:\n        return doconsult(mtmp, state);\n    case MS_PRIEST:\n        await priest_talk(mtmp, state);\n        break;\n    case MS_LEADER:\n    case MS_NEMESIS:\n    case MS_GUARDIAN:\n        if (!await quest_chat(mtmp, state, {\n            unsupported: (reason) => { throw new UnsupportedChatError(reason); },\n        })) {\n            note_unported('quest.c quest_chat impossible unknown character');\n        }\n        break;"
+            }
+          }
+        ],
+        "stubScope": "caller-explicitly-omits-target"
+      },
+      "signals": {
+        "commandPath": [
+          "src/cmd.c:domonability",
+          "src/dogmove.c:pet_ranged_attk",
+          "src/sounds.c:domonnoise"
+        ],
+        "turnPath": [
+          "src/allmain.c:moveloop_core",
+          "src/allmain.c:maybe_generate_rnd_mon",
+          "src/makemon.c:makemon",
+          "src/monmove.c:dochugw",
+          "src/monmove.c:dochug",
+          "src/monmove.c:m_move",
+          "src/dogmove.c:dog_move",
+          "src/dogmove.c:pet_ranged_attk",
+          "src/sounds.c:domonnoise"
+        ],
+        "callers": 4,
+        "effects": {
+          "rng": 16,
+          "message": 9,
+          "stateWriteHeuristic": true
+        },
+        "missingMessageOverlap": 0
+      },
+      "repairOverlap": [
+        "gnome-hallu-plan-rng",
+        "monster-chat-pronoun-owner",
+        "humanoid-wounded-speech-thresholds"
+      ],
+      "assignedOverlap": [],
+      "queueOverlap": [],
+      "evidenceKey": "b457792e5a062d7a1cd82394465b2486147bae2f271e56a1469d8a45183f9e8a",
+      "observed": true,
+      "classification": "alternate-implementation",
+      "replayStatus": "unverified",
+      "reviews": [
+        {
+          "id": "edge-stub:src/sounds.c:domonnoise:quest_chat",
+          "evidenceKey": "b457792e5a062d7a1cd82394465b2486147bae2f271e56a1469d8a45183f9e8a",
+          "classification": "alternate-implementation",
+          "rationale": "JS awaits the implemented quest_chat and records a stub only if it returns failure for an impossible unknown character. The call edge and regular quest path exist. Do not count this defensive marker as wholesale missing quest chat.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/sounds.c:728",
+            "js/sounds.js:1028"
+          ],
+          "reviewedAt": "2026-10-26T18:21:19.971Z",
+          "candidateGroup": "edge-stub:src/sounds.c:domonnoise:quest_chat"
+        }
+      ],
+      "reviewState": "current"
+    }
+  ]
+}
