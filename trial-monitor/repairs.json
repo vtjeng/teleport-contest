@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T03:06:10Z",
+  "asOf": "2026-10-27T06:20:22Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21310,6 +21310,84 @@
         }
       ],
       "note": "C-source-derived blessed WIN_MAP wait with initialized-game input-consumption target and unconstrained-map browse control; no new C recording or hidden-score claim."
+    },
+    {
+      "id": "terrain-secret-door-overwrite-shop-stock",
+      "kind": "parity-repair",
+      "title": "Synchronize secret-door flags after terrain overwrite",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": true,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/include/rm.h:doormask",
+          "nethack-c/upstream/src/sp_lev.c:sel_set_ter",
+          "js/mklev.js:sel_set_ter",
+          "js/shknam.js:stock_room"
+        ],
+        "witness": [
+          "scripts/terrain-shop-overwrite.test.mjs"
+        ],
+        "test": [
+          "scripts/terrain-shop-overwrite.test.mjs",
+          "scripts/sel-set-ter.test.mjs",
+          "scripts/mkroom-shop.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "69143e5ae57ae4191df2383eb3d385b8b490c64e",
+          "committedAt": "2026-10-27T06:06:02Z",
+          "sourceCommit": "69143e5ae57ae4191df2383eb3d385b8b490c64e",
+          "sourceCommittedAt": "2026-10-27T06:06:02Z",
+          "runs": [
+            {
+              "id": 40459112775,
+              "name": "Checkpoint",
+              "sha": "69143e5ae57ae4191df2383eb3d385b8b490c64e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/terrain-shop-overwrite-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T06:06:16Z",
+              "completedAt": "2026-10-27T06:17:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40459112775"
+            },
+            {
+              "id": 40460334848,
+              "name": "Lint",
+              "sha": "69143e5ae57ae4191df2383eb3d385b8b490c64e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T06:18:38Z",
+              "completedAt": "2026-10-27T06:19:49Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40460334848"
+            },
+            {
+              "id": 40460334849,
+              "name": "Dashboard",
+              "sha": "69143e5ae57ae4191df2383eb3d385b8b490c64e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T06:18:38Z",
+              "completedAt": "2026-10-27T06:20:22Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40460334849"
+            }
+          ]
+        }
+      ],
+      "note": "C-source-derived door-mask overwrite with initialized special-level shop target and locked, closed, open controls. A C state witness supports the mask; no new C engraving inspection or hidden-score claim."
     }
   ]
 }

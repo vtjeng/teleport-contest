@@ -8016,7 +8016,13 @@ export async function mhitm_knockback(
             if (typeof env?.dismountSteed === 'function') {
                 await env.dismountSteed(DISMOUNT_KNOCKED, state, env);
             } else if (env?.planning) {
-                note_unported('steed.c dismount_steed DISMOUNT_KNOCKED');
+                // A dismount changes the hero's location, steed occupancy,
+                // injury and later monster choices. The clone cannot skip it
+                // and keep planning the rest of this scan. Ask its owner to
+                // replay the attack live, then replan from that state.
+                if (typeof env.requestPlanningInput === 'function')
+                    env.requestPlanningInput('steed.c dismount_steed DISMOUNT_KNOCKED');
+                throw new Error('planned steed knockback needs a live handoff');
             } else {
                 await dismount_steed(DISMOUNT_KNOCKED, state);
             }
