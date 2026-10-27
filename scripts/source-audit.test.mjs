@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { cUnits, jsUnits } from './structural-signals.mjs';
-import { extractMessages, longestFixed, decodeCString, messageMatch, resolveC, mergeBacklog, applyDecisions } from './source-audit.mjs';
+import { extractMessages, inactiveLiteralIfZeroLines, missingMessageCandidates, longestFixed, decodeCString, messageMatch, resolveC, mergeBacklog, applyDecisions } from './source-audit.mjs';
 
 test('literal threshold applies to full string, longest fragment may be shorter than fourteen', () => {
     const source = 'void\nf(void) { You("brief %s fragment"); }';
@@ -20,6 +20,63 @@ test('multiline, concatenated, conditional and format-argument literals are enum
 test('fixed fragment handles percent literal, positional fields and width/precision', () => {
     assert.equal(longestFixed('Progress 100%% stable %2$*3$.*4$f tail'), 'Progress 100% stable');
     assert.equal(decodeCString('"hex\\x41 octal\\101 newline\\n"'), 'hexA octalA newline\n');
+});
+test('literal #if 0 filters only its dead arm and keeps live alternatives', () => {
+    const source = [
+        'void f(void) {',
+        '#if 0',
+        'pline("dead message with enough text");',
+        '#else',
+        'pline("live message with enough text");',
+        '#endif',
+        'pline("ordinary message with enough text");',
+        '}',
+    ].join('\n');
+    const messages = extractMessages(source, 'a.c', cUnits(source, 'a.c')).messages;
+    assert.equal(messages.length, 3, 'raw observations remain available');
+    const inactive = inactiveLiteralIfZeroLines(source);
+    assert.deepEqual(messages.map(m => inactive.has(m.callLine)),
+        [true, false, false]);
+    assert.deepEqual(missingMessageCandidates(messages.map(m => ({ ...m,
+        status: 'absent', sourceFilter: inactive.has(m.callLine) ? 'literal-if-zero' : null }))).map(m => m.literal), [
+        'live message with enough text',
+        'ordinary message with enough text',
+    ]);
+});
+test('nested alternatives, comments, continuations and malformed guards are conservative', () => {
+    const source = [
+        'void f(void) {',
+        '#if 0',
+        '#if FEATURE',
+        'pline("dead nested message long enough");',
+        '#else',
+        'pline("dead nested alternative message");',
+        '#endif',
+        '#elif FEATURE',
+        'pline("live elif message long enough");',
+        '#else',
+        'pline("live else message long enough");',
+        '#endif',
+        '/*',
+        '#if 0',
+        '*/',
+        'pline("live after commented directive");',
+        '#ifdef UNKNOWN_PROFILE',
+        'pline("unknown profile message long enough");',
+        '#endif',
+        '}',
+    ].join('\n');
+    const messages = extractMessages(source, 'a.c', cUnits(source, 'a.c')).messages;
+    const inactive = inactiveLiteralIfZeroLines(source);
+    assert.deepEqual(messages.map(m => inactive.has(m.callLine)),
+        [true, true, false, false, false, false]);
+    assert.equal(inactiveLiteralIfZeroLines('void f(void) {\n#if 0 \\\npline("not proven inactive");\n#endif\n}').size, 0);
+    assert.equal(inactiveLiteralIfZeroLines('void f(void) {\n#if 0\npline("unclosed guard");\n}').size, 0);
+    assert.equal(inactiveLiteralIfZeroLines('void f(void) {\n#if (0)\npline("unsupported spelling");\n#endif\n}').size, 0);
+    assert.equal(inactiveLiteralIfZeroLines('void f(void) {\n#if 0 /* comment */\npline("unsupported tail");\n#endif\n}').size, 0);
+    assert.equal(inactiveLiteralIfZeroLines('void f(void) {\n#endif\n#if 0\npline("malformed nesting");\n#endif\n}').size, 0);
+    assert.equal(inactiveLiteralIfZeroLines('void f(void) {\n#if 0\npline("bad end");\n#endif garbage\n}').size, 0);
+    assert.equal(inactiveLiteralIfZeroLines('void f(void) {\n#if 0\npline("dead with documented end");\n#endif /* guard */\n}').has(3), true);
 });
 test('raw source comment hits do not erase absent executable literals', () => {
     const source = '// the missing gameplay message\nexport function f() { return "something else"; }';

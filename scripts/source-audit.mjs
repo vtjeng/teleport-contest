@@ -119,6 +119,51 @@ export function messageMatch(message, jsRaw, jsStrings) {
     return { status: decoded ? 'decoded-literal-hit' : raw ? 'raw-only-hit' : 'absent', raw, decoded };
 }
 
+// Recognize only complete, literal #if 0 arms. An unknown conditional, a
+// continuation, or malformed nesting cannot prove that a site is inactive.
+// This supplements the lexical guard inventory; it never evaluates macros.
+export function inactiveLiteralIfZeroLines(source) {
+    const lines = source.split('\n'), stack = [], inactive = new Set();
+    let inComment = false, malformed = false;
+    for (const [index, line] of lines.entries()) {
+        const directive = !inComment ? /^\s*#\s*(if|ifdef|ifndef|elif|else|endif)\b(.*)$/u.exec(line) : null;
+        if (directive) {
+            const [, kind, rest] = directive;
+            const tail = rest.trim();
+            const commentOnly = !tail || /^\/\/.*$/u.test(tail)
+                || /^\/\*.*\*\/$/u.test(tail);
+            if (line.trimEnd().endsWith('\\')) malformed = true;
+            if ((['else', 'endif'].includes(kind) && !commentOnly)
+                || (['if', 'ifdef', 'ifndef', 'elif'].includes(kind) && commentOnly)) malformed = true;
+            if (['if', 'ifdef', 'ifndef'].includes(kind)) stack.push(kind === 'if' && tail === '0');
+            else if (!stack.length) malformed = true;
+            else if (kind === 'endif') stack.pop();
+            else stack[stack.length - 1] = false;
+        } else if (stack.includes(true)) {
+            if (line.trimEnd().endsWith('\\')) malformed = true;
+            inactive.add(index + 1);
+        }
+        // Only comment state at a directive's first character matters. Scan
+        // strings and // comments so a printed "/*" cannot start a fake guard.
+        let quote = null;
+        for (let i = 0; i < line.length; i++) {
+            const c = line[i], next = line[i + 1];
+            if (quote) { if (c === '\\') i++; else if (c === quote) quote = null; }
+            else if (inComment && c === '*' && next === '/') { inComment = false; i++; }
+            else if (inComment) continue;
+            else if (c === '/' && next === '/') break;
+            else if (c === '/' && next === '*') { inComment = true; i++; }
+            else if (c === '"' || c === "'") quote = c;
+        }
+    }
+    return malformed || stack.length ? new Set() : inactive;
+}
+
+export function missingMessageCandidates(messages) {
+    return messages.filter(m => ['absent', 'raw-only-hit'].includes(m.status)
+        && m.sourceFilter !== 'literal-if-zero');
+}
+
 function cKey(unit, root) { return `${relative(join(root, 'nethack-c/upstream'), unit.path)}:${unit.name}`; }
 function jsKey(unit, root) { return `${relative(root, unit.path)}:${unit.name}`; }
 export function sameFunction(a, b) {
@@ -230,7 +275,10 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
         const owned = cUnits(text, path);
         units.push(...owned.filter(u => !EXCLUDED_SYMBOLS.includes(u.name)));
         const extracted = extractMessages(text, path, owned);
-        messages.push(...extracted.messages); printCalls.push(...extracted.calls.map(c => ({ ...c, file: relative(cRoot, path) })));
+        const inactiveLines = inactiveLiteralIfZeroLines(text);
+        messages.push(...extracted.messages.map(m => ({ ...m,
+            sourceFilter: inactiveLines.has(m.callLine) ? 'literal-if-zero' : null })));
+        printCalls.push(...extracted.calls.map(c => ({ ...c, file: relative(cRoot, path) })));
     }
     validateMappings(mappings, excludedNames);
     const jsSources = new Map(filesUnder(join(root, 'js'), '.js').map(path => [path, readFileSync(path, 'utf8')]));
@@ -315,7 +363,7 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
             queueOverlap: (queue?.sessions ?? []).filter(s => s.owner?.function === ownerKey.split(':').at(-1)
                 || s.investigation?.result?.source?.functions?.includes(ownerKey.split(':').at(-1))).map(s => s.session) });
     };
-    for (const m of matchedMessages.filter(m => ['absent', 'raw-only-hit'].includes(m.status))) {
+    for (const m of missingMessageCandidates(matchedMessages)) {
         const owner = units.find(u => cKey(u, root) === `${m.path}:${m.function}`) ?? `${m.path}:${m.function}`;
         add(owner, 'message', hash(m.literal).slice(0, 16), { file: `nethack-c/upstream/${m.path}`, line: m.callLine,
             conditions: m.conditions, context: m.context }, { literal: m.literal, fragment: m.fragment, match: m.status,
@@ -419,6 +467,7 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
             absentByApiCategory: count(matchedMessages.filter(m => m.status === 'absent'), 'apiCategory'),
             rawOnlyByFileCategory: count(matchedMessages.filter(m => m.status === 'raw-only-hit'), 'fileCategory'),
             rawSourceAbsent: matchedMessages.filter(m => m.fragment.length && !m.raw).length,
+            sourceFiltered: count(matchedMessages.filter(m => m.sourceFilter), 'sourceFilter'),
             messageApis: { total: matchedMessages.filter(m => m.apiCategory === 'message').length,
                 absent: matchedMessages.filter(m => m.apiCategory === 'message' && m.status === 'absent').length,
                 rawSourceAbsent: matchedMessages.filter(m => m.apiCategory === 'message' && m.fragment.length && !m.raw).length,
