@@ -178,6 +178,7 @@ import {
     admitPlannedVisionChange,
     preflightElapsedTurnTail,
     preflightSimpleMonsterActions,
+    MonsterInputPlanningBoundaryError,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
@@ -827,6 +828,16 @@ export async function finishElapsedTurn(
         minLiquid: elapsedTurnMinLiquid,
         decideToShapeshift: decide_to_shapeshift,
         wereChange: were_change,
+        admitPlannedVisionChange: planning
+            ? (x, y) => admitPlannedVisionChange(x, y, state)
+            : undefined,
+        // m_calcdistress() can change a swallowed monster's form. Its
+        // expels() -> spoteffects(true) continuation may ask for input after
+        // relocating the hero. Stop the clone at that source boundary and
+        // replay the complete upkeep live before planning any continuation.
+        requestPlanningInput: planning
+            ? operation => { throw new MonsterInputPlanningBoundaryError(operation); }
+            : undefined,
     });
 
     for (let monster = state.level.monlist;

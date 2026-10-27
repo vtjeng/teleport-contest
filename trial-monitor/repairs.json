@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T22:35:43Z",
+  "asOf": "2026-10-27T23:32:05Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22667,6 +22667,78 @@
         }
       ],
       "note": "Pinned C computes badinv from a carried pickaxe only when the hero is on the shop doorway, then sets badinv to false away from the door. JavaScript checked the pickaxe everywhere, moving a peaceful guard when C would hold position. The initialized-game target failed before the narrow correction, while no-pick and on-door controls passed; 154 affected shop tests and full hosted fixed/synthetic comparisons pass."
+    },
+    {
+      "id": "wizard-shape-migration",
+      "kind": "parity-repair",
+      "title": "Keep changed-form Wizard accessible across level changes",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dog.c:keep_mon_accessible",
+          "nethack-c/upstream/src/mon.c:newcham",
+          "js/dog.js:keepdogs"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/wizard-shape-migration.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "6056fdcc3c23e9940ae8a453f80ffeb3a5822750",
+          "committedAt": "2026-10-27T23:18:05Z",
+          "sourceCommit": "6056fdcc3c23e9940ae8a453f80ffeb3a5822750",
+          "sourceCommittedAt": "2026-10-27T23:18:05Z",
+          "runs": [
+            {
+              "id": 40601209491,
+              "name": "Checkpoint",
+              "sha": "6056fdcc3c23e9940ae8a453f80ffeb3a5822750",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/wizard-shape-migration-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T23:18:25Z",
+              "completedAt": "2026-10-27T23:28:34Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40601209491"
+            },
+            {
+              "id": 40602470165,
+              "name": "Lint",
+              "sha": "6056fdcc3c23e9940ae8a453f80ffeb3a5822750",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T23:29:26Z",
+              "completedAt": "2026-10-27T23:30:39Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40602470165"
+            },
+            {
+              "id": 40602470139,
+              "name": "Dashboard",
+              "sha": "6056fdcc3c23e9940ae8a453f80ffeb3a5822750",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T23:29:26Z",
+              "completedAt": "2026-10-27T23:32:05Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40602470139"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

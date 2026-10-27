@@ -223,7 +223,7 @@ export class UnsupportedSimpleMonsterActionError extends Error {
 // choice. js/allmain.js replays the source-ordered action on the live state,
 // then plans the remaining allocation from the result. This is control flow
 // for the planner, not an unsupported gameplay boundary.
-class MonsterInputPlanningBoundaryError extends Error {
+export class MonsterInputPlanningBoundaryError extends Error {
     constructor(operation) {
         super(`planned monster action requests ${operation}`);
         this.name = 'MonsterInputPlanningBoundaryError';
