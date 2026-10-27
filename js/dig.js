@@ -360,6 +360,14 @@ export function is_digging(state = game) {
     return state.go?.occupation === dig;
 }
 
+// C ref: dig.c holetime() (597-602). A keeper uses this rough turn count
+// while the hero digs down inside a shop. C integer division truncates toward
+// zero; Math.trunc preserves that rule if effort crosses the threshold.
+export function holetime(state = game) {
+    if (!is_digging(state) || !state.u?.ushops?.[0]) return -1;
+    return Math.trunc((250 - state.context.digging.effort) / 20);
+}
+
 // C ref: dig.c rm_waslit() (30-45), the neighborhood predicate used by
 // mkcavearea() before it rewrites the terrain around the hero.
 export function rm_waslit(state = game) {

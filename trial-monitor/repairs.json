@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T21:45:45Z",
+  "asOf": "2026-10-27T22:00:52Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22446,6 +22446,81 @@
         }
       ],
       "note": "Pinned C shk_move pursues an angry keeper's visible hero but uses its guard target when the hero is invisible and cannot be seen. An initialized-game target failed before the repair while the visible control passed. The narrowed m_canseeu fallback passes both and 147 affected shop tests. Full hosted fixed and synthetic comparison shows zero regressions."
+    },
+    {
+      "id": "peaceful-shopkeeper-invisible-guard-target",
+      "kind": "parity-repair",
+      "title": "Keep peaceful shopkeepers aimed at their guard square when hero unseen",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c:shk_move",
+          "js/shk.js:shk_move",
+          "js/priest.js:move_special"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/shk-peaceful-invisible-movement.test.mjs",
+          "scripts/shk-invisible-pursuit.test.mjs",
+          "scripts/shk-move.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "8fbb4ebc5222a82658c2bd0602d78a9ac5963b9d",
+          "committedAt": "2026-10-27T21:47:46Z",
+          "sourceCommit": "8fbb4ebc5222a82658c2bd0602d78a9ac5963b9d",
+          "sourceCommittedAt": "2026-10-27T21:47:46Z",
+          "runs": [
+            {
+              "id": 40589753831,
+              "name": "Checkpoint",
+              "sha": "8fbb4ebc5222a82658c2bd0602d78a9ac5963b9d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/shk-peaceful-invisible-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:47:58Z",
+              "completedAt": "2026-10-27T21:58:16Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40589753831"
+            },
+            {
+              "id": 40591211426,
+              "name": "Lint",
+              "sha": "8fbb4ebc5222a82658c2bd0602d78a9ac5963b9d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:59:07Z",
+              "completedAt": "2026-10-27T22:00:19Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40591211426"
+            },
+            {
+              "id": 40591211335,
+              "name": "Dashboard",
+              "sha": "8fbb4ebc5222a82658c2bd0602d78a9ac5963b9d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:59:07Z",
+              "completedAt": "2026-10-27T22:00:52Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40591211335"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C shk_move clears avoid but retains appr=1 for an invisible or mounted hero, so a peaceful shopkeeper keeps aiming at its guard square. JavaScript instead made movement random. An initialized-game invisible target failed before the repair and a visible control passed. Both pass with the narrow correction, as do 149 affected shop tests. Full hosted fixed and synthetic comparison shows zero regressions."
     }
   ]
 }

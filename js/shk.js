@@ -273,6 +273,7 @@ import { Hello } from './role_init.js';
 import { genders } from './roles.js';
 import { in_rooms } from './rooms.js';
 import { move_special } from './priest.js';
+import { holetime } from './dig.js';
 import { SHTYPES } from './shtypes_data.js';
 import { makeplural } from './fruit.js';
 import { m_at } from './monst.js';
@@ -4021,7 +4022,7 @@ export async function shk_move(shkp, state, rawEnv = {}) {
     let gty = eshkp.shk?.y ?? omy;
     const satdoor = gtx === omx && gty === omy;
     const holeTime = typeof env.holeTime === 'function'
-        ? env.holeTime(shkp, state) : -1;
+        ? env.holeTime(shkp, state) : holetime(state);
 
     if (eshkp.following || (holeTime >= 0 && holeTime * holeTime <= udist)) {
         if (udist > 4 && eshkp.following && !eshkp.billct)
