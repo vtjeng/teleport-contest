@@ -191,6 +191,26 @@ test('dosave cancels on "n" answer without ending the segment', async () => {
     );
 });
 
+test('named repeat clears the preceding declined save command', async () => {
+    const nethackrc = [
+        'OPTIONS=name:RepeatProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug',
+        'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics',
+        '',
+    ].join('\n');
+    const base = { seed: 76027183, datetime: '20431009123456', nethackrc };
+    const control = await runSegment({ ...base, moves: '#save\nn. ' });
+    assert.equal(control.getScreens().length, 10);
+    assert.ok(!control.getScreens().some(screen =>
+        screen.startsWith('There is no command available to repeat.')));
+
+    const target = await runSegment({ ...base, moves: '#save\nn#repeat\nn. ' });
+    // C cmd.c:3738-3741 clears CQ_REPEAT before executing doextcmd().
+    // The C recording has this message at the named #repeat Enter boundary.
+    assert.equal(target.getScreens().length, 19);
+    assert.ok(target.getScreens()[15].startsWith(
+        'There is no command available to repeat.'));
+});
+
 // Source save.c:147 clears the message after date luck undo;
 // save.c:63 publishes that message window before the exit farewell.
 test('save source pins clear and display boundaries around serialization', () => {

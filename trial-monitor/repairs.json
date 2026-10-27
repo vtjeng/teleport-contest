@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T09:18:56Z",
+  "asOf": "2026-10-27T17:51:00Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21852,6 +21852,80 @@
         }
       ],
       "note": "Fresh C recording and byte-identical rerecord for generated wand on starting staircase. Removing the broad startup refusal produced strict C/JS RNG, screen, cursor, and animation parity; no-object engraved-start control passed. No hidden-score claim."
+    },
+    {
+      "id": "impact-drop-hot-pursuit",
+      "kind": "parity-repair",
+      "title": "Pursue the hero after shop goods fall through a gate",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dokick.c:impact_drop",
+          "nethack-c/upstream/src/shk.c:hot_pursuit",
+          "js/dokick.js:impact_drop",
+          "js/shk.js:hot_pursuit"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/dokick-shipping.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "4c80e6784d04d6a3c921e1d57e8fd136c7751834",
+          "committedAt": "2026-10-27T17:37:03Z",
+          "sourceCommit": "4c80e6784d04d6a3c921e1d57e8fd136c7751834",
+          "sourceCommittedAt": "2026-10-27T17:37:03Z",
+          "runs": [
+            {
+              "id": 40552315602,
+              "name": "Checkpoint",
+              "sha": "4c80e6784d04d6a3c921e1d57e8fd136c7751834",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/impact-drop-hot-pursuit-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T17:37:16Z",
+              "completedAt": "2026-10-27T17:47:19Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40552315602"
+            },
+            {
+              "id": 40554053464,
+              "name": "Lint",
+              "sha": "4c80e6784d04d6a3c921e1d57e8fd136c7751834",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T17:48:31Z",
+              "completedAt": "2026-10-27T17:51:00Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40554053464"
+            },
+            {
+              "id": 40554053493,
+              "name": "Dashboard",
+              "sha": "4c80e6784d04d6a3c921e1d57e8fd136c7751834",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T17:48:31Z",
+              "completedAt": "2026-10-27T17:50:41Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40554053493"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C source calls hot_pursuit before angry_guards. Initialized-game shop impact target failed on Main because the keeper remained peaceful; debt-only control passed. No fresh C recording or hidden-score claim."
     }
   ]
 }

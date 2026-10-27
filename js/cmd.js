@@ -5875,6 +5875,10 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // returns from the command the player named. ECMD_TIME skips
             // reset_cmd_vars() and puts context.move back to TRUE; ECMD_OK,
             // ECMD_CANCEL and ECMD_FAIL all reset.
+            // cmd.c:3738-3741 clears the previous repeat queue before
+            // dispatching '#'; doextcmd() may publish its selected command
+            // and its prompt answers afterward.
+            cmdq_clear(CQ_REPEAT, state);
             let selectedEntry = null;
             const res = await failClosedCommand(
                 key, state,
