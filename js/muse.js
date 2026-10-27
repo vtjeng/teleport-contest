@@ -1141,24 +1141,8 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             worm_move(mtmp, { ...env, state });
         maybe_unhide_at(mtmp.mx, mtmp.my, state);
         newsym(trapx, trapy);
-        // C calls m_tele(mtmp, vismon, FALSE, 0), which runs mintrap() with
-        // FORCETRAP so the monster teleports through the trap. The JS m_tele
-        // delegates to mintrap(), which requires injected operations this
-        // context does not provide. Use the same tele_restrict / amulet /
-        // rloc sequence m_tele uses for how != 0; the gap is that a vault-
-        // bound trap would send the monster to a random location instead.
-        if (await tele_restrict(mtmp, state)) {
-            if (noteleport_level(mtmp, state))
-                mon_learns_traps(mtmp, TELEP_TRAP);
-        } else if ((mon_has_amulet(mtmp)
-            || On_W_tower_level(state.u?.uz, state)) && !rn2(3)) {
-            if (vismon)
-                await pline_mon(mtmp,
-                    `${capitalizedMonsterName(mtmp, state)} seems disoriented for a moment.`,
-                    state);
-        } else {
-            await rloc(mtmp, RLOC_MSG, { state });
-        }
+        await m_tele(mtmp, vismon, false, 0, state,
+            { x: trapx, y: trapy });
         return 2;
     }
     case 'healing': {

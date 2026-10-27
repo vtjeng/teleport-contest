@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T17:51:00Z",
+  "asOf": "2026-10-27T18:16:45Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21926,6 +21926,80 @@
         }
       ],
       "note": "Pinned C source calls hot_pursuit before angry_guards. Initialized-game shop impact target failed on Main because the keeper remained peaceful; debt-only control passed. No fresh C recording or hidden-score claim."
+    },
+    {
+      "id": "save-repeat-queue",
+      "kind": "parity-repair",
+      "title": "Clear prior repeat queue before named repeat command",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:rhack",
+          "nethack-c/upstream/src/save.c:dosave",
+          "js/cmd.js:rhack",
+          "js/save.js:dosave"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/save-command.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "da5864d5ac0f2116b2b0850789562aba6cb11fa2",
+          "committedAt": "2026-10-27T18:02:37Z",
+          "sourceCommit": "da5864d5ac0f2116b2b0850789562aba6cb11fa2",
+          "sourceCommittedAt": "2026-10-27T18:02:37Z",
+          "runs": [
+            {
+              "id": 40556278249,
+              "name": "Checkpoint",
+              "sha": "da5864d5ac0f2116b2b0850789562aba6cb11fa2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/save-repeat-queue-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T18:02:55Z",
+              "completedAt": "2026-10-27T18:13:29Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40556278249"
+            },
+            {
+              "id": 40558148017,
+              "name": "Lint",
+              "sha": "da5864d5ac0f2116b2b0850789562aba6cb11fa2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T18:14:46Z",
+              "completedAt": "2026-10-27T18:16:15Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40558148017"
+            },
+            {
+              "id": 40558147604,
+              "name": "Dashboard",
+              "sha": "da5864d5ac0f2116b2b0850789562aba6cb11fa2",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T18:14:46Z",
+              "completedAt": "2026-10-27T18:16:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40558147604"
+            }
+          ]
+        }
+      ],
+      "note": "Fresh C named #save-decline-#repeat recording and byte-identical rerecord; no-repeat control and direct Ctrl-A repeat both strictly match after fix. No hidden-score claim."
     }
   ]
 }
