@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T07:59:11Z",
+  "asOf": "2026-10-27T08:37:18Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21623,6 +21623,84 @@
         }
       ],
       "note": "C-source-grounded branch with initialized canonical acid potion; deterministic grease-wash target and grease-retained control. Target test failed before fix (ER_GREASED vs ER_DESTROYED). No fresh C recording or hidden-score claim."
+    },
+    {
+      "id": "getdir-redraw-retry",
+      "kind": "parity-repair",
+      "title": "Retry direction prompt after Ctrl-R redraw",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:getdir",
+          "nethack-c/upstream/src/display.c:redraw_map",
+          "js/cmd.js:getdir",
+          "js/display.js:docrt"
+        ],
+        "witness": [
+          "recipes/cmd.c/getdir-redraw-retry.session.json",
+          "recordings/cmd.c/getdir-redraw-retry.session.json"
+        ],
+        "test": [
+          "scripts/getdir-redraw-retry.test.mjs",
+          "scripts/ride-direction.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "80207a7ec029b4ca1c0b3a689f104bcbfe01f316",
+          "committedAt": "2026-10-27T08:21:55Z",
+          "sourceCommit": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56",
+          "sourceCommittedAt": "2026-10-27T08:04:31Z",
+          "runs": [
+            {
+              "id": 40473006005,
+              "name": "Checkpoint",
+              "sha": "80207a7ec029b4ca1c0b3a689f104bcbfe01f316",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/getdir-redraw-retry-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T08:22:08Z",
+              "completedAt": "2026-10-27T08:33:37Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40473006005"
+            },
+            {
+              "id": 40474535635,
+              "name": "Lint",
+              "sha": "80207a7ec029b4ca1c0b3a689f104bcbfe01f316",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T08:35:10Z",
+              "completedAt": "2026-10-27T08:36:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40474535635"
+            },
+            {
+              "id": 40474535666,
+              "name": "Dashboard",
+              "sha": "80207a7ec029b4ca1c0b3a689f104bcbfe01f316",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T08:35:10Z",
+              "completedAt": "2026-10-27T08:37:18Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40474535666"
+            }
+          ]
+        }
+      ],
+      "note": "C-recorded Ctrl-R direction retry and nearby no-redraw control strictly match after fix. Failed predecessor 5d19beb0 had an obsolete test expectation; corrected exact-SHA 80207a7e passed Checkpoint attempt 1. No hidden-score claim."
     }
   ]
 }
