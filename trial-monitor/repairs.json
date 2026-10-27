@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T19:55:57Z",
+  "asOf": "2026-10-27T20:27:46Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22149,6 +22149,81 @@
         }
       ],
       "note": "Initialized-game conjoined pit target failed before fix; unjoined neighbor control passed. C-source-grounded expectation; no new C recording or hidden-score claim."
+    },
+    {
+      "id": "occupied-fixed-teleport-destination",
+      "kind": "parity-repair",
+      "title": "Relocate a monster occupying a fixed teleport trap destination",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/teleport.c:tele_trap",
+          "nethack-c/upstream/src/sp_lev.c:lspo_trap",
+          "js/teleport.js:tele_trap",
+          "js/trap_effects.js:preflight_dotrap"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/hero-teleport-trap.test.mjs",
+          "scripts/seen-trap-admission.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "50951eb38ccd6b350e5bc58375fb2121d749a907",
+          "committedAt": "2026-10-27T20:13:07Z",
+          "sourceCommit": "50951eb38ccd6b350e5bc58375fb2121d749a907",
+          "sourceCommittedAt": "2026-10-27T20:13:07Z",
+          "runs": [
+            {
+              "id": 40576096406,
+              "name": "Checkpoint",
+              "sha": "50951eb38ccd6b350e5bc58375fb2121d749a907",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/occupied-fixed-teleport-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T20:13:25Z",
+              "completedAt": "2026-10-27T20:24:09Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40576096406"
+            },
+            {
+              "id": 40577937306,
+              "name": "Lint",
+              "sha": "50951eb38ccd6b350e5bc58375fb2121d749a907",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T20:25:36Z",
+              "completedAt": "2026-10-27T20:27:46Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40577937306"
+            },
+            {
+              "id": 40577937256,
+              "name": "Dashboard",
+              "sha": "50951eb38ccd6b350e5bc58375fb2121d749a907",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T20:25:36Z",
+              "completedAt": "2026-10-27T20:27:33Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40577937256"
+            }
+          ]
+        }
+      ],
+      "note": "C custom-level Tourist target reached an occupied fixed teleport destination and materialized the hero after displacing the goblin. JS initialized-game target failed before fix; unoccupied destination and unrelated refusal controls pass. C recording remains diagnostic scratch because custom Lua is not a built-in JS replay loader; no hidden-score claim."
     }
   ]
 }

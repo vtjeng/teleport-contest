@@ -13,6 +13,7 @@ import {
     Can_fall_thru,
     In_hell,
     In_W_tower,
+    Invocation_lev,
     Is_special,
     at_dgn_entrance,
     depth,
@@ -79,6 +80,8 @@ import {
 } from './nhlua.js';
 import {
     create_maze,
+    mazexy,
+    populate_maze,
     check_ransacked,
     fixup_special,
     bound_digging,
@@ -787,7 +790,9 @@ async function makelevel(specialLevelLoader = null) {
     const medusa = g.medusa_level;
     if (rn2(5) && g.u?.uz?.dnum === medusa?.dnum
         && (g.u?.uz?.dlevel ?? 1) > (medusa?.dlevel ?? 999)) {
-        // Would generate maze — not applicable for contest level 1
+        await makemaz('', null, g);
+        await finishLevelGeneration();
+        return;
     }
 
     // Regular level generation
@@ -2076,9 +2081,32 @@ async function makemaz(proto, slev, state) {
         );
     }
 
-    // C ref: mkmaze.c:1197-1223. Procedural maze generation when no
-    // protofile is found. Not yet reached by any development session.
-    throw new UnsupportedLevelChangeError('makemaz: procedural maze generation not ported');
+    // C ref: mkmaze.c:1197-1223. Procedural generation for unnamed mazes.
+    const frame = {
+        xMazeMax: (COLNO - 1) & ~1,
+        yMazeMax: (ROWNO - 1) & ~1,
+    };
+    state.level.flags.is_maze_lev = true;
+    state.level.flags.corrmaze = !rn2(3);
+    const invocation = Invocation_lev(state.u.uz, state);
+    if (!invocation && rn2(2))
+        create_maze(-1, -1, !rn2(5), frame, state);
+    else
+        create_maze(1, 1, false, frame, state);
+    if (!state.level.flags.corrmaze)
+        wallification(2, 2, frame.xMazeMax, frame.yMazeMax, state);
+    let point = mazexy(null, frame, state);
+    mkstairs(point.x, point.y, true, null);
+    if (!invocation) {
+        point = mazexy(null, frame, state);
+        mkstairs(point.x, point.y, false, null);
+    } else {
+        state.inv_pos = pick_vibrasquare_location(frame, state);
+        maketrap(state.inv_pos.x, state.inv_pos.y, VIBRATING_SQUARE,
+            { state });
+    }
+    place_branch(is_branchlev());
+    populate_maze(frame, state);
 }
 
 // C ref: sp_lev.c lspo_map() halign/valign positioning. Translates
