@@ -1,0 +1,46 @@
+{
+  "method": "lua-level-generation/v1",
+  "baseMain": "d6f7c4055ea0b603a33be07e65cf3d11a2688909",
+  "measuredCommit": "ba1025331d6a2d9caaccf311076de1a140ea9ff7",
+  "command": "node scripts/lua-discovery.mjs experiments/lua-discovery/pilot.json /workspace/lua-pilot-final",
+  "archive": "experiments/lua-discovery/pilot-evidence.tar.gz",
+  "archiveSha256": "a3dfd9e8cea928e4b044202cd4792a1e846a433b4e06938b5932da5dbbb0ac10",
+  "finalSummary": "lua-pilot-final/summary.json",
+  "elapsedMs": 5449,
+  "candidates": 5,
+  "attempts": 10,
+  "matching": 10,
+  "mismatch": 0,
+  "distinctReproducibleMismatches": 0,
+  "unresolved": 0,
+  "unreachable": 0,
+  "infrastructureFailed": 0,
+  "budgetUncovered": 0,
+  "byteIdenticalRepeatPairs": 5,
+  "uniqueCaseRngCalls": 20208,
+  "uniqueCaseScreens": 275,
+  "uniqueCaseCursors": 275,
+  "gateOutcomes": {
+    "bigrm-12.lua:33": [false],
+    "bigrm-12.lua:43": [false],
+    "bigrm-12.lua:49": [true, false],
+    "bigrm-12.lua:51": [false, true],
+    "bigrm-12.lua:57": [false]
+  },
+  "uncoveredGateLines": [34, 37, 45, 58],
+  "passingControl": "bigrm-11.lua seed19711001, same wizard-des route",
+  "checks": {
+    "focused": "33/33: lua-discovery, lua-sources, fresh-matrix, diff-fresh",
+    "lint": "npm run lint passed",
+    "diffCheck": "git diff --check passed",
+    "compiler": "Debian clang 19.1.7; current seven recorder patches rebuilt successfully"
+  },
+  "limitations": [
+    "Only direct wizard-des routes were piloted; natural-arrival recipe mode is available but unmeasured here.",
+    "No hidden-state equality or active-compute savings claim. Matching is limited to captured RNG/screens/cursors/animation frames.",
+    "C percent calls lose the level caller in two-frame context; bigrm-12 recognition pins exact upstream source SHA and filename-submit boundary. JS attribution is source route and ordered RNG prefix.",
+    "The three other outer true outcomes and four nested gate sites remain uncovered.",
+    "Archive preserves initial lua-pilot-1 diagnostic: its eight bigrm-12 unreachable labels were attribution-tool errors, not actual unreachable gameplay. lua-pilot-2 corrected them before the final committed run.",
+    "Full checkpoint, accepted integration, publication verification, and unpublished hub integration remain owned by Main and parent. No Main push was performed."
+  ]
+}
