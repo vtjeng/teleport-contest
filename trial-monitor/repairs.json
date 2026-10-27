@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T18:58:39Z",
+  "asOf": "2026-10-27T19:55:57Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22076,6 +22076,79 @@
         }
       ],
       "note": "Initialized-game fixed-destination trap target failed before fix; ordinary and occupied-destination controls. C-source-grounded expectation; no C recording or hidden-score claim."
+    },
+    {
+      "id": "conjoined-pit-removal",
+      "kind": "parity-repair",
+      "title": "Unlink conjoined pits when removing a trap",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/trap.c:clear_conjoined_pits",
+          "nethack-c/upstream/src/dig.c:zap_dig",
+          "js/trap.js:deltrap"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/conjoined-pit-removal.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "c2522d435cf79e93cb685e10d5d566709422a5d4",
+          "committedAt": "2026-10-27T19:32:07Z",
+          "sourceCommit": "c2522d435cf79e93cb685e10d5d566709422a5d4",
+          "sourceCommittedAt": "2026-10-27T19:32:07Z",
+          "runs": [
+            {
+              "id": 40570008985,
+              "name": "Checkpoint",
+              "sha": "c2522d435cf79e93cb685e10d5d566709422a5d4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/conjoined-pit-removal-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T19:32:19Z",
+              "completedAt": "2026-10-27T19:43:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40570008985"
+            },
+            {
+              "id": 40573268161,
+              "name": "Lint",
+              "sha": "c2522d435cf79e93cb685e10d5d566709422a5d4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T19:54:18Z",
+              "completedAt": "2026-10-27T19:55:28Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40573268161"
+            },
+            {
+              "id": 40573268162,
+              "name": "Dashboard",
+              "sha": "c2522d435cf79e93cb685e10d5d566709422a5d4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T19:54:18Z",
+              "completedAt": "2026-10-27T19:55:57Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40573268162"
+            }
+          ]
+        }
+      ],
+      "note": "Initialized-game conjoined pit target failed before fix; unjoined neighbor control passed. C-source-grounded expectation; no new C recording or hidden-score claim."
     }
   ]
 }

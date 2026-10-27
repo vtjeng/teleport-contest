@@ -9,7 +9,6 @@ import {
     VAULT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { search_special } from '../js/mkroom.js';
 import { PM_KOBOLD } from '../js/monsters.js';
@@ -222,8 +221,7 @@ test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
         game.u.uprops[ANTIMAGIC].intrinsic = 0;
 
         // teleport.c:1516's rloc_to() moves the monster standing on a fixed
-        // destination out of the way, and this port's rloc_to() covers only a
-        // monster that is not yet on the map. The trap is made fixed-
+        // destination out of the way. The trap is made fixed-
         // destination for this case alone: no level generator writes
         // trap->teledest, sp_lev.c does.
         const spot = { x: game.u.ux + 1, y: game.u.uy };
@@ -235,11 +233,32 @@ test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
         game.level.monlist = kobold;
         trap.once = 0;
         trap.teledest = { ...spot };
-        assert.throws(
-            () => preflight_dotrap(trap, game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && /teleport trap destination/u.test(error.message),
-        );
+        assert.equal(preflight_dotrap(trap, game), undefined);
+        const original = { ...spot };
+        for (let i = 0; i < 16; ++i) game.nhDisplay.pushKey(32);
+        await tele_trap(trap, game);
+        assert.deepEqual([game.u.ux, game.u.uy], [original.x, original.y]);
+        assert.notDeepEqual([kobold.mx, kobold.my], [original.x, original.y]);
+        assert.equal(game.level.monsters[kobold.mx][kobold.my], kobold);
+    });
+
+test('unoccupied fixed teleport destination keeps the direct landing path',
+    async () => {
+        await runSegment(VAULT_NICHE_SEGMENT);
+        const trap = teleportTraps().find((each) => each.once);
+        const spot = { x: game.u.ux + 1, y: game.u.uy };
+        trap.once = 0;
+        trap.teledest = spot;
+        assert.equal(game.level.monsters[spot.x][spot.y], null);
+        assert.equal(preflight_dotrap(trap, game), undefined);
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        for (let i = 0; i < 16; ++i) game.nhDisplay.pushKey(32);
+
+        await tele_trap(trap, game);
+
+        assert.deepEqual([game.u.ux, game.u.uy], [spot.x, spot.y]);
+        assert.equal(game._ttyToplines, MATERIALIZE);
     });
 
 test('preflight_dotrap() admits a seen level teleporter to its C escape roll',

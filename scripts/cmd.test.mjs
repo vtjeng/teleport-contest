@@ -51,7 +51,6 @@ import {
     D_TRAPPED,
     DOOR,
     FAST,
-    TELEP_TRAP,
     FOUNTAIN,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
@@ -139,7 +138,7 @@ import {
     PM_LICHEN,
     PM_NEWT,
 } from '../js/monsters.js';
-import { newMonster, place_monster } from '../js/monst.js';
+import { newMonster } from '../js/monst.js';
 import { parseNethackrc } from '../js/options.js';
 import { create_region } from '../js/region.js';
 import {
@@ -894,30 +893,10 @@ test('reqmenu movement skips look-here terrain guards with an object present',
         }
     });
 
-function installUnsupportedTeleportDestinationTrap(x, y) {
-    // Preserve generic refusal checks using the remaining fixed-destination
-    // relocation guard, with a real resident far from the movement under test.
-    let target;
-    for (let px = 1; px < 79 && !target; ++px) {
-        for (let py = 1; py < 20; ++py) {
-            if (game.level.at(px, py).typ === ROOM
-                && !game.level.monsters[px][py]
-                && (px - game.u.ux) ** 2 + (py - game.u.uy) ** 2 > 100) {
-                target = [px, py];
-                break;
-            }
-        }
-    }
-    assert.ok(target);
-    const [px, py] = target;
-    const resident = newMonster({ data: game.mons[PM_NEWT], mnum: PM_NEWT,
-        m_id: 9919, mhp: 8, mhpmax: 8, msleeping: true, mcanmove: false,
-        mfrozen: 1000, movement: 0 });
-    resident.nmon = game.level.monlist;
-    game.level.monlist = resident;
-    place_monster(resident, px, py, game);
-    game.level.traps.push({ tx: x, ty: y, ttyp: TELEP_TRAP, tseen: true,
-        once: false, teledest: { x: px, y: py } });
+function installUnsupportedTrap(x, y) {
+    // A synthetic unknown trap tests retry ownership without relying on an
+    // unrelated supported effect to keep refusing the hero's movement.
+    game.level.traps.push({ tx: x, ty: y, ttyp: 0, tseen: true });
 }
 
 function installFloorPile(x, y, count = 2, firstOverrides = {}) {
@@ -1265,13 +1244,13 @@ test('simple hero movement rejects spot effects before mutation', async () => {
         // pickup(1) has already described what is on it; refusing there would
         // land after both.
         {
-            // The fixed destination's existing resident still needs relocation.
-            name: 'occupied fixed teleport destination',
-            reason: 'a monster on a teleport trap destination',
+            // A synthetic unknown trap still refuses before any mutation.
+            name: 'unknown trap type',
+            reason: 'trap activation',
             setup: ({ x, y }) => {
                 installFloorPile(x, y);
                 game.flags.paranoia_bits &= ~PARANOID_TRAP;
-                installUnsupportedTeleportDestinationTrap(x, y);
+                installUnsupportedTrap(x, y);
             },
         },
     ];
@@ -2000,7 +1979,7 @@ test('unsupported movement retains its byte ahead of the next command',
         resetCommandVars(game);
         const start = [game.u.ux, game.u.uy];
         const east = game.level.at(start[0] + 1, start[1]);
-        // An occupied fixed-teleport destination is refused before mutation;
+        // An unknown trap type is refused before mutation;
         // this keeps the queued-byte assertion independent of terrain.
         east.typ = ROOM;
         east.flags = east.doormask = 0;
@@ -2008,7 +1987,7 @@ test('unsupported movement retains its byte ahead of the next command',
         game.level.monlist = null;
         game.level.objects[start[0] + 1][start[1]] = null;
         game.level.traps = [];
-        installUnsupportedTeleportDestinationTrap(start[0] + 1, start[1]);
+        installUnsupportedTrap(start[0] + 1, start[1]);
         game.flags.paranoia_bits &= ~PARANOID_TRAP;
         game.level.regions = [];
         game.head_engr = null;
@@ -2020,7 +1999,7 @@ test('unsupported movement retains its byte ahead of the next command',
                 moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'a monster on a teleport trap destination'
+                    && error.reason === 'trap activation'
                 ),
             );
             assert.equal(
@@ -2075,7 +2054,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     game.level.monlist = null;
     const floorObject = installFloorPile(x, y, 1);
     game.level.traps = [];
-    installUnsupportedTeleportDestinationTrap(x, y);
+    installUnsupportedTrap(x, y);
     game.flags.paranoia_bits &= ~PARANOID_TRAP;
     game.level.regions = [];
     game.head_engr = null;
@@ -2089,7 +2068,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'a monster on a teleport trap destination'
+                && error.reason === 'trap activation'
             ),
         );
         assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
@@ -4939,11 +4918,11 @@ test('the run loop leaves a class outside the refusal list as it found it',
         // breaks the segment on it directly -- so the seam's own refusal has
         // to arrive with its own type, reason and message.
         const { first, second } = await prepareRunPastTheFirstStep();
-        // An occupied fixed teleport destination reaches the boundary after the run's
+        // An unknown trap type reaches the boundary after the run's
         // first step, exercising the same unconverted error class without
         // relying on the now-supported ICE arrival path.
         game.level.traps = [];
-        installUnsupportedTeleportDestinationTrap(second[0], second[1]);
+        installUnsupportedTrap(second[0], second[1]);
         game.flags.paranoia_bits &= ~PARANOID_TRAP;
         await takeFirstRunStep(first);
 
@@ -4954,7 +4933,7 @@ test('the run loop leaves a class outside the refusal list as it found it',
                     error instanceof UnsupportedHeroMoveBoundaryError,
                     `${error.constructor.name} is not a hero move boundary`,
                 );
-                assert.equal(error.reason, 'a monster on a teleport trap destination');
+                assert.equal(error.reason, 'trap activation');
                 return true;
             },
         );

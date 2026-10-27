@@ -4061,9 +4061,6 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
 //     TELEP_TRAP, LEVEL_TELEP, WEB, STATUE_TRAP, ROLLING_BOULDER_TRAP and
 //     VIBRATING_SQUARE -- its own trapeffect_*() arm;
-//   a fixed-destination teleport trap with a monster standing on the
-//     destination -- teleport.c:1516's rloc_to(), whose port covers only a
-//     monster that is not yet on the map;
 //   a mounted hero where the effect has no corresponding source arm --
 //     steedintrap() handles the arrow, dart, gas, magic, polymorph,
 //     landmine and pit arms; TELEP_TRAP, LEVEL_TELEP, MAGIC_PORTAL, HOLE and
@@ -4090,17 +4087,6 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== ROLLING_BOULDER_TRAP
         && trap.ttyp !== VIBRATING_SQUARE && !is_hole(trap.ttyp))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
-    if (trap.ttyp === TELEP_TRAP) {
-        // tele_trap()'s fixed-destination arm calls settrack() before it can
-        // discover that rloc_to() has no answer for the monster in the way,
-        // so the question has to be asked here, ahead of that write.
-        if (!trap.once && fixed_tele_trap(trap)
-            && m_at(trap.teledest.x, trap.teledest.y, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'a monster on a teleport trap destination',
-            );
-        }
-    }
     if (state.u.usteed && trap.ttyp !== ARROW_TRAP
         && trap.ttyp !== WEB
         && trap.ttyp !== BEAR_TRAP
