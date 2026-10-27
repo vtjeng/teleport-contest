@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T21:11:00Z",
+  "asOf": "2026-10-27T21:28:15Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22297,6 +22297,81 @@
         }
       ],
       "note": "Fresh C Tourist Wizard level-teleport witness seed 81 reaches unnamed procedural maze below Medusa; JavaScript previously fell through to ordinary rooms. Nearby seed 79 regular-level control and six C-recorded maze cases strictly match RNG, screens, and cursors after the repair. First Checkpoint exposed an existing structural test counting finalization sites; corrected test and final exact-SHA Checkpoint passed. No hidden-score claim."
+    },
+    {
+      "id": "hostile-temple-priest-pursuit",
+      "kind": "parity-repair",
+      "title": "Let hostile temple priests pursue a visible hero",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/priest.c:pri_move",
+          "js/priest.js:pri_move",
+          "js/vision.js:m_canseeu"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/priest-hostile-pursuit.test.mjs",
+          "scripts/priest.test.mjs",
+          "scripts/mkroom-temple.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "771fe1e57fad14a9fcff27df3737b455a9c56aec",
+          "committedAt": "2026-10-27T21:14:48Z",
+          "sourceCommit": "771fe1e57fad14a9fcff27df3737b455a9c56aec",
+          "sourceCommittedAt": "2026-10-27T21:14:48Z",
+          "runs": [
+            {
+              "id": 40585166926,
+              "name": "Checkpoint",
+              "sha": "771fe1e57fad14a9fcff27df3737b455a9c56aec",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/priest-hostile-pursuit-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:15:03Z",
+              "completedAt": "2026-10-27T21:25:29Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40585166926"
+            },
+            {
+              "id": 40586787093,
+              "name": "Lint",
+              "sha": "771fe1e57fad14a9fcff27df3737b455a9c56aec",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:26:20Z",
+              "completedAt": "2026-10-27T21:27:49Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40586787093"
+            },
+            {
+              "id": 40586787227,
+              "name": "Dashboard",
+              "sha": "771fe1e57fad14a9fcff27df3737b455a9c56aec",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:26:20Z",
+              "completedAt": "2026-10-27T21:28:15Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40586787227"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C pri_move moves a nonadjacent hostile priest toward a visible hero inside its temple; JavaScript previously threw after the two altar draws. An initialized-game temple target fails before the repair and passes after it. Peaceful and blinded-hostile controls mill toward the altar. Full hosted fixed and synthetic comparisons show zero regressions."
     }
   ]
 }
