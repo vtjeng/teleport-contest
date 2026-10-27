@@ -13,7 +13,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { canseemon, newsym } from './display.js';
+import { canseemon, canspotmon, newsym } from './display.js';
 import { hliquid, Monnam, mon_nam } from './do_name.js';
 import { flooreffects } from './do.js';
 import { done } from './end.js';
@@ -23,7 +23,7 @@ import { dist2 } from './hacklib.js';
 import { delallobj, obj_extract_self, sobj_at } from './invent.js';
 import {
     amphibious, breathless, is_flyer, is_floater, is_swimmer, likes_lava,
-    noncorporeal, passes_walls,
+    noncorporeal, passes_walls, mhe,
 } from './mondata.js';
 import { AD_DGST, AD_PHYS, PM_LONG_WORM_TAIL } from './monsters.js';
 import { heroUnaware as plineHeroUnaware, youHear } from './pline.js';
@@ -555,10 +555,19 @@ async function e_died(entity, xkillFlags, how, state, env) {
         (xkillFlags & XKILL_NOMSG) ? null : '', corpseHow, state, env);
     else await xkilled(entity.emon, xkillFlags, state, env);
     if ((entity.emon?.mhp ?? 0) > 0) {
+        const seeit = canspotmon(entity.emon, state);
         const retriedFlags = xkillFlags | XKILL_NOMSG | XKILL_NOCONDUCT;
         if (state.context?.mon_moving)
             await monkilled(entity.emon, '', corpseHow, state, env);
         else await xkilled(entity.emon, retriedFlags, state, env);
+        if ((entity.emon?.mhp ?? 0) < 1 && seeit) {
+            await (env.message ?? ttyPline)(
+                `Unfortunately for ${mon_nam(entity.emon, state, env)}, `
+                + `${mhe(entity.emon, { ...env, state,
+                    canSpotMonster: mon => canspotmon(mon, state) })} is still crushed.`,
+                state,
+            );
+        }
     }
     entity.edata = null;
     for (const other of occupants(state)) {

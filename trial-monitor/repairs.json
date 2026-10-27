@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T01:36:07Z",
+  "asOf": "2026-10-27T01:55:09Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21025,7 +21025,58 @@
           "scripts/role-init.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f",
+          "committedAt": "2026-10-27T01:42:18Z",
+          "sourceCommit": "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f",
+          "sourceCommittedAt": "2026-10-27T01:42:18Z",
+          "runs": [
+            {
+              "id": 40434160113,
+              "name": "Checkpoint",
+              "sha": "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/hallucinated-restore-welcome-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T01:42:33Z",
+              "completedAt": "2026-10-27T01:52:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40434160113"
+            },
+            {
+              "id": 40435235215,
+              "name": "Lint",
+              "sha": "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T01:53:43Z",
+              "completedAt": "2026-10-27T01:54:44Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40435235215"
+            },
+            {
+              "id": 40435235192,
+              "name": "Dashboard",
+              "sha": "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T01:53:43Z",
+              "completedAt": "2026-10-27T01:55:09Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40435235192"
+            }
+          ]
+        }
+      ],
       "note": "C-source-derived Hallucination prelude; initialized effect, production save and restore target/control plus resistance check. No new C recording or hidden-score claim. Publication pending."
     }
   ]
