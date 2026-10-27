@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T18:16:45Z",
+  "asOf": "2026-10-27T18:58:39Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22000,6 +22000,82 @@
         }
       ],
       "note": "Fresh C named #save-decline-#repeat recording and byte-identical rerecord; no-repeat control and direct Ctrl-A repeat both strictly match after fix. No hidden-score claim."
+    },
+    {
+      "id": "monster-fixed-teletrap",
+      "kind": "parity-repair",
+      "title": "Honor fixed destinations for defensive monster teleport traps",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/muse.c:m_tele",
+          "nethack-c/upstream/src/trap.c:mintrap",
+          "nethack-c/upstream/src/teleport.c:mtele_trap",
+          "js/muse.js:use_defensive",
+          "js/trap_effects.js:mintrap",
+          "js/teleport.js:mtele_trap"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/muse-fixed-teleport-trap.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "0ceeca526b5b6a72cb963b7bd47aed186cf50b6b",
+          "committedAt": "2026-10-27T18:43:57Z",
+          "sourceCommit": "0ceeca526b5b6a72cb963b7bd47aed186cf50b6b",
+          "sourceCommittedAt": "2026-10-27T18:43:57Z",
+          "runs": [
+            {
+              "id": 40562747190,
+              "name": "Checkpoint",
+              "sha": "0ceeca526b5b6a72cb963b7bd47aed186cf50b6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-fixed-teletrap-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T18:44:24Z",
+              "completedAt": "2026-10-27T18:55:48Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40562747190"
+            },
+            {
+              "id": 40564632014,
+              "name": "Lint",
+              "sha": "0ceeca526b5b6a72cb963b7bd47aed186cf50b6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T18:56:43Z",
+              "completedAt": "2026-10-27T18:58:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40564632014"
+            },
+            {
+              "id": 40564631960,
+              "name": "Dashboard",
+              "sha": "0ceeca526b5b6a72cb963b7bd47aed186cf50b6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T18:56:43Z",
+              "completedAt": "2026-10-27T18:58:39Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40564631960"
+            }
+          ]
+        }
+      ],
+      "note": "Initialized-game fixed-destination trap target failed before fix; ordinary and occupied-destination controls. C-source-grounded expectation; no C recording or hidden-score claim."
     }
   ]
 }

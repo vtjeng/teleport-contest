@@ -247,7 +247,6 @@ import {
     nomul, unmul, losehp, You_can_move_again,
     u_locomotion,
     movobj,
-    UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { goodpos } from './teleport.js';
 import { ordin, sgn, upstart } from './hacklib.js';
@@ -1084,7 +1083,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
 //
 // dealloc_trap() has no counterpart: C frees the record, JavaScript lets it go.
 export function deltrap(trap, state = game) {
-    clear_conjoined_pits(trap);
+    clear_conjoined_pits(trap, state);
     const traps = state.level.traps;
     const index = traps.indexOf(trap);
     if (index < 0) throw new Error('deltrap: no preceding trap!');
@@ -1162,17 +1161,20 @@ export function conjoined_pits(trap2, trap1, u_entering_trap2, state = game) {
     return false;
 }
 
-// C ref: trap.c clear_conjoined_pits() (6578-6603). Every trap this port
-// creates has `conjoined` set to 0 -- maketrap() clears it for PIT and
-// SPIKED_PIT and resetTrap() clears it for every other type -- and the
-// mklev.c conjoined-pit generation is not ported (js/mklev.js:2899-2901), so
-// the mask is always empty and the neighbour loop has nothing to walk. It
-// refuses rather than silently skipping the unlink if that ever changes.
-function clear_conjoined_pits(trap) {
-    if (trap && is_pit(trap.ttyp) && trap.conjoined) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'unlinking a conjoined pit',
-        );
+// C ref: trap.c clear_conjoined_pits() (6578-6603). Digging can join two
+// existing pits; unlink both ends before deltrap removes either pit.
+function clear_conjoined_pits(trap, state) {
+    if (!trap || !is_pit(trap.ttyp)) return;
+    for (let diridx = 0; diridx < N_DIRS; ++diridx) {
+        if (!(trap.conjoined & (1 << diridx))) continue;
+        const x = trap.tx + xdir[diridx];
+        const y = trap.ty + ydir[diridx];
+        if (isok(x, y)) {
+            const neighbor = t_at(x, y, state);
+            if (neighbor && is_pit(neighbor.ttyp))
+                neighbor.conjoined &= ~(1 << DIR_180(diridx));
+        }
+        trap.conjoined &= ~(1 << diridx);
     }
 }
 
