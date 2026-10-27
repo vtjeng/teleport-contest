@@ -10,6 +10,7 @@ import {
     G_GENOD,
     M_AP_MONSTER,
     Is_rogue_level,
+    Is_astralevel,
     NO_MM_FLAGS,
     PROT_FROM_SHAPE_CHANGERS,
     RLOC_MSG,
@@ -31,7 +32,7 @@ import {
     helpless,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { Monnam } from './do_name.js';
+import { Monnam, hcolor } from './do_name.js';
 import { In_W_tower, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign, unmakemon } from './makemon.js';
@@ -88,6 +89,7 @@ import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
 import { dist2 } from './hacklib.js';
 import { m_next2u } from './mhitu.js';
 import { verbalize } from './pline.js';
+import { heroIsBlind } from './startup_a11y.js';
 
 // C wizard.c:52-56, ROLL_FROM(wizapp) in clonewiz().
 const WIZARD_APPEARANCES = Object.freeze([
@@ -319,6 +321,41 @@ export function wizdeadorgone(state = game, random = { rn1 }) {
     if (!state.u.uevent.udemigod) {
         state.u.uevent.udemigod = true;
         state.u.udg_cnt = (random?.rn1 ?? rn1)(250, 50);
+    }
+}
+
+// C ref: wizard.c:intervene() (785-810). Allmain calls this only when the
+// demigod countdown expires, after engraving wear and before level effects.
+// The caller supplies rndcurse because sit.c already imports this module.
+export async function intervene(state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const message = rawEnv.message ?? ttyPline;
+    const effectEnv = { ...rawEnv, state, random, message };
+    const which = Is_astralevel(state.u.uz)
+        ? random.rnd(4) : random.rn2(6);
+    switch (which) {
+    case 0:
+    case 1:
+        await message('You feel vaguely nervous.', state);
+        break;
+    case 2:
+        if (!heroIsBlind(state))
+            await message(`You notice a ${hcolor('black', state)} glow surrounding you.`, state);
+        if (typeof rawEnv.rndcurse !== 'function')
+            throw new TypeError('intervene requires rndcurse for the curse arm');
+        await rawEnv.rndcurse(state, effectEnv);
+        break;
+    case 3:
+        aggravate(state, random);
+        break;
+    case 4:
+        await (rawEnv.nasty ?? nasty)(null, effectEnv);
+        break;
+    case 5:
+        await (rawEnv.resurrect ?? resurrect)(state, effectEnv);
+        break;
+    default:
+        throw new Error(`intervene selected an invalid arm: ${which}`);
     }
 }
 

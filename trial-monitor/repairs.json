@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T00:24:54Z",
+  "asOf": "2026-10-27T00:43:17Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -20786,8 +20786,88 @@
           "scripts/pager.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+          "committedAt": "2026-10-27T00:29:12Z",
+          "sourceCommit": "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+          "sourceCommittedAt": "2026-10-27T00:29:12Z",
+          "runs": [
+            {
+              "id": 40426727301,
+              "name": "Checkpoint",
+              "sha": "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/showtrap-ctrl-help-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T00:29:28Z",
+              "completedAt": "2026-10-27T00:40:06Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40426727301"
+            },
+            {
+              "id": 40427950618,
+              "name": "Lint",
+              "sha": "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T00:41:01Z",
+              "completedAt": "2026-10-27T00:42:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40427950618"
+            },
+            {
+              "id": 40427950608,
+              "name": "Dashboard",
+              "sha": "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T00:41:01Z",
+              "completedAt": "2026-10-27T00:43:17Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40427950608"
+            }
+          ]
+        }
+      ],
+      "note": "C recording target and same-route control strictly match after restoring help_dir control-key guidance; 130 affected tests, full lint, and exact hosted/publication gates passed. Complete receipt recorded."
+    },
+    {
+      "id": "demigod-turn-intervention",
+      "kind": "parity-repair",
+      "title": "Run demigod intervention at its elapsed-turn boundary",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c:361",
+          "nethack-c/upstream/src/wizard.c:intervene",
+          "js/allmain.js:finishElapsedTurnAfterHunger",
+          "js/wizard.js:intervene"
+        ],
+        "witness": [
+          "scripts/demigod-intervention-turn.test.mjs"
+        ],
+        "test": [
+          "scripts/demigod-intervention-turn.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/wizard.test.mjs",
+          "scripts/sit.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C recording target and same-route control strictly match after restoring help_dir control-key guidance; 130 affected tests and full lint pass. Publication pending."
+      "note": "C-source-derived expected countdown, six intervention arms and Astral selection; initialized-game target/controls plus planned/live turn and real summon/resurrection smoke tests. No new C recording or hidden-score claim. Publication pending."
     }
   ]
 }

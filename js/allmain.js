@@ -41,7 +41,9 @@ import {
     ismnum,
 } from './const.js';
 import { acurr, exerchk } from './attrib.js';
-import { makedog, see_nearby_monsters } from './dog.js';
+import {
+    makedog, mon_arrive, mon_catchup_elapsed_time, see_nearby_monsters,
+} from './dog.js';
 import { mklev, l_nhcore_init } from './mklev.js';
 import { u_on_upstairs } from './stairs.js';
 import { m_at } from './monst.js';
@@ -204,7 +206,8 @@ import { clear_splitobjs } from './obj.js';
 import { makewish } from './zap.js';
 import { clear_bypasses } from './worn.js';
 import { canseemon } from './display.js';
-import { amulet } from './wizard.js';
+import { amulet, intervene } from './wizard.js';
+import { rndcurse } from './sit.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
 // allmain.c:newgame() calls mklev(). Asynchronous only because u_init_misc()
@@ -1226,6 +1229,46 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         await amulet(state, { random, message: turnMessage });
     maybeWipeHeroEngraving(state, random);
 
+    // C allmain.c:361-367. A due intervention can curse inventory, summon
+    // monsters, or resurrect the Wizard. Stop the cloned round before those
+    // effects, then plan the remaining level-effect tail from the live state.
+    if (state.u.uevent?.udemigod && !state.u.uinvulnerable) {
+        if (state.u.udg_cnt) state.u.udg_cnt--;
+        if (!state.u.udg_cnt) {
+            if (planning) return { beforeIntervention: true };
+            await intervene(state, {
+                random,
+                message: turnMessage,
+                rndcurse,
+                makemon: makemon_runtime,
+                monArrive: (monster) => mon_arrive(monster, 'Wiz_arrive', {
+                    state, random,
+                }),
+                monCatchupElapsedTime: (monster, elapsed) =>
+                    mon_catchup_elapsed_time(monster, elapsed, { state, random }),
+                hooks: {
+                    stopOccupation: (_monster, hookEnv) => stop_occupation(
+                        hookEnv.state, hookEnv,
+                    ),
+                },
+            });
+            state.u.udg_cnt = random.rn1(200, 50);
+            if (state.program_state?.gameover)
+                return { afterIntervention: true };
+            const tailPlan = await preflightElapsedTurnTail(state,
+                planned => finishElapsedTurnAfterIntervention(planned,
+                    { planning: true }));
+            const result = await finishElapsedTurnAfterIntervention(state);
+            if (tailPlan?.beforeUnmul && !result?.afterUnmul)
+                throw new Error('elapsed-turn intervention tail disagreed with live delayed action');
+            return { ...result, afterIntervention: true };
+        }
+    }
+    return finishElapsedTurnAfterIntervention(state, { planning });
+}
+
+// C allmain.c:374-388, after the demigod intervention countdown.
+async function finishElapsedTurnAfterIntervention(state, { planning = false } = {}) {
     // C allmain.c:374-377. These owners move terrain and occupants, update
     // shared vision, and can emit messages. Stop the speculative pass before
     // them, then validate the remaining upkeep from their live result.
@@ -1600,6 +1643,7 @@ async function advanceElapsedTurn(state) {
             let afterUnmul;
             let afterTimeout;
             let afterHunger;
+            let afterIntervention;
             let afterTeleport;
             let afterSearch;
             let afterChange;
@@ -1613,6 +1657,7 @@ async function advanceElapsedTurn(state) {
                 afterUnmul = result?.afterUnmul;
                 afterTimeout = result?.afterTimeout;
                 afterHunger = result?.afterHunger;
+                afterIntervention = result?.afterIntervention;
                 afterTeleport = result?.afterTeleport;
                 afterSearch = result?.afterSearch;
                 afterChange = result?.afterChange;
@@ -1662,6 +1707,10 @@ async function advanceElapsedTurn(state) {
                 && upkeepCount === preflight.upkeepCount && !afterHunger) {
                 throw new Error('elapsed-turn preflight disagreed with live hunger');
             }
+            if (preflight.beforeIntervention
+                && upkeepCount === preflight.upkeepCount && !afterIntervention) {
+                throw new Error('elapsed-turn preflight disagreed with live intervention');
+            }
             if (preflight.beforeLevelEffects
                 && upkeepCount === preflight.upkeepCount && !afterLevelEffects) {
                 throw new Error('elapsed-turn preflight disagreed with live level effects');
@@ -1671,7 +1720,7 @@ async function advanceElapsedTurn(state) {
                 throw new Error('elapsed-turn preflight disagreed with live storms');
             }
             if (!pendingDeathReplan
-                && (afterStorms || afterLevelEffects || afterUnmul || afterTimeout || afterHunger || afterTeleport || afterSearch || afterChange)
+                && (afterStorms || afterLevelEffects || afterUnmul || afterTimeout || afterHunger || afterIntervention || afterTeleport || afterSearch || afterChange)
                 && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,

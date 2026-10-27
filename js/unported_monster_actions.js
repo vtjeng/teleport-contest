@@ -1929,6 +1929,7 @@ export async function preflightSimpleMonsterActions(
     let beforeUnmul = false;
     let beforeTimeout = false;
     let beforeHunger = false;
+    let beforeIntervention = false;
     let beforeTeleport = false;
     let beforeSearch = false;
     let beforeChange = false;
@@ -1944,6 +1945,7 @@ export async function preflightSimpleMonsterActions(
                     beforeUnmul = Boolean(result?.beforeUnmul);
                     beforeTimeout = Boolean(result?.beforeTimeout);
                     beforeHunger = Boolean(result?.beforeHunger);
+                    beforeIntervention = Boolean(result?.beforeIntervention);
                     beforeTeleport = Boolean(result?.beforeTeleport);
                     beforeSearch = Boolean(result?.beforeSearch);
                     beforeChange = Boolean(result?.beforeChange);
@@ -1994,6 +1996,7 @@ export async function preflightSimpleMonsterActions(
         beforeUnmul,
         beforeTimeout,
         beforeHunger,
+        beforeIntervention,
         beforeTeleport,
         beforeSearch,
         beforeChange,
