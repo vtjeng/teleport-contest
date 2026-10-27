@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T08:56:48Z",
+  "asOf": "2026-10-27T09:18:56Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21773,6 +21773,85 @@
         }
       ],
       "note": "C-source-grounded converted-alignment target with initialized quest-state setup and unchanged-alignment control. No fresh C recording or hidden-score claim."
+    },
+    {
+      "id": "startup-floor-object-pickup",
+      "kind": "parity-repair",
+      "title": "Allow initial pickup when an object starts under the hero",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c:moveloop_preamble",
+          "nethack-c/upstream/src/pickup.c:pickup",
+          "js/moveloop_preamble.js:moveloop_preamble",
+          "js/pickup.js:preflight_initial_pickup"
+        ],
+        "witness": [
+          "recipes/allmain.c/startup-floor-object.session.json",
+          "recordings/allmain.c/startup-floor-object.session.json"
+        ],
+        "test": [
+          "scripts/startup-floor-object.test.mjs",
+          "scripts/moveloop-preamble.test.mjs",
+          "scripts/pickup.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "69191f258f678e934f44923121d36f493cc34b7d",
+          "committedAt": "2026-10-27T09:04:11Z",
+          "sourceCommit": "69191f258f678e934f44923121d36f493cc34b7d",
+          "sourceCommittedAt": "2026-10-27T09:04:11Z",
+          "runs": [
+            {
+              "id": 40478032966,
+              "name": "Checkpoint",
+              "sha": "69191f258f678e934f44923121d36f493cc34b7d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/startup-floor-pickup-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T09:04:28Z",
+              "completedAt": "2026-10-27T09:15:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40478032966"
+            },
+            {
+              "id": 40479579282,
+              "name": "Lint",
+              "sha": "69191f258f678e934f44923121d36f493cc34b7d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T09:16:52Z",
+              "completedAt": "2026-10-27T09:18:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40479579282"
+            },
+            {
+              "id": 40479579197,
+              "name": "Dashboard",
+              "sha": "69191f258f678e934f44923121d36f493cc34b7d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T09:16:52Z",
+              "completedAt": "2026-10-27T09:18:56Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40479579197"
+            }
+          ]
+        }
+      ],
+      "note": "Fresh C recording and byte-identical rerecord for generated wand on starting staircase. Removing the broad startup refusal produced strict C/JS RNG, screen, cursor, and animation parity; no-object engraved-start control passed. No hidden-score claim."
     }
   ]
 }

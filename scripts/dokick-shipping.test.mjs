@@ -374,6 +374,8 @@ test('impact_drop snapshots shop debit and bills silent lost goods before migrat
         random: { rn2: () => 0 }, message: text => messages.push(text) });
     assert.equal(keeper.mextra.eshk.debit, 14);
     assert.equal(keeper.mextra.eshk.robbed, 0);
+    assert.equal(keeper.mpeaceful, true);
+    assert.equal(Boolean(keeper.mextra.eshk.following), false);
     assert.equal(state.gm.migrating_objs, coins);
     assert.equal(coins.where, OBJ_MIGRATING);
     assert.equal(messages.length, 1); // No impact text for the invisible gate.
@@ -419,7 +421,12 @@ test('impact_drop reports theft after silent billing with prior anger and visibi
             'You removed 9 zorkmids worth of goods!', report,
         ]);
         if (visible) assert.equal(keeper.mextra.eshk.customer, 'Shipping');
-        assert.ok(state.unported.has('shk.c hot_pursuit'));
+        // C dokick.c:1622 invokes shk.c:hot_pursuit after theft. The
+        // existing JS helper must set pursuit state before angry_guards.
+        assert.equal(keeper.mpeaceful, false);
+        assert.equal(keeper.mextra.eshk.following, true);
+        assert.equal(keeper.mextra.eshk.customer, 'Shipping');
+        assert.equal(state.unported.has('shk.c hot_pursuit'), false);
     }
 });
 
