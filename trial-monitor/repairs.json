@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T02:47:07Z",
+  "asOf": "2026-10-27T03:06:10Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21233,6 +21233,83 @@
         }
       ],
       "note": "C-source-derived monster-held cockatrice egg hit/miss target and cream-pie control; no new C recording or hidden-score claim."
+    },
+    {
+      "id": "blessed-monster-detection-map-wait",
+      "kind": "parity-repair",
+      "title": "Wait for blessed monster detection map presentation",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/detect.c:monster_detect",
+          "nethack-c/upstream/win/tty/wintty.c:tty_display_nhwindow",
+          "js/detect.js:monster_detect",
+          "js/tty_message.js:displayPendingTtyMessageWindow"
+        ],
+        "witness": [
+          "scripts/detect.test.mjs"
+        ],
+        "test": [
+          "scripts/detect.test.mjs",
+          "scripts/tty-message.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "707255022097adb75759ec0e9d302e64cc8d6713",
+          "committedAt": "2026-10-27T02:51:47Z",
+          "sourceCommit": "707255022097adb75759ec0e9d302e64cc8d6713",
+          "sourceCommittedAt": "2026-10-27T02:51:47Z",
+          "runs": [
+            {
+              "id": 40440914951,
+              "name": "Checkpoint",
+              "sha": "707255022097adb75759ec0e9d302e64cc8d6713",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/blessed-monster-detect-map-wait-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T02:52:08Z",
+              "completedAt": "2026-10-27T03:03:13Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40440914951"
+            },
+            {
+              "id": 40442082982,
+              "name": "Lint",
+              "sha": "707255022097adb75759ec0e9d302e64cc8d6713",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T03:04:16Z",
+              "completedAt": "2026-10-27T03:05:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40442082982"
+            },
+            {
+              "id": 40442083021,
+              "name": "Dashboard",
+              "sha": "707255022097adb75759ec0e9d302e64cc8d6713",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T03:04:16Z",
+              "completedAt": "2026-10-27T03:06:10Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40442083021"
+            }
+          ]
+        }
+      ],
+      "note": "C-source-derived blessed WIN_MAP wait with initialized-game input-consumption target and unconstrained-map browse control; no new C recording or hidden-score claim."
     }
   ]
 }

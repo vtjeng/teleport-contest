@@ -1428,7 +1428,12 @@ function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
     if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
     if (typ === SDOOR || IS_DOOR(typ)) {
-        if (typ === SDOOR) location.doormask = D_CLOSED;
+        if (typ === SDOOR) {
+            // C's doormask aliases rm.flags. A terrain() paint can overwrite
+            // a locked coordinate door before stock_room() reads its mask.
+            location.flags = D_CLOSED;
+            location.doormask = D_CLOSED;
+        }
         const left = x > 0 ? state.level.at(x - 1, y) : null;
         if (left && (IS_WALL(left.typ) || left.horizontal))
             location.horizontal = true;
