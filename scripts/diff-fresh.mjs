@@ -7,6 +7,8 @@ import { spawnSync } from 'node:child_process';
 import {
     cpSync,
     mkdtempSync,
+    mkdirSync,
+    existsSync,
     readFileSync,
     realpathSync,
     rmSync,
@@ -773,7 +775,7 @@ function stageRecorderEnvironment(workRoot, recorderEnv) {
     };
 }
 
-function runJsDifferentialWorker(recordingPath, scoringRoot, workerEnv) {
+function runJsDifferentialWorker(recordingPath, scoringRoot, workerEnv, evidenceDir = null) {
     const configuredTimeout = Number(
         workerEnv.SESSION_REPLAY_TIMEOUT_MS || 45000,
     );
@@ -782,7 +784,7 @@ function runJsDifferentialWorker(recordingPath, scoringRoot, workerEnv) {
     }
     const worker = spawnSync(
         process.execPath,
-        [JS_WORKER_SCRIPT, recordingPath, scoringRoot],
+        [JS_WORKER_SCRIPT, recordingPath, scoringRoot, '', evidenceDir || ''],
         {
             cwd: PROJECT_ROOT,
             encoding: 'utf8',
@@ -791,6 +793,10 @@ function runJsDifferentialWorker(recordingPath, scoringRoot, workerEnv) {
             maxBuffer: 64 * 1024 * 1024,
         },
     );
+    if (evidenceDir) writeFileSync(join(evidenceDir, 'worker.json'), JSON.stringify({
+        status: worker.status, signal: worker.signal, stdout: worker.stdout, stderr: worker.stderr,
+        error: worker.error?.message,
+    }));
     if (worker.error || worker.status !== 0) {
         const detail = (worker.stderr || '').trim();
         throw new Error(worker.error?.message
@@ -942,9 +948,14 @@ function loadRecipe(config) {
 export async function runDifferential(
     recipe,
     recorderEnv = process.env,
-    { transformRecording = null } = {},
+    { transformRecording = null, evidenceDir = null } = {},
 ) {
     validateCleanRecipe(recipe, 'fresh recipe');
+    if (evidenceDir) {
+        evidenceDir = resolve(evidenceDir);
+        mkdirSync(evidenceDir); // Exclusive: never overwrite an earlier experiment.
+        writeFileSync(join(evidenceDir, 'recipe.session.json'), JSON.stringify(recipe));
+    }
     const workRoot = mkdtempSync(join(tmpdir(), 'teleport-fresh-diff-'));
     let scoringRoot = null;
     try {
@@ -967,6 +978,10 @@ export async function runDifferential(
                 maxBuffer: 64 * 1024 * 1024,
             },
         );
+        if (evidenceDir) writeFileSync(join(evidenceDir, 'recorder.json'), JSON.stringify({
+            status: recorder.status, signal: recorder.signal, stdout: recorder.stdout,
+            stderr: recorder.stderr, error: recorder.error?.message,
+        }));
         if (recorder.error || recorder.status !== 0) {
             const detail = (recorder.stderr || '').trim();
             throw new Error(recorder.error?.message
@@ -977,6 +992,7 @@ export async function runDifferential(
         validateCleanRecipe(recording, 'C recording', { steps: 'require' });
         assertRecordingMatchesRecipe(recording, recipe);
         if (transformRecording) {
+            if (evidenceDir) cpSync(recordingPath, join(evidenceDir, 'original.session.json'));
             // The worker reads the recording from this path.
             writeFileSync(recordingPath,
                 JSON.stringify(transformRecording(recording)));
@@ -989,8 +1005,13 @@ export async function runDifferential(
             recordingPath,
             scoringRoot,
             isolatedRecorderEnv,
+            evidenceDir,
         );
     } finally {
+        const recorded = join(workRoot, 'recorded.session.json');
+        if (evidenceDir && existsSync(recorded)) {
+            cpSync(recorded, join(evidenceDir, 'recorded.session.json'));
+        }
         if (scoringRoot) removeScoringWorkspace(scoringRoot);
         rmSync(workRoot, { recursive: true, force: true });
     }
