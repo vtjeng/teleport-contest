@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T21:28:15Z",
+  "asOf": "2026-10-27T21:45:45Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22372,6 +22372,80 @@
         }
       ],
       "note": "Pinned C pri_move moves a nonadjacent hostile priest toward a visible hero inside its temple; JavaScript previously threw after the two altar draws. An initialized-game temple target fails before the repair and passes after it. Peaceful and blinded-hostile controls mill toward the altar. Full hosted fixed and synthetic comparisons show zero regressions."
+    },
+    {
+      "id": "angry-shopkeeper-invisible-hero-target",
+      "kind": "parity-repair",
+      "title": "Aim angry shopkeepers by actual hero visibility",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c:shk_move",
+          "js/shk.js:shk_move",
+          "js/vision.js:m_canseeu"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/shk-invisible-pursuit.test.mjs",
+          "scripts/shk-move.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "a8a6c03dff391bd51e6d659aa1549fa693ecaef3",
+          "committedAt": "2026-10-27T21:32:29Z",
+          "sourceCommit": "a8a6c03dff391bd51e6d659aa1549fa693ecaef3",
+          "sourceCommittedAt": "2026-10-27T21:32:29Z",
+          "runs": [
+            {
+              "id": 40587675924,
+              "name": "Checkpoint",
+              "sha": "a8a6c03dff391bd51e6d659aa1549fa693ecaef3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/shk-invisible-pursuit-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:32:42Z",
+              "completedAt": "2026-10-27T21:43:01Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40587675924"
+            },
+            {
+              "id": 40589199807,
+              "name": "Lint",
+              "sha": "a8a6c03dff391bd51e6d659aa1549fa693ecaef3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:43:52Z",
+              "completedAt": "2026-10-27T21:45:03Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40589199807"
+            },
+            {
+              "id": 40589199954,
+              "name": "Dashboard",
+              "sha": "a8a6c03dff391bd51e6d659aa1549fa693ecaef3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:43:52Z",
+              "completedAt": "2026-10-27T21:45:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40589199954"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C shk_move pursues an angry keeper's visible hero but uses its guard target when the hero is invisible and cannot be seen. An initialized-game target failed before the repair while the visible control passed. The narrowed m_canseeu fallback passes both and 147 affected shop tests. Full hosted fixed and synthetic comparison shows zero regressions."
     }
   ]
 }
