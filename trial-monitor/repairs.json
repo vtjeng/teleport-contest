@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T01:06:44Z",
+  "asOf": "2026-10-27T01:36:07Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -20946,8 +20946,87 @@
           "scripts/wizard-migration.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "4256900f8cd74636b40a8b6773ae7e48d5590e05",
+          "committedAt": "2026-10-27T01:22:51Z",
+          "sourceCommit": "4256900f8cd74636b40a8b6773ae7e48d5590e05",
+          "sourceCommittedAt": "2026-10-27T01:22:51Z",
+          "runs": [
+            {
+              "id": 40432245548,
+              "name": "Checkpoint",
+              "sha": "4256900f8cd74636b40a8b6773ae7e48d5590e05",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/migrating-species-delivery-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T01:23:07Z",
+              "completedAt": "2026-10-27T01:33:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40432245548"
+            },
+            {
+              "id": 40433368896,
+              "name": "Lint",
+              "sha": "4256900f8cd74636b40a8b6773ae7e48d5590e05",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T01:34:27Z",
+              "completedAt": "2026-10-27T01:35:31Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40433368896"
+            },
+            {
+              "id": 40433368972,
+              "name": "Dashboard",
+              "sha": "4256900f8cd74636b40a8b6773ae7e48d5590e05",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T01:34:27Z",
+              "completedAt": "2026-10-27T01:36:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40433368972"
+            }
+          ]
+        }
+      ],
+      "note": "C-source-derived species match and delivery limit with initialized-game arrival and runtime-creation target/control tests. No new C recording or hidden-score claim. Complete receipt recorded."
+    },
+    {
+      "id": "hallucinated-restore-welcome",
+      "kind": "parity-repair",
+      "title": "Show hallucination prelude before restored welcome",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c:welcome",
+          "js/role_init.js:welcomeHallucinationMessage",
+          "js/jsmain.js:dorestore",
+          "js/allmain.js:newgame"
+        ],
+        "witness": [
+          "scripts/welcome-hallucination.test.mjs"
+        ],
+        "test": [
+          "scripts/welcome-hallucination.test.mjs",
+          "scripts/restore-command.test.mjs",
+          "scripts/save-command.test.mjs",
+          "scripts/role-init.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "C-source-derived species match and delivery limit with initialized-game arrival and runtime-creation target/control tests. No new C recording or hidden-score claim. Publication pending."
+      "note": "C-source-derived Hallucination prelude; initialized effect, production save and restore target/control plus resistance check. No new C recording or hidden-score claim. Publication pending."
     }
   ]
 }
