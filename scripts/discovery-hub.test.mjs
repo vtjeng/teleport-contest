@@ -77,11 +77,11 @@ test('source and constant leads have stable source identities and provenance', (
 });
 
 test('Lua ledger preserves repeat outcome without promoting stream parity to a verdict', () => {
-    const item = { id: 'adapter-id', program: 'bigrm-12.lua',
+    const item = { id: 'adapter-id',
         source_locations: ['nethack-c/upstream/dat/bigrm-12.lua'],
         evidence_summary: '2 attempts; matching=2',
         details_path: '/saved/run/summary.json' };
-    const sourceCase = { id: item.id, program: item.program,
+    const sourceCase = { id: item.id, program: 'bigrm-12.lua',
         recipeSha256: 'recipe-hash', outcome: {
             status: 'matching', counts: { matching: 2 } } };
     const raw = normalizeLua(item, sourceCase);

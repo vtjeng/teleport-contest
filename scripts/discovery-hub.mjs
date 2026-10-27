@@ -149,22 +149,23 @@ export function normalizeMismatch(item) {
 
 export function normalizeLua(item, sourceCase) {
     if (!item?.id || !sourceCase?.recipeSha256
-        || sourceCase.id !== item.id || sourceCase.program !== item.program)
+        || sourceCase.id !== item.id)
         throw new Error('Lua ledger and summary case identity disagree');
+    const program = sourceCase.program;
     const outcome = sourceCase.outcome?.status;
     if (!['matching', 'mismatch', 'unresolved', 'unreachable',
         'infrastructure-failed', 'uncovered'].includes(outcome))
         throw new Error('Lua case has no recognized aggregate outcome');
-    const source = `nethack-c/upstream/dat/${item.program}`;
-    if (!/^[-\w]+\.lua$/u.test(item.program)
+    const source = `nethack-c/upstream/dat/${program}`;
+    if (!/^[-\w]+\.lua$/u.test(program)
         || item.source_locations?.length !== 1
         || item.source_locations[0] !== source)
         throw new Error('Lua ledger has invalid source attribution');
-    return { key: `lua:${item.program}:${sourceCase.recipeSha256}`,
-        sourceKey: `${item.program}:${sourceCase.recipeSha256}`,
+    return { key: `lua:${program}:${sourceCase.recipeSha256}`,
+        sourceKey: `${program}:${sourceCase.recipeSha256}`,
         evidenceKey: sha(JSON.stringify({ item, sourceCase })),
         kind: 'lua-level-generation', sourceRefs: [source],
-        summary: `${item.program}: ${outcome}; ${item.evidence_summary}`,
+        summary: `${program}: ${outcome}; ${item.evidence_summary}`,
         method: 'luaDiscovery', rawOutcome: outcome,
         rawOutcomeCounts: sourceCase.outcome.counts,
         rawDetails: item.details_path, rank: null };
