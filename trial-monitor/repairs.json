@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-26T23:40:10.273Z",
+  "asOf": "2026-10-26T23:54:10Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -20475,7 +20475,58 @@
           "scripts/shop-billing.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+          "committedAt": "2026-10-26T23:40:20Z",
+          "sourceCommit": "3108052babe42b5b7cbd3b8656f34766a74e9314",
+          "sourceCommittedAt": "2026-10-26T23:37:06Z",
+          "runs": [
+            {
+              "id": 40421448971,
+              "name": "Checkpoint",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/qualified-remaining-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:41:26Z",
+              "completedAt": "2026-10-26T23:50:50Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40421448971"
+            },
+            {
+              "id": 40422669257,
+              "name": "Lint",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:52:15Z",
+              "completedAt": "2026-10-26T23:53:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40422669257"
+            },
+            {
+              "id": 40422669285,
+              "name": "Dashboard",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:52:15Z",
+              "completedAt": "2026-10-26T23:54:10Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40422669285"
+            }
+          ]
+        }
+      ],
       "note": "Reviewed Q4 source-derived oracle with coherent shop state: debit17 reports zero credit then debt; debit0 control reports neither. No C execution or new gameplay recording."
     },
     {
@@ -20501,7 +20552,58 @@
           "scripts/artifacts.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+          "committedAt": "2026-10-26T23:40:20Z",
+          "sourceCommit": "e23c28201c58642fb5b13cd5638b5373c092cfef",
+          "sourceCommittedAt": "2026-10-26T23:38:03Z",
+          "runs": [
+            {
+              "id": 40421448971,
+              "name": "Checkpoint",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/qualified-remaining-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:41:26Z",
+              "completedAt": "2026-10-26T23:50:50Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40421448971"
+            },
+            {
+              "id": 40422669257,
+              "name": "Lint",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:52:15Z",
+              "completedAt": "2026-10-26T23:53:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40422669257"
+            },
+            {
+              "id": 40422669285,
+              "name": "Dashboard",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:52:15Z",
+              "completedAt": "2026-10-26T23:54:10Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40422669285"
+            }
+          ]
+        }
+      ],
       "note": "Reviewed Q5 source-derived Wizard-debug UI oracle: yes dumps one window with header and all artifacts; no answer control leaves no window. No ordinary-gameplay score claim or C execution."
     },
     {
@@ -20528,7 +20630,58 @@
           "scripts/aklys-return-throttle.test.mjs"
         ]
       },
-      "candidates": [],
+      "candidates": [
+        {
+          "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+          "committedAt": "2026-10-26T23:40:20Z",
+          "sourceCommit": "81a9a34b0fc1dd692a1c594debf7a7938e5e013c",
+          "sourceCommittedAt": "2026-10-26T23:40:10Z",
+          "runs": [
+            {
+              "id": 40421448971,
+              "name": "Checkpoint",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/qualified-remaining-20261026",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:41:26Z",
+              "completedAt": "2026-10-26T23:50:50Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40421448971"
+            },
+            {
+              "id": 40422669257,
+              "name": "Lint",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:52:15Z",
+              "completedAt": "2026-10-26T23:53:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40422669257"
+            },
+            {
+              "id": 40422669285,
+              "name": "Dashboard",
+              "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-26T23:52:15Z",
+              "completedAt": "2026-10-26T23:54:10Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40422669285"
+            }
+          ]
+        }
+      ],
       "note": "Reviewed Q3 source-derived lethal returning-weapon oracle enters through actual m_throw: HP2 death detaches monster and preserves floor weapon; HP3 control remains alive. No C execution or new gameplay recording."
     }
   ]

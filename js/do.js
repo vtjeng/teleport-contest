@@ -260,7 +260,7 @@ import {
 } from './invent.js';
 import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
-import { makemon } from './makemon_create.js';
+import { makemon_runtime } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
     healmon, kill_genocided_monsters, m_in_air, m_into_limbo, mnexto, mondied, newcham, pm_to_cham, set_ustuck,
@@ -3220,7 +3220,7 @@ export async function goto_level(
             // C resurrect() returns no value and is already the canonical
             // caller for this arm.
             await resurrect(state, {
-                makemon,
+                makemon: makemon_runtime,
                 redraw: newsym,
                 monArrive: (monster) => mon_arrive(monster, 'Wiz_arrive', {
                     state,

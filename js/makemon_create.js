@@ -1339,6 +1339,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOWAIT;
+    // wizard.c:resurrect() makes the first returning Wizard through this
+    // same explicit runtime shape. Keep its caller identity separate from
+    // clonewiz() so neither marker admits unrelated Wizard creation.
+    const resurrectWizardCall = !state.in_mklev
+        && normalized._resurrectWizard === true
+        && ptr?.pmidx === PM_WIZARD_OF_YENDOR
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === MM_NOWAIT;
     // mkroom.c mkundead() uses explicit-coordinate placement with
     // NO_MINVENT. pickup.c observe_quantum_cat() adds MM_ADJACENTOK and
     // MM_NOMSG for its housecat. Both C call shapes suppress inventory;
@@ -1543,7 +1552,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || explicitInventorylessHeroCall
         || hatchEggCall || explicitCoordinateRuntimeCall
-        || cloneWizardCall || furiesCall || cloneuCall || minionSummonCall
+        || cloneWizardCall || resurrectWizardCall || furiesCall || cloneuCall || minionSummonCall
         || familiarCall || wereSummonCall || roamerCall
         // sp_lev.c finalizes topology before filling special rooms.  Those
         // explicit-coordinate calls still belong to level generation and
@@ -1670,7 +1679,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
-            && !cloneWizardCall && !furiesCall
+            && !cloneWizardCall && !resurrectWizardCall && !furiesCall
             // C msummon() and summon_minion() both use this complete
             // lifecycle without an initial-level species reservoir gate.
             && !minionSummonCall

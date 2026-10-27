@@ -8,8 +8,6 @@ import {
     DEAF,
     EMIN,
     G_GENOD,
-    GP_AVOID_MONPOS,
-    GP_CHECKSCARY,
     M_AP_MONSTER,
     Is_rogue_level,
     NO_MM_FLAGS,
@@ -33,7 +31,7 @@ import {
     helpless,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { Amonnam, Monnam } from './do_name.js';
+import { Monnam } from './do_name.js';
 import { In_W_tower, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign, unmakemon } from './makemon.js';
@@ -75,19 +73,17 @@ import {
 import { com_pager, is_quest_artifact } from './questpgr.js';
 import { mon_aligntyp } from './priest.js';
 import { stairway_find_type_dir } from './stairs.js';
-import { enexto, enexto_core } from './teleport.js';
+import { enexto } from './teleport.js';
 import { monster_census, msummon } from './minion.js';
 import { makemon_runtime } from './makemon_create.js';
 import { cansee } from './vision.js';
 import { distant_name, donameFresh, Tobjnam } from './objnam.js';
 import { add_to_minv } from './invent.js';
 import { mksobj } from './obj.js';
-import { messageAt } from './startup_a11y.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
-import { vtense } from './objnam.js';
+import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { canspotmon, newsym } from './display.js';
+import { newsym } from './display.js';
 import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
 import { dist2 } from './hacklib.js';
 import { m_next2u } from './mhitu.js';
@@ -222,21 +218,6 @@ function creationEnv(state, rawEnv) {
     return env;
 }
 
-function wizardAppearanceMessage(monster, state, displayRandom) {
-    if (!canspotmon(monster, state)) return null;
-    const name = Amonnam(monster, { state, displayRandom });
-    const distance = (monster.mx - state.u.ux) ** 2
-        + (monster.my - state.u.uy) ** 2;
-    const suffix = distance <= 2 ? ' next to you'
-        : distance <= BOLT_LIM * BOLT_LIM ? ' close by' : '';
-    return messageAt(
-        `${name} suddenly ${vtense(name, 'appear')}${suffix}!`,
-        monster.mx,
-        monster.my,
-        state,
-    );
-}
-
 // C ref: wizard.c clonewiz() (517-533), called by mcastu.c's
 // mcast_clone_wiz(). The Wizard is created through makemon() at the hero's
 // square; its source-owned placement branch relocates it before construction.
@@ -285,16 +266,11 @@ export async function clonewiz(state = game, rawEnv = {}) {
     return monster;
 }
 
-// C ref: wizard.c resurrect() (715-780), new-Wizard arm. The generic
-// runtime constructor currently admits only its verified call shapes and does
-// not admit MM_NOWAIT or the Wizard species. Reuse its complete constructor by
-// selecting the source coordinate first, then temporarily using its mklev
-// lifecycle so the constructor can finish synchronously. No mklev-only Wizard
-// branch is live; the flag only bypasses that constructor's runtime admission.
+// C ref: wizard.c resurrect() (715-780), new-Wizard arm. The complete runtime
+// constructor owns adjacent placement, birth count, inventory, and the first
+// appearance line before resurrect() clears the waiting strategy and speaks.
 export async function resurrect(state = game, rawEnv = {}) {
-    const createMonster = rawEnv.makemon;
-    if (typeof createMonster !== 'function')
-        throw new TypeError('resurrect requires a makemon operation');
+    const createMonster = rawEnv.makemon ?? makemon_runtime;
 
     state.context ??= {};
     const wizardCount = state.context.no_of_wizards ?? 0;
@@ -305,49 +281,13 @@ export async function resurrect(state = game, rawEnv = {}) {
     if (!species)
         throw new Error('resurrect requires the Wizard monster record');
 
-    const env = creationEnv(state, rawEnv);
-    let coordinate = enexto_core(
-        state.u.ux,
-        state.u.uy,
-        species,
-        GP_CHECKSCARY | GP_AVOID_MONPOS,
-        env,
+    const monster = await createMonster(
+        species, state.u.ux, state.u.uy, MM_NOWAIT,
+        { ...rawEnv, state, _resurrectWizard: true },
     );
-    if (!coordinate) {
-        coordinate = enexto_core(
-            state.u.ux,
-            state.u.uy,
-            species,
-            GP_AVOID_MONPOS,
-            env,
-        );
-    }
-    if (!coordinate) return null;
-
-    const wasInMklev = Boolean(state.in_mklev);
-    let monster;
-    try {
-        state.in_mklev = true;
-        // MM_NOWAIT's only makemon() effect here is suppressing the species'
-        // WAITMASK strategy. The constructor's ordinary flags otherwise make
-        // the same inventory and hit-point calls in the same order.
-        monster = createMonster(
-            species,
-            coordinate.x,
-            coordinate.y,
-            NO_MM_FLAGS,
-            env,
-        );
-    } finally {
-        state.in_mklev = wasInMklev;
-    }
     if (!monster) return null;
 
-    // wizard.c:724-728 and makemon.c:1369-1373. These assignments are after
-    // construction only because the shared constructor's admitted lifecycle
-    // has no Wizard branch; none is read between the corresponding C points.
-    state.context.no_of_wizards = wizardCount + 1;
-    monster.iswiz = true;
+    // makemon.c has already marked and counted the new Wizard.
     monster.mrevived = true;
     monster.mtame = 0;
     monster.mpeaceful = false;
@@ -356,20 +296,6 @@ export async function resurrect(state = game, rawEnv = {}) {
     monster.mux = state.u.ux;
     monster.muy = state.u.uy;
     set_malign(monster, state);
-
-    const redraw = rawEnv.redraw;
-    if (typeof redraw === 'function')
-        redraw(monster.mx, monster.my, state);
-
-    const appearance = wizardAppearanceMessage(
-        monster,
-        state,
-        rawEnv.displayRandom,
-    );
-    if (appearance) {
-        const norepMessage = rawEnv.norepMessage ?? ttyNorep;
-        await norepMessage(appearance, state, rawEnv);
-    }
 
     // wizard.c:774-778. SetVoice() has no screen/state consumer in the port;
     // verbalize() is the ordinary quoted pline immediately after the voice.
