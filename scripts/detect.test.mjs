@@ -462,15 +462,37 @@ test('monster_detect consumes unconstrain_map result for blessed persistence',
             env.displaySelf = () => events.push('self');
             env.message = async () => events.push('message');
             env.browseMap = async () => events.push('browse');
+            env.waitMap = async () => events.push('wait');
             env.mapRedisplay = async () => events.push('redisplay');
             assert.equal(await monster_detect(
                 { cursed: false, blessed: true }, 0, state, env,
             ), 0);
             assert.deepEqual(events, unconstrained
                 ? ['self', 'message', 'browse', 'redisplay']
-                : ['self', 'message', 'redisplay']);
+                : ['self', 'message', 'wait', 'redisplay']);
         }
     });
+
+test('blessed monster detection waits at the live map-message boundary', async () => {
+    await runSegment({ seed: 912734, datetime: '20320405060710',
+        nethackrc: 'OPTIONS=name:Detector,role:Wizard,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen\n',
+        moves: '' });
+    assert.ok(game.level.monlist);
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    game.nhDisplay.pushKey(32);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(await monster_detect({ blessed: true, cursed: false }, 0, game, {
+        cls: async () => {},
+        unconstrainMap: () => false,
+        mapMonster: () => {},
+        displaySelf: () => {},
+        mapRedisplay: async () => {},
+    }), 0);
+    // C detect.c:850 displays WIN_MAP with blocking=TRUE. The TTY owner
+    // promotes the preceding message to --More-- and consumes its key.
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+});
 
 test('monster_detect clears only I_SPECIAL, including when browsing suspends', async () => {
     for (const suspended of [false, true]) {

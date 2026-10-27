@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T02:29:18Z",
+  "asOf": "2026-10-27T02:47:07Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21153,7 +21153,86 @@
           ]
         }
       ],
-      "note": "C-source-derived visible life-saving retry feedback with initialized-game target and no-amulet control; no new C recording or hidden-score claim."
+      "note": "C-source-derived visible life-saving retry feedback with initialized-game target and no-amulet control; no new C recording or hidden-score claim. Complete receipt recorded."
+    },
+    {
+      "id": "monster-thrown-egg-stoning",
+      "kind": "parity-repair",
+      "title": "Apply petrification from a monster-thrown cockatrice egg",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mthrowu.c:m_throw",
+          "nethack-c/upstream/src/weapon.c:select_rwep",
+          "js/mthrowu.js:m_throw",
+          "js/potion.js:make_stoned"
+        ],
+        "witness": [
+          "scripts/mthrowu-egg-stoning.test.mjs"
+        ],
+        "test": [
+          "scripts/mthrowu-egg-stoning.test.mjs",
+          "scripts/mthrowu.test.mjs",
+          "scripts/weapon.test.mjs",
+          "scripts/potion.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "513507b6cb96460df2d20d5e42daff581265fd44",
+          "committedAt": "2026-10-27T02:34:09Z",
+          "sourceCommit": "513507b6cb96460df2d20d5e42daff581265fd44",
+          "sourceCommittedAt": "2026-10-27T02:34:09Z",
+          "runs": [
+            {
+              "id": 40439207086,
+              "name": "Checkpoint",
+              "sha": "513507b6cb96460df2d20d5e42daff581265fd44",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-egg-stoning-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T02:34:23Z",
+              "completedAt": "2026-10-27T02:43:50Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40439207086"
+            },
+            {
+              "id": 40440280224,
+              "name": "Lint",
+              "sha": "513507b6cb96460df2d20d5e42daff581265fd44",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T02:45:27Z",
+              "completedAt": "2026-10-27T02:46:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40440280224"
+            },
+            {
+              "id": 40440280265,
+              "name": "Dashboard",
+              "sha": "513507b6cb96460df2d20d5e42daff581265fd44",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T02:45:27Z",
+              "completedAt": "2026-10-27T02:47:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40440280265"
+            }
+          ]
+        }
+      ],
+      "note": "C-source-derived monster-held cockatrice egg hit/miss target and cream-pie control; no new C recording or hidden-score claim."
     }
   ]
 }
