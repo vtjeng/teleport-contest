@@ -21,6 +21,7 @@ import {
     CROSSWALL,
     DELPHI,
     DOOR,
+    DF_NONE,
     FODDERSHOP,
     G_GENOD,
     GP_AVOID_MONPOS,
@@ -129,7 +130,7 @@ import {
     on_level,
 } from './dungeon.js';
 import { game } from './gstate.js';
-import { note_unported } from './unported.js';
+import { deliver_obj_to_mon } from './dokick.js';
 import { upstart } from './hacklib.js';
 import {
     add_to_container,
@@ -3007,12 +3008,8 @@ function finishMonsterInventoryAndStrategy(
         if (ptr.mflags3 & (M3_WAITFORU | M3_CLOSE | M3_COVETOUS))
             monster.mstrategy |= STRAT_APPEARMSG;
     }
-    // C makemon.c calls dokick.c deliver_obj_to_mon() here when inventory is
-    // allowed. Its result is discarded; keep that separate source gap visible
-    // while allowing supported level generation to continue.
-    if (allowMinvent && state.gm?.migrating_objs) {
-        note_unported('dokick.c deliver_obj_to_mon');
-    }
+    if (allowMinvent && state.gm?.migrating_objs)
+        deliver_obj_to_mon(monster, 1, DF_NONE, normalized);
 }
 
 async function finishRuntimeCreationTail(monster, mmflags, normalized) {

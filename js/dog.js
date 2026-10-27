@@ -13,6 +13,7 @@ import {
     AGGRAVATE_MONSTER,
     BLINDED,
     CONFLICT,
+    DF_ALL,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
@@ -170,6 +171,7 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
+import { deliver_obj_to_mon } from './dokick.js';
 import { del_light_source } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { finish_meating } from './dogmove.js';
@@ -1286,7 +1288,7 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
     }
 
     if ((monster.migflags & MIGR_LEFTOVERS) && state.gm.migrating_objs)
-        note_unported('dokick.c deliver_obj_to_mon');
+        deliver_obj_to_mon(monster, 0, DF_ALL, env);
 
     if (xlocale && wander) {
         const roomNumbers = in_rooms(xlocale, ylocale, 0, state);
