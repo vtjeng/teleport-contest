@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T01:55:09Z",
+  "asOf": "2026-10-27T02:29:18Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21077,7 +21077,83 @@
           ]
         }
       ],
-      "note": "C-source-derived Hallucination prelude; initialized effect, production save and restore target/control plus resistance check. No new C recording or hidden-score claim. Publication pending."
+      "note": "C-source-derived Hallucination prelude; initialized effect, production save and restore target/control plus resistance check. No new C recording or hidden-score claim. Complete receipt recorded."
+    },
+    {
+      "id": "dbridge-lifesaved-crush-feedback",
+      "kind": "parity-repair",
+      "title": "Report a life-saved drawbridge victim crushed on retry",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dbridge.c:e_died",
+          "js/dbridge.js:e_died"
+        ],
+        "witness": [
+          "scripts/dbridge-lifesaved-crush.test.mjs"
+        ],
+        "test": [
+          "scripts/dbridge-lifesaved-crush.test.mjs",
+          "scripts/dbridge.test.mjs",
+          "scripts/dbridge-hallu-fall.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+          "committedAt": "2026-10-27T02:15:55Z",
+          "sourceCommit": "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+          "sourceCommittedAt": "2026-10-27T02:15:55Z",
+          "runs": [
+            {
+              "id": 40437449015,
+              "name": "Checkpoint",
+              "sha": "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/dbridge-lifesave-feedback-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T02:16:11Z",
+              "completedAt": "2026-10-27T02:26:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40437449015"
+            },
+            {
+              "id": 40438525500,
+              "name": "Lint",
+              "sha": "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T02:27:28Z",
+              "completedAt": "2026-10-27T02:28:34Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40438525500"
+            },
+            {
+              "id": 40438524433,
+              "name": "Dashboard",
+              "sha": "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T02:27:27Z",
+              "completedAt": "2026-10-27T02:29:18Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40438524433"
+            }
+          ]
+        }
+      ],
+      "note": "C-source-derived visible life-saving retry feedback with initialized-game target and no-amulet control; no new C recording or hidden-score claim."
     }
   ]
 }

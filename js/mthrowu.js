@@ -256,7 +256,7 @@ import { mwelded } from './wield.js';
 import { dobuzz, exclam, hit, miss } from './zap.js';
 import { harmless_missile } from './dothrow.js';
 import { observe_object, discover_object } from './o_init.js';
-import { make_blinded, potionhit } from './potion.js';
+import { make_blinded, make_stoned, potionhit } from './potion.js';
 import { munstone } from './muse.js';
 import { dropy, flooreffects } from './do.js';
 import { makeplural } from './fruit.js';
@@ -1041,7 +1041,8 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 note_unported('mthrowu.c impossible');
                 hitv = 0;
                 damage = 0;
-            } else if (singleobj.otyp === CREAM_PIE
+            } else if (singleobj.otyp === EGG
+                       || singleobj.otyp === CREAM_PIE
                        || singleobj.otyp === BLINDING_VENOM) {
                 // C ref: mthrowu.c:701-702. Spit venom uses thitu(8, 0)
                 // and cream pies use the same special hit path, skipping
@@ -1150,9 +1151,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     && !Stone_resistance(state)
                     && !(poly_when_stoned(state.youmonst.data, state)
                          && await polymon(PM_STONE_GOLEM, state))) {
-                    // make_stoned() has no owner in the current port. Keep the
-                    // source branch explicit while preserving its no-RNG path.
-                    note_unported('trap.c make_stoned');
+                    await make_stoned(5, null, KILLED_BY, '', state);
                 }
             }
             await stopOccupation(state, env);
