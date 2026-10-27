@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T22:17:27Z",
+  "asOf": "2026-10-27T22:35:43Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22595,6 +22595,78 @@
         }
       ],
       "note": "Pinned C holetime returns a remaining-turn estimate only for active digging in a shop; shk_move uses it to redirect a shopkeeper toward the hero. JavaScript defaulted to -1 and omitted the branch. An initialized-game active-dig target failed before the repair and a no-dig control passed. Both pass after the correction, along with 213 affected tests. Hosted fixed and synthetic comparisons show zero regressions."
+    },
+    {
+      "id": "shopkeeper-pickaxe-away-from-door",
+      "kind": "parity-repair",
+      "title": "Ignore carried pickaxe away from shop entrance",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c:shk_move",
+          "js/shk.js:shk_move"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/shk-away-door-pick.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "73993230c21b739b6aa4a70f944672faaf40628c",
+          "committedAt": "2026-10-27T22:21:15Z",
+          "sourceCommit": "73993230c21b739b6aa4a70f944672faaf40628c",
+          "sourceCommittedAt": "2026-10-27T22:21:15Z",
+          "runs": [
+            {
+              "id": 40594184704,
+              "name": "Checkpoint",
+              "sha": "73993230c21b739b6aa4a70f944672faaf40628c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/shk-away-door-pick-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T22:21:28Z",
+              "completedAt": "2026-10-27T22:31:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40594184704"
+            },
+            {
+              "id": 40595582572,
+              "name": "Lint",
+              "sha": "73993230c21b739b6aa4a70f944672faaf40628c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T22:32:22Z",
+              "completedAt": "2026-10-27T22:34:55Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40595582572"
+            },
+            {
+              "id": 40595582641,
+              "name": "Dashboard",
+              "sha": "73993230c21b739b6aa4a70f944672faaf40628c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T22:32:22Z",
+              "completedAt": "2026-10-27T22:35:43Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40595582641"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C computes badinv from a carried pickaxe only when the hero is on the shop doorway, then sets badinv to false away from the door. JavaScript checked the pickaxe everywhere, moving a peaceful guard when C would hold position. The initialized-game target failed before the narrow correction, while no-pick and on-door controls passed; 154 affected shop tests and full hosted fixed/synthetic comparisons pass."
     }
   ]
 }
