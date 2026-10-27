@@ -308,6 +308,7 @@ import {
     dohistory,
     doidtrap,
     dowhatdoes,
+    dowhatdoes_core,
     doquickwhatis,
     do_screen_description,
     dowhatis,
@@ -1469,9 +1470,6 @@ export async function doextlist(state = game) {
 // getdir() at cmd.c:4101.
 //
 // The #if 0 block (lines 4195-4227) is dead code in the C source; skipped.
-// The dowhatdoes_core() ctrl-key suggestion branch (lines 4243-4261) is
-// unreachable when sym == '\0' because letter('\0') is false; left as a
-// deferred stub.
 // The help_requested retry path (goto retry at cmd.c:4106) is not exercised
 // by any witness session; deferred.
 async function help_dir(sym, spkey, msg, state = game) {
@@ -1488,15 +1486,24 @@ async function help_dir(sym, spkey, msg, state = game) {
         lines.push({ text: '' });
     }
 
-    // The dowhatdoes_core() ctrl-key suggestion is unreachable when sym is
-    // '\0' (null byte) because C's letter() returns false for it. Both witness
-    // sessions pass sym='\0'. Stub the branch.
     if (!prefixhandling && sym !== 0
         && ((sym >= 0x41 && sym <= 0x5A)     // A-Z
             || (sym >= 0x61 && sym <= 0x7A)  // a-z
             || sym === 0x40                  // @
             || sym === 0x5B)) {              // [
-        // dowhatdoes_core() suggestion -- deferred.
+        const upper = sym >= 0x61 && sym <= 0x7A ? sym - 0x20 : sym;
+        const letter = String.fromCharCode(upper);
+        const explanation = dowhatdoes_core(upper - 0x40, state);
+        const wizardOnly = 'EFGIVW'.includes(letter);
+        if (explanation && (!wizardOnly || state.wizard)) {
+            lines.push({ text: `Are you trying to use ^${letter}${wizardOnly ? '' : ' as specified in the Guidebook'}?` });
+            lines.push({ text: '' });
+            lines.push({ text: explanation });
+            lines.push({ text: '' });
+            lines.push({ text: 'To use that command, hold down the <Ctrl> key as a shift' });
+            lines.push({ text: `and press the <${letter}> key.` });
+            lines.push({ text: '' });
+        }
     }
 
     const nodiag = NODIAG(state.u.umonnum);
