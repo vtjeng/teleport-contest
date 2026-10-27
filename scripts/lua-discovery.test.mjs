@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { classify, digest, inspectWitness, makeRecipe, percentSites } from './lua-discovery.mjs';
+import { classify, digest, inspectWitness, ledgerRow, makeRecipe, percentSites, summarizeAttempts, summarizeGateOutcomes } from './lua-discovery.mjs';
 
 const program = 'bigrm-12.lua';
 const source = 'if percent(20) then\n   if percent(50) then\n';
@@ -55,4 +55,50 @@ test('bigrm-12 recognizer is scoped to the submit boundary and pins source', () 
     assert.equal(classify(result, inspectWitness(program, lua + '\n', recipe, c, result)), 'unresolved');
     steps[submit].rng.pop();
     assert.equal(classify(result, inspectWitness(program, lua, recipe, c, result)), 'unresolved');
+});
+
+function exportAttempts(attempts) {
+    return ledgerRow({ id: 'case', program, attempts, reproducibleMismatch: false }, 'commit', '/run');
+}
+
+test('ledger retains pass-then-mismatch disagreement instead of first-pass credit', () => {
+    const attempts = [{ status: 'matching', result }, { status: 'mismatch', result: { passed: false } }];
+    const row = exportAttempts(attempts);
+    assert.equal(row.status, 'unresolved');
+    assert.match(row.observed_difference, /repeat disagreement; matching=1, mismatch=1/u);
+    assert.deepEqual(summarizeAttempts(attempts), {
+        status: 'unresolved', counts: { matching: 1, mismatch: 1 }, disagreement: true,
+    });
+    assert.equal(exportAttempts(attempts.toReversed()).status, row.status);
+});
+
+test('ledger preserves a failed repeat distinctly from behavioral disagreement', () => {
+    const attempts = [{ status: 'matching', result }, { status: 'infrastructure-failed', error: 'timeout' }];
+    const row = exportAttempts(attempts);
+    assert.equal(row.status, 'infrastructure-failed');
+    assert.match(row.observed_difference, /repeat disagreement; matching=1, infrastructure-failed=1/u);
+    assert.equal(exportAttempts(attempts.toReversed()).status, row.status);
+    assert.equal(exportAttempts([{ status: 'matching', result }, { status: 'uncovered' }]).status, 'unresolved');
+    assert.equal(exportAttempts([]).status, 'uncovered');
+    assert.equal(exportAttempts([{ status: 'matching', result }, { status: 'matching', result }]).status, 'matching');
+});
+
+test('prior RNG divergence retains reached C gates without comparable coverage credit', () => {
+    const failed = { ...result, passed: false, rngMismatch: { index: 0 } };
+    const witness = inspectWitness(program, source, recipe, recording, failed);
+    const coverage = summarizeGateOutcomes([{ program, attempts: [{ status: 'unresolved', result: failed, witness }] }]);
+    assert.deepEqual(coverage.gateOutcomes, {});
+    assert.deepEqual(coverage.cGateOutcomes, { 'bigrm-12.lua:1': [true], 'bigrm-12.lua:2': [false] });
+    assert.deepEqual(coverage.cOnlyGateOutcomes, coverage.cGateOutcomes);
+    assert.equal(witness.uncoveredPercentSites.length, 2);
+    assert.equal(witness.cUncoveredPercentSites.length, 0);
+});
+
+test('only agreeing prefix gates get comparable credit; C-only outcomes remain separate', () => {
+    const failed = { ...result, passed: false, rngMismatch: { index: 1 } };
+    const witness = inspectWitness(program, source, recipe, recording, failed);
+    const coverage = summarizeGateOutcomes([{ program, attempts: [{ status: 'mismatch', result: failed, witness }] }]);
+    assert.deepEqual(coverage.gateOutcomes, { 'bigrm-12.lua:1': [true] });
+    assert.deepEqual(coverage.cOnlyGateOutcomes, { 'bigrm-12.lua:2': [false] });
+    assert.deepEqual(summarizeGateOutcomes([{ program, attempts: [{ status: 'infrastructure-failed', error: 'timeout', witness }] }]).gateOutcomes, {});
 });

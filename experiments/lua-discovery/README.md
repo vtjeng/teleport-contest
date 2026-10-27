@@ -48,8 +48,16 @@ An observed other big-room/Medusa program can mark the requested target unreacha
 Outcomes: matching, mismatch, unresolved, unreachable, infrastructure-failed,
 and uncovered (budget). A failed replay is infrastructure-failed, not a behavioral
 mismatch. Every result is retained, including unresolved results with a raw first
-mismatch. Summary gate outcomes expose partial coverage; absent gates/outcomes
-remain uncovered. Two identical raw C/JS captures establish repeatability.
+mismatch. Summary `gateOutcomes` includes only gates with an agreeing JS RNG prefix
+and verified route. `cGateOutcomes` retains all reached C outcomes;
+`cOnlyGateOutcomes` separately preserves observations lacking that comparison.
+A gate may appear in both comparable and C-only maps across different attempts.
+`uncoveredPercentSites` refers to comparable coverage; `cUncoveredPercentSites`
+refers to C reachability. Absent gates/outcomes remain uncovered.
+Ledger status aggregates all repeats: any infrastructure failure remains
+`infrastructure-failed`, mixed other outcomes become `unresolved`, and only
+all-matching attempts export as matching. Each case's `outcome` retains counts
+and a disagreement flag; ledger text names the distribution, including failures. Two identical raw C/JS captures establish repeatability.
 Stable IDs hash method/program/input; mismatch fingerprints conservatively dedupe
 exact first-difference signatures, not proven independent root causes. Cheap
 priority is high only for a repeated identical mismatch, otherwise low. Passing

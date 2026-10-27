@@ -101,7 +101,8 @@ export function inspectWitness(program, source, recipe, recording, result) {
         cProgramObserved: witnesses.length > 0, witnesses,
         // Agreement is an ordered-stream witness, not private-state equality.
         jsProgramEvidence: witnesses.some(w => w.jsPrefixAgrees) ? 'source-route-and-rng-prefix' : 'unresolved',
-        uncoveredPercentSites: [...gates.values()].filter(g => !witnesses.some(w => w.line === g.line)),
+        cUncoveredPercentSites: [...gates.values()].filter(g => !witnesses.some(w => w.line === g.line)),
+        uncoveredPercentSites: [...gates.values()].filter(g => !witnesses.some(w => w.line === g.line && w.jsPrefixAgrees)),
     };
 }
 
@@ -111,6 +112,50 @@ export function classify(result, witness) {
     if (!witness.cProgramObserved) return witness.otherProgramObserved ? 'unreachable' : 'unresolved';
     if (!witness.routeInputVerified || witness.jsProgramEvidence === 'unresolved') return 'unresolved';
     return result.passed ? 'matching' : 'mismatch';
+}
+
+// A repeat can invalidate a first pass. Preserve the whole outcome distribution
+// even when a single ledger status cannot express disagreement plus failure.
+export function summarizeAttempts(attempts) {
+    const counts = {};
+    for (const attempt of attempts) counts[attempt.status] = (counts[attempt.status] || 0) + 1;
+    const statuses = Object.keys(counts).sort();
+    const disagreement = statuses.length > 1;
+    const status = counts['infrastructure-failed'] ? 'infrastructure-failed'
+        : disagreement ? 'unresolved' : statuses[0] || 'uncovered';
+    return { status, counts, disagreement };
+}
+
+export function ledgerRow(row, commit, output) {
+    const aggregate = summarizeAttempts(row.attempts);
+    const outcomes = Object.entries(aggregate.counts).map(([status, count]) => `${status}=${count}`).join(', ');
+    return { id: row.id, title: `${row.program} level generation`,
+        methods: [METHOD], source_locations: [`nethack-c/upstream/dat/${row.program}`],
+        status: aggregate.status, priority: row.reproducibleMismatch ? 'high' : 'low',
+        expected_behavior: 'C and JS agree within the same supported entry route',
+        observed_difference: aggregate.status === 'matching' ? 'none observed across all attempts'
+            : `${aggregate.disagreement ? 'repeat disagreement; ' : ''}${outcomes || 'no attempts'}`,
+        evidence_summary: `${row.attempts.length} attempts; ${outcomes}; reproducible mismatch=${row.reproducibleMismatch}`,
+        next_experiment: 'Inspect first mismatch and uncovered gate outcomes; do not infer hidden-state equality',
+        last_checked_sha: commit, details_path: join(output, 'summary.json') };
+}
+
+export function summarizeGateOutcomes(cases) {
+    const gateOutcomes = {}, cGateOutcomes = {}, cOnlyGateOutcomes = {};
+    const add = (map, key, taken) => {
+        map[key] ||= [];
+        if (!map[key].includes(taken)) map[key].push(taken);
+    };
+    for (const row of cases) for (const attempt of row.attempts) {
+        for (const w of attempt.witness?.witnesses || []) if (typeof w.taken === 'boolean') {
+            const key = `${row.program}:${w.line}`;
+            add(cGateOutcomes, key, w.taken);
+            const comparable = w.jsPrefixAgrees === true && attempt.witness.routeInputVerified === true
+                && !attempt.error && !attempt.result?.error && attempt.status !== 'infrastructure-failed';
+            add(comparable ? gateOutcomes : cOnlyGateOutcomes, key, w.taken);
+        }
+    }
+    return { gateOutcomes, cGateOutcomes, cOnlyGateOutcomes };
 }
 
 export async function discover(config) {
@@ -173,33 +218,20 @@ export async function discover(config) {
             save(join(output, `${index}-${repeat}.json`), row.attempts.at(-1));
             process.stdout.write(`${index} ${spec.program} repeat=${repeat} ${status}\n`);
         }
+        row.outcome = summarizeAttempts(row.attempts);
         row.repeatable = row.attempts.length >= 2 && row.attempts.every(a => a.rawHashes?.['js-output.json']
             && JSON.stringify(a.rawHashes) === JSON.stringify(row.attempts[0].rawHashes));
         row.reproducibleMismatch = row.attempts.length >= 2 && row.attempts.every(a => a.status === 'mismatch' && a.fingerprint === row.attempts[0].fingerprint);
     }
     const counts = {};
     for (const row of cases) for (const attempt of row.attempts) counts[attempt.status] = (counts[attempt.status] || 0) + 1;
-    const gateOutcomes = {};
-    for (const row of cases) for (const attempt of row.attempts) {
-        for (const w of attempt.witness?.witnesses || []) if (typeof w.taken === 'boolean') {
-            const key = `${row.program}:${w.line}`;
-            gateOutcomes[key] ||= [];
-            if (!gateOutcomes[key].includes(w.taken)) gateOutcomes[key].push(w.taken);
-        }
-    }
-    const summary = { gateOutcomes, method: METHOD, commit, elapsedMs: Date.now() - started, candidates: cases.length, counts,
+    const coverage = summarizeGateOutcomes(cases);
+    const summary = { ...coverage, method: METHOD, commit, elapsedMs: Date.now() - started, candidates: cases.length, counts,
         distinctReproducibleMismatches: new Set(cases.filter(c => c.reproducibleMismatch).map(c => c.attempts[0].fingerprint)).size,
         passingControls: cases.filter(c => c.attempts.every(a => a.status === 'matching')).map(c => c.id), cases };
     save(join(output, 'summary.json'), summary);
     // Exactly the hub's twelve columns; rich method/version/run data stays in details.
-    save(join(output, 'ledger.json'), cases.map(row => ({ id: row.id, title: `${row.program} level generation`,
-        methods: [METHOD], source_locations: [`nethack-c/upstream/dat/${row.program}`],
-        status: row.attempts[0].status, priority: row.reproducibleMismatch ? 'high' : 'low',
-        expected_behavior: 'C and JS agree within the same supported entry route',
-        observed_difference: row.attempts[0].result?.passed ? 'none observed' : row.attempts[0].status,
-        evidence_summary: `${row.attempts.length} attempts; reproducible mismatch=${row.reproducibleMismatch}`,
-        next_experiment: 'Inspect first mismatch and uncovered gate outcomes; do not infer hidden-state equality',
-        last_checked_sha: commit, details_path: join(output, 'summary.json') })));
+    save(join(output, 'ledger.json'), cases.map(row => ledgerRow(row, commit, output)));
     return summary;
 }
 
