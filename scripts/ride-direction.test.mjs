@@ -343,12 +343,10 @@ test('getdir mouse targeting maps picked positions and Escape to directions',
     assert.deepEqual([game.u.dx, game.u.dy, game.u.dz], [1, 0, 0]);
     assert.equal(game.iflags.getdir_click, 0);
 
-    // redraw_cmd() still reaches the separate unported docrt_flags retry.
-    const { boundary } = await rideWith(promptSegment(), '\x12');
-    assert.equal(
-        boundary?.name, 'UnsupportedHeroCommandBoundaryError',
-    );
-    assert.match(boundary.message, /repaints the screen/u);
+    // redraw_cmd() repaints the current map and retries the same direction
+    // prompt. The following 'h' answers that prompt without a boundary.
+    const { boundary } = await rideWith(promptSegment(), '\x12h');
+    assert.equal(boundary, null);
 });
 
 test('moving a gc.Cmd.spkeys[] getdir key moves the arm that reads it',
