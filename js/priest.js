@@ -117,6 +117,7 @@ import { ttyPline } from './tty_message.js';
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
 import { canseemon } from './display.js';
+import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
 
 // C ref: priest.c local constants.
@@ -724,8 +725,16 @@ export async function pri_move(priest, env = {}) {
             await (env.attackHero ?? mattacku)(priest, { ...env, state });
             return 0;
         }
-        // The separate hostile pursuit arm remains outside this caller seam.
-        throw new Error('pri_move: hostile priest pursuit unported');
+        // C priest.c:204-211: a hostile priest pursues the hero only while
+        // the hero remains in this temple; outside it, the priest continues
+        // milling around the altar. Either way it no longer avoids the hero.
+        if (state.u.urooms?.includes(temple)) {
+            if (priest.mcansee && m_canseeu(priest, state)) {
+                ggx = state.u.ux;
+                ggy = state.u.uy;
+            }
+            avoid = false;
+        }
     } else {
         const invisProp = state.u.uprops?.[INVIS];
         if ((invisProp?.intrinsic || invisProp?.extrinsic) && !invisProp?.blocked)

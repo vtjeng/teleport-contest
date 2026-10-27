@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T20:27:46Z",
+  "asOf": "2026-10-27T21:11:00Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22224,6 +22224,79 @@
         }
       ],
       "note": "C custom-level Tourist target reached an occupied fixed teleport destination and materialized the hero after displacing the goblin. JS initialized-game target failed before fix; unoccupied destination and unrelated refusal controls pass. C recording remains diagnostic scratch because custom Lua is not a built-in JS replay loader; no hidden-score claim."
+    },
+    {
+      "id": "below-medusa-procedural-maze",
+      "kind": "parity-repair",
+      "title": "Generate procedural maze on unnamed level below Medusa",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mklev.c:mklev",
+          "js/mklev.js:makelevel",
+          "js/mkmaze.js:makemaz"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/below-medusa-maze.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "55902742b2c99b74db943203d00eaad623eae938",
+          "committedAt": "2026-10-27T20:57:15Z",
+          "sourceCommit": "b1b9709b30d2302b2041227e21483901665096cb",
+          "sourceCommittedAt": "2026-10-27T20:46:27Z",
+          "runs": [
+            {
+              "id": 40582596036,
+              "name": "Checkpoint",
+              "sha": "55902742b2c99b74db943203d00eaad623eae938",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/below-medusa-maze-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T20:57:23Z",
+              "completedAt": "2026-10-27T21:08:00Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40582596036"
+            },
+            {
+              "id": 40584318705,
+              "name": "Lint",
+              "sha": "55902742b2c99b74db943203d00eaad623eae938",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:09:07Z",
+              "completedAt": "2026-10-27T21:10:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40584318705"
+            },
+            {
+              "id": 40584318724,
+              "name": "Dashboard",
+              "sha": "55902742b2c99b74db943203d00eaad623eae938",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T21:09:07Z",
+              "completedAt": "2026-10-27T21:11:00Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40584318724"
+            }
+          ]
+        }
+      ],
+      "note": "Fresh C Tourist Wizard level-teleport witness seed 81 reaches unnamed procedural maze below Medusa; JavaScript previously fell through to ordinary rooms. Nearby seed 79 regular-level control and six C-recorded maze cases strictly match RNG, screens, and cursors after the repair. First Checkpoint exposed an existing structural test counting finalization sites; corrected test and final exact-SHA Checkpoint passed. No hidden-score claim."
     }
   ]
 }
