@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T08:37:18Z",
+  "asOf": "2026-10-27T08:56:48Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21701,6 +21701,78 @@
         }
       ],
       "note": "C-recorded Ctrl-R direction retry and nearby no-redraw control strictly match after fix. Failed predecessor 5d19beb0 had an obsolete test expectation; corrected exact-SHA 80207a7e passed Checkpoint attempt 1. No hidden-score claim."
+    },
+    {
+      "id": "quest-leader-converted-banishment",
+      "kind": "parity-repair",
+      "title": "Banish converted hero at first quest leader audience",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/quest.c:chat_with_leader",
+          "js/quest.js:chat_with_leader"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/quest-leader-banishment.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "28887f127150a4e5499a41114fbea90692e991c1",
+          "committedAt": "2026-10-27T08:42:36Z",
+          "sourceCommit": "28887f127150a4e5499a41114fbea90692e991c1",
+          "sourceCommittedAt": "2026-10-27T08:42:36Z",
+          "runs": [
+            {
+              "id": 40475429729,
+              "name": "Checkpoint",
+              "sha": "28887f127150a4e5499a41114fbea90692e991c1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/quest-leader-banishment-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T08:42:52Z",
+              "completedAt": "2026-10-27T08:54:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40475429729"
+            },
+            {
+              "id": 40476898163,
+              "name": "Lint",
+              "sha": "28887f127150a4e5499a41114fbea90692e991c1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T08:55:12Z",
+              "completedAt": "2026-10-27T08:56:22Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40476898163"
+            },
+            {
+              "id": 40476898246,
+              "name": "Dashboard",
+              "sha": "28887f127150a4e5499a41114fbea90692e991c1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T08:55:12Z",
+              "completedAt": "2026-10-27T08:56:48Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40476898246"
+            }
+          ]
+        }
+      ],
+      "note": "C-source-grounded converted-alignment target with initialized quest-state setup and unchanged-alignment control. No fresh C recording or hidden-score claim."
     }
   ]
 }
