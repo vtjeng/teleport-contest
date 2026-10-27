@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T06:49:40Z",
+  "asOf": "2026-10-27T07:28:24Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21468,6 +21468,83 @@
         }
       ],
       "note": "C-source-derived knockback dismount; an initialized admitted mounted-game prefix and runtime-created giant establish a focused planning handoff target and no-knockback control. No new C replay or hidden-score claim."
+    },
+    {
+      "id": "knockback-pool-drown-planning-handoff",
+      "kind": "parity-repair",
+      "title": "Replan after pool knockback drowning",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dothrow.c:hurtle_step",
+          "js/dothrow.js:hurtle_step",
+          "js/uhitm.js:mhitm_knockback"
+        ],
+        "witness": [
+          "scripts/knockback-pool-planning.test.mjs"
+        ],
+        "test": [
+          "scripts/knockback-pool-planning.test.mjs",
+          "scripts/steed-knockback-planning.test.mjs",
+          "scripts/dungeon.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "496af8bcab5ba54968fc8c418978645a1b9caff6",
+          "committedAt": "2026-10-27T07:14:30Z",
+          "sourceCommit": "496af8bcab5ba54968fc8c418978645a1b9caff6",
+          "sourceCommittedAt": "2026-10-27T07:14:30Z",
+          "runs": [
+            {
+              "id": 40465954036,
+              "name": "Checkpoint",
+              "sha": "496af8bcab5ba54968fc8c418978645a1b9caff6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/knockback-pool-drown-handoff-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T07:14:45Z",
+              "completedAt": "2026-10-27T07:25:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40465954036"
+            },
+            {
+              "id": 40467140477,
+              "name": "Lint",
+              "sha": "496af8bcab5ba54968fc8c418978645a1b9caff6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T07:26:34Z",
+              "completedAt": "2026-10-27T07:27:43Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40467140477"
+            },
+            {
+              "id": 40467140598,
+              "name": "Dashboard",
+              "sha": "496af8bcab5ba54968fc8c418978645a1b9caff6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T07:26:34Z",
+              "completedAt": "2026-10-27T07:28:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40467140598"
+            }
+          ]
+        }
+      ],
+      "note": "C private special-level recording reaches giant knockback into pool and drowning; nearby dry-floor control. Initialized finalized-map JS focused test shows planned handoff and dry control. No full custom-level JS replay or hidden-score claim."
     }
   ]
 }
