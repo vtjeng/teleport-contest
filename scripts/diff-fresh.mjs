@@ -751,7 +751,7 @@ export function assertRecordingMatchesRecipe(recording, recipe) {
     }
 }
 
-function stageRecorderEnvironment(workRoot, recorderEnv) {
+export function recorderInputPaths(recorderEnv = process.env) {
     const sourceInstall = resolve(
         PROJECT_ROOT,
         recorderEnv.NETHACK_INSTALL || DEFAULT_RECORD_INSTALL,
@@ -760,6 +760,11 @@ function stageRecorderEnvironment(workRoot, recorderEnv) {
         PROJECT_ROOT,
         recorderEnv.NETHACK_BINARY || DEFAULT_RECORD_BINARY,
     );
+    return { install: sourceInstall, binary: sourceBinary };
+}
+
+function stageRecorderEnvironment(workRoot, recorderEnv) {
+    const { install: sourceInstall, binary: sourceBinary } = recorderInputPaths(recorderEnv);
     const stagedInstall = join(workRoot, 'recorder-install');
     cpSync(sourceInstall, stagedInstall, { recursive: true });
 

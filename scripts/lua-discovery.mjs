@@ -6,7 +6,7 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { listLuaFiles, luaFilePath } from './lua-sources.mjs';
-import { runDifferential, validateCleanRecipe } from './diff-fresh.mjs';
+import { recorderInputPaths, runDifferential, validateCleanRecipe } from './diff-fresh.mjs';
 import { chunkRecipe } from './fresh-matrix.mjs';
 
 export const METHOD = 'lua-level-generation/v1';
@@ -170,8 +170,7 @@ export async function discover(config) {
     const commit = git('rev-parse', 'HEAD');
     const files = git('ls-files', 'js', 'frozen', 'scripts', 'nethack-c/patches', 'nethack-c/build-recorder.sh').split('\n');
     const hashes = Object.fromEntries(files.map(path => [path, digest(readFileSync(path))]));
-    const install = process.env.NETHACK_INSTALL || 'nethack-c/recorder/install/games/lib/nethackdir';
-    const binary = process.env.NETHACK_BINARY || join(install, 'nethack');
+    const { install, binary } = recorderInputPaths(process.env);
     const provenance = { method: METHOD, commit, dirty: git('status', '--porcelain'), node: process.version,
         platform: process.platform, arch: process.arch, upstreamCommit: git('-C', 'nethack-c/upstream', 'rev-parse', 'HEAD'), inventoryCount: listLuaFiles().length,
         configSha256: digest(config), files: hashes,
