@@ -8035,6 +8035,7 @@ export async function mhitm_knockback(
                     && typeof env.planningDeath === 'function'
                     ? () => env.planningDeath(magr)
                     : null,
+                requestPlanningInput: env?.requestPlanningInput,
                 isolateVision: env?.planning
                     ? isolatePlannedVision : null,
             });

@@ -584,6 +584,7 @@ export async function hurtle(
         planning = false,
         random = null,
         planningDeath = null,
+        requestPlanningInput = null,
         isolateVision = null,
         displayRandom = null,
     } = {},
@@ -627,6 +628,7 @@ export async function hurtle(
     const destination = { x: u.ux + dx * range, y: u.uy + dy * range };
     const walkRange = {
         range, state, planning: Boolean(planning), random, planningDeath,
+        requestPlanningInput,
         isolateVision, displayRandom,
     };
     await walk_path(source, destination, hurtle_step, walkRange);
@@ -1096,10 +1098,12 @@ export async function hurtle_step(arg, x, y) {
             || !(Levitation(state) || Flying(state) || heroWwalking(state))) {
             state.multi = 0;
             if (planning) {
-                // C discards drown()'s boolean here and returns FALSE
-                // unconditionally. Its terminal/lifesaving/relocation chain
-                // is not safe to run on the planning clone yet.
-                note_unported('trap.c drown planning');
+                // C calls drown() after moving into the pool. It can kill,
+                // save or relocate the hero, so the clone cannot continue
+                // later monster decisions without replaying this effect live.
+                if (typeof arg?.requestPlanningInput === 'function')
+                    arg.requestPlanningInput('trap.c drown via hurtle');
+                throw new Error('planned hurtle into pool needs a live handoff');
             } else {
                 await drown(state);
             }

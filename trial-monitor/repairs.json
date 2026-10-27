@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T06:20:22Z",
+  "asOf": "2026-10-27T06:49:40Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21388,6 +21388,86 @@
         }
       ],
       "note": "C-source-derived door-mask overwrite with initialized special-level shop target and locked, closed, open controls. A C state witness supports the mask; no new C engraving inspection or hidden-score claim."
+    },
+    {
+      "id": "mounted-hero-knockback-planning-handoff",
+      "kind": "parity-repair",
+      "title": "Replan after mounted hero knockback",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/uhitm.c:mhitm_knockback",
+          "js/uhitm.js:mhitm_knockback",
+          "js/unported_monster_actions.js:preflightSimpleMonsterActions",
+          "js/allmain.js:advanceElapsedTurn"
+        ],
+        "witness": [
+          "challenges/cases/v64/v64-mounted-controlled-horse-action4.session.json",
+          "scripts/steed-knockback-planning.test.mjs"
+        ],
+        "test": [
+          "scripts/steed-knockback-planning.test.mjs",
+          "scripts/uhitm-hmon.test.mjs",
+          "scripts/mhitu.test.mjs",
+          "scripts/mhitm.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "55ffbbde9ea50cb432f67ae132016603a9ffabb3",
+          "committedAt": "2026-10-27T06:34:47Z",
+          "sourceCommit": "55ffbbde9ea50cb432f67ae132016603a9ffabb3",
+          "sourceCommittedAt": "2026-10-27T06:34:47Z",
+          "runs": [
+            {
+              "id": 40462014763,
+              "name": "Checkpoint",
+              "sha": "55ffbbde9ea50cb432f67ae132016603a9ffabb3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/steed-knockback-live-handoff-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T06:35:29Z",
+              "completedAt": "2026-10-27T06:45:41Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40462014763"
+            },
+            {
+              "id": 40463262276,
+              "name": "Lint",
+              "sha": "55ffbbde9ea50cb432f67ae132016603a9ffabb3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T06:48:08Z",
+              "completedAt": "2026-10-27T06:49:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40463262276"
+            },
+            {
+              "id": 40463262315,
+              "name": "Dashboard",
+              "sha": "55ffbbde9ea50cb432f67ae132016603a9ffabb3",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T06:48:08Z",
+              "completedAt": "2026-10-27T06:49:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40463262315"
+            }
+          ]
+        }
+      ],
+      "note": "C-source-derived knockback dismount; an initialized admitted mounted-game prefix and runtime-created giant establish a focused planning handoff target and no-knockback control. No new C replay or hidden-score claim."
     }
   ]
 }
