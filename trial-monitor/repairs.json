@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T22:00:52Z",
+  "asOf": "2026-10-27T22:17:27Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22521,6 +22521,80 @@
         }
       ],
       "note": "Pinned C shk_move clears avoid but retains appr=1 for an invisible or mounted hero, so a peaceful shopkeeper keeps aiming at its guard square. JavaScript instead made movement random. An initialized-game invisible target failed before the repair and a visible control passed. Both pass with the narrow correction, as do 149 affected shop tests. Full hosted fixed and synthetic comparison shows zero regressions."
+    },
+    {
+      "id": "shopkeeper-hole-time-pursuit",
+      "kind": "parity-repair",
+      "title": "Aim shopkeeper toward hero during active shop digging",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/dig.c:holetime",
+          "nethack-c/upstream/src/shk.c:shk_move",
+          "js/dig.js:holetime",
+          "js/shk.js:shk_move"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/shk-hole-time.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "d6f7c4055ea0b603a33be07e65cf3d11a2688909",
+          "committedAt": "2026-10-27T22:03:00Z",
+          "sourceCommit": "d6f7c4055ea0b603a33be07e65cf3d11a2688909",
+          "sourceCommittedAt": "2026-10-27T22:03:00Z",
+          "runs": [
+            {
+              "id": 40591757783,
+              "name": "Checkpoint",
+              "sha": "d6f7c4055ea0b603a33be07e65cf3d11a2688909",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/shk-hole-time-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T22:03:12Z",
+              "completedAt": "2026-10-27T22:14:28Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40591757783"
+            },
+            {
+              "id": 40593383595,
+              "name": "Lint",
+              "sha": "d6f7c4055ea0b603a33be07e65cf3d11a2688909",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T22:15:19Z",
+              "completedAt": "2026-10-27T22:16:31Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40593383595"
+            },
+            {
+              "id": 40593383544,
+              "name": "Dashboard",
+              "sha": "d6f7c4055ea0b603a33be07e65cf3d11a2688909",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T22:15:19Z",
+              "completedAt": "2026-10-27T22:17:27Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40593383544"
+            }
+          ]
+        }
+      ],
+      "note": "Pinned C holetime returns a remaining-turn estimate only for active digging in a shop; shk_move uses it to redirect a shopkeeper toward the hero. JavaScript defaulted to -1 and omitted the branch. An initialized-game active-dig target failed before the repair and a no-dig control passed. Both pass after the correction, along with 213 affected tests. Hosted fixed and synthetic comparisons show zero regressions."
     }
   ]
 }

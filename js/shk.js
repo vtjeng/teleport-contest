@@ -4046,16 +4046,19 @@ export async function shk_move(shkp, state, rawEnv = {}) {
         } else {
             const door = eshkp.shd ?? {};
             const uondoor = hero.ux === door.x && hero.uy === door.y;
-            let badinv = Boolean(
-                carrying(PICK_AXE, state)
-                || carrying(DWARVISH_MATTOCK, state),
-            );
-            const fast = hero.uprops?.[FAST];
-            if (fast?.intrinsic || fast?.extrinsic) {
-                badinv = badinv || Boolean(
-                    sobj_at(PICK_AXE, hero.ux, hero.uy, state)
-                    || sobj_at(DWARVISH_MATTOCK, hero.ux, hero.uy, state),
+            let badinv = false;
+            if (uondoor) {
+                badinv = Boolean(
+                    carrying(PICK_AXE, state)
+                    || carrying(DWARVISH_MATTOCK, state),
                 );
+                const fast = hero.uprops?.[FAST];
+                if (fast?.intrinsic || fast?.extrinsic) {
+                    badinv = badinv || Boolean(
+                        sobj_at(PICK_AXE, hero.ux, hero.uy, state)
+                        || sobj_at(DWARVISH_MATTOCK, hero.ux, hero.uy, state),
+                    );
+                }
             }
             if (satdoor && badinv) return 0;
             env._shopAvoid = uondoor
