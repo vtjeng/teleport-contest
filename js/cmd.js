@@ -1561,9 +1561,8 @@ export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
 // C ref: cmd.c getdir() (3958-4098). Returns 1 when u.dx/u.dy/u.dz name a
 // direction and 0 otherwise, exactly as C does.
 //
-// Two inputs stop here. The simulated-mouse key needs getpos(); '^R' needs
-// docrt_flags() and the retry loop above got_dirsym; and confdir() stops for
-// an impaired hero. help_dir() is ported and displays the direction-key window
+// The simulated-mouse key needs getpos(); confdir() stops for an impaired
+// hero. help_dir() is ported and displays the direction-key window
 // when cmdassist is set (the default). A requested help page retries the
 // direction prompt as cmd.c does at its retry label.
 export async function getdir(s, state = game) {
@@ -1612,9 +1611,12 @@ export async function getdir(s, state = game) {
         needsPrompt = true;
 
         if (redraw_cmd(dirsym, state)) {
-            throw new UnsupportedDirectionBoundaryError(
-                "'^R' repaints the screen and reissues the direction prompt",
-            );
+            // cmd.c:4013-4015: refresh the current glyph buffer, then retry
+            // the prompt without adding the redraw key to CQ_REPEAT.
+            // Planning clones have no terminal; the live replay owns the
+            // source redraw, while both paths retry the same input prompt.
+            if (state === game) await docrt({ refreshOnly: true });
+            continue;
         }
         if (fromPrompt && !state.in_doagain)
             cmdq_add_key(CQ_REPEAT, dirsym, state);

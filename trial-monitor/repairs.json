@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T07:28:24Z",
+  "asOf": "2026-10-27T07:59:11Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -21545,6 +21545,84 @@
         }
       ],
       "note": "C private special-level recording reaches giant knockback into pool and drowning; nearby dry-floor control. Initialized finalized-map JS focused test shows planned handoff and dry control. No full custom-level JS replay or hidden-score claim."
+    },
+    {
+      "id": "greased-acid-potion-water",
+      "kind": "parity-repair",
+      "title": "Destroy acid potion when grease washes off",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/trap.c:water_damage",
+          "nethack-c/upstream/src/potion.c:dodip",
+          "js/trap_water_damage.js:water_damage"
+        ],
+        "witness": [
+          "scripts/trap-water-damage.test.mjs"
+        ],
+        "test": [
+          "scripts/trap-water-damage.test.mjs",
+          "scripts/trap-erode-obj.test.mjs",
+          "scripts/dip.test.mjs",
+          "scripts/fountain.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "da903a3bb561b686986985d176e538fc0a211c1a",
+          "committedAt": "2026-10-27T07:45:46Z",
+          "sourceCommit": "da903a3bb561b686986985d176e538fc0a211c1a",
+          "sourceCommittedAt": "2026-10-27T07:45:46Z",
+          "runs": [
+            {
+              "id": 40469095834,
+              "name": "Checkpoint",
+              "sha": "da903a3bb561b686986985d176e538fc0a211c1a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/greased-acid-water-result-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T07:46:00Z",
+              "completedAt": "2026-10-27T07:55:53Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40469095834"
+            },
+            {
+              "id": 40470251006,
+              "name": "Lint",
+              "sha": "da903a3bb561b686986985d176e538fc0a211c1a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T07:57:14Z",
+              "completedAt": "2026-10-27T07:58:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40470251006"
+            },
+            {
+              "id": 40470251046,
+              "name": "Dashboard",
+              "sha": "da903a3bb561b686986985d176e538fc0a211c1a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T07:57:14Z",
+              "completedAt": "2026-10-27T07:59:11Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40470251046"
+            }
+          ]
+        }
+      ],
+      "note": "C-source-grounded branch with initialized canonical acid potion; deterministic grease-wash target and grease-retained control. Target test failed before fix (ER_GREASED vs ER_DESTROYED). No fresh C recording or hidden-score claim."
     }
   ]
 }
