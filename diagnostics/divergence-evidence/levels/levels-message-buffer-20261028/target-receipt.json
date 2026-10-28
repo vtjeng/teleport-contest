@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T21:48:39.636Z",
+  "exitCode": 1,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "b9ca43576e58e9ada8628b4df9bea111f17d3a81a7fd7ec9d05868b09e7c2aae",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/oracle.c": "6d614f63a32127c531c2bd61db128cdbcaa783d01bae01efdbecbf070d43deea"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/target-output.txt"
+  ]
+}
