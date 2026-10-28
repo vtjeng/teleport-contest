@@ -1441,8 +1441,12 @@ export function mkinvk_check_wall(x, y, state = game) {
 function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
     if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
-    if (typ === SDOOR || IS_DOOR(typ)) {
-        if (typ === SDOOR) {
+    // set_levltyp_lit can retain the prior type (for example, a secret door
+    // when AIR is requested). C dispatches these follow-up writes on that
+    // resulting map type rather than the requested one.
+    const actualType = location.typ;
+    if (actualType === SDOOR || IS_DOOR(actualType)) {
+        if (actualType === SDOOR) {
             // C's doormask aliases rm.flags. A terrain() paint can overwrite
             // a locked coordinate door before stock_room() reads its mask.
             location.flags = D_CLOSED;
@@ -1451,11 +1455,11 @@ function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
         const left = x > 0 ? state.level.at(x - 1, y) : null;
         if (left && (IS_WALL(left.typ) || left.horizontal))
             location.horizontal = true;
-    } else if (typ === HWALL || typ === IRONBARS) {
+    } else if (actualType === HWALL || actualType === IRONBARS) {
         location.horizontal = true;
-    } else if (frame?.splev_init_present && typ === ICE) {
+    } else if (frame?.splev_init_present && actualType === ICE) {
         location.icedpool = frame.icedpools ? ICED_POOL : ICED_MOAT;
-    } else if (typ === CLOUD) {
+    } else if (actualType === CLOUD) {
         del_engr_at(x, y, state);
     }
     return true;
