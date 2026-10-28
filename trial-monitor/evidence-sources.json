@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "inventories": [
+    {
+      "id": "levels",
+      "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+      "pr": 89,
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/inventory.json",
+      "cases": [
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-room-callback-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/case.json"
+        },
+        {
+          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/case.json"
+        },
+        {
+          "ref": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+          "pr": 92,
+          "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/case.json"
+        }
+      ],
+      "completion": {
+        "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+        "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/message-final-receipt-4222eaf89.json"
+      }
+    },
+    {
+      "id": "monsters",
+      "ref": "4472bdbaa7255c3b8b4208e43986597133cb2b40",
+      "pr": 102,
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-summary.json",
+      "keysPath": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-keys.json",
+      "cases": [
+        {
+          "ref": "4472bdbaa7255c3b8b4208e43986597133cb2b40",
+          "pr": 102,
+          "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/case.json"
+        },
+        {
+          "ref": "4472bdbaa7255c3b8b4208e43986597133cb2b40",
+          "pr": 102,
+          "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/case.json"
+        },
+        {
+          "ref": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
+          "pr": 96,
+          "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/case.json"
+        }
+      ]
+    }
+  ],
+  "audits": [
+    {
+      "ref": "0a35429e69fde9181ac1ad2161df14d8ff8f0a0d",
+      "pr": 98,
+      "path": "diagnostics/divergence-evidence/object-catalog/declared-fields-20261028/case.json"
+    },
+    {
+      "ref": "c96dc555c32556c0e7d683cdd9ff11bb1d6af4fe",
+      "pr": 99,
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/case.json"
+    },
+    {
+      "ref": "d67328494dd3f56387163fbc5d90690021001392",
+      "pr": 95,
+      "path": "diagnostics/divergence-evidence/command-catalog/static-20261028/case.json"
+    }
+  ]
+}

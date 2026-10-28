@@ -790,7 +790,7 @@ test('worker activity hides historical lanes and their utilization until request
     assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">(?:A|P1)</u);
     assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">Worker 1</u);
     assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">Work lead</u);
-    assert.match(rendered.get('timeline').innerHTML, /activity-label">Standard engineer</u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">Main integration</u);
     assert.doesNotMatch(rendered.get('activityMetrics').innerHTML, /A\/B\/C|Prep lanes/u);
     assert.equal(rendered.get('activityMetrics').hidden, true);
     const toggle = rendered.get('activityHistorical');
@@ -1566,7 +1566,7 @@ test('full startup renders scores, charts, recent repairs and final history with
     assert.match(rendered.get('stats').innerHTML, /Development set/);
     assert.match(rendered.get('progressReadout').textContent, /44\/44/);
     assert.ok(rendered.get('developmentChart').ops.some(([operation]) => operation === 'stroke'));
-    assert.match(rendered.get('timeline').innerHTML, /Standard engineer/);
+    assert.match(rendered.get('timeline').innerHTML, /Main integration/);
     for (const id of ['updated', 'activitySnapshotTime', 'workerEvidence'])
         assert.equal(rendered.has(id), false, 'removed disclosure is not required during startup');
     const accepted = singleWorkerActivity(createTrialMonitor(snapshot).summarize()).tasks
@@ -1763,7 +1763,7 @@ test('recent repair panel shows individual pilot members and shared validation w
     }});
     assert.match(rendered.get('repairCount').textContent, /^7 registered/u);
     assert.match(rendered.get('recentRepairRate').textContent,
-        /3 complete validation groups · 7 registered repairs.*5\.66 accepted repairs\/hour.*shared CI counted once/u);
+        /3 complete validation groups · 7 registered repairs.*5\.66 publication-verified repairs\/hour.*shared CI counted once/u);
     assert.match(rendered.get('trialCandidate').textContent, /^3 repairs · shared validation/u);
     assert.equal(rendered.get('recentRepairs').children.length, 5);
     assert.match(rendered.get('recentRepairs').children[0].children[2].textContent,

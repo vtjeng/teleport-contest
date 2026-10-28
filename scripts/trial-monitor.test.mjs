@@ -328,10 +328,11 @@ test('completed trial uses the four-hour cutoff for numerator and denominator', 
   assert.equal(view.trial.rate, 0);
 });
 
-test('handoff cap rejects two waiting items instead of hiding the excess', () => {
-  assert.throws(() => createTrialMonitor(running([], {
+test('multiple reported handoffs remain visible', () => {
+  const view = createTrialMonitor(running([], {
     waitingHandoffs: [{ repairId: 'one' }, { repairId: 'two' }],
-  })), /cap is one/u);
+  })).summarize();
+  assert.equal(view.waitingHandoffs.length, 2);
 });
 
 test('dashboard template preserves compact single-column mobile layout', () => {
