@@ -1,0 +1,39 @@
+{
+  "maxCases": 8,
+  "repeats": 1,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "Wiz-loca.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/28104200.recipe.json"
+    },
+    {
+      "program": "Wiz-loca.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/28104201.recipe.json"
+    },
+    {
+      "program": "Wiz-loca.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/28104202.recipe.json"
+    },
+    {
+      "program": "Wiz-loca.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/28104203.recipe.json"
+    },
+    {
+      "program": "Val-goal.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/28104204.recipe.json"
+    },
+    {
+      "program": "Val-goal.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/28104205.recipe.json"
+    },
+    {
+      "program": "Val-goal.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/28104206.recipe.json"
+    },
+    {
+      "program": "Val-goal.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/28104207.recipe.json"
+    }
+  ]
+}

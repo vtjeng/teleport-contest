@@ -1,0 +1,79 @@
+{
+  "caseId": "levels-irregular-generation-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "hypothesis": "Irregular des.region should use cardinal connectivity and clip its fill to the supplied rectangle.",
+  "proof": "C lspo_region uses the first corner as the flood seed and derives bounds from flood_fill_rm. That routine visits diagonal matches and does not receive the far corner. These behaviors differ intentionally from default selection.floodfill. The production JS region API matches executed C on the enumerated fixtures.",
+  "scope": "Seven small layouts, each lit=0/1: diagonal pair, cardinal pair, separated gap, narrow/full far-corner variants, mixed ROOM/FOUNTAIN row, adjacent wall. Full 80x21 roomno/lit/edge maps plus flood bounds/counts compared. No universal flood-fill, mixed-terrain, arbitrary-Lua or level-generation equivalence claim.",
+  "supportedSetup": "The isolated unit fixtures use the production lspo_region API; they are not individually claimed shipped-level witnesses. Eight separate unmodified shipped Wizard locate/Valkyrie goal loads use public wizard input.",
+  "expectedC": "Diagonal pair fills two cells versus one for a separated gap. A four-cell connected row fills four with either single-point or enclosing far corner.",
+  "observedJS": "14/14 comparisons match all 1680 cell tuples and bounds/counts. Eight recording streams match; four Wizard locate recordings have source attribution, four Valkyrie goal ones retain unresolved attribution.",
+  "control": "Diagonal versus gap distinguishes connectivity; far-corner variants produce identical full component bounds, disproving rectangular clipping for those fixtures.",
+  "baseJs": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:33:41.037070+00:00",
+  "reviewedAt": "2026-10-28T19:37:38.261065+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/mkmap.c:153",
+    "nethack-c/upstream/src/sp_lev.c:5675",
+    "js/mklev.js:4255",
+    "js/mklev.js:5218"
+  ],
+  "sourceHashes": {
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "js/quest_levels.js": "2973147f5a4d5df11a690657d8e5573f29035b0beeaa35619d9a0d172c505bd5",
+    "nethack-c/upstream/src/mkmap.c": "25046834749be29ad3ec4b03f024189de5026b805da0129537dd5c75ca7e2f50",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/include/mkroom.h": "7baf848feb30c94c196e6bee2ee7f0a83822ad92042dd855b74d212fde514f5a",
+    "nethack-c/upstream/dat/Wiz-loca.lua": "48d62500fd9b9714fa101bb9855ceb4a54b7e075037d37d9ea2324f4c4e16530",
+    "nethack-c/upstream/dat/Val-goal.lua": "b9954f089233af5a4566def70b20cb4fd58e38125ec7ee5469d0ba116ae78f92",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "adapterSha256": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "configSha256": "afa957516fff9ece4192f7d235c376a0c0e1b11a3b2e5b6163d02675881f3275",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "patchHashes": {
+      "nethack-c/patches/001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "nethack-c/patches/002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "nethack-c/patches/003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "nethack-c/patches/004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "nethack-c/patches/005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "nethack-c/patches/006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "nethack-c/patches/007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+      "nethack-c/patches/README.md": "6c29d9620b818ca61da4e133a16625ffe0be1973e19cf61dd77942017834d26c"
+    },
+    "oracleExtractionSha256": "22ec008c9f17f5d9df30436b352ac99123bc60275d0e87beda19f4e9bc2040b2",
+    "oracleFileSha256": "24578d8f55c035d903f45f9fc3a9999f2cd8e382c62d9e35a86e6862c512072f"
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-irregular-generation-20261028/probe.mjs",
+  "evidencePaths": [
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "replay.mjs",
+    "recordings.json",
+    "config.json",
+    "README.md",
+    "clean-base-verification.json",
+    "*.recipe.json",
+    "*.recorded.session.json.gz"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+    "receipt": "clean-base-verification.json",
+    "result": "Both commands exit zero; gameplay and scorer sources unchanged from analysis base."
+  }
+}

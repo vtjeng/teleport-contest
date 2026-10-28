@@ -1,0 +1,161 @@
+{
+  "comparisons": 14,
+  "matched": 14,
+  "results": [
+    {
+      "name": "diagonal",
+      "lit": 0,
+      "bounds": [
+        10,
+        10,
+        11,
+        11
+      ],
+      "filled": 2
+    },
+    {
+      "name": "diagonal",
+      "lit": 1,
+      "bounds": [
+        10,
+        10,
+        11,
+        11
+      ],
+      "filled": 2
+    },
+    {
+      "name": "cardinal",
+      "lit": 0,
+      "bounds": [
+        10,
+        10,
+        11,
+        10
+      ],
+      "filled": 2
+    },
+    {
+      "name": "cardinal",
+      "lit": 1,
+      "bounds": [
+        10,
+        10,
+        11,
+        10
+      ],
+      "filled": 2
+    },
+    {
+      "name": "gap",
+      "lit": 0,
+      "bounds": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "filled": 1
+    },
+    {
+      "name": "gap",
+      "lit": 1,
+      "bounds": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "filled": 1
+    },
+    {
+      "name": "beyond-far-corner",
+      "lit": 0,
+      "bounds": [
+        10,
+        10,
+        13,
+        10
+      ],
+      "filled": 4
+    },
+    {
+      "name": "beyond-far-corner",
+      "lit": 1,
+      "bounds": [
+        10,
+        10,
+        13,
+        10
+      ],
+      "filled": 4
+    },
+    {
+      "name": "full-far-corner",
+      "lit": 0,
+      "bounds": [
+        10,
+        10,
+        13,
+        10
+      ],
+      "filled": 4
+    },
+    {
+      "name": "full-far-corner",
+      "lit": 1,
+      "bounds": [
+        10,
+        10,
+        13,
+        10
+      ],
+      "filled": 4
+    },
+    {
+      "name": "mixed-row",
+      "lit": 0,
+      "bounds": [
+        10,
+        10,
+        12,
+        10
+      ],
+      "filled": 1
+    },
+    {
+      "name": "mixed-row",
+      "lit": 1,
+      "bounds": [
+        10,
+        10,
+        12,
+        10
+      ],
+      "filled": 1
+    },
+    {
+      "name": "adjacent-wall",
+      "lit": 0,
+      "bounds": [
+        10,
+        10,
+        11,
+        11
+      ],
+      "filled": 2
+    },
+    {
+      "name": "adjacent-wall",
+      "lit": 1,
+      "bounds": [
+        10,
+        10,
+        11,
+        11
+      ],
+      "filled": 2
+    }
+  ],
+  "scope": "Seven small layouts at lit=0/1; all 1680 cell room numbers/lighting/edge flags and flood bounds/counts compared"
+}
