@@ -1,0 +1,78 @@
+{
+  "caseId": "objects-helm-inline-predicate",
+  "shard": "objects",
+  "outcome": "explained negative",
+  "implementationCandidate": false,
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:19:45.532Z",
+  "reviewedAt": "2026-10-28T18:19:45.532Z",
+  "sourceLocations": [
+    "nethack-c/upstream/src/objnam.c:5513",
+    "nethack-c/upstream/src/do_wear.c:568",
+    "nethack-c/upstream/include/obj.h:283",
+    "nethack-c/upstream/include/objclass.h:194",
+    "js/objnam.js:348",
+    "js/obj.js:1517"
+  ],
+  "hypothesis": "Omitted hard_helmet helper might misclassify hats and helms.",
+  "supportedSetup": "Ordinary headgear and null; tested full predicate enum domain includes every supported tuple.",
+  "expectedC": "JS inlines hard_helmet: null guard, armor/helm classification and metallic-or-glass test match the actual C functions and macros for the full enum domain.",
+  "observedJS": "All 2773 C outputs match JS, including null; real headgear controls pass.",
+  "control": "Real fedora, leather helm, iron helm, ordinary helmet and glass helm; all class/category/material tuples and null.",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-helm-inline-predicate/check.test.mjs",
+  "results": {
+    "focused": "pass",
+    "compiledCComparisons": 2773,
+    "realHeadgearControls": 5
+  },
+  "proof": "README.md",
+  "sourceFingerprints": {
+    "nethack-c/upstream/src/objnam.c": "445d0b8697ceeb93f1249599b16caffb101a832ee425d76f9eb3fd65088f1dd3",
+    "nethack-c/upstream/src/do_wear.c": "cf33ad9f5b18bcdfffd09d4e99867590802735a9ae2d34b9eb2b64880fa459c7",
+    "nethack-c/upstream/include/obj.h": "a4d1b994c5acd6fe04d411485d84491553d6df02dfbd7480181a15a7a05456e2",
+    "nethack-c/upstream/include/objclass.h": "101f92e0024e4404033845fb15171f8ed4b79374907a6a172b4eb7b026e1eb52",
+    "nethack-c/upstream/include/defsym.h": "009ae2e8921fa4c376fe0ae3b4a42407421274fc15d1a8834c6ae519dad82f87",
+    "js/objnam.js": "bc6caee201e5afa469fcce9fd49bea825ff7e6288d279fd52fb04944b14fb143",
+    "js/obj.js": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+    "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3"
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "compiler": "Debian clang version 19.1.7 (3+b1)",
+    "hub": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "focusedTest": "ddc18a402a330f66fa974270a46c8d14f69da3a9dd5daa83a2332a47139fe0e8",
+    "compilerArgs": [
+      "-std=c99",
+      "-O0",
+      "-I nethack-c/upstream/include"
+    ]
+  },
+  "discoveryBinding": {
+    "fullRunId": "a381a949e765ae5aa2c8",
+    "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+    "bindingPath": "diagnostics/divergence-evidence/objects/objects-helm-inline-predicate/binding.json",
+    "projectionPath": "diagnostics/divergence-evidence/objects/objects-helm-inline-predicate/bound-run.json",
+    "decisions": [
+      {
+        "key": "source-audit:edge-c-only:src/objnam.c:helm_simple_name:hard_helmet",
+        "evidenceKey": "2b642cf72cc91da0543bf70dad58b4373501a941d22b16ee9b2ba7d5adc7bf98",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "949bc85434afb13f152f61f23740b09949e91e64d69975dd89a5b7a88f1caa29"
+      }
+    ],
+    "classificationVerified": true
+  },
+  "evidencePaths": [
+    "README.md",
+    "binding.json",
+    "bound-run.json",
+    "check.test.mjs",
+    "decision-template.json",
+    "decisions.json",
+    "keys.json"
+  ],
+  "nextExperiment": null,
+  "scopeLimit": "Only pure helm-name predicate across current enums; no damage/command claim."
+}

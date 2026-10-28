@@ -1,0 +1,64 @@
+{
+  "caseId": "objects-shield-disabled-weight",
+  "shard": "objects",
+  "outcome": "explained negative",
+  "implementationCandidate": false,
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:19:45.532Z",
+  "reviewedAt": "2026-10-28T18:19:45.532Z",
+  "sourceLocations": [
+    "nethack-c/upstream/src/objnam.c:5590",
+    "js/objnam.js:386"
+  ],
+  "hypothesis": "Omitted weight call might change shield names.",
+  "supportedSetup": "No runtime input enables the disabled branch; ordinary shields and reflection discovery supply live controls.",
+  "expectedC": "The weight call and heavy/light names are under unconditional #if 0 and disappear in preprocessing.",
+  "observedJS": "Returns shield except for silver/smooth reflection shield, matching live C.",
+  "control": "Preprocessed live reflection conditional remains; null, small/large shield and both reflection dknown values.",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-shield-disabled-weight/check.test.mjs",
+  "results": {
+    "focused": "pass",
+    "weightCallsAfterPreprocessing": 0,
+    "liveNameControls": "pass"
+  },
+  "proof": "README.md",
+  "sourceFingerprints": {
+    "nethack-c/upstream/src/objnam.c": "445d0b8697ceeb93f1249599b16caffb101a832ee425d76f9eb3fd65088f1dd3",
+    "js/objnam.js": "bc6caee201e5afa469fcce9fd49bea825ff7e6288d279fd52fb04944b14fb143"
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "compiler": "Debian clang version 19.1.7 (3+b1)",
+    "hub": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "focusedTest": "0e65041214dcda0d5ea131c7de3a14e2354166f4ad39aeb982a0fa10929a9b51",
+    "compilerArgs": [
+      "-E",
+      "-P",
+      "-x",
+      "c",
+      "-"
+    ]
+  },
+  "discoveryBinding": {
+    "fullRunId": "a381a949e765ae5aa2c8",
+    "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+    "bindingPath": "diagnostics/divergence-evidence/objects/objects-helm-inline-predicate/binding.json",
+    "projectionPath": "diagnostics/divergence-evidence/objects/objects-helm-inline-predicate/bound-run.json",
+    "decisions": [
+      {
+        "key": "source-audit:edge-c-only:src/objnam.c:shield_simple_name:weight",
+        "evidenceKey": "4dce7bdc6a27f0d4ea5119cf0869277b0796c3b4e256a6aa3ce87faf41c8c58b",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "e6cb9df3da5807a17dba130399cda37b42af1490ca9ac86c91e6108769b90f76"
+      }
+    ],
+    "classificationVerified": true
+  },
+  "evidencePaths": [
+    "README.md",
+    "check.test.mjs"
+  ],
+  "nextExperiment": null,
+  "scopeLimit": "Only inactive shield-weight proposal; no shield-weight computation elsewhere."
+}

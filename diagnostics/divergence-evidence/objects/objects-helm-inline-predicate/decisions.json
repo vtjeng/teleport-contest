@@ -1,0 +1,40 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/objnam.c:helm_simple_name:hard_helmet",
+    "evidenceKey": "2b642cf72cc91da0543bf70dad58b4373501a941d22b16ee9b2ba7d5adc7bf98",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "949bc85434afb13f152f61f23740b09949e91e64d69975dd89a5b7a88f1caa29",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS inlines hard_helmet: null guard, armor/helm classification and metallic-or-glass test match the actual C functions and macros for the full enum domain.",
+      "proof": "diagnostics/divergence-evidence/objects/objects-helm-inline-predicate/README.md",
+      "sourceRefs": [
+        "nethack-c/upstream/src/objnam.c:5513",
+        "nethack-c/upstream/src/do_wear.c:568",
+        "nethack-c/upstream/include/obj.h:283",
+        "nethack-c/upstream/include/objclass.h:194",
+        "js/objnam.js:348",
+        "js/obj.js:1517"
+      ],
+      "control": "Real fedora, leather helm, iron helm, ordinary helmet and glass helm; all class/category/material tuples and null."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/objnam.c:shield_simple_name:weight",
+    "evidenceKey": "4dce7bdc6a27f0d4ea5119cf0869277b0796c3b4e256a6aa3ce87faf41c8c58b",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "e6cb9df3da5807a17dba130399cda37b42af1490ca9ac86c91e6108769b90f76",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "The weight call and heavy/light names are under unconditional #if 0 and disappear in preprocessing.",
+      "proof": "diagnostics/divergence-evidence/objects/objects-shield-disabled-weight/README.md",
+      "sourceRefs": [
+        "nethack-c/upstream/src/objnam.c:5590",
+        "js/objnam.js:386"
+      ],
+      "control": "Preprocessed live reflection conditional remains; null, small/large shield and both reflection dknown values."
+    }
+  }
+]
