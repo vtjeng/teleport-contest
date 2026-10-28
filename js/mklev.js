@@ -1207,7 +1207,7 @@ function themeroom_map_fits(definition, xstart, ystart, state) {
 // the location metadata before setting terrain. The map's default lit=false
 // still leaves lava lit, and door orientation depends on the already-loaded
 // cell immediately to its left.
-function set_themeroom_map_terrain(x, y, typ, state) {
+function set_themeroom_map_terrain(x, y, typ, state, lit = false) {
     const loc = state.level.at(x, y);
     loc.flags = 0;
     loc.doormask = 0;
@@ -1215,7 +1215,7 @@ function set_themeroom_map_terrain(x, y, typ, state) {
     loc.roomno = 0;
     loc.edge = false;
     if (!set_levltyp(x, y, typ, { state })) return;
-    loc.lit = IS_LAVA(typ);
+    loc.lit = IS_LAVA(typ) || Boolean(lit);
 
     if (typ === SDOOR || IS_DOOR(typ)) {
         if (typ === SDOOR) loc.doormask = D_CLOSED;
@@ -4766,7 +4766,7 @@ function createSpecialLevelApi(state) {
                                                   y - frame.ystart);
                         if (mptyp === INVALID_TYPE) continue;
                         if (mptyp >= MAX_TYPE) continue;
-                        set_themeroom_map_terrain(x, y, mptyp, state);
+                        set_themeroom_map_terrain(x, y, mptyp, state, spec.lit);
                         frame.splevMap[x][y] = 1;
                         selection.set(x, y);
                     }
