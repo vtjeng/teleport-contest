@@ -1,0 +1,15 @@
+{"specialKeys":{"unionNames":2,"cRows":2,"jsRows":2,"statuses":{"declarations-match":2}},"commands":{"unionNames":129,"cRows":129,"jsRows":129,"statuses":{"declarations-match":122,"key-unexamined":7}},"aliases":{"unionNames":10,"cRows":11,"jsRows":11,"statuses":{"declarations-match":10}},"menuLabels":{"unionNames":8,"cRows":8,"jsRows":8,"statuses":{"declarations-match":8}}}
+✔ the default suite admits ordinary tests and excludes registered suites (2.491722ms)
+✔ long-running tests start the default suite and the rest stay alphabetical (1.763469ms)
+✔ suite registration rejects missing and duplicate dedicated files (0.20531ms)
+✔ the repository registry lists all discovered tests with no dedicated suites (16.307644ms)
+✔ the stray-test scan reports test files outside the discovered roots (1.006815ms)
+✔ the repository has no test file outside the discovered roots (172.549069ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 311.686365
