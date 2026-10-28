@@ -1,0 +1,22 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mkmaze.c:mazexy:rnd",
+    "evidenceKey": "cd2c6d7b5dc678b7d8f65371753be1d4efea69f6bd3eec57c0983de454d72b55",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "06a8d4ee274c8c3241d9322413813091fbfcb5d9e1286d53c1e1b17b45b84bf1",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS randomOneBased defaults to rnd and is called twice per attempt; the C-only edge is an injected-parameter alias.",
+      "proof": "Eight C/JS comparisons through the production coordinate chooser on publicly initialized/painted maps. Both terrain modes cover first-hit, 100th-hit, deterministic x-major scan fallback after 100 rejected pairs, and real default RNG. C receives checked shared draw tapes; not independent RNG parity or all map geometries.",
+      "control": "Immediate chosen point and all-eligible default-RNG maps; fallback selects 2,7 before 7,2, while a 100th-attempt hit chooses 7,2.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmaze.c:1316",
+        "js/mkmaze.js:1507"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

@@ -1,0 +1,221 @@
+{
+  "scope": "18 recognized ASCII level flag names, lowercase/uppercase/alternating case; level flag storage only.",
+  "results": [
+    {
+      "spelling": "NOTELEPORT",
+      "field": "noteleport",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "NoTeLePoRt",
+      "field": "noteleport",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "HARDFLOOR",
+      "field": "hardfloor",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "HaRdFlOoR",
+      "field": "hardfloor",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "NOMMAP",
+      "field": "nommap",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "NoMmAp",
+      "field": "nommap",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "SHORTSIGHTED",
+      "field": "shortsighted",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "ShOrTsIgHtEd",
+      "field": "shortsighted",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "ARBOREAL",
+      "field": "arboreal",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "ArBoReAl",
+      "field": "arboreal",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "MAZELEVEL",
+      "field": "is_maze_lev",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "MaZeLeVeL",
+      "field": "is_maze_lev",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "SHROUD",
+      "field": "hero_memory",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "ShRoUd",
+      "field": "hero_memory",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "GRAVEYARD",
+      "field": "graveyard",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "GrAvEyArD",
+      "field": "graveyard",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "CORRMAZE",
+      "field": "corrmaze",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "CoRrMaZe",
+      "field": "corrmaze",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "SOKOBAN",
+      "field": "sokoban_rules",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "SoKoBaN",
+      "field": "sokoban_rules",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "TEMPERATE",
+      "field": "temperature",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "TeMpErAtE",
+      "field": "temperature",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "HOT",
+      "field": "temperature",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "HoT",
+      "field": "temperature",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "COLD",
+      "field": "temperature",
+      "expected": -1,
+      "actual": -1
+    },
+    {
+      "spelling": "CoLd",
+      "field": "temperature",
+      "expected": -1,
+      "actual": -1
+    },
+    {
+      "spelling": "NOMONGEN",
+      "field": "rndmongen",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "NoMoNgEn",
+      "field": "rndmongen",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "NODEATHDROPS",
+      "field": "deathdrops",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "NoDeAtHdRoPs",
+      "field": "deathdrops",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "NOAUTOSEARCH",
+      "field": "noautosearch",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "NoAuToSeArCh",
+      "field": "noautosearch",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "FUMAROLES",
+      "field": "fumaroles",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "FuMaRoLeS",
+      "field": "fumaroles",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "STORMY",
+      "field": "stormy",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "StOrMy",
+      "field": "stormy",
+      "expected": 1,
+      "actual": 1
+    }
+  ]
+}

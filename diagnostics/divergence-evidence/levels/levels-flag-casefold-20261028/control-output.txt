@@ -1,0 +1,113 @@
+{
+  "scope": "18 recognized ASCII level flag names, lowercase/uppercase/alternating case; level flag storage only.",
+  "results": [
+    {
+      "spelling": "noteleport",
+      "field": "noteleport",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "hardfloor",
+      "field": "hardfloor",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "nommap",
+      "field": "nommap",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "shortsighted",
+      "field": "shortsighted",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "arboreal",
+      "field": "arboreal",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "mazelevel",
+      "field": "is_maze_lev",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "shroud",
+      "field": "hero_memory",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "graveyard",
+      "field": "graveyard",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "corrmaze",
+      "field": "corrmaze",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "sokoban",
+      "field": "sokoban_rules",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "temperate",
+      "field": "temperature",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "hot",
+      "field": "temperature",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "cold",
+      "field": "temperature",
+      "expected": -1,
+      "actual": -1
+    },
+    {
+      "spelling": "nomongen",
+      "field": "rndmongen",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "nodeathdrops",
+      "field": "deathdrops",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "spelling": "noautosearch",
+      "field": "noautosearch",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "fumaroles",
+      "field": "fumaroles",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "spelling": "stormy",
+      "field": "stormy",
+      "expected": 1,
+      "actual": 1
+    }
+  ]
+}

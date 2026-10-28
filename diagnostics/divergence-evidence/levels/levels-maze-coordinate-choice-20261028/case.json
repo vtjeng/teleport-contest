@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-maze-coordinate-choice-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "mazexy-default-rnd-alias",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "mazexy",
+      "start_line": 1316,
+      "end_line": 1350,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "mazexy",
+      "start_line": 1507,
+      "end_line": 1531,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    }
+  ],
+  "hypothesis": "The scanner edge may indicate different random maze coordinate choice or draw consumption.",
+  "expectedBehavior": "Immediate chosen point and all-eligible default-RNG maps; fallback selects 2,7 before 7,2, while a 100th-attempt hit chooses 7,2.",
+  "observedBehavior": "Eight C/JS comparisons through the production coordinate chooser on publicly initialized/painted maps. Both terrain modes cover first-hit, 100th-hit, deterministic x-major scan fallback after 100 rejected pairs, and real default RNG. C receives checked shared draw tapes; not independent RNG parity or all map geometries.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Eight C/JS comparisons through the production coordinate chooser on publicly initialized/painted maps. Both terrain modes cover first-hit, 100th-hit, deterministic x-major scan fallback after 100 rejected pairs, and real default RNG. C receives checked shared draw tapes; not independent RNG parity or all map geometries.",
+    "limitations": [
+      "Eight maps/draw sequences only; no universal geometry or independent RNG equivalence.",
+      "C accepts the same checked draw tape as JS; no population, finalization or runtime claim."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Production API/fixed C oracle comparison; shipped level exposure unestablished."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS randomOneBased defaults to rnd and is called twice per attempt; the C-only edge is an injected-parameter alias.",
+    "keys": [
+      "source-audit:edge-c-only:src/mkmaze.c:mazexy:rnd"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/README.md",
+      "sha256": "b59b33f764019b6607cbb4a8856c88d0bea22c4afd6cb639f844b71f757caf1f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/control-output.txt",
+      "sha256": "7549657082bf3f2060513e09837469439676ac8438bfe07591a9d71477498928",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/control-receipt.json",
+      "sha256": "3cc6654fe6ac33070900279bbc63717f31ccbd5ac301ca472654c0a1a6932789",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/decisions.json",
+      "sha256": "51b6122cf4dad5959166b68f7ba8fc65ed83c7186a758732131a79d2f58d667b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/oracle.c",
+      "sha256": "33fba04922d956d5414544761d0d2e4a184b02898a24a5da51b73abd332bb0de",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/probe.mjs",
+      "sha256": "b6639419958cf61786f83b246f4a301d623625760fda906d38280ac7c1a07dfb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/projection/manifest.json",
+      "sha256": "1db66e161a12f81e8051e090d5db65d0729f8545a739e94f153479bd63bd84c4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/projection/projection.json",
+      "sha256": "f4ce43613f05fd3babe11d116ae5fbd88330f551c0c25570b61eb87293b1eacc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/projection/review-template.json",
+      "sha256": "f7eade2f61eebf00aaa846dc633428e670a1ec09dc52ae4a6e0e1657f5a408cd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/source-fingerprints.json",
+      "sha256": "adfab77a592a8ffc9d1ae685349199f87afd82a49df0e68b2bc63fd18e009e01",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/target-output.txt",
+      "sha256": "f5cac8fe08eb3ffb85b8a038eeb9d0b68598e267e2ae801326709b12662429d2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/target-receipt.json",
+      "sha256": "6ef6b1c4c4e90aea50d52fee1becc28fa08a5de3dc23a465360e345feef55575",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
