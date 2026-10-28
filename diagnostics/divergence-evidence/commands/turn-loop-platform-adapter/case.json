@@ -118,7 +118,7 @@
   "positiveControl": "Do not blanket suppress occupation or helper edges: PR #25 vault-entry-occupation-hook remains a confirmed live missing callback despite these two negatives.",
   "generalization": "Require actual configured preprocessing for conditional edges and exact wrapper/call-site argument and ordering proof for wrapper edges. A function name or matching seed is insufficient.",
   "evidenceSha256": {
-    "README.md": "cc60739269206559635a8a9d148762cd86a18381f05c770f0410cfa0a00c6978",
+    "README.md": "5806f4baf5023936b87e11c99c7943a5e88f23fb2bcae453c5ab25e0be522a0d",
     "control.comparison.json": "c68ed887912335ec2d4bae1116e39975f1f0aab28fc46ecf1d1c9bb4bf4c2644",
     "control.js-output.json.gz": "3459021bd3b70033cceb63fd3748dced9b999f7e40e57e8326ff4a9fd53db589",
     "control.js-output.json": "e3155c6b10e0db94be7d06c762c17c4ba68ce690a7841a03ce6ea76a8049c33a",
@@ -129,15 +129,16 @@
     "evidence.test.mjs": "38de1a6b490098560df3aab5bad6304c4fa371f1e76ceb43a8b700f4a9db8429",
     "preprocessor-proof.json": "df4ba9264f7b2965ee07cd13b331643afa4fa1fce879079c6e39330158b41d39",
     "raw-observations.json": "63e87993d9a7af7f7e231f701e50bccf07cefa45f6094c69a5a3515a56a1c334",
-    "clean-import-check.json": "dc1d5e74658c7679af0f045be070e08a5f7ed37465d5b7f165153846b569f106",
-    "discovery-run.projection.json": "41f40af0f0da688c2dacb71e6851534a51986e531641d8e768633197c1b77bf5",
-    "projection-verification.json": "1a3dd1daadd8acd0b73966c62ea4ab4b68c23aff2718c2cd016709a8bdbd655f",
-    "review-decisions.json": "defb06d1efdbc98f53c3b117720c65874a9712a07d2f2a4a6bc74dde6881ec44"
+    "clean-import-check.json": "4ed989cfcca36d9fe2c46e524ee7bba6dcebf8de71c8ccafaca699e98c59f185",
+    "discovery-run.projection.json": "53f71b85d6fdf247b7cc6b42cc51ef96fec07271ba3057e0f94ba14bf9a71d45",
+    "projection-verification.json": "573e55dac11fe840429afbe0f927f060283b331e5dba1ae419ad3d1d2e9c9be1",
+    "review-decisions.json": "defb06d1efdbc98f53c3b117720c65874a9712a07d2f2a4a6bc74dde6881ec44",
+    "import.test.mjs": "89ccacdcd36735adc677913d92b016f7050993f55fd8541dd1951245cb8b1acd"
   },
   "validation": {
     "focused": "3 evidence assertions pass",
     "freshControl": "5 screens/cursors and 3649 RNG calls match",
     "currentSource": "No gameplay changes from pinned acec7a757; all changes scoped to this evidence directory",
-    "cleanImport": "Clean current-main CLI imports two explained_negative decisions with original fingerprints"
+    "cleanImport": "Clean CLI import and active view verified: PR30 filters2/retains4, combined PR30+PR39 filters4/retains2; stale-config control filters0."
   }
 }

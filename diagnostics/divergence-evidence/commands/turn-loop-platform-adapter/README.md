@@ -31,3 +31,5 @@ node scripts/discovery-hub.mjs classify --run diagnostics/divergence-evidence/co
 ```
 
 `clean-import-check.json` records successful CLI import from a pristine Main snapshot: exactly two `explained_negative` decisions with `reviewFreshness=current`. Reuse this projection by pinned commit for the other scoped cases; do not duplicate the large original run or infer decisions for its omitted leads.
+
+Active-view qualification also requires top-level `methodConfigHashes` and `methods.sourceAudit.sourceHash`. These are now copied exactly from the original immutable run. Import acceptance alone was insufficient: the earlier projection imported decisions but filtered zero leads. The corrected clean-checkout check verifies both stages: this PR filters exactly two leads and retains four; combining PR #39's two decisions filters four and retains the two unreviewed PR #9 leads. `node --test diagnostics/divergence-evidence/commands/turn-loop-platform-adapter/import.test.mjs` also verifies that altered configuration metadata prevents filtering. No freshness checks were weakened.

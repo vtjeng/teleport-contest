@@ -30,7 +30,7 @@
       "source-audit:message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
       "source-audit:message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547"
     ],
-    "note": "Partial run projection. Only selected unchanged lead objects and all reviewFingerprint input fields are retained; this file is not the original run and has a different file hash."
+    "note": "Partial run projection. Selected lead objects, reviewFingerprint inputs, and activeLeadIndex freshness metadata are copied unchanged from the original. Distinct file hash; not a full archive."
   },
   "leads": [
     {
@@ -471,5 +471,17 @@
         }
       ]
     }
-  ]
+  ],
+  "methodConfigHashes": {
+    "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+    "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+    "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+    "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+    "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+  },
+  "methods": {
+    "sourceAudit": {
+      "sourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722"
+    }
+  }
 }
