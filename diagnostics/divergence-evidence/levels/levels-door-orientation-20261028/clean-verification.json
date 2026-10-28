@@ -1,0 +1,20 @@
+{
+  "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "results": [
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-door-orientation-20261028/probe.mjs",
+      "exit": 0,
+      "stdout": "{\n  \"comparisons\": 16384,\n  \"matched\": 16384,\n  \"neighborhoods\": 8192,\n  \"types\": [\n    0,\n    2,\n    23,\n    14,\n    13,\n    22,\n    25,\n    16\n  ],\n  \"positions\": [\n    [\n      1,\n      10\n    ],\n    [\n      10,\n      10\n    ]\n  ],\n  \"control\": {\n    \"implicitStoneOnly\": 1,\n    \"explicitUpperWall\": 0\n  },\n  \"scope\": \"Eight representative terrain types in four cardinal neighbors; closed/secret coordinate doors only; no universal map-generation claim\"\n}\n"
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-door-descriptor-20261028/probe.mjs",
+      "exit": 0,
+      "stdout": "{\n  \"comparisons\": 72,\n  \"matched\": 72,\n  \"control\": {\n    \"existingDoor\": 23,\n    \"newDoor\": 14\n  },\n  \"scope\": \"Three old terrain types, six explicit states, four local neighborhoods; coordinate door descriptors only\"\n}\n"
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-door-orientation-20261028/replay.mjs",
+      "exit": 0,
+      "stdout": "{\"seed\":28104100,\"program\":\"Cav-strt.lua\",\"passed\":true,\"lengths\":{\"rng\":{\"c\":3226,\"js\":3226},\"screens\":{\"c\":27,\"js\":27},\"cursors\":{\"c\":27,\"js\":27},\"animFrames\":{\"c\":0,\"js\":0}}}\n{\"seed\":28104101,\"program\":\"Cav-strt.lua\",\"passed\":true,\"lengths\":{\"rng\":{\"c\":3019,\"js\":3019},\"screens\":{\"c\":27,\"js\":27},\"cursors\":{\"c\":27,\"js\":27},\"animFrames\":{\"c\":0,\"js\":0}}}\n{\"seed\":28104102,\"program\":\"Cav-loca.lua\",\"passed\":true,\"lengths\":{\"rng\":{\"c\":4310,\"js\":4310},\"screens\":{\"c\":27,\"js\":27},\"cursors\":{\"c\":27,\"js\":27},\"animFrames\":{\"c\":0,\"js\":0}}}\n{\"seed\":28104103,\"program\":\"Cav-loca.lua\",\"passed\":true,\"lengths\":{\"rng\":{\"c\":3733,\"js\":3733},\"screens\":{\"c\":27,\"js\":27},\"cursors\":{\"c\":27,\"js\":27},\"animFrames\":{\"c\":0,\"js\":0}}}\n"
+    }
+  ]
+}

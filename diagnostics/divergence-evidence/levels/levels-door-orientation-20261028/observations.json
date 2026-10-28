@@ -1,0 +1,30 @@
+{
+  "comparisons": 16384,
+  "matched": 16384,
+  "neighborhoods": 8192,
+  "types": [
+    0,
+    2,
+    23,
+    14,
+    13,
+    22,
+    25,
+    16
+  ],
+  "positions": [
+    [
+      1,
+      10
+    ],
+    [
+      10,
+      10
+    ]
+  ],
+  "control": {
+    "implicitStoneOnly": 1,
+    "explicitUpperWall": 0
+  },
+  "scope": "Eight representative terrain types in four cardinal neighbors; closed/secret coordinate doors only; no universal map-generation claim"
+}
