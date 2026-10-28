@@ -1,0 +1,122 @@
+{
+  "caseId": "nurse-digestion-healing-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "binding": {
+    "status": "unbound",
+    "reason": "Manual behavior investigation; no matching canonical scanner lead identified. Do not import as an exact scanner suppression or map to a neighboring helper."
+  },
+  "hypothesis": "A nurse-digesting monster below its final maximum HP indicates missing nurse healing in JS.",
+  "explanation": "C heals to the old maximum first, then applies victim-based growth. With a 32/120 HP level15 purple worm and legal growth rnd=1, final HP/max are 120/121 in both C and JS. The deficit is source-defined, not a missing-heal port defect.",
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:25:51.067919+00:00",
+  "reviewedAt": "2026-10-28T18:32:24.769948+00:00",
+  "sourceLocations": [
+    "nethack-c/upstream/src/mhitm.c:1106",
+    "nethack-c/upstream/src/mon.c:4596",
+    "nethack-c/upstream/src/makemon.c:2095",
+    "js/mhitm.js:1630",
+    "js/mon.js:6999",
+    "js/makemon.js:404"
+  ],
+  "sourceToolHashes": {
+    "nethack-c/upstream/src/mhitm.c": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+    "nethack-c/upstream/src/mon.c": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01",
+    "nethack-c/upstream/src/makemon.c": "04bb46b793cb7a724544ed5860f57116e4661ce5d052a1321d90dc0167d3ffc3",
+    "nethack-c/upstream/src/uhitm.c": "4cc2f8a0ffe0121801a777978a9a555a063db720e0fe972308fb6ab0e96feb12",
+    "js/mhitm.js": "f823bac6efc732f993bc46d58b3430f10361ad0e6139de38a9218c4f6b413393",
+    "js/mon.js": "8df046bda3602822e5443eea8f98a1e6f82a094e0a1d342224fcea951b9b6f0f",
+    "js/makemon.js": "de9f500a29a6a220567eb6a71f25f9df0adcecff272dead9dcb360b334ac00a1",
+    "js/uhitm.js": "ad673dbf7e3515ad683f6da337a141feb6dceef7e7455a716ba727e84baa6353",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+    "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+    "nethack-c/build-recorder.sh": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "isolatedOracleCompiler": "cc (Debian 14.2.0-19) 14.2.0",
+    "recorderCompiler": "Debian clang 19.1.7",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "patchHashes": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "configuration": "Existing saved Clang recorder, canonical TZ America/New_York, recorderIsDst retained; private installation for each differential. Relevant recorder C source files mhitm.c, mon.c, makemon.c, uhitm.c byte-match pinned upstream. Build script and patches unchanged from saved a37ef64c8."
+  },
+  "setup": "Public wizard-input tame purple worm and hostile nurse creation, full-moon startup prompt cleared, repeated wait commands and debug death refusals; focused initialized non-pet worm32/120HP level15 and nurse20/40HP level11, native attacks, legal scripted RNG. Stone golem20/60HP level14 control.",
+  "expectedC": {
+    "nurse": [
+      120,
+      121
+    ],
+    "stoneGolemControl": [
+      32,
+      121
+    ],
+    "oracle": "Compiled unmodified healmon and extracted victim-growth arithmetic, legal rnd=1. Full C recorder separately establishes digestion reachability."
+  },
+  "observedJS": {
+    "nurse": [
+      120,
+      121
+    ],
+    "stoneGolemControl": [
+      32,
+      121
+    ],
+    "publicWitness": {
+      "rng": 3311,
+      "screens": 163,
+      "cursors": 163,
+      "animationFrames": 0,
+      "strictMatch": true,
+      "swallowStep": 109,
+      "healthyMessageStep": 110
+    }
+  },
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/nurse-digestion-healing-negative/probe.test.mjs diagnostics/divergence-evidence/monsters/nurse-digestion-healing-negative/replay.test.mjs",
+  "scope": "Only nurse healing before ordinary victim growth. No universal digestion/growth equivalence from matching seed. Full recording does not expose exact HP; isolated source-backed state oracle establishes HP arithmetic.",
+  "validation": {
+    "base": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "initialGitStatusPorcelain": "",
+    "testsPassed": 4,
+    "cleanCheckout": true,
+    "testedAt": "2026-10-28T18:32:24.769948+00:00"
+  },
+  "evidence": [
+    "README.md",
+    "attempts.md",
+    "c-oracle.mjs",
+    "observations.txt",
+    "probe.test.mjs",
+    "public-witness.session.json",
+    "recipe.session.json",
+    "record.mjs",
+    "replay.test.mjs"
+  ],
+  "evidenceHashes": {
+    "README.md": "2ff24278f5b4a78dffcf35e186de95cf5475ba68683505d5079da5ba6147601a",
+    "attempts.md": "b1bbc3f1daf684224b4f71569762ae7d9f5f0ff15117ff0cd2748f640c0c4e69",
+    "c-oracle.mjs": "0da00b6e9b7087fa7258cb02604b454bdcfe88a1ade01a73675ce96125d18deb",
+    "observations.txt": "d0d8fdca7467f65f1f8fc8d7397a02968a42fbd7cb40a4663a5ca41f8337bc28",
+    "probe.test.mjs": "eed868066db2e2ba7159bc0753b11e72e48bbbf35801da2e4e9f019230bf69a1",
+    "public-witness.session.json": "6bfc43a926cf80a84cb8221e875bfea9f590c9ad7cbd98242317fb3e21da54c0",
+    "recipe.session.json": "8fab9fe1f77ec0285e86c1aa48b5f9b4b5279b0df76888ed340a1f5400fdb6a8",
+    "record.mjs": "b62237fbf6ba7601a0bab705bf322f8811eb87277078b0a03f80af7881176e4b",
+    "replay.test.mjs": "b3213864702d02b4ce6af8e22d321a31bae8f39a805bd67cf679959f96bfa0a6"
+  },
+  "nextExperiment": null,
+  "focusedInitialization": {
+    "seed": 7710048,
+    "datetime": "20260214031500",
+    "options": "Valkyrie human female neutral; !legacy,!tutorial,!splash_screen; pettype:none"
+  }
+}
