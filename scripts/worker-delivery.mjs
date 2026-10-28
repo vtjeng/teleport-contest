@@ -1,5 +1,6 @@
 // Git-backed delivery snapshots and cheap integration checks. None of these
 // functions merges, pushes, replays a game or claims to prove source equivalence.
+import { checkTestLayout } from './checkpoint-preflight.mjs';
 import {validateSourceParityGoal, SOURCE_PARITY_BASIS} from './source-parity.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
@@ -653,6 +654,10 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
         const grouped = delivery.integration === commit ? delivery.prepGroup ?? delivery.implementationGroup ?? [] : [];
         const pending = new Set([...pendingGroup, ...grouped.map(id => state.tasks[id]?.deliveries.at(-1))]);
         checkCandidate(root, state, task, commit, new Set(), new Map(), pending);
+    });
+    inspect('test discovery', () => {
+        const layout = checkTestLayout(root, commit);
+        check(layout.passed, `test files outside discovered roots: ${layout.stray.join(', ')}`);
     });
     let evidence;
     inspect(task.kind === 'challenge-preparation' ? 'prepared C cases' : 'source evidence',

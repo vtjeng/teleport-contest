@@ -244,6 +244,24 @@ test('worker submits durably and starts another task before receipt; snapshots s
     assert.deepEqual(preflight.focusedTests, [addedTest, 'scripts/importer-only.test.mjs', 'scripts/sample.test.mjs']);
 });
 
+test('delivery preflight rejects committed evidence tests outside discovered roots', t => {
+    const f = fixture(t); f.assign(); f.artifacts(); f.commit();
+    const submitted = f.success(f.submitArgs, f.workers.A);
+    const head = f.git(f.workers.A, 'rev-parse', 'HEAD');
+    assert.ok(submitted.deliveries[head]);
+    assert.equal(f.success(['preflight', '--task', 'A-1', '--commit', head]).passed, true);
+    const path = 'diagnostics/reviews/check.test.mjs';
+    mkdirSync(join(f.workers.A, 'diagnostics/reviews'), { recursive: true });
+    writeFileSync(join(f.workers.A, path), '');
+    f.git(f.workers.A, 'add', path); f.git(f.workers.A, 'commit', '-qm', 'stray evidence runner');
+    const candidate = f.git(f.workers.A, 'rev-parse', 'HEAD');
+    rmSync(join(f.workers.A, path));
+    const result = f.run(['preflight', '--task', 'A-1', '--commit', candidate]);
+    assert.equal(result.status, 1);
+    assert.ok(JSON.parse(result.stdout).issues.some(issue =>
+        issue.includes('test discovery: test files outside discovered roots: diagnostics/reviews/check.test.mjs')));
+});
+
 test('partial source delivery requires an explicit blocker and committed recipe', (t) => {
     const f = fixture(t);
     f.assign('A', 'A-1', ['source:sample.c:sample', 'source:sample.c:other']);
