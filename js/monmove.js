@@ -2055,7 +2055,10 @@ export async function monfleeMessage(monster, detail, env = {}) {
         text = `${Monnam(monster, state)} turns to flee.`;
         break;
     }
-    return message(messageAt(text, monster.mx, monster.my, state), state, env);
+    // This arm is C's verbalize(), which has no monster-location argument.
+    // The others are pline_mon() messages and retain accessibility location.
+    return message(detail.kind === 'bright-light'
+        ? text : messageAt(text, monster.mx, monster.my, state), state, env);
 }
 
 export async function monflee(
