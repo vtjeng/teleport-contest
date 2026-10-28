@@ -1,0 +1,103 @@
+{
+  "target": {
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2750,
+          "js": 2750
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": {
+        "index": 66,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 66,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "(",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 66,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 66,
+          "key": " "
+        },
+        "cCursor": [
+          53,
+          0,
+          1
+        ],
+        "jsCursor": [
+          45,
+          0,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "cStep66": "(west): The red dragon is suddenly very cold!--More--",
+    "jsStep66": "The red dragon is suddenly very cold!--More--"
+  },
+  "control": {
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2750,
+          "js": 2750
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "cStep66": "The red dragon is suddenly very cold!--More--",
+    "jsStep66": "The red dragon is suddenly very cold!--More--"
+  }
+}
