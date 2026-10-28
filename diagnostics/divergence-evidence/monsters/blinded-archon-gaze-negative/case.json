@@ -1,0 +1,51 @@
+{
+  "caseId": "blinded-archon-gaze-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "binding": "manual/unbound; no scanner suppression",
+  "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:00:00Z",
+  "reviewedAt": "2026-10-28T19:08:24.033349+00:00",
+  "hypothesis": "Temporary attacker blindness incorrectly prevents native Archon AD_BLND gaze, or is incorrectly ignored for native Pyrolisk gaze.",
+  "setup": "Initialized native species, legal HP and intact attack arrays; real hero-thrown identified potion of blindness creates temporary blindness; native mattackm against a sighted minotaur on adjacent visible squares. Archon is disarmed. Monster-versus-monster attack entry is supported by conflict. No public-input recording of this setup is claimed.",
+  "expectedC": "Exact compiled gazemm rejection predicate: Archon allowed (0), ordinary gaze rejected (1). Source then dispatches Archon blindness and stun.",
+  "observedJs": "Archon target blinded 2 turns, stunned, 115 HP after physical attacks; Pyrolisk gaze rejected, target sighted and 119 HP after later bite. Both attackers blinded 65 turns by real potionhit.",
+  "control": "Blinded native Pyrolisk with same target and setup; native bite deliberately retained.",
+  "scope": "Exact blindness exception and ordinary-gaze rejection only. C oracle compiles the actual predicate with other guard operands fixed to documented fixture values, not full C combat. No broad Archon AI equivalence or complete combat RNG equivalence.",
+  "command": "node --test diagnostics/divergence-evidence/monsters/blinded-archon-gaze-negative/*.test.mjs",
+  "validation": "3/3 tests pass in independent clean checkout of stated JS base plus only this evidence directory. Tests remain outside default CI.",
+  "sourceLocations": [
+    "src/mhitm.c:736-803 gazemm",
+    "src/potion.c:1821-1828 potionhit blindness",
+    "src/uhitm.c:2958 mhitm_ad_blnd",
+    "js/mhitm.js:1440 gazemm",
+    "js/potion.js:2753",
+    "js/uhitm.js:5258"
+  ],
+  "toolchain": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "sourceSha256": {
+    "js/mhitm.js": "f823bac6efc732f993bc46d58b3430f10361ad0e6139de38a9218c4f6b413393",
+    "js/potion.js": "5d1c2083148a552a7261f62f910e03784e6975b72adafa5c77d60571b310c9c6",
+    "js/uhitm.js": "ad673dbf7e3515ad683f6da337a141feb6dceef7e7455a716ba727e84baa6353",
+    "js/monsters.js": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+    "js/monst.js": "81ea77a09b6f5ff024ec168e39830ff3661e6323679f149dec2d6590cb109416",
+    "js/jsmain.js": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+    "nethack-c/upstream/src/mhitm.c": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+    "nethack-c/upstream/src/potion.c": "05176768623072e3e1337fc23b91e1f3991980dbefb4ca2fc44c0fe6d1115aa9",
+    "nethack-c/upstream/src/uhitm.c": "4cc2f8a0ffe0121801a777978a9a555a063db720e0fe972308fb6ab0e96feb12",
+    "nethack-c/upstream/src/monst.c": "87d36f109b24f83d4e9c9c10193b977afe3aa8f2938d4fa92e4fbc28b353547d"
+  },
+  "evidenceSha256": {
+    "observations.txt": "3ee6b9edd4d982718b40d4c1513d37ffbb147a3dcbef59d6504b498cbce651ae",
+    "oracle.test.mjs": "83bdffa34d6ce03babd4fce910ad97b2d88ca485a64d9c9e52e53f6a977e2701",
+    "probe.test.mjs": "967719511ead24accc70856517677c4570868dcc76caf761cfe748c1387d39ed"
+  },
+  "remainingUnresolved": [
+    "Broader prior Archon targeting scout: need a concrete targeting branch and public target/control; this gaze guard proof does not settle it.",
+    "Later wraith-specific growth behavior: need reachable supported kill/growth target and control; native engulf rejection does not settle it."
+  ]
+}
