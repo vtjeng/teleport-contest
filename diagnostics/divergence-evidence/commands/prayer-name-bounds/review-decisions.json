@@ -1,0 +1,36 @@
+[
+  {
+    "key": "source-audit:message:src/pray.c:halu_gname:00c4ef6ea9a57558",
+    "evidenceKey": "c50e37c9c2917058adb9750ca44c6d22c91b180e4d5c0661acb5ae430e1880f2",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "0ce61c16405135329b89d5f6da808e6cab7131d1fec0a53506f5fbabe2a426dc",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "rn2_on_display_rng(9) returns an unsigned remainder in0..8; every integer is handled.",
+      "proof": "Pinned C modulo operation with positive bound9 and exhaustive case labels.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/pray.c:2594-2615",
+        "nethack-c/upstream/src/rnd.c:70-72",
+        "js/pray.js:3119-3141"
+      ]
+    }
+  },
+  {
+    "key": "source-audit:message:src/pray.c:halu_gname:10f94bcf854fbe06",
+    "evidenceKey": "3f663a50d6ad87dab2c45982b15f91c0e75a185bc719d253a7969aa2542e02e5",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "8823d90d89838c1620e026ab4674f6bd895a08fd8236a0444c69c716f5fab7ef",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "After the Priest-rejection loop, every selectable role has all3 non-null names; novelty table has14 non-empty names; Moloch is non-empty. The selected gnam cannot be null.",
+      "proof": "Compiled configured C role table enumerates13 roles,12 selectable; all selectable pantheons have3 names. Source-pinned novelty table and fixed Moloch cover remaining arms.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/pray.c:2589-2620",
+        "nethack-c/upstream/src/role.c:30",
+        "js/pray.js:3114-3143"
+      ]
+    }
+  }
+]

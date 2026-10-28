@@ -1,0 +1,142 @@
+{
+  "id": "prayer-name-bounds",
+  "cases": [
+    {
+      "shard": "commands",
+      "outcome": "explained negative",
+      "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+      "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "discoveredAt": "2026-10-28T18:51:28.812Z",
+      "reviewedAt": "2026-10-28T18:55:09.175Z",
+      "supportedReachableSetup": "Configured immutable role data and valid display-RNG results during hallucination. Existing public god/monochrome/ordinary-control recordings exercise runtime naming; source bounds, not matching seeds, establish these exclusions.",
+      "reproduction": "node --test diagnostics/divergence-evidence/commands/prayer-name-bounds/evidence.test.mjs scripts/hallucinated-deity.test.mjs",
+      "nextExperiment": null,
+      "id": "prayer-deity-rng-range",
+      "discoveryBinding": {
+        "key": "source-audit:message:src/pray.c:halu_gname:00c4ef6ea9a57558",
+        "evidenceKey": "c50e37c9c2917058adb9750ca44c6d22c91b180e4d5c0661acb5ae430e1880f2",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "0ce61c16405135329b89d5f6da808e6cab7131d1fec0a53506f5fbabe2a426dc",
+        "status": null
+      },
+      "sourceLocations": [
+        "nethack-c/upstream/src/pray.c:2594-2615",
+        "nethack-c/upstream/src/rnd.c:70-72",
+        "js/pray.js:3119-3141"
+      ],
+      "hypothesis": "Missing rn2-broken diagnostic signals a reachable missing deity-selection branch.",
+      "expectedC": "rn2_on_display_rng(9) returns an unsigned remainder in0..8; every integer is handled.",
+      "observedJS": "The same switch covers0..8; its missing diagnostic only differs outside the valid RNG contract.",
+      "proof": "Pinned C modulo operation with positive bound9 and exhaustive case labels.",
+      "scope": "Only this diagnostic under the valid RNG contract; no claim about corruption, arbitrary injected RNG or display-stream equivalence."
+    },
+    {
+      "shard": "commands",
+      "outcome": "explained negative",
+      "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+      "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "discoveredAt": "2026-10-28T18:51:28.812Z",
+      "reviewedAt": "2026-10-28T18:55:09.175Z",
+      "supportedReachableSetup": "Configured immutable role data and valid display-RNG results during hallucination. Existing public god/monochrome/ordinary-control recordings exercise runtime naming; source bounds, not matching seeds, establish these exclusions.",
+      "reproduction": "node --test diagnostics/divergence-evidence/commands/prayer-name-bounds/evidence.test.mjs scripts/hallucinated-deity.test.mjs",
+      "nextExperiment": null,
+      "id": "prayer-deity-name-present",
+      "discoveryBinding": {
+        "key": "source-audit:message:src/pray.c:halu_gname:10f94bcf854fbe06",
+        "evidenceKey": "3f663a50d6ad87dab2c45982b15f91c0e75a185bc719d253a7969aa2542e02e5",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "8823d90d89838c1620e026ab4674f6bd895a08fd8236a0444c69c716f5fab7ef",
+        "status": null
+      },
+      "sourceLocations": [
+        "nethack-c/upstream/src/pray.c:2589-2620",
+        "nethack-c/upstream/src/role.c:30 roles constant table",
+        "js/pray.js:3114-3143"
+      ],
+      "hypothesis": "Missing no-random-god-name diagnostic conceals reachable null deity data.",
+      "expectedC": "After the Priest-rejection loop, every selectable role has all3 non-null names; novelty table has14 non-empty names; Moloch is non-empty. The selected gnam cannot be null.",
+      "observedJS": "Same configured role names match the executed C data probe. The missing diagnostic is unreachable for this data and bounded selections.",
+      "proof": "Compiled configured C role table enumerates13 roles,12 selectable; all selectable pantheons have3 names. Source-pinned novelty table and fixed Moloch cover remaining arms.",
+      "scope": "Only this configured immutable data and valid selector range. Does not prove loop termination for an arbitrary RNG or behavior after data corruption."
+    }
+  ],
+  "provenance": {
+    "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+    "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "fingerprints": {
+      "node": "v24.19.0",
+      "tools": {
+        "scripts/discovery-hub.mjs": "f2748a2ace9177b0c8b61108487ef7d711c4e403bb27134cdd51f5b226eef5dc",
+        "scripts/source-audit.mjs": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+        "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+        "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61"
+      },
+      "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+      "recorderSysconfSha256": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2",
+      "patches": {
+        "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+        "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+        "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+        "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+        "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+        "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+        "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+      },
+      "sources": {
+        "nethack-c/upstream/src/pray.c": "6d9729fb4c9e7fbed44f355f85a241ccc527e73d53913ca4efb904e23f999f03",
+        "nethack-c/upstream/src/role.c": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+        "nethack-c/upstream/src/rnd.c": "3fd80fbd93271b746a915cd938b9c9de2f752cbacf8c53ef77e4f0a3c4400362",
+        "nethack-c/recorder/src/role.c": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+        "nethack-c/recorder/include/config.h": "5585d9c88d7ea21a9a78b45616cc31ae4ea680cb7b34026f70f92b91288a499f",
+        "js/pray.js": "4f9dab22dc4fbb6f2e8e87befaa37ca44098fd641711bfa850fe4e2248198277",
+        "js/roles.js": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+        "js/rng.js": "072e95b76b014136e7578f023e7eb5165aea0b830063e60f4e8adf669e6bcb98",
+        "scripts/hallucinated-deity.test.mjs": "5a1d251de0889d39a8ffad55bed0f864aadf81633f0600bfe7dba8acfbf8e51e",
+        "recordings/pray.c/hallucinated-deity-god.session.json": "7b55cc3379d8a5116bf5e7cf0a32c2f8470d1698c127df6a4946eeaf8955adf3",
+        "recordings/pray.c/hallucinated-deity-monochrome.session.json": "6b7e4e5585ae96cabd0bef800ec6938db0d5495f392848bc99da09ee4d7033e6",
+        "recordings/pray.c/hallucinated-deity-ordinary-control.session.json": "8129d14ac501bb138ef7e37fc4b3adf532e1c34441ee49218f24f2489a0c086e"
+      }
+    }
+  },
+  "oracle": {
+    "compiler": "Clang19",
+    "command": "clang -ffunction-sections -fdata-sections -I nethack-c/recorder/include nethack-c/recorder/src/role.c diagnostics/divergence-evidence/commands/prayer-name-bounds/role-names.c -Wl,--gc-sections -o /tmp/commands-role-names",
+    "output": "role-names.tsv",
+    "binarySha256": "88ed1c43b82abb38e720b60c0b8ff9f40b4f78403d51e5ac78f49dd62c95f141"
+  },
+  "discoveryRun": {
+    "runId": "7e93da55968668bc05fc",
+    "originalSha256": "1349082cfaa9d24b2f2e76adef76bbc2d75c10e511e4a0bce7eae7d64c571dde",
+    "projectionSha256": "faacd02eb9ac8019aea3e8b4b37de553b4fc31135b60933cedf4dc2ca5e9f7d4",
+    "retainedOriginal": "/tmp/commands-discovery-20261028-a/run.json",
+    "exporterCommit": "a879e944617577d3eb59c14afc87ddbdb2724b18",
+    "exporterManifest": "manifest.json",
+    "projection": "projection.json"
+  },
+  "control": "Original unreviewed invault lead remains active after both decisions; altered source hash prevents filtering. Twelve existing deity assertions pass including three public C recordings.",
+  "generalization": "Only bounded switch coverage plus verified configured immutable data justify these specific negatives. Do not suppress arbitrary impossible() messages or all deity behavior.",
+  "validation": {
+    "focused": "3 new scoped assertions pass",
+    "existingControls": "12 existing deity assertions pass including 3 public C recordings",
+    "export": "Pinned PR43 exporter verifies exact original metadata/lead preservation, fingerprints and after-view active1/filtered2"
+  },
+  "evidenceSha256": {
+    "README.md": "349e00267e043910d0339ec8a2deb74dfb5405b58ae5ee4e1b5dee13656d86cd",
+    "discovery-bindings.json": "fa335332dcf08836192fcc656b766cd4d2051d7e40a7491fb5e5b03280781647",
+    "evidence.test.mjs": "a378fae43adedc1f2426eefe817a6eb728462f761f4bec3e8b0015b16b38980a",
+    "export-validation.json": "afb263f3f44377d4903df70e34bd3ac38d3fa3dae79365ff384f03e4fc89362e",
+    "keys.json": "dc73f0ea2e62684f8b0cdfbfe89cbb1b1d09d5f1939338f3cf09ed92ef0fffe2",
+    "manifest.json": "7b8f3558f9e4e89dd4d39f5b280861888d2fba88fa3138e6857027914002afd5",
+    "projection.json": "faacd02eb9ac8019aea3e8b4b37de553b4fc31135b60933cedf4dc2ca5e9f7d4",
+    "raw-observations.json": "bfb3e1101ede11ff0d9000e15d7c2ac9322403ee6d40082824ea653983f64b24",
+    "review-decisions.json": "e3bc61f656f21620e753dd64757a111a3d942b390cbac1687aec553cf88e4b7a",
+    "review-template.json": "3ac396b515ef87d38bc62a298d6fab6b4fa199ab168180d5001357bdd8f86bc8",
+    "role-names.c": "3daeffc63ffbe2263c4aeaf00e6f7d75d5718881458f672ba297a2d91f31042d",
+    "role-names.tsv": "864a0e5ea4e5b097928123d53937db83e6d34691ba1f15940d97640ca38abc05"
+  },
+  "publicationReview": "Inspected exporter output metadata, selected lead objects, C probe and focused evidence. No unrelated recordings, credentials or gameplay edits included.",
+  "latestSourceReview": {
+    "main": "8eec78d62",
+    "note": "Relevant prayer/roles/RNG/control-test sources unchanged from tested58ad57cea. Main now contains vault and direct-turn repairs; the unreviewed invault projection lead remains solely an import-retention control, not a new current bug claim."
+  }
+}

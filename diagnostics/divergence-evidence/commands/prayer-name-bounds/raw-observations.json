@@ -1,0 +1,122 @@
+[
+  {
+    "id": "message:src/pray.c:halu_gname:00c4ef6ea9a57558",
+    "kind": "message",
+    "owner": "src/pray.c:halu_gname",
+    "target": "00c4ef6ea9a57558",
+    "confidence": "literal-absent",
+    "rank": 1,
+    "sites": [
+      {
+        "file": "nethack-c/upstream/src/pray.c",
+        "line": 2615,
+        "conditions": [],
+        "context": {
+          "startLine": 2612,
+          "endLine": 2617,
+          "text": "        gnam = Moloch;\n        break;\n    default:\n        impossible(\"rn2 broken in halu_gname?!?\");\n    }\n    if (!gnam) {"
+        }
+      }
+    ],
+    "details": {
+      "literal": "rn2 broken in halu_gname?!?",
+      "fragment": "rn2 broken in halu_gname?!?",
+      "match": "absent",
+      "fileCategory": "gameplay",
+      "api": "impossible"
+    },
+    "signals": {
+      "commandPath": [
+        "src/pray.c:doturn",
+        "src/pray.c:halu_gname"
+      ],
+      "turnPath": [
+        "src/allmain.c:moveloop_core",
+        "src/hack.c:lookaround",
+        "src/do_name.c:a_monnam",
+        "src/do_name.c:x_monnam",
+        "src/priest.c:priestname",
+        "src/pray.c:halu_gname"
+      ],
+      "callers": 3,
+      "effects": {
+        "rng": 2,
+        "message": 2,
+        "stateWriteHeuristic": false
+      },
+      "missingMessageOverlap": 0
+    },
+    "repairOverlap": [
+      "hallucinated-deity",
+      "turn-undead-first-conduct-log"
+    ],
+    "assignedOverlap": [],
+    "queueOverlap": [],
+    "evidenceKey": "c50e37c9c2917058adb9750ca44c6d22c91b180e4d5c0661acb5ae430e1880f2",
+    "observed": true,
+    "classification": "needs-investigation",
+    "replayStatus": "unverified",
+    "reviews": [],
+    "reviewState": "unreviewed"
+  },
+  {
+    "id": "message:src/pray.c:halu_gname:10f94bcf854fbe06",
+    "kind": "message",
+    "owner": "src/pray.c:halu_gname",
+    "target": "10f94bcf854fbe06",
+    "confidence": "literal-absent",
+    "rank": 1,
+    "sites": [
+      {
+        "file": "nethack-c/upstream/src/pray.c",
+        "line": 2618,
+        "conditions": [],
+        "context": {
+          "startLine": 2615,
+          "endLine": 2620,
+          "text": "        impossible(\"rn2 broken in halu_gname?!?\");\n    }\n    if (!gnam) {\n        impossible(\"No random god name?\");\n        gnam = \"your Friend the Computer\"; /* Paranoia */\n    }"
+        }
+      }
+    ],
+    "details": {
+      "literal": "No random god name?",
+      "fragment": "No random god name?",
+      "match": "absent",
+      "fileCategory": "gameplay",
+      "api": "impossible"
+    },
+    "signals": {
+      "commandPath": [
+        "src/pray.c:doturn",
+        "src/pray.c:halu_gname"
+      ],
+      "turnPath": [
+        "src/allmain.c:moveloop_core",
+        "src/hack.c:lookaround",
+        "src/do_name.c:a_monnam",
+        "src/do_name.c:x_monnam",
+        "src/priest.c:priestname",
+        "src/pray.c:halu_gname"
+      ],
+      "callers": 3,
+      "effects": {
+        "rng": 2,
+        "message": 2,
+        "stateWriteHeuristic": false
+      },
+      "missingMessageOverlap": 0
+    },
+    "repairOverlap": [
+      "hallucinated-deity",
+      "turn-undead-first-conduct-log"
+    ],
+    "assignedOverlap": [],
+    "queueOverlap": [],
+    "evidenceKey": "3f663a50d6ad87dab2c45982b15f91c0e75a185bc719d253a7969aa2542e02e5",
+    "observed": true,
+    "classification": "needs-investigation",
+    "replayStatus": "unverified",
+    "reviews": [],
+    "reviewState": "unreviewed"
+  }
+]

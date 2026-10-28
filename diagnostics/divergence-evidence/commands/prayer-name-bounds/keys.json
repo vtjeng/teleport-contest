@@ -1,0 +1,5 @@
+[
+  "source-audit:message:src/pray.c:halu_gname:00c4ef6ea9a57558",
+  "source-audit:message:src/pray.c:halu_gname:10f94bcf854fbe06",
+  "source-audit:edge-c-only:src/allmain.c:moveloop_core:invault"
+]
