@@ -2694,7 +2694,7 @@ function newchamIsRogue(state) {
 // C ref: mon.c select_newcham_form() (5157-5225).  The optional flag lets
 // newcham() pause after the species-specific arm for the wizard query, before
 // entering this function's ordinary random fallback.
-function select_newcham_form(monster, normalized, { allowFallback = true } = {}) {
+export function select_newcham_form(monster, normalized, { allowFallback = true } = {}) {
     const { random, state } = normalized;
     let mndx = NON_PM;
     let tryct;

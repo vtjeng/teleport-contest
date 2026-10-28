@@ -120,6 +120,7 @@ import {
     PM_CHIEFTAIN,
     PM_DWARF,
     PM_ELF,
+    PM_ETTIN_ZOMBIE,
     PM_ETTIN,
     PM_GIANT,
     PM_GNOME,
@@ -654,7 +655,7 @@ test('furniture and monster appearances resolve while unsupported shapes fail ea
 
     const randomShape = monsterDescriptorFixture();
     assert.throws(() => lspo_monster([{
-        class: S_MIMIC,
+        id: PM_CHAMELEON,
         appear_as: 'mon:random',
     }], randomShape.room, {
         state: randomShape.state,
@@ -732,6 +733,29 @@ test('control: a special-level chameleon without appearance keeps its natural fo
     assert.equal(monster.cham, PM_CHAMELEON);
     assert.equal(monster.data, state.mons[monster.mnum]);
     assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('a mimic can select a random monster appearance from C form selection', () => {
+    // C sp_lev.c calls select_newcham_form for mon:random. A private C
+    // #wizloaddes recording draws rn2(330)=245 in that arm and displays an
+    // ettin zombie; mon:jackal is a nearby accepted control.
+    const { state, room } = monsterDescriptorFixture();
+    const calls = [];
+    const random = quietObjectRandom();
+    const originalRn1 = random.rn1;
+    random.rn1 = (bound, base) => {
+        calls.push([bound, base]);
+        return bound === 330 ? PM_ETTIN_ZOMBIE : originalRn1(bound, base);
+    };
+    const monster = lspo_monster([{
+        id: PM_GIANT_MIMIC,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.data, state.mons[PM_GIANT_MIMIC]);
+    assert.equal(monster.m_ap_type, M_AP_MONSTER);
+    assert.equal(monster.mappearance, PM_ETTIN_ZOMBIE);
+    assert.deepEqual(calls.filter(([bound]) => bound === 330), [[330, 0]]);
 });
 
 test('a non-shapechanger ignores a requested monster appearance', () => {
