@@ -14,7 +14,20 @@ it does not certify whole-function parity or gameplay reachability. In particula
 the get_location fallback and get_room_loc both-negative somexy branches are
 outside this proof. Do not suppress unrelated edges or nearby helper findings.
 
-The immutable discovery run is retained once at the path and SHA-256 in
-`case.json`, rather than copied into this PR. Its runId, key, evidenceKey and
-reviewFingerprint identify the exact inputs for the separate negative-filter
-review. No filter or classification database has been modified here.
+A portable two-lead projection is shared at
+`../levels-get-location-rng-alias-20261028/bound-run.json`. It preserves all
+original run metadata and selected lead objects, including the original
+fingerprint inputs. `projection.json` pins both the original full-run hash and
+the projection hash. The original run remains retained in the producer environment;
+no container-local path is needed to consume this projection. Its smaller lead
+count must not be used to measure whole-run filter yield.
+
+From the repository root, verify both bindings and the projection hash:
+
+```sh
+node --test diagnostics/divergence-evidence/levels/levels-get-location-rng-alias-20261028/binding.test.mjs
+```
+
+The existing hub `template --run <bound-run.json> --keys <two keys in case.json>`
+accepts this projection with the original runId and review fingerprints.
+No filter or classification database has been modified here.

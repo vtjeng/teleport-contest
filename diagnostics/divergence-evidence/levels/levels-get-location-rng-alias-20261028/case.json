@@ -23,7 +23,9 @@
   "discoveryRun": {
     "path": "/tmp/levels-hub-20261028-05/run.json",
     "sha256": "79589345756287551d73f4d0a94f28ee33070cd817bbd3c51849168fc78fabc2",
-    "runId": "141a19a089813e75a9ae"
+    "runId": "141a19a089813e75a9ae",
+    "portableProjection": "../levels-get-location-rng-alias-20261028/bound-run.json",
+    "projectionManifest": "../levels-get-location-rng-alias-20261028/projection.json"
   },
   "toolHashes": {
     "sourceAudit": "89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",

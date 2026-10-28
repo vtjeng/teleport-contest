@@ -1,0 +1,10 @@
+{
+  "originalRunSha256": "79589345756287551d73f4d0a94f28ee33070cd817bbd3c51849168fc78fabc2",
+  "originalLeadCount": 12525,
+  "projectionSha256": "070935772f1fbc7dda8264392a236e5228ca727e2030882c0c7b0e9448aec396",
+  "projectedLeadCount": 2,
+  "runId": "141a19a089813e75a9ae",
+  "createdAt": "2026-10-28T18:10:08.258001+00:00",
+  "projectionRule": "Preserve every top-level run field unchanged except leads; retain the two original lead objects verbatim. No rescan or identity regeneration.",
+  "verifiedAgainstOriginal": true
+}
