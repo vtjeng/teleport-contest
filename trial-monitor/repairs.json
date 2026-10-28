@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T20:37:36Z",
+  "asOf": "2026-10-28T20:57:25Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -24929,6 +24929,298 @@
               "completedAt": "2026-10-28T20:37:36Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764694854"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wizard-prayer-repeat-confirmation",
+      "kind": "parity-repair",
+      "title": "Ask fresh wizard force confirmation on prayer repeat",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #58",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pray.c:dopray",
+          "js/pray.js:dopray"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/58"
+        ],
+        "test": [
+          "https://github.com/vtjeng/teleport-contest/pull/58"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+          "committedAt": "2026-10-28T20:42:05Z",
+          "sourceCommit": "ee0be2269c5ed274f6e9a57b93c33ed4bc41a379",
+          "sourceCommittedAt": "2026-10-28T20:40:43Z",
+          "runs": [
+            {
+              "id": 40765890846,
+              "name": "Checkpoint",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/command-dispatch-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:44:03Z",
+              "completedAt": "2026-10-28T20:54:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40765890846"
+            },
+            {
+              "id": 40767500138,
+              "name": "Lint",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:55:07Z",
+              "completedAt": "2026-10-28T20:56:11Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767500138"
+            },
+            {
+              "id": 40767499957,
+              "name": "Dashboard",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:55:07Z",
+              "completedAt": "2026-10-28T20:57:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767499957"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "queued-direction-redraw",
+      "kind": "parity-repair",
+      "title": "Skip redraw handling for queued directions",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #60",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:getdir",
+          "js/cmd.js:getdir"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/60"
+        ],
+        "test": [
+          "https://github.com/vtjeng/teleport-contest/pull/60"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+          "committedAt": "2026-10-28T20:42:05Z",
+          "sourceCommit": "99a4de1ee181efd4959c7b078a06a5b8ca442344",
+          "sourceCommittedAt": "2026-10-28T20:41:07Z",
+          "runs": [
+            {
+              "id": 40765890846,
+              "name": "Checkpoint",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/command-dispatch-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:44:03Z",
+              "completedAt": "2026-10-28T20:54:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40765890846"
+            },
+            {
+              "id": 40767500138,
+              "name": "Lint",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:55:07Z",
+              "completedAt": "2026-10-28T20:56:11Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767500138"
+            },
+            {
+              "id": 40767499957,
+              "name": "Dashboard",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:55:07Z",
+              "completedAt": "2026-10-28T20:57:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767499957"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "current-square-travel-mode",
+      "kind": "parity-repair",
+      "title": "Retain travel mode after selecting the current square",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #62",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:dotravel",
+          "js/cmd.js:dotravel_target"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/62"
+        ],
+        "test": [
+          "https://github.com/vtjeng/teleport-contest/pull/62"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+          "committedAt": "2026-10-28T20:42:05Z",
+          "sourceCommit": "dbe1ebeb9bb03b12aeab364ab068326c7b91598d",
+          "sourceCommittedAt": "2026-10-28T20:41:26Z",
+          "runs": [
+            {
+              "id": 40765890846,
+              "name": "Checkpoint",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/command-dispatch-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:44:03Z",
+              "completedAt": "2026-10-28T20:54:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40765890846"
+            },
+            {
+              "id": 40767500138,
+              "name": "Lint",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:55:07Z",
+              "completedAt": "2026-10-28T20:56:11Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767500138"
+            },
+            {
+              "id": 40767499957,
+              "name": "Dashboard",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:55:07Z",
+              "completedAt": "2026-10-28T20:57:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767499957"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "queued-clicklook-dispatch",
+      "kind": "parity-repair",
+      "title": "Dispatch queued map-symbol lookup by handler identity",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #66",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:rhack",
+          "js/cmd.js:rhack"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/66"
+        ],
+        "test": [
+          "https://github.com/vtjeng/teleport-contest/pull/66"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+          "committedAt": "2026-10-28T20:42:05Z",
+          "sourceCommit": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+          "sourceCommittedAt": "2026-10-28T20:42:05Z",
+          "runs": [
+            {
+              "id": 40765890846,
+              "name": "Checkpoint",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/command-dispatch-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:44:03Z",
+              "completedAt": "2026-10-28T20:54:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40765890846"
+            },
+            {
+              "id": 40767500138,
+              "name": "Lint",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:55:07Z",
+              "completedAt": "2026-10-28T20:56:11Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767500138"
+            },
+            {
+              "id": 40767499957,
+              "name": "Dashboard",
+              "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:55:07Z",
+              "completedAt": "2026-10-28T20:57:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767499957"
             }
           ]
         }

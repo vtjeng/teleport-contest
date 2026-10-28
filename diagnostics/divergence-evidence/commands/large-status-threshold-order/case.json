@@ -1,0 +1,54 @@
+{
+  "caseId": "commands-large-status-threshold-order",
+  "shard": "commands",
+  "outcome": "confirmed divergence",
+  "discoveredAt": "2026-10-28T20:17:29.552522+00:00",
+  "jsCaptureRevision": "419d405e7334f0171b375c6e7c6a9aa9fb186d1e",
+  "jsGameplayBase": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "currentBase": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recorderSha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "binding": "unbound: manual representation hypothesis during inventory triage; no canonical get_hilite lead in preserved run; no suppression decision",
+  "sourceLocations": [
+    "js/options.js:2617",
+    "js/display.js:6337",
+    "nethack-c/upstream/src/botl.c:2513"
+  ],
+  "hypothesis": "After first matching large threshold, JS stores a decimal string in the minimum accumulator; comparing the next decimal string uses lexical ordering, whereas C compares signed long values.",
+  "supportedSetup": "Ordinary human neutral Ranger, seed421081, starting gold; OPTIONS hilite_status:gold/<9007199254740992/red/<10000000000000000/blue. Only input colon.",
+  "expectedC": "Starting gold uses red, the closest matching LT threshold.",
+  "observedJS": "Starting gold uses blue. First difference initial screen, zero-based row 23 column 7, C color 1, JS color 4.",
+  "control": "Same setup and colors with thresholds900 and1000: strict parity.",
+  "scope": "LP64 C recorder, both input thresholds below LONG_MAX; no overflow, modified hero state, object internals or dispatch prefix involved. Distinct from queued dispatch cases and status expiry adapter proof.",
+  "counts": {
+    "screens": 2,
+    "rngCalls": 2973
+  },
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/large-status-threshold-order/evidence-check.mjs",
+  "expectedTest": "Control passes; target fails color parity until Main repairs it. Outside default CI.",
+  "sourceHashes": {
+    "js/options.js": "ebaea358250181d35c2aa1f44e3056d8df19d2274a434a5ac987e3987f5cd618",
+    "js/display.js": "3782bffd34c0ddb199175912fa8f21959838dcdd6fb84e43b5db84de3336abe4",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "nethack-c/upstream/src/botl.c": "765fe13d7ee604c606c6920bce9bcb2a8a82299dbd56073b2b90101409409360"
+  },
+  "reviewedAt": "2026-10-28T20:18:19.241921+00:00",
+  "toolConfig": {
+    "node": "v24.19.0",
+    "oraclePlatform": "Linux x86_64 LP64; both thresholds fit signed long",
+    "recorderConfig": "seed421081; datetime20000110090000; rc in included recipes; frozen scorer overlays"
+  },
+  "evidencePaths": [
+    "README.md",
+    "case.json",
+    "clean-base-check.json",
+    "control.recipe.json",
+    "control.recording.json.gz",
+    "control.result.json",
+    "evidence-check.mjs",
+    "target.recipe.json",
+    "target.recording.json.gz",
+    "target.result.json",
+    "files.json"
+  ]
+}
