@@ -1,6 +1,6 @@
 // Lexical ranking evidence, never a call-equivalence or reachability proof.
 import { parse } from 'espree';
-export const DELEGATION_HINT_VERSION = 'default-import-delegation-v1';
+export const DELEGATION_HINT_VERSION = 'default-import-delegation-v2';
 const id = node => node?.type === 'Identifier' ? node.name : null;
 const rootName = node => id(node) ?? (node?.type === 'MemberExpression' ? rootName(node.object) : null);
 function walk(node, visit) {
@@ -83,10 +83,30 @@ export function delegationModule(source) {
                 }
             }
         }
+        // Direct parameter defaults are hints only. Reject ambiguous binding constructs
+        // rather than trying to resolve nested lexical scopes.
+        const parameterAliases = new Map();
+        const ambiguous = node => {
+            if (!node || typeof node !== 'object') return false;
+            if (/Function/u.test(node.type ?? '') || ['CatchClause', 'ClassDeclaration', 'ForInStatement', 'ForOfStatement'].includes(node.type)
+                || (node.type === 'AssignmentExpression' && !id(node.left))
+                || (node.type === 'VariableDeclarator' && !id(node.id))) return true;
+            return Object.values(node).some(value => Array.isArray(value)
+                ? value.some(ambiguous) : value && typeof value === 'object' && ambiguous(value));
+        };
+        const complexDefaults = caller.params.some(p => p.type === 'AssignmentPattern'
+            && !['Identifier', 'Literal'].includes(p.right.type));
+        if (!complexDefaults && !ambiguous(caller.body)) for (const param of caller.params) {
+            if (param.type !== 'AssignmentPattern') continue;
+            const alias = id(param.left), local = id(param.right), imported = imports.get(local);
+            if (!alias || !imported || params.has(local) || names.has(alias) || writes.has(alias)) continue;
+            parameterAliases.set(alias, { kind: 'parameter-default', alias, importLocal: local,
+                ...imported, definitionLine: param.loc.start.line, bindingLine: param.loc.start.line });
+        }
         const result = [];
         walk(caller.body, node => {
             if (node.type !== 'CallExpression') return;
-            let trace = aliases.get(id(node.callee));
+            let trace = aliases.get(id(node.callee)) ?? parameterAliases.get(id(node.callee));
             if (node.callee.type === 'MemberExpression' && !node.callee.computed) {
                 const env = environments.get(id(node.callee.object));
                 if (env?.props.has(id(node.callee.property)))
@@ -105,7 +125,7 @@ export function delegationRankingHint(kind, target, traces) {
     if (kind !== 'edge-c-only') return null;
     const matches = traces.filter(trace => trace.imported === target);
     return matches.length ? { version: DELEGATION_HINT_VERSION, delta: -10,
-        reason: 'Paired JS owner calls a const-bound property/alias whose factory defaults to the matching named import.',
+        reason: 'Paired JS owner calls an alias with a traced factory or parameter default to the matching named import.',
         limitation: 'Lexical hint only: overrides, mutation through other calls, arguments, branch reachability and RNG order remain unproved; retain the candidate.',
         traces: matches } : null;
 }
