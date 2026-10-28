@@ -1,0 +1,47 @@
+{
+  "caseId": "sleep-release-accessible-message",
+  "shard": "monsters",
+  "outcome": "confirmed divergence",
+  "scope": "Supported production API message-location contract; no public C recording",
+  "binding": "manual/unbound",
+  "jsBase": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:24:00Z",
+  "reviewedAt": "2026-10-28T20:27:45.954031+00:00",
+  "hypothesis": "slept_monst drops monster location on grip-release message",
+  "sourceLocations": [
+    "src/mhitm.c:1250",
+    "src/pline.c:138",
+    "src/pline.c:175",
+    "js/mhitm.js:325",
+    "js/music.js:175",
+    "js/uhitm.js:6037"
+  ],
+  "expected": "With accessiblemsg and map coordinates: <19,15>: The lichen's grip relaxes.",
+  "observed": "The lichen's grip relaxes.",
+  "controls": [
+    "accessiblemsg disabled: same unprefixed text",
+    "unheld lichen: no release text"
+  ],
+  "sourceSha256": {
+    "nethack-c/upstream/src/mhitm.c": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+    "nethack-c/upstream/src/pline.c": "394d4d33f3ecfa66005a0df96cacf582782c79437f34daeaaa9bf25238d857ff",
+    "nethack-c/upstream/src/music.c": "ee4033351639a8d48816dec76188948d29b060f650254eafb828c56619a0a911",
+    "nethack-c/upstream/src/uhitm.c": "4cc2f8a0ffe0121801a777978a9a555a063db720e0fe972308fb6ab0e96feb12",
+    "js/mhitm.js": "f823bac6efc732f993bc46d58b3430f10361ad0e6139de38a9218c4f6b413393",
+    "js/pline.js": "a2ce2402f9df63db196778241a47e6afaffb20f9145e7fd0e5d3a536924014cb",
+    "js/music.js": "e7190c2bec7f480a1403e73c69d9799363122de7b9b8e07c02f668198878dd44",
+    "js/uhitm.js": "ad673dbf7e3515ad683f6da337a141feb6dceef7e7455a716ba727e84baa6353"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "evidence": [
+    "probe.test.mjs",
+    "oracle.test.mjs",
+    "observations.txt",
+    "README.md"
+  ],
+  "validation": "Clean detached base: characterization 4 pass; default 3 pass, target 1 expected fail; outside default CI"
+}

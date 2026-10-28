@@ -1,0 +1,5 @@
+19,15|The lichen's grip relaxes.
+released=1
+{"enabled":true,"held":true,"position":[19,15],"expected":["<19,15>: The lichen's grip relaxes."],"observed":["The lichen's grip relaxes."],"draws":[["d",10,10],["rn2",109]],"frozen":10}
+{"enabled":false,"held":true,"position":[19,15],"expected":["The lichen's grip relaxes."],"observed":["The lichen's grip relaxes."],"draws":[["d",10,10],["rn2",109]],"frozen":10}
+{"enabled":true,"held":false,"position":[19,15],"expected":[],"observed":[],"draws":[["d",10,10],["rn2",109]],"frozen":10}
