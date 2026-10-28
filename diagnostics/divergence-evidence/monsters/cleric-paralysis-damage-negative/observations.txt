@@ -1,0 +1,4 @@
+mode=0 damage=14 multi=-14 spoken=1 shield=0
+mode=1 damage=1 multi=-1 spoken=1 shield=1
+{"mode":"ordinary","result":1,"hpBefore":16,"hpAfter":2,"multi":-14,"damage":[14],"draws":[["rn2",10],["rn2",100],["d",6,6]],"messages":["Cleric casts a spell at you!","You are frozen in place!"]}
+{"mode":"free-action","result":1,"hpBefore":16,"hpAfter":15,"multi":-1,"damage":[1],"draws":[["rn2",10],["rn2",100],["d",6,6]],"messages":["Cleric casts a spell at you!","You stiffen briefly."]}
