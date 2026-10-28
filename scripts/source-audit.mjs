@@ -253,6 +253,25 @@ export function inactiveLiteralBranchProofs(source) {
     return malformed || block || stack.length ? new Map() : proofs;
 }
 
+// Prove every lexical occurrence represented by this owner/target warning dead.
+// Never use a first-site guard or a callee-name match from another C owner.
+export const INACTIVE_CALL_FILTER_VERSION = 'all-literal-inactive-calls-v1';
+export function inactiveCallProof(item, owners, byName, source, path, proofs = inactiveLiteralBranchProofs(source)) {
+    if (item.kind !== 'edge-c-only' || !owners.length || !item.sites.length
+        || item.sites.some(site => site.file !== path)) return null;
+    const calls = owners.flatMap(owner => owner.calls.filter(call => call.name === item.target));
+    if (!calls.length || calls.some(call => !proofs.has(call.line))) return null;
+    const targets = owners.map(owner => resolveC(owner, item.target, byName));
+    if (targets.some(target => !target)
+        || new Set(targets.map(target => `${target.path}:${target.name}`)).size !== 1) return null;
+    // Match all aggregated sites too, including duplicate C function definitions.
+    if (item.sites.some(site => !proofs.has(site.line))) return null;
+    return { version: INACTIVE_CALL_FILTER_VERSION,
+        reason: 'Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.',
+        sourcePath: path, sourceSha256: hash(source),
+        occurrences: calls.map(call => ({ line: call.line, ...proofs.get(call.line) })) };
+}
+
 export function filterMessageSources(messages, source, sourceBytes = Buffer.from(source)) {
     const old = inactiveLiteralIfZeroLines(source), added = inactiveLiteralBranchProofs(source);
     const sourceSha256 = hash(sourceBytes);
@@ -575,6 +594,25 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
         unresolvedCalls.push(...closure.unresolved.map(call => ({ owner: cKey(owner, root), js: closureKey, name: call.name, line: call.line,
             category: /^(?:Math|Object|Array|String|Number|JSON|Promise)\./u.test(call.name) ? 'builtin' : 'dynamic-or-unresolved' })));
     }
+    const callProofCache = new Map(), callOwners = new Map(), filteredCallEdges = [];
+    for (const owner of graphUnits) {
+        const key = cKey(owner, root);
+        callOwners.set(key, [...(callOwners.get(key) ?? []), owner]);
+    }
+    for (const item of items.values()) {
+        if (item.kind !== 'edge-c-only') continue;
+        const owners = callOwners.get(item.owner) ?? [];
+        if (!owners.length) continue;
+        const path = owners[0].path, source = cSources.get(path);
+        if (!callProofCache.has(path)) callProofCache.set(path, inactiveLiteralBranchProofs(source));
+        const proof = inactiveCallProof(item, owners, byName, source,
+            relative(root, path), callProofCache.get(path));
+        if (!proof) continue;
+        filteredCallEdges.push({ ...item, sourceFilter: proof,
+            provenance: { sourceHash, toolSha256: loadedToolHash,
+                configSha256: hash(JSON.stringify(mappings)) } });
+        items.delete(item.id);
+    }
     const sorted = [...items.values()].sort((a, b) => b.rank - a.rank || a.id.localeCompare(b.id));
     const count = (list, key) => list.reduce((s, item) => ({ ...s, [item[key]]: (s[item[key]] ?? 0) + 1 }), {});
     const wrapperCandidates = units.filter(u => !excludedNames.has(u.name)).flatMap(u => u.calls
@@ -596,6 +634,8 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
             comparisonLimits: 'Article exact wrapper/file list and implementation were not supplied; totals are not asserted equal to its historical denominator.' },
         totals: { cFunctions: units.length, jsFunctions: js.length, printCalls: printCalls.length, printCallKinds: count(printCalls, 'status'),
             graphFunctions: graphUnits.length,
+            callFilters: { version: INACTIVE_CALL_FILTER_VERSION, filtered: filteredCallEdges.length,
+                occurrences: filteredCallEdges.reduce((sum, item) => sum + item.sourceFilter.occurrences.length, 0) },
             rankingHints: { version: MACRO_HINT_VERSION, filtered: 0,
                 deprioritized: sorted.filter(item => item.rankingHint?.version === MACRO_HINT_VERSION).length },
             delegationRankingHints: { version: DELEGATION_HINT_VERSION, filtered: 0,
@@ -618,7 +658,7 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
             alignedFunctions: alignments.length, unmatchedFunctions: unmatched.length, edgeStats, auditItems: sorted.length, itemKinds: count(sorted, 'kind') },
         queue: { supplied: Boolean(queue), status: queue?.status ?? 'not-supplied', blockers: queue?.blockers?.length ?? null,
             liveAssignments: 'unavailable; no ownership clearance' },
-        messages: matchedMessages, printCalls, wrapperCandidates, wrapperCandidateCounts: count(wrapperCandidates, 'name'),
+        messages: matchedMessages, filteredCallEdges, printCalls, wrapperCandidates, wrapperCandidateCounts: count(wrapperCandidates, 'name'),
         alignments, unresolvedCalls, unmatchedFunctions: unmatched, wallMs: performance.now() - start };
     return { report, backlog: mergeBacklog(sorted, sourceHash, previous) };
 }

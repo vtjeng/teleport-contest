@@ -450,6 +450,7 @@ function scan(opts) {
                     eligibleCFiles: report.scope?.eligibleCFiles ?? null,
                     itemKinds: report.totals?.itemKinds ?? null,
                     messageFilters: report.totals?.messageFilters ?? null,
+                    callFilters: report.totals?.callFilters ?? null,
                     rankingHints: report.totals?.rankingHints ?? null,
                     delegationRankingHints: report.totals?.delegationRankingHints ?? null,
                     carriedUnobserved: backlog.entries.filter(item => !item.observed).length };
