@@ -1,0 +1,13 @@
+{"reflecting":true,"result":1,"lines":["The hill orc hits Eye%s%.","Eye%s%'s gaze is reflected by the hill orc's amulet."],"bounds":["rnd(20)","d(1,6)","rn2(3)","rn2(6)","d(3,70)","rn2(3)","rn2(4)","rn2(19)"],"mcanmove":1,"mfrozen":0}
+{"reflecting":false,"result":1,"lines":["The hill orc hits Eye%s%.","The hill orc is frozen by Eye%s%'s gaze!"],"bounds":["rnd(20)","d(1,6)","rn2(3)","rn2(6)","d(3,70)","rn2(3)","rn2(4)"],"mcanmove":false,"mfrozen":3}
+✔ C call-site retains percent escaping before its variadic reflection message (1.233021ms)
+✔ floating eye percent name, reflection=true (228.748777ms)
+✔ floating eye percent name, reflection=false (60.599434ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 962.92118
