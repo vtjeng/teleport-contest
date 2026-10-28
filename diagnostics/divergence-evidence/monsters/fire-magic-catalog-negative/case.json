@@ -1,0 +1,69 @@
+{
+  "caseId": "fire-magic-catalog-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "reason": "unreachable native AT_MAGC/AD_FIRE slot",
+  "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:26:00Z",
+  "reviewedAt": "2026-10-28T19:30:49.318668+00:00",
+  "hypothesis": "Scanner missing flame feedback in direct fire magic indicates reachable missing native monster behavior.",
+  "expectedC": "No native AT_MAGC/AD_FIRE attack; direct castmu AD_FIRE feedback unreachable in pinned catalog and substitution rules.",
+  "observedJs": "All 48 magic attack slots match compiled C. Damage types are AD_CLRC, AD_MAGM, AD_SPEL, AD_COLD; no fire. getmattk native variants do not introduce it.",
+  "controls": "Angel/Yeenoghu magic missiles and Asmodeus cold remain present and match exact native attack dice. Clerical FIRE_PILLAR is explicitly outside this decision and remains a valid spell.",
+  "command": "node --test diagnostics/divergence-evidence/monsters/fire-magic-catalog-negative/probe.test.mjs",
+  "validation": "Passes on independent clean stated Main checkout plus only this evidence directory. No gameplay changes or default CI additions.",
+  "scope": "Only exact scanner message key for direct castmu AD_FIRE. Not equivalent fire implementation. Recheck on catalog, attack substitution, dispatch or build-configuration changes. Does not cover breath, explosions, clerical FIRE_PILLAR, hypothetical injected attack arrays or future monsters.",
+  "scanner": {
+    "key": "source-audit:message:src/mcastu.c:castmu:2539bfa243197280",
+    "evidenceKey": "a11433f0044e99a8610435e02036005a6f5151f06db1e32bb4b26c301fd1cb04",
+    "runId": "601667573d5ca5a23adf",
+    "reviewFingerprint": "44b715d7fb8a16d5085d7897d2f017575b9132bcf09900b0efce13b10e086e2c"
+  },
+  "originalRun": {
+    "sha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+    "privatePath": "/workspace/monsters-private/monsters-discovery-20261028-b/run.json",
+    "durableArtifact": "https://github.com/vtjeng/teleport-contest/blob/5011e3c8e/diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/discovery-run.json.gz"
+  },
+  "exporterCommit": "a879e944617577d3eb59c14afc87ddbdb2724b18",
+  "exportValidation": {
+    "originalComparison": "verified",
+    "selected": 1,
+    "decisionsChecked": 1,
+    "before": {
+      "active": 1,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 1,
+      "excluded": 0
+    }
+  },
+  "config": {
+    "MAIL_STRUCTURES": true,
+    "CHARON": false,
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "sourceSha256": {
+    "js/monsters.js": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+    "js/mhitu.js": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9",
+    "js/mcastu.js": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+    "nethack-c/upstream/include/monsters.h": "c63db922770c96a9956d221f364ba4368a9f81f81c8d64ed28251a0506d4a906",
+    "nethack-c/upstream/include/monattk.h": "00c2283c2687f2dd5fa8a3088623cd621822289018c0072db9cad5a2a94883ba",
+    "nethack-c/upstream/src/mhitu.c": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+    "nethack-c/upstream/src/mcastu.c": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285",
+    "nethack-c/upstream/include/mcastu.h": "ffe15f5e89de7f561b92052ccfdaf8556c1e6d80a6dbb35675fb997c67deebe4"
+  },
+  "evidenceSha256": {
+    "observations.txt": "6ab24c0ea93c0e39650b615ed3366b4823431f055855ddd50ce569eaa5a433f9",
+    "decisions.json": "0be3fa716cf11fcfd3063c3fa17a24f9a6d0079b9448ce3010cef98c7802b859",
+    "keys.json": "e6ec67dbf0b80e191097e766528df565761d46a1350b6c8e983f988d3ee28ca7",
+    "probe.test.mjs": "de04fe1418d95cce8006ded8190c75dba0375c06225841cb4644259a97b702f9",
+    "export/projection.json": "805b850957773583f9b722a200f06d5dd8eb1c720e18b231b08233f98fe8cc0c",
+    "export/manifest.json": "dcac3e224b8aab78f7177e538fec2f435f0fbb41237e6fb36952c32def265015",
+    "export/review-template.json": "fdb105b8e3d79a4f7d1ce7c48881aef38c169ac3d80ad2b567839a8bc03448a8"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "caseId": "castmu-waterwall-scout",
+  "shard": "monsters",
+  "outcome": "unresolved",
+  "binding": "manual/unbound; no matching scanner message lead found; do not suppress nearby keys",
+  "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:22:00Z",
+  "reviewedAt": "2026-10-28T19:29:45.015367+00:00",
+  "hypothesis": "Misdirected castmu feedback hardcodes thin air in JS; C selects empty water when remembered target is WATER.",
+  "expectedC": "In the wrong-place branch: Something/monster casts a spell at empty water! if is_waterwall(mux,muy).",
+  "observedJs": "Source template always emits casts a spell at thin air! No reachable runtime mismatch has been demonstrated.",
+  "sourceLocations": [
+    "src/mcastu.c:202-209",
+    "js/mcastu.js:553-566",
+    "src/monmove.c:2198-2269 set_apparxy",
+    "src/mhitu.c:768-787 mattacku recheck"
+  ],
+  "attempts": [
+    {
+      "setup": "Trace ordinary set_apparxy for WATER target",
+      "outcome": "Wrong WATER guess rejected for non-wallwalking caster; no native wallwalking magic caster identified."
+    },
+    {
+      "setup": "Trace knockback before later spell slot",
+      "outcome": "mattacku skips later slots when firstfoundyou is true and foundyou becomes false; this does not establish reachability."
+    }
+  ],
+  "missingReachability": "A supported native magic caster must reach castmu(thinks=true,found=false) with remembered WATER target, without manually assigning that target or changing attack arrays.",
+  "controlRequired": "Same reachable path with non-WATER remembered target should emit thin air in both engines.",
+  "nextExperiment": "Audit remaining native targeting/terrain update paths between target selection and castmu; only construct target/control after locating an actual reachable path. If none exists, a complete scoped reachability proof is required before any negative classification.",
+  "readyForImplementation": false,
+  "sourceSha256": {
+    "js/mcastu.js": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+    "js/monmove.js": "b33623a7c02a59be598f349d49ec4007c4f3f7fc730d497abb70caa4a962cf58",
+    "js/mhitu.js": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9",
+    "nethack-c/upstream/src/mcastu.c": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285",
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "nethack-c/upstream/src/mhitu.c": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+    "nethack-c/upstream/include/monsters.h": "c63db922770c96a9956d221f364ba4368a9f81f81c8d64ed28251a0506d4a906"
+  },
+  "sourceInspectionCommand": "rg -n 'casts a spell at|is_waterwall' js/mcastu.js nethack-c/upstream/src/mcastu.c",
+  "focusedRuntimeTest": "Not constructed: no supported reachable target/control setup yet. Source-only inspection must not be treated as a failing gameplay test."
+}

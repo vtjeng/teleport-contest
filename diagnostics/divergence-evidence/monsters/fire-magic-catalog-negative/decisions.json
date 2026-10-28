@@ -1,0 +1,21 @@
+[
+  {
+    "key": "source-audit:message:src/mcastu.c:castmu:2539bfa243197280",
+    "evidenceKey": "a11433f0044e99a8610435e02036005a6f5151f06db1e32bb4b26c301fd1cb04",
+    "runId": "601667573d5ca5a23adf",
+    "reviewFingerprint": "44b715d7fb8a16d5085d7897d2f017575b9132bcf09900b0efce13b10e086e2c",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "The native monster attack catalog has no AT_MAGC/AD_FIRE slot. castmu direct AD_FIRE feedback is unreachable through native attack dispatch; this does not apply to clerical FIRE_PILLAR, breath or explosions.",
+      "proof": "probe.test.mjs compiles pinned C monsters.h with MAIL_STRUCTURES and no CHARON, compares all 48 native magic slots with JS, preserves Angel/Yeenoghu AD_MAGM and Asmodeus AD_COLD controls, checks native getmattk variants and pins absence of substitutions introducing AT_MAGC or AD_FIRE. Recheck on catalog, substitution or dispatch changes.",
+      "sourceRefs": [
+        "nethack-c/upstream/include/monsters.h",
+        "nethack-c/upstream/src/mhitu.c:getmattk",
+        "nethack-c/upstream/src/mhitu.c:mattacku",
+        "nethack-c/upstream/src/mcastu.c:castmu",
+        "diagnostics/divergence-evidence/monsters/fire-magic-catalog-negative/probe.test.mjs"
+      ]
+    }
+  }
+]
