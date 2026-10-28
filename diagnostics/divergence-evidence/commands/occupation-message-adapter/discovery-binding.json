@@ -1,0 +1,39 @@
+{
+  "caseId": "occupation-message-adapter",
+  "binding": {
+    "key": "source-audit:edge-c-only:src/allmain.c:stop_occupation:You",
+    "evidenceKey": "0f6a23a042f926e864c667db26963b1ee9685ca52d176ad9ca6bc62720b560a9",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "cd170e9bbfa6f74d86ef9c1a0dbd566d7e6623faa6600815df0a50329d357706",
+    "status": null
+  },
+  "runIdentity": {
+    "runId": "7e93da55968668bc05fc",
+    "sha256": "1349082cfaa9d24b2f2e76adef76bbc2d75c10e511e4a0bce7eae7d64c571dde",
+    "jsBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+    "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "toolHashes": {
+      "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+      "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+      "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+    },
+    "methodConfigHashes": {
+      "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+      "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+      "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+      "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+      "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+    },
+    "inputHashes": {
+      "sourcePrevious": null,
+      "plan": null,
+      "luaConfig": null
+    }
+  },
+  "runRetention": "The unchanged full commands-discovery-20261028-a/run.json remains available in the private saved analysis environment. No large run duplicated into this case.",
+  "scope": "This binding applies only to the original run/base; it does not claim current-base freshness or authorize blanket suppression.",
+  "generatedBy": "node scripts/discovery-hub.mjs template",
+  "generatedAt": "2026-10-28T17:52:43.861Z"
+}

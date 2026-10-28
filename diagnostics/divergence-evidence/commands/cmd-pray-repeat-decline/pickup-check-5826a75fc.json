@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-10-28T17:44:26.284Z",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "method": "Documented CLI commands from pristine git-archive snapshot verified against the base tree, with only evidence fixtures added and scorer overlays applied",
+  "checks": [
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-pray-repeat-decline/witness.recipe.json",
+      "status": 1,
+      "stdout": "PRNG length: C=3046, JS=3046\nPRNG values: match\nScreen length mismatch: C=10, JS=8\nFirst screen mismatch at boundary 9 (segment 1, step 9, key \"\\u0001\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=10, JS=8\nFirst cursor mismatch at boundary 9 (segment 1, step 9, key \"\\u0001\"):\n  C: [40,0,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-pray-repeat-decline/control.recipe.json",
+      "status": 0,
+      "stdout": "PRNG length: C=3046, JS=3046\nPRNG values: match\nScreen length: C=15, JS=15\nScreen cells and attributes: match\nCursor length: C=15, JS=15\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\n",
+      "stderr": ""
+    }
+  ]
+}

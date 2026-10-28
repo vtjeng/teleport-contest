@@ -1,0 +1,66 @@
+{
+  "shard": "commands",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "jsBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "discoveredAt": "2026-10-28T17:32:00Z",
+  "reviewedAt": "2026-10-28T17:37:08.891Z",
+  "fingerprints": {
+    "node": "v24.19.0",
+    "tools": {
+      "scripts/discovery-hub.mjs": "f2748a2ace9177b0c8b61108487ef7d711c4e403bb27134cdd51f5b226eef5dc",
+      "scripts/source-audit.mjs": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61"
+    },
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recorderSysconfSha256": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2",
+    "patches": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "sourceAuditSourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+    "sourceAuditConfigHash": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86"
+  },
+  "historyCheck": "Fetched origin/main before selecting leads; checked commands/prayer history and open PRs (only tooling PR #5). f65996d10 first #turn conduct fix is present and not claimed.",
+  "discoveryLimitations": {
+    "sourceAudit": "complete",
+    "mismatchQueue": "empty-input; no replay",
+    "compiledConstants": "unavailable: recorder generated headers unavailable; set TELEPORT_RECORDER_INCLUDE",
+    "luaDiscovery": "not requested; out of scope",
+    "structuralPipeline": "no reviewed scenario plan supplied"
+  },
+  "id": "occupation-message-adapter",
+  "outcome": "explained negative",
+  "sourceLocations": [
+    "nethack-c/upstream/src/allmain.c:684-696",
+    "js/allmain.js:407-424",
+    "js/eat.js:1734-1745"
+  ],
+  "hypothesis": "The missing literal You call means stopping an occupation loses its message.",
+  "supportedReachableSetup": "An active non-eating occupation such as counted waiting interrupted through stop_occupation, using the production callback contract.",
+  "expectedC": "If an active occupation does not finish a meal, emit You stop <occtxt>., clear occupation, mark status dirty, nomul(0), and clear canned commands.",
+  "observedJS": "The env.message callback receives the complete interpolated text, followed by the same state changes. No occupation emits no stop message. Focused test checks waiting and searching plus no-occupation control.",
+  "control": "No-occupation state at multi=-1 emits nothing, keeps multi negative and clears CQ_CANNED.",
+  "scope": "Message formatting and stop-state updates for active non-eating occupations with a valid callback. Does not certify every caller passes the callback, completed-meal behavior, or every possible occupation.",
+  "generalization": "Direct call-name mismatch is insufficient when output is carried by a required callback. Suppression requires tracing callback resolution and argument/state semantics; this is not a blanket helper-presence rule.",
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/occupation-message-adapter/evidence.test.mjs",
+  "focusedTest": "evidence.test.mjs",
+  "evidencePaths": [
+    "case.json",
+    "raw-observation.json",
+    "evidence.test.mjs"
+  ],
+  "nextExperiment": null,
+  "validation": {
+    "focused": "all scoped evidence assertions passed"
+  },
+  "evidenceSha256": {
+    "evidence.test.mjs": "85d8825c86b6ebc18eba467345ba81e2499b3aeda3b4dc5c4012248cb30f43f4",
+    "raw-observation.json": "2d50daa0fb449891ee0b8b4c71dc04e7fa0eaeb4cc72a2b528d2a83e21fc1b12"
+  }
+}
