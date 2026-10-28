@@ -17,6 +17,7 @@ import {
     W_WEST,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { game } from './gstate.js';
 import { rn2 } from './rng.js';
 
 function inSelectionBounds(x, y) {
@@ -183,10 +184,11 @@ export class ThemeroomSelection {
     }
 
     negate() {
-        const result = this.#derived();
+        const source = selection_map_frame(this);
+        const result = new ThemeroomSelection(null, true);
         for (let x = 0; x < COLNO; ++x) {
             for (let y = 0; y < ROWNO; ++y)
-                result.set(x, y, !this.get(x, y));
+                result.set(x, y, !source.get(x, y));
         }
         return result;
     }
@@ -252,6 +254,20 @@ export function selection_area(x1, y1, x2, y2) {
 // in map coordinates as every C selection is; its points are clear.
 export function selection_new() {
     return new ThemeroomSelection(null, true);
+}
+
+// C selections store map coordinates. A relative constructor needs its
+// current special-level origin applied before an operation mixes frames.
+export function selection_map_frame(selection) {
+    if (selection.absolute) return selection;
+    const xstart = Number.isInteger(game.xstart) ? game.xstart : 1;
+    const ystart = Number.isInteger(game.ystart) ? game.ystart : 0;
+    const result = new ThemeroomSelection(null, true);
+    for (let x = 0; x < COLNO; x++) for (let y = 0; y < ROWNO; y++) {
+        const value = selection.points[y * COLNO + x] - 1;
+        if (value) result.set(x + xstart, y + ystart, value);
+    }
+    return result;
 }
 
 // C ref: selvar.c selection_clear(). Sets every point of `sel` to `val`.

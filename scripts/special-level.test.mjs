@@ -5,11 +5,14 @@ import test from 'node:test';
 import { newgame_pre_mklev } from '../js/allmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { mklev } from '../js/mklev.js';
+import { selection_match } from '../js/bigrm.js';
+import { l_selection_or, l_selection_sub } from '../js/nhlsel.js';
+import { selection_area } from '../js/themerooms.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { TIN, EGG, APPLE, CORPSE, STATUE, FIGURINE, objects_globals_init } from '../js/objects.js';
 import { PM_CHAMELEON, PM_CAVE_DWELLER, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
-import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, STONE } from '../js/const.js';
+import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, HWALL, STONE } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -92,6 +95,42 @@ test('special-level message uses the C string prefix before appending', async ()
         assert.equal(game.gl.lev_message, 'alpha');
         des.message('tail');
         assert.equal(game.gl.lev_message, 'alpha\ntail');
+    });
+});
+
+for (const [operation, combine, expectedWalls] of [
+    ['union', l_selection_or, 1], ['subtraction', l_selection_sub, 0],
+]) {
+    test(`mixed-frame selection ${operation} uses map coordinates`, async () => {
+        await runLoader(async des => {
+            des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
+            des.terrain({ x: 10, y: 10, typ: '.' });
+            const relative = selection_area(10, 10, 10, 10);
+            const absolute = selection_match('.', game);
+            assert.equal(relative.numpoints(), 1);
+            assert.equal(absolute.numpoints(), 1);
+            des.terrain(combine(relative, absolute), '-');
+            let walls = 0;
+            for (let x = 1; x < 80; x++) for (let y = 0; y < 21; y++)
+                if (game.level.at(x, y).typ === HWALL) walls++;
+            assert.equal(walls, expectedWalls);
+            assert.equal(game.level.at(11, 10).typ === HWALL, Boolean(expectedWalls));
+        });
+    });
+}
+
+test('negating a relative selection covers the absolute map', async () => {
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+        des.map({ x: 10, y: 6, map: '...\n...\n...' });
+        const point = selection_area(0, 0, 0, 0);
+        des.terrain(point, '-');
+        des.terrain(point.negate(), '#');
+        let corridors = 0;
+        for (let x = 1; x < 80; x++) for (let y = 0; y < 21; y++)
+            if (game.level.at(x, y).typ === CORR) corridors++;
+        assert.equal(corridors, 1658);
+        assert.notEqual(game.level.at(10, 6).typ, CORR);
     });
 });
 

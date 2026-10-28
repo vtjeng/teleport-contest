@@ -9,7 +9,7 @@ import {
 } from './const.js';
 import { get_location_coord } from './room_coordinates.js';
 import { luaL_checkinteger } from './nhlua.js';
-import { selection_new, ThemeroomSelection } from './themerooms.js';
+import { selection_map_frame, selection_new, ThemeroomSelection } from './themerooms.js';
 
 function checkSelection(selection) {
     if (!(selection instanceof ThemeroomSelection))
@@ -57,6 +57,10 @@ function rectBounds(a, b) {
 export function l_selection_or(a, b) {
     checkSelection(a);
     checkSelection(b);
+    if (a.absolute !== b.absolute) {
+        a = selection_map_frame(a);
+        b = selection_map_frame(b);
+    }
     const bounds = rectBounds(selectionBounds(a), selectionBounds(b));
     const result = new ThemeroomSelection(null, a.absolute);
     for (let x = bounds.lx; x <= bounds.hx; ++x) {
@@ -72,6 +76,10 @@ export function l_selection_or(a, b) {
 export function l_selection_sub(a, b) {
     checkSelection(a);
     checkSelection(b);
+    if (a.absolute !== b.absolute) {
+        a = selection_map_frame(a);
+        b = selection_map_frame(b);
+    }
     const bounds = rectBounds(selectionBounds(a), selectionBounds(b));
     const result = new ThemeroomSelection(null, a.absolute);
     for (let x = bounds.lx; x <= bounds.hx; ++x) {

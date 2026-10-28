@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T23:23:37Z",
+  "asOf": "2026-10-28T23:41:13Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25445,6 +25445,56 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526559"
             }
           ]
+        },
+        {
+          "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+          "committedAt": "2026-10-28T23:26:57Z",
+          "sourceCommit": "8de57954a8b5d6f7942c8091a302fd99cd892b72",
+          "sourceCommittedAt": "2026-10-28T23:26:24Z",
+          "runs": [
+            {
+              "id": 40787527677,
+              "name": "Checkpoint",
+              "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/related-level-paths-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:27:45Z",
+              "completedAt": "2026-10-28T23:38:17Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40787527677"
+            },
+            {
+              "id": 40788874192,
+              "name": "Lint",
+              "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:39:33Z",
+              "completedAt": "2026-10-28T23:40:56Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40788874192"
+            },
+            {
+              "id": 40788874106,
+              "name": "Dashboard",
+              "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:39:33Z",
+              "completedAt": "2026-10-28T23:41:13Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40788874106"
+            }
+          ]
         }
       ]
     },
@@ -25892,6 +25942,56 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40779844243"
             }
           ]
+        },
+        {
+          "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+          "committedAt": "2026-10-28T23:26:57Z",
+          "sourceCommit": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+          "sourceCommittedAt": "2026-10-28T23:26:57Z",
+          "runs": [
+            {
+              "id": 40787527677,
+              "name": "Checkpoint",
+              "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/related-level-paths-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:27:45Z",
+              "completedAt": "2026-10-28T23:38:17Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40787527677"
+            },
+            {
+              "id": 40788874192,
+              "name": "Lint",
+              "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:39:33Z",
+              "completedAt": "2026-10-28T23:40:56Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40788874192"
+            },
+            {
+              "id": 40788874106,
+              "name": "Dashboard",
+              "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:39:33Z",
+              "completedAt": "2026-10-28T23:41:13Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40788874106"
+            }
+          ]
         }
       ]
     },
@@ -26333,6 +26433,31 @@
           ]
         }
       ]
+    },
+    {
+      "id": "selection-frame-normalization",
+      "title": "Normalize relative and absolute selections for composition and negation",
+      "investigator": "levels PR #67 and #83",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/nhlsel.c:l_selection_or/l_selection_sub/selection_not",
+          "js/nhlsel.js:l_selection_or/l_selection_sub",
+          "js/themerooms.js:ThemeroomSelection.negate"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-selection-frames-20261028/probe.mjs",
+          "diagnostics/divergence-evidence/levels/levels-selection-negate-20261028/probe.mjs"
+        ],
+        "test": [
+          "scripts/special-level.test.mjs",
+          "scripts/themerooms-selection.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }
