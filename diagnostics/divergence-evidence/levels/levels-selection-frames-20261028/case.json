@@ -1,0 +1,79 @@
+{
+  "caseId": "levels-selection-frames-20261028",
+  "shard": "levels",
+  "outcome": "confirmed divergence",
+  "ready": true,
+  "baseJs": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:04:19.242482+00:00",
+  "reviewedAt": "2026-10-28T20:04:41.384057+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "hypothesis": "Selection union/subtraction combine relative and absolute storage without normalizing coordinate frames.",
+  "supportedSetup": "Production terrain creates one ROOM at relative (10,10), absolute (11,10), in default frame xstart=1. Exported selection_area and selection_match constructors both semantically select that cell. Each operand is independently consumed by production terrain and asserted to paint only (11,10). Production l_selection_or/sub then combine them and terrain consumes the result. No coordinate-marker mutations or injected loaders.",
+  "contractRationale": "C area translates coordinates before storing; C match stores map coordinates. C public union/subtraction accept arbitrary selections without a constructor-origin restriction. The JS constructors return supported ThemeroomSelection operands and each independently denotes the same map cell. Mixing these exported API results is valid composition, not a fabricated inconsistent state.",
+  "expectedC": "Union of identical singleton selections paints only (11,10); subtraction is empty in both operand orders.",
+  "observedJS": "Relative/absolute union paints (11,10) and (12,10); reversed order paints (10,10) and (11,10). Subtraction retains (11,10) in both orders.",
+  "control": "Relative/relative and absolute/absolute controls match for union and subtraction, four controls total. Independent operand-consumer checks all match the same singleton.",
+  "semanticCause": "One coordinate-frame normalization defect, with union and subtraction manifestations.",
+  "scope": "Eight finite compositions; supported API parity only. Shipped mixed-constructor exposure and hidden-score impact unknown. Same-frame numeric semantics and unrelated operators are not implicated.",
+  "sourceLocations": [
+    "js/nhlsel.js:58",
+    "js/nhlsel.js:72",
+    "js/themerooms.js:238",
+    "js/bigrm.js:82",
+    "js/mklev.js:3595",
+    "nethack-c/upstream/src/nhlsel.c:308",
+    "nethack-c/upstream/src/nhlsel.c:359",
+    "nethack-c/upstream/src/nhlsel.c:565",
+    "nethack-c/upstream/src/nhlsel.c:682"
+  ],
+  "sourceHashes": {
+    "js/nhlsel.js": "1981814948f616a0b19403e962f6cae915dc3229d4a4605caea02860af6078c6",
+    "js/themerooms.js": "e14b071ab3c64e47ddb9ba6cfcac1a475f809b3ffbb43f634a24a854cd02ab3a",
+    "js/bigrm.js": "b29efe2a1cd84f95db5106d5f72ae542509cd1bff8075218378da0edabf97b9b",
+    "js/mklev.js": "78abe491d86d6326e5e2bf498166bf72f4918c87ccd2c951ab5f0ef865aae48b",
+    "nethack-c/upstream/src/nhlsel.c": "ce93cdb316eb18ae4ad32238076ab61cec319973a5cff049ce95289a54239ec5",
+    "nethack-c/upstream/src/selvar.c": "af33824e7004e7799ca1e88d0b00813bb5b9a1087015b9fb5a250473b2318b58",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "4903dd667ebc29817a223e66ba74723f881b93ff55c2254a0a253bb7a1a8afc8",
+    "probeSha256": "45510f6973fb3cebb797af44848cab3714bfff1562764143967a26b218ba996a",
+    "exactBodyHashes": {
+      "l_selection_or": "5f52257cf20e0d0a867cef1bff4b4a8282f6d5fe32a47605023d87d39442ea74",
+      "l_selection_sub": "7ce31a3e63ede708c300c0ff2ff7e7a50bdb2da41775ffdcc23ea00be6ad9b6b"
+    }
+  },
+  "oracleProvenance": "Exact l_selection_or/sub function bodies executed with fixed argument adapter and minimal integer point storage/bounds. C operands are the valid singleton postconditions of area and match, supported by wrapper-source contract and independently verified JS API consumption. Full Lua parser and C constructor execution are not claimed. Adapter only passes two selections and retrieves result, not an arbitrary Lua runtime.",
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-selection-frames-20261028/probe.mjs --assert-target",
+  "expectedExit": 1,
+  "controlCommand": "node diagnostics/divergence-evidence/levels/levels-selection-frames-20261028/probe.mjs --control",
+  "controlExpectedExit": 0,
+  "evidencePaths": [
+    "README.md",
+    "setup.lua",
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "clean-base-verification.json"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "receipt": "clean-base-verification.json",
+    "targetExit": 1,
+    "controlExit": 0
+  }
+}
