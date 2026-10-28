@@ -1,0 +1,9 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/cmd.c:doclicklook:auto_describe",
+    "evidenceKey": "ece846041da9ff61fa5335dda77d66854de2cbeb43e01570bc4b340b473b8997",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "a0a1838272d71afbfd21700d32d54a9b596cb783c4765483e936c08ca8712870",
+    "status": null
+  }
+]
