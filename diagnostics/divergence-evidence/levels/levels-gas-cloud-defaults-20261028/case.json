@@ -1,0 +1,60 @@
+{
+  "caseId": "levels-gas-cloud-defaults-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:07:59.438858+00:00",
+  "reviewedAt": "2026-10-28T21:07:59.438858+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "hypothesis": "Coordinate and singleton-selection gas-cloud construction might incorrectly differ in coordinate frame, default lifetime or override RNG consumption.",
+  "supportedSetup": "Production mklev loader initializes floor and a 3x3 map at (10,6). Public selection_area(2,2,2,2) is independently consumed as CORR at (12,8). Exported production lspo_gas_cloud receives coordinate (2,2) or that selection, damage 0 and omitted/-1/0/5 ttl. Supported injected RNG returns 2 for rn2(3); no gameplay runtime is run.",
+  "expectedC": "Coordinate cloud at (2,2) consumes one rn2(3), defaults to 6, then applies supplied ttl>-2. Selection cloud at (12,8) draws nothing and defaults to -1.",
+  "observedJS": "All 8 single-cell geometry/lifetime/RNG comparisons match C.",
+  "control": "Four ttl modes on both forms; overriding coordinate lifetime still consumes the constructor draw, while selection remains draw-free. Independently consumed selection proves frame resolution.",
+  "scope": "Eight harmless size 1 construction fixtures only. No multi-cell growth, damage, hero/monster activation, region runtime, expiration or whole-level equivalence.",
+  "oracleProvenance": "Exact create_region, add_rect_to_reg, create_gas_cloud, create_gas_cloud_selection and lspo_gas_cloud bodies. Minimal region/table/selection types and fixed input adapter. make_gas_cloud registration/visual effects are replaced by an assertion/capture after geometry/lifetime construction; hero is absent and damage 0. Unsupported growth/runtime paths abort.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:4929",
+    "nethack-c/upstream/src/region.c:79",
+    "nethack-c/upstream/src/region.c:1213",
+    "nethack-c/upstream/src/region.c:1313",
+    "js/mklev.js:3700",
+    "js/region.js:1016",
+    "js/region.js:1093"
+  ],
+  "sourceHashes": {
+    "js/mklev.js": "a2ff9d5b3c24c9030125951fa0939e5a0d74fe0b75ddf15270e0547046b44608",
+    "js/region.js": "218f90d79178a1228f5b6882aed282ba244ca1084a9531cf015235b34e4286e8",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/region.c": "ff09423d896d87b9a53dde460efc76e7cb14a6e459b17a8ea971dd18c2362d92",
+    "nethack-c/upstream/src/nhlsel.c": "ce93cdb316eb18ae4ad32238076ab61cec319973a5cff049ce95289a54239ec5"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "1090e5832f61ab9ef4beb9978bf65687998cc24e9a8259bc1fdc62a946120a89",
+    "probeSha256": "62eab45554b1e09c5e14210ec5f197b1fbee3f34b9dad62a057ccc8ee925ee43"
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-gas-cloud-defaults-20261028/probe.mjs",
+  "expectedExit": 0,
+  "evidencePaths": [
+    "README.md",
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "clean-base-verification.json",
+    "test-discovery-verification.json"
+  ],
+  "nextExperiment": null
+}
