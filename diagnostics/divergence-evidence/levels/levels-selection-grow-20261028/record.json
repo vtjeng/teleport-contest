@@ -1,0 +1,78 @@
+{
+  "shard": "levels",
+  "jsBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:32:10Z",
+  "reviewedAt": "2026-10-28T17:34:52.242Z",
+  "toolchain": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7 (3+b1)"
+  },
+  "scopeLimits": "Analysis only; no gameplay edits, no CI dispatch, no universal level equivalence claim.",
+  "historyCheck": "Fetched origin/main before selection. No open levels PR; only tooling/explained-negative-filters was open. Local main history checked for selection-line fixes.",
+  "caseId": "levels-selection-grow-20261028",
+  "outcome": "explained negative",
+  "hypothesis": "JS selection growth cascades through newly selected points or loses diagonal neighbors compared with C.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/selvar.c:321",
+    "nethack-c/upstream/src/nhlsel.c:631",
+    "js/themerooms.js:195",
+    "nethack-c/upstream/dat/bigrm-2.lua:49",
+    "nethack-c/upstream/dat/bigrm-5.lua:32",
+    "js/bigrm.js:250",
+    "js/bigrm.js:393"
+  ],
+  "supportedSetup": "Boolean selection in a common map coordinate frame; Lua bigrm-2 and bigrm-5 wizard loads use their shipped programs. Seeds 28102026 and 28102027 were chosen before running; no seed search.",
+  "reproduce": [
+    "source /workspace/.setup/activate.sh",
+    "node --test diagnostics/divergence-evidence/levels/levels-selection-grow-20261028/focused.test.mjs",
+    "node scripts/lua-discovery.mjs diagnostics/divergence-evidence/levels/levels-selection-grow-20261028/config.json /tmp/NEW-levels-run"
+  ],
+  "expectedC": "Each existing point survives, and one-step neighbors selected by the eight direction-mask terms are added from the original selection. l_selection_grow clones first. W_RANDOM consumes one rn2(4).",
+  "observedJS": "The clone is the output; all neighbor reads use this (the original selection). Each of the eight C predicates has the same offset and direction mask. The 512-neighborhood x 16-mask truth table, boundary clipping and random-direction checks pass. All four complete fresh streams match.",
+  "negativeProof": "Both implementations compute oldSelection UNION masked-neighbors(oldSelection). C computes new neighbors in tmp then overlays; JS writes into clone while reading original. The eight terms correspond one-to-one, so no cascading growth occurs for Boolean selections in the same frame. Frame conversion, non-Boolean encoded values, and other APIs are outside this proof.",
+  "control": "bigrm-2 seed 28102027 has percentage gate 84 (skip), against seed 28102026 gate 9 (take). bigrm-5 seed 28102026 gate 0 enters selection_filter_percent; seed 28102027 gate 94 skips. Full streams match in each pair.",
+  "rawClassificationCaveat": "Adapter reports both bigrm-5 cases unresolved because the two-frame Lua trace names nhlib.percent, not the program. Raw status is preserved. Manual command-boundary inspection at step 25 sees the percent gates and (for seed 28102026) selection_filter_percent calls. This review does not upgrade the generic adapter or assert private-state equality.",
+  "evidencePaths": [
+    "focused.test.mjs",
+    "config.json",
+    "raw-observations.json",
+    "0-recipe.session.json",
+    "0-recorded.session.json.gz",
+    "0-js-output.json.gz",
+    "1-recipe.session.json",
+    "1-recorded.session.json.gz",
+    "1-js-output.json.gz",
+    "2-recipe.session.json",
+    "2-recorded.session.json.gz",
+    "2-js-output.json.gz",
+    "3-recipe.session.json",
+    "3-recorded.session.json.gz",
+    "3-js-output.json.gz"
+  ],
+  "fingerprints": {
+    "adapter": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "differential": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "recorderDriver": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "config": "2381f0663466d204d9df1ad2bb0cc5861f891b7284639654ed87fe69f632342f",
+    "js": "e14b071ab3c64e47ddb9ba6cfcac1a475f809b3ffbb43f634a24a854cd02ab3a",
+    "c": "af33824e7004e7799ca1e88d0b00813bb5b9a1087015b9fb5a250473b2318b58",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recorderInstallFiles": {
+      "bigrm-2.lua": "ebdea03e5352271a57fe761537a9653b833db6debacb6e93fe2613ba38ebed2a",
+      "bigrm-5.lua": "eda606945c17fec84cd2309787d51cb676c933f6d07551b4c150f470413d1331",
+      "nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+      "nhcore.lua": "45c42ace2fe61acea1d4202bf1fc040937275d5d9b20d1898358b4a95d6afd94",
+      "nhlib.lua": "5ea21df2d77e0fbde7e5e96167c907986b332458326a0568be87b33929e5daf0",
+      "sysconf": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2"
+    },
+    "environment": {
+      "RERECORD_TZ": "America/New_York",
+      "SESSION_REPLAY_TIMEOUT_MS": "45000",
+      "NETHACK_LUA_RNGLOG_CTX": "default"
+    }
+  },
+  "nextExperiment": null,
+  "prePublicationMain": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "prePublicationReview": "Fetched main again; relevant C, level helpers, and discovery/recorder scripts are unchanged from measured base."
+}
