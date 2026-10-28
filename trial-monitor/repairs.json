@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T19:58:46Z",
+  "asOf": "2026-10-28T20:37:36Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -24635,6 +24635,300 @@
               "completedAt": "2026-10-28T19:58:46Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40758484396"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "door-mimic-generation",
+      "kind": "parity-repair",
+      "title": "Create trapped-door mimics during level generation",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "levels PR #40",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mklev.c:dosdoor",
+          "js/mklev.js:dosdoor"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-door-mimic-20261028/witness.recorded.session.json.gz",
+          "diagnostics/divergence-evidence/levels/levels-door-mimic-20261028/control.recorded.session.json.gz"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/levels/levels-door-mimic-20261028/replay.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+          "committedAt": "2026-10-28T20:20:39Z",
+          "sourceCommit": "5d2da24962561c4e39cceaab1088da680e699bd4",
+          "sourceCommittedAt": "2026-10-28T20:01:50Z",
+          "runs": [
+            {
+              "id": 40762442495,
+              "name": "Checkpoint",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/door-mimic-object-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:20:46Z",
+              "completedAt": "2026-10-28T20:35:02Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40762442495"
+            },
+            {
+              "id": 40764695148,
+              "name": "Lint",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:35:50Z",
+              "completedAt": "2026-10-28T20:37:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764695148"
+            },
+            {
+              "id": 40764694854,
+              "name": "Dashboard",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:35:50Z",
+              "completedAt": "2026-10-28T20:37:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764694854"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact-light-forced-drop",
+      "kind": "parity-repair",
+      "title": "Extinguish artifact light when force-dropping a weapon",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "objects PR #42",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/wield.c:uwepgone",
+          "js/wield.js:uwepgone"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/42"
+        ],
+        "test": [
+          "https://github.com/vtjeng/teleport-contest/pull/42"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+          "committedAt": "2026-10-28T20:20:39Z",
+          "sourceCommit": "4e235b3a65f6639110647ff395a41122caa42d08",
+          "sourceCommittedAt": "2026-10-28T20:03:29Z",
+          "runs": [
+            {
+              "id": 40762442495,
+              "name": "Checkpoint",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/door-mimic-object-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:20:46Z",
+              "completedAt": "2026-10-28T20:35:02Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40762442495"
+            },
+            {
+              "id": 40764695148,
+              "name": "Lint",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:35:50Z",
+              "completedAt": "2026-10-28T20:37:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764695148"
+            },
+            {
+              "id": 40764694854,
+              "name": "Dashboard",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:35:50Z",
+              "completedAt": "2026-10-28T20:37:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764694854"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "single-heavy-stack-pickup",
+      "kind": "parity-repair",
+      "title": "Weigh selected count before heavy-stack pickup admission",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "objects PR #44",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pickup.c:carry_count",
+          "js/pickup.js:preflightPickupObjects"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/44"
+        ],
+        "test": [
+          "https://github.com/vtjeng/teleport-contest/pull/44"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+          "committedAt": "2026-10-28T20:20:39Z",
+          "sourceCommit": "6296b084841485d9a6968a580446dfd077aef0d0",
+          "sourceCommittedAt": "2026-10-28T20:04:24Z",
+          "runs": [
+            {
+              "id": 40762442495,
+              "name": "Checkpoint",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/door-mimic-object-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:20:46Z",
+              "completedAt": "2026-10-28T20:35:02Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40762442495"
+            },
+            {
+              "id": 40764695148,
+              "name": "Lint",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:35:50Z",
+              "completedAt": "2026-10-28T20:37:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764695148"
+            },
+            {
+              "id": 40764694854,
+              "name": "Dashboard",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:35:50Z",
+              "completedAt": "2026-10-28T20:37:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764694854"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "counted-sighted-look",
+      "kind": "parity-repair",
+      "title": "Admit counted sighted look before command dispatch",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #54",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:rhack",
+          "js/cmd.js:rhack"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/commands/counted-look-admission/target.recording.json.gz",
+          "diagnostics/divergence-evidence/commands/counted-look-admission/control.recording.json.gz"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/commands/counted-look-admission/evidence.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+          "committedAt": "2026-10-28T20:20:39Z",
+          "sourceCommit": "9165c047ac94be5130a7e6a4970633263d563a46",
+          "sourceCommittedAt": "2026-10-28T20:06:00Z",
+          "runs": [
+            {
+              "id": 40762442495,
+              "name": "Checkpoint",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/door-mimic-object-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:20:46Z",
+              "completedAt": "2026-10-28T20:35:02Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40762442495"
+            },
+            {
+              "id": 40764695148,
+              "name": "Lint",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:35:50Z",
+              "completedAt": "2026-10-28T20:37:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764695148"
+            },
+            {
+              "id": 40764694854,
+              "name": "Dashboard",
+              "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T20:35:50Z",
+              "completedAt": "2026-10-28T20:37:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40764694854"
             }
           ]
         }
