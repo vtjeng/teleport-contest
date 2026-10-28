@@ -1,0 +1,158 @@
+{
+  "caseId": "objects-blank-scroll-inline",
+  "shard": "objects",
+  "outcome": "explained negative",
+  "notAnImplementationCandidate": true,
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "discoveredAt": "2026-10-28T17:34:23.587Z",
+  "reviewedAt": "2026-10-28T17:45:18.576Z",
+  "sourceLocations": [
+    "nethack-c/upstream/src/read.c:2005",
+    "nethack-c/upstream/src/read.c:2223",
+    "nethack-c/upstream/include/youprop.h:103",
+    "js/read.js:886",
+    "js/read.js:3276"
+  ],
+  "hypothesis": "Missing seffect_blank_paper call may omit blank-scroll feedback or identification.",
+  "supportedSetup": "Exact inline-function and predicate correspondence plus two public input illustrations.",
+  "expectedC": "Emit sighted/blind message and set known, without additional helper effects.",
+  "observedJS": "Same local branch behavior is inlined; both public recordings match screens/cursors/RNG and retain a known scroll.",
+  "control": "Sighted and blindfolded readings cover complementary branches; full recordings included.",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-blank-scroll-inline/check.test.mjs",
+  "results": {
+    "focused": "pass",
+    "sighted": {
+      "screens": 45,
+      "cursors": 45,
+      "rng": 2818,
+      "allMatch": true
+    },
+    "blind": {
+      "screens": 77,
+      "cursors": 77,
+      "rng": 2844,
+      "allMatch": true
+    }
+  },
+  "evidencePaths": [
+    "README.md",
+    "blind-c.json",
+    "blind-recipe.json",
+    "capture-c.json",
+    "check.test.mjs",
+    "recipe.json"
+  ],
+  "nextExperiment": null,
+  "scopeLimits": "README.md",
+  "rawDiscovery": {
+    "key": "source-audit:edge-c-only:src/read.c:seffects:seffect_blank_paper",
+    "sourceKey": "edge-c-only:src/read.c:seffects:seffect_blank_paper",
+    "evidenceKey": "cfe2d273bf535262fb881afdbda47c30137c5718ab70eac7890af2b1b56b268a",
+    "kind": "edge-c-only",
+    "sourceRefs": [
+      "nethack-c/upstream/src/read.c:2223"
+    ],
+    "summary": "src/read.c:seffects -> seffect_blank_paper",
+    "method": "sourceAudit",
+    "symbol": "src/read.c:seffects",
+    "sourceAuditReviews": [],
+    "sourceAuditClassification": "needs-investigation",
+    "rank": 53,
+    "title": "src/read.c:seffects -> seffect_blank_paper",
+    "discoveredBy": [
+      "sourceAudit"
+    ],
+    "status": "unreviewed",
+    "history": [],
+    "firstSeen": "2026-10-28T17:34:23.587Z",
+    "lastChecked": "2026-10-28T17:34:23.587Z",
+    "observed": true,
+    "provenance": {
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "jsSha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+      "runId": "e3e9f21e676be12c730a",
+      "sourceAuditSourceHash": "0f54be3bf62a26bf615e163ac81226a345936d43e1e564271c72ad169b332dcb",
+      "methodConfigHashes": {
+        "sourceAudit": "4b12f114c03356c62193bab858e963acd1b5c48b7f377c2a819bbbe38b922e4d",
+        "mismatchQueue": "736a53ee953197dd0395cddef8fcf1fa50279c2c941bb7afbfb779c4d700d148",
+        "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+        "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+        "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+      },
+      "methodVersions": {
+        "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+        "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+        "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+        "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+      },
+      "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+      "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+      "evidenceKey": "cfe2d273bf535262fb881afdbda47c30137c5718ab70eac7890af2b1b56b268a"
+    },
+    "source_locations": [
+      {
+        "side": "C",
+        "path": "nethack-c/upstream/src/read.c",
+        "symbol": "src/read.c:seffects",
+        "start_line": 2223,
+        "end_line": 2223,
+        "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+      }
+    ],
+    "claim": null,
+    "priority": null,
+    "attempts": [],
+    "validation": null,
+    "resolution": null,
+    "nextStep": null,
+    "handoff": null,
+    "reviewFreshness": "new",
+    "methods": [
+      {
+        "kind": "call_graph",
+        "version": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+        "run_id": "e3e9f21e676be12c730a"
+      }
+    ]
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+    "config": "4b12f114c03356c62193bab858e963acd1b5c48b7f377c2a819bbbe38b922e4d",
+    "mappings": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+    "recordSession": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scorer": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "sourceFiles": {
+      "nethack-c/upstream/src/read.c": "ec15ad773e50f5d466ddc20515b441c9ddb4e99449abd1f34fa43a14e6a8b2c4",
+      "nethack-c/upstream/include/youprop.h": "9c4e25bc385c405226085ae3526dc165bd9397ce922b8a18a46f67de21683a2f",
+      "js/read.js": "4f94e68b298eb3a94ff3edc441bdbadf04b3c3682bca200101e13c0b00a21144"
+    },
+    "evidenceHashes": {
+      "README.md": "1a99cd35c8513b93028e8768c62fa2092d5f8cd5bf7fc87ce94aa9c1c9445fc6",
+      "blind-c.json": "a15efd7ef44e7d724d8d765050718ce3b6e2069fb2b4e69082266b51aef863e4",
+      "blind-recipe.json": "c10a0672736094aefdd9c6a81cf1d0cfbaffa00d65accca5eb9c23c6f3b74017",
+      "capture-c.json": "bd488c70e9c08f8fbc6afefabc231389dcca74bf7b825a59431068364078d43f",
+      "check.test.mjs": "3cb91d40f15c0a8870a484e07e62fba2fffbceed2128ad1bc79bfa88112f29b1",
+      "recipe.json": "4cdf90d7d84ed7b365455a3b69ea2094a546a7f87dbdc1a1ac74e4f97a36843a"
+    },
+    "patchSeries": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "recorderSource": {
+      "read": "ec15ad773e50f5d466ddc20515b441c9ddb4e99449abd1f34fa43a14e6a8b2c4",
+      "doWear": "cf33ad9f5b18bcdfffd09d4e99867590802735a9ae2d34b9eb2b64880fa459c7",
+      "matchesUpstreamForBoth": true
+    }
+  },
+  "latestMainChecked": "5826a75fcc149b8895af22af4d38ea750bad13c8"
+}

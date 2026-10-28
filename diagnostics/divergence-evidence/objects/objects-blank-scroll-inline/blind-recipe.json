@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 19870625,
+      "datetime": "20070625121000",
+      "nethackrc": "OPTIONS=name:BlankProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": "  #wizwish\nuncursed scroll of blank paper\nre#wizwish\nuncursed blindfold\nPfre"
+    }
+  ]
+}
