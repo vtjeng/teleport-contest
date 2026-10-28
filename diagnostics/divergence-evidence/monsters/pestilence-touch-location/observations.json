@@ -1,0 +1,113 @@
+{
+  "target": {
+    "recordingSha256": "6e277d91594e62319febfcd4f3c332f9b1416bda17620f44d7f94fddbd48ff78",
+    "gzipSha256": "d81d256a068026c431597cfa66d95303ce09c6cc5f48e4de4ec627789e916ce3",
+    "gzipBytes": 10894,
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2525,
+          "js": 2525
+        },
+        "screens": {
+          "c": 85,
+          "js": 85
+        },
+        "cursors": {
+          "c": 85,
+          "js": 85
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": {
+        "index": 80,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 80,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "(",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "P",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 80,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 80,
+          "key": "."
+        },
+        "cCursor": [
+          75,
+          0,
+          1
+        ],
+        "jsCursor": [
+          62,
+          0,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "step": 80,
+    "cTopline": "(northeast): Pestilence reaches out, and you feel fever and chills.--More--",
+    "jsTopline": "Pestilence reaches out, and you feel fever and chills.--More--",
+    "recorderIsDst": true
+  },
+  "control": {
+    "recordingSha256": "63a262182e754fe0c9602575908c862a56209edae9fbd2c3006a0b15e8f5019b",
+    "gzipSha256": "73f51d71f145876b3d8aada2ecb2ccfd155c6b099c990e442e1a8157b859e2b7",
+    "gzipBytes": 12042,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2772,
+          "js": 2772
+        },
+        "screens": {
+          "c": 85,
+          "js": 85
+        },
+        "cursors": {
+          "c": 85,
+          "js": 85
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "step": 80,
+    "cTopline": "Pestilence reaches out, and you feel fever and chills.--More--",
+    "jsTopline": "Pestilence reaches out, and you feel fever and chills.--More--",
+    "recorderIsDst": true
+  }
+}
