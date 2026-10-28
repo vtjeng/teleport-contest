@@ -1,0 +1,459 @@
+{
+  "scope": "Twelve bounded new hellfill loads; no universal equivalence claim.",
+  "rows": [
+    {
+      "seed": 28103900,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4754,
+            "js": 4754
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "d11e968d6ac49ddbbcc86f40e9b18158902d464b614ac409f61ba17bc9a9b0ad",
+        "recorded.session.json": "d26b8626408863df89e0e8526bfcbc837c0c38a5aca752597aefdb34998c0c1e",
+        "js-output.json": "81692a789a525435fbb0add8864ff40714296ebd4e434dabf568172b37e63bfb"
+      }
+    },
+    {
+      "seed": 28103901,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 5074,
+            "js": 5074
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "ec1913d6041b1f2b219f7db54276682b0647fdd1000b0ce5d08e391c4d51f23f",
+        "recorded.session.json": "4c74e850f1935929efae4e1ad77f1519b09f25935cd98111decc49a9746901bb",
+        "js-output.json": "4465ecf4452758d916bf68a3b02939011917681d02fbb9ef6d35e9933e84f2ef"
+      }
+    },
+    {
+      "seed": 28103902,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 6190,
+            "js": 6190
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "6e9daca964494cf6281d978bf849bf645eb9b52bbbeb16a651db9e8d5627ec44",
+        "recorded.session.json": "9789cc12a3fad90a9238d3ea36f0b5355293104ae0b518766f2117f1719cd994",
+        "js-output.json": "3d62a94109edf177ae22d7ec24a6265f1556be93b85b663ab9dbea2e9ef58f70"
+      }
+    },
+    {
+      "seed": 28103903,
+      "status": "mismatch",
+      "result": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4887,
+            "js": 4887
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 26,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 26,
+            "key": "\n"
+          },
+          "kind": "ch",
+          "row": 15,
+          "column": 24,
+          "cCell": {
+            "ch": ".",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "53d21c1da14e64db72fd55e52d1bdd10bed2f4687cc60fc9439ee823fe30b906",
+        "recorded.session.json": "496aea81a7ca431ef03c41eb5343b886f80d4bdb92da620e985f2b725a30cfae",
+        "js-output.json": "25d32f37e3fea9543317f6251a006dad89e7af5559b888b68260edee13e71c1b"
+      }
+    },
+    {
+      "seed": 28103904,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 7330,
+            "js": 7330
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "af6dfb60a8c53067aa7840d10a6e3abbadb73d972e97c95af45ba619c6fc4a93",
+        "recorded.session.json": "0450f067350433a2d825eab83c634a1808998591493714a15e523fa22b24b5dd",
+        "js-output.json": "38be4079c2faf88b0cfde77e5519c5a3f09f80ca7389c0f1b25198861ca4fb4e"
+      }
+    },
+    {
+      "seed": 28103905,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 6921,
+            "js": 6921
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "5952fabf7258f7039000b483b549348fb50a5599561cfa2e0d3772d8e3f4e2ae",
+        "recorded.session.json": "3c0e8a2919b49d08720a0a16753538510558792adce84811467df73470881d07",
+        "js-output.json": "779ffa28e89bc415249eba46623163a2c75078a1bd7596b578e61614367ea356"
+      }
+    },
+    {
+      "seed": 28103906,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4390,
+            "js": 4390
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "2cfa713ebb87484d6f65ed8de80db70b259b822cc58c83f0d6a5674025d59fd5",
+        "recorded.session.json": "51029b814c3805675dca202aefa4a2d542780ca9f8a022f38df039a78ddab970",
+        "js-output.json": "268f277be6de865dfa1b0319bce1e36016aa591315d3de9fe77fc8f2b145896b"
+      }
+    },
+    {
+      "seed": 28103907,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 7807,
+            "js": 7807
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "8285fa985a70f3bf5eb0397abdb0baa4c479fa1750f1f49b838cceabba195598",
+        "recorded.session.json": "52304e728caf167d04dcfc939b31393bf9a2de162ae23b823d019ffe9f810e3a",
+        "js-output.json": "85c39f639b3aeb67a330e10189883d4694a95d68074881dedf41209b0b969e6d"
+      }
+    },
+    {
+      "seed": 28103908,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 7315,
+            "js": 7315
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "ce78637c6cfd2a0e00623a6d9adf8144457aa3f2f1079ab764ff4ce11f24d13d",
+        "recorded.session.json": "3b8d79022a681885db5c849bf44bdcaa650965b0db7025b4a9192e8eba090608",
+        "js-output.json": "96cd3cf706623c2bb13e6800e78cb46326580e20e2ad8db5b9a94f27a09c4091"
+      }
+    },
+    {
+      "seed": 28103909,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 5653,
+            "js": 5653
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "59bed2e3b144fc1747ea98f4819f1fd27543cce8eb3731ffca0d2623d60b0204",
+        "recorded.session.json": "022123f15862b3f85ac808a052921cebef2a3402b0e7a6eb151a9f7ebf30b8e9",
+        "js-output.json": "f0912f84e4c76a0b709a5d40180d9b22f640f0435fa4b18b571f58c00ca8d005"
+      }
+    },
+    {
+      "seed": 28103910,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4618,
+            "js": 4618
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "cb99e4ea10ee71f738a5dd22ecbbc9824b31b62525ef462fb77b572cc4490158",
+        "recorded.session.json": "57bb52769addac25bcc0b55d74a173034a36ee6571d6a479165de60e47faa85b",
+        "js-output.json": "96d7ed0b276e78daf5be590cef0fe0b7934988226c29b100fb2c993b717b459f"
+      }
+    },
+    {
+      "seed": 28103911,
+      "status": "matching",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 6555,
+            "js": 6555
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "8c8f0dbcb53d2114eabb9bd741df305509a507b226feb795e231f77bc328ffe2",
+        "recorded.session.json": "e46a7e25736f2c1246dc99e6467dd21ec01e9439d1217c4a51ae8421b46f7adc",
+        "js-output.json": "90417ed3f61a04d18ee73f6eccd602db6fc4acb12e3a7c67ce053a725d2eba00"
+      }
+    }
+  ]
+}

@@ -1,0 +1,624 @@
+{
+  "attempts": [
+    {
+      "status": "mismatch",
+      "elapsedMs": 1563,
+      "result": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4887,
+            "js": 4887
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 26,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 26,
+            "key": "\n"
+          },
+          "kind": "ch",
+          "row": 15,
+          "column": 24,
+          "cCell": {
+            "ch": ".",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "witness": {
+        "route": "wizard-des",
+        "routeInputVerified": true,
+        "otherProgramObserved": false,
+        "cProgramObserved": true,
+        "witnesses": [
+          {
+            "index": 2975,
+            "line": 431,
+            "entry": "rn2(7)=1 @ random src=nhlib.lua:10 parent=lua(hellfill.lua:431)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4055,
+            "line": 305,
+            "entry": "rn2(10)=4 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4056,
+            "line": 87,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=rnd_halign(hellfill.lua:87)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4057,
+            "line": 92,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=rnd_valign(hellfill.lua:92)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4058,
+            "line": 314,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:314)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4059,
+            "line": 305,
+            "entry": "rn2(10)=4 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4060,
+            "line": 87,
+            "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=rnd_halign(hellfill.lua:87)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4061,
+            "line": 92,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=rnd_valign(hellfill.lua:92)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4062,
+            "line": 314,
+            "entry": "rn2(5)=4 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:314)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4063,
+            "line": 305,
+            "entry": "rn2(10)=0 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4064,
+            "line": 87,
+            "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=rnd_halign(hellfill.lua:87)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4065,
+            "line": 314,
+            "entry": "rn2(7)=2 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:314)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4066,
+            "line": 305,
+            "entry": "rn2(10)=3 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4067,
+            "line": 314,
+            "entry": "rn2(9)=2 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:314)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4068,
+            "line": 305,
+            "entry": "rn2(10)=6 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4069,
+            "line": 87,
+            "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=rnd_halign(hellfill.lua:87)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4070,
+            "line": 92,
+            "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=rnd_valign(hellfill.lua:92)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4071,
+            "line": 234,
+            "entry": "rn2(4)=2 @ random src=nhlib.lua:10 parent=lua(hellfill.lua:234)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4097,
+            "line": 54,
+            "entry": "rn2(8)=7 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:54)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4262,
+            "line": 62,
+            "entry": "rn2(10)=0 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:62)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4306,
+            "line": 66,
+            "entry": "rn2(3)=1 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:66)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4337,
+            "line": 70,
+            "entry": "rn2(5)=4 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:70)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4614,
+            "line": 74,
+            "entry": "rn2(6)=4 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:74)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4679,
+            "line": 78,
+            "entry": "rn2(6)=4 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:78)",
+            "jsPrefixAgrees": true
+          }
+        ],
+        "jsProgramEvidence": "source-route-and-rng-prefix",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "fingerprint": "bd65a57e9c5d0894b997dfd7c4a99a5993ae3c620dfb5efcf8b5c7a706dc5e1b",
+      "rawHashes": {
+        "recipe.session.json": "53d21c1da14e64db72fd55e52d1bdd10bed2f4687cc60fc9439ee823fe30b906",
+        "recorded.session.json": "496aea81a7ca431ef03c41eb5343b886f80d4bdb92da620e985f2b725a30cfae",
+        "js-output.json": "25d32f37e3fea9543317f6251a006dad89e7af5559b888b68260edee13e71c1b"
+      },
+      "label": "witness",
+      "repeat": 0,
+      "seed": 28103903
+    },
+    {
+      "status": "mismatch",
+      "elapsedMs": 1576,
+      "result": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4887,
+            "js": 4887
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 26,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 26,
+            "key": "\n"
+          },
+          "kind": "ch",
+          "row": 15,
+          "column": 24,
+          "cCell": {
+            "ch": ".",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "witness": {
+        "route": "wizard-des",
+        "routeInputVerified": true,
+        "otherProgramObserved": false,
+        "cProgramObserved": true,
+        "witnesses": [
+          {
+            "index": 2975,
+            "line": 431,
+            "entry": "rn2(7)=1 @ random src=nhlib.lua:10 parent=lua(hellfill.lua:431)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4055,
+            "line": 305,
+            "entry": "rn2(10)=4 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4056,
+            "line": 87,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=rnd_halign(hellfill.lua:87)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4057,
+            "line": 92,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=rnd_valign(hellfill.lua:92)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4058,
+            "line": 314,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:314)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4059,
+            "line": 305,
+            "entry": "rn2(10)=4 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4060,
+            "line": 87,
+            "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=rnd_halign(hellfill.lua:87)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4061,
+            "line": 92,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=rnd_valign(hellfill.lua:92)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4062,
+            "line": 314,
+            "entry": "rn2(5)=4 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:314)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4063,
+            "line": 305,
+            "entry": "rn2(10)=0 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4064,
+            "line": 87,
+            "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=rnd_halign(hellfill.lua:87)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4065,
+            "line": 314,
+            "entry": "rn2(7)=2 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:314)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4066,
+            "line": 305,
+            "entry": "rn2(10)=3 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4067,
+            "line": 314,
+            "entry": "rn2(9)=2 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:314)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4068,
+            "line": 305,
+            "entry": "rn2(10)=6 @ random src=nhlib.lua:10 parent=rnd_hell_prefab(hellfill.lua:305)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4069,
+            "line": 87,
+            "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=rnd_halign(hellfill.lua:87)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4070,
+            "line": 92,
+            "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=rnd_valign(hellfill.lua:92)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4071,
+            "line": 234,
+            "entry": "rn2(4)=2 @ random src=nhlib.lua:10 parent=lua(hellfill.lua:234)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4097,
+            "line": 54,
+            "entry": "rn2(8)=7 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:54)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4262,
+            "line": 62,
+            "entry": "rn2(10)=0 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:62)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4306,
+            "line": 66,
+            "entry": "rn2(3)=1 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:66)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4337,
+            "line": 70,
+            "entry": "rn2(5)=4 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:70)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4614,
+            "line": 74,
+            "entry": "rn2(6)=4 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:74)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 4679,
+            "line": 78,
+            "entry": "rn2(6)=4 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:78)",
+            "jsPrefixAgrees": true
+          }
+        ],
+        "jsProgramEvidence": "source-route-and-rng-prefix",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "fingerprint": "bd65a57e9c5d0894b997dfd7c4a99a5993ae3c620dfb5efcf8b5c7a706dc5e1b",
+      "rawHashes": {
+        "recipe.session.json": "53d21c1da14e64db72fd55e52d1bdd10bed2f4687cc60fc9439ee823fe30b906",
+        "recorded.session.json": "496aea81a7ca431ef03c41eb5343b886f80d4bdb92da620e985f2b725a30cfae",
+        "js-output.json": "25d32f37e3fea9543317f6251a006dad89e7af5559b888b68260edee13e71c1b"
+      },
+      "label": "witness",
+      "repeat": 1,
+      "seed": 28103903
+    },
+    {
+      "status": "matching",
+      "elapsedMs": 1219,
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 6190,
+            "js": 6190
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "witness": {
+        "route": "wizard-des",
+        "routeInputVerified": true,
+        "otherProgramObserved": false,
+        "cProgramObserved": true,
+        "witnesses": [
+          {
+            "index": 3534,
+            "line": 431,
+            "entry": "rn2(7)=6 @ random src=nhlib.lua:10 parent=lua(hellfill.lua:431)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5345,
+            "line": 54,
+            "entry": "rn2(8)=3 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:54)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5460,
+            "line": 62,
+            "entry": "rn2(10)=4 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:62)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5574,
+            "line": 66,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:66)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5613,
+            "line": 70,
+            "entry": "rn2(5)=3 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:70)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5874,
+            "line": 74,
+            "entry": "rn2(6)=5 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:74)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5963,
+            "line": 78,
+            "entry": "rn2(6)=3 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:78)",
+            "jsPrefixAgrees": true
+          }
+        ],
+        "jsProgramEvidence": "source-route-and-rng-prefix",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "fingerprint": "2679f4f3ef33c430bb599a7a29af708a2c1f95315499f8da3a21a0e1e5c723ee",
+      "rawHashes": {
+        "recipe.session.json": "6e9daca964494cf6281d978bf849bf645eb9b52bbbeb16a651db9e8d5627ec44",
+        "recorded.session.json": "9789cc12a3fad90a9238d3ea36f0b5355293104ae0b518766f2117f1719cd994",
+        "js-output.json": "3d62a94109edf177ae22d7ec24a6265f1556be93b85b663ab9dbea2e9ef58f70"
+      },
+      "label": "control",
+      "repeat": 0,
+      "seed": 28103902
+    },
+    {
+      "status": "matching",
+      "elapsedMs": 1701,
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 6190,
+            "js": 6190
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "witness": {
+        "route": "wizard-des",
+        "routeInputVerified": true,
+        "otherProgramObserved": false,
+        "cProgramObserved": true,
+        "witnesses": [
+          {
+            "index": 3534,
+            "line": 431,
+            "entry": "rn2(7)=6 @ random src=nhlib.lua:10 parent=lua(hellfill.lua:431)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5345,
+            "line": 54,
+            "entry": "rn2(8)=3 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:54)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5460,
+            "line": 62,
+            "entry": "rn2(10)=4 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:62)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5574,
+            "line": 66,
+            "entry": "rn2(3)=2 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:66)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5613,
+            "line": 70,
+            "entry": "rn2(5)=3 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:70)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5874,
+            "line": 74,
+            "entry": "rn2(6)=5 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:74)",
+            "jsPrefixAgrees": true
+          },
+          {
+            "index": 5963,
+            "line": 78,
+            "entry": "rn2(6)=3 @ random src=nhlib.lua:8 parent=populatemaze(hellfill.lua:78)",
+            "jsPrefixAgrees": true
+          }
+        ],
+        "jsProgramEvidence": "source-route-and-rng-prefix",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "fingerprint": "2679f4f3ef33c430bb599a7a29af708a2c1f95315499f8da3a21a0e1e5c723ee",
+      "rawHashes": {
+        "recipe.session.json": "6e9daca964494cf6281d978bf849bf645eb9b52bbbeb16a651db9e8d5627ec44",
+        "recorded.session.json": "9789cc12a3fad90a9238d3ea36f0b5355293104ae0b518766f2117f1719cd994",
+        "js-output.json": "3d62a94109edf177ae22d7ec24a6265f1556be93b85b663ab9dbea2e9ef58f70"
+      },
+      "label": "control",
+      "repeat": 1,
+      "seed": 28103902
+    }
+  ]
+}

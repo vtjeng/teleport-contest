@@ -1,0 +1,99 @@
+{
+  "caseId": "levels-map-lighting-20261028",
+  "shard": "levels",
+  "outcome": "confirmed divergence",
+  "ready": true,
+  "baseJs": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:07:12.739741+00:00",
+  "reviewedAt": "2026-10-28T19:08:31.970380+00:00",
+  "hypothesis": "Table-form des.map ignores its lit flag and forces non-lava terrain unlit.",
+  "supportedReachableSetup": "Unmodified shipped hellfill.lua, wizard load through dot then #wizloaddes Enter hellfill.lua Enter, seed 28103903. No arbitrary Lua, injected state or gameplay edits in the recording.",
+  "expectedC": "sp_lev.c lspo_map reads table lit (default FALSE), then forwards it as terr.tlit to sel_set_ter for each painted cell. Shipped hellfill prefab 5 explicitly sets lit=true.",
+  "observedJS": "createSpecialLevelApi.map does not read spec.lit; set_themeroom_map_terrain assigns loc.lit=IS_LAVA(typ). Witness first mismatch at segment 0 step 26, screen row 15 column 24: C floor dot vs JS space; all 4887 RNG entries and cursors match. Focused production map call: 0 of 45 non-transparent cells lit instead of 45.",
+  "control": "Same exact public input/options/date with seed 28103902 matches all output streams; both witness/control repeated twice with identical C and JS hashes. Focused identical map with lit=false passes.",
+  "scope": "Level-generation table-map lighting. Focused test uses an injected production loader only for isolation, while the bundled public-input recording independently establishes reachability. No claim about unrelated rendering differences or other map overloads.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:6102",
+    "nethack-c/upstream/src/sp_lev.c:6121",
+    "nethack-c/upstream/src/sp_lev.c:6277",
+    "nethack-c/upstream/src/sp_lev.c:6295",
+    "nethack-c/upstream/src/sp_lev.c:4609",
+    "nethack-c/upstream/dat/hellfill.lua:197",
+    "js/hell_levels.js:235",
+    "js/mklev.js:1209",
+    "js/mklev.js:4703",
+    "js/mklev.js:4786"
+  ],
+  "sourceHashes": {
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "js/hell_levels.js": "a59c6c5942927a6f565c301fac15e4f110fae237ade255fa32462e52be0fdab3",
+    "js/mkmaze.js": "e0722923b9f99824b30b2089f0869c055ff56eb9a24dfda832f52b60c29fd4db",
+    "js/terrain.js": "69ab84e2467bc01abfa4b22ee4b4847775ed48e22f5bc52bd5ea3b28a79eec6c",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0",
+    "nethack-c/upstream/dat/hellfill.lua": "9c33d346bb8288fe71bc7e753215b4fbb4188b5617671de5aeb359702a70b777",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00"
+  },
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "oracleProvenance": {
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recorderFiles": {
+      "dungeon.lua": "5bbc7d7a1882b6ee0809c40efbdc7b01fd149fcebe574a49e05df4ccb6053830",
+      "hellfill.lua": "9c33d346bb8288fe71bc7e753215b4fbb4188b5617671de5aeb359702a70b777",
+      "nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+      "nhlib.lua": "5ea21df2d77e0fbde7e5e96167c907986b332458326a0568be87b33929e5daf0"
+    },
+    "adapterSha256": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "node": "v24.19.0",
+    "environment": {
+      "RERECORD_TZ": "America/New_York",
+      "SESSION_REPLAY_TIMEOUT_MS": "45000",
+      "NETHACK_LUA_RNGLOG_CTX": "default"
+    },
+    "originalQualificationConfigSha256": "73ba7c9e766177bcade20def98e8220d19e579c86a6e6dd9a55cb4d13d27f6c3",
+    "packagedQualificationConfigSha256": "00968b7f4136a6939ad0c5bdc7677e5d5aabebf63a8e54a4f600fe9cb3945b5d",
+    "patchHashes": {
+      "nethack-c/patches/001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "nethack-c/patches/002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "nethack-c/patches/003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "nethack-c/patches/004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "nethack-c/patches/005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "nethack-c/patches/006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "nethack-c/patches/007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+      "nethack-c/patches/README.md": "6c29d9620b818ca61da4e133a16625ffe0be1973e19cf61dd77942017834d26c"
+    }
+  },
+  "reproduceWitness": "node diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/replay.mjs witness",
+  "reproduceControl": "node diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/replay.mjs control",
+  "reproduceFocused": "node diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/focused.mjs target",
+  "expectedExitCodes": {
+    "replay witness": 1,
+    "replay control": 0,
+    "focused target": 1,
+    "focused control": 0
+  },
+  "evidencePaths": [
+    "witness.recorded.session.json.gz",
+    "control.recorded.session.json.gz",
+    "observations.json",
+    "exploration.json",
+    "replay.mjs",
+    "focused.mjs",
+    "qualification-config.json",
+    "clean-verification.json"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "receipt": "clean-verification.json",
+    "gameplaySourceUnchanged": true
+  }
+}
