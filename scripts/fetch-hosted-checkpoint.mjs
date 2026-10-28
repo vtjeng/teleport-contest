@@ -11,6 +11,7 @@ import { BOOKKEEPING_FILES, digest } from './checkpoint-reuse.mjs';
 import {materializeEvidence, readHostedEvidence} from './hosted-evidence.mjs';
 import {readChallengeBatches} from './challenge-results.mjs';
 import {verifyAdmissionEvaluations} from './admission-proof.mjs';
+import {PUBLIC_REPOSITORY, publicGithubRead} from './public-github-read.mjs';
 
 // Import certifies the committed candidate, not its later closure reports.
 // This guard checks paths and file types, not report contents.
@@ -86,21 +87,30 @@ function gh(args, cwd) {
     return execFileSync('gh', args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 }
 
-export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh, transport = 'checks' } = {}) {
+export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh, transport = 'checks', runPublic = publicGithubRead } = {}) {
     if (!/^[1-9]\d*$/u.test(id)) throw new Error('expected a GitHub workflow run ID');
+    if (!['checks', 'public-checks', 'artifact'].includes(transport)) throw new Error('unknown hosted evidence transport');
     requireReportOnlyImportTree(root);
     const head = () => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
     const commit = head();
     const github = args => runGh(args, root);
-    const repository = github(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim();
-    const metadata = JSON.parse(github(['api', `repos/${repository}/actions/runs/${id}`]));
+    const repository = transport === 'public-checks' ? PUBLIC_REPOSITORY
+        : github(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim();
+    const api = transport === 'public-checks' ? runPublic : path => github(['api', path]);
+    const readMetadata = () => {
+        const metadata = JSON.parse(api(`repos/${repository}/actions/runs/${id}`));
+        if (transport === 'public-checks' && (metadata.repository?.private !== false || metadata.head_repository?.private !== false))
+            throw new Error('public checkpoint read requires explicitly public repositories');
+        return metadata;
+    };
+    const metadata = readMetadata();
     const run = verifyHostedRun(metadata, repository, commit);
     const cache = join(root, '.cache', 'hosted-checkpoints');
     mkdirSync(cache, { recursive: true });
     const output = mkdtempSync(join(cache, `${id}-`));
     let proof;
-    if (transport === 'checks') {
-        const evidence = readHostedEvidence({github: path => github(['api', path]),
+    if (transport === 'checks' || transport === 'public-checks') {
+        const evidence = readHostedEvidence({github: api,
             run: metadata, repository, kind: 'checkpoint'});
         const batches = readChallengeBatches(root);
         const expected = ['summary.json', 'development-standing.json', 'session-results.json', 'scan-cache.json',
@@ -120,7 +130,7 @@ export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh, tra
     if (summary.commit !== commit || summary.allPassed !== true || !isDeepStrictEqual(summary.hostedRun, run))
         throw new Error('downloaded summary does not identify this successful candidate run');
     // A concurrent rerun or checkout must not change what this import claims.
-    const after = verifyHostedRun(JSON.parse(github(['api', `repos/${repository}/actions/runs/${id}`])), repository, commit);
+    const after = verifyHostedRun(readMetadata(), repository, commit);
     if (!isDeepStrictEqual(after, run)) throw new Error('workflow attempt changed while fetching evidence');
     requireReportOnlyImportTree(root);
     if (head() !== commit)
@@ -144,8 +154,8 @@ export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh, tra
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
     try {
         const [id, flag, ...extra] = process.argv.slice(2);
-        if (!id || extra.length || (flag && flag !== '--artifact'))
-            throw new Error('Usage: fetch-hosted-checkpoint.mjs <run-id> [--artifact]');
-        fetchHostedCheckpoint(id, {transport: flag ? 'artifact' : 'checks'});
+        if (!id || extra.length || (flag && !['--artifact', '--public'].includes(flag)))
+            throw new Error('Usage: fetch-hosted-checkpoint.mjs <run-id> [--artifact|--public]');
+        fetchHostedCheckpoint(id, {transport: flag === '--public' ? 'public-checks' : flag === '--artifact' ? 'artifact' : 'checks'});
     } catch (error) { console.error(`fetch-hosted-checkpoint: ${error.message}`); process.exitCode = 1; }
 }
