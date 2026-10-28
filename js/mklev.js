@@ -1215,6 +1215,9 @@ function set_themeroom_map_terrain(x, y, typ, state, lit = false) {
     const loc = state.level.at(x, y);
     loc.flags = 0;
     loc.doormask = 0;
+    // C's wall_info aliases the rm.flags that sel_set_ter() clears before a
+    // nontransparent map cell is painted.  The JS location stores it apart.
+    loc.wall_info = 0;
     loc.horizontal = false;
     loc.roomno = 0;
     loc.edge = false;
