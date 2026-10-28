@@ -1008,7 +1008,9 @@ function preflightPickupObjects(selected, state) {
         && actionable.length === 1
         && object.where === OBJ_FLOOR
         && object.quan > 1
-        && selectedObject.count > 1
+        // C carry_count weighs the requested quantity even when it is one
+        // item from a larger floor stack.
+        && selectedObject.count >= 1
         && object.oclass !== COIN_CLASS
         && object.otyp !== LOADSTONE
         && !(object.otyp === BOULDER
