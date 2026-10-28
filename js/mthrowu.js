@@ -1878,7 +1878,8 @@ export async function thrwmu(monster, rawEnv = {}) {
         monster.mux,
         monster.muy,
     );
-    if (currentDistance > previousDistance
+    // C skips the retreat hesitation for an unwelded returning weapon.
+    if (currentDistance > previousDistance && !always_toss
         && env.random.rn2(BOLT_LIM - targetDistance)) {
         return 0;
     }
