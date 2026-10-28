@@ -1,0 +1,271 @@
+{
+  "scope": "10 create_subroom placement/acceptance cases; exact bounded shared draw tape; no finalization",
+  "results": [
+    {
+      "id": "near-adjustment",
+      "pw": 12,
+      "ph": 9,
+      "x": 1,
+      "y": 1,
+      "w": 2,
+      "h": 2,
+      "seed": 28105100,
+      "calls": 1,
+      "bounds": [
+        11,
+        5,
+        12,
+        6
+      ],
+      "tape": [],
+      "matched": true
+    },
+    {
+      "id": "far-adjustment",
+      "pw": 12,
+      "ph": 9,
+      "x": 9,
+      "y": 6,
+      "w": 2,
+      "h": 2,
+      "seed": 28105100,
+      "calls": 1,
+      "bounds": [
+        21,
+        12,
+        22,
+        13
+      ],
+      "tape": [],
+      "matched": true
+    },
+    {
+      "id": "random-position",
+      "pw": 12,
+      "ph": 9,
+      "x": -1,
+      "y": -1,
+      "w": 2,
+      "h": 2,
+      "seed": 28105101,
+      "calls": 1,
+      "bounds": [
+        17,
+        8,
+        18,
+        9
+      ],
+      "tape": [
+        [
+          10,
+          6
+        ],
+        [
+          7,
+          3
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "id": "random-size-position",
+      "pw": 12,
+      "ph": 9,
+      "x": -1,
+      "y": -1,
+      "w": -1,
+      "h": -1,
+      "seed": 28105101,
+      "calls": 1,
+      "bounds": [
+        13,
+        5,
+        19,
+        8
+      ],
+      "tape": [
+        [
+          9,
+          7
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "id": "minimum-parent",
+      "pw": 4,
+      "ph": 4,
+      "x": -1,
+      "y": -1,
+      "w": -1,
+      "h": -1,
+      "seed": 28105101,
+      "calls": 1,
+      "bounds": [
+        14,
+        8,
+        14,
+        8
+      ],
+      "tape": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "id": "random-position",
+      "pw": 12,
+      "ph": 9,
+      "x": -1,
+      "y": -1,
+      "w": 2,
+      "h": 2,
+      "seed": 28105102,
+      "calls": 1,
+      "bounds": [
+        21,
+        7,
+        22,
+        8
+      ],
+      "tape": [
+        [
+          10,
+          9
+        ],
+        [
+          7,
+          2
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "id": "random-size-position",
+      "pw": 12,
+      "ph": 9,
+      "x": -1,
+      "y": -1,
+      "w": -1,
+      "h": -1,
+      "seed": 28105102,
+      "calls": 1,
+      "bounds": [
+        14,
+        5,
+        20,
+        7
+      ],
+      "tape": [
+        [
+          9,
+          7
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          6,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "id": "minimum-parent",
+      "pw": 4,
+      "ph": 4,
+      "x": -1,
+      "y": -1,
+      "w": -1,
+      "h": -1,
+      "seed": 28105102,
+      "calls": 1,
+      "bounds": [
+        14,
+        5,
+        14,
+        5
+      ],
+      "tape": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "id": "narrow-parent",
+      "pw": 3,
+      "ph": 4,
+      "x": -1,
+      "y": -1,
+      "w": -1,
+      "h": -1,
+      "seed": 28105100,
+      "calls": 0,
+      "bounds": null,
+      "tape": [],
+      "matched": true
+    },
+    {
+      "id": "short-parent",
+      "pw": 4,
+      "ph": 3,
+      "x": -1,
+      "y": -1,
+      "w": -1,
+      "h": -1,
+      "seed": 28105100,
+      "calls": 0,
+      "bounds": null,
+      "tape": [],
+      "matched": true
+    }
+  ]
+}

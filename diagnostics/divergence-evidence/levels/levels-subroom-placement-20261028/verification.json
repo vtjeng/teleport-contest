@@ -1,0 +1,11 @@
+{
+  "base": "51f5686fac30306411156df215ca83ae910cf6bf",
+  "verifiedAt": "2026-10-28T21:41:28.321279+00:00",
+  "focusedExit": 0,
+  "cleanGameplayCheckout": true,
+  "stdoutSha256": "fbfe89107d834c24efd3cd1bd8f017af51998a0ea0a397080b1522a2cf970599",
+  "sourceBodyExact": true,
+  "jsConstructorUnchangedFromScanBase": true,
+  "suiteGuardExit": 0,
+  "suiteGuardPasses": 6
+}
