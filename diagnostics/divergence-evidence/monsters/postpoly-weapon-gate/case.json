@@ -1,0 +1,59 @@
+{
+  "caseId": "monsters-postpoly-weapon-gate",
+  "shard": "monsters",
+  "outcome": "confirmed divergence",
+  "classification": "supported production-API post-move attack eligibility",
+  "binding": "manual/unbound; direct source comparison",
+  "jsBase": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "tools": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "hypothesis": "JS admits a ranged attack after trap polymorph by using the new species AT_WEAP flag where C uses its cached pre-movement species.",
+  "supportedSetup": "Real newcham preserves an unwielded dagger during ogre-to-xorn setup; full production monster action walks onto a real polymorph trap, selects ogre through monpolycontrol, and has a correctly located distant hero. No attack/species/target mutation inside the action.",
+  "expectedC": "Compiled exact gate returns before target attack; HP remains16 and dagger remains in inventory.",
+  "observedJS": "Real ranged chain throws dagger and hits hero, HP16->15, dagger on floor.",
+  "control": "Original OGRE passes compiled C gate; corresponding JS full action throws and hits. Oracle verifies C control eligibility, not full C projectile damage.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/postpoly-weapon-gate/*.test.mjs",
+  "expectedCurrentExit": 1,
+  "characterizationCommand": "EXPECT_CURRENT_GAP=1 node --test diagnostics/divergence-evidence/monsters/postpoly-weapon-gate/*.test.mjs",
+  "oracleLimit": "Exact compiled C gate and native attack catalog; no full public-input C recording and no C polymorph/projectile simulation.",
+  "sourceLocations": [
+    "src/monmove.c:dochug initial mdat assignment and MMOVE_MOVED gate",
+    "src/mon.c:newcham inventory retention",
+    "src/mthrowu.c:thrwmu",
+    "js/monmove.js:dochug shootsAfterMoving",
+    "js/unported_monster_actions.js:runDirectMonsterAction"
+  ],
+  "discoveredAt": "2026-10-28T20:12:11.295374+00:00",
+  "discoveredAtNote": "Evidence record creation; focused source comparison and tests earlier in this continuation.",
+  "reviewedAt": "2026-10-28T20:12:11.295386+00:00",
+  "sourceSha256": {
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "nethack-c/upstream/src/mon.c": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01",
+    "nethack-c/upstream/src/mthrowu.c": "7d08630d431de26d9b9c504334176be77e5fa26ae7f7415e493edcda964b5d7f",
+    "nethack-c/upstream/src/muse.c": "df896ef2da5f5685353e788fad9c5d54d393927101e0053eccc269a564a99a26",
+    "nethack-c/upstream/include/monsters.h": "c63db922770c96a9956d221f364ba4368a9f81f81c8d64ed28251a0506d4a906",
+    "nethack-c/upstream/include/monattk.h": "00c2283c2687f2dd5fa8a3088623cd621822289018c0072db9cad5a2a94883ba",
+    "js/monmove.js": "b33623a7c02a59be598f349d49ec4007c4f3f7fc730d497abb70caa4a962cf58",
+    "js/mon.js": "8df046bda3602822e5443eea8f98a1e6f82a094e0a1d342224fcea951b9b6f0f",
+    "js/mthrowu.js": "fe82a44ea9015b8a34e540a41160df65b80304ff26c9f26c6075b923355a9995",
+    "js/unported_monster_actions.js": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902",
+    "js/trap_effects.js": "7bd0363037cad3e18c7059e00a031e37079e77f4ab96df07941da36b1986c6c5"
+  },
+  "evidenceSha256": {
+    "observations.txt": "0e1ab18ab74b688712e119f79cdb2ceaceea4bcb34ce39dd83a611865641f8fd",
+    "oracle.test.mjs": "e6633b634cc64e49f8a4af8e718b8adffd6eafad4eb539e1de231cb72fc04141",
+    "README.md": "0ef24de9505b9cf23ee6395c3247951b132e816d0accc9b0ea023a48edfaea77",
+    "probe.test.mjs": "0d2f056676e9959cb37a18435786b7fd1ad6ef8d3b084df0c47eff1f67059925"
+  },
+  "nextExperiment": "Main implement cached-species attack gate and run target/control parity assertions. Full public-input exposure remains unrecorded.",
+  "cleanCheckoutValidation": {
+    "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "checkedAt": "2026-10-28T20:12:44.294844+00:00",
+    "characterization": "3 tests pass",
+    "regression": "target fails HP15 versus expected16, control and C oracle pass; exit1 expected",
+    "method": "Clean detached base checkout plus only this evidence directory; documented commands run there."
+  }
+}
