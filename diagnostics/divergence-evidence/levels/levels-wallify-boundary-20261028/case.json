@@ -1,0 +1,55 @@
+{
+  "caseId": "levels-wallify-boundary-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "hypothesis": "JS wallify_map asymmetric neighbor clipping differs from C",
+  "expectedC": "C considers floors just left/above the requested rectangle but excludes those just right/below.",
+  "observedJS": "All four full-map comparisons match C. Left/top arrangements produce 3 walls each; right/bottom controls produce none.",
+  "scope": "Source-backed negative for this clipping hypothesis, supported by four finite helper arrangements. No whole-level or universal wallification claim.",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null,
+    "reason": "Manual boundary-semantics comparison; no matching retained scanner lead is claimed."
+  },
+  "baseJs": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:24:26.661747+00:00",
+  "reviewedAt": "2026-10-28T18:24:26.661747+00:00",
+  "sourceHashes": {
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O0"
+    ],
+    "probeSha256": "30372bfe00fa610fb01554f38b40041348de50ea5e867b3d7102cf2211e918fb"
+  },
+  "oracle": "Runtime extraction of actual pinned C function bodies and rm.h terrain enum; Clang C99 harness with minimal map storage. mapfrag oracle also extracts original nhlua.c character table/conversion and mapfrag_get/match_maptyps.",
+  "reproduction": "node diagnostics/divergence-evidence/levels/levels-wallify-boundary-20261028/probe.mjs",
+  "requirements": "Node and clang on PATH; source /workspace/.setup/activate.sh in the saved cloud environment if needed. No recorder or runtime changes.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:2865-2897",
+    "js/mklev.js:5054-5083"
+  ],
+  "setup": "Small constructed STONE/ROOM/wall maps passed to actual helper implementation; no player commands or object/monster runtime actions.",
+  "controls": "Right/bottom floors versus left/top floors at one tile beyond region 10,5..12,7",
+  "evidencePaths": [
+    "probe.mjs",
+    "observations.json"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "checkedAt": "2026-10-28T18:24:58.756245+00:00",
+    "exitCode": 0,
+    "result": "Both probes run from detached stated base with pinned C and evidence-only overlay; output byte-identical to observations."
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "caseId": "levels-match-boundary-20261028",
+  "shard": "levels",
+  "outcome": "unresolved",
+  "hypothesis": "selection_match rejects off-map wildcard positions that C mapfrag_match accepts",
+  "expectedC": "C selects the constructed right-edge center (78,10), treating the outside wildcard position as STONE.",
+  "observedJS": "JS omits (78,10). Interior (40,10) matches. Shipped bigrm-3 template matches all 20 fitting placements, totaling 2200 selected points.",
+  "scope": "Demonstrated helper difference only, NOT a ready gameplay divergence. The fixture is a valid constructed map but no supported registered-level route to it has been established. Finite bigrm-3 controls do not establish universal equivalence.",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null,
+    "reason": "Manual boundary-semantics comparison; no matching retained scanner lead is claimed."
+  },
+  "baseJs": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:24:26.661747+00:00",
+  "reviewedAt": "2026-10-28T18:24:26.661747+00:00",
+  "sourceHashes": {
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "js/bigrm.js": "8ef1ba9c6e9b4facd53b7545fd327f831838b91df2c4a35c5b00d1b71c31ba74",
+    "nethack-c/upstream/src/nhlua.c": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1",
+    "nethack-c/upstream/dat/bigrm-3.lua": "5afbc50d012d2cc66edf7a5325f5f79202958d29e2555df07247ee289f00b5b2"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O0"
+    ],
+    "probeSha256": "f1dd3331a74de170f6cab4953506eb6b29858a5e727e8fe870569bbdba943e5c"
+  },
+  "oracle": "Runtime extraction of actual pinned C function bodies and rm.h terrain enum; Clang C99 harness with minimal map storage. mapfrag oracle also extracts original nhlua.c character table/conversion and mapfrag_get/match_maptyps.",
+  "reproduction": "node diagnostics/divergence-evidence/levels/levels-match-boundary-20261028/probe.mjs",
+  "requirements": "Node and clang on PATH; source /workspace/.setup/activate.sh in the saved cloud environment if needed. No recorder or runtime changes.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:297-313",
+    "js/bigrm.js:82-121",
+    "nethack-c/upstream/dat/bigrm-3.lua:10-38"
+  ],
+  "setup": "Small constructed STONE/ROOM/wall maps passed to actual helper implementation; no player commands or object/monster runtime actions.",
+  "controls": "Interior target plus all fitting bigrm-3 template placements",
+  "evidencePaths": [
+    "probe.mjs",
+    "observations.json"
+  ],
+  "nextExperiment": "Find an existing supported registered caller reaching an edge wildcard. Do not build arbitrary Lua execution or count a custom map as gameplay reachability.",
+  "cleanBaseVerification": {
+    "base": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "checkedAt": "2026-10-28T18:24:58.755728+00:00",
+    "exitCode": 0,
+    "result": "Both probes run from detached stated base with pinned C and evidence-only overlay; output byte-identical to observations."
+  }
+}
