@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-flip-dispatch-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "flip-dispatch-default-rng-interface",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "flip_level_rnd",
+      "start_line": 967,
+      "end_line": 982,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/sp_lev.js",
+      "symbol": "flip_level_rnd",
+      "start_line": 423,
+      "end_line": 430,
+      "commit_sha": "4222eaf89f2cc3b1392273b70cc27b399418c691"
+    }
+  ],
+  "hypothesis": "The C-only rn2 edge may indicate omitted axis draws in random level-flip dispatch.",
+  "expectedBehavior": "All-zero choices across masks 0,1,2,3 leave the marker fixed; disabled axes consume no draws. Enabled axes each draw rn2(2) in vertical-then-horizontal order.",
+  "observedBehavior": "Exact C flip_level_rnd dispatch body and public JS generation-mode flip_level_rnd agree across all nine flp 0..3/draw-bit combinations plus two default JS RNG seeds. C captures outgoing mask and draw count; JS exposes selected axes using one corridor marker on an otherwise empty full-floor map. No full C flip execution or independent RNG equivalence claim.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Exact C flip_level_rnd dispatch body and public JS generation-mode flip_level_rnd agree across all nine flp 0..3/draw-bit combinations plus two default JS RNG seeds. C captures outgoing mask and draw count; JS exposes selected axes using one corridor marker on an otherwise empty full-floor map. No full C flip execution or independent RNG equivalence claim.",
+    "limitations": [
+      "Dispatch mask/draw order only; full C flip_level is replaced by a checked callback.",
+      "One empty-level marker observation does not prove arbitrary map metadata, entities, regions, finalization or live-command behavior. extras is always false.",
+      "Default RNG seed values are shared with C; not independent RNG equivalence."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Generation helper called on supported public level setup; shipped exposure not attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS random.rn2 defaults to the production rn2 helper; this C-only call edge is an interface alias.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:flip_level_rnd:rn2"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/README.md",
+      "sha256": "1bb7996e7002c2b79d4e1a2237c1f365be803473bf4d3c230596b3bce165f3c1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/control-output.txt",
+      "sha256": "6cec9888fe7ba6027816db062a96ce8aa81f7ed8329861a3487a48523b4abf79",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/control-receipt.json",
+      "sha256": "be59c73c35b0dcd7055161bdbff0a72dc6ac7b6f52514f00bc60a6f3f5c78ebf",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/decisions.json",
+      "sha256": "5b58f88413f17455a49ccf58bc3fd4b5f93617b651d67491f2f7273233510b4d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/oracle.c",
+      "sha256": "336922e1a4c3344885bda1c550e19c24bade828ed9e6266102c5cc83497a6ebe",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/probe.mjs",
+      "sha256": "cc53c727efe74bc8b245920b3f87dbf7153cf9137042069eedff71a2decdfcbd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/projection/manifest.json",
+      "sha256": "cae13307176e8952f9df10cf87aaf139709ff7f00376a82c3dae00627a5becac",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/projection/projection.json",
+      "sha256": "038d2c3d33adaf7c518d243eb912945d8e4ae43133be5989f35aca4af1155e17",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/projection/review-template.json",
+      "sha256": "98910ecdf82b5610d86794e452ff6cce0317d6b1c26d5cb78c6b271339d75aa1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/source-fingerprints.json",
+      "sha256": "e8e67572ec00a9ca728620a4d594e5a6614d2dd19ccf738166801a2727fb747c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/target-output.txt",
+      "sha256": "e77072c46b630571afc35a85a7c964e8cd49bd59ef9d757914497f3d4b4a850d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/target-receipt.json",
+      "sha256": "e5d83c898d042ce2dbccf7d363b9f70c9e09b6c0a6bb246ad3d305d4a2dc7e31",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

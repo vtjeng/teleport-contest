@@ -1,0 +1,20 @@
+{
+  "testedJsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:34:10.288917+00:00",
+  "reviewedAt": "2026-10-28T22:34:10.288917+00:00",
+  "toolingSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "exactCFunction": "flip_level_rnd",
+  "jsFunctionUnchangedFromScanBase": true,
+  "jsFunctionSha256": "0ec534b08effe6ac769e3bad2a373e52a665c42f61cc2a0d196059e6cbaff183",
+  "cFunctionSha256": "92b779f1bde1c28d8c931db5fbf6f1572a0fc4516e472bcf0edf351346ea0758",
+  "files": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "js/sp_lev.js": "834345be57794c16a44da1517a7f1fbd627b0e1251ee5a12043015637ddbe8e2"
+  },
+  "limitations": [
+    "Dispatch mask/draw order only; full C flip_level is replaced by a checked callback.",
+    "One empty-level marker observation does not prove arbitrary map metadata, entities, regions, finalization or live-command behavior. extras is always false.",
+    "Default RNG seed values are shared with C; not independent RNG equivalence."
+  ]
+}

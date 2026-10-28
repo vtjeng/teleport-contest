@@ -1,0 +1,135 @@
+{
+  "scope": "Three valid original alignments, two JS seeds, coaligned/noncoaligned public altar initialization; exact C macro evaluation and shared RNG tape. No priests or runtime.",
+  "results": [
+    {
+      "role": "Knight",
+      "alignment": "lawful",
+      "nonco": true,
+      "seed": 28105701,
+      "original": 1,
+      "mask": 1,
+      "tape": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "role": "Knight",
+      "alignment": "lawful",
+      "nonco": true,
+      "seed": 28105702,
+      "original": 1,
+      "mask": 1,
+      "tape": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "role": "Tourist",
+      "alignment": "neutral",
+      "nonco": true,
+      "seed": 28105701,
+      "original": 0,
+      "mask": 4,
+      "tape": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "role": "Tourist",
+      "alignment": "neutral",
+      "nonco": true,
+      "seed": 28105702,
+      "original": 0,
+      "mask": 1,
+      "tape": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "role": "Barbarian",
+      "alignment": "chaotic",
+      "nonco": true,
+      "seed": 28105701,
+      "original": -1,
+      "mask": 3,
+      "tape": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "role": "Barbarian",
+      "alignment": "chaotic",
+      "nonco": true,
+      "seed": 28105702,
+      "original": -1,
+      "mask": 4,
+      "tape": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "scope": "Nine legal dispatch mask/draw combinations plus two default RNG seeds; one empty-level terrain marker. C flip callback captures mask only, not full flip implementation.",
+  "results": [
+    {
+      "flp": 0,
+      "values": [],
+      "control": true,
+      "mask": 0,
+      "draws": 0,
+      "expected": [
+        11,
+        7
+      ],
+      "point": [
+        11,
+        7
+      ],
+      "tape": [],
+      "matched": true
+    },
+    {
+      "flp": 1,
+      "values": [
+        0
+      ],
+      "control": true,
+      "mask": 0,
+      "draws": 1,
+      "expected": [
+        11,
+        7
+      ],
+      "point": [
+        11,
+        7
+      ],
+      "tape": [
+        [
+          2,
+          0
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "flp": 2,
+      "values": [
+        0
+      ],
+      "control": true,
+      "mask": 0,
+      "draws": 1,
+      "expected": [
+        11,
+        7
+      ],
+      "point": [
+        11,
+        7
+      ],
+      "tape": [
+        [
+          2,
+          0
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "flp": 3,
+      "values": [
+        0,
+        0
+      ],
+      "control": true,
+      "mask": 0,
+      "draws": 2,
+      "expected": [
+        11,
+        7
+      ],
+      "point": [
+        11,
+        7
+      ],
+      "tape": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "matched": true
+    }
+  ]
+}

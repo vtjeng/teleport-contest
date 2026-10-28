@@ -1,0 +1,192 @@
+{
+  "scope": "Nine legal dispatch mask/draw combinations plus two default RNG seeds; one empty-level terrain marker. C flip callback captures mask only, not full flip implementation.",
+  "results": [
+    {
+      "flp": 1,
+      "values": [
+        1
+      ],
+      "control": false,
+      "mask": 1,
+      "draws": 1,
+      "expected": [
+        11,
+        13
+      ],
+      "point": [
+        11,
+        13
+      ],
+      "tape": [
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "flp": 2,
+      "values": [
+        1
+      ],
+      "control": false,
+      "mask": 2,
+      "draws": 1,
+      "expected": [
+        69,
+        7
+      ],
+      "point": [
+        69,
+        7
+      ],
+      "tape": [
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "flp": 3,
+      "values": [
+        1,
+        0
+      ],
+      "control": false,
+      "mask": 1,
+      "draws": 2,
+      "expected": [
+        11,
+        13
+      ],
+      "point": [
+        11,
+        13
+      ],
+      "tape": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "flp": 3,
+      "values": [
+        0,
+        1
+      ],
+      "control": false,
+      "mask": 2,
+      "draws": 2,
+      "expected": [
+        69,
+        7
+      ],
+      "point": [
+        69,
+        7
+      ],
+      "tape": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "flp": 3,
+      "values": [
+        1,
+        1
+      ],
+      "control": false,
+      "mask": 3,
+      "draws": 2,
+      "expected": [
+        69,
+        13
+      ],
+      "point": [
+        69,
+        13
+      ],
+      "tape": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "flp": 3,
+      "seed": 28105601,
+      "control": false,
+      "mask": 0,
+      "draws": 2,
+      "expected": [
+        11,
+        7
+      ],
+      "point": [
+        11,
+        7
+      ],
+      "tape": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "flp": 3,
+      "seed": 28105602,
+      "control": false,
+      "mask": 1,
+      "draws": 2,
+      "expected": [
+        11,
+        13
+      ],
+      "point": [
+        11,
+        13
+      ],
+      "tape": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "matched": true
+    }
+  ]
+}

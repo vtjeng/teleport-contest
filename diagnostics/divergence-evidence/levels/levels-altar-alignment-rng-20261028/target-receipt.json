@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:36:58.534Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "a2ea9d73844d5de691aac2d2cf55804a035f1275e0bc946ed0bc1141df5b4e21",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/oracle.c": "de8031a5334427c741c80626df03005ac330c89816495ec4cd5a7ccd2405f659"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/target-output.txt"
+  ]
+}
