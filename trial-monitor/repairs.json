@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T18:11:32Z",
+  "asOf": "2026-10-28T18:31:09Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -24187,6 +24187,155 @@
               "completedAt": "2026-10-28T18:11:32Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420324"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bigrm13-real-division",
+      "kind": "parity-repair",
+      "title": "Preserve Lua real division in the big room pillar filter",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "levels PR #13",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/dat/bigrm-13.lua:filters[7]",
+          "js/bigrm.js:bigrm13"
+        ],
+        "witness": [
+          "recordings/bigrm-13.lua/real-division.session.json",
+          "recordings/bigrm-13.lua/floor-division-control.session.json"
+        ],
+        "test": [
+          "scripts/bigrm13-division.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+          "committedAt": "2026-10-28T18:15:50Z",
+          "sourceCommit": "afc035b41e49d29bcd9e18fcc6befa63504f3233",
+          "sourceCommittedAt": "2026-10-28T18:13:38Z",
+          "runs": [
+            {
+              "id": 40743524383,
+              "name": "Checkpoint",
+              "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/level-count-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:16:14Z",
+              "completedAt": "2026-10-28T18:27:43Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40743524383"
+            },
+            {
+              "id": 40745486821,
+              "name": "Lint",
+              "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:28:44Z",
+              "completedAt": "2026-10-28T18:30:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40745486821"
+            },
+            {
+              "id": 40745486608,
+              "name": "Dashboard",
+              "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:28:44Z",
+              "completedAt": "2026-10-28T18:31:09Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40745486608"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "long-count-input",
+      "kind": "parity-repair",
+      "title": "Parse count input through the full C long range",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #15",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/include/integer.h:AppendLongDigit",
+          "nethack-c/upstream/src/cmd.c:get_count",
+          "js/cmd.js:get_count"
+        ],
+        "witness": [
+          "recordings/cmd.c/long-count-split.session.json",
+          "recordings/cmd.c/safe-count-split.session.json"
+        ],
+        "test": [
+          "scripts/count-long-input.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+          "committedAt": "2026-10-28T18:15:50Z",
+          "sourceCommit": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+          "sourceCommittedAt": "2026-10-28T18:15:50Z",
+          "runs": [
+            {
+              "id": 40743524383,
+              "name": "Checkpoint",
+              "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/level-count-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:16:14Z",
+              "completedAt": "2026-10-28T18:27:43Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40743524383"
+            },
+            {
+              "id": 40745486821,
+              "name": "Lint",
+              "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:28:44Z",
+              "completedAt": "2026-10-28T18:30:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40745486821"
+            },
+            {
+              "id": 40745486608,
+              "name": "Dashboard",
+              "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:28:44Z",
+              "completedAt": "2026-10-28T18:31:09Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40745486608"
             }
           ]
         }
