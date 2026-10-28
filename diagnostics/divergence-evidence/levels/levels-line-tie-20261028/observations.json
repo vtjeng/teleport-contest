@@ -1,0 +1,239 @@
+{
+  "scope": "Supported selection API consumed by production terrain API; shipped exposure unknown",
+  "results": [
+    {
+      "name": "shallow-tie",
+      "args": [
+        10,
+        10,
+        12,
+        11
+      ],
+      "control": false,
+      "cPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          13,
+          11
+        ]
+      ],
+      "jsPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          13,
+          11
+        ]
+      ],
+      "matched": false
+    },
+    {
+      "name": "steep-tie",
+      "args": [
+        10,
+        10,
+        11,
+        12
+      ],
+      "control": false,
+      "cPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          12,
+          12
+        ]
+      ],
+      "jsPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          12
+        ]
+      ],
+      "matched": false
+    },
+    {
+      "name": "reverse-tie",
+      "args": [
+        12,
+        11,
+        10,
+        10
+      ],
+      "control": false,
+      "cPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          13,
+          11
+        ]
+      ],
+      "jsPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          13,
+          11
+        ]
+      ],
+      "matched": false
+    },
+    {
+      "name": "horizontal",
+      "args": [
+        10,
+        10,
+        12,
+        10
+      ],
+      "control": true,
+      "cPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          13,
+          10
+        ]
+      ],
+      "jsPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          13,
+          10
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "name": "vertical",
+      "args": [
+        10,
+        10,
+        10,
+        12
+      ],
+      "control": true,
+      "cPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          11,
+          12
+        ]
+      ],
+      "jsPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          11,
+          12
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "name": "diagonal",
+      "args": [
+        10,
+        10,
+        12,
+        12
+      ],
+      "control": true,
+      "cPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          13,
+          12
+        ]
+      ],
+      "jsPainted": [
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          13,
+          12
+        ]
+      ],
+      "matched": true
+    }
+  ]
+}
