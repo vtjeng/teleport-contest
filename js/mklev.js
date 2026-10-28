@@ -1211,13 +1211,14 @@ function themeroom_map_fits(definition, xstart, ystart, state) {
 // the location metadata before setting terrain. The map's default lit=false
 // still leaves lava lit, and door orientation depends on the already-loaded
 // cell immediately to its left.
-function set_themeroom_map_terrain(x, y, typ, state, lit = false) {
+function set_themeroom_map_terrain(x, y, typ, state, lit = false, frame = null) {
     const loc = state.level.at(x, y);
     loc.flags = 0;
     loc.doormask = 0;
     // C's wall_info aliases the rm.flags that sel_set_ter() clears before a
     // nontransparent map cell is painted.  The JS location stores it apart.
     loc.wall_info = 0;
+    loc.icedpool = 0;
     loc.horizontal = false;
     loc.roomno = 0;
     loc.edge = false;
@@ -1231,6 +1232,8 @@ function set_themeroom_map_terrain(x, y, typ, state, lit = false) {
             loc.horizontal = true;
     } else if (typ === HWALL || typ === IRONBARS) {
         loc.horizontal = true;
+    } else if (frame?.splev_init_present && typ === ICE) {
+        loc.icedpool = frame.icedpools ? ICED_POOL : ICED_MOAT;
     } else if (typ === CLOUD) {
         del_engr_at(x, y, state);
     }
@@ -4777,7 +4780,8 @@ function createSpecialLevelApi(state) {
                                                   y - frame.ystart);
                         if (mptyp === INVALID_TYPE) continue;
                         if (mptyp >= MAX_TYPE) continue;
-                        set_themeroom_map_terrain(x, y, mptyp, state, spec.lit);
+                        set_themeroom_map_terrain(x, y, mptyp, state, spec.lit,
+                                                 frame);
                         frame.splevMap[x][y] = 1;
                         selection.set(x, y);
                     }
