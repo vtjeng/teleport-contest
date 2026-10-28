@@ -1,0 +1,52 @@
+{
+  "recordingSha256": "b49ec0d152d5515e58b2a8949d757140a760deb8deb7801d4c4fffd73dd87541",
+  "independentRecordingSha256": "b49ec0d152d5515e58b2a8949d757140a760deb8deb7801d4c4fffd73dd87541",
+  "identicalRecordings": true,
+  "comparison": {
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 3046,
+        "js": 3046
+      },
+      "screens": {
+        "c": 10,
+        "js": 8
+      },
+      "cursors": {
+        "c": 10,
+        "js": 8
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 8,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 8,
+        "key": "\u0001"
+      },
+      "kind": "js-missing"
+    },
+    "cursorMismatch": {
+      "index": 8,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 8,
+        "key": "\u0001"
+      },
+      "cCursor": [
+        40,
+        0,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+}

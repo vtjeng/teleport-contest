@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+const source = name => readFileSync(new URL('../../../../' + name, import.meta.url), 'utf8');
+test('the two dopray repeat-queue calls are inside a balanced literal inactive frame', () => {
+    const c = source('nethack-c/upstream/src/pray.c');
+    const start = c.indexOf('dopray(void)');
+    const end = c.indexOf('\nstaticfn int', start);
+    const body = c.slice(start, end);
+    const block = body.match(/#if 0\n([\s\S]*?)#endif/u);
+    assert.ok(block);
+    assert.doesNotMatch(block[1], /^\s*#(?:if|else|elif|endif)/mu);
+    assert.match(block[1], /cmdq_clear\(CQ_REPEAT\);/u);
+    assert.match(block[1], /cmdq_add_ec\(CQ_REPEAT, dopray\);/u);
+    const active = body.replace(block[0], '');
+    assert.doesNotMatch(active, /cmdq_(?:clear|add_ec)\(/u);
+    assert.match(active, /ok = paranoid_query\(ParanoidConfirm,/u);
+    assert.match(active, /if \(!ok\)[\s\S]*?return ECMD_OK;/u);
+    assert.match(active, /if \(!u\.uconduct\.gnostic\+\+\)/u);
+    const js = source('js/pray.js');
+    assert.match(js, /cmdq_clear\(CQ_REPEAT\) pair below this is inside `#if 0`/u);
+});
