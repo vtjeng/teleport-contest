@@ -1,0 +1,24 @@
+{"already":false,"mspeed":1,"permspeed":1,"damage":1,"bounds":[10],"lines":["The large dog seems to be moving slower.","The large dog slows down."]}
+{"already":true,"mspeed":1,"permspeed":1,"damage":1,"bounds":[10],"lines":[]}
+✔ C slow attack retains callee and caller messages and checks negation first (1.948699ms)
+✔ skeleton slow already=false (135.23358ms)
+✔ skeleton slow already=true (37.033372ms)
+PRNG length: C=2999, JS=2999
+PRNG values: match
+Screen length: C=166, JS=166
+Screen cells and attributes: match
+Cursor length: C=166, JS=166
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: PASS
+
+✔ public witness matches C completely (1452.265515ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1602.882279

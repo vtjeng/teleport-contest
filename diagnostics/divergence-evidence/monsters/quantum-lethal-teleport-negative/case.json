@@ -1,0 +1,102 @@
+{
+  "caseId": "quantum-lethal-teleport-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "binding": {
+    "status": "unbound",
+    "reason": "Manual reachable-behavior investigation; no canonical scanner key identified or assigned. No automatic scanner suppression."
+  },
+  "hypothesis": "A quantum mechanic hit failing to teleport a lethally wounded monster might indicate omitted teleport behavior.",
+  "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:45:59.330294+00:00",
+  "reviewedAt": "2026-10-28T18:56:51.730100+00:00",
+  "sourceLocations": [
+    "nethack-c/upstream/src/uhitm.c:2859",
+    "nethack-c/upstream/src/uhitm.c:2939",
+    "js/uhitm.js:7288"
+  ],
+  "sourceToolHashes": {
+    "nethack-c/upstream/src/uhitm.c": "4cc2f8a0ffe0121801a777978a9a555a063db720e0fe972308fb6ab0e96feb12",
+    "nethack-c/upstream/src/mhitm.c": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+    "nethack-c/upstream/src/worn.c": "0414baea25644ea52cc7b628dff4ab1a533eada1523405eaabe7d7555bc3d4cf",
+    "nethack-c/upstream/include/monsters.h": "c63db922770c96a9956d221f364ba4368a9f81f81c8d64ed28251a0506d4a906",
+    "js/uhitm.js": "ad673dbf7e3515ad683f6da337a141feb6dceef7e7455a716ba727e84baa6353",
+    "js/worn.js": "f0157f62162d45ccec085c83f6edf533afb859853ed59537ab806d731fe13e40",
+    "js/teleport.js": "a8ea7e9815480ed26d18bd23c8c9c38129f1634358953eb48b49497f3fc9806c",
+    "js/mhitm.js": "f823bac6efc732f993bc46d58b3430f10361ad0e6139de38a9218c4f6b413393",
+    "js/rng.js": "072e95b76b014136e7578f023e7eb5165aea0b830063e60f4e8adf669e6bcb98",
+    "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "recorderCompiler": "Debian clang 19.1.7",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "patchHashes": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "configuration": "Existing saved Clang recorder, canonical TZ America/New_York, recorderIsDst retained; private installation for each differential. Relevant recorder C source files mhitm.c, mon.c, makemon.c, uhitm.c byte-match pinned upstream. Build script and patches unchanged from saved a37ef64c8."
+  },
+  "recorderSourceMatches": {
+    "uhitm.c": true,
+    "mhitm.c": true,
+    "worn.c": true
+  },
+  "setup": {
+    "publicInput": {
+      "seed": 7710048,
+      "datetime": "20261028120000",
+      "nethackrc": "OPTIONS=name:Quantum,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "recorderIsDst": true
+    },
+    "movesIn": "recipe.session.json",
+    "focusedInit": {
+      "seed": 7710048,
+      "datetime": "20260214031500",
+      "options": "Valkyrie human female neutral; no pet; startup UI disabled"
+    },
+    "fixture": "Native monster species and attacks, legal wounded HP or speed states, actual effect owners. No teleport or speed implementation is substituted. Full recorder is the C witness; control semantics are additionally source-pinned."
+  },
+  "expectedC": "C returns before magical negation/relocation when damage>=target HP. Nonlethal ordinary target can relocate.",
+  "observedJS": "Damage1/HP4 target relocates through real rloc and reports disappearance; damage1/HP1 target stays and spends no RNG. Public nonlethal fight matches 3064 RNG/172 screens/cursors.",
+  "scope": "Monster-target lethal-hit gate and witnessed normal relocation only; not hero teleportation, location distribution or post-relocation trap/damage behavior.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/quantum-lethal-teleport-negative/probe.test.mjs diagnostics/divergence-evidence/monsters/quantum-lethal-teleport-negative/replay.test.mjs",
+  "validation": {
+    "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "checkoutInitiallyClean": true,
+    "onlyEvidenceCopied": true,
+    "testsPassed": 4,
+    "testedAt": "2026-10-28T18:58:39.678491+00:00",
+    "initialCleanBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+    "procedure": "Initially clean detached worktree; only these evidence directories copied. Rechecked after advancing detached base to current Main, with the same evidence files and no tracked edits."
+  },
+  "evidence": [
+    "README.md",
+    "observations.txt",
+    "probe.test.mjs",
+    "public-witness.session.json",
+    "recipe.session.json",
+    "record.mjs",
+    "replay.test.mjs"
+  ],
+  "evidenceHashes": {
+    "README.md": "309633a72591fdd2997a9c0f76165003a47fc61aecbc01657ee2952314afcf5f",
+    "observations.txt": "833200b74129003c0f83f5d6c55eeda58891d9857110c0f4f37884abaa2cce16",
+    "probe.test.mjs": "e2e165518c037f8e45546b3fb7c78d3b17313ee4d20ac265ca9b23cfc987f1d0",
+    "public-witness.session.json": "86cf01a2d96c948d221f4f7bd5a1239ae4aea65f7923a69314601839e6de1cc9",
+    "recipe.session.json": "d83c687b6434dc37a9fc6244dbcce9a463c594b3336c0f4f24ed4303b28dc682",
+    "record.mjs": "b62237fbf6ba7601a0bab705bf322f8811eb87277078b0a03f80af7881176e4b",
+    "replay.test.mjs": "c3823ced8aeb665ae2a6724ac44948e59706b2688fe1916708ed0ed8455256af"
+  },
+  "nextExperiment": null,
+  "originalRecordingJsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1"
+}
