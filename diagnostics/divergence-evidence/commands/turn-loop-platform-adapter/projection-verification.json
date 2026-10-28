@@ -1,0 +1,62 @@
+{
+  "originalRunSha256": "1349082cfaa9d24b2f2e76adef76bbc2d75c10e511e4a0bce7eae7d64c571dde",
+  "originalRunBytes": 42926676,
+  "projectionSha256": "41f40af0f0da688c2dacb71e6851534a51986e531641d8e768633197c1b77bf5",
+  "bindingsCompared": [
+    {
+      "key": "source-audit:edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+      "evidenceKey": "e370f488fb2b480f4edc1b89f453ce56b28a02afce4400fd54bfab7fa7fcbe08",
+      "runId": "7e93da55968668bc05fc",
+      "reviewFingerprint": "3943e7cccace1efa5b282c1c865b7b621742a6113f2437aefc262b41d75f1e01",
+      "status": null
+    },
+    {
+      "key": "source-audit:edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+      "evidenceKey": "4129d51e43f25a2808a9cdb975e36bda9c05f2a22df9eef717e47a236f9a63eb",
+      "runId": "7e93da55968668bc05fc",
+      "reviewFingerprint": "b0cfa31232a811f3f90d02105553ebd03dec761473d826e7c3e8433fe265d377",
+      "status": null
+    },
+    {
+      "key": "source-audit:edge-c-only:src/pray.c:dopray:cmdq_add_ec",
+      "evidenceKey": "1c21d70655873df9afae72fe767d177ad150210075741080a578a44db7be117a",
+      "runId": "7e93da55968668bc05fc",
+      "reviewFingerprint": "cca806cd1970daa5dcde6a7e6f6132b84960ff59f01e3de3d7142cb06738d244",
+      "status": null
+    },
+    {
+      "key": "source-audit:edge-c-only:src/allmain.c:stop_occupation:You",
+      "evidenceKey": "0f6a23a042f926e864c667db26963b1ee9685ca52d176ad9ca6bc62720b560a9",
+      "runId": "7e93da55968668bc05fc",
+      "reviewFingerprint": "cd170e9bbfa6f74d86ef9c1a0dbd566d7e6623faa6600815df0a50329d357706",
+      "status": null
+    },
+    {
+      "key": "source-audit:message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
+      "evidenceKey": "dddba92b62d700e344c70a8c8ad9badf0246e734d252145d4e3dd6af4fdc4ff0",
+      "runId": "7e93da55968668bc05fc",
+      "reviewFingerprint": "d494f03b2c1aad7348fa86e7264680c1074853141b966c276f78a829070eb358",
+      "status": null
+    },
+    {
+      "key": "source-audit:message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547",
+      "evidenceKey": "53b14464892477a8cc06012dfabd2f523e66b777508ab0317d21ba66818cddc4",
+      "runId": "7e93da55968668bc05fc",
+      "reviewFingerprint": "5c7e3b0b127d7b6ab2964e33d3f832ed5222b6c0d6602e8888a3880a337766a2",
+      "status": null
+    }
+  ],
+  "verifiedAt": "2026-10-28T18:33:05.189Z",
+  "classifications": [
+    {
+      "key": "source-audit:edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+      "status": "explained_negative",
+      "reviewFreshness": "current"
+    },
+    {
+      "key": "source-audit:edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+      "status": "explained_negative",
+      "reviewFreshness": "current"
+    }
+  ]
+}

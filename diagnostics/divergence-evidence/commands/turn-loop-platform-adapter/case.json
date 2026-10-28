@@ -82,7 +82,8 @@
       "diagnostics/examples/structural/mappings.json": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3"
     },
     "sourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
-    "note": "Original immutable run retained in saved analysis environment, not duplicated. Bindings apply to that original run only; reviewed branch snippets persist at current base."
+    "note": "Original immutable run retained privately; selected unchanged lead objects and all fingerprint inputs now travel in a reusable projection. Projection is not the original full run.",
+    "portableProjection": "discovery-run.projection.json"
   },
   "fingerprints": {
     "node": "v24.19.0",
@@ -117,7 +118,7 @@
   "positiveControl": "Do not blanket suppress occupation or helper edges: PR #25 vault-entry-occupation-hook remains a confirmed live missing callback despite these two negatives.",
   "generalization": "Require actual configured preprocessing for conditional edges and exact wrapper/call-site argument and ordering proof for wrapper edges. A function name or matching seed is insufficient.",
   "evidenceSha256": {
-    "README.md": "70bcf96aa3fd2832f386138f989cb33ec845bef53d5b5abf2b27025be9708d4a",
+    "README.md": "cc60739269206559635a8a9d148762cd86a18381f05c770f0410cfa0a00c6978",
     "control.comparison.json": "c68ed887912335ec2d4bae1116e39975f1f0aab28fc46ecf1d1c9bb4bf4c2644",
     "control.js-output.json.gz": "3459021bd3b70033cceb63fd3748dced9b999f7e40e57e8326ff4a9fd53db589",
     "control.js-output.json": "e3155c6b10e0db94be7d06c762c17c4ba68ce690a7841a03ce6ea76a8049c33a",
@@ -127,11 +128,16 @@
     "discovery-bindings.json": "d2b05b7675c5b6e28f937329fb4c5e173471e71a73250e0d80fb980cdd555977",
     "evidence.test.mjs": "38de1a6b490098560df3aab5bad6304c4fa371f1e76ceb43a8b700f4a9db8429",
     "preprocessor-proof.json": "df4ba9264f7b2965ee07cd13b331643afa4fa1fce879079c6e39330158b41d39",
-    "raw-observations.json": "63e87993d9a7af7f7e231f701e50bccf07cefa45f6094c69a5a3515a56a1c334"
+    "raw-observations.json": "63e87993d9a7af7f7e231f701e50bccf07cefa45f6094c69a5a3515a56a1c334",
+    "clean-import-check.json": "dc1d5e74658c7679af0f045be070e08a5f7ed37465d5b7f165153846b569f106",
+    "discovery-run.projection.json": "41f40af0f0da688c2dacb71e6851534a51986e531641d8e768633197c1b77bf5",
+    "projection-verification.json": "1a3dd1daadd8acd0b73966c62ea4ab4b68c23aff2718c2cd016709a8bdbd655f",
+    "review-decisions.json": "defb06d1efdbc98f53c3b117720c65874a9712a07d2f2a4a6bc74dde6881ec44"
   },
   "validation": {
     "focused": "3 evidence assertions pass",
     "freshControl": "5 screens/cursors and 3649 RNG calls match",
-    "currentSource": "No gameplay changes from pinned acec7a757; all changes scoped to this evidence directory"
+    "currentSource": "No gameplay changes from pinned acec7a757; all changes scoped to this evidence directory",
+    "cleanImport": "Clean current-main CLI imports two explained_negative decisions with original fingerprints"
   }
 }

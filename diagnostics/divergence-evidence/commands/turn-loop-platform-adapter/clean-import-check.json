@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-28T18:33:30.290Z",
+  "toolBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "command": "node scripts/discovery-hub.mjs classify --run diagnostics/divergence-evidence/commands/turn-loop-platform-adapter/discovery-run.projection.json --decisions diagnostics/divergence-evidence/commands/turn-loop-platform-adapter/review-decisions.json --out reviewed.json",
+  "status": 0,
+  "stdout": "discovery hub: classified 2 leads; /tmp/commands-projection-clean-E4Be3X/reviewed.json\n",
+  "stderr": "",
+  "checks": [
+    {
+      "key": "source-audit:edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+      "status": "explained_negative",
+      "reviewFreshness": "current"
+    },
+    {
+      "key": "source-audit:edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+      "status": "explained_negative",
+      "reviewFreshness": "current"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+    "evidenceKey": "e370f488fb2b480f4edc1b89f453ce56b28a02afce4400fd54bfab7fa7fcbe08",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "3943e7cccace1efa5b282c1c865b7b621742a6113f2437aefc262b41d75f1e01",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Configured Unix recorder preprocessing removes only the MICRO/WIN32CON occupation polling arm.",
+      "proof": "preprocessor-proof.json retains exact Clang commands, full-output hashes and active occupation excerpt; MICRO/WIN32CON/WIN32 absent.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/allmain.c:485",
+        "js/allmain.js:1908"
+      ]
+    }
+  },
+  {
+    "key": "source-audit:edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+    "evidenceKey": "4129d51e43f25a2808a9cdb975e36bda9c05f2a22df9eef717e47a236f9a63eb",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "b0cfa31232a811f3f90d02105553ebd03dec761473d826e7c3e8433fe265d377",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "Both C status branches call curs_on_u whose entire body is flush_screen(1); JS invokes that operation directly.",
+      "proof": "evidence.test.mjs source-pins the wrapper body and the two corresponding status branches; control comparison matches.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/allmain.c:473",
+        "nethack-c/upstream/src/display.c:1687",
+        "js/allmain.js:1878"
+      ]
+    }
+  }
+]
