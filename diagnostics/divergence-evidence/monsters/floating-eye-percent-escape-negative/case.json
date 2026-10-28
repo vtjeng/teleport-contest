@@ -1,0 +1,87 @@
+{
+  "caseId": "floating-eye-percent-escape-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "hypothesis": "The scanner-only C edge passivemm -> strNsubst means percent-containing floating-eye names are not escaped in JS reflection messages.",
+  "discoveredAt": "2026-10-28T17:45:54.697Z",
+  "reviewedAt": "2026-10-28T18:08:35.347Z",
+  "jsBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "binding": {
+    "key": "source-audit:edge-c-only:src/mhitm.c:passivemm:strNsubst",
+    "evidenceKey": "67cebe7be33d7759fc9935b8696199a7eff41eb627f3c1b591b9ecad7f6f3866",
+    "runId": "601667573d5ca5a23adf",
+    "reviewFingerprint": "594ad90ae51b8f782e36413c4aa8ca89b02ac90dff237bc49d30d6acce400cac",
+    "runSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+    "runArtifact": "https://github.com/vtjeng/teleport-contest/blob/5011e3c8e/diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/discovery-run.json.gz",
+    "originalProvenance": {
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "jsSha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+      "runId": "601667573d5ca5a23adf",
+      "sourceAuditSourceHash": "0f54be3bf62a26bf615e163ac81226a345936d43e1e564271c72ad169b332dcb",
+      "methodConfigHashes": {
+        "sourceAudit": "4b12f114c03356c62193bab858e963acd1b5c48b7f377c2a819bbbe38b922e4d",
+        "mismatchQueue": "736a53ee953197dd0395cddef8fcf1fa50279c2c941bb7afbfb779c4d700d148",
+        "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+        "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+        "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+      },
+      "methodVersions": {
+        "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+        "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+        "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+        "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+      },
+      "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+      "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+      "evidenceKey": "67cebe7be33d7759fc9935b8696199a7eff41eb627f3c1b591b9ecad7f6f3866"
+    }
+  },
+  "sourceHashes": {
+    "nethack-c/upstream/src/mhitm.c": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+    "nethack-c/upstream/src/hacklib.c": "9f9710dcd8fe0b3735c0b319eb7c26b7fb4148d32a5851ffe72ed94c3bbfeae2",
+    "nethack-c/upstream/src/worn.c": "0414baea25644ea52cc7b628dff4ab1a533eada1523405eaabe7d7555bc3d4cf",
+    "nethack-c/upstream/src/do_name.c": "64c6cb5e7f4034e9edbd8fac983b313a7df0e029b4812bd3a9327852d12ad9d1",
+    "nethack-c/upstream/include/global.h": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+    "js/mhitm.js": "f823bac6efc732f993bc46d58b3430f10361ad0e6139de38a9218c4f6b413393",
+    "js/muse.js": "7109295a010b6f1d78200539b1013915d65d3c2bafe9194fc1f58e93bf59b5b4",
+    "js/worn.js": "f0157f62162d45ccec085c83f6edf533afb859853ed59537ab806d731fe13e40",
+    "js/do_name.js": "71939a7cc8aedbd82e1f346aaa7359308ffbd0a300e5deb2dffd7544300bf129",
+    "scripts/discovery-hub.mjs": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "cCompiler": "cc (Debian 14.2.0-19) 14.2.0",
+    "cOracle": "c-oracle.mjs extracts unmodified s_suffix and strNsubst from pinned upstream hacklib.c; standalone formatting driver, not full C combat execution"
+  },
+  "setup": "Initialized visible hill orc and floating eye, 8 HP each, native species attacks. Eye named Eye%s% with christen_monst. Orc receives ordinary reflection amulet with add_to_minv and equips via m_dowear; default mon_wield_item handles empty weapon inventory. Legal scripted RNG: dice minimum n, other draws 1. Fixtures adapted from scripts/mhitm.test.mjs.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/floating-eye-percent-escape-negative/probe.test.mjs",
+  "expectedC": "Eye%s%'s gaze is reflected by the hill orc's amulet.",
+  "observedJS": "Eye%s%'s gaze is reflected by the hill orc's amulet.",
+  "control": "Remove amulet: The hill orc is frozen by Eye%s%'s gaze!; frozen 3 turns. Both leave eye at 7 HP.",
+  "scope": "Only the exact call-site percent escape, for ordinary visible nonhallucinated named floating eyes within PL_PSIZ-1 bytes and BUFSZ. JS replaceAll implements the missing named edge. Not global strNsubst equivalence: C truncates at BUFSZ-1 whereas JS replaceAll does not. Not whole monster-combat equivalence.",
+  "evidence": [
+    "probe.test.mjs",
+    "c-oracle.mjs",
+    "observations.txt",
+    "README.md"
+  ],
+  "priorWork": "Reflection is already implemented: history includes bb8df5d24, 20aaed824 and f437c208e; existing muse.test.mjs covers printf escapes in mon_reflects. This adds concrete caller-level coverage and exact scanner binding, not a new repair request.",
+  "nextExperiment": null,
+  "validation": {
+    "cleanBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+    "initialGitStatusPorcelain": "",
+    "submodule": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "testsPassed": 3,
+    "testedAt": "2026-10-28T18:11:10.004536+00:00",
+    "procedure": "Separate detached worktree, submodule update --init, copy only this evidence directory, run documented command."
+  },
+  "evidenceHashes": {
+    "probe.test.mjs": "c41a22be6768be1fad66c1e9ede4efc9f36a42baa906f816be74a0436030b6a5",
+    "c-oracle.mjs": "3502a5bead063c6a53b1125c10880d3f6a85f76b741810412418a3a36182b59b",
+    "observations.txt": "4f45301f0e3fa579489682b9fd9d5692f2a195a1b5ca96789599d64e42c64c22",
+    "README.md": "d2ee4258b90958f0cac22fbdfa6f47983a6422563282b335e9bc0d2605edd909"
+  }
+}
