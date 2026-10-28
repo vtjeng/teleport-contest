@@ -1,0 +1,228 @@
+{
+  "oracle": "extracted pinned C mkmap.c functions compiled by clang",
+  "mapComparisons": 36,
+  "exactMatches": 36,
+  "dispatchControls": 2,
+  "sourceHashes": {
+    "C": "25046834749be29ad3ec4b03f024189de5026b805da0129537dd5c75ca7e2f50",
+    "JS": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7"
+  },
+  "results": [
+    {
+      "pattern": 0,
+      "pass": 1,
+      "changed": false,
+      "sha256": "d9b98b1b035071bad80130dda86b38c4523306a095be0c7cbe2844f87c557a8d"
+    },
+    {
+      "pattern": 0,
+      "pass": 2,
+      "changed": false,
+      "sha256": "d9b98b1b035071bad80130dda86b38c4523306a095be0c7cbe2844f87c557a8d"
+    },
+    {
+      "pattern": 0,
+      "pass": 3,
+      "changed": false,
+      "sha256": "d9b98b1b035071bad80130dda86b38c4523306a095be0c7cbe2844f87c557a8d"
+    },
+    {
+      "pattern": 1,
+      "pass": 1,
+      "changed": false,
+      "sha256": "10048c9ec60b57da3112fed6c7f5e3f49732fd0ec3b085f066ad15a5d93ce48e"
+    },
+    {
+      "pattern": 1,
+      "pass": 2,
+      "changed": true,
+      "sha256": "6c3f2214ed362be91f1735a75f02ebd7cd5763905cc7592230baf062b2e041af"
+    },
+    {
+      "pattern": 1,
+      "pass": 3,
+      "changed": false,
+      "sha256": "10048c9ec60b57da3112fed6c7f5e3f49732fd0ec3b085f066ad15a5d93ce48e"
+    },
+    {
+      "pattern": 2,
+      "pass": 1,
+      "changed": true,
+      "sha256": "ccce87768a6426b3d2b8aec71af50b1d9915d37523fde058722370a04c35d44b"
+    },
+    {
+      "pattern": 2,
+      "pass": 2,
+      "changed": false,
+      "sha256": "cc0f4eef5373b819a89df393cbdffe7a724963fe3ed1d280e139586a4c0d35aa"
+    },
+    {
+      "pattern": 2,
+      "pass": 3,
+      "changed": true,
+      "sha256": "ccce87768a6426b3d2b8aec71af50b1d9915d37523fde058722370a04c35d44b"
+    },
+    {
+      "pattern": 3,
+      "pass": 1,
+      "changed": true,
+      "sha256": "1239f92ac8e60b35886e86dd4ac6f2a13711b6a98b0934cd28e77fba4fce9acd"
+    },
+    {
+      "pattern": 3,
+      "pass": 2,
+      "changed": true,
+      "sha256": "ae6114401d8fb21b49a8567b4fc6033c29108725e5311d88ad17018de268c93c"
+    },
+    {
+      "pattern": 3,
+      "pass": 3,
+      "changed": true,
+      "sha256": "5245ea844f8cff1c0fca4b3e1210535d7c80750218932de28b6465e368b1e12e"
+    },
+    {
+      "pattern": 4,
+      "pass": 1,
+      "changed": true,
+      "sha256": "d3584eb5d49013f1b272fbffa3e475b2cc517fe9e995681fe47ceda1bd22220a"
+    },
+    {
+      "pattern": 4,
+      "pass": 2,
+      "changed": true,
+      "sha256": "8f221cd1ec9f8882f22f1a0ab02946d22c90a6afc386b5a13fabb2349a6bcafc"
+    },
+    {
+      "pattern": 4,
+      "pass": 3,
+      "changed": true,
+      "sha256": "8d059d20271a263675b16a9af23334bf52292808de6a6b9f2e7816493f3e02f5"
+    },
+    {
+      "pattern": 5,
+      "pass": 1,
+      "changed": true,
+      "sha256": "cee48dcb7c114fd87f14dd5e74f5c9eda39b93efbf3295abeffff96fb5864de7"
+    },
+    {
+      "pattern": 5,
+      "pass": 2,
+      "changed": true,
+      "sha256": "68059866a18fcb3a323be86476aa8a8a2f824cc8f46ecea0c80c4b96adb442d2"
+    },
+    {
+      "pattern": 5,
+      "pass": 3,
+      "changed": true,
+      "sha256": "6b17ef6dd2d3342e4884930421e4c057745a3b2637a5e512177cc013692cf4de"
+    },
+    {
+      "pattern": 6,
+      "pass": 1,
+      "changed": true,
+      "sha256": "b660ce294e14c909187be93a2474cdde91ee7912c5ea7b2fdd9465d79ff2c0f0"
+    },
+    {
+      "pattern": 6,
+      "pass": 2,
+      "changed": true,
+      "sha256": "d3c91664ee2b39926910f238b3ac76f531e777223dcc4ac8e9ead81324ad8801"
+    },
+    {
+      "pattern": 6,
+      "pass": 3,
+      "changed": true,
+      "sha256": "44e4454c7d667206e79266799b1a5e02a6459f58c9167e36e7f58bd98938a481"
+    },
+    {
+      "pattern": 7,
+      "pass": 1,
+      "changed": true,
+      "sha256": "24a8681b294e6957a6849f0f9f88af35bf55e5fc2dc0b11cfd334284ba0f8a6e"
+    },
+    {
+      "pattern": 7,
+      "pass": 2,
+      "changed": true,
+      "sha256": "074aeeb061d38a10a772d59fc88f8099c551d1eaa3683b3550e262905353453e"
+    },
+    {
+      "pattern": 7,
+      "pass": 3,
+      "changed": true,
+      "sha256": "efdaa0083ad7696aafaa5f67487a6fecd3d742d1a0a5c29891fc8bab84c78fd2"
+    },
+    {
+      "pattern": 8,
+      "pass": 1,
+      "changed": true,
+      "sha256": "63941e1e49d735ce8516cd64bc1f2e0a00d1edcc4786751237f6fb686ff0ba6f"
+    },
+    {
+      "pattern": 8,
+      "pass": 2,
+      "changed": true,
+      "sha256": "b8bf3ecb5d01566b2c6d4fcad77649cc753f4f32bd959c59af878621b0273435"
+    },
+    {
+      "pattern": 8,
+      "pass": 3,
+      "changed": true,
+      "sha256": "a74f6ca760cbd80adc598415ba0c9865fb61a7964bac39fbf3c052472dfbc909"
+    },
+    {
+      "pattern": 9,
+      "pass": 1,
+      "changed": true,
+      "sha256": "21d803d3368fc3d4d63317b0f9e7ce78143a48b16e70f5d7d861aa1434b39908"
+    },
+    {
+      "pattern": 9,
+      "pass": 2,
+      "changed": true,
+      "sha256": "d51933b60b8c982468ad54ccf62499a2a2f620e7f932a6ba5cd18989169a14ff"
+    },
+    {
+      "pattern": 9,
+      "pass": 3,
+      "changed": true,
+      "sha256": "8d2b079dfcc51d7842de56a6264cc81e19907aa18de8795e4c13b1cf1b68ebc3"
+    },
+    {
+      "pattern": 10,
+      "pass": 1,
+      "changed": true,
+      "sha256": "3ed296fff8bfda6f7c0efd28321bef425e82eeaef3c35ccd2507a7885656185d"
+    },
+    {
+      "pattern": 10,
+      "pass": 2,
+      "changed": true,
+      "sha256": "1ba45458e5e64a620dd2bd919055345e34f1e970ad4713c3fde202bd8d5807e4"
+    },
+    {
+      "pattern": 10,
+      "pass": 3,
+      "changed": true,
+      "sha256": "5005c45bf2116802ef54bd27b58540e4a818d1de496694a5c1d110245f366d2c"
+    },
+    {
+      "pattern": 11,
+      "pass": 1,
+      "changed": true,
+      "sha256": "cad6db1bd5c6714a4d076c192b8846abe479f7818de2f7d808bc68efcecae638"
+    },
+    {
+      "pattern": 11,
+      "pass": 2,
+      "changed": true,
+      "sha256": "846d06ee43e2efcce7583eb0d6f61433a5909db65c23485334a65eb8a3df5079"
+    },
+    {
+      "pattern": 11,
+      "pass": 3,
+      "changed": true,
+      "sha256": "6847521a7e75b86cb125205efe430cb28f66dafb5300ebd9a8518e945210dd81"
+    }
+  ]
+}
