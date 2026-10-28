@@ -1,0 +1,83 @@
+{
+  "caseId": "static-20261028",
+  "shard": "command-catalog",
+  "outcome": "bounded static declarations match; seven symbolic keys unexamined",
+  "ready": false,
+  "baseJs": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:17:40.208823+00:00",
+  "reviewedAt": "2026-10-28T21:18:16.176534+00:00",
+  "hypothesis": "Compare only literal command catalog declarations in a finite source inventory.",
+  "supportedReachableSetup": "Not applicable: source text parsing only; no runtime claim.",
+  "expectedC": "Pinned upstream declarations normalized by explicit character/key representation mappings.",
+  "observedJS": {
+    "specialKeys": {
+      "unionNames": 2,
+      "cRows": 2,
+      "jsRows": 2,
+      "statuses": {
+        "declarations-match": 2
+      }
+    },
+    "commands": {
+      "unionNames": 129,
+      "cRows": 129,
+      "jsRows": 129,
+      "statuses": {
+        "declarations-match": 122,
+        "key-unexamined": 7
+      }
+    },
+    "aliases": {
+      "unionNames": 10,
+      "cRows": 11,
+      "jsRows": 11,
+      "statuses": {
+        "declarations-match": 10
+      }
+    },
+    "menuLabels": {
+      "unionNames": 8,
+      "cRows": 8,
+      "jsRows": 8,
+      "statuses": {
+        "declarations-match": 8
+      }
+    }
+  },
+  "control": "equal, unequal, exclusion and nonempty/8-menu-row assertions passed",
+  "scope": "extcmdlist names/labels/default keys; commands_init explicit bind_key aliases; escape/count special keys; eight yn_function_menu option labels. Exclusions and unexamined fields are in README and observations.json.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c",
+    "js/extcmdlist_data.js",
+    "js/command_bindings.js",
+    "js/cmd.js"
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "js/extcmdlist_data.js": "e2005b00771db0c8235c1b4c3e862f6c57d182ce265939682d6241fc87563819",
+    "js/command_bindings.js": "d997bf8722c11b70dc70cdcf552eb523add014cceaf82a16fcc4063aadb98661",
+    "js/cmd.js": "2eb74b97b277a2b752e7203b6e7da36c8ca9e3ed19d4ed900cd594f3faaf3a7c"
+  },
+  "reproduceWitness": "node diagnostics/divergence-evidence/command-catalog/static-20261028/reproduce.mjs",
+  "reproduceControl": "Same runner includes equal/unequal synthetic declaration controls and scope assertions.",
+  "expectedExitCodes": {
+    "reproduce": 0
+  },
+  "oracleProvenance": {
+    "kind": "uncompiled upstream source declarations",
+    "node": "v24.19.0",
+    "runtimeExecuted": false
+  },
+  "evidencePaths": [
+    "README.md",
+    "observations.json",
+    "reproduce.mjs",
+    "validation.txt"
+  ],
+  "nextExperiment": "None in this pass. Parent owns any further scope decision.",
+  "fixtureHashes": {
+    "reproduce.mjs": "712debec02c61f5a123a9454cd29cb3b6448a8d801cb7be59f4225a227972671",
+    "observations.json": "e5a5ccb41ef77d1e365c06e328e6493bbb494a593a58281385c10c9321eecdd4"
+  }
+}
