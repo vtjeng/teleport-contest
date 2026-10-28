@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T22:07:15Z",
+  "asOf": "2026-10-28T22:27:11Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25738,6 +25738,153 @@
               "completedAt": "2026-10-28T22:07:15Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40777210085"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "acid-engulf-effective-hallucination",
+      "title": "Use effective hallucination for acid engulf message",
+      "investigator": "monsters PR #94",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/include/youprop.h:Hallucination",
+          "nethack-c/upstream/src/mhitu.c:gulpmu",
+          "js/mhitu.js:gulpmu"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.session.json.gz"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+          "committedAt": "2026-10-28T22:13:00Z",
+          "sourceCommit": "91b65d284dcadcf324cb38573ec228a095db3d78",
+          "sourceCommittedAt": "2026-10-28T22:12:55Z",
+          "runs": [
+            {
+              "id": 40778305234,
+              "name": "Checkpoint",
+              "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/acid-engulf-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:13:37Z",
+              "completedAt": "2026-10-28T22:24:03Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40778305234"
+            },
+            {
+              "id": 40779844372,
+              "name": "Lint",
+              "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:25:23Z",
+              "completedAt": "2026-10-28T22:26:33Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40779844372"
+            },
+            {
+              "id": 40779844243,
+              "name": "Dashboard",
+              "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:25:23Z",
+              "completedAt": "2026-10-28T22:27:11Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40779844243"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "level-message-c-string-prefix",
+      "title": "Truncate special-level messages at C string NUL",
+      "investigator": "levels PR #92",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:lspo_message",
+          "js/mklev.js:lspo_message"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs"
+        ],
+        "test": [
+          "scripts/special-level.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+          "committedAt": "2026-10-28T22:13:00Z",
+          "sourceCommit": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+          "sourceCommittedAt": "2026-10-28T22:13:00Z",
+          "runs": [
+            {
+              "id": 40778305234,
+              "name": "Checkpoint",
+              "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/acid-engulf-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:13:37Z",
+              "completedAt": "2026-10-28T22:24:03Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40778305234"
+            },
+            {
+              "id": 40779844372,
+              "name": "Lint",
+              "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:25:23Z",
+              "completedAt": "2026-10-28T22:26:33Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40779844372"
+            },
+            {
+              "id": 40779844243,
+              "name": "Dashboard",
+              "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:25:23Z",
+              "completedAt": "2026-10-28T22:27:11Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40779844243"
             }
           ]
         }

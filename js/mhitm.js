@@ -330,7 +330,8 @@ export async function slept_monst(mtmp, env = {}) {
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     const name = Monnam(mtmp, state);
-    await message(`${s_suffix(name)} grip relaxes.`, state, env);
+    await pline_mon(mtmp, `${s_suffix(name)} grip relaxes.`, state,
+        { ...env, message });
     await unstuck(mtmp, state, env);
 }
 
