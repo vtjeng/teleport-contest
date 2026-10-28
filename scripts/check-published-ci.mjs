@@ -103,14 +103,25 @@ export function checkPublishedCI({ file, commit, task, syntheticBaseline, repair
         const reports = [], runsByCommit = new Map();
         for (const entry of state.commits) {
             const runs = [];
+            let total;
             for (let page = 1; ; page++) {
                 if (page > 1000) throw new Error('Workflow pagination limit exceeded');
                 const response = JSON.parse(read(['api',
                     `repos/${repository}/actions/runs?head_sha=${entry.commit}&branch=main&event=push&per_page=100&page=${page}`]));
                 if (!response || !Array.isArray(response.workflow_runs) || response.workflow_runs.length > 100)
                     throw new Error('Invalid workflow run response');
+                if (response.total_count !== undefined) {
+                    if (!Number.isSafeInteger(response.total_count) || response.total_count < 0
+                        || total !== undefined && total !== response.total_count)
+                        throw new Error('Invalid workflow run total');
+                    total = response.total_count;
+                }
                 runs.push(...response.workflow_runs);
-                if (response.workflow_runs.length < 100) break;
+                if (response.workflow_runs.length < 100) {
+                    if (total !== undefined && runs.length !== total)
+                        throw new Error('Incomplete workflow run pages');
+                    break;
+                }
             }
             reports.push({ ...publicationStatus(entry.commit, runs, repository),
                 ...(entry.task ? { task: entry.task } : {}) });

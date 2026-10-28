@@ -186,6 +186,19 @@ test('a malformed or failed later page preserves the full pending cache and rele
     }
 });
 
+test('declared public workflow-run totals cannot hide a newer gate', t => {
+    const file = fixture(t);
+    const original = JSON.stringify({commits: [{commit, runs: []}]});
+    writeFileSync(file, original);
+    assert.throws(() => checkPublishedCI({file, publicRead: true}, {
+        gh: () => assert.fail('no authenticated fallback'),
+        readPublic: args => args[0] === 'repo' ? 'owner/project'
+            : JSON.stringify({total_count: 3, workflow_runs: passing(commit)}),
+    }), /Incomplete workflow run pages/u);
+    assert.equal(readFileSync(file, 'utf8'), original);
+    assert.equal(existsSync(`${file}.lock`), false);
+});
+
 test('pagination is bounded and excessive page results are refused without cache changes', t => {
     const file = fixture(t);
     const original = JSON.stringify({commits: [{commit, runs: []}]});
