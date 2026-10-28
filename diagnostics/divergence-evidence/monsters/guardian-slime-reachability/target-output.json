@@ -1,0 +1,29 @@
+{
+  "mode": "target",
+  "scope": "Encounter coverage only; no guardian transition witnessed",
+  "passed": true,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 10530,
+      "js": 10530
+    },
+    "screens": {
+      "c": 380,
+      "js": 380
+    },
+    "cursors": {
+      "c": 380,
+      "js": 380
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": null,
+  "cursorMismatch": null,
+  "animMismatch": null,
+  "segmentMismatch": null
+}

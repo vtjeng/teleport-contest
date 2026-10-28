@@ -1,0 +1,43 @@
+{
+  "discoveredAt": "2026-10-28T22:35:22Z",
+  "reviewedAt": "2026-10-28T22:36:00.904637+00:00",
+  "recorderSha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "attempts": [
+    {
+      "attempt": 1,
+      "originalRecordingSha256": "cabb99dd8b706f33b1112e0f11208a734368d64a2dfb9cbf24b9fe8bd8cd3f2c",
+      "jsBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "privateOriginal": "/workspace/monsters-private/guardian-ad-slime1/recorded.session.json",
+      "outcome": "coverage_miss",
+      "reason": "Creation text consumed by unrelated prompts; no slime encounter."
+    },
+    {
+      "attempt": 2,
+      "originalRecordingSha256": "1d5b88482b415c21bf86d221c90db80bbf27da7eb94f35188a3d67347f73c801",
+      "jsBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "privateOriginal": "/workspace/monsters-private/guardian-ad-slime2/recorded.session.json",
+      "outcome": "coverage_miss",
+      "reason": "Slime attacks hero, guardian kills it; no slime-to-guardian touch."
+    },
+    {
+      "attempt": 3,
+      "originalRecordingSha256": "2b4728f23e164ad82559c33bf167880f42fd938ff796607d56cc4e23cb6c2be3",
+      "jsBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "privateOriginal": "/workspace/monsters-private/guardian-ad-slime3/recorded.session.json",
+      "outcome": "coverage_miss",
+      "reason": "Step 189: green slime misses guardian; no successful transition."
+    },
+    {
+      "attempt": 4,
+      "originalRecordingSha256": "b663e7298ac52cfd6fb2284d7851952ea732ef43e64052a3ea425ecb3fef9b5f",
+      "jsBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "privateOriginal": "/workspace/monsters-private/guardian-ad-slime4/recorded.session.json",
+      "outcome": "coverage_miss",
+      "reason": "Slimes attack hero; guardian kills them; no successful transition."
+    }
+  ]
+}
