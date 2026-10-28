@@ -781,7 +781,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                     state);
             else
                 await ttyPline(
-                    `The tip of ${s_suffix(monsterCommonName(mtmp, state))} horn glows!`,
+                    `The tip of ${monsterCommonName(mtmp, state)}'s horn glows!`,
                     state);
         }
         if (!mtmp.mcansee) {
