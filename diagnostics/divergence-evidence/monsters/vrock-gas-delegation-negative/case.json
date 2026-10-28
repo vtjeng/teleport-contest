@@ -53,5 +53,23 @@
   "fixtureSha256": {
     "probe.test.mjs": "431af2afc59f660b99fa04db3ef28d4933ed79c2a413cbd04aef769aad15db09",
     "observed.txt": "2be248278c326a0d577e349d9df43abfaa5f7c6724c23a87afd11e43fbc4451a"
+  },
+  "discoveryBinding": {
+    "runId": "601667573d5ca5a23adf",
+    "runSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+    "key": "source-audit:edge-c-only:src/monmove.c:monflee:create_gas_cloud",
+    "evidenceKey": "7cfad65dd668303fe49aa5047709d2ff79a686abb50fd62bdcbef92233b25538",
+    "reviewFingerprint": "9c68e4d082cf26f7261e65a2043e1f4e170cc28c386c64b57fdc0679cb696409",
+    "availability": "Immutable run retained in shard execution environment as monsters-discovery-20261028-b/run.json; request this existing artifact for exact classification import."
+  },
+  "latestMainReview": {
+    "sha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+    "reviewedAt": "2026-10-28T17:51:46.585Z",
+    "changeScope": "Discovery tooling only; relevant game sources unchanged."
+  },
+  "sourceSha256": {
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "js/monmove.js": "b33623a7c02a59be598f349d49ec4007c4f3f7fc730d497abb70caa4a962cf58",
+    "js/region.js": "218f90d79178a1228f5b6882aed282ba244ca1084a9531cf015235b34e4286e8"
   }
 }

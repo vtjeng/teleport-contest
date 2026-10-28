@@ -27,7 +27,9 @@
     "base": "5826a75fcc149b8895af22af4d38ea750bad13c8",
     "checkoutInitiallyClean": true,
     "onlyEvidenceFilesAdded": true,
-    "checkedAt": "2026-10-28T17:49:33.458Z"
+    "checkedAt": "2026-10-28T17:49:33.458Z",
+    "recheckedCurrentBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+    "currentResult": "control passes; target fails at the same screen cell with matching RNG/cursors"
   },
   "caseId": "vrock-gas-call-prompt-vision",
   "outcome": "confirmed divergence",
@@ -64,11 +66,12 @@
     "record.mjs",
     "replay.test.mjs",
     "target-result.json",
-    "target.session.json"
+    "target.session.json",
+    "current-base-replay.txt"
   ],
   "nextExperiment": null,
   "fixtureSha256": {
-    "README.md": "0abd9c6f9ddd91970eb20c7c65e737b5dbd35f25f9503ea341b953c13af5c785",
+    "README.md": "c99b943a80c03e0daa04a7e6e828812bf67bc0ff6ed5b2d94b54a3258e6efe13",
     "boundary-observations.json": "6135ed66de4853117c3231711154af413a2f53609f9beff39a81e465732b2483",
     "clean-base-replay.txt": "5e2aa790a59d7d5119d0b0308bfe189e5ecbb73aef509e5181bcfc5643e9cfe5",
     "control-result.json": "5600e42f2e56963e387663dee0458d68a99127f8a742bf3dc21655ba20f8ea55",
@@ -81,7 +84,8 @@
     "record.mjs": "3a7f3ec8ab19e052561118feacb8bc1b6a9fb459b95e655b3e4abb5e743f46d0",
     "replay.test.mjs": "111946f127a884b3eb4d3131d24aebb19271fc466bd8ac2746bb3b212174dc5d",
     "target-result.json": "f665d094ea38dc2a24f92279f4eb7fa9c8358f9b2302fa85e145bfbe949c11fe",
-    "target.session.json": "e4613a1d99b748adc88741db14be882c3d59ec81fcab36bb3768954003fec2fd"
+    "target.session.json": "e4613a1d99b748adc88741db14be882c3d59ec81fcab36bb3768954003fec2fd",
+    "current-base-replay.txt": "b8b99625902165ddc6ee9ccdf4b085fa067dc11b77c14c295e2e4eb022ef7134"
   },
   "recorder": {
     "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
@@ -102,5 +106,22 @@
       "targetSha256": "e4613a1d99b748adc88741db14be882c3d59ec81fcab36bb3768954003fec2fd",
       "controlSha256": "dd7baf6e739e1b5da32d43784ed2999c9f1416e04dcaffacebb17f7c22f8fb48"
     }
+  },
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual runtime divergence discovered while testing a different source-call lead. No invented canonical scanner identity."
+  },
+  "latestMainReview": {
+    "sha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+    "reviewedAt": "2026-10-28T17:51:46.587Z",
+    "changeScope": "Discovery tooling only; relevant game sources unchanged."
+  },
+  "sourceSha256": {
+    "nethack-c/upstream/win/tty/getline.c": "43abddf287e558949bb7bd17d0d7fa42201eb6f86a84146e9ee5889bc7f66afc",
+    "nethack-c/upstream/src/pline.c": "394d4d33f3ecfa66005a0df96cacf582782c79437f34daeaaa9bf25238d857ff",
+    "nethack-c/upstream/src/region.c": "ff09423d896d87b9a53dde460efc76e7cb14a6e459b17a8ea971dd18c2362d92",
+    "js/getline.js": "563ee8f9c0aad45ef7ce1f6a0dc0700603c63cc16124f2b74914b76c965a1c46",
+    "js/tty_message.js": "3385845c3ae01e5a5420a13a1cdf535e46082c6b66d95c7728b3fd21c20fee44",
+    "js/region.js": "218f90d79178a1228f5b6882aed282ba244ca1084a9531cf015235b34e4286e8"
   }
 }

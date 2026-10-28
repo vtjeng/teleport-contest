@@ -58,5 +58,26 @@
     "catalog.test.mjs": "883fed0465ecd952c4ea8414a32e80d63b66e820451aed8c0df8144926b74787",
     "throw-control.test.mjs": "e818c21dfd4ecf8b5d6f6c3e19d88021ea5c44a246d1080e689b3bd405f32a4e",
     "observed.txt": "6642c4a53924bd3d834406cfa427f7dc0bc86d4bfe2b02183d90f5bc7ed37aba"
+  },
+  "discoveryBinding": {
+    "runId": "601667573d5ca5a23adf",
+    "runSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+    "key": "source-audit:edge-stub:src/mthrowu.c:return_from_mtoss:artifact_hit",
+    "evidenceKey": "c2416be1314fdf481359af4cb2aeafc2da0104b4b2dfb81264d46a40c78a3e5d",
+    "reviewFingerprint": "5e5a153b33526f1aed0cf10e68bf174564b73ac49923c891791a2a23d149698c",
+    "availability": "Immutable run retained in shard execution environment as monsters-discovery-20261028-b/run.json; request this existing artifact for exact classification import."
+  },
+  "latestMainReview": {
+    "sha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+    "reviewedAt": "2026-10-28T17:51:46.491Z",
+    "changeScope": "Discovery tooling only; relevant game sources unchanged."
+  },
+  "sourceSha256": {
+    "nethack-c/upstream/src/weapon.c": "75769f6a3113224ea20414f75fc8b1159b6712bc7154905443e4fc1a4912bc2d",
+    "nethack-c/upstream/src/mthrowu.c": "7d08630d431de26d9b9c504334176be77e5fa26ae7f7415e493edcda964b5d7f",
+    "nethack-c/upstream/include/artilist.h": "5375cf830dac26aefd5dbefe1ab5bd79a1f1988b770e7a4dee61b6453c1dd3d3",
+    "js/weapon.js": "82539139a1110c4040f056a9e530693d9e83c65a39da3fd18f5705e1d155f527",
+    "js/mthrowu.js": "fe82a44ea9015b8a34e540a41160df65b80304ff26c9f26c6075b923355a9995",
+    "js/artifacts.js": "9114bba9acf236ddeb16098c06dcc7349ceda18811ef4edec08d0c19c21dfc7d"
   }
 }

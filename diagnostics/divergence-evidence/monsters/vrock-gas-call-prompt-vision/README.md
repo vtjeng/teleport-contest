@@ -8,7 +8,7 @@ Run from the repository root after applying this evidence-only change:
 node --test diagnostics/divergence-evidence/monsters/vrock-gas-call-prompt-vision/replay.test.mjs
 ```
 
-Expected on the stated base: **control passes, target fails**. This was verified in a separate initially clean detached checkout of that exact base with only these evidence files copied in. No C build, private files, or additional fixtures are required to replay. The deliberate failing test lives outside the default suite.
+Expected on the stated base: **control passes, target fails**. This was verified in a separate initially clean detached checkout of that exact base with only these evidence files copied in. No C build, private files, or additional fixtures are required to replay. Rechecked at current main `cfb72d4699bfe6080b46f21894f929f35b68414f` with the same result (only discovery tooling advanced). The deliberate failing test lives outside the default suite.
 
 The target uses 44 input keys, including one More response followed by Escape from the Call prompt. Its C recording has 45 boundaries. First mismatch: segment 0, zero-based step 43, row 6, column 65: C `.` color 8; JS `#` color 10. All 2,578 RNG calls and all 45 cursors match. The control ends immediately after reading the scroll, at the More prompt; all 2,569 RNG calls, 43 screens and 43 cursors match. Thus gas creation is exercised on both sides before the failing prompt.
 
