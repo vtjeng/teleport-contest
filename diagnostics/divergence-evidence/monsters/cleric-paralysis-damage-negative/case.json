@@ -1,0 +1,42 @@
+{
+  "caseId": "cleric-paralysis-damage-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "binding": "manual/unbound semantic claim; no scanner suppression",
+  "jsBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:13:55.267091+00:00",
+  "reviewedAt": "2026-10-28T21:13:55.267102+00:00",
+  "hypothesis": "Paralysis duration forwarded to HP damage is a JS defect, especially the Free Action one-turn case described by a C comment as not actual damage",
+  "setup": "Initialized Valkyrie; native level-10 role cleric and its shipped AT_MAGC/AD_CLRC attack; castmu API with valid deterministic selection/fumble/damage draws; control equips native ring of free action via mksobj/addinv/setworn",
+  "expectedC": "Complete mcast_paralyze and mcast_spell forward 14 or 1 to mdamageu and nomul(-14/-1)",
+  "observedJS": "Actual mdamageu reduces 16 HP to 2 or 15; multi -14 or -1",
+  "control": "Native worn ring of free action, same casting draws",
+  "scope": "Production castmu API and extracted C helper/dispatcher; not a full C monster-turn recording or universal spell equivalence",
+  "sourceLocations": [
+    "src/mcastu.c:746",
+    "src/mcastu.c:800",
+    "js/mcastu.js:castmu",
+    "js/mcastu.js:mcast_paralyze",
+    "js/mcastu.js:mcast_spell",
+    "js/mhitu.js:mdamageu"
+  ],
+  "sourceSha256": {
+    "js/mcastu.js": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+    "js/mhitu.js": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9",
+    "js/worn.js": "f0157f62162d45ccec085c83f6edf533afb859853ed59537ab806d731fe13e40",
+    "js/monsters.js": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+    "nethack-c/upstream/src/mcastu.c": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "cc": "Debian GCC 14.2.0-19"
+  },
+  "command": "node --test diagnostics/divergence-evidence/monsters/cleric-paralysis-damage-negative/proof.mjs diagnostics/divergence-evidence/monsters/cleric-paralysis-damage-negative/oracle.mjs",
+  "evidence": [
+    "proof.mjs",
+    "oracle.mjs",
+    "observations.txt",
+    "README.md"
+  ]
+}

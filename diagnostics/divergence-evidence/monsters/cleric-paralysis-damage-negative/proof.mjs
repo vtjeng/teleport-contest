@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {game} from '../../../../js/gstate.js';
+import {runSegment} from '../../../../js/jsmain.js';
+import {newMonster,place_monster} from '../../../../js/monst.js';
+import {PM_CLERIC,NON_PM} from '../../../../js/monsters.js';
+import {FREE_ACTION,W_RINGL} from '../../../../js/const.js';
+import {AT_MAGC,AD_CLRC} from '../../../../js/monsters.js';
+import {mksobj} from '../../../../js/obj.js';
+import {addinv} from '../../../../js/invent.js';
+import {setworn} from '../../../../js/worn.js';
+import {RIN_FREE_ACTION} from '../../../../js/objects.js';
+import {castmu} from '../../../../js/mcastu.js';
+import {mdamageu} from '../../../../js/mhitu.js';
+for (const mode of ['ordinary','free-action']) test(`native cleric paralysis ${mode}`,async()=>{
+ await runSegment({seed:7710045,datetime:'20261028120000',nethackrc:'OPTIONS=name:Paralyze,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none\n',moves:''});
+ for(const col of game.level.monsters)col.fill(null);game.level.monlist=null;
+ const m=newMonster({data:game.mons[PM_CLERIC],m_id:6002,mx:game.u.ux+1,my:game.u.uy,mux:game.u.ux,muy:game.u.uy,mhp:40,mhpmax:40,m_lev:10,cham:NON_PM,mcanmove:1,mcansee:1});
+ place_monster(m,m.mx,m.my,game);game.level.monlist=m;
+ if(mode==='free-action'){const ring=mksobj(RIN_FREE_ACTION,true,false,{state:game});addinv(ring,{state:game});await setworn(ring,W_RINGL,{state:game});assert.ok(game.u.uprops[FREE_ACTION].extrinsic);}
+ const attack=m.data.mattk.find(a=>a.aatyp===AT_MAGC&&a.adtyp===AD_CLRC);assert.ok(attack);
+ const draws=[],messages=[],damage=[];const random={rn2:n=>{draws.push(['rn2',n]);assert.ok(n===10||n===100);return n===10?4:99;},d:(n,k)=>{draws.push(['d',n,k]);return n;}};
+ const hp=game.u.uhp;
+ for(let i=0;i<10;i++)game.nhDisplay.terminal.pushKey(32);
+ const result=await castmu(m,attack,true,true,{state:game,random,message:async s=>messages.push(s),unsupported:r=>{throw Error(r);},mdamageu:async(mon,n)=>{damage.push(n);await mdamageu(mon,n,game);}});
+ const expected=mode==='free-action'?1:14;
+ console.log(JSON.stringify({mode,result,hpBefore:hp,hpAfter:game.u.uhp,multi:game.multi,damage,draws,messages}));
+ assert.deepEqual(damage,[expected]);assert.equal(hp-game.u.uhp,expected);assert.equal(game.multi,-expected);
+ assert.ok(messages.includes(mode==='free-action'?'You stiffen briefly.':'You are frozen in place!'));
+});
