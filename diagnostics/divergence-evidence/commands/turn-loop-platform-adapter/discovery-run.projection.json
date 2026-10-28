@@ -1,0 +1,487 @@
+{
+  "schemaVersion": 1,
+  "runId": "7e93da55968668bc05fc",
+  "baseSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "startedAt": "2026-10-28T17:29:52.160Z",
+  "completedAt": "2026-10-28T17:33:56.632Z",
+  "inputHashes": {
+    "sourcePrevious": null,
+    "plan": null,
+    "luaConfig": null
+  },
+  "toolHashes": {
+    "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+    "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+    "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+    "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+  },
+  "exclusionsSha256": null,
+  "projection": {
+    "originalRunSha256": "1349082cfaa9d24b2f2e76adef76bbc2d75c10e511e4a0bce7eae7d64c571dde",
+    "originalRunBytes": 42926676,
+    "originalLeadCount": 12537,
+    "includedKeys": [
+      "source-audit:edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+      "source-audit:edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+      "source-audit:edge-c-only:src/pray.c:dopray:cmdq_add_ec",
+      "source-audit:edge-c-only:src/allmain.c:stop_occupation:You",
+      "source-audit:message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
+      "source-audit:message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547"
+    ],
+    "note": "Partial run projection. Selected lead objects, reviewFingerprint inputs, and activeLeadIndex freshness metadata are copied unchanged from the original. Distinct file hash; not a full archive."
+  },
+  "leads": [
+    {
+      "key": "source-audit:edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+      "sourceKey": "edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+      "evidenceKey": "e370f488fb2b480f4edc1b89f453ce56b28a02afce4400fd54bfab7fa7fcbe08",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/allmain.c:491"
+      ],
+      "summary": "src/allmain.c:moveloop_core -> pgetchar",
+      "method": "sourceAudit",
+      "symbol": "src/allmain.c:moveloop_core",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 49,
+      "title": "src/allmain.c:moveloop_core -> pgetchar",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:33:56.413Z",
+      "lastChecked": "2026-10-28T17:33:56.413Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+        "runId": "7e93da55968668bc05fc",
+        "sourceAuditSourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+        "methodConfigHashes": {
+          "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+          "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "e370f488fb2b480f4edc1b89f453ce56b28a02afce4400fd54bfab7fa7fcbe08"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/allmain.c",
+          "symbol": "src/allmain.c:moveloop_core",
+          "start_line": 491,
+          "end_line": 491,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "run_id": "7e93da55968668bc05fc"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-c-only:src/allmain.c:stop_occupation:You",
+      "sourceKey": "edge-c-only:src/allmain.c:stop_occupation:You",
+      "evidenceKey": "0f6a23a042f926e864c667db26963b1ee9685ca52d176ad9ca6bc62720b560a9",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/allmain.c:688"
+      ],
+      "summary": "src/allmain.c:stop_occupation -> You",
+      "method": "sourceAudit",
+      "symbol": "src/allmain.c:stop_occupation",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 63,
+      "title": "src/allmain.c:stop_occupation -> You",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:33:56.413Z",
+      "lastChecked": "2026-10-28T17:33:56.413Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+        "runId": "7e93da55968668bc05fc",
+        "sourceAuditSourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+        "methodConfigHashes": {
+          "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+          "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "0f6a23a042f926e864c667db26963b1ee9685ca52d176ad9ca6bc62720b560a9"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/allmain.c",
+          "symbol": "src/allmain.c:stop_occupation",
+          "start_line": 688,
+          "end_line": 688,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "run_id": "7e93da55968668bc05fc"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-c-only:src/pray.c:dopray:cmdq_add_ec",
+      "sourceKey": "edge-c-only:src/pray.c:dopray:cmdq_add_ec",
+      "evidenceKey": "1c21d70655873df9afae72fe767d177ad150210075741080a578a44db7be117a",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/pray.c:2215"
+      ],
+      "summary": "src/pray.c:dopray -> cmdq_add_ec",
+      "method": "sourceAudit",
+      "symbol": "src/pray.c:dopray",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -57,
+      "title": "src/pray.c:dopray -> cmdq_add_ec",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:33:56.413Z",
+      "lastChecked": "2026-10-28T17:33:56.413Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+        "runId": "7e93da55968668bc05fc",
+        "sourceAuditSourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+        "methodConfigHashes": {
+          "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+          "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "1c21d70655873df9afae72fe767d177ad150210075741080a578a44db7be117a"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/pray.c",
+          "symbol": "src/pray.c:dopray",
+          "start_line": 2215,
+          "end_line": 2215,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "run_id": "7e93da55968668bc05fc"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+      "sourceKey": "edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+      "evidenceKey": "4129d51e43f25a2808a9cdb975e36bda9c05f2a22df9eef717e47a236f9a63eb",
+      "kind": "edge-js-only",
+      "sourceRefs": [
+        "js/allmain.js:1880"
+      ],
+      "summary": "src/allmain.c:moveloop_core -> flush_screen",
+      "method": "sourceAudit",
+      "symbol": "src/allmain.c:moveloop_core",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 49,
+      "title": "src/allmain.c:moveloop_core -> flush_screen",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:33:56.413Z",
+      "lastChecked": "2026-10-28T17:33:56.413Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+        "runId": "7e93da55968668bc05fc",
+        "sourceAuditSourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+        "methodConfigHashes": {
+          "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+          "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "4129d51e43f25a2808a9cdb975e36bda9c05f2a22df9eef717e47a236f9a63eb"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/allmain.js",
+          "symbol": "src/allmain.c:moveloop_core",
+          "start_line": 1880,
+          "end_line": 1880,
+          "commit_sha": "128fba220b25c44e18c5907c15bab10b0e8ac918"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "run_id": "7e93da55968668bc05fc"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547",
+      "sourceKey": "message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547",
+      "evidenceKey": "53b14464892477a8cc06012dfabd2f523e66b777508ab0317d21ba66818cddc4",
+      "kind": "message",
+      "sourceRefs": [
+        "nethack-c/upstream/src/cmd.c:864"
+      ],
+      "summary": ") entered in extcmd_via_menu()",
+      "method": "sourceAudit",
+      "symbol": "src/cmd.c:extcmd_via_menu",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -52,
+      "title": ") entered in extcmd_via_menu()",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:33:56.413Z",
+      "lastChecked": "2026-10-28T17:33:56.413Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+        "runId": "7e93da55968668bc05fc",
+        "sourceAuditSourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+        "methodConfigHashes": {
+          "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+          "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "53b14464892477a8cc06012dfabd2f523e66b777508ab0317d21ba66818cddc4"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/cmd.c",
+          "symbol": "src/cmd.c:extcmd_via_menu",
+          "start_line": 864,
+          "end_line": 864,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "missing_message",
+          "version": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "run_id": "7e93da55968668bc05fc"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
+      "sourceKey": "message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
+      "evidenceKey": "dddba92b62d700e344c70a8c8ad9badf0246e734d252145d4e3dd6af4fdc4ff0",
+      "kind": "message",
+      "sourceRefs": [
+        "nethack-c/upstream/src/cmd.c:786"
+      ],
+      "summary": "extended commands in doextcmd() menu; 'extmenu' disabled.",
+      "method": "sourceAudit",
+      "symbol": "src/cmd.c:extcmd_via_menu",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -52,
+      "title": "extended commands in doextcmd() menu; 'extmenu' disabled.",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:33:56.413Z",
+      "lastChecked": "2026-10-28T17:33:56.413Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+        "runId": "7e93da55968668bc05fc",
+        "sourceAuditSourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+        "methodConfigHashes": {
+          "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+          "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "dddba92b62d700e344c70a8c8ad9badf0246e734d252145d4e3dd6af4fdc4ff0"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/cmd.c",
+          "symbol": "src/cmd.c:extcmd_via_menu",
+          "start_line": 786,
+          "end_line": 786,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "missing_message",
+          "version": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "run_id": "7e93da55968668bc05fc"
+        }
+      ]
+    }
+  ],
+  "methodConfigHashes": {
+    "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+    "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+    "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+    "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+    "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+  },
+  "methods": {
+    "sourceAudit": {
+      "sourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722"
+    }
+  }
+}

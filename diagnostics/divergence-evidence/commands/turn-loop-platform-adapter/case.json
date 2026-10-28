@@ -1,0 +1,144 @@
+{
+  "id": "turn-loop-platform-adapter",
+  "cases": [
+    {
+      "id": "turn-loop-unix-occupation-poll",
+      "hypothesis": "The missing moveloop_core -> pgetchar edge drops an occupation abort key on the supported recorder.",
+      "sourceLocations": [
+        "nethack-c/upstream/src/allmain.c:485-508",
+        "js/allmain.js:1908-1950"
+      ],
+      "expectedC": "On Unix the MICRO/WIN32CON polling arm is absent; run occupation without consuming a pending key.",
+      "observedJS": "Runs the occupation without a polling read. The pending Escape is processed after the counted search.",
+      "scope": "Only this build-disabled edge on this Unix recorder configuration; not behavior on MICRO or WIN32CON, and not all occupation cancellation.",
+      "proof": "Preprocessing retains the occupation callback and monster_nearby arm but removes pgetchar call and mvl_abort_lev.",
+      "shard": "commands",
+      "outcome": "explained negative",
+      "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+      "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "discoveredAt": "2026-10-28T18:20:15.407Z",
+      "reviewedAt": "2026-10-28T18:20:15.407Z",
+      "discoveryBinding": {
+        "key": "source-audit:edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+        "evidenceKey": "e370f488fb2b480f4edc1b89f453ce56b28a02afce4400fd54bfab7fa7fcbe08",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "3943e7cccace1efa5b282c1c865b7b621742a6113f2437aefc262b41d75f1e01",
+        "status": null
+      },
+      "supportedReachableSetup": "Ordinary Ranger input 3s ESC : with time option, seed 421031, no state injection.",
+      "control": "Shared control matches five screens/cursors and 3649 RNG calls; matching seed does not establish universal equivalence.",
+      "reproduction": "node --test diagnostics/divergence-evidence/commands/turn-loop-platform-adapter/evidence.test.mjs",
+      "nextExperiment": null
+    },
+    {
+      "id": "turn-loop-cursor-wrapper",
+      "hypothesis": "The JS-only moveloop_core -> flush_screen edge adds an extra flush absent in C.",
+      "sourceLocations": [
+        "nethack-c/upstream/src/allmain.c:473-479",
+        "nethack-c/upstream/src/display.c:1687-1690",
+        "js/allmain.js:1878-1884"
+      ],
+      "expectedC": "Both status-dirty branches call curs_on_u(), whose entire body is flush_screen(1).",
+      "observedJS": "Corresponding status branches await flush_screen(1) directly.",
+      "scope": "Only call-edge equivalence of these two status branches. Does not certify arbitrary flush_screen, display implementation, status dirty writers, or visual equivalence for all states.",
+      "proof": "Source-pinned wrapper body and corresponding branch order; runtime time/status control matches.",
+      "shard": "commands",
+      "outcome": "explained negative",
+      "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+      "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "discoveredAt": "2026-10-28T18:20:15.407Z",
+      "reviewedAt": "2026-10-28T18:20:15.407Z",
+      "discoveryBinding": {
+        "key": "source-audit:edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+        "evidenceKey": "4129d51e43f25a2808a9cdb975e36bda9c05f2a22df9eef717e47a236f9a63eb",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "b0cfa31232a811f3f90d02105553ebd03dec761473d826e7c3e8433fe265d377",
+        "status": null
+      },
+      "supportedReachableSetup": "Ordinary Ranger input 3s ESC : with time option, seed 421031, no state injection.",
+      "control": "Shared control matches five screens/cursors and 3649 RNG calls; matching seed does not establish universal equivalence.",
+      "reproduction": "node --test diagnostics/divergence-evidence/commands/turn-loop-platform-adapter/evidence.test.mjs",
+      "nextExperiment": null
+    }
+  ],
+  "discoveryRun": {
+    "runId": "7e93da55968668bc05fc",
+    "baseSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+    "sha256": "1349082cfaa9d24b2f2e76adef76bbc2d75c10e511e4a0bce7eae7d64c571dde",
+    "retainedLocation": "/tmp/commands-discovery-20261028-a/run.json",
+    "toolHashes": {
+      "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+      "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+      "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+    },
+    "sourceAuditDependencies": {
+      "scripts/source-audit.mjs": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+      "scripts/c-functions.mjs": "82f781451b67145fc43aa567e7778584b899b39ce243c5f336f549580df60a86",
+      "scripts/structural-signals.mjs": "8a77836398bc6999e238fdb6d17d501a091a970f5ebdff50b9c19418336a0416",
+      "scripts/check-namespace-members.mjs": "2968af573b134f6fe8023320f599770af19aabfce44940711ae4ef6cce17ad9f",
+      "js/extcmdlist_data.js": "e2005b00771db0c8235c1b4c3e862f6c57d182ce265939682d6241fc87563819",
+      "diagnostics/examples/structural/mappings.json": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3"
+    },
+    "sourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+    "note": "Original immutable run retained privately; selected unchanged lead objects and all fingerprint inputs now travel in a reusable projection. Projection is not the original full run.",
+    "portableProjection": "discovery-run.projection.json"
+  },
+  "fingerprints": {
+    "node": "v24.19.0",
+    "tools": {
+      "scripts/discovery-hub.mjs": "f2748a2ace9177b0c8b61108487ef7d711c4e403bb27134cdd51f5b226eef5dc",
+      "scripts/source-audit.mjs": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61"
+    },
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recorderSysconfSha256": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2",
+    "patches": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "sourceAuditSourceHash": "21f42fd809048d87e973ef523eaca706f7d5975199b0bf5d44f10656b7f4b722",
+    "sourceAuditConfigHash": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+    "sources": {
+      "nethack-c/upstream/src/allmain.c": "6ce44a662ad3d180b9dcbf7660a1899b8d1356c8ef83e7787b21b39c6b2a35e4",
+      "nethack-c/upstream/src/display.c": "c40bea2174713159eb7aa7b3b443f176a48282866c31d658449a1b2092145423",
+      "nethack-c/recorder/include/config.h": "5585d9c88d7ea21a9a78b45616cc31ae4ea680cb7b34026f70f92b91288a499f",
+      "nethack-c/recorder/include/config1.h": "b9e97cefc8fcfe4f36a1145ebfb655099f2afd2591227fa5f93b3f4dc0071042",
+      "js/allmain.js": "0fac2889dd5f193601f1940e4185d3609afe1197aefa12aaf873cf9d3cde10cd",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e"
+    }
+  },
+  "positiveControl": "Do not blanket suppress occupation or helper edges: PR #25 vault-entry-occupation-hook remains a confirmed live missing callback despite these two negatives.",
+  "generalization": "Require actual configured preprocessing for conditional edges and exact wrapper/call-site argument and ordering proof for wrapper edges. A function name or matching seed is insufficient.",
+  "evidenceSha256": {
+    "README.md": "5806f4baf5023936b87e11c99c7943a5e88f23fb2bcae453c5ab25e0be522a0d",
+    "control.comparison.json": "c68ed887912335ec2d4bae1116e39975f1f0aab28fc46ecf1d1c9bb4bf4c2644",
+    "control.js-output.json.gz": "3459021bd3b70033cceb63fd3748dced9b999f7e40e57e8326ff4a9fd53db589",
+    "control.js-output.json": "e3155c6b10e0db94be7d06c762c17c4ba68ce690a7841a03ce6ea76a8049c33a",
+    "control.recipe.json": "43a66d1f1ea7d0269d41b645344a4395cdd1f5f02f6e73e7536529708bd27ec6",
+    "control.recording.json.gz": "62fbe40537ef187697a3e26514cafe44e43937b69f5c76ba94a2576298b81a1c",
+    "control.recording.json": "fcc46b601e057ece447c357b7dd0561a3cba2ca0088258d4e6013834267646f6",
+    "discovery-bindings.json": "d2b05b7675c5b6e28f937329fb4c5e173471e71a73250e0d80fb980cdd555977",
+    "evidence.test.mjs": "38de1a6b490098560df3aab5bad6304c4fa371f1e76ceb43a8b700f4a9db8429",
+    "preprocessor-proof.json": "df4ba9264f7b2965ee07cd13b331643afa4fa1fce879079c6e39330158b41d39",
+    "raw-observations.json": "63e87993d9a7af7f7e231f701e50bccf07cefa45f6094c69a5a3515a56a1c334",
+    "clean-import-check.json": "4ed989cfcca36d9fe2c46e524ee7bba6dcebf8de71c8ccafaca699e98c59f185",
+    "discovery-run.projection.json": "53f71b85d6fdf247b7cc6b42cc51ef96fec07271ba3057e0f94ba14bf9a71d45",
+    "projection-verification.json": "573e55dac11fe840429afbe0f927f060283b331e5dba1ae419ad3d1d2e9c9be1",
+    "review-decisions.json": "defb06d1efdbc98f53c3b117720c65874a9712a07d2f2a4a6bc74dde6881ec44",
+    "import.test.mjs": "89ccacdcd36735adc677913d92b016f7050993f55fd8541dd1951245cb8b1acd"
+  },
+  "validation": {
+    "focused": "3 evidence assertions pass",
+    "freshControl": "5 screens/cursors and 3649 RNG calls match",
+    "currentSource": "No gameplay changes from pinned acec7a757; all changes scoped to this evidence directory",
+    "cleanImport": "Clean CLI import and active view verified: PR30 filters2/retains4, combined PR30+PR39 filters4/retains2; stale-config control filters0."
+  }
+}
