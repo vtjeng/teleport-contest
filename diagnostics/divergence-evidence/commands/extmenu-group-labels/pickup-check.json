@@ -1,0 +1,63 @@
+{
+  "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "checkedAt": "2026-10-28T18:36:03.297Z",
+  "archiveSha256": "7c543e54bc55cdb22a44105bbe8f6ce9d5051704b3792af8f618faba62d84827",
+  "method": "Pristine git archive verified before/after; frozen overlay; fresh isolated C copies; shared projection extracted by pinned commit and SHA256 checked",
+  "checks": [
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/extmenu-group-labels/witness.recipe.json",
+      "status": 1,
+      "stdout": "PRNG length: C=2289, JS=2289\nPRNG values: match\nScreen length: C=2, JS=2\nFirst screen mismatch at boundary 2 (segment 1, step 2, key \"#\"):\n  Cell row 4, column 13 (ch):\n  C: {ch:\"o\", rendered:\"o\", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\"[\", rendered:\"[\", color:8, attr:0 (none), decgfx:0}\nCursor length: C=2, JS=2\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/extmenu-group-labels/control.recipe.json",
+      "status": 0,
+      "stdout": "PRNG length: C=2289, JS=2289\nPRNG values: match\nScreen length: C=2, JS=2\nScreen cells and attributes: match\nCursor length: C=2, JS=2\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\n",
+      "stderr": ""
+    }
+  ],
+  "negativeImport": {
+    "checkedAt": "2026-10-28T18:43:05.109Z",
+    "projectionCommit": "b5b2d146d5905cc0efc067583573c50733c9c83a",
+    "projectionSha256": "53f71b85d6fdf247b7cc6b42cc51ef96fec07271ba3057e0f94ba14bf9a71d45",
+    "command": "node scripts/discovery-hub.mjs classify --run projection.json --decisions diagnostics/divergence-evidence/commands/extmenu-group-labels/negative-decisions.json --out reviewed-fixed.json",
+    "status": 0,
+    "stdout": "discovery hub: classified 2 leads; <clean-checkout>/reviewed-fixed.json\n",
+    "stderr": "",
+    "activeView": {
+      "runId": "7e93da55968668bc05fc",
+      "baseSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+      "active": [
+        "source-audit:edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+        "source-audit:edge-c-only:src/allmain.c:stop_occupation:You",
+        "source-audit:edge-c-only:src/pray.c:dopray:cmdq_add_ec",
+        "source-audit:edge-js-only:src/allmain.c:moveloop_core:flush_screen"
+      ],
+      "filtered": [
+        {
+          "key": "source-audit:message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547",
+          "evidenceKey": "53b14464892477a8cc06012dfabd2f523e66b777508ab0317d21ba66818cddc4",
+          "explanation": "unreachable",
+          "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+          "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+          "method": "sourceAudit",
+          "methodVersion": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "methodConfigHash": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86"
+        },
+        {
+          "key": "source-audit:message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
+          "evidenceKey": "dddba92b62d700e344c70a8c8ad9badf0246e734d252145d4e3dd6af4fdc4ff0",
+          "explanation": "unreachable",
+          "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+          "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+          "method": "sourceAudit",
+          "methodVersion": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+          "methodConfigHash": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86"
+        }
+      ],
+      "excluded": []
+    }
+  },
+  "outputNormalization": "Only temporary clean-checkout path in classify stdout replaced; statuses, decisions and fixture output unchanged."
+}

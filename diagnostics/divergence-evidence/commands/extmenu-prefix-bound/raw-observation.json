@@ -1,0 +1,62 @@
+{
+  "id": "message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547",
+  "kind": "message",
+  "owner": "src/cmd.c:extcmd_via_menu",
+  "target": "120fc06b81d1e547",
+  "confidence": "literal-absent",
+  "rank": -52,
+  "sites": [
+    {
+      "file": "nethack-c/upstream/src/cmd.c",
+      "line": 864,
+      "conditions": [
+        "if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS)",
+        "if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)"
+      ],
+      "context": {
+        "startLine": 861,
+        "endLine": 867,
+        "text": "            if (matchlevel > (QBUFSZ - 2)) {\n                free((genericptr_t) pick_list);\n#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)\n                impossible(\"Too many chars (%d) entered in extcmd_via_menu()\",\n                           matchlevel);\n#endif\n                ret = -1;"
+      }
+    }
+  ],
+  "details": {
+    "literal": "Too many chars (%d) entered in extcmd_via_menu()",
+    "fragment": ") entered in extcmd_via_menu()",
+    "match": "absent",
+    "fileCategory": "gameplay",
+    "api": "impossible"
+  },
+  "signals": {
+    "commandPath": null,
+    "turnPath": null,
+    "callers": 1,
+    "effects": {
+      "rng": 0,
+      "message": 2,
+      "stateWriteHeuristic": false
+    },
+    "missingMessageOverlap": 0
+  },
+  "repairOverlap": [
+    "offedge-mention-walls-direction",
+    "bind-existing-key-live-feedback",
+    "getdir-help-retry",
+    "options-simple-extcmd",
+    "reqmenu-named-extcmd",
+    "lookaround-scorr-known-room",
+    "wiz-makemap-arrival-collision",
+    "grid-bug-diagonal-command",
+    "showtrap-control-key-help",
+    "getdir-redraw-retry",
+    "save-repeat-queue"
+  ],
+  "assignedOverlap": [],
+  "queueOverlap": [],
+  "evidenceKey": "53b14464892477a8cc06012dfabd2f523e66b777508ab0317d21ba66818cddc4",
+  "observed": true,
+  "classification": "needs-investigation",
+  "replayStatus": "unverified",
+  "reviews": [],
+  "reviewState": "unreviewed"
+}

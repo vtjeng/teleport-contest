@@ -1,0 +1,35 @@
+{
+  "id": "extmenu-choice-bound",
+  "hypothesis": "Missing exceeded-MAX_EXT_CMD diagnostic hides a reachable menu failure.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c:737 MAX_EXT_CMD",
+    "nethack-c/upstream/src/cmd.c:780-794 table filtering and count guard"
+  ],
+  "expectedC": "Configured complete command table has170 rows; filtered choice count cannot exceed200.",
+  "observedJS": "Also guards at200. The missing diagnostic is unreachable for this pinned table even before autocomplete/role filtering.",
+  "proof": "Source-derived generated table check passes. All170 rows including internal/unavailable/wizard rows is a conservative upper bound; filtering can only remove rows.",
+  "scope": "Only this pinned source/configured table and this count guard. Revisit if source adds rows or changes limit; not a claim that extmenu display matches.",
+  "shard": "commands",
+  "outcome": "explained negative",
+  "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:35:31.683Z",
+  "reviewedAt": "2026-10-28T18:36:27.524Z",
+  "provenanceFile": "../extmenu-group-labels/provenance.json",
+  "discoveryBinding": {
+    "key": "source-audit:message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
+    "evidenceKey": "dddba92b62d700e344c70a8c8ad9badf0246e734d252145d4e3dd6af4fdc4ff0",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "d494f03b2c1aad7348fa86e7264680c1074853141b966c276f78a829070eb358",
+    "status": null
+  },
+  "projectionReference": "../extmenu-group-labels/projection-reference.json",
+  "supportedReachableSetup": "The ordinary extmenu root menu is exercised in the sibling confirmed witness; these guard branches are ruled out by pinned source bounds, not by seed coverage.",
+  "control": "Sibling extmenu-group-labels remains a positive display divergence; !extmenu control passes. Neither bound filters that case.",
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/extmenu-choice-bound/evidence.test.mjs",
+  "nextExperiment": null,
+  "evidenceSha256": {
+    "evidence.test.mjs": "865baab4f5072ea305ffee0f62094745153079d72ab115349dd34f4545e43645",
+    "raw-observation.json": "3ec9bd1bae234bbbfe71a1e9c371aff23b111ace9ecf411753061af4e6cd0956"
+  }
+}

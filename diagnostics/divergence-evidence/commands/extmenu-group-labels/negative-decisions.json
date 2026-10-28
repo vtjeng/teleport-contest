@@ -1,0 +1,35 @@
+[
+  {
+    "key": "source-audit:message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
+    "evidenceKey": "dddba92b62d700e344c70a8c8ad9badf0246e734d252145d4e3dd6af4fdc4ff0",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "d494f03b2c1aad7348fa86e7264680c1074853141b966c276f78a829070eb358",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Configured complete command table has170 rows; filtered choice count cannot exceed200.",
+      "proof": "Source-derived generated table check passes. All170 rows including internal/unavailable/wizard rows is a conservative upper bound; filtering can only remove rows.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/cmd.c:737",
+        "nethack-c/upstream/src/cmd.c:780-794"
+      ]
+    }
+  },
+  {
+    "key": "source-audit:message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547",
+    "evidenceKey": "53b14464892477a8cc06012dfabd2f523e66b777508ab0317d21ba66818cddc4",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "5c7e3b0b127d7b6ab2964e33d3f832ed5222b6c0d6602e8888a3880a337766a2",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Command names have maximum length14; each menu selection appends one valid next character, and zero/one choices exit. matchlevel cannot exceed126 to trigger the guard.",
+      "proof": "Source table maximum14 versus QBUFSZ128; source-pinned prefix filter and nchoices<=1 termination. Cancel resets prefix or exits; arbitrary typed keys cannot extend it because only selected menu identifiers are appended.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/cmd.c:778",
+        "nethack-c/upstream/src/cmd.c:799",
+        "nethack-c/upstream/src/cmd.c:861"
+      ]
+    }
+  }
+]

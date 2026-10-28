@@ -1,0 +1,54 @@
+{
+  "shard": "commands",
+  "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:32:03.856Z",
+  "reviewedAt": "2026-10-28T18:36:27.506Z",
+  "id": "extmenu-group-labels",
+  "outcome": "confirmed divergence",
+  "provenanceFile": "provenance.json",
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual source review of extcmd_via_menu label construction, not a mapped scanner lead."
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c:806-848 grouped-label construction",
+    "js/cmd.js:2352-2367 groups retain each description"
+  ],
+  "hypothesis": "Extended-command menu grouping retains descriptions where C collapses them to names.",
+  "supportedReachableSetup": "Ordinary Ranger with OPTIONS=extmenu, seed421033 clock20000110090000; press #. No injected state or wizard mode.",
+  "expectedC": "Boundary1 row3 is a - adjust or annotate. C drops descriptions when combining two or more choices; singleton descriptions remain.",
+  "observedJS": "Boundary1 row3 is a - adjust [adjust inventory letters] or annotate [name current level]. First mismatch at zero-based row3 column12: C o, JS [. Longer groups are clipped. All2 screen/cursor counts and2289 RNG calls match.",
+  "control": "Same setup and # input with !extmenu matches both screen/cursor boundaries and2289 RNG calls.",
+  "reproduction": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/extmenu-group-labels/witness.recipe.json",
+  "controlCommand": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/extmenu-group-labels/control.recipe.json",
+  "focusedTest": "node --test diagnostics/divergence-evidence/commands/extmenu-group-labels/candidate.test.mjs",
+  "causalScope": "Menu row construction in cmd.c; one root display defect. Narrow-menu one-per-line and long-line wrapping rules are visible in source but are not separately claimed as demonstrated defects.",
+  "historyCheck": "Fetched current main58ad57cea before choosing lead. No matching open extmenu claim. Does not modify direct turn binding, count input or occupation implementation.",
+  "nextExperiment": "After Main ports source row construction, test narrowing and width wrapping as part of the same source function.",
+  "evidenceSha256": {
+    "README.md": "acb01f2d7dde6e1a98098112603075fecd16c65eecfcaabcb959612fd85d44a3",
+    "candidate.test.mjs": "502d5798f46efd99ed876c2e567b7b5eae3fe8563514b927bdde95ea6b4c6d82",
+    "control.comparison.json": "4244642d10e3cd6f062361dc8765c95edee08878c5566d81e0d768eb423ac285",
+    "control.js-output.json.gz": "3dc713bb306340d27a8ecb24d0025309c9c6049139ffea3269296030a5b22fb6",
+    "control.js-output.json": "90124c5908cb2ab228c7265d5360d2c97e4d4a95b4f2e5a0c02ce045ed8069b0",
+    "control.recipe.json": "92145134d776405496cbbb4ac741c73236ee04b4c8fb0456e286974fa477a7ad",
+    "control.recording.json.gz": "1f705bb4a09c2ea85f959c5daddcbf3926edc36abf7c5b7e0fe147fe6a77fb84",
+    "control.recording.json": "d308ce23858ad947db4783192d72417ee91fc4eda86869248ed7158f6e19a114",
+    "negative-decisions.json": "208a3cbfb67fb5114dbdcda27d1d8660d0317383e6df0fcb034c85ed3632720f",
+    "pickup-check.json": "35604cbcd966db9229e9afb792eb330351f8163e000f8e5bd223f170d78dccf0",
+    "projection-reference.json": "04938a118a1a0f7f6128b3f0727fed158da44925fb8a97fe1940e512b61d6f35",
+    "provenance.json": "2680092dee5ea5aa17038f72e47051f32cd1cb45886ef6f5ed96e1263f247e09",
+    "witness.comparison.json": "564d15e8cf0a3c21b2f3db9e444cc6101523903c35c951f3d70438686e87d274",
+    "witness.js-output.json.gz": "6208872aada36bcf1ad7d3b8d5df35ec467f42b22e7e53020be965b6d9cd52bb",
+    "witness.js-output.json": "4c4f33c9e950b1041ffe4c959e643ef8d7bbbbb2d7d885195aab6ff780b36466",
+    "witness.recipe.json": "e2e38fd7084385fd1415cacfb4f23c906c8679c21fa0ebd5c36a3fa6e0f07fd4",
+    "witness.recording.json.gz": "bcded5491abd498c27ba5e9aef8199f142663f60e237b2d3ebcefabe49348769",
+    "witness.recording.json": "046768b1afb2d3839ffc1045980ec6c095c4855f0d0016fff5f6a90f4d993f2f"
+  },
+  "validation": {
+    "fresh": "Pristine pinned-base CLI witness1/control0",
+    "focused": "Control and2 bounded negatives pass; only display witness fails intentionally",
+    "negativeImport": "Two original-fingerprint decisions import and filter from active view; four unreviewed leads retained."
+  }
+}
