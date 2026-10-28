@@ -1,0 +1,486 @@
+[
+  {
+    "status": "matching",
+    "elapsedMs": 1282,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 6266,
+          "js": 6266
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": true,
+      "witnesses": [
+        {
+          "index": 3084,
+          "line": 53,
+          "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=lua(Wiz-loca.lua:53)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 3095,
+          "line": 61,
+          "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=lua(Wiz-loca.lua:61)",
+          "jsPrefixAgrees": true
+        }
+      ],
+      "jsProgramEvidence": "source-route-and-rng-prefix",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "38ff505612ea44c636873b9a8a42ddec0080618fa647bca1aa1b24c8518c8f62",
+    "rawHashes": {
+      "recipe.session.json": "bd9e25a84bffb64f551260dcb24c4763522e7bc822a1675a552f71634b9a2129",
+      "recorded.session.json": "10d139630c151f75ed87f223af47717f3c357c83b370063c470c1a0638b7ef05",
+      "js-output.json": "96e265ba9d9e2141113a90a79e44957558957615f62b28957436c31c9ace5120"
+    },
+    "seed": 28104200,
+    "program": "Wiz-loca.lua"
+  },
+  {
+    "status": "matching",
+    "elapsedMs": 1382,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 4274,
+          "js": 4274
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": true,
+      "witnesses": [
+        {
+          "index": 2776,
+          "line": 53,
+          "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=lua(Wiz-loca.lua:53)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 2779,
+          "line": 61,
+          "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=lua(Wiz-loca.lua:61)",
+          "jsPrefixAgrees": true
+        }
+      ],
+      "jsProgramEvidence": "source-route-and-rng-prefix",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "38ff505612ea44c636873b9a8a42ddec0080618fa647bca1aa1b24c8518c8f62",
+    "rawHashes": {
+      "recipe.session.json": "9de03f1e4ae9f8844f2c4e1ef07fb24d1344c66f265f0253f8ec3f188b93663a",
+      "recorded.session.json": "3cbd6e280eb479308783898f4667d290fe0f436a39441db7507fcd54b05f5a26",
+      "js-output.json": "cf3030ca6f5b332d17ff6a58e8c7c43f1fa1c2e5c1ee1d9027ace3493113caaa"
+    },
+    "seed": 28104201,
+    "program": "Wiz-loca.lua"
+  },
+  {
+    "status": "matching",
+    "elapsedMs": 1523,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 4476,
+          "js": 4476
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": true,
+      "witnesses": [
+        {
+          "index": 3063,
+          "line": 53,
+          "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=lua(Wiz-loca.lua:53)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 3069,
+          "line": 61,
+          "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=lua(Wiz-loca.lua:61)",
+          "jsPrefixAgrees": true
+        }
+      ],
+      "jsProgramEvidence": "source-route-and-rng-prefix",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "38ff505612ea44c636873b9a8a42ddec0080618fa647bca1aa1b24c8518c8f62",
+    "rawHashes": {
+      "recipe.session.json": "46d789d7055a8fc035be085f7186a2a02fc6016b366a982795f6356ba420780d",
+      "recorded.session.json": "675420850b0a1f32c2ed67858d172f66400b3919ce28ac101d30ae952811b7ca",
+      "js-output.json": "4f0777818b57c78580783770b4bcba0f52af11d8b385f789f49f4cb4afa75e1e"
+    },
+    "seed": 28104202,
+    "program": "Wiz-loca.lua"
+  },
+  {
+    "status": "matching",
+    "elapsedMs": 1780,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 4600,
+          "js": 4600
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": true,
+      "witnesses": [
+        {
+          "index": 3068,
+          "line": 53,
+          "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=lua(Wiz-loca.lua:53)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 3071,
+          "line": 61,
+          "entry": "rn2(3)=2 @ random src=nhlib.lua:10 parent=lua(Wiz-loca.lua:61)",
+          "jsPrefixAgrees": true
+        }
+      ],
+      "jsProgramEvidence": "source-route-and-rng-prefix",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "38ff505612ea44c636873b9a8a42ddec0080618fa647bca1aa1b24c8518c8f62",
+    "rawHashes": {
+      "recipe.session.json": "22aa2edbad92d17723d909b301d6631980930085e2585c43ca5ba6291fcd2758",
+      "recorded.session.json": "ff699ae5d0e0d773cf73bad4fb1af0b2b00306d262b9beb21b0366e68b3d0564",
+      "js-output.json": "a117bfcb8db59c743a21887b8fc6cf373635621b774eecf8e7428f5ba6f7162b"
+    },
+    "seed": 28104203,
+    "program": "Wiz-loca.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1405,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 9480,
+          "js": 9480
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [
+        {
+          "line": 43,
+          "threshold": 75
+        }
+      ],
+      "uncoveredPercentSites": [
+        {
+          "line": 43,
+          "threshold": 75
+        }
+      ]
+    },
+    "fingerprint": "8e4b346ca312cf8109f76147676f3634ac0c90c2a12013d3209ce31693f9ce28",
+    "rawHashes": {
+      "recipe.session.json": "a200c1a312376e213347c358d6b57b21300c4b6963029af562ef25fea953d8c5",
+      "recorded.session.json": "bd66a17eada3f3db805f2f3ebedb8da54eec411ba36555bd0fa52b68e0ecf2c4",
+      "js-output.json": "914b9fcbe5bb99669af415dc216420551437e09fe144c5a7199674951072b21c"
+    },
+    "seed": 28104204,
+    "program": "Val-goal.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1962,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 5147,
+          "js": 5147
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [
+        {
+          "line": 43,
+          "threshold": 75
+        }
+      ],
+      "uncoveredPercentSites": [
+        {
+          "line": 43,
+          "threshold": 75
+        }
+      ]
+    },
+    "fingerprint": "8e4b346ca312cf8109f76147676f3634ac0c90c2a12013d3209ce31693f9ce28",
+    "rawHashes": {
+      "recipe.session.json": "1e6eeeb924ca4da7610192be45e721b178b0a4ae4dba3b4d58b9f003a870ae1f",
+      "recorded.session.json": "df44b71c46a9a5b6fabf63c0d65683694b8b84880903efc4e13cd9a84f012621",
+      "js-output.json": "a3502168f5f0f4ca7b156b71b6f157c7d76b345b72ea2afbccbf92375c6b7800"
+    },
+    "seed": 28104205,
+    "program": "Val-goal.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1266,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 4874,
+          "js": 4874
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [
+        {
+          "line": 43,
+          "threshold": 75
+        }
+      ],
+      "uncoveredPercentSites": [
+        {
+          "line": 43,
+          "threshold": 75
+        }
+      ]
+    },
+    "fingerprint": "8e4b346ca312cf8109f76147676f3634ac0c90c2a12013d3209ce31693f9ce28",
+    "rawHashes": {
+      "recipe.session.json": "95ee0bf184e484f7a1960bb1068bc78b1b8a43330a421c10e5db79fc291b9f2b",
+      "recorded.session.json": "e940d760e5bcbdf63881662168cbf77bed6d97d845be99d53d0d393a2a65aac0",
+      "js-output.json": "f16e99e6788fe3762d6e856166aedbcfc5eac6b0fa3eb5f8c7aca9c80183ceb0"
+    },
+    "seed": 28104206,
+    "program": "Val-goal.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1319,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 5256,
+          "js": 5256
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [
+        {
+          "line": 43,
+          "threshold": 75
+        }
+      ],
+      "uncoveredPercentSites": [
+        {
+          "line": 43,
+          "threshold": 75
+        }
+      ]
+    },
+    "fingerprint": "8e4b346ca312cf8109f76147676f3634ac0c90c2a12013d3209ce31693f9ce28",
+    "rawHashes": {
+      "recipe.session.json": "4fcd481673539465f8f2f4e605a03fb0a30364b980607e15be7ca2fbb7a84749",
+      "recorded.session.json": "53c255e0d890850c2dc87de75aeb0b6906281d2787ee3d4db5673539b61fc769",
+      "js-output.json": "627482052f732c4a8e0fb2a09e70e85ff351c3f5f0ea0282dc8ac272f0d18337"
+    },
+    "seed": 28104207,
+    "program": "Val-goal.lua"
+  }
+]
