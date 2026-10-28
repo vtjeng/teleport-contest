@@ -1,0 +1,19 @@
+{
+  "boundary": {
+    "name": "UnsupportedHeroCommandBoundaryError",
+    "message": "unsupported hero command: an unported branch of this command: eatenStat is not available for otyp 293",
+    "stack": [
+      "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: eatenStat is not available for otyp 293",
+      "    at failClosedCommand (file://js/cmd.js:3069:19)",
+      "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+      "    at async rhack (file://js/cmd.js:6035:25)",
+      "    at async moveloop_core (file://js/allmain.js:1969:9)",
+      "    at async runSegment (file://js/jsmain.js:799:13)",
+      "    at async file://[eval1]:3:9"
+    ]
+  },
+  "cScreens": 79,
+  "jsScreens": 78,
+  "lastCScreen": "You put a partly eaten food ration into the bag.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\u001b[51C-------- --\n\u001b[51C|.........|\n\u001b[51C.\u001b[97m@\u001b[39m....\u001b[93m$\u001b[39m...|\n\u001b[51C|.....\u001b[33m%\u001b[39m...|\n\u001b[51C-----------\n\n\n\nWizard the Stripling\u001b[11CSt:15 Dx:12 Co:18 In:13 Wi:8 Ch:11 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1",
+  "lastJSScreen": "What do you want to stash? [abcdf or ?*]\n\n\n\n\n\n\n\n\n\n\n\n\n\n\u001b[51C-------- --\n\u001b[51C|.........|\n\u001b[51C.\u001b[97m@\u001b[39m....\u001b[93m$\u001b[39m...|\n\u001b[51C|.....\u001b[33m%\u001b[39m...|\n\u001b[51C-----------\n\n\n\nWizard the Stripling           St:15 Dx:12 Co:18 In:13 Wi:8 Ch:11 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1"
+}
