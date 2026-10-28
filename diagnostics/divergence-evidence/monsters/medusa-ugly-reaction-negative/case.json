@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "caseId": "medusa-ugly-reaction-negative",
+  "shard": "monsters",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "gazemu-unreachable-zero-react-ternary",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/mhitu.c",
+      "symbol": "gazemu",
+      "start_line": 1668,
+      "end_line": 1720,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mhitu.js",
+      "symbol": "gazemu",
+      "start_line": 2985,
+      "end_line": 3040,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    }
+  ],
+  "hypothesis": "Absent JS ugly-text alternative may be a missing visible Medusa reaction.",
+  "expectedBehavior": "C cannot select the ugly text: react remains -1 at the ternary. Visible aware cancelled/blinded Medusa selects gazes ineffectually.",
+  "observedBehavior": "Compiled exact C branch and production JS gazemu both print Medusa gazes ineffectually for target and control.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Full-function prefix and AD_STON local control-flow proof, exact extracted pre-reflection arm compiled, plus native-gaze JS API controls. Only the ugly literal is classified unreachable.",
+    "limitations": [
+      "C visibility/awareness/hallucination display harness is stubbed; this is not a whole C game.",
+      "No public-play cancellation or blindness application is recorded; API effect-boundary states are explicit.",
+      "No full gazemu equivalence, location formatting, reflection or other gaze-branch suppression."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "not_applicable",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/proof.mjs",
+      "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/target-output.json",
+      "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/control-output.json"
+    ],
+    "reason": "The literal is unreachable by local C state/exit structure. Production gazemu API controls exercise its live alternative, not a claim of shipped ugly-text exposure."
+  },
+  "origin": {
+    "kind": "scanner",
+    "keys": [
+      "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3"
+    ],
+    "projection": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/projection.json",
+    "manifest": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/proof.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/proof.mjs",
+      "ci": "manual",
+      "inputs": [
+        "nethack-c/upstream/src/mhitu.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/proof.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/proof.mjs",
+      "ci": "manual",
+      "inputs": [
+        "nethack-c/upstream/src/mhitu.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/README.md",
+      "sha256": "3b17ef91fcf6ebd119b2b3e7331103c2880f4d733bb482e76bc5568688edd244",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/control-output.json",
+      "sha256": "6142fc05a2c6d80a242c9e13286d659c45365fa34de662f804955029475bd307",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/control-receipt.json",
+      "sha256": "e3dd880ed17eb0277adaef61cfc1824392359661beb350500a4ef31e4b2f3759",
+      "role": "receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/decisions.json",
+      "sha256": "88b7e9f8b3ffa0c87e0dea86e582ca119cdf92d1aa5539dc3326208ebfc7d23d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/discovery-run.json.gz",
+      "sha256": "c30fcc6fb39d496c948a03f152c66a586b16e73afa89b81cb3216127ce795f3a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/keys.json",
+      "sha256": "eb66f1d4e475d812ff3726e9f779dcfe10eb431eb0a3e11adabd3698a54e7233",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/manifest.json",
+      "sha256": "e2c67102bd7a8a985be7857a9fca501a993980be4f069414778effcbe335afab",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/projection.json",
+      "sha256": "149c5fcf9a56402caf89f8b1d86a85735a0842853d224075bcf4c6a0cff3b4e8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/proof.mjs",
+      "sha256": "e1387063c39068f077545a15f6d4d2077d9b825c976b43109f695ecc41ee74a1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/target-output.json",
+      "sha256": "740a8b0600b659eb95a253622e875cf2680f99354b9ed935a61bb235019fe7f4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/target-receipt.json",
+      "sha256": "6f5bd0f371e3d41a989ef00a6796731570b8c7b0523790281c6da26c670f39bb",
+      "role": "receipt"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/mhitu.c",
+      "sha256": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "js/mhitu.js",
+      "sha256": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "js/monsters.js",
+      "sha256": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "scripts/discovery-hub.mjs",
+      "sha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source or tooling dependency"
+    }
+  ]
+}

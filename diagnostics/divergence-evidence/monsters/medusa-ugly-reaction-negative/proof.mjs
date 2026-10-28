@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {execFileSync} from 'node:child_process';
+import {game} from '../../../../js/gstate.js';
+import {runSegment} from '../../../../js/jsmain.js';
+import {newMonster,place_monster} from '../../../../js/monst.js';
+import {PM_MEDUSA,NON_PM,AT_GAZE} from '../../../../js/monsters.js';
+import {gazemu} from '../../../../js/mhitu.js';
+const mode=process.argv[2];assert.ok(['target','control'].includes(mode));
+const c=readFileSync('nethack-c/upstream/src/mhitu.c','utf8');
+const body=c.match(/\ngazemu\(struct monst \*mtmp, struct attack \*mattk\)\n\{[\s\S]*?\n\}/)?.[0];assert.ok(body);
+const prefix=body.split('switch (mattk->adtyp)')[0];
+const init=prefix.match(/int react = -1;/)?.[0];assert.ok(init);
+assert.equal((prefix.match(/\breact\s*=/g)||[]).length,1);
+const arm=body.split('    case AD_STON:')[1].split('        if (reflectable)')[0];
+assert.match(arm,/if \(Unaware\) \{[^}]*react = is_medusa \? 4 : 2;[^}]*break;[^}]*\}/);
+assert.equal((arm.match(/\breact\s*=/g)||[]).length,1);
+assert.match(arm,/is_medusa && mtmp->mcan && !react/);
+assert.match(arm,/\? "doesn't look all that ugly"\s*: "gazes ineffectually"/);
+const dir=mkdtempSync(join(tmpdir(),'medusa-reaction-'));
+let expected;
+try {
+ const source=`#include <stdio.h>\n#include <stdlib.h>\nstruct monst {int mcan,mcansee;};\n#define canseemon(m) 1\n#define Unaware 0\n#define Hallucination 0\n#define Monnam(m) "Medusa"\n#define rn2(n) (abort(),0)\n#define pline(...) (abort())\n#define pline_mon(m,...) printf(__VA_ARGS__)\nint main(void){struct monst mon={${mode==='target'?1:0},${mode==='target'?1:0}},*mtmp=&mon;int is_medusa=1,cancelled=mon.mcan;${init}\nswitch(0){case 0:${arm}\nbreak;}return 0;}\n`;
+ writeFileSync(join(dir,'oracle.c'),source);execFileSync('cc',['-std=c99',join(dir,'oracle.c'),'-o',join(dir,'oracle')]);
+ expected=execFileSync(join(dir,'oracle'),[],{encoding:'utf8'});
+}finally{rmSync(dir,{recursive:true,force:true});}
+assert.equal(expected,'Medusa gazes ineffectually.');
+await runSegment({seed:7710053,datetime:'20420417131415',nethackrc:'OPTIONS=name:GazeProbe,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none\n',moves:''});
+for(const col of game.level.monsters)col.fill(null);game.level.monlist=null;
+const m=newMonster({data:game.mons[PM_MEDUSA],m_id:6005,mx:game.u.ux+1,my:game.u.uy,mhp:80,mhpmax:80,m_lev:20,cham:NON_PM,mcanmove:1,mblinded:mode==='target'?0:5,mcansee:mode==='target'?1:0,mcan:mode==='target'?1:0});
+place_monster(m,m.mx,m.my,game);game.level.monlist=m;
+const attack=m.data.mattk.find(a=>a.aatyp===AT_GAZE);assert.ok(attack);
+const messages=[];
+await gazemu(m,attack,{state:game,message:async s=>messages.push(s),random:{rn2:()=>assert.fail('no RNG on these aware nonhallucinating branches')}});
+assert.deepEqual(messages,[expected]);
+console.log(JSON.stringify({mode,sourceReact:-1,cMessage:expected,jsMessages:messages,scope:'visible aware nonhallucinating cancelled Medusa / blinded Medusa control; only unreachable ugly ternary classified'}));

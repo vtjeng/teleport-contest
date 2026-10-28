@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/proof.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:18:34.427406+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "e1387063c39068f077545a15f6d4d2077d9b825c976b43109f695ecc41ee74a1",
+  "inputHashes": {
+    "nethack-c/upstream/src/mhitu.c": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/target-output.json"
+  ]
+}
