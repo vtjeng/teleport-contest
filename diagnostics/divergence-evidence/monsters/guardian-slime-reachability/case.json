@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "caseId": "guardian-slime-reachability",
+  "shard": "monsters",
+  "status": "unresolved",
+  "readiness": "incomplete",
+  "rootCause": null,
+  "relatedCases": [
+    "polymorphed-guardian-admission"
+  ],
+  "provenance": {
+    "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/uhitm.c",
+      "symbol": "mhitm_ad_slim",
+      "start_line": 3526,
+      "end_line": 3597,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/read.c",
+      "symbol": "create_particular_parse",
+      "start_line": 3137,
+      "end_line": 3250,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mon.c",
+      "symbol": "newcham",
+      "start_line": 5278,
+      "end_line": 5350,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/unported_monster_actions.js",
+      "symbol": null,
+      "start_line": 298,
+      "end_line": 305,
+      "commit_sha": "4222eaf89f2cc3b1392273b70cc27b399418c691"
+    }
+  ],
+  "hypothesis": "A genuine Astral guardian transformed by a native green-slime attack retains minion identity and may encounter the JS Angel-only tame-minion admission gate.",
+  "expectedBehavior": "If the real slime transition succeeds, C should continue through the ordinary monster movement path; that continuation has not yet been witnessed.",
+  "observedBehavior": "Both packaged recordings match C and JS completely, but neither reaches a successful slime-to-guardian transition. The four-slime control reaches a missed retaliatory touch. No negative or divergence is established.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Supported wizard creation with genuine Astral guardian; encounter reachability only. Target uses eight hostile native green slimes; control four.",
+    "limitations": [
+      "No successful guardian transformation.",
+      "No post-transition movement witness.",
+      "Matching recordings do not establish guardian equivalence.",
+      "Control C capture and original replay used b313cde5; packaged replay is rerun at stated current base.",
+      "Remaining Astral monsters and prompts limit combat coverage; unrelated outcomes are not investigated."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "unresolved",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/observations.json"
+    ],
+    "reason": "The supported setup reaches the guardian and slimes, but not the hypothesized transition or failure."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Manual continuation of PR #81; no scanner suppression or canonical lead binding.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/replay.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/target.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/replay.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/control.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/README.md",
+      "sha256": "514528d6f94e5aee84e59292e7d4598f3c1f46246157e3baa04962e5961a2ec4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/attempt-1.recipe.json",
+      "sha256": "3e74cbcb341c34d9f6177124ba2001f6c1b45b368916786d2da97802f548a6b8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/attempt-2.recipe.json",
+      "sha256": "906f2bfb4cd00ad85b25682f13df1e802bc4d0126c07afb7a75fcd1feb8e8190",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/attempt-3.recipe.json",
+      "sha256": "349e8b9d0a26ac10ffc141faf53eb406aabc094991129beeb3cc50d09cd06cb7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/attempt-4.recipe.json",
+      "sha256": "7af0332e7a8011688d1b7e9eb150aa27c0f4ae7510bfe79f7c470aba23b84c82",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/control-output.json",
+      "sha256": "9b767691f2874d77a753328811ad71b2ae9699021f1a998691cf716efaaf6d38",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/control-receipt.json",
+      "sha256": "0670c8a3c48a81835bc7ecc96c80934949ec56629da58f56209448b12914d2ef",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/control.session.json.gz",
+      "sha256": "ee70236a1ca32b8892536dcde4e200faa0686d22750e8fcfd3a36f58bc157692",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/observations.json",
+      "sha256": "a1e48d8566b183bcd77cf008f3b2c11855031dea7edd5afb6d0632c053fd7343",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/replay.mjs",
+      "sha256": "9530efa64096d67fb0113f2534868e2f16a305b95d38a1ac6ba5358b8bec0030",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/target-output.json",
+      "sha256": "3287d23e4131517843f58e6206a3e8ab422c7b095375ed6736bd6c93804fe4eb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/target-receipt.json",
+      "sha256": "e3a3d58f15b0cddd5ce05f8e1097d3dfe451af5de03432c3cfd76190c93249ca",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/target.session.json.gz",
+      "sha256": "2347c5c9a285650338bd14eb3bf695f0e38cd28d24af52190dd43c2d8427720b",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

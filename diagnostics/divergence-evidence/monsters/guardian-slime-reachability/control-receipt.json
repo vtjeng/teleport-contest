@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/replay.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:38:15.831887+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "9530efa64096d67fb0113f2534868e2f16a305b95d38a1ac6ba5358b8bec0030",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/control.session.json.gz": "ee70236a1ca32b8892536dcde4e200faa0686d22750e8fcfd3a36f58bc157692"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/guardian-slime-reachability/control-output.json"
+  ]
+}
