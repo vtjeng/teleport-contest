@@ -1,0 +1,70 @@
+{
+  "outcome": "explained negative within four boundary arrangements",
+  "exactMatches": 4,
+  "results": [
+    {
+      "side": "left",
+      "sourceFloor": [
+        9,
+        6
+      ],
+      "walls": [
+        [
+          10,
+          5,
+          2
+        ],
+        [
+          10,
+          6,
+          1
+        ],
+        [
+          10,
+          7,
+          2
+        ]
+      ]
+    },
+    {
+      "side": "right",
+      "sourceFloor": [
+        13,
+        6
+      ],
+      "walls": []
+    },
+    {
+      "side": "top",
+      "sourceFloor": [
+        11,
+        4
+      ],
+      "walls": [
+        [
+          10,
+          5,
+          2
+        ],
+        [
+          11,
+          5,
+          2
+        ],
+        [
+          12,
+          5,
+          2
+        ]
+      ]
+    },
+    {
+      "side": "bottom",
+      "sourceFloor": [
+        11,
+        8
+      ],
+      "walls": []
+    }
+  ]
+}
