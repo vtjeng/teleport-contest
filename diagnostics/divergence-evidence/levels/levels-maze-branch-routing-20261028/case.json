@@ -1,0 +1,62 @@
+{
+  "caseId": "levels-maze-branch-routing-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "hypothesis": "Missing find_branch_room mazexy fallback breaks ordinary shipped branch generation.",
+  "proof": "The missing call is real, but its zero-room branch is bypassed by the pinned shipped routes. Main Mines/Sokoban/Quest endpoints lie before minimum Medusa depth 21. Castle/endgame endpoints have named levels. Other dungeon endpoints use named or fill levels. Fort Ludios starts floating; mk_knox_portal only activates it above Medusa and passes explicit vault coordinates. Ordinary makelevel asserts rooms exist; special fixup routes zero-room default areas through place_lregion, which supplies explicit selected coordinates.",
+  "scope": "Only successful generation using the pinned shipped dungeon configuration and the documented callers. The helper omissions remain real outside this scope. No universal source equivalence or supported arbitrary-Lua/custom-dungeon claim. Do not suppress globally from sample matches.",
+  "configurationRequirement": "Re-review when dungeon templates, branch activation, named/fill dispatch, or region/branch caller logic changes. Failed/missing level loads are outside this proof, not false positives.",
+  "expectedC": "Named/fill or nonempty-room branch route bypasses the questioned fallback in this domain.",
+  "observedJS": "Production metadata/route probes satisfy the scoped routing invariant.",
+  "control": "64 initialized layouts, 896 endpoints (64 floating); no unnamed-maze endpoint. Synthetic additional unnamed-maze endpoints are flagged by the route classifier. These controls are not claimed reachable gameplay fixtures.",
+  "supportedSetup": "Normal shipped dungeon initialization; pure route/metadata checks plus source proof. No injected gameplay witness is claimed.",
+  "baseJs": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:50:32.248891+00:00",
+  "reviewedAt": "2026-10-28T18:54:31.882475+00:00",
+  "sourceHashes": {
+    "nethack-c/upstream/dat/dungeon.lua": "5bbc7d7a1882b6ee0809c40efbdc7b01fd149fcebe574a49e05df4ccb6053830",
+    "js/dungeon_data.js": "de25792331f13079a3b8a74fd668e9a5a93e9218c67dc78b3f0559cb9a3015c1",
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4",
+    "nethack-c/upstream/src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0",
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "js/mkmaze.js": "e0722923b9f99824b30b2089f0869c055ff56eb9a24dfda832f52b60c29fd4db",
+    "js/dungeon.js": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c"
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/dat/dungeon.lua:14-48",
+    "nethack-c/upstream/dat/dungeon.lua:262-285",
+    "nethack-c/upstream/src/mklev.c:1267-1302",
+    "nethack-c/upstream/src/mklev.c:1660-1673",
+    "nethack-c/upstream/src/mklev.c:2643-2658",
+    "js/mklev.js:715-793",
+    "js/mkmaze.js:786-804"
+  ],
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-maze-branch-routing-20261028/probe.mjs",
+  "evidencePaths": [
+    "probe.mjs",
+    "observations.json",
+    "projection.json",
+    "manifest.json",
+    "decisions.json",
+    "exploration.json"
+  ],
+  "nextExperiment": null,
+  "toolConfig": {
+    "node": "v24.19.0",
+    "projectionExporterCommit": "a879e944617577d3eb59c14afc87ddbdb2724b18"
+  },
+  "scannerOrigin": {
+    "kind": "bound",
+    "bindings": [
+      {
+        "key": "source-audit:edge-c-only:src/mklev.c:find_branch_room:mazexy",
+        "evidenceKey": "b6ed218c6df34ae52eb01ead9a6154e5ea7a18d868883a92a55a3b72bb6dbe33",
+        "runId": "141a19a089813e75a9ae",
+        "reviewFingerprint": "ce1b7b8a2223d2ac72d9ada953282889572b096d0e137c600c42997a8ae12efa",
+        "status": null
+      }
+    ],
+    "discoveryBaseJs": "cfb72d4699bfe6080b46f21894f929f35b68414f"
+  }
+}

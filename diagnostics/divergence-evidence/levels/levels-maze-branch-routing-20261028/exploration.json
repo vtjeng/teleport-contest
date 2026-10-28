@@ -1,0 +1,382 @@
+{
+  "scope": "Eight new region-loading observations; not proof of universal equivalence or of the route negatives.",
+  "summarySha256": "c72b06fdfde39ed12b9bbef307a1dee4039f1cd4cd1d771384e4c2a1b68a00fa",
+  "rows": [
+    {
+      "program": "Rog-goal.lua",
+      "recipe": {
+        "version": 5,
+        "segments": [
+          {
+            "seed": 28103601,
+            "datetime": "20440617173022",
+            "nethackrc": "OPTIONS=name:LuaProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": ".#wizloaddes\nRog-goal.lua\n"
+          }
+        ]
+      },
+      "rawStatus": "unresolved",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4015,
+            "js": 4015
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "e33aec35582a639ef4fe4dd776b25669bcc36378e6119da284b8c56cade57127",
+        "recorded.session.json": "bc338b23b440ac6489d7f7d86c241a4159f976f2afaf329fed63a71abdbc59b7",
+        "js-output.json": "08e6ffc05e20cf71f6e1d615e7a6bac418b74c3ff856363e2ed4aa47068a860f"
+      }
+    },
+    {
+      "program": "Rog-goal.lua",
+      "recipe": {
+        "version": 5,
+        "segments": [
+          {
+            "seed": 28103602,
+            "datetime": "20440617173022",
+            "nethackrc": "OPTIONS=name:LuaProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": ".#wizloaddes\nRog-goal.lua\n"
+          }
+        ]
+      },
+      "rawStatus": "unresolved",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 3550,
+            "js": 3550
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "89d63cd35241e52fcd8664d7a61c5e4153920ec6134027186321857e150bc8c7",
+        "recorded.session.json": "f4ad27cc7008c9a5935e7fdcc7a1c1ac0dc2124596a0bca4e792530f64958340",
+        "js-output.json": "cad2a0cb4d63be00000fd031a79287acfe904406ada76ea53c1c5b787049ee7d"
+      }
+    },
+    {
+      "program": "bigrm-10.lua",
+      "recipe": {
+        "version": 5,
+        "segments": [
+          {
+            "seed": 28103603,
+            "datetime": "20440617173022",
+            "nethackrc": "OPTIONS=name:LuaProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": ".#wizloaddes\nbigrm-10.lua\n"
+          }
+        ]
+      },
+      "rawStatus": "unresolved",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4183,
+            "js": 4183
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "26b16928d7de266077a31366ac71ea586c469eded3eccf1ebabf235d737f42b1",
+        "recorded.session.json": "51d99a9f66fa67c80e37c15d88d08d7844c27cc4bb6aa07f92b87037c70958bf",
+        "js-output.json": "98c00d825f3558728ca65a6d80ac976951d43f83c403e8cb5fab80d819a51d3b"
+      }
+    },
+    {
+      "program": "bigrm-10.lua",
+      "recipe": {
+        "version": 5,
+        "segments": [
+          {
+            "seed": 28103604,
+            "datetime": "20440617173022",
+            "nethackrc": "OPTIONS=name:LuaProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": ".#wizloaddes\nbigrm-10.lua\n"
+          }
+        ]
+      },
+      "rawStatus": "unresolved",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 3761,
+            "js": 3761
+          },
+          "screens": {
+            "c": 27,
+            "js": 27
+          },
+          "cursors": {
+            "c": 27,
+            "js": 27
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "3bd6d7c7fcce62e9262f9169058922b7ea589acd790b988f33d992345143bb18",
+        "recorded.session.json": "b08a2a114974558bb424d9b43f6fa37aed76e0ad755ec20a76f59d527acec979",
+        "js-output.json": "630011002a79df80937cd1f96dd2cc109ac0159cbe348b227fee7ab204869b0d"
+      }
+    },
+    {
+      "program": "castle.lua",
+      "recipe": {
+        "version": 5,
+        "segments": [
+          {
+            "seed": 28103605,
+            "datetime": "20440617173022",
+            "nethackrc": "OPTIONS=name:LuaProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": ".#wizloaddes\ncastle.lua\n"
+          }
+        ]
+      },
+      "rawStatus": "unresolved",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 10533,
+            "js": 10533
+          },
+          "screens": {
+            "c": 25,
+            "js": 25
+          },
+          "cursors": {
+            "c": 25,
+            "js": 25
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "2d06df22dc3d29fab5e1e061125aff2e51b8aee16009520822f7a05cf8373799",
+        "recorded.session.json": "71bbd8a15382edb38b27e07de971a97fcf328928e9c510fe3ca26354704a767b",
+        "js-output.json": "ca047ec4a3f97cdbbc4ea39bf768181aeb2ddca0394f83a62dbce5d4c1f75f84"
+      }
+    },
+    {
+      "program": "castle.lua",
+      "recipe": {
+        "version": 5,
+        "segments": [
+          {
+            "seed": 28103606,
+            "datetime": "20440617173022",
+            "nethackrc": "OPTIONS=name:LuaProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": ".#wizloaddes\ncastle.lua\n"
+          }
+        ]
+      },
+      "rawStatus": "unresolved",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 10061,
+            "js": 10061
+          },
+          "screens": {
+            "c": 25,
+            "js": 25
+          },
+          "cursors": {
+            "c": 25,
+            "js": 25
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "eae8cf00482b9ada95803a6ad2e52867674d632b782ed2e15bd377d51aa3ae37",
+        "recorded.session.json": "23aa9f5a6de7c1a8b4c7de777b1b2f438d1196221a7eec34b9857ab4f3a74d63",
+        "js-output.json": "cdb46e2ecf92242c09ad63d32bd2e49bdb75185c449d98d746ddcd17b01cdba8"
+      }
+    },
+    {
+      "program": "baalz.lua",
+      "recipe": {
+        "version": 5,
+        "segments": [
+          {
+            "seed": 28103607,
+            "datetime": "20440617173022",
+            "nethackrc": "OPTIONS=name:LuaProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": ".#wizloaddes\nbaalz.lua\n"
+          }
+        ]
+      },
+      "rawStatus": "unresolved",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4405,
+            "js": 4405
+          },
+          "screens": {
+            "c": 24,
+            "js": 24
+          },
+          "cursors": {
+            "c": 24,
+            "js": 24
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "605b9b7c0a3bb17da137083d85e328582868994d647f78b2e77c09a360e484e5",
+        "recorded.session.json": "d30552c51ac33bfef3d3f3ffc1138387c5c7a0b90f7ec781fb28f9402bf499df",
+        "js-output.json": "3cdb8fcbae65405edf7551efd3da2eb152833ab6f842bfee78cd04821dcafa8a"
+      }
+    },
+    {
+      "program": "baalz.lua",
+      "recipe": {
+        "version": 5,
+        "segments": [
+          {
+            "seed": 28103608,
+            "datetime": "20440617173022",
+            "nethackrc": "OPTIONS=name:LuaProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": ".#wizloaddes\nbaalz.lua\n"
+          }
+        ]
+      },
+      "rawStatus": "unresolved",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4410,
+            "js": 4410
+          },
+          "screens": {
+            "c": 24,
+            "js": 24
+          },
+          "cursors": {
+            "c": 24,
+            "js": 24
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "ac493d3add9eb995ab368abe01b16a2d791b6877a320a061a031d0e482a9dcfd",
+        "recorded.session.json": "e73d2aa86fea8f51b3596ae1f9b82e8c36f05e3efecf3cf1656a11632278efce",
+        "js-output.json": "6f3868b3f7653414f0fad666f0653d6f6c3b0bc399f779510eb36f307ba78c08"
+      }
+    }
+  ]
+}

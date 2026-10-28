@@ -1,0 +1,17 @@
+{
+  "positiveControls": 48,
+  "seeds": [
+    28103700,
+    28103763
+  ],
+  "endpoints": 896,
+  "counts": {
+    "rooms": 246,
+    "named": 485,
+    "filler": 101,
+    "floating": 64
+  },
+  "minMedusa": 21,
+  "maxOracle": 9,
+  "scope": "Finite initialization checks support the source-based shipped-template route proof; not universal helper equivalence."
+}
