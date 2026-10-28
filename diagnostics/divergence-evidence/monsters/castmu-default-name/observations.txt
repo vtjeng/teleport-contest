@@ -1,0 +1,2 @@
+{"adapter":false,"result":1,"hp":33,"draws":[["rn2",17],["rn2",170],["d",9,6],["d",3,6]],"messages":["Master lich casts a spell!","Master lich looks better."]}
+{"adapter":true,"result":1,"hp":33,"draws":[["rn2",17],["rn2",170],["d",9,6],["d",3,6]],"messages":["The master lich casts a spell!","The master lich looks better."]}
