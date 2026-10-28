@@ -1,0 +1,82 @@
+{
+  "caseId": "objects-lichen-acid-retention",
+  "shard": "objects",
+  "outcome": "explained negative",
+  "implementationCandidate": false,
+  "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:32:50.998Z",
+  "reviewedAt": "2026-10-28T18:33:23.743Z",
+  "hypothesis": "Acid-testing lichen might consume its reagent or lose dilution-dependent color.",
+  "supportedSetup": "Public debug lichen corpse dipped into acid; diluted-acid control; both sighted.",
+  "expectedC": "Red/orange corpse-edge message, optional naming, no reagent consumption, in_use cleared.",
+  "observedJS": "Complete replays and corpse/reagent/dilution/in_use state checks match both C paths.",
+  "control": "diluted",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-lichen-acid-retention/check.test.mjs",
+  "sourceLocations": [
+    "nethack-c/upstream/src/potion.c:2597",
+    "js/potion.js:3582"
+  ],
+  "results": {
+    "acid": {
+      "screensMatched": 78,
+      "screensTotal": 78,
+      "cursorsMatched": 78,
+      "cursorsTotal": 78,
+      "rngMatched": 2742,
+      "rngTotal": 2742
+    },
+    "diluted": {
+      "screensMatched": 86,
+      "screensTotal": 86,
+      "cursorsMatched": 86,
+      "cursorsTotal": 86,
+      "rngMatched": 2742,
+      "rngTotal": 2742
+    }
+  },
+  "proof": "README.md",
+  "sourceFingerprints": {
+    "nethack-c/upstream/src/potion.c": "05176768623072e3e1337fc23b91e1f3991980dbefb4ca2fc44c0fe6d1115aa9",
+    "js/potion.js": "5d1c2083148a552a7261f62f910e03784e6975b72adafa5c77d60571b310c9c6",
+    "nethack-c/upstream/src/invent.c": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+    "js/invent.js": "ed6e7464bd7ebb5449597a3ffb7f3f4783030965f0f7047aac29f0ac0e1f912e"
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recordSession": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scorer": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "hub": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "compilerScan": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "patchSeries": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    }
+  },
+  "fixtureFingerprints": {
+    "acid-capture-c.json": "928a3458562d0df0b8b443bb1e99a187c2c8f71dad418f9039a4e48d5eaa5aca",
+    "acid-recipe.json": "66266b4149e4fbe50b8d6560e74b7bc2b4ee7e424d9b6d522639c57a01c34d71",
+    "diluted-capture-c.json": "b32a99e8807d32663c338a47bd13de50df43dddbced1d7221fbc8ff102e5e020",
+    "diluted-recipe.json": "409faf97dbdc2fccbd9a004f2e6cb82d04b6f1d62da215a90632f10efb259363"
+  },
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual combined behavioral hypothesis with no matching canonical scanner lead; no nearby helper key borrowed."
+  },
+  "evidencePaths": [
+    "README.md",
+    "acid-capture-c.json",
+    "acid-recipe.json",
+    "check.test.mjs",
+    "diluted-capture-c.json",
+    "diluted-recipe.json"
+  ],
+  "nextExperiment": null,
+  "scopeLimit": "Only these public target/control paths and final-state assertions; no universal equivalence or scanner suppression."
+}
