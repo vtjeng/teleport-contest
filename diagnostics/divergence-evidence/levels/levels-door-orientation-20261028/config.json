@@ -1,0 +1,23 @@
+{
+  "maxCases": 4,
+  "repeats": 1,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "Cav-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-door-orientation-20261028/28104100.recipe.json"
+    },
+    {
+      "program": "Cav-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-door-orientation-20261028/28104101.recipe.json"
+    },
+    {
+      "program": "Cav-loca.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-door-orientation-20261028/28104102.recipe.json"
+    },
+    {
+      "program": "Cav-loca.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-door-orientation-20261028/28104103.recipe.json"
+    }
+  ]
+}

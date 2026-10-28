@@ -1,0 +1,198 @@
+[
+  {
+    "status": "unresolved",
+    "elapsedMs": 1222,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3226,
+          "js": 3226
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "f64c4814d255a770965aa78a73a4e4d87605e90476a7b53d7f925a305acdee01",
+    "rawHashes": {
+      "recipe.session.json": "c955fc8606788325b8ea93cfd408333483b203536c3fc38fd3a98cef3c0f0d21",
+      "recorded.session.json": "dfffe49ff31db31fdd5558c72236948cb14506a40a774482bf3fc22ae9695313",
+      "js-output.json": "de5ab7ccff1ecc2360b18fb3ca7a1b3b499b0e2683f288a1718e04995816e648"
+    },
+    "seed": 28104100,
+    "program": "Cav-strt.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1738,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3019,
+          "js": 3019
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "f64c4814d255a770965aa78a73a4e4d87605e90476a7b53d7f925a305acdee01",
+    "rawHashes": {
+      "recipe.session.json": "d1312af84b63dcc472efdfc43de4c398031e4c82037971500d11d144c12a8a54",
+      "recorded.session.json": "b19f6e33cfa3bcf837d0211c64218bc63abbc2f4e9e97eb49cd0dd3a5dd8962f",
+      "js-output.json": "3220bb565870ae66b589cba72e15ef7b4c50945de99a81207f31e5c6f2efa385"
+    },
+    "seed": 28104101,
+    "program": "Cav-strt.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1596,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 4310,
+          "js": 4310
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "1d6c6a700da7f8dcda5a1c533cefae6b449e4ad0506ca8f293fc729c98e53616",
+    "rawHashes": {
+      "recipe.session.json": "ee5b389a68188504beae33a2ecd1202bfa74eee7a42f617d5ba7e797fae0b7cb",
+      "recorded.session.json": "7ba7fa60cd5e3b39d841d543946ef9102d230d3f4f96326f397f612240893617",
+      "js-output.json": "a209c645f92a38cac15c08980cd4bf57c2eb1b8ba8426307a20e92440293d6a6"
+    },
+    "seed": 28104102,
+    "program": "Cav-loca.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1163,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3733,
+          "js": 3733
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "1d6c6a700da7f8dcda5a1c533cefae6b449e4ad0506ca8f293fc729c98e53616",
+    "rawHashes": {
+      "recipe.session.json": "677c38d410cd8f6d1fdadbc2dab6de739468a669de46197b7cee00d00ac3aa94",
+      "recorded.session.json": "1358a3d2ca24da9c682f682e266b9f57c1401a3a7587d3560cbdaa016155a8cd",
+      "js-output.json": "4cf0a854b23c70d320b89d69e344fd9639509a5f3300dbcdb454542521d891e7"
+    },
+    "seed": 28104103,
+    "program": "Cav-loca.lua"
+  }
+]

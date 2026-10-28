@@ -1,0 +1,70 @@
+{
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:25:54.822312+00:00",
+  "reviewedAt": "2026-10-28T19:26:49.029490+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "sourceHashes": {
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/room_coordinates.js": "9621ab8b435e3803438c5b0762793ba2db554a2f57f0f178f443b1663e8c08d9",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/dat/Cav-strt.lua": "9d2fbf1141c3d15268622c0d40949464c234d0ee22a8f278e9645950d154123d",
+    "nethack-c/upstream/dat/Cav-loca.lua": "bf51ca0c62904245dea2379cbbf346cb3f34d2cb089a6bd6881cf155b9ba16bd"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "adapterSha256": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "configSha256": "5831d7ed4ff6256ac9b26f9884da28df761d62dbecd2bacee84a1d4f019569f3",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "patchHashes": {
+      "nethack-c/patches/001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "nethack-c/patches/002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "nethack-c/patches/003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "nethack-c/patches/004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "nethack-c/patches/005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "nethack-c/patches/006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "nethack-c/patches/007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+      "nethack-c/patches/README.md": "6c29d9620b818ca61da4e133a16625ffe0be1973e19cf61dd77942017834d26c"
+    },
+    "oracleFileSha256": "0abba98d570ce163ddb7a5e0b89f8ec0ad6cc178f62b300561c41d19fb7c9fb2"
+  },
+  "nextExperiment": null,
+  "caseId": "levels-door-orientation-20261028",
+  "hypothesis": "Stone/iron-bar implicit walls should influence coordinate-door orientation even when an explicit adjacent wall exists.",
+  "proof": "C set_door_orientation only evaluates IS_DOORJOIN fallback when all four explicit wall/door checks are false. JS follows that conditional. Extracted C and production lspo_door agree in 16384 finite comparisons.",
+  "supportedSetup": "Unit neighborhoods use valid coordinate-door API calls. Four shipped Caveman public-input loads provide separate matching observations, with unresolved Lua attribution. Constructed exhaustive neighborhoods are not claimed individually reachable in shipped gameplay.",
+  "scope": "Eight representative neighbor terrain types (STONE,HWALL,DOOR,SDOOR,TREE,IRONBARS,ROOM,POOL), four cardinal positions, two center coordinates (1,10)/(10,10), closed/secret explicit states. No claim for random/room-wall descriptors, other coordinates or universal map equivalence.",
+  "expectedC": "Implicit stone-only left neighbor yields horizontal=1; adding an explicit upper wall disables that fallback and yields horizontal=0.",
+  "observedJS": "16384/16384 comparisons match C across 8192 neighborhoods and two states.",
+  "control": "Implicit-stone-only versus explicit-upper-wall pair yields different orientations in both engines.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:1042",
+    "js/mklev.js:1506",
+    "js/mklev.js:3448"
+  ],
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-door-orientation-20261028/probe.mjs",
+  "evidencePaths": [
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "recordings.json",
+    "replay.mjs"
+  ],
+  "cExtractionSha256": "e4ab9f2790251d3abc3ef5dfbee704aee7ce4ba3aff8a5c0cc216c67249dddf3",
+  "cleanBaseVerification": {
+    "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "receipt": "../levels-door-orientation-20261028/clean-verification.json",
+    "gameplaySourceUnchanged": true
+  }
+}

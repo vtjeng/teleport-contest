@@ -1,0 +1,68 @@
+{
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:25:54.822312+00:00",
+  "reviewedAt": "2026-10-28T19:26:49.029851+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "sourceHashes": {
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/room_coordinates.js": "9621ab8b435e3803438c5b0762793ba2db554a2f57f0f178f443b1663e8c08d9",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/dat/Cav-strt.lua": "9d2fbf1141c3d15268622c0d40949464c234d0ee22a8f278e9645950d154123d",
+    "nethack-c/upstream/dat/Cav-loca.lua": "bf51ca0c62904245dea2379cbbf346cb3f34d2cb089a6bd6881cf155b9ba16bd"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "adapterSha256": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "configSha256": "5831d7ed4ff6256ac9b26f9884da28df761d62dbecd2bacee84a1d4f019569f3",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "patchHashes": {
+      "nethack-c/patches/001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "nethack-c/patches/002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "nethack-c/patches/003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "nethack-c/patches/004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "nethack-c/patches/005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "nethack-c/patches/006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "nethack-c/patches/007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+      "nethack-c/patches/README.md": "6c29d9620b818ca61da4e133a16625ffe0be1973e19cf61dd77942017834d26c"
+    },
+    "oracleFileSha256": "4d7e6f378a14a94752a6d9f66e715c2eaa497f9caa09290b8ece851318458ebb"
+  },
+  "nextExperiment": null,
+  "caseId": "levels-door-descriptor-20261028",
+  "hypothesis": "A secret coordinate-door descriptor should always replace an existing ordinary door terrain with SDOOR.",
+  "proof": "C sel_set_door changes terrain only when the existing terrain is neither DOOR nor SDOOR, then strips D_SECRET from the mask and enforces closed state. JS matches this intentionally preserved existing-terrain behavior.",
+  "supportedSetup": "Finite explicit coordinate-door descriptors through the production lspo_door API. The sibling recordings are observations only; no claim that every tested transition occurs there.",
+  "scope": "Old ROOM/DOOR/SDOOR, six explicit states nodoor/broken/open/closed/locked/secret, four listed local neighborhoods at (10,10). No random/wall descriptors, arbitrary global map state or universal equivalence.",
+  "expectedC": "secret on existing DOOR retains DOOR (23); secret on ROOM creates SDOOR (14). Both receive the closed mask.",
+  "observedJS": "72/72 tuples (terrain,mask,orientation,authored-map bit) match executed C.",
+  "control": "Existing DOOR versus ROOM with same secret descriptor distinguishes preservation from new secret-door creation.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:4647",
+    "js/mklev.js:3448"
+  ],
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-door-descriptor-20261028/probe.mjs",
+  "evidencePaths": [
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "../levels-door-orientation-20261028/oracle.c"
+  ],
+  "cExtractionSha256": "f8baa3f2fe16c9f2beb3870c38a5e647de9631d6e7bad2022a2fe4a3c16b2424",
+  "cleanBaseVerification": {
+    "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "receipt": "../levels-door-orientation-20261028/clean-verification.json",
+    "gameplaySourceUnchanged": true
+  }
+}

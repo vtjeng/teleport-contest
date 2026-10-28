@@ -1,0 +1,9 @@
+{
+  "comparisons": 72,
+  "matched": 72,
+  "control": {
+    "existingDoor": 23,
+    "newDoor": 14
+  },
+  "scope": "Three old terrain types, six explicit states, four local neighborhoods; coordinate door descriptors only"
+}
