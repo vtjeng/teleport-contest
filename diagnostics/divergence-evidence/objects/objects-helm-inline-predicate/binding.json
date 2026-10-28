@@ -1,0 +1,15 @@
+{
+  "fullRunId": "a381a949e765ae5aa2c8",
+  "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+  "fullRunRetainedAt": "diagnostics/divergence-evidence/objects/objects-triage-20261028/effects-hub/run.json",
+  "projectionSha256": "73ecb94e830fa2d62a1758b49436aa306da615c3479ca6485bfc4f50c5859b2e",
+  "templateSha256": "398e27d80972c63f06dc97f7fddb56bc3fdb475d92edbff9196beebfa0fa9394",
+  "decisionsSha256": "c343834e94aa9fdfa4cf68229e644108dc5f7cdf954721f3b1f9699874157c67",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/objnam.c:helm_simple_name:hard_helmet",
+    "source-audit:edge-c-only:src/objnam.c:shield_simple_name:weight"
+  ],
+  "createdAt": "2026-10-28T18:19:45.532Z",
+  "verifiedAtBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "relevantFilesUnchangedSinceRun": true
+}

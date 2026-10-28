@@ -1,0 +1,4 @@
+[
+  "source-audit:edge-c-only:src/objnam.c:helm_simple_name:hard_helmet",
+  "source-audit:edge-c-only:src/objnam.c:shield_simple_name:weight"
+]
