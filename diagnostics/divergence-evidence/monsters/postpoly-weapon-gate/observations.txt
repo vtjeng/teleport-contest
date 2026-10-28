@@ -1,0 +1,15 @@
+xorn_to_ogre old_weapon=0 new_weapon=1 ranged=0 continue=0
+ogre_to_ogre continue=1
+✔ compiled native C catalog and exact post-move gate use the pre-movement species (100.92124ms)
+{"original":"xorn","hpBefore":16,"hpAfter":15,"hero":[18,15],"monster":[21,15],"species":"ogre","weaponBefore":0,"weaponAfter":1,"status":0,"draws":[["rn2",5],["rn2",105],["rn2",10],["d",4,8],["rn2",5],["rn2",5],["rn2",5],["rn2",90],["rnd",4],["rnd",20],["rn2",2]],"lines":[],"topline":"You are hit by a dagger.","daggerWhere":1}
+{"original":"ogre","hpBefore":16,"hpAfter":15,"hero":[18,15],"monster":[21,15],"species":"ogre","weaponBefore":0,"weaponAfter":1,"status":0,"draws":[["rn2",5],["rn2",107],["rn2",5],["rn2",5],["rn2",5],["rn2",90],["rnd",4],["rnd",20],["rn2",2]],"lines":[],"topline":"You are hit by a dagger.","daggerWhere":1}
+✔ native xorn movement into polymorph trap checks post-move weapon gate (206.456781ms)
+✔ native ogre movement into polymorph trap checks post-move weapon gate (83.808326ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1179.154035
