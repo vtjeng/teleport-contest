@@ -1,0 +1,38 @@
+{
+  "shard": "levels",
+  "jsBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:32:10Z",
+  "reviewedAt": "2026-10-28T17:34:52.242Z",
+  "toolchain": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7 (3+b1)"
+  },
+  "scopeLimits": "Analysis only; no gameplay edits, no CI dispatch, no universal level equivalence claim.",
+  "historyCheck": "Fetched origin/main before selection. No open levels PR; only tooling/explained-negative-filters was open. Local main history checked for selection-line fixes.",
+  "caseId": "levels-area-reversed-bounds-20261028",
+  "outcome": "explained negative",
+  "hypothesis": "Empty selection from reversed y bounds is a JS-only area-constructor error.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/nhlsel.c:559",
+    "nethack-c/upstream/src/selvar.c:626",
+    "js/themerooms.js:238"
+  ],
+  "supportedSetup": "Positive in-map integer rectangle endpoints; direct constructor check in one coordinate frame. No recorder or natural level route claimed for the reversed-y input.",
+  "reproduce": "node --test diagnostics/divergence-evidence/levels/levels-area-reversed-bounds-20261028/focused.test.mjs",
+  "expectedC": "l_selection_fillrect loops y=y1; y<=y2; ++y without sorting. Reversed y is empty. Reversed x still fills via selection_do_line in each row.",
+  "observedJS": "Reversed y returns zero points; reversed x has the same nine-point bitmap as the forward 3x3 rectangle.",
+  "control": "Forward 3x3 yields 9 points; same-x vertical yields 3; reversed-x equals forward bitmap.",
+  "negativeProof": "The suspected normalization contract is absent in C. y1>y2 makes the C loop execute zero times and the fresh selection remains empty; JS has the equivalent early return. For x reversal, C line walks backward and JS chooses xstep=-1. This is an explanation of the exact branch, not a claim about coordinate conversion or all area overloads.",
+  "fingerprints": {
+    "c": "ce93cdb316eb18ae4ad32238076ab61cec319973a5cff049ce95289a54239ec5",
+    "js": "e14b071ab3c64e47ddb9ba6cfcac1a475f809b3ffbb43f634a24a854cd02ab3a",
+    "test": "7c918b70d0551b99bd27df0cd670771be75455a8776072c06334a29dd217fecd"
+  },
+  "evidencePaths": [
+    "focused.test.mjs"
+  ],
+  "nextExperiment": null,
+  "prePublicationMain": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "prePublicationReview": "Fetched main again; relevant C, level helpers, and discovery/recorder scripts are unchanged from measured base."
+}

@@ -1,0 +1,340 @@
+[
+  {
+    "id": "41bca93670677703f8655c46e5d9911788632b438d4cfed5051072a89b535f1b",
+    "program": "bigrm-2.lua",
+    "sourceSha256": "ebdea03e5352271a57fe761537a9653b833db6debacb6e93fe2613ba38ebed2a",
+    "recipeSha256": "ac2f21fbd5e8dc55c4538c5074005fd5ba382235073b360f8515b79ed8d8b8ac",
+    "attempts": [
+      {
+        "status": "matching",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4120,
+              "js": 4120
+            },
+            "screens": {
+              "c": 54,
+              "js": 54
+            },
+            "cursors": {
+              "c": 54,
+              "js": 54
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": true,
+          "witnesses": [
+            {
+              "index": 2505,
+              "line": 34,
+              "entry": "rn2(4)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-2.lua:34)",
+              "jsPrefixAgrees": true
+            }
+          ],
+          "jsProgramEvidence": "source-route-and-rng-prefix",
+          "cUncoveredPercentSites": [
+            {
+              "line": 49,
+              "threshold": 25
+            }
+          ],
+          "uncoveredPercentSites": [
+            {
+              "line": 49,
+              "threshold": 25
+            }
+          ]
+        },
+        "rawHashes": {
+          "recipe.session.json": "ac2f21fbd5e8dc55c4538c5074005fd5ba382235073b360f8515b79ed8d8b8ac",
+          "recorded.session.json": "01e53e5e1bb0198140311f5600521ce235dfe15784b25e039cba46c6014220d2",
+          "js-output.json": "f553a4e2fea4ebb53fb2c7da53158c9a0e00649035b06fc4f784de1ba37b45ed"
+        },
+        "elapsedMs": 1734
+      }
+    ],
+    "files": [
+      {
+        "path": "0-recipe.session.json",
+        "uncompressedSha256": "ac2f21fbd5e8dc55c4538c5074005fd5ba382235073b360f8515b79ed8d8b8ac",
+        "bytes": 328
+      },
+      {
+        "path": "0-recorded.session.json.gz",
+        "uncompressedSha256": "01e53e5e1bb0198140311f5600521ce235dfe15784b25e039cba46c6014220d2",
+        "bytes": 257608
+      },
+      {
+        "path": "0-js-output.json.gz",
+        "uncompressedSha256": "f553a4e2fea4ebb53fb2c7da53158c9a0e00649035b06fc4f784de1ba37b45ed",
+        "bytes": 278654
+      }
+    ]
+  },
+  {
+    "id": "806397d5b44506fecd2cad2c293e45c4f6a4bd51df01e3e877a40925d14dd389",
+    "program": "bigrm-2.lua",
+    "sourceSha256": "ebdea03e5352271a57fe761537a9653b833db6debacb6e93fe2613ba38ebed2a",
+    "recipeSha256": "7d672ad7af54c9700c3422309d0cf3cffa0af5309e515a0836d61bf58945f5ec",
+    "attempts": [
+      {
+        "status": "matching",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 3085,
+              "js": 3085
+            },
+            "screens": {
+              "c": 54,
+              "js": 54
+            },
+            "cursors": {
+              "c": 54,
+              "js": 54
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": true,
+          "witnesses": [
+            {
+              "index": 2062,
+              "line": 34,
+              "entry": "rn2(4)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-2.lua:34)",
+              "jsPrefixAgrees": true
+            }
+          ],
+          "jsProgramEvidence": "source-route-and-rng-prefix",
+          "cUncoveredPercentSites": [
+            {
+              "line": 49,
+              "threshold": 25
+            }
+          ],
+          "uncoveredPercentSites": [
+            {
+              "line": 49,
+              "threshold": 25
+            }
+          ]
+        },
+        "rawHashes": {
+          "recipe.session.json": "7d672ad7af54c9700c3422309d0cf3cffa0af5309e515a0836d61bf58945f5ec",
+          "recorded.session.json": "e85ef659c1d787ad657af657315820974345321117a0317dccc89650f1dd4ed3",
+          "js-output.json": "1075ad925303416aab298303a16f2c6f954895412010f2fb0b2d81902ddeb438"
+        },
+        "elapsedMs": 1381
+      }
+    ],
+    "files": [
+      {
+        "path": "1-recipe.session.json",
+        "uncompressedSha256": "7d672ad7af54c9700c3422309d0cf3cffa0af5309e515a0836d61bf58945f5ec",
+        "bytes": 328
+      },
+      {
+        "path": "1-recorded.session.json.gz",
+        "uncompressedSha256": "e85ef659c1d787ad657af657315820974345321117a0317dccc89650f1dd4ed3",
+        "bytes": 188192
+      },
+      {
+        "path": "1-js-output.json.gz",
+        "uncompressedSha256": "1075ad925303416aab298303a16f2c6f954895412010f2fb0b2d81902ddeb438",
+        "bytes": 185706
+      }
+    ]
+  },
+  {
+    "id": "b42a0217359894d5dc2893cff590082d8f51b0ee53ca289ad02c1f17827119c7",
+    "program": "bigrm-5.lua",
+    "sourceSha256": "eda606945c17fec84cd2309787d51cb676c933f6d07551b4c150f470413d1331",
+    "recipeSha256": "f55b2210d782ba1b16aa58d18498eca79ad01495a414ca0faf213faedd01bcd5",
+    "attempts": [
+      {
+        "status": "unresolved",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4568,
+              "js": 4568
+            },
+            "screens": {
+              "c": 54,
+              "js": 54
+            },
+            "cursors": {
+              "c": 54,
+              "js": 54
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": false,
+          "witnesses": [],
+          "jsProgramEvidence": "unresolved",
+          "cUncoveredPercentSites": [
+            {
+              "line": 32,
+              "threshold": 25
+            }
+          ],
+          "uncoveredPercentSites": [
+            {
+              "line": 32,
+              "threshold": 25
+            }
+          ]
+        },
+        "rawHashes": {
+          "recipe.session.json": "f55b2210d782ba1b16aa58d18498eca79ad01495a414ca0faf213faedd01bcd5",
+          "recorded.session.json": "60eb510567c439e325493802bcc5186c504f61a52622ffd14ab695caf9cef180",
+          "js-output.json": "517bc1057134df923a263a84f74a4520248f6f9ecbf4927fe0e292054d92fc89"
+        },
+        "elapsedMs": 1100
+      }
+    ],
+    "files": [
+      {
+        "path": "2-recipe.session.json",
+        "uncompressedSha256": "f55b2210d782ba1b16aa58d18498eca79ad01495a414ca0faf213faedd01bcd5",
+        "bytes": 328
+      },
+      {
+        "path": "2-recorded.session.json.gz",
+        "uncompressedSha256": "60eb510567c439e325493802bcc5186c504f61a52622ffd14ab695caf9cef180",
+        "bytes": 260210
+      },
+      {
+        "path": "2-js-output.json.gz",
+        "uncompressedSha256": "517bc1057134df923a263a84f74a4520248f6f9ecbf4927fe0e292054d92fc89",
+        "bytes": 215250
+      }
+    ]
+  },
+  {
+    "id": "29dc71cfee2bd9d67eec29a97a33e7d8f9518c08fcedcee06b94174e405f124c",
+    "program": "bigrm-5.lua",
+    "sourceSha256": "eda606945c17fec84cd2309787d51cb676c933f6d07551b4c150f470413d1331",
+    "recipeSha256": "6c3a099e38b5331050490be295725cc8c5d983e347b076c7a981ed6ccc4719a0",
+    "attempts": [
+      {
+        "status": "unresolved",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 5148,
+              "js": 5148
+            },
+            "screens": {
+              "c": 54,
+              "js": 54
+            },
+            "cursors": {
+              "c": 54,
+              "js": 54
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": false,
+          "witnesses": [],
+          "jsProgramEvidence": "unresolved",
+          "cUncoveredPercentSites": [
+            {
+              "line": 32,
+              "threshold": 25
+            }
+          ],
+          "uncoveredPercentSites": [
+            {
+              "line": 32,
+              "threshold": 25
+            }
+          ]
+        },
+        "rawHashes": {
+          "recipe.session.json": "6c3a099e38b5331050490be295725cc8c5d983e347b076c7a981ed6ccc4719a0",
+          "recorded.session.json": "6fa2819fcbbb6c4ada2e7f449dfb462fda121222659a769f93d0dd187ef15939",
+          "js-output.json": "d813adf8b79f934d755ec1b39961c9be557647ee5d758730ce14771721f63a44"
+        },
+        "elapsedMs": 2289
+      }
+    ],
+    "files": [
+      {
+        "path": "3-recipe.session.json",
+        "uncompressedSha256": "6c3a099e38b5331050490be295725cc8c5d983e347b076c7a981ed6ccc4719a0",
+        "bytes": 328
+      },
+      {
+        "path": "3-recorded.session.json.gz",
+        "uncompressedSha256": "6fa2819fcbbb6c4ada2e7f449dfb462fda121222659a769f93d0dd187ef15939",
+        "bytes": 295558
+      },
+      {
+        "path": "3-js-output.json.gz",
+        "uncompressedSha256": "d813adf8b79f934d755ec1b39961c9be557647ee5d758730ce14771721f63a44",
+        "bytes": 284026
+      }
+    ]
+  }
+]

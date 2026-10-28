@@ -1,0 +1,233 @@
+{
+  "scope": "direct selection-line helper; shipped Lua diagonal reachability not established",
+  "rows": [
+    {
+      "name": "shallow-tie",
+      "args": [
+        10,
+        10,
+        12,
+        11
+      ],
+      "cPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          11
+        ]
+      ],
+      "jsPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          11
+        ]
+      ],
+      "matches": false
+    },
+    {
+      "name": "steep-tie",
+      "args": [
+        10,
+        10,
+        11,
+        12
+      ],
+      "cPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          11,
+          12
+        ]
+      ],
+      "jsPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          12
+        ]
+      ],
+      "matches": false
+    },
+    {
+      "name": "reverse-tie",
+      "args": [
+        12,
+        11,
+        10,
+        10
+      ],
+      "cPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          11
+        ]
+      ],
+      "jsPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          11
+        ]
+      ],
+      "matches": false
+    },
+    {
+      "name": "horizontal-control",
+      "args": [
+        10,
+        10,
+        12,
+        10
+      ],
+      "cPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ]
+      ],
+      "jsPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ]
+      ],
+      "matches": true
+    },
+    {
+      "name": "vertical-control",
+      "args": [
+        10,
+        10,
+        10,
+        12
+      ],
+      "cPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          12
+        ]
+      ],
+      "jsPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          12
+        ]
+      ],
+      "matches": true
+    },
+    {
+      "name": "diagonal-control",
+      "args": [
+        10,
+        10,
+        12,
+        12
+      ],
+      "cPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          12
+        ]
+      ],
+      "jsPoints": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          12
+        ]
+      ],
+      "matches": true
+    }
+  ]
+}
