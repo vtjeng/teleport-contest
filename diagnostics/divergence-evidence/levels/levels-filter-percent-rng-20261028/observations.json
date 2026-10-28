@@ -1,0 +1,75 @@
+{
+  "family": "percent",
+  "scope": "Finite supported filter inputs with deterministic bounded RNG stream",
+  "results": [
+    {
+      "value": 0,
+      "empty": false,
+      "points": [],
+      "calls": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "matched": true
+    },
+    {
+      "value": 50,
+      "empty": false,
+      "points": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ]
+      ],
+      "calls": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "matched": true
+    },
+    {
+      "value": 100,
+      "empty": false,
+      "points": [
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          11,
+          11
+        ]
+      ],
+      "calls": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "matched": true
+    },
+    {
+      "value": 100,
+      "empty": true,
+      "points": [],
+      "calls": [],
+      "matched": true
+    }
+  ]
+}

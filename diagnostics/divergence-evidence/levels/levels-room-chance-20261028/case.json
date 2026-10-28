@@ -1,0 +1,63 @@
+{
+  "caseId": "levels-room-chance-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:17:34.012461+00:00",
+  "reviewedAt": "2026-10-28T20:17:51.150888+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "hypothesis": "Room chance controls room existence, with chance=0 suppressing the requested room.",
+  "proof": "C build_room selects rtype using (!chance || rn2(100)<chance), then attempts room construction for either requested or ordinary type. Zero is unconditional and draws nothing. JS public room API matches the executed C decision on six inputs.",
+  "supportedSetup": "Production lspo_region creates a valid 13x11 parent at relative (10,5)..(22,15); its contents invokes lspo_room for a 3x3 child at (3,3), type vault, lit=1, filled=0. No population or finalization is run. Injected rn2 returns an in-range scripted value.",
+  "expectedC": "Zero chance: vault, no draw. Chance1 draws0/1: vault/ordinary. Chance50 draws49/50: vault/ordinary. Chance100 draw99: vault. All six invoke child construction.",
+  "observedJS": "All six have one actual child with expected rtype and exact rn2 bounds/counts.",
+  "control": "Strict-boundary draw pairs at chances1 and50 distinguish type fallback from creation failure; chance100 still draws; chance0 does not.",
+  "scope": "Finite type-choice/RNG decision negative only. C geometry/topology are outcome-capture stubs, so no C/JS geometry, full generation or orig_rtype equivalence is claimed. This is independent of the parked save-export attempt.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:2807",
+    "js/mklev.js:6864",
+    "js/mklev.js:2928",
+    "nethack-c/upstream/doc/lua.adoc:971"
+  ],
+  "sourceHashes": {
+    "js/mklev.js": "78abe491d86d6326e5e2bf498166bf72f4918c87ccd2c951ab5f0ef865aae48b",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/global.h": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+    "nethack-c/upstream/include/mkroom.h": "7baf848feb30c94c196e6bee2ee7f0a83822ad92042dd855b74d212fde514f5a",
+    "nethack-c/upstream/doc/lua.adoc": "2205b882246d88e99e46e625dd6b27bfe2098cc1cf38dfc7b5aae4986c437c94"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "970bf2e0815ac186317d629d00bf22a401daf2aa9424a70584cc8c30a242e576",
+    "probeSha256": "66a16c03311f1836b665c98c798656f0df307cfe8f78c196849553648940e1c6",
+    "exactBuildRoomBodySha256": "a77077ed1ea302bfa9eeeb1f77b73af5f224b96571078e53869652419b124bef"
+  },
+  "oracleProvenance": "Exact C build_room body, scripted rn2, fixed successful child-construction capture and no-op topology. The requested decision is made before those stubs. Main must not interpret this as internal finalization-state evidence.",
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-room-chance-20261028/probe.mjs",
+  "expectedExit": 0,
+  "evidencePaths": [
+    "README.md",
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "clean-base-verification.json"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "receipt": "clean-base-verification.json",
+    "exit": 0
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "command": "node diagnostics/divergence-evidence/levels/levels-filter-percent-rng-20261028/probe.mjs",
+  "exit": 0,
+  "stdout": "{\n  \"family\": \"percent\",\n  \"scope\": \"Finite supported filter inputs with deterministic bounded RNG stream\",\n  \"results\": [\n    {\n      \"value\": 0,\n      \"empty\": false,\n      \"points\": [],\n      \"calls\": [\n        100,\n        100,\n        100,\n        100\n      ],\n      \"matched\": true\n    },\n    {\n      \"value\": 50,\n      \"empty\": false,\n      \"points\": [\n        [\n          10,\n          10\n        ],\n        [\n          11,\n          10\n        ]\n      ],\n      \"calls\": [\n        100,\n        100,\n        100,\n        100\n      ],\n      \"matched\": true\n    },\n    {\n      \"value\": 100,\n      \"empty\": false,\n      \"points\": [\n        [\n          10,\n          10\n        ],\n        [\n          10,\n          11\n        ],\n        [\n          11,\n          10\n        ],\n        [\n          11,\n          11\n        ]\n      ],\n      \"calls\": [\n        100,\n        100,\n        100,\n        100\n      ],\n      \"matched\": true\n    },\n    {\n      \"value\": 100,\n      \"empty\": true,\n      \"points\": [],\n      \"calls\": [],\n      \"matched\": true\n    }\n  ]\n}\n"
+}

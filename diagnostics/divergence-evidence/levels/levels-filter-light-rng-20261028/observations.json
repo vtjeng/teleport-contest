@@ -1,0 +1,81 @@
+{
+  "family": "light",
+  "scope": "Finite supported filter inputs with deterministic bounded RNG stream",
+  "results": [
+    {
+      "value": -1,
+      "empty": false,
+      "points": [
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          11
+        ]
+      ],
+      "calls": [
+        2,
+        2,
+        2
+      ],
+      "matched": true
+    },
+    {
+      "value": -2,
+      "empty": false,
+      "points": [
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ],
+      "calls": [],
+      "matched": true
+    },
+    {
+      "value": 0,
+      "empty": false,
+      "points": [
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          11
+        ]
+      ],
+      "calls": [],
+      "matched": true
+    },
+    {
+      "value": 1,
+      "empty": false,
+      "points": [
+        [
+          11,
+          11
+        ]
+      ],
+      "calls": [],
+      "matched": true
+    },
+    {
+      "value": -1,
+      "empty": true,
+      "points": [],
+      "calls": [],
+      "matched": true
+    }
+  ]
+}

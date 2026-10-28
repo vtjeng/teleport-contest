@@ -1,0 +1,68 @@
+{
+  "caseId": "levels-filter-light-rng-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:09:57.767174+00:00",
+  "reviewedAt": "2026-10-28T20:10:28.331147+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "hypothesis": "Random-light filtering chooses one shared lit/unlit state for the selection.",
+  "proof": "C selection_filter_mapchar draws rn2(2) independently for each terrain-matching selected cell. It does not consult the cell light bit in the -1 branch. JS matches the executed C points and RNG calls.",
+  "supportedSetup": "Production terrain and l_selection_setpoint create a four-cell absolute selection: three ROOM cells and one HWALL. Two ROOM cells are unlit, one lit. A deterministic injected RNG returns valid values within each requested bound. No arbitrary Lua runtime or game-state overrides.",
+  "expectedC": "See observations.json for exact selected coordinates and ordered RNG bounds.",
+  "observedJS": "All 5 enumerated comparisons match C selections and ordered RNG calls; receiver retains its points.",
+  "control": "Explicit lit=0/1 and no-light-filter -2 consume no draws; empty input consumes none. Target selects both an unlit and a lit cell, disproving a shared global light choice.",
+  "scope": "Finite fixtures only; not universal filter equivalence or shipped recording evidence. Existing JS regression coverage is retained, and this adds an executed C oracle. Manual/unbound: do not invent a scanner suppression identity.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/selvar.c:248",
+    "nethack-c/upstream/src/nhlsel.c:657",
+    "js/themerooms.js:158"
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/src/selvar.c": "af33824e7004e7799ca1e88d0b00813bb5b9a1087015b9fb5a250473b2318b58",
+    "nethack-c/upstream/src/nhlsel.c": "ce93cdb316eb18ae4ad32238076ab61cec319973a5cff049ce95289a54239ec5",
+    "nethack-c/upstream/doc/lua.adoc": "2205b882246d88e99e46e625dd6b27bfe2098cc1cf38dfc7b5aae4986c437c94",
+    "js/themerooms.js": "e14b071ab3c64e47ddb9ba6cfcac1a475f809b3ffbb43f634a24a854cd02ab3a",
+    "js/nhlsel.js": "1981814948f616a0b19403e962f6cae915dc3229d4a4605caea02860af6078c6",
+    "js/mklev.js": "78abe491d86d6326e5e2bf498166bf72f4918c87ccd2c951ab5f0ef865aae48b",
+    "scripts/themerooms-selection.test.mjs": "72ed36223adb9a25f45f03c9128958b4f36a73f96f4f3ec810c988c61af73280"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "a3300359c7ba9ecac9a89d844435aee2a3b3273488fc529baa21243aca585658",
+    "harnessSha256": "92a617127908a7b2bf284c14350e58c3cc8104f2a1c5f013a871973dde15330b",
+    "exactBodyHashes": {
+      "selection_filter_mapchar": "af4386f78f20581fe965391de9f9d4d8ce98270f8e35b85f496e75305beba5a6",
+      "selection_filter_percent": "0646131fb655cf8dab09f42d3e307a8f8a5cfdc3a1584bf4c9b66ac6cc33c045"
+    }
+  },
+  "oracleProvenance": "Exact selection_filter_mapchar/percent C bodies, minimal zero-initialized point/map storage, ROOM-only matching predicate and scripted rn2. Conservative whole-map bounds visit extra zero cells only, preserving selected-cell traversal and RNG sequence. Full Lua parser not executed.",
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-filter-light-rng-20261028/probe.mjs",
+  "expectedExit": 0,
+  "evidencePaths": [
+    "README.md",
+    "probe.mjs",
+    "observations.json",
+    "clean-base-verification.json",
+    "../levels-filter-light-rng-20261028/oracle.c",
+    "../levels-filter-light-rng-20261028/harness.mjs"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "receipt": "clean-base-verification.json",
+    "exit": 0
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "scope": "Six room-type/chance decisions with explicit valid subroom geometry; not full generation equivalence",
+  "results": [
+    {
+      "chance": 0,
+      "draw": 99,
+      "created": true,
+      "rtype": 4,
+      "calls": [],
+      "matched": true
+    },
+    {
+      "chance": 1,
+      "draw": 0,
+      "created": true,
+      "rtype": 4,
+      "calls": [
+        100
+      ],
+      "matched": true
+    },
+    {
+      "chance": 1,
+      "draw": 1,
+      "created": true,
+      "rtype": 0,
+      "calls": [
+        100
+      ],
+      "matched": true
+    },
+    {
+      "chance": 50,
+      "draw": 49,
+      "created": true,
+      "rtype": 4,
+      "calls": [
+        100
+      ],
+      "matched": true
+    },
+    {
+      "chance": 50,
+      "draw": 50,
+      "created": true,
+      "rtype": 0,
+      "calls": [
+        100
+      ],
+      "matched": true
+    },
+    {
+      "chance": 100,
+      "draw": 99,
+      "created": true,
+      "rtype": 4,
+      "calls": [
+        100
+      ],
+      "matched": true
+    }
+  ]
+}
