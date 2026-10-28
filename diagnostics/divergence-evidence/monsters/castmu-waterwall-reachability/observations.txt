@@ -1,0 +1,21 @@
+{"hero":[18,15],"monster":[20,15],"target":[19,16],"status":0,"actionDraws":[["rn2",3],["rn2",3],["rn2",3],["rn2",5],["rn2",3],["rn2",3],["rn2",3],["rn2",1],["rn2",2],["rn2",3],["rn2",4],["rn2",5],["rn2",6],["rn2",7],["rn2",8],["rn2",104],["rn2",10],["d",10,8],["rn2",5]],"lines":["The xorn turns into a lich!"]}
+{"control":"next stationary lich turn with ROOM target","monster":[20,15],"target":[19,16],"draws":[["rn2",3],["rn2",3],["rn2",3],["rn2",5],["rn2",4],["rn2",3],["rn2",10]],"lines":[],"topline":"The lich strikes at thin air!  The lich casts a spell at thin air!"}
+✔ full action preserves WATER target through polymorph but ends before attack; next floor-target turn casts (284.197547ms)
+{"oracle":"unmodified upstream set_apparxy with fixed fixture predicates","terrain":18,"output":"19 16 5"}
+{"oracle":"unmodified upstream set_apparxy with fixed fixture predicates","terrain":25,"output":"18 16 3"}
+{"oracle":"exact C monnear, range assignments, postmove attack gate; native lich predicates fixed","output":"adjacent target: 0\ndistant target: 1"}
+✔ compiled upstream set_apparxy rejects WATER and accepts ROOM in the same draw sequence (93.452184ms)
+✔ compiled upstream post-move attack gate blocks adjacency to remembered target (91.305315ms)
+{"terrain":18,"hero":[18,15],"selected":[19,16],"bounds":[3,3,3,3,3],"spellBounds":[11],"lines":["The lich casts a spell at thin air!"],"scope":"ordinary selector route only; source wording discrepancy remains unresolved"}
+{"terrain":25,"hero":[18,15],"selected":[18,16],"bounds":[3,3,3],"spellBounds":[11],"lines":["The lich casts a spell at thin air!"],"scope":"ordinary selector route only; source wording discrepancy remains unresolved"}
+✔ native blinded lich rejects a water-wall guess before casting; floor control accepts it (321.280336ms)
+{"hero":[18,15],"monster":[20,15],"target":[19,16],"status":1,"trapDraws":[["rn2",104],["rn2",10],["d",10,8]],"attackDraws":[["rn2",3],["rn2",10]],"lines":["The xorn turns into a lich!","The lich swings wildly and misses!","The lich casts a spell at thin air!"]}
+✔ diagnostic only: manually invoking attack after postmov bypasses full-action guard (174.958021ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1751.214695
