@@ -1,0 +1,106 @@
+{
+  "id": "vault-entry-occupation-hook",
+  "shard": "commands",
+  "outcome": "confirmed divergence",
+  "discoveredAt": "2026-10-28T18:07:34.577Z",
+  "reviewedAt": "2026-10-28T18:12:47.264Z",
+  "jsBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual audit of turn-boundary occupation callback plumbing; no canonical scanner lead identified."
+  },
+  "fingerprints": {
+    "node": "v24.19.0",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recorderSysconfSha256": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2",
+    "patches": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "sourceAndTools": {
+      "js/allmain.js": "0fac2889dd5f193601f1940e4185d3609afe1197aefa12aaf873cf9d3cde10cd",
+      "js/vault.js": "28e8e374ece90047416b2b625dcc8197f3fd4b00969b7ae97fbac0b2b5dd865b",
+      "js/makemon_create.js": "9276fc4779014693957786f56cc2b8816f8af8cb45820c2004073d1d61ac4bd5",
+      "nethack-c/upstream/src/allmain.c": "6ce44a662ad3d180b9dcbf7660a1899b8d1356c8ef83e7787b21b39c6b2a35e4",
+      "nethack-c/upstream/src/vault.c": "490406d3195819eec9d155ed7d1e6119ab98571bf1e9879831d40dfbe9a4368f",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61"
+    }
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/allmain.c:357 invault during elapsed-turn upkeep",
+    "nethack-c/upstream/src/vault.c:494 stop_occupation on visible speaking hero guard entry",
+    "nethack-c/upstream/src/allmain.c:684 stop_occupation",
+    "js/allmain.js:1235 invault environment",
+    "js/vault.js:1150 makeMonRuntime call lacking occupation hook",
+    "js/vault.js:1237 explicit stopOccupation callback",
+    "js/makemon_create.js:1573 runtime occupation continuation guard"
+  ],
+  "hypothesis": "Elapsed-turn vault entry lacks the occupation continuation hook needed to interrupt an active counted command.",
+  "supportedReachableSetup": "Use supported wizard level teleport, wish and self-teleport solely to enter a generated vault on Dlvl 8 at (75,15), then execute 30s. Setup adapts documented recipes/vault.c/croesus-name-guard.session.json with a distinct clock/name and uses five L cursor jumps instead of forty l inputs. No injected state. The investigated invault occupation branch does not test wizard.",
+  "expectedC": "At zero-based boundary 63, C prints Suddenly one of the Vault's guards enters!  You stop searching.--More--. Dismissing More reaches the name prompt at boundary 64. It has interrupted the active search before asking for input.",
+  "observedJS": "63 screens/cursors and 6163 RNG calls match, then UnsupportedTurnBoundaryError reports runtime creation while an occupation lacks stopOccupation. Input remains unconsumed; hero is at turn 31, uinvault=30, multi=1, occupation=searching. C has 65 screens/cursors and 6228 RNG calls.",
+  "control": "Replace 30s with 29 individual waits. Both sides reach initial guard entry/name prompt without an active occupation, matching 91 screens/cursors and 6228 RNG calls. No subsequent guard behavior is investigated.",
+  "causalScope": "Turn-boundary occupation continuation plumbing, not guard AI or object implementation. Earliest demonstrated refusal is makemon_create validation; the allmain stopOccupation callback also omits the required message environment, but that later failure is not counted separately because this witness stops earlier.",
+  "reproduction": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/vault-entry-occupation-hook/witness.recipe.json",
+  "controlCommand": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/vault-entry-occupation-hook/control.recipe.json",
+  "focusedTest": "node --test diagnostics/divergence-evidence/commands/vault-entry-occupation-hook/candidate.test.mjs (only witness intentionally fails outside default CI)",
+  "rawAttempts": [
+    {
+      "description": "50s after forty single-square cursor moves, followed by a name response",
+      "outcome": "same missing occupation hook; reduced to thirty searches, five fast cursor moves, and no name response"
+    },
+    {
+      "description": "Reduced witness plus name response; individual-wait control",
+      "outcome": "same refusal; control strict parity. Final fixtures stop before either side answers the name prompt."
+    }
+  ],
+  "captures": {
+    "witness.recording.json.gz": {
+      "uncompressedSha256": "f8e75c1a3d15afee4cb2ab6e4a30fa28e04c533b352d20fcf54b81844ede4c5c",
+      "uncompressedBytes": 283441,
+      "compressedSha256": "a59def7db7a4fb9cc4dd5a26fe0fb69290bbcc64fd1aac2e08738995c172c867"
+    },
+    "witness.js-output.json.gz": {
+      "uncompressedSha256": "d3eca1c6c763c397a3fc7439848b23496f4bc62d7197f285c9a8d39116307246",
+      "uncompressedBytes": 211543,
+      "compressedSha256": "c5c493eb23a11cc37a16d2435ebe9fde0ddf49d85a9a83dc7c7b0e2f91217a5e"
+    },
+    "control.recording.json.gz": {
+      "uncompressedSha256": "334c4c27716a439b6463c1ef9cd9f9096125610d4483b144af9b88349ce58c6c",
+      "uncompressedBytes": 293887,
+      "compressedSha256": "bde23f6eeda03f086df05e967017859f0557539572a150ce83f4ac67c9b5fcc7"
+    },
+    "control.js-output.json.gz": {
+      "uncompressedSha256": "2c6e193431cb3ba5d7cd9ebe338fa21938ea9bb2369a47fda00280a86d77f034",
+      "uncompressedBytes": 241033,
+      "compressedSha256": "9cfddcb31481558324e7155691e3161615ff49607c140a3639aaed454f6a7007"
+    }
+  },
+  "historyCheck": "Current fetched main cfb72d469; no matching vault/occupation repair in history or open PR search. Independent from commands PRs #9/#15.",
+  "nextExperiment": "After Main wires the occupation continuation, verify exactly one stop message and continued name prompt; preserve C ordering between guard creation, stop_occupation and prompting.",
+  "validation": {
+    "focused": "Control passes; only witness intentionally fails",
+    "cleanBase": "Documented CLI witness exits 1 at boundary 63; control exits 0"
+  },
+  "evidenceSha256": {
+    "README.md": "bbd6ffd98708e142ff3e1469ff229a179d674099b285eef97b772cd53789fd10",
+    "boundary.json": "e2a2e9aecd7cd9259756aed313fe41b935d2b272dcfcbedd2a64ffb733f25976",
+    "candidate.test.mjs": "bb430e4f4e6f9dd4e6c9ad354a418c66ae4af59fb139697551d17bf73217f1eb",
+    "control.comparison.json": "26d578d25818f12cb6963d7821ae474a7e11020b0d47f50fa8c3d41f2b00705f",
+    "control.js-output.json.gz": "9cfddcb31481558324e7155691e3161615ff49607c140a3639aaed454f6a7007",
+    "control.recipe.json": "0dd33e96584ec6c17edb40672be545822de48e25537939eeb15b27c21eeee186",
+    "control.recording.json.gz": "bde23f6eeda03f086df05e967017859f0557539572a150ce83f4ac67c9b5fcc7",
+    "pickup-check.json": "8b7e955c8fe4814afc311aec06fadf31d19a473e914a8993e368d267dce7b437",
+    "witness.comparison.json": "d68faae8b52db52c356227cd9792cbcea0613a21e64ca8e1d9f267dc14aeb446",
+    "witness.js-output.json.gz": "c5c493eb23a11cc37a16d2435ebe9fde0ddf49d85a9a83dc7c7b0e2f91217a5e",
+    "witness.recipe.json": "4472932b0d6f729aa79ad513b129b7e8032af10775a5a18da919e6b775b56432",
+    "witness.recording.json.gz": "a59def7db7a4fb9cc4dd5a26fe0fb69290bbcc64fd1aac2e08738995c172c867"
+  }
+}
