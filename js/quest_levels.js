@@ -3464,6 +3464,8 @@ export const QUEST_LEVEL_LOADERS = {
     'Kni-fila': kniFila,
     'Sam-fila': samFila,
     'Rog-fila': rogFila,
+    // dat/Rog-filb.lua has the same executable body as Rog-fila.lua.
+    'Rog-filb': rogFila,
     'Kni-loca': kniLoca,
     'Kni-filb': kniFilb,
     'Ran-loca': ranLoca,

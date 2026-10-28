@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T03:45:40Z",
+  "asOf": "2026-10-28T04:00:36Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23478,6 +23478,79 @@
         "witness": [],
         "test": [
           "scripts/themeroom-fill.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "90495956e5ee776d37c0f7f6258ca43a65351070",
+          "committedAt": "2026-10-28T03:47:39Z",
+          "sourceCommit": "90495956e5ee776d37c0f7f6258ca43a65351070",
+          "sourceCommittedAt": "2026-10-28T03:47:39Z",
+          "runs": [
+            {
+              "id": 40628709479,
+              "name": "Checkpoint",
+              "sha": "90495956e5ee776d37c0f7f6258ca43a65351070",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/random-sandestin-appearance-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T03:47:51Z",
+              "completedAt": "2026-10-28T03:57:43Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40628709479"
+            },
+            {
+              "id": 40629684154,
+              "name": "Lint",
+              "sha": "90495956e5ee776d37c0f7f6258ca43a65351070",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T03:58:39Z",
+              "completedAt": "2026-10-28T04:00:04Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40629684154"
+            },
+            {
+              "id": 40629684158,
+              "name": "Dashboard",
+              "sha": "90495956e5ee776d37c0f7f6258ca43a65351070",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T03:58:39Z",
+              "completedAt": "2026-10-28T04:00:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40629684158"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rogue-quest-filler-b-loader",
+      "kind": "parity-repair",
+      "title": "Load the Rogue quest filler below the locate level",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mklev.c:makelevel",
+          "nethack-c/upstream/dat/Rog-filb.lua",
+          "js/mklev.js:mklev",
+          "js/quest_levels.js:QUEST_LEVEL_LOADERS"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/quest-levels.test.mjs"
         ]
       },
       "candidates": []

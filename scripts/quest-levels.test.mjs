@@ -4,6 +4,19 @@ import test from 'node:test';
 import { PM_BUGBEAR, PM_HILL_GIANT, S_HUMANOID } from '../js/monsters.js';
 import { QUEST_LEVEL_LOADERS } from '../js/quest_levels.js';
 
+test('Rogue quest filler b loads the same rooms as filler a', async () => {
+    // dat/Rog-fila.lua and dat/Rog-filb.lua have identical executable bodies.
+    // mklev.c selects -filb for unnamed quest levels at or below Rog-loca.
+    const target = [];
+    const control = [];
+    assert.equal(typeof QUEST_LEVEL_LOADERS['Rog-filb'], 'function');
+    await QUEST_LEVEL_LOADERS['Rog-filb'](delayedDescriptor(target));
+    await QUEST_LEVEL_LOADERS['Rog-fila'](delayedDescriptor(control));
+    assert.deepEqual(target, control);
+    assert.equal(target.filter(event => event === 'room:start').length, 6);
+    assert.equal(target.filter(event => event === 'random_corridors:start').length, 1);
+});
+
 function delayedDescriptor(events) {
     const tick = () => Promise.resolve().then(() => {});
     return new Proxy({}, {
