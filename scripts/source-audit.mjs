@@ -43,6 +43,39 @@ function filesUnder(path, suffix) {
     });
 }
 
+// Ranking evidence only: lexical macro correspondence is not equivalence.
+export const MACRO_HINT_VERSION = 'called-macro-helper-v1';
+export function functionMacroDefinitions(source, path) {
+    const tokens = cTokens(source), definitions = [];
+    for (let i = 0; i + 3 < tokens.length; i++) {
+        const [hashToken, define, name, open] = tokens.slice(i, i + 4);
+        if (hashToken.text !== '#' || define.text !== 'define'
+            || !/^[A-Za-z_]\w*$/u.test(name.text) || open.text !== '('
+            || open.offset !== name.offset + name.text.length
+            || source.slice(source.lastIndexOf('\n', hashToken.offset - 1) + 1,
+                hashToken.offset).trim()) continue;
+        definitions.push({ name: name.text, path, line: name.line,
+            sourceSha256: hash(source) });
+    }
+    return definitions;
+}
+export function macroHelperRankingHint(kind, target, calls, definitions) {
+    if (kind !== 'edge-js-helper') return null;
+    const canonical = name => name.replaceAll('_', '').toLowerCase();
+    const called = new Set(calls.map(call => call.name));
+    const matches = definitions.filter(def => called.has(def.name)
+        && canonical(def.name) === canonical(target));
+    if (!matches.length) return null;
+    return { version: MACRO_HINT_VERSION, delta: -10,
+        reason: 'Resolved JS helper corresponds by normalized name to a function-like C macro called by the paired C owner; inspect expansion, arguments and effects before deciding equivalence.',
+        limitation: 'Lexical heuristic only; macro activation, argument semantics and JS behavior are unproved. Candidate remains visible.',
+        definitions: matches };
+}
+function macroInputs(cRoot) {
+    return filesUnder(join(cRoot, 'include'), '.h').map(path =>
+        [relative(cRoot, path), readFileSync(path)]);
+}
+
 export function decodeCString(text) {
     return text.slice(1, -1).replace(/\\(?:\r?\n|x[\da-fA-F]+|[0-7]{1,3}|.)/gu, escape => {
         const value = escape.slice(1);
@@ -345,6 +378,9 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
     contextLines.clear();
     const start = performance.now(), cRoot = join(root, 'nethack-c/upstream');
     const initialSourceHash = diagnosticSourceHash(root);
+    const headers = macroInputs(cRoot);
+    const macroDefinitions = headers.flatMap(([path, bytes]) =>
+        functionMacroDefinitions(bytes.toString('utf8'), path));
     const allC = filesUnder(cRoot, '.c'), cSources = new Map(), cBytes = new Map(), units = [], messages = [], printCalls = [];
     const excludedNames = new Set(EXCLUDED_SYMBOLS), excludedFiles = [];
     for (const path of allC) {
@@ -428,16 +464,19 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
         const commandPath = commands.get(ownerKey) ?? null, turnPath = turn.get(ownerKey) ?? null;
         const diagnostic = kind === 'message' ? DIAGNOSTIC.test(details.api) || details.fileCategory === 'non-gameplay'
             : /^(?:panic|paniclog|impossible|debugpline)/u.test(target);
+        const rankingHint = macroHelperRankingHint(kind, target,
+            typeof owner === 'string' ? [] : owner.calls, macroDefinitions);
         const rank = (commandPath ? Math.max(0, 40 - commandPath.length * 3) : 0)
             + (turnPath ? Math.max(0, 25 - turnPath.length * 2) : 0) + Math.min(incoming.get(ownerKey) ?? 0, 10)
             + Math.min(effects.rng ?? 0, 5) * 2 + Math.min(effects.message ?? 0, 5)
             + (effects.stateWriteHeuristic ? 4 : 0) + Math.min(absentByOwner.get(ownerKey) ?? 0, 5) * 8
             + (confidence === 'explicit-stub' ? 40 : kind === 'message' ? 15 : 0)
             - (diagnostic ? 70 : 0) - (confidence === 'adapter-or-extracted-helper' ? 30 : 0)
-            - (site.conditions?.some(g => /^if 0\b/u.test(g)) ? 100 : 0);
+            - (site.conditions?.some(g => /^if 0\b/u.test(g)) ? 100 : 0)
+            + (rankingHint?.delta ?? 0);
         const old = items.get(id);
         if (old) { old.sites.push(site); return; }
-        items.set(id, { id, kind, owner: ownerKey, target, confidence, rank, sites: [site], details,
+        items.set(id, { id, kind, owner: ownerKey, target, confidence, rank, rankingHint, sites: [site], details,
             signals: { commandPath, turnPath, callers: incoming.get(ownerKey) ?? 0, effects,
                 missingMessageOverlap: absentByOwner.get(ownerKey) ?? 0 },
             repairOverlap: repairs.filter(r => r.evidence?.source?.some(p => p.split(':')[0] === (jsOwner ? relative(root, jsOwner.path) : ''))).map(r => r.id),
@@ -541,6 +580,8 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
             comparisonLimits: 'Article exact wrapper/file list and implementation were not supplied; totals are not asserted equal to its historical denominator.' },
         totals: { cFunctions: units.length, jsFunctions: js.length, printCalls: printCalls.length, printCallKinds: count(printCalls, 'status'),
             graphFunctions: graphUnits.length,
+            rankingHints: { version: MACRO_HINT_VERSION, filtered: 0,
+                deprioritized: sorted.filter(item => item.rankingHint).length },
             qualifyingLiteralOccurrences: matchedMessages.length, uniqueLiterals: new Set(matchedMessages.map(m => m.literal)).size,
             literalStartsOnPrintLine: matchedMessages.filter(m => m.line === m.callLine).length,
             literalStartsOnContinuationLine: matchedMessages.filter(m => m.line !== m.callLine).length,
