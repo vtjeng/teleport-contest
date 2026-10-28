@@ -1,0 +1,55 @@
+{
+  "maxCases": 12,
+  "repeats": 1,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103900.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103901.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103902.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103903.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103904.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103905.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103906.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103907.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103908.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103909.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103910.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103911.recipe.json"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "maxCases": 2,
+  "repeats": 2,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103903.recipe.json"
+    },
+    {
+      "program": "hellfill.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/28103902.recipe.json"
+    }
+  ]
+}

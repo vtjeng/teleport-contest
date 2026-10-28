@@ -1,0 +1,29 @@
+{
+  "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "results": [
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/replay.mjs witness",
+      "expectedExit": 1,
+      "actualExit": 1,
+      "stdout": "{\n  \"label\": \"witness\",\n  \"passed\": false,\n  \"error\": null,\n  \"lengths\": {\n    \"rng\": {\n      \"c\": 4887,\n      \"js\": 4887\n    },\n    \"screens\": {\n      \"c\": 27,\n      \"js\": 27\n    },\n    \"cursors\": {\n      \"c\": 27,\n      \"js\": 27\n    },\n    \"animFrames\": {\n      \"c\": 0,\n      \"js\": 0\n    }\n  },\n  \"rngMismatch\": null,\n  \"screenMismatch\": {\n    \"index\": 26,\n    \"location\": {\n      \"segmentIndex\": 0,\n      \"stepIndex\": 26,\n      \"key\": \"\\n\"\n    },\n    \"kind\": \"ch\",\n    \"row\": 15,\n    \"column\": 24,\n    \"cCell\": {\n      \"ch\": \".\",\n      \"color\": 8,\n      \"attr\": 0,\n      \"decgfx\": 0\n    },\n    \"jsCell\": {\n      \"ch\": \" \",\n      \"color\": 8,\n      \"attr\": 0,\n      \"decgfx\": 0\n    }\n  },\n  \"cursorMismatch\": null,\n  \"animMismatch\": null,\n  \"segmentMismatch\": null\n}\n"
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/replay.mjs control",
+      "expectedExit": 0,
+      "actualExit": 0,
+      "stdout": "{\n  \"label\": \"control\",\n  \"passed\": true,\n  \"error\": null,\n  \"lengths\": {\n    \"rng\": {\n      \"c\": 6190,\n      \"js\": 6190\n    },\n    \"screens\": {\n      \"c\": 27,\n      \"js\": 27\n    },\n    \"cursors\": {\n      \"c\": 27,\n      \"js\": 27\n    },\n    \"animFrames\": {\n      \"c\": 0,\n      \"js\": 0\n    }\n  },\n  \"rngMismatch\": null,\n  \"screenMismatch\": null,\n  \"cursorMismatch\": null,\n  \"animMismatch\": null,\n  \"segmentMismatch\": null\n}\n"
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/focused.mjs target",
+      "expectedExit": 1,
+      "actualExit": 1,
+      "stdout": "{\"mode\":\"target\",\"cells\":45,\"litCount\":0,\"expectedLitCount\":45}\n"
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/focused.mjs control",
+      "expectedExit": 0,
+      "actualExit": 0,
+      "stdout": "{\"mode\":\"control\",\"cells\":45,\"litCount\":0,\"expectedLitCount\":0}\n"
+    }
+  ]
+}
