@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+  "originalRunSha256": "1349082cfaa9d24b2f2e76adef76bbc2d75c10e511e4a0bce7eae7d64c571dde",
+  "originalLeadCount": 12537,
+  "projectionSha256": "faacd02eb9ac8019aea3e8b4b37de553b4fc31135b60933cedf4dc2ca5e9f7d4",
+  "runId": "7e93da55968668bc05fc",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/allmain.c:moveloop_core:invault",
+    "source-audit:message:src/pray.c:halu_gname:00c4ef6ea9a57558",
+    "source-audit:message:src/pray.c:halu_gname:10f94bcf854fbe06"
+  ],
+  "decisionsSha256": "e3bc61f656f21620e753dd64757a111a3d942b390cbac1687aec553cf88e4b7a",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 3,
+    "decisionsChecked": 2,
+    "before": {
+      "active": 3,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 1,
+      "filtered": 2,
+      "excluded": 0
+    }
+  }
+}
