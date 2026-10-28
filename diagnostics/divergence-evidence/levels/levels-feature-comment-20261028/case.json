@@ -1,0 +1,57 @@
+{
+  "caseId": "levels-feature-comment-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "hypothesis": "The comment saying lspo_feature is not ported indicates a missing feature API",
+  "proof": "The comment is stale: createSpecialLevelApi wires feature to exported lspo_feature. Direct table-form calls install a fountain and both requested flags; existing different furniture is preserved, matching sel_set_feature and flag gating in C.",
+  "expectedC": "The comment is stale: createSpecialLevelApi wires feature to exported lspo_feature. Direct table-form calls install a fountain and both requested flags; existing different furniture is preserved, matching sel_set_feature and flag gating in C.",
+  "observedJS": "Matches in the finite focused cases; see saved observations/test output.",
+  "control": "Fountain-on-ROOM target versus ALTAR preservation control, plus source-backed API wiring check. Shared Juiblex recordings provide matching level-load observations, not coverage of every feature flag.",
+  "scope": "Only the stated hypothesis and tested domains. Matching seeds do not prove universal equivalence. No gameplay change or whole-source certification.",
+  "setup": "Production JS initialization/feature handlers on fresh GameMap states; Juiblex reached with existing #wizloaddes setup command.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:4633-4646",
+    "nethack-c/upstream/src/sp_lev.c:4844-4930",
+    "js/mklev.js:3525-3527",
+    "js/mklev.js:3614-3699",
+    "js/mklev.js:4941"
+  ],
+  "baseJs": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:30:45.198029+00:00",
+  "reviewedAt": "2026-10-28T18:30:45.198029+00:00",
+  "sourceHashes": {
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "js/juiblex_levels.js": "c18033755cc9d739f94da14621a05ccaacc036349bf87433865e9e587a6a5e78",
+    "nethack-c/upstream/dat/juiblex.lua": "8bbf3b210808032e3ea62644f79601490846ca839dd4e6138f1e62733dfa506c"
+  },
+  "origin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null,
+    "reason": "Manual boundary/comment hypotheses; no matching canonical scanner lead claimed."
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-feature-comment-20261028/focused.test.mjs",
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7 (3+b1), -std=c99 -O0"
+  },
+  "oracle": "Swamp: extracted pinned C loops with finite ROOM/MOAT, non-random lighting setter shim and exact checked RNG input. Feature: source-derived expected flags/terrain and source wiring checks.",
+  "evidencePaths": [
+    "focused.test.mjs",
+    "result.tap",
+    "../levels-swamp-init-20261028/recording-results.json"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "checkedAt": "2026-10-28T18:31:26.262641+00:00",
+    "result": "Swamp probe output byte-identical, three feature checks pass, both saved C recordings replay with all RNG/screens/cursors matching. Clean detached base plus evidence-only overlay."
+  },
+  "fixtureHashes": {
+    "focused.test.mjs": "00aa3a8760959152735403b78b0f1db4d4d0426997978db8ee2a2d46275e3694"
+  }
+}

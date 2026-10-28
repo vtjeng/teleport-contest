@@ -1,0 +1,115 @@
+{
+  "adapterElapsedMs": 3074,
+  "summarySha256": "47f4f88f18c2a167ff1548c740ec82f599d62bec2b3ebb84831cb602858e017a",
+  "cases": [
+    {
+      "seed": 28103301,
+      "rawAdapterStatus": "unresolved",
+      "witness": {
+        "route": "wizard-des",
+        "routeInputVerified": true,
+        "otherProgramObserved": false,
+        "cProgramObserved": false,
+        "witnesses": [],
+        "jsProgramEvidence": "unresolved",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 6513,
+            "js": 6513
+          },
+          "screens": {
+            "c": 26,
+            "js": 26
+          },
+          "cursors": {
+            "c": 26,
+            "js": 26
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "fingerprint": "71b100bf87e5c83c044e47b41cff4f48c6899727d359b2a075bf3b4ec557fcfa",
+      "rawHashes": {
+        "recipe.session.json": "c95a2f271a62074b973da49ba62b63569cb014c52297a94d35ff27873af0faf0",
+        "recorded.session.json": "482689024b988d143ba6727c4006ebec7674a3d15afcbbfd74efb0e02fc1e198",
+        "js-output.json": "8c12fe4194b301e971e488c2aa3ca6eee919c472defb794b0b04550530489df3"
+      },
+      "swampCallsAtLastStep": 380
+    },
+    {
+      "seed": 28103302,
+      "rawAdapterStatus": "unresolved",
+      "witness": {
+        "route": "wizard-des",
+        "routeInputVerified": true,
+        "otherProgramObserved": false,
+        "cProgramObserved": false,
+        "witnesses": [],
+        "jsProgramEvidence": "unresolved",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4676,
+            "js": 4676
+          },
+          "screens": {
+            "c": 26,
+            "js": 26
+          },
+          "cursors": {
+            "c": 26,
+            "js": 26
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "fingerprint": "71b100bf87e5c83c044e47b41cff4f48c6899727d359b2a075bf3b4ec557fcfa",
+      "rawHashes": {
+        "recipe.session.json": "f9ffd64b90d6568d56dd8a92e6f330626bedcb1a06721956e07f58010fbccb5c",
+        "recorded.session.json": "fdd6c1a1285f404a0a35b1c1f5f0e2bb9bcf080d7128e7109dc68a7a1154ccef",
+        "js-output.json": "3df2058711756f64f15350ef3dee16bb5857ee84872b8ae186998b1eef5997e5"
+      },
+      "swampCallsAtLastStep": 380
+    }
+  ],
+  "provenance": {
+    "commit": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "node": "v24.19.0",
+    "upstreamCommit": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "configSha256": "423a43c790f27a885dc5a67f2aa3a88ddf7e4b0e3d6b739dc15ac26f361c4707",
+    "adapterSha256": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "environment": {
+      "RERECORD_TZ": "America/New_York",
+      "SESSION_REPLAY_TIMEOUT_MS": "45000",
+      "NETHACK_LUA_RNGLOG_CTX": "default"
+    }
+  },
+  "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13"
+}

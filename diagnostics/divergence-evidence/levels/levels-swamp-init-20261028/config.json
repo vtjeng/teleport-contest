@@ -1,0 +1,15 @@
+{
+  "maxCases": 2,
+  "repeats": 1,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "juiblex.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-swamp-init-20261028/28103301.recipe.json"
+    },
+    {
+      "program": "juiblex.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-swamp-init-20261028/28103302.recipe.json"
+    }
+  ]
+}

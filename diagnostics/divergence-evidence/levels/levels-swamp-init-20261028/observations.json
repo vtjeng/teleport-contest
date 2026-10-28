@@ -1,0 +1,29 @@
+{
+  "exactMatches": 4,
+  "results": [
+    {
+      "seed": 28103301,
+      "lit": 0,
+      "rngCalls": 380,
+      "terrainAndLightSha256": "57229bbeed8465363010841f76c008521a3efa23874cb0cabacf5eef91c2dd25"
+    },
+    {
+      "seed": 28103301,
+      "lit": 1,
+      "rngCalls": 380,
+      "terrainAndLightSha256": "36607b81b74bda7cc3543edfedcb961f3b77259328ea2e96418149b27f74e4d8"
+    },
+    {
+      "seed": 28103302,
+      "lit": 0,
+      "rngCalls": 380,
+      "terrainAndLightSha256": "e5f8b73b17e383e02aa0db7b39ee7c3004f40a40322f42b04181895061bf2772"
+    },
+    {
+      "seed": 28103302,
+      "lit": 1,
+      "rngCalls": 380,
+      "terrainAndLightSha256": "0b07efe49c5c165bc6cc4b4f0ea0c5d07cd2e29844a24d4e3f2f8cbcf754efd7"
+    }
+  ]
+}
