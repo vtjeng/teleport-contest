@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-selection-numeric-operators-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "selection-numeric-point-helper-substitution",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_or",
+      "start_line": 306,
+      "end_line": 328,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_sub",
+      "start_line": 361,
+      "end_line": 385,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_new",
+      "start_line": 15,
+      "end_line": 30,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_free",
+      "start_line": 33,
+      "end_line": 44,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getbounds",
+      "start_line": 77,
+      "end_line": 95,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_recalc_bounds",
+      "start_line": 99,
+      "end_line": 165,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getpoint",
+      "start_line": 168,
+      "end_line": 178,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_setpoint",
+      "start_line": 181,
+      "end_line": 208,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/rect.c",
+      "symbol": "rect_bounds",
+      "start_line": 134,
+      "end_line": 140,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlsel.js",
+      "symbol": "selectionPoint",
+      "start_line": 20,
+      "end_line": 23,
+      "commit_sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlsel.js",
+      "symbol": "l_selection_or",
+      "start_line": 57,
+      "end_line": 68,
+      "commit_sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlsel.js",
+      "symbol": "l_selection_sub",
+      "start_line": 72,
+      "end_line": 85,
+      "commit_sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca"
+    }
+  ],
+  "hypothesis": "JS selectionPoint helper may lose numeric point values used by C OR/subtraction.",
+  "expectedBehavior": "OR returns decoded A|B and subtraction (A^B)&A, stored using value+1 encoding; computed bounds track resulting nonzero cells.",
+  "observedBehavior": "Exact C OR/subtraction wrappers plus selection allocation/read/write/bounds and rect_bounds helpers match production JS exports for all64 overlap value pairs0..7 under each operator (128 comparisons) and all4 disjoint boolean pairs per operator (8 controls). Entire1680-byte maps and computed bounds agree. JS outputs are fresh, absolute and leave both inputs unchanged. Fixed two-selection Lua stack adapters; shared absolute frame only.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Exact C OR/subtraction wrappers plus selection allocation/read/write/bounds and rect_bounds helpers match production JS exports for all64 overlap value pairs0..7 under each operator (128 comparisons) and all4 disjoint boolean pairs per operator (8 controls). Entire1680-byte maps and computed bounds agree. JS outputs are fresh, absolute and leave both inputs unchanged. Fixed two-selection Lua stack adapters; shared absolute frame only.",
+    "limitations": [
+      "Finite numeric value domain0..7 at overlapping (3,4), plus disjoint boolean inputs at (3,4)/(7,2). One absolute map frame; no mixed/relative frame, coordinate conversion, arbitrary bounds, signed/wrapping values, Lua parser, finalization or runtime claim.",
+      "Actual production JS selection_new/set and OR/subtraction exports, as used in repository tests and translated callers. Exact C functions execute with a fixed valid two-selection Lua stack adapter and actual selection storage/allocation. No custom Lua interpreter. Input maps and output bytes are inspected only, not injected.",
+      "Full map bytes and computed bounds are compared, not internal cached-bound dirty flags. Existing Main-owned selection-frame candidates remain separate and unresolved by these comparisons. Shipped exposure is not attributed."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Production module APIs compared in a common absolute frame; shipped-level exposure not attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS selectionPoint decodes numeric point storage in place of the C selection_getpoint calls in OR/subtraction. The four edges describe one helper-substitution cause, not four independent defects.",
+    "keys": [
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_getpoint",
+      "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionPoint",
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_getpoint",
+      "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionPoint"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/README.md",
+      "sha256": "3a2886a7656d7bdea7086ff1661bde3575663e4e773d1f4abee3eeb360aace9e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/control-output.txt",
+      "sha256": "aa8350c5517ebcbf1e8af2e87227c6458041ecf2308bed4346ace1fdbbff2648",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/control-receipt.json",
+      "sha256": "1d122916b831571bbcce040e29d2e7f723d0e11014a1f1b5d0def3a7a5df232c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/decisions.json",
+      "sha256": "efdfe11863d1f51c88a702d7bbaf5f88e103fdb73027af326158d21bfa0e19f2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/oracle.c",
+      "sha256": "7c6f5f819ad42418afaeca285023b580942f0335a76453e0e9306c4dbde16e76",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/probe.mjs",
+      "sha256": "ac4373b66235c71c9f6d40f0077f6bbccdf2ede4a901a8c561efd8ca432a5d4f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/projection/manifest.json",
+      "sha256": "3023c53804b3ef6d97a07af3eaeb7ec74e77c8adb07305d5cac0aa3d527ffad2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/projection/projection.json",
+      "sha256": "98448d6e123dcee5934109b364f893ea9688e94b34b4c3490f270aa500d6243a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/projection/review-template.json",
+      "sha256": "8c11222a725ea776c8e7e230904522d3cdf6c3ba4bcf717d8a48e30495dbf10f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/source-fingerprints.json",
+      "sha256": "b48869a5e3528cc46f4cef75b4c186ecd3474c269346bafdbf8ab89cf722ba65",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/target-output.txt",
+      "sha256": "6daaa9f0470c6bd860cae9b36e40f08df89299079aa39d132a23d10d7705ff87",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/target-receipt.json",
+      "sha256": "6e41719195341b8afd865255a0760afe841db7e9f78503040244a8f3373ec59c",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
