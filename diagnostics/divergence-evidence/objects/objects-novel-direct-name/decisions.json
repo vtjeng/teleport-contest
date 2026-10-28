@@ -1,0 +1,35 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mkobj.c:mksobj:oname",
+    "evidenceKey": "85a3292b4919081ec0577aea8ee55dcf3d714c4e80eff314211dc34e893e10f8",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "750118dea3017cc194384d902cc94334bc2181bc7a9512e8d6747ffcdfec632a",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "Fresh OBJ_FREE novels have no artifact identity and all 41 titles fit PL_PSIZ. Direct name assignment and selected index reproduce applicable oname effects.",
+      "proof": "diagnostics/divergence-evidence/objects/objects-novel-direct-name/README.md",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkobj.c:1246",
+        "nethack-c/upstream/src/do_name.c:372",
+        "js/obj.js:2749"
+      ],
+      "control": "Blank spellbook has no name; all 41 novel title choices tested; public wish replay fully matches."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/objnam.c:an:nextobuf",
+    "evidenceKey": "7e8da9ff982ed6579c770c0d37b09bf751ff69e629bd52ab3ac5ed58eebfc52c",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "24117cdfa173ba7a9c61ae40ab4b77b0c32876558edba0e2f0eb71350c563269",
+    "status": "unresolved",
+    "plausibleDifference": "C an returns rotating mutable storage; JS preserves immutable strings. A sufficiently long-lived caller might observe different text.",
+    "attempts": [
+      {
+        "setup": "Retain JS an(apple) across twelve subsequent calls; inspect C nextobuf and safe_qbuf.",
+        "outcome": "JS retains text. C source predicts overwrite for analogous pointer retention, but no production public-input lifetime witness and no C runtime probe established."
+      }
+    ],
+    "nextExperiment": "Find a production caller retaining an an pointer across twelve unreleased scratch-buffer allocations; construct public C/JS input with a shorter-allocation control, or prove scoped caller lifetime exclusion."
+  }
+]

@@ -1,0 +1,4 @@
+[
+  "source-audit:edge-c-only:src/mkobj.c:mksobj:oname",
+  "source-audit:edge-c-only:src/objnam.c:an:nextobuf"
+]
