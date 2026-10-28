@@ -1,0 +1,31 @@
+{
+  "maxCases": 6,
+  "repeats": 1,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "minetn-4.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/28104000.recipe.json"
+    },
+    {
+      "program": "minetn-4.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/28104001.recipe.json"
+    },
+    {
+      "program": "minetn-4.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/28104002.recipe.json"
+    },
+    {
+      "program": "minetn-4.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/28104003.recipe.json"
+    },
+    {
+      "program": "minetn-4.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/28104004.recipe.json"
+    },
+    {
+      "program": "minetn-4.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/28104005.recipe.json"
+    }
+  ]
+}

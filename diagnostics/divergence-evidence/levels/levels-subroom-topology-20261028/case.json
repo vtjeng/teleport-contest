@@ -1,0 +1,69 @@
+{
+  "shard": "levels",
+  "baseJs": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:17:43.415214+00:00",
+  "reviewedAt": "2026-10-28T19:19:03.563177+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "sourceHashes": {
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "js/mines_levels.js": "b1251dd3cc1164034a2d6920d05a1e7ceb17e83dd53b56bd718bb46d9db28b61",
+    "js/jsmain.js": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/decl.c": "4855daf7884706b74e694aff3e8373418706793265084727bd78abe44693d96e",
+    "nethack-c/upstream/include/decl.h": "4782c5f522f6de63503cda131c0e2485aef31506d83dcfb32defeebf984fb470",
+    "nethack-c/upstream/dat/minetn-4.lua": "01060802b617cf5be0223d25c1d0f0ff74c59fbeba84c5ad63c7c9078e5415d9",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "adapterSha256": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "configSha256": "4380632b36419986cbc10f6effbdafc13ea2a1aa0ed8fef360541955e3ff9574",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "patchHashes": {
+      "nethack-c/patches/001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "nethack-c/patches/002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "nethack-c/patches/003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "nethack-c/patches/004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "nethack-c/patches/005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "nethack-c/patches/006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "nethack-c/patches/007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+      "nethack-c/patches/README.md": "6c29d9620b818ca61da4e133a16625ffe0be1973e19cf61dd77942017834d26c"
+    }
+  },
+  "caseId": "levels-subroom-topology-20261028",
+  "outcome": "explained negative",
+  "hypothesis": "Omitted topologize recursion leaves College Town subroom room numbers unset at finalization.",
+  "proof": "Both build_room implementations topologize each newly constructed child. The sampled top-level low-corner roomno already equals its index+ROOMOFFSET, satisfying the C topologize early return before its recursive loop. Each sampled child low-corner has its own expected number. Thus missing finalization recursion is not an unset-room-number difference in these layouts.",
+  "scope": "Six exact College Town recipes and low-corner numbering/early-return condition only. No proof for arbitrary maps, changed room numbering, entire interior/edge grids or a parent requiring retopology.",
+  "supportedSetup": "Same full public-input recipes as sibling original-type case.",
+  "expectedC": "Already-topologized parent returns before subroom recursion; build_room initializes each child.",
+  "observedJS": "6 layouts, 72 children all have expected low-corner room numbers; parent early-return precondition also holds.",
+  "control": "A copied observation with one child roomno changed to zero must fail the coverage predicate; detector-only mutation, not a reachable-game claim.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/mklev.c:1611",
+    "nethack-c/upstream/src/sp_lev.c:2826",
+    "js/mklev.js:6904",
+    "js/mklev.js:6991"
+  ],
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-subroom-topology-20261028/focused.mjs",
+  "evidencePaths": [
+    "focused.mjs",
+    "observations.json",
+    "../levels-subroom-finalization-20261028/probe.mjs"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "receipt": "../levels-subroom-finalization-20261028/clean-verification.json",
+    "gameplaySourceUnchanged": true
+  }
+}

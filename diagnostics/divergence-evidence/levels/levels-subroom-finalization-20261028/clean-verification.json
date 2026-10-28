@@ -1,0 +1,25 @@
+{
+  "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "results": [
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/probe.mjs 28104000 --assert-orig",
+      "expectedExit": 1,
+      "actualExit": 1
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/probe.mjs 28104000 --assert-top",
+      "expectedExit": 0,
+      "actualExit": 0
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-subroom-topology-20261028/focused.mjs",
+      "expectedExit": 0,
+      "actualExit": 0
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-subroom-finalization-20261028/replay.mjs",
+      "expectedExit": 0,
+      "actualExit": 0
+    }
+  ]
+}
