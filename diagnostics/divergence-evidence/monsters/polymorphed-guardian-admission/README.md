@@ -28,3 +28,17 @@ Without `EXPECT_CURRENT_GAP`, the target intentionally fails on the observed ref
 Obtain a supported C guardian-polymorph target/control from the same Astral setup, preserving the actual polymorph resistance/selection path; alternatively execute full pinned C `newcham` with the actual guardian metadata and ordinary equipment, then the normal movement admission. Verify the resulting tame/minion/emin/edog state and continuation. If C changes or rejects that state, explain that result instead of promoting this claim. Do not bypass resistance or manually create an inconsistent minion to force a witness.
 
 This case concerns same-level monster shape and pet-AI admission. It does not involve shopkeeper departure, migration, species-marked migrating objects, figurines, buried state, globs or ring eating. It consumes no denied-turn artifact. Manual/unbound: the suspected defect is the JS-only admission guard, not a canonical C missing-call lead. The three earlier unresolved hypotheses remain separate; this adds one concrete unresolved case.
+
+## Follow-up: ordinary wand route is blocked by native resistance
+
+After executor recovery, three isolated recorder attempts ran on the same stated base. Enabling `monpolycontrol` at startup trapped inputs in an unrelated vampire form prompt during Astral setup; that attempt is a coverage miss. Enabling it after guardian creation through `mO:monpolycontrol` correctly avoids that problem. An ordinary wished polymorph wand then reaches the guardian, which resists. A second aimed zap also resists; concurrent Astral combat reaches wizard death confirmation in that longer attempt. None produces guardian polymorph, and none is evidence of post-polymorph equivalence.
+
+The source explains why further ordinary zaps cannot solve this: `mondata.c:resists_magm` returns TRUE when the native species has `AD_MAGM`; Angel does. `zap.c:bhitm` checks that immunity before ordinary resistance and before `newcham`. JS preserves the same gate. This invalidates the suggested wand route, **not** the explicit `newcham` API hypothesis. Do not remove resistance, forge a non-native Angel, or repeat the same route to force a witness.
+
+`wand-route-observations.json` retains exact comparison counts, raw relevant screen lines and hashes/paths of the three private recordings. Those local paths are not assumed accessible in other environments. The small second-attempt recipe is included for reproducibility without duplicating full recordings; replay/record explicitly with:
+
+```sh
+node diagnostics/divergence-evidence/monsters/polymorphed-guardian-admission/record-wand-route.mjs /absolute/new-private-output
+```
+
+This command uses the existing recorder setup. Its expected result on the stated base is a matching record in which the guardian **resists** (6976 RNG, 154 screens/cursors, 21 animation frames), not the desired transition. Further qualification would need a full C execution of the explicit supported `newcham` contract, or another justified native route that preserves all real guards. The case remains unresolved and not Main-ready. No denied-turn artifacts were used.
