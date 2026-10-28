@@ -1,0 +1,35 @@
+{"species":255,"result":1,"before":40,"after":29,"skipdrin":false,"lines":["The master mind flayer hits the flesh golem.","The master mind flayer's tentacles suck the flesh golem.","The flesh golem's brain is eaten!","The flesh golem doesn't notice.","The master mind flayer's tentacles suck the flesh golem.","The flesh golem's brain is eaten!","The flesh golem doesn't notice.","The master mind flayer's tentacles suck the flesh golem.","The flesh golem's brain is eaten!","The flesh golem doesn't notice.","The master mind flayer's tentacles suck the flesh golem.","The flesh golem's brain is eaten!","The flesh golem doesn't notice.","The master mind flayer's tentacles suck the flesh golem.","The flesh golem's brain is eaten!","The flesh golem doesn't notice."],"bounds":["rnd(20)","d(1,8)","rn2(3)","rn2(6)","rn2(3)","rnd(21)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)","rnd(22)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)","rnd(23)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)","rnd(24)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)","rnd(25)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)"]}
+{"species":171,"result":1,"before":64,"after":48,"skipdrin":false,"lines":["The master mind flayer hits the hill giant.","The master mind flayer's tentacles suck the hill giant.","The hill giant's brain is eaten!","The master mind flayer's tentacles suck the hill giant.","The hill giant's brain is eaten!","The master mind flayer's tentacles suck the hill giant.","The hill giant's brain is eaten!","The master mind flayer's tentacles suck the hill giant.","The hill giant's brain is eaten!","The master mind flayer's tentacles suck the hill giant.","The hill giant's brain is eaten!"],"bounds":["rnd(20)","d(1,8)","rn2(3)","rn2(6)","rn2(3)","rnd(21)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)","rnd(22)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)","rnd(23)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)","rnd(24)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)","rnd(25)","d(2,1)","rnd(10)","rn2(3)","rn2(6)","rn2(3)"]}
+✔ native brain attacks target=255 (181.75656ms)
+✔ native brain attacks target=171 (60.849421ms)
+PRNG length: C=2818, JS=2818
+PRNG values: match
+Screen length: C=136, JS=136
+Screen cells and attributes: match
+Cursor length: C=136, JS=136
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: PASS
+
+PRNG length: C=2995, JS=2995
+PRNG values: match
+Screen length: C=175, JS=175
+Screen cells and attributes: match
+Cursor length: C=175, JS=175
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: PASS
+
+✔ public target matches complete C recording (1692.641054ms)
+✔ public control matches complete C recording (1241.138317ms)
+✔ C preserves base damage after mindless brain-result MISS (3.939814ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3185.177406

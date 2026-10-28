@@ -1,0 +1,97 @@
+{
+  "caseId": "mindless-brain-damage-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "binding": "manual/unbound; no scanner suppression",
+  "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:16:00.171345+00:00",
+  "reviewedAt": "2026-10-28T19:16:00.171345+00:00",
+  "hypothesis": "M_ATTK_MISS returned for mindless brain eating might incorrectly suppress base tentacle damage or remaining brain attacks.",
+  "supportedSetup": "Native disarmed master mind flayer vs headed mindless flesh golem; sentient hill giant control. Native attack arrays unchanged. Public wizard creation recipes establish tame-vs-hostile combat. Focused initialized fixtures use legal native HP and valid low draws.",
+  "expectedC": "eat_brains returns MISS for mindless without changing damage or skipdrin; caller mdamagem still subtracts base damage. Five native 2d1 tentacles plus 1d8 weaponless strike give 11 damage with minimum dice; sentient control adds five rnd(10)=1 for 16 damage.",
+  "observedJs": "Flesh golem 40->29; hill giant 64->48; five brain attempts and five rnd(10) draws each; skipdrin false; five does-not-notice messages only for flesh golem.",
+  "control": "Native hill giant takes extra brain damage; public control reaches actual brain-eaten feedback.",
+  "command": "node --test diagnostics/divergence-evidence/monsters/mindless-brain-damage-negative/*.test.mjs",
+  "sourceLocations": [
+    "src/eat.c:603 eat_brains, monster-target mindless arm around 733",
+    "src/uhitm.c:3272-3302 mhitm_ad_drin monster target",
+    "src/mhitm.c:1059-1073 mdamagem damage application",
+    "js/eat.js:873",
+    "js/uhitm.js:6020",
+    "js/mhitm.js:1565-1581"
+  ],
+  "scope": "Bounded damage accounting and continuation for living headed mindless target, not headless/noncorporeal targets, helmets, life-saving, tame nutrition, or complete brain-combat equivalence. C recordings compare full observable output; exact initialized HP arithmetic is source-derived and asserted in JS, not a C state snapshot.",
+  "recordings": {
+    "target": {
+      "rng": 2818,
+      "screens": 136,
+      "cursors": 136,
+      "animations": 0,
+      "coverageSteps": [
+        93,
+        95,
+        99,
+        123,
+        125,
+        130
+      ]
+    },
+    "control": {
+      "rng": 2995,
+      "screens": 175,
+      "cursors": 175,
+      "animations": 0,
+      "coverageSteps": [
+        123,
+        128,
+        133
+      ]
+    }
+  },
+  "coverageMisses": [
+    {
+      "path": "/workspace/monsters-private/brain-i-minotaur",
+      "reason": "No minotaur brain eating; pet attacked lichen and fed; matching replay not a negative.",
+      "recordingSha256": "d81ba297eab2ca0bac724ae36e48a06fd6734bc0e2b7eeab0ab79598dd105b35"
+    },
+    {
+      "path": "/workspace/monsters-private/brain-i-minotaur2",
+      "reason": "Extended sequence still lacks minotaur brain eating; no classification.",
+      "recordingSha256": "ca2c49f3b1bcba48a29f8af92168de0efd519e923ee96efb2b544ee5f520115e"
+    }
+  ],
+  "recorder": {
+    "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "compiler": "Clang 19.1.7 via /workspace/.setup/activate.sh",
+    "timezone": "America/New_York; recorderIsDst retained",
+    "node": "v24.19.0"
+  },
+  "sourceSha256": {
+    "js/eat.js": "f593fb59d2ae5a5191ef224554cbf5532ec6f3c19e2d5739b28de7504f3de0ec",
+    "js/uhitm.js": "ad673dbf7e3515ad683f6da337a141feb6dceef7e7455a716ba727e84baa6353",
+    "js/mhitm.js": "f823bac6efc732f993bc46d58b3430f10361ad0e6139de38a9218c4f6b413393",
+    "js/monsters.js": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+    "nethack-c/upstream/src/eat.c": "2e3da760f9f3921c5209741992c8c73cbb14e795190b4e31dc8c0f6d1330f5d7",
+    "nethack-c/upstream/src/uhitm.c": "4cc2f8a0ffe0121801a777978a9a555a063db720e0fe972308fb6ab0e96feb12",
+    "nethack-c/upstream/src/mhitm.c": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+    "nethack-c/upstream/include/monsters.h": "c63db922770c96a9956d221f364ba4368a9f81f81c8d64ed28251a0506d4a906",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "nethack-c/build-recorder.sh": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38"
+  },
+  "evidenceSha256": {
+    "control.session.json": "ba60e461337926d514c01ed37027af05143645e7de8bb629221232942ea50892",
+    "target.session.json": "ec36c320d0b535d9761770373db491b682d2f871cb75fa3b499cd72115066245",
+    "observations.txt": "868027244bf4827295b2c43a31947457d63e9101c8716dcb4fb48912a8c72fb1",
+    "control.recipe.session.json": "5637498e11534a56802d7921c3fa1d7726b028d8d571048ec2910524f63ba042",
+    "recipe.session.json": "9a6b6b0ceee56c95a524c2238d7b6bf174117f4fb0c4cb72d85bc14b56571625",
+    "probe.test.mjs": "7348812a1dded659ffc28a809ab5d2b4c2a970dac4916c4a218a49dfe54697a2",
+    "replay.test.mjs": "dd1b37f8acbe23d762586d6a7e7fae96b2be8e828cedde39e54945a5ebde1c6e",
+    "record.mjs": "b5d86e471841672ce44a02fd2a2ba5035323687a2320e496f1db4414e6911814"
+  },
+  "remainingUnresolved": [
+    "broader Archon targeting",
+    "later wraith-growth"
+  ]
+}
