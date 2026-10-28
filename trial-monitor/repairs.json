@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T18:53:45Z",
+  "asOf": "2026-10-28T19:58:46Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -24487,6 +24487,154 @@
               "completedAt": "2026-10-28T18:53:45Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40749006430"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extmenu-group-labels",
+      "kind": "parity-repair",
+      "title": "Match C extended-command menu group labels",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #39",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:extcmd_via_menu",
+          "js/cmd.js:extcmd_via_menu"
+        ],
+        "witness": [
+          "recordings/cmd.c/extmenu-group-witness.session.json",
+          "recordings/cmd.c/extmenu-group-control.session.json"
+        ],
+        "test": [
+          "scripts/extmenu-group-labels.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+          "committedAt": "2026-10-28T19:40:42Z",
+          "sourceCommit": "21d855ad91015a8a985f2f9036f05c3060d48cb2",
+          "sourceCommittedAt": "2026-10-28T19:39:38Z",
+          "runs": [
+            {
+              "id": 40756484086,
+              "name": "Checkpoint",
+              "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/extmenu-map-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T19:41:00Z",
+              "completedAt": "2026-10-28T19:53:31Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40756484086"
+            },
+            {
+              "id": 40758484391,
+              "name": "Lint",
+              "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T19:54:24Z",
+              "completedAt": "2026-10-28T19:55:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40758484391"
+            },
+            {
+              "id": 40758484396,
+              "name": "Dashboard",
+              "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T19:54:24Z",
+              "completedAt": "2026-10-28T19:58:46Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40758484396"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "table-map-lit-flag",
+      "kind": "parity-repair",
+      "title": "Honor lit flag in table-form special-level maps",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "levels PR #50",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:lspo_map",
+          "js/mklev.js:set_themeroom_map_terrain"
+        ],
+        "witness": [
+          "recordings/hellfill.lua/table-map-lit-target.session.json",
+          "recordings/hellfill.lua/table-map-lit-control.session.json"
+        ],
+        "test": [
+          "scripts/hellfill-table-map-lighting.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+          "committedAt": "2026-10-28T19:40:42Z",
+          "sourceCommit": "1c4be74beb32edbfc897de805f218e180f8c6002",
+          "sourceCommittedAt": "2026-10-28T19:40:42Z",
+          "runs": [
+            {
+              "id": 40756484086,
+              "name": "Checkpoint",
+              "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/extmenu-map-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T19:41:00Z",
+              "completedAt": "2026-10-28T19:53:31Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40756484086"
+            },
+            {
+              "id": 40758484391,
+              "name": "Lint",
+              "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T19:54:24Z",
+              "completedAt": "2026-10-28T19:55:36Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40758484391"
+            },
+            {
+              "id": 40758484396,
+              "name": "Dashboard",
+              "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T19:54:24Z",
+              "completedAt": "2026-10-28T19:58:46Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40758484396"
             }
           ]
         }

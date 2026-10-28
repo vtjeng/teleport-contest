@@ -1,0 +1,5 @@
+{
+  "originalRunSha256": "79589345756287551d73f4d0a94f28ee33070cd817bbd3c51849168fc78fabc2",
+  "projectionSha256": "84852df62dd6df8e1432dea7fe713f6396761afb8cd982bc015e27d87b0608c3",
+  "rule": "All original metadata retained; leads limited to three unchanged selected records. Original runId/fingerprints preserved. Not a full-run yield denominator."
+}
