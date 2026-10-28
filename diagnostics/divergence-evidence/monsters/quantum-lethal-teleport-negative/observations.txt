@@ -1,0 +1,24 @@
+{"lethal":false,"old":[58,2],"after":[42,17],"hp":4,"damage":1,"bounds":["rn2(10)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)","rnd(79)","rn2(21)"],"lines":["The large dog suddenly disappears!"]}
+{"lethal":true,"old":[58,2],"after":[58,2],"hp":1,"damage":1,"bounds":[],"lines":[]}
+✔ C lethal-hit gate precedes negation and relocation (3.192089ms)
+✔ quantum teleport lethal=false (198.293273ms)
+✔ quantum teleport lethal=true (87.016403ms)
+PRNG length: C=3064, JS=3064
+PRNG values: match
+Screen length: C=172, JS=172
+Screen cells and attributes: match
+Cursor length: C=172, JS=172
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: PASS
+
+✔ public witness matches C completely (1325.337141ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1467.960016
