@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:03:10.429Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "1c997be97a129fb18fe0803b31ce97cc40ecd50ccd53c24136ae087bea950429",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/oracle.c": "7665070cd899aafd9f01f477108964b251f6afa02984117f4fb6128b461d7ce1"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/control-output.txt"
+  ]
+}
