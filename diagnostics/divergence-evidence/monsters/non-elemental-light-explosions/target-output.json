@@ -1,0 +1,32 @@
+{
+  "mode": "target",
+  "observedMessages": [
+    "The ogre wields a club!  It explodes!  The ogre looks confused.--More--",
+    "You have a melancholy feeling for a moment, then it passes."
+  ],
+  "passed": true,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 3035,
+      "js": 3035
+    },
+    "screens": {
+      "c": 57,
+      "js": 57
+    },
+    "cursors": {
+      "c": 57,
+      "js": 57
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": null,
+  "cursorMismatch": null,
+  "animMismatch": null,
+  "segmentMismatch": null
+}

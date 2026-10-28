@@ -1,0 +1,55 @@
+{
+  "discoveredAt": "2026-10-28T22:45:23Z",
+  "reviewedAt": "2026-10-28T22:48:21.910483+00:00",
+  "recorderSha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "variants": [
+    {
+      "mode": "target",
+      "species": "black light",
+      "rawRecordingSha256": "34800c97afeee582aee1c1d616eb03bd99d3d4ebd6c58f092c8eb00b1369a30b",
+      "jsBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "messages": [
+        {
+          "step": 55,
+          "text": "The ogre wields a club!  It explodes!  The ogre looks confused.--More--"
+        },
+        {
+          "step": 56,
+          "text": "You have a melancholy feeling for a moment, then it passes."
+        }
+      ]
+    },
+    {
+      "mode": "control",
+      "species": "yellow light",
+      "rawRecordingSha256": "6cdae981dbfdf8102586fa86cb79fd15dd8b01bb646f30d34b5cfc4179613b21",
+      "jsBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "messages": [
+        {
+          "step": 55,
+          "text": ""
+        },
+        {
+          "step": 56,
+          "text": "The ogre wields a club!  The yellow light explodes!--More--"
+        },
+        {
+          "step": 57,
+          "text": "The ogre is blinded.--More--"
+        },
+        {
+          "step": 58,
+          "text": "You have a melancholy feeling for a moment, then it passes."
+        }
+      ]
+    }
+  ],
+  "unqualifiedCancellationProbe": {
+    "rawRecordingSha256": "d1a2ec0fc40fe7bfc5fc450bd8ec307963fe6deae4c1fb82eb12daf9c1710595",
+    "privateRecording": "/workspace/monsters-private/light-ae-cancel-probe/recorded.session.json",
+    "result": "C/JS match 3132 RNG, 131 screens/cursors; zero animation frames.",
+    "coverageGap": "Wand selection and direction prompts reached, but terminal observations do not establish successful native cancellation and a subsequent explmm call. Not a negative; no cancellation equivalence claim."
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/replay.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:46:28.072984+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "fcd4d2272127ad608610706f7f559a198c96d836d6d11e883667fb2e46bbf83c",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target.session.json.gz": "492112f448a401adf228a62bf423344c373090f7034ff75b654d137ac0ad041b"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target-output.json"
+  ]
+}
