@@ -1,0 +1,86 @@
+{
+  "passed": false,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 2499,
+      "js": 2527
+    },
+    "screens": {
+      "c": 17,
+      "js": 17
+    },
+    "cursors": {
+      "c": 17,
+      "js": 17
+    },
+    "animFrames": {
+      "c": 1,
+      "js": 1
+    }
+  },
+  "rngMismatch": {
+    "index": 2443,
+    "cEntry": "rn2(20)=14",
+    "cCaller": "gethungry(eat.c:3191)",
+    "jsEntry": "rn2(70)=14",
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 14,
+      "key": "n"
+    }
+  },
+  "screenMismatch": {
+    "index": 12,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 12,
+      "key": "y"
+    },
+    "kind": "ch",
+    "row": 0,
+    "column": 27,
+    "cCell": {
+      "ch": "-",
+      "color": 8,
+      "attr": 0,
+      "decgfx": 0
+    },
+    "jsCell": {
+      "ch": " ",
+      "color": 8,
+      "attr": 0,
+      "decgfx": 0
+    }
+  },
+  "cursorMismatch": {
+    "index": 12,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 12,
+      "key": "y"
+    },
+    "cCursor": [
+      35,
+      0,
+      1
+    ],
+    "jsCursor": [
+      78,
+      0,
+      1
+    ]
+  },
+  "animMismatch": {
+    "index": 12,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 12,
+      "key": "y"
+    },
+    "kind": "count",
+    "cCount": 0,
+    "jsCount": 1
+  },
+  "segmentMismatch": null
+}
