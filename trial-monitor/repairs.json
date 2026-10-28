@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-27T23:32:05Z",
+  "asOf": "2026-10-28T00:04:59Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22735,6 +22735,79 @@
               "completedAt": "2026-10-27T23:32:05Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40602470139"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vampire-expulsion-upkeep",
+      "kind": "parity-repair",
+      "title": "Replay vampire expulsion from planned upkeep live",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c:decide_to_shapeshift",
+          "nethack-c/upstream/src/mhitu.c:expels",
+          "js/allmain.js:finishElapsedTurn",
+          "js/mon.js:decide_to_shapeshift"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/vampire-expulsion-upkeep.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "a5293dd49ca9d49af7105080315b466ab2beaded",
+          "committedAt": "2026-10-27T23:51:25Z",
+          "sourceCommit": "a5293dd49ca9d49af7105080315b466ab2beaded",
+          "sourceCommittedAt": "2026-10-27T23:51:25Z",
+          "runs": [
+            {
+              "id": 40604976505,
+              "name": "Checkpoint",
+              "sha": "a5293dd49ca9d49af7105080315b466ab2beaded",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vampire-expel-upkeep-20261027",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-27T23:51:42Z",
+              "completedAt": "2026-10-28T00:02:17Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40604976505"
+            },
+            {
+              "id": 40606228126,
+              "name": "Lint",
+              "sha": "a5293dd49ca9d49af7105080315b466ab2beaded",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T00:03:07Z",
+              "completedAt": "2026-10-28T00:04:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40606228126"
+            },
+            {
+              "id": 40606228107,
+              "name": "Dashboard",
+              "sha": "a5293dd49ca9d49af7105080315b466ab2beaded",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T00:03:07Z",
+              "completedAt": "2026-10-28T00:04:59Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40606228107"
             }
           ]
         }

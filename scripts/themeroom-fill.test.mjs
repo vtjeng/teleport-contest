@@ -31,6 +31,8 @@ import {
     MKTRAP_NOSPIDERONWEB,
     M_AP_OBJECT,
     M_AP_FURNITURE,
+    M_AP_MONSTER,
+    M_AP_NOTHING,
     MON_DETACH,
     OBJ_BURIED,
     OBJ_CONTAINED,
@@ -114,6 +116,7 @@ import {
     PM_ATTENDANT,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
+    PM_CHAMELEON,
     PM_CHIEFTAIN,
     PM_DWARF,
     PM_ELF,
@@ -128,6 +131,7 @@ import {
     PM_HEALER,
     PM_HUMAN,
     PM_HUMAN_MUMMY,
+    PM_JACKAL,
     PM_HUNTER,
     PM_KNIGHT,
     PM_KOBOLD,
@@ -608,7 +612,7 @@ test('automatic mimic setup handles all room types', () => {
     }
 });
 
-test('furniture appearance resolves while unsupported monster appearance fails early', () => {
+test('furniture and monster appearances resolve while unsupported shapes fail early', () => {
     const furniture = monsterDescriptorFixture();
     const mimic = lspo_monster([{
         class: S_MIMIC,
@@ -621,10 +625,50 @@ test('furniture appearance resolves while unsupported monster appearance fails e
     assert.equal(mimic.m_ap_type, M_AP_FURNITURE);
     assert.equal(mimic.mappearance, S_altar);
 
+    // C sp_lev.c:create_monster() accepts a mimic disguised as another
+    // monster. A private C #wizloaddes target/control also reaches creation
+    // with mon:jackal and obj:chest without an invalid-descriptor error.
+    const monsterShape = monsterDescriptorFixture();
+    const jackal = lspo_monster([{
+        class: S_MIMIC,
+        appear_as: 'mon:jackal',
+    }], monsterShape.room, {
+        state: monsterShape.state,
+        random: quietObjectRandom(),
+    });
+    assert.ok(jackal);
+    assert.equal(jackal.m_ap_type, M_AP_MONSTER);
+    assert.equal(jackal.mappearance, PM_JACKAL);
+
+    const sameShape = monsterDescriptorFixture();
+    const giantMimic = lspo_monster([{
+        id: PM_GIANT_MIMIC,
+        appear_as: 'mon:giant mimic',
+    }], sameShape.room, {
+        state: sameShape.state,
+        random: quietObjectRandom(),
+    });
+    assert.ok(giantMimic);
+    assert.equal(giantMimic.m_ap_type, M_AP_NOTHING);
+    assert.equal(giantMimic.mappearance, 0);
+
+    const randomShape = monsterDescriptorFixture();
+    assert.throws(() => lspo_monster([{
+        class: S_MIMIC,
+        appear_as: 'mon:random',
+    }], randomShape.room, {
+        state: randomShape.state,
+        random: quietObjectRandom(),
+    }), /unsupported initial-level monster creation/u);
+    assert.equal(randomShape.level.monlist, null);
+
     const { level, room, state } = monsterDescriptorFixture();
     const random = {};
     for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
-        random[name] = () => assert.fail(`unexpected ${name}`);
+        random[name] = (...args) => {
+            if (name === 'rn2' && args[0] === 2) return 0;
+            assert.fail(`unexpected ${name}`);
+        };
     }
     const env = {
         state,
@@ -635,10 +679,10 @@ test('furniture appearance resolves while unsupported monster appearance fails e
             },
         },
     };
-    // The monster appearance arm remains outside this span. An appear_as
-    // prefix the C does not know is a Lua error in lspo_monster().
+    // Shapechanger transformations remain outside this narrow mimic span.
+    // An appear_as prefix the C does not know is a Lua parser error.
     const invalid = [
-        [{ class: S_MIMIC, appear_as: 'mon:goblin' },
+        [{ id: PM_CHAMELEON, appear_as: 'mon:jackal' },
             /unsupported initial-level monster creation/u],
         [{ class: S_MIMIC, appear_as: 'chest' }, /Unknown appear_as type/u],
     ];
