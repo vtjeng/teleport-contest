@@ -1,0 +1,292 @@
+{
+  "attempts": [
+    {
+      "label": "witness",
+      "repeat": 0,
+      "rawAdapterStatus": "unresolved",
+      "rawAdapterWitness": {
+        "route": "recipe",
+        "routeInputVerified": false,
+        "otherProgramObserved": false,
+        "cProgramObserved": false,
+        "witnesses": [],
+        "jsProgramEvidence": "unresolved",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "result": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 5144,
+            "js": 7430
+          },
+          "screens": {
+            "c": 6,
+            "js": 6
+          },
+          "cursors": {
+            "c": 6,
+            "js": 6
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 3357,
+          "cEntry": "rn2(9)=7",
+          "cCaller": "mkclass_aligned(makemon.c:1934)",
+          "jsEntry": "rn2(50)=46",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 5,
+            "key": "\n"
+          }
+        },
+        "screenMismatch": {
+          "index": 5,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 5,
+            "key": "\n"
+          },
+          "kind": "ch",
+          "row": 2,
+          "column": 51,
+          "cCell": {
+            "ch": "-",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": {
+          "index": 5,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 5,
+            "key": "\n"
+          },
+          "cCursor": [
+            57,
+            3,
+            1
+          ],
+          "jsCursor": [
+            51,
+            15,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "7dd199f2814dd0a246bfab212791622fad1f5f07e522343ca07f29190bd66978",
+        "recorded.session.json": "bcf81fd876a58ad62a626eae03f444b454c1f0cd1cf1bacb2e1dc57d61ee1897",
+        "js-output.json": "4743f1477d6912e28d975a4dc04b58f7c1fe729b047345fac1ab186d33571abf"
+      }
+    },
+    {
+      "label": "witness",
+      "repeat": 1,
+      "rawAdapterStatus": "unresolved",
+      "rawAdapterWitness": {
+        "route": "recipe",
+        "routeInputVerified": false,
+        "otherProgramObserved": false,
+        "cProgramObserved": false,
+        "witnesses": [],
+        "jsProgramEvidence": "unresolved",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "result": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 5144,
+            "js": 7430
+          },
+          "screens": {
+            "c": 6,
+            "js": 6
+          },
+          "cursors": {
+            "c": 6,
+            "js": 6
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 3357,
+          "cEntry": "rn2(9)=7",
+          "cCaller": "mkclass_aligned(makemon.c:1934)",
+          "jsEntry": "rn2(50)=46",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 5,
+            "key": "\n"
+          }
+        },
+        "screenMismatch": {
+          "index": 5,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 5,
+            "key": "\n"
+          },
+          "kind": "ch",
+          "row": 2,
+          "column": 51,
+          "cCell": {
+            "ch": "-",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": {
+          "index": 5,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 5,
+            "key": "\n"
+          },
+          "cCursor": [
+            57,
+            3,
+            1
+          ],
+          "jsCursor": [
+            51,
+            15,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "7dd199f2814dd0a246bfab212791622fad1f5f07e522343ca07f29190bd66978",
+        "recorded.session.json": "bcf81fd876a58ad62a626eae03f444b454c1f0cd1cf1bacb2e1dc57d61ee1897",
+        "js-output.json": "4743f1477d6912e28d975a4dc04b58f7c1fe729b047345fac1ab186d33571abf"
+      }
+    },
+    {
+      "label": "control",
+      "repeat": 0,
+      "rawAdapterStatus": "unresolved",
+      "rawAdapterWitness": {
+        "route": "recipe",
+        "routeInputVerified": false,
+        "otherProgramObserved": false,
+        "cProgramObserved": false,
+        "witnesses": [],
+        "jsProgramEvidence": "unresolved",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4887,
+            "js": 4887
+          },
+          "screens": {
+            "c": 6,
+            "js": 6
+          },
+          "cursors": {
+            "c": 6,
+            "js": 6
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "6a4dab24baecdb7a7720327a14cacf8af30f39f8379a7f7c2ee11fdf1de2fc06",
+        "recorded.session.json": "da45574d1c4329c9ebfe944da6acfa34b85e132df65f50ab5b422d7721d7bb05",
+        "js-output.json": "198633cac50ccca24c0814989d27e19bd1c4e356566fa959813f35cf19b6ce77"
+      }
+    },
+    {
+      "label": "control",
+      "repeat": 1,
+      "rawAdapterStatus": "unresolved",
+      "rawAdapterWitness": {
+        "route": "recipe",
+        "routeInputVerified": false,
+        "otherProgramObserved": false,
+        "cProgramObserved": false,
+        "witnesses": [],
+        "jsProgramEvidence": "unresolved",
+        "cUncoveredPercentSites": [],
+        "uncoveredPercentSites": []
+      },
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4887,
+            "js": 4887
+          },
+          "screens": {
+            "c": 6,
+            "js": 6
+          },
+          "cursors": {
+            "c": 6,
+            "js": 6
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "rawHashes": {
+        "recipe.session.json": "6a4dab24baecdb7a7720327a14cacf8af30f39f8379a7f7c2ee11fdf1de2fc06",
+        "recorded.session.json": "da45574d1c4329c9ebfe944da6acfa34b85e132df65f50ab5b422d7721d7bb05",
+        "js-output.json": "198633cac50ccca24c0814989d27e19bd1c4e356566fa959813f35cf19b6ce77"
+      }
+    }
+  ],
+  "adapterElapsedMs": 4753,
+  "attributionNote": "The Lua adapter cannot attribute this reduced natural D:10 route to Arc-filb.lua, which is deliberately not loaded. Its unresolved status is preserved. Independent input/screen/source-RNG trace establish level generation reachability and the exact first divergence."
+}

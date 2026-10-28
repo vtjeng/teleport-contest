@@ -1,0 +1,669 @@
+[
+  {
+    "summarySha256": "200129c81e6c3e790128595ad68552c680c3d700900ebeb2dad92dc2ca643312",
+    "rows": [
+      {
+        "seed": 28103401,
+        "program": "Arc-filb.lua",
+        "moves": ".#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 5174,
+              "js": 5174
+            },
+            "screens": {
+              "c": 27,
+              "js": 27
+            },
+            "cursors": {
+              "c": 27,
+              "js": 27
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "039b92fb10f287c6651a44d047081810a53cc814d7b7768381137cc78386f30b",
+          "recorded.session.json": "29050291935a65f13203746a98e3351d3989c5241829803e583dea5928d1baaa",
+          "js-output.json": "1ba78a190d14e61c25ca38bc6044d10de9549719009978addfac857febb6e0d8"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103402,
+        "program": "Arc-filb.lua",
+        "moves": ".#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 5030,
+              "js": 5030
+            },
+            "screens": {
+              "c": 27,
+              "js": 27
+            },
+            "cursors": {
+              "c": 27,
+              "js": 27
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "90a31d215414116cd436dac695e6559eef6e1a193fe596432022ab9d62e3e872",
+          "recorded.session.json": "b52656b1da448ee2053d7e25493ec09565feb2cb19e0d0c49527dd8d478ddb65",
+          "js-output.json": "4aae694f3dbe78ef00f943be28d4a51e47a818bacf46bdba91b494681c0e370c"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103403,
+        "program": "Mon-filb.lua",
+        "moves": ".#wizloaddes\nMon-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4115,
+              "js": 4115
+            },
+            "screens": {
+              "c": 27,
+              "js": 27
+            },
+            "cursors": {
+              "c": 27,
+              "js": 27
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "c161f52fd62cdfb510d73be842e5e71e59d18340b99caa66539e8facdbe2946e",
+          "recorded.session.json": "8c58a500ba60fc02d6747d4b99132a6ccc0fad253e170b6f8736a94fbcfe620a",
+          "js-output.json": "ac358d74a58737535eb4c8f01174aa84b1e953a0bd1d4716a56c36c88a34d904"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103404,
+        "program": "Mon-filb.lua",
+        "moves": ".#wizloaddes\nMon-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4419,
+              "js": 4419
+            },
+            "screens": {
+              "c": 27,
+              "js": 27
+            },
+            "cursors": {
+              "c": 27,
+              "js": 27
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "017f7449abdca5c0a55dc43af6ffc347c952837da052828824a8fb691c214284",
+          "recorded.session.json": "06128c91a6087ca5c4205d91187a7654edcab362a6f37cdedf5c1c3c34d6e0fa",
+          "js-output.json": "d288aaa55d3a06e7e550b0f12e842095f139acbd46a55f49e895576b3ff89616"
+        },
+        "rawStatus": "unresolved"
+      }
+    ]
+  },
+  {
+    "summarySha256": "975fbc985ca4db6c70ad4ced02087b4a027934ad2714c5f8cfbf473fcc5b9086",
+    "rows": [
+      {
+        "seed": 28103501,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 6909,
+              "js": 6909
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "ef0e8961332f6561114af863e61fbbfc94eaad734086bbb004ca2138895da604",
+          "recorded.session.json": "476c7e3aa9d69ef30af7351bd5c077f64fda4632ab81fd881c65803d76d8c1d7",
+          "js-output.json": "e2437dd14ed4b99e6c7b1545c7d90d80fae1539c2a5900916a92fdc1ae6edc7a"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103502,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 9531,
+              "js": 9531
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "85d52023489ec4f38ae3597f3b317f5ca250f017801faee5a190a000900ae397",
+          "recorded.session.json": "58658661b7a4f258442132bbc9483d03a180cca147a1ead42d9b754b568d925f",
+          "js-output.json": "87fd9ba5a42b2a6d10ed1c5dc59c7d221cedcf66ab5560f78d3804453363949e"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103503,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 7654,
+              "js": 7654
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "e1605c20977af6336298fa6bdee6cc6ca707cae232653aaf866b9b82240ed06b",
+          "recorded.session.json": "2ac5de335adafa7f08c6473ca4dfc7db4ad5d177a1668e4fb4c58da217d0d9bc",
+          "js-output.json": "49ee5f72ee8ebc5edbc4e946332923ab31a2760ef20eef5011ca5668d4b94d25"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103504,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 7993,
+              "js": 7993
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "09107b2f855f0e0572293a4c9c779726a5a5b2b3766ff460489d7f34216ec28a",
+          "recorded.session.json": "62c3b0bf0a24cfd70052e5f1936ef1667419c49c9524ff2ed798954a9a364bf1",
+          "js-output.json": "77c63a205c11df6ab44e30f7c1b82d036e739d13be8f50b02306b57f7dca98c5"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103505,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 8223,
+              "js": 10224
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 3357,
+            "cEntry": "rn2(9)=7",
+            "cCaller": "mkclass_aligned(makemon.c:1934)",
+            "jsEntry": "rn2(50)=46",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 5,
+              "key": "\n"
+            }
+          },
+          "screenMismatch": {
+            "index": 5,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 5,
+              "key": "\n"
+            },
+            "kind": "ch",
+            "row": 2,
+            "column": 51,
+            "cCell": {
+              "ch": "-",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": " ",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 5,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 5,
+              "key": "\n"
+            },
+            "cCursor": [
+              57,
+              3,
+              1
+            ],
+            "jsCursor": [
+              51,
+              15,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "5ae9c87c4d627b7ddfd478a87dd271c7d506dfabd2362e6934ff5c6e331a1896",
+          "recorded.session.json": "49e4f47d53a61c1a7fcb0b41b7a348552ba5c8be881980d84239835abfba6eeb",
+          "js-output.json": "173ddf131c64d95bdc701cd23a64af92bc4813caa222470342eca6b639c2a52b"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103506,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 8064,
+              "js": 8064
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "765f51f6303aecba5e1d02b0b8be89290e180fe11c06bb22413d069619f9fe75",
+          "recorded.session.json": "5a1ef9beea3819875a56c7efbbb28857edbab0ed4cb4ac7ff7f5d7898b1b3e83",
+          "js-output.json": "d50d0eb54907c8c531c5f0e90a127775695f0966c6daf5686db7f3f18a6b506f"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103507,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 7118,
+              "js": 7118
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "771ca654100e045e51ded097d72f994f0a388817bbb7c6e47e55b2a732114a8f",
+          "recorded.session.json": "c2c13c7ce9471c162628eaa66ef7bfbdf30dc29ac6cd7459fe4cf67f71344b3b",
+          "js-output.json": "35d6ffac31845a53e32ad52e6a73d547c7fd3491b8dc7607b70601ab1220bf69"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103508,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 7571,
+              "js": 7571
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "18fcfb6b92fe6f8a3ef677317dc5558314a0100146e519b9862ee46512ba0afa",
+          "recorded.session.json": "2c60176ed3011ee8c6cf46269076e60dc69c62f0d38a52e01ce3bbc858faa90f",
+          "js-output.json": "4285ef6ffb3849c970d1e5e9039579e29a2de828b311593401d3b8d82ac8b111"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103509,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 9188,
+              "js": 9188
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "2cf289a03a7e90bda95150cd5f9f557a546ebf1f82b47a4ea31a60be231e9a62",
+          "recorded.session.json": "4c1a97df82727b173e48eadf8f7e98860bb3506e1bb7194966e0bd518a8690b1",
+          "js-output.json": "1c4ffe20ffdb677db9908cd7217d1925e104c63d6e5990996ac4dbc17e61e073"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103510,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 8403,
+              "js": 8403
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "18b4d7cacfcc8ef6374c1f3205577fa08aba5751e6d53d5cc0a798aec0067bcd",
+          "recorded.session.json": "dcfdf98db64c5a549db682f2c90a3c20bb51f3781d5e348df5555639e2414976",
+          "js-output.json": "d823ec9de0c67a329d60f3937a91409a21e1f34af8d613dc5dd8f95bcc1043fb"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103511,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 7954,
+              "js": 7954
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "1cfc26d044b7edcddb96804934cb2528a32fa60a968541f46501747a4bbde51b",
+          "recorded.session.json": "43b0b312c5c161e8f1dea1ab5cb9197f1e6613c2a80001deeddc1bb8e9dd364a",
+          "js-output.json": "79e48e22d9349ee7ef99f0fcddac9fa1d6b5d08f56d5eda690e91657716e7767"
+        },
+        "rawStatus": "unresolved"
+      },
+      {
+        "seed": 28103512,
+        "program": "Arc-filb.lua",
+        "moves": ".\u001610\n#wizloaddes\nArc-filb.lua\n",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 7806,
+              "js": 7806
+            },
+            "screens": {
+              "c": 31,
+              "js": 31
+            },
+            "cursors": {
+              "c": 31,
+              "js": 31
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "rawHashes": {
+          "recipe.session.json": "4c7eeec675ce6430f2dbc66d9338b13091c6d969618f8e45f112ebfb76abba42",
+          "recorded.session.json": "a1166242ccc1b225aa0b5ac651d67b2f93c39472e311b753603578fd592571b4",
+          "js-output.json": "bd9d660fb155625bbb0aa61a1502327eaf8c1021e8b54a683dd257b63ce499ef"
+        },
+        "rawStatus": "unresolved"
+      }
+    ]
+  }
+]
