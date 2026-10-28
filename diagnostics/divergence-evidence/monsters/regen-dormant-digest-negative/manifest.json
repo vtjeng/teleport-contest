@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+  "originalLeadCount": 12537,
+  "projectionSha256": "42b8dc20adcf61a4a173ea64bc6f77ef3aa8824cc5040555aca0d58bee9259bb",
+  "runId": "601667573d5ca5a23adf",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/monmove.c:mon_regen:finish_meating"
+  ],
+  "decisionsSha256": "7a2eef4b42fe79610b9b285c8c30c69c0986157c0b85ab89880d450db606b767",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 1,
+    "decisionsChecked": 1,
+    "before": {
+      "active": 1,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 1,
+      "excluded": 0
+    }
+  }
+}
