@@ -1,0 +1,35 @@
+{
+  "id": "extmenu-prefix-bound",
+  "hypothesis": "Missing too-many-chars diagnostic hides reachable prefix-buffer exhaustion.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c:778 prefix filter",
+    "nethack-c/upstream/src/cmd.c:799 nchoices exit",
+    "nethack-c/upstream/src/cmd.c:861 matchlevel guard"
+  ],
+  "expectedC": "Command names have maximum length14; each menu selection appends one valid next character, and zero/one choices exit. matchlevel cannot exceed126 to trigger the guard.",
+  "observedJS": "No equivalent diagnostic, but the same fixed names make that diagnostic unreachable.",
+  "proof": "Source table maximum14 versus QBUFSZ128; source-pinned prefix filter and nchoices<=1 termination. Cancel resets prefix or exits; arbitrary typed keys cannot extend it because only selected menu identifiers are appended.",
+  "scope": "Only prefix exhaustion with the current fixed table/menu-selector contract. Does not certify all selection or cancellation semantics.",
+  "shard": "commands",
+  "outcome": "explained negative",
+  "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:35:31.688Z",
+  "reviewedAt": "2026-10-28T18:36:27.524Z",
+  "provenanceFile": "../extmenu-group-labels/provenance.json",
+  "discoveryBinding": {
+    "key": "source-audit:message:src/cmd.c:extcmd_via_menu:120fc06b81d1e547",
+    "evidenceKey": "53b14464892477a8cc06012dfabd2f523e66b777508ab0317d21ba66818cddc4",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "5c7e3b0b127d7b6ab2964e33d3f832ed5222b6c0d6602e8888a3880a337766a2",
+    "status": null
+  },
+  "projectionReference": "../extmenu-group-labels/projection-reference.json",
+  "supportedReachableSetup": "The ordinary extmenu root menu is exercised in the sibling confirmed witness; these guard branches are ruled out by pinned source bounds, not by seed coverage.",
+  "control": "Sibling extmenu-group-labels remains a positive display divergence; !extmenu control passes. Neither bound filters that case.",
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/extmenu-choice-bound/evidence.test.mjs",
+  "nextExperiment": null,
+  "evidenceSha256": {
+    "raw-observation.json": "c4b338e4b6c70c455742c41703ef0b3964b38b5974f9a52d6ea02446b164ba8b"
+  }
+}

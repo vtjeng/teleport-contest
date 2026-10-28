@@ -1,0 +1,8 @@
+{
+  "repository": "vtjeng/teleport-contest",
+  "commit": "b2eb6dd2b9c0700c3b4e0bebc8fc48dc57d0a026",
+  "path": "diagnostics/divergence-evidence/commands/turn-loop-platform-adapter/discovery-run.projection.json",
+  "sha256": "41f40af0f0da688c2dacb71e6851534a51986e531641d8e768633197c1b77bf5",
+  "originalRunSha256": "1349082cfaa9d24b2f2e76adef76bbc2d75c10e511e4a0bce7eae7d64c571dde",
+  "originalRunId": "7e93da55968668bc05fc"
+}

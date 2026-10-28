@@ -1,0 +1,62 @@
+{
+  "id": "message:src/cmd.c:extcmd_via_menu:8e14c79f44e84973",
+  "kind": "message",
+  "owner": "src/cmd.c:extcmd_via_menu",
+  "target": "8e14c79f44e84973",
+  "confidence": "literal-absent",
+  "rank": -52,
+  "sites": [
+    {
+      "file": "nethack-c/upstream/src/cmd.c",
+      "line": 786,
+      "conditions": [
+        "if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS)",
+        "if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)"
+      ],
+      "context": {
+        "startLine": 783,
+        "endLine": 790,
+        "text": "                    biggest = len;\n                if (++i > MAX_EXT_CMD) {\n#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)\n                    impossible(\n      \"Exceeded %d extended commands in doextcmd() menu; 'extmenu' disabled.\",\n                               MAX_EXT_CMD);\n#endif /* NH_DEVEL_STATUS != NH_STATUS_RELEASED */\n                    iflags.extmenu = FALSE;"
+      }
+    }
+  ],
+  "details": {
+    "literal": "Exceeded %d extended commands in doextcmd() menu; 'extmenu' disabled.",
+    "fragment": "extended commands in doextcmd() menu; 'extmenu' disabled.",
+    "match": "absent",
+    "fileCategory": "gameplay",
+    "api": "impossible"
+  },
+  "signals": {
+    "commandPath": null,
+    "turnPath": null,
+    "callers": 1,
+    "effects": {
+      "rng": 0,
+      "message": 2,
+      "stateWriteHeuristic": false
+    },
+    "missingMessageOverlap": 0
+  },
+  "repairOverlap": [
+    "offedge-mention-walls-direction",
+    "bind-existing-key-live-feedback",
+    "getdir-help-retry",
+    "options-simple-extcmd",
+    "reqmenu-named-extcmd",
+    "lookaround-scorr-known-room",
+    "wiz-makemap-arrival-collision",
+    "grid-bug-diagonal-command",
+    "showtrap-control-key-help",
+    "getdir-redraw-retry",
+    "save-repeat-queue"
+  ],
+  "assignedOverlap": [],
+  "queueOverlap": [],
+  "evidenceKey": "dddba92b62d700e344c70a8c8ad9badf0246e734d252145d4e3dd6af4fdc4ff0",
+  "observed": true,
+  "classification": "needs-investigation",
+  "replayStatus": "unverified",
+  "reviews": [],
+  "reviewState": "unreviewed"
+}
