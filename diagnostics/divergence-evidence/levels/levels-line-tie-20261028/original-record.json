@@ -1,0 +1,45 @@
+{
+  "shard": "levels",
+  "jsBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:32:10Z",
+  "reviewedAt": "2026-10-28T17:34:52.242Z",
+  "toolchain": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7 (3+b1)"
+  },
+  "scopeLimits": "Analysis only; no gameplay edits, no CI dispatch, no universal level equivalence claim.",
+  "historyCheck": "Fetched origin/main before selection. No open levels PR; only tooling/explained-negative-filters was open. Local main history checked for selection-line fixes.",
+  "caseId": "levels-line-tie-20261028",
+  "outcome": "unresolved",
+  "hypothesis": "Bresenham equality ties choose different cells in JS and C.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/selvar.c:626",
+    "nethack-c/upstream/src/nhlsel.c:509",
+    "js/bigrm.js:34"
+  ],
+  "supportedSetup": "Direct exported JS selection_line and verbatim extracted C selection_do_line, positive interior endpoints. C harness substitutes only point storage and uses int coordxy; selected coordinates and arithmetic remain small. This executes the actual C algorithm but is not a full recorder or Lua-route test.",
+  "reproduce": [
+    "source /workspace/.setup/activate.sh",
+    "node diagnostics/divergence-evidence/levels/levels-line-tie-20261028/probe.mjs",
+    "node diagnostics/divergence-evidence/levels/levels-line-tie-20261028/probe.mjs --expect-parity # expected exit 1 at this base"
+  ],
+  "expectedC": "For (10,10)->(12,11), d0==0 takes the >= branch and selects (11,11).",
+  "observedJS": "The strict e2 < dx condition keeps y=10 and selects (11,10). Steep and reversed ties also differ.",
+  "control": "Horizontal, vertical, and 45-degree lines match the extracted C function.",
+  "reachability": "C l_selection_line accepts the interior diagonal endpoints. However every shipped dat/*.lua selection.line call located by rg is axis-aligned; JS callers in bigrm.js and valley_levels.js are also axis-aligned. No supported common shipped-game route to a diagonal tie has been established. Therefore this is an observed primitive differential, not a ready gameplay divergence or an explained negative.",
+  "semanticCause": "C >= tie decision versus strict JS >/< Bresenham decisions; three failing examples are one cause.",
+  "fingerprints": {
+    "c": "af33824e7004e7799ca1e88d0b00813bb5b9a1087015b9fb5a250473b2318b58",
+    "luaBinding": "ce93cdb316eb18ae4ad32238076ab61cec319973a5cff049ce95289a54239ec5",
+    "js": "8ef1ba9c6e9b4facd53b7545fd327f831838b91df2c4a35c5b00d1b71c31ba74",
+    "probe": "c40dffdcb463924a70dd1fe5e4bd3eabadc08419f501c731592401ede4ed7d4a"
+  },
+  "evidencePaths": [
+    "probe.mjs",
+    "observations.json"
+  ],
+  "nextExperiment": "Determine whether supported custom-level loading can execute the same diagonal API call in both engines without modifying gameplay. If unavailable, retain the helper differential as deferred and do not promote it to a shipped-level claim.",
+  "prePublicationMain": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "prePublicationReview": "Fetched main again; relevant C, level helpers, and discovery/recorder scripts are unchanged from measured base."
+}

@@ -1,0 +1,40 @@
+{
+  "scope": "Supported selection API consumed by production terrain API; shipped exposure unknown",
+  "results": [
+    {
+      "center": [
+        40,
+        10
+      ],
+      "control": true,
+      "cPainted": [
+        [
+          40,
+          10
+        ]
+      ],
+      "jsPainted": [
+        [
+          40,
+          10
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "center": [
+        78,
+        10
+      ],
+      "control": false,
+      "cPainted": [
+        [
+          78,
+          10
+        ]
+      ],
+      "jsPainted": [],
+      "matched": false
+    }
+  ]
+}
