@@ -1,0 +1,20 @@
+[
+  {
+    "key": "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3",
+    "evidenceKey": "7be8049ea6ea0716938c86df0a298129b97cbe10009d4098b99634882ced6e39",
+    "runId": "2bfc89cdcbaa6139046f",
+    "reviewFingerprint": "25d63e4dc6f2ce931745494a84012eb530cc2a8bcd65b17c5789c78f18cefad8",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "In gazemu, react is initialized to -1 and not written before the AD_STON switch arm. The only earlier arm assignment sets 4/2 under Unaware then breaks before this ternary. Thus !react is false whenever the ugly-text ternary is evaluated. Only this exact literal is classified.",
+      "proof": "proof.mjs asserts the complete prefix and stoning-arm assignments/exiting branch, compiles the exact arm with visible-aware controls, and compares cancelled/blinded native Medusa gazemu output. Both select gazes ineffectually.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mhitu.c:1678",
+        "nethack-c/upstream/src/mhitu.c:1708",
+        "nethack-c/upstream/src/mhitu.c:1716",
+        "js/mhitu.js:3032"
+      ]
+    }
+  }
+]
