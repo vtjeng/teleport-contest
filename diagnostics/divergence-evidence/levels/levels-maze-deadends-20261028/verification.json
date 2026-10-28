@@ -1,0 +1,25 @@
+{
+  "base": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "verifiedAt": "2026-10-28T21:27:50.774768+00:00",
+  "focusedCommand": "node diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/probe.mjs",
+  "focusedExit": 0,
+  "cleanBaseMatch": true,
+  "stdoutSha256": "269425082ba3fd7250ca7ec9dd96dbdb7c07caea5143edfdfcd9e6e7c5098122",
+  "upstreamBodiesExact": 6,
+  "suiteGuardCommand": "node --test scripts/test-suites.test.mjs",
+  "suiteGuardExit": 0,
+  "suiteGuardPasses": 6,
+  "newMainVerification": {
+    "base": "51f5686fac30306411156df215ca83ae910cf6bf",
+    "verifiedAt": "2026-10-28T21:32:37.844824+00:00",
+    "focusedExit": 0,
+    "observationsMatch": true,
+    "guardExit": 0,
+    "sourceHashes": {
+      "js/mkmaze.js": "e0722923b9f99824b30b2089f0869c055ff56eb9a24dfda832f52b60c29fd4db",
+      "js/mklev.js": "ab947e22fa852df29a546a526a5b8a1b8b8198cbcf69ad6ec2828bb1462638d0",
+      "js/rng.js": "072e95b76b014136e7578f023e7eb5165aea0b830063e60f4e8adf669e6bcb98"
+    },
+    "setup": "Existing detached clean gameplay checkout with evidence overlays; initial new worktree failed from disk space and was removed. Prior conflicting evidence overlay preserved separately; no gameplay edits."
+  }
+}

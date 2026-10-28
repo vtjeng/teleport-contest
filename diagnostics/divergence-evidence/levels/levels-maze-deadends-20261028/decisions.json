@@ -1,0 +1,23 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mkmaze.c:maze_remove_deadends:rn2",
+    "evidenceKey": "16a9faf552380eadd7948013f434671ec2c3ac8bd7bc21edddadcaf5f8523739",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "ea95d416cf617f89ccf4ce3ba8e1736cb048b84dc856d6be099c13d1abc958ca",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "For this missing-call edge, JS injects random with default rn2 and production create_maze leaves that default intact. This is not a missing draw.",
+      "proof": "C dirok[rn2(idx)] and JS directions[random(directions.length)] choose among directions accumulated in the same order. Public level_init maze exercises both constructors and removal. Sixteen full terrain maps match exact C bodies on shared checked draw tapes. No independent RNG algorithm, all-seed or finalization claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmaze.c:939",
+        "js/mkmaze.js:1327",
+        "js/mkmaze.js:1355",
+        "js/mkmaze.js:1411"
+      ],
+      "control": "All eight removal-off maps differ from their removal-on partner; removal-on adds 13 to 42 checked draws.",
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028",
+      "reviewedBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]
