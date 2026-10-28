@@ -1,0 +1,122 @@
+{
+  "id": "cmd-turn-direct-binding",
+  "shard": "commands",
+  "outcome": "confirmed divergence",
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:26:22.907Z",
+  "reviewedAt": "2026-10-28T18:27:34.667Z",
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual review of advertised command binding versus admission; no matching scanner lead identified."
+  },
+  "fingerprints": {
+    "node": "v24.19.0",
+    "tools": {
+      "scripts/discovery-hub.mjs": "f2748a2ace9177b0c8b61108487ef7d711c4e403bb27134cdd51f5b226eef5dc",
+      "scripts/source-audit.mjs": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61"
+    },
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recorderSysconfSha256": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2",
+    "patches": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "sources": {
+      "js/cmd.js": "f0d90b5519c3683a4cc55e63200d6ac80f5f90f48b866d938654cdc3c334cbaa",
+      "js/extcmdlist_data.js": "e2005b00771db0c8235c1b4c3e862f6c57d182ce265939682d6241fc87563819",
+      "js/pray.js": "4f9dab22dc4fbb6f2e8e87befaa37ca44098fd641711bfa850fe4e2248198277",
+      "nethack-c/upstream/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+      "nethack-c/upstream/src/pray.c": "6d9729fb4c9e7fbed44f355f85a241ccc527e73d53913ca4efb904e23f999f03"
+    }
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c:1911 turn table entry",
+    "nethack-c/upstream/src/cmd.c:3727 rhack function-pointer dispatch",
+    "js/extcmdlist_data.js:142 turn table entry",
+    "js/cmd.js:1917 ADMITTED_COMMANDS omits turn",
+    "js/cmd.js:1971 admitParsedCommand",
+    "js/cmd.js:5340 doextcmd doturn handler",
+    "js/cmd.js:5555 parsed input admission"
+  ],
+  "hypothesis": "The advertised direct turn binding cannot reach its implemented extended-command handler.",
+  "supportedReachableSetup": "Ordinary Ranger, seed421032 fixed clock20000110090000; BINDINGS=V:turn and altmeta enabled in supported config. Input V or Escape+t. No wizard commands or injected state.",
+  "expectedC": "Both direct paths print You don't know how to turn undead!. ASCII-bound target has two screens/cursors; altmeta target has three; both have2545 RNG calls.",
+  "observedJS": "Only initial screen for V, or initial+Escape screen for altmeta, then command admission refuses before doturn. RNG2545 matches the C prefix.",
+  "control": "Same setup with #turn newline matches all7 screens/cursors and2545 RNG calls.",
+  "causalScope": "One direct turn-command binding/admission defect with two supported input forms. Not another first-turn atheism-conduct failure and not queued prayer repetition. Main-owned count-input and vault occupation implementation are untouched.",
+  "rawAttempts": [
+    {
+      "input": "Unicode U+00F4",
+      "status": "invalid setup for proposed Meta-t claim",
+      "reason": "Recorder writes UTF-8 C3 B4, C entered voluntary challenges. Not treated as confirmed divergence or explained negative; replaced with documented ASCII rebinding and altmeta."
+    }
+  ],
+  "reproduction": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-turn-direct-binding/witness.recipe.json",
+  "controlCommand": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-turn-direct-binding/control.recipe.json",
+  "focusedTest": "node --test diagnostics/divergence-evidence/commands/cmd-turn-direct-binding/candidate.test.mjs",
+  "historyCheck": "Fetched origin/main acec7a757 before lead selection; reviewed accepted first #turn conduct fix and queued prayer dispatch fix, neither addresses fresh direct binding admission. No active turn-binding claim found.",
+  "nextExperiment": "After Main connects direct row dispatch, rerun both aliases and control, checking first-command time/conduct behavior without changing doturn semantics.",
+  "validation": {
+    "cleanSnapshot": "Documented CLI exits witness1/control0/altmeta1 on pristine pinned base",
+    "focused": "Control passes; two alias witnesses intentionally fail for one semantic cause",
+    "publicationReview": "All changes scoped; decompressed raw captures reviewed for unrelated/private content"
+  },
+  "evidenceSha256": {
+    "README.md": "2368f39427b7d14f7d492501e7109f029bec1590ab9077912ad1b89fe0ea0aac",
+    "altmeta.comparison.json": "3a06ae3cfccb9bf22b647a5f3860ce6beeecf82b8f86caf600b6e239520e177a",
+    "altmeta.js-output.json.gz": "4c4f3895d9372888905ca7595fe7f169ef686661807a27c1ada57c40079ae54d",
+    "altmeta.recipe.json": "5f0d27fef69328b34577873b940191c0f58a2abfa9473fdeb20072f81302652c",
+    "altmeta.recording.json.gz": "4253b6d2eb18e774a048d767c8de533d07991e034a934799649ef417023f0e61",
+    "boundary.json": "97802286aa18d034bfa8f2d15b6ff2d2c12169fd3caebd521f00616ce83b6db1",
+    "candidate.test.mjs": "7991113ab0d0422fb27cbf60e3edf9c65f12306adf8bc00b7c62068e03e9eec0",
+    "control.comparison.json": "9270c72d9bd1027434f4987eed9832c07618142b8405427c8decc0d264f8a4ef",
+    "control.js-output.json.gz": "e6bae71df5890dc92a5b7fa6c398bee526e7de16b75e9f6ea7b9bcc8da3edd77",
+    "control.recipe.json": "d1224093cfec9e0868d505b2d565a24d2c477d5d1370a7fd0a675c082b78bb5c",
+    "control.recording.json.gz": "cb4f86b4ca014d9dfc44555d99e6423155d14c31e32e7b7179b72d2fcab30b5b",
+    "pickup-check.json": "0dde46694071ef2a3305dcee332260451a3594f61c1623c25b34c02a151af295",
+    "witness.comparison.json": "6e6150fc06e0e58e79d5f4167c82967b3022ed6689d8a50f96d54b9b6cb3b581",
+    "witness.js-output.json.gz": "e1de7391bb48aa033dbaacc927563f85e282809ac84295c5d464bb4c77b0f81b",
+    "witness.recipe.json": "def97db6ce3ae9b9354eb7c15d0e9e1c028b9511213aef96241554d9314e75c9",
+    "witness.recording.json.gz": "cb8cb48a060f0fdfacbc4e7964f4566512bc0feecaba5bbcb2a40367f7410a14"
+  },
+  "captures": {
+    "altmeta.js-output.json.gz": {
+      "compressedBytes": 11910,
+      "uncompressedBytes": 72406,
+      "uncompressedSha256": "0ee551c311b490e7c85dd2c0b7bcf7fdc8422cdf3c297321c871b54cf782c2ba"
+    },
+    "altmeta.recording.json.gz": {
+      "compressedBytes": 9310,
+      "uncompressedBytes": 106109,
+      "uncompressedSha256": "674ff1dbae3a6e3165c7dc381b92d22060ef43c3e3010384c5d5b278c1f52e77"
+    },
+    "control.js-output.json.gz": {
+      "compressedBytes": 12087,
+      "uncompressedBytes": 75729,
+      "uncompressedSha256": "4761e9eb45ebae273b57ca30faab1e3a2ba8d4e560f4fe2d3bdc42d583d233e0"
+    },
+    "control.recording.json.gz": {
+      "compressedBytes": 9357,
+      "uncompressedBytes": 107545,
+      "uncompressedSha256": "cd1fd756d24401bbe112275dfc56f727b00b0b8e15dae5abff52390f070a94f4"
+    },
+    "witness.js-output.json.gz": {
+      "compressedBytes": 11877,
+      "uncompressedBytes": 71577,
+      "uncompressedSha256": "af7a870884b87f13d55e35ffc86ba56661b3ce377f4b88ff20595666643334f9"
+    },
+    "witness.recording.json.gz": {
+      "compressedBytes": 9297,
+      "uncompressedBytes": 105646,
+      "uncompressedSha256": "8e74c4b28e6098cfef3891097158403a073ab9e62efcb89ac612601c469c2306"
+    }
+  }
+}

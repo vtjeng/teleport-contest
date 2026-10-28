@@ -1,0 +1,26 @@
+{
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "checkedAt": "2026-10-28T18:27:08.321Z",
+  "archiveSha256": "e0778947b9f4cbad35322dbf07bdf4dfd2a44587c12f34318670c41a97781919",
+  "method": "Pristine git archive verified before and after replay; frozen overlay applied; fresh isolated C recorder copies",
+  "checks": [
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-turn-direct-binding/witness.recipe.json",
+      "status": 1,
+      "stdout": "PRNG length: C=2545, JS=2545\nPRNG values: match\nScreen length mismatch: C=2, JS=1\nFirst screen mismatch at boundary 2 (segment 1, step 2, key \"V\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=2, JS=1\nFirst cursor mismatch at boundary 2 (segment 1, step 2, key \"V\"):\n  C: [73,5,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-turn-direct-binding/control.recipe.json",
+      "status": 0,
+      "stdout": "PRNG length: C=2545, JS=2545\nPRNG values: match\nScreen length: C=7, JS=7\nScreen cells and attributes: match\nCursor length: C=7, JS=7\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-turn-direct-binding/altmeta.recipe.json",
+      "status": 1,
+      "stdout": "PRNG length: C=2545, JS=2545\nPRNG values: match\nScreen length mismatch: C=3, JS=2\nFirst screen mismatch at boundary 3 (segment 1, step 3, key \"t\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=3, JS=2\nFirst cursor mismatch at boundary 3 (segment 1, step 3, key \"t\"):\n  C: [73,5,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\n",
+      "stderr": ""
+    }
+  ]
+}
