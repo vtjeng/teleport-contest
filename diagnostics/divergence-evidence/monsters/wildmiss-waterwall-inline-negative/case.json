@@ -1,0 +1,94 @@
+{
+  "caseId": "wildmiss-waterwall-inline-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "hypothesis": "Missing named is_waterwall call means wildmiss loses empty-water feedback.",
+  "discoveredAt": "2026-10-28T17:45:54.697Z",
+  "reviewedAt": "2026-10-28T18:18:59.417Z",
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "binding": {
+    "key": "source-audit:edge-c-only:src/mhitu.c:wildmiss:is_waterwall",
+    "evidenceKey": "3b918744d7aa3d1dc0249c1f05a1fb243793d4479ecf9f61055ad4e3429ae995",
+    "runId": "601667573d5ca5a23adf",
+    "reviewFingerprint": "973148380939f7a37ad80da4d38db1b746b9f2c803c9c9ab74bfd92db464ca38",
+    "runSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+    "runArtifact": "https://github.com/vtjeng/teleport-contest/blob/5011e3c8e/diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/discovery-run.json.gz",
+    "originalProvenance": {
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "jsSha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+      "runId": "601667573d5ca5a23adf",
+      "sourceAuditSourceHash": "0f54be3bf62a26bf615e163ac81226a345936d43e1e564271c72ad169b332dcb",
+      "methodConfigHashes": {
+        "sourceAudit": "4b12f114c03356c62193bab858e963acd1b5c48b7f377c2a819bbbe38b922e4d",
+        "mismatchQueue": "736a53ee953197dd0395cddef8fcf1fa50279c2c941bb7afbfb779c4d700d148",
+        "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+        "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+        "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+      },
+      "methodVersions": {
+        "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+        "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+        "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+        "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+      },
+      "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+      "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+      "evidenceKey": "3b918744d7aa3d1dc0249c1f05a1fb243793d4479ecf9f61055ad4e3429ae995"
+    }
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/mhitu.c:227",
+    "nethack-c/upstream/src/dbridge.c:38",
+    "nethack-c/upstream/include/rm.h:141",
+    "nethack-c/upstream/src/monmove.c:2198",
+    "js/mhitu.js:672"
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/src/mhitu.c": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+    "nethack-c/upstream/src/dbridge.c": "b1dbdca4e2fc9e5a2a17ed5d0c80d79f900ea5997dd0b2c4a3171977bee0260f",
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "js/mhitu.js": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9",
+    "js/monmove.js": "b33623a7c02a59be598f349d49ec4007c4f3f7fc730d497abb70caa4a962cf58",
+    "js/dbridge.js": "de70c7aa041a849357d2663cc1b18a8bf4356c1d8d6f4d2dddacc85499a37314",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/game.js": "dd1587ff93820e71524f2f577341b430d942462271141f0026411e27ecfe11b2"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "cCompiler": "cc (Debian 14.2.0-19) 14.2.0",
+    "reviewFingerprintToolSha256": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "cOracle": "Unmodified C is_waterwall extracted and compiled in minimal level-array driver with pinned WATER/macro. Message choice source-pinned; not a full C combat recording."
+  },
+  "setup": "Initialized hero seed7710044 datetime20261028120000, native blind xorn, no hero gold, valid visible target square generated through production set_apparxy. Xorn passes_walls makes water target eligible. Production wildmiss, legal RNG and message capture only.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/wildmiss-waterwall-inline-negative/probe.test.mjs",
+  "expectedC": "WATER -> The xorn strikes at empty water!; POOL/ROOM/DRAWBRIDGE_UP -> The xorn strikes at thin air!",
+  "observedJS": "All four messages match C predicate choice; set_apparxy draws [rn2(3)=1,rn2(3)=1,rn2(3)=2], message draws rn2(3)=2.",
+  "controls": "See README and per-row observations; all controls execute actual JS owner and C predicate.",
+  "scope": "Exact inline terrain predicate for valid integer target coordinates; not invalid-coordinate or complete message/visibility equivalence.",
+  "evidence": [
+    "README.md",
+    "initial-attempt.txt",
+    "observations.txt",
+    "probe.test.mjs"
+  ],
+  "evidenceHashes": {
+    "README.md": "9f30f055c9c9e383b1042730447562da00f3a932a52c7c9317f148d46b4bc46b",
+    "initial-attempt.txt": "19e39ba6f78c78116fc2f0e70cc604eb819c1b516551328dea9d3ec5331c9b8d",
+    "observations.txt": "1e913eca7fbcf4ab0170aa6d9010d51da69f614bea1e8498497aa4c14b3b2ed7",
+    "probe.test.mjs": "0d70c7da540b8f519196a3946a03d88bb6a1e6fa2cadc1a78dc3b137a6d0d93a"
+  },
+  "nextExperiment": null,
+  "failedScan": "Batch-c run 2128128abd20189db419 failed its provenance guard. It contributed no findings; this case uses the intact batch-b run. Relevant gameplay files were compared unchanged between batch-b and current base.",
+  "validation": {
+    "cleanBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "initialGitStatusPorcelain": "",
+    "submodule": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "result": "pass",
+    "testedAt": "2026-10-28T18:19:12.277920+00:00",
+    "procedure": "Separate detached worktree clean before copying the two evidence directories; combined focused test command passed both tests."
+  }
+}

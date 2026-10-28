@@ -1,0 +1,88 @@
+{
+  "caseId": "sokoban-sign-inline-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "hypothesis": "C-only sgn edge means JS computes a different intervening Sokoban square.",
+  "discoveredAt": "2026-10-28T17:45:54.697Z",
+  "reviewedAt": "2026-10-28T18:18:59.409Z",
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "binding": {
+    "key": "source-audit:edge-c-only:src/monmove.c:m_avoid_soko_push_loc:sgn",
+    "evidenceKey": "f011b16e0f2a434c0d2e3b6142566cbca61eacb8a560cf0f64911f50881aa9be",
+    "runId": "601667573d5ca5a23adf",
+    "reviewFingerprint": "3944bb9ca7eed438c3dae57879abaacb68aa2c37f2774a263c1d4a738e2b5623",
+    "runSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+    "runArtifact": "https://github.com/vtjeng/teleport-contest/blob/5011e3c8e/diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/discovery-run.json.gz",
+    "originalProvenance": {
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "jsSha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+      "runId": "601667573d5ca5a23adf",
+      "sourceAuditSourceHash": "0f54be3bf62a26bf615e163ac81226a345936d43e1e564271c72ad169b332dcb",
+      "methodConfigHashes": {
+        "sourceAudit": "4b12f114c03356c62193bab858e963acd1b5c48b7f377c2a819bbbe38b922e4d",
+        "mismatchQueue": "736a53ee953197dd0395cddef8fcf1fa50279c2c941bb7afbfb779c4d700d148",
+        "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+        "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+        "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+      },
+      "methodVersions": {
+        "sourceAudit": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+        "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+        "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+        "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+      },
+      "sourceAuditToolSha256": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+      "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+      "evidenceKey": "f011b16e0f2a434c0d2e3b6142566cbca61eacb8a560cf0f64911f50881aa9be"
+    }
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/monmove.c:1313",
+    "nethack-c/upstream/src/hacklib.c:650",
+    "nethack-c/upstream/include/rm.h:538",
+    "js/monmove.js:607"
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "nethack-c/upstream/src/hacklib.c": "9f9710dcd8fe0b3735c0b319eb7c26b7fb4148d32a5851ffe72ed94c3bbfeae2",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "js/monmove.js": "b33623a7c02a59be598f349d49ec4007c4f3f7fc730d497abb70caa4a962cf58",
+    "js/game.js": "dd1587ff93820e71524f2f577341b430d942462271141f0026411e27ecfe11b2",
+    "js/obj.js": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "cCompiler": "cc (Debian 14.2.0-19) 14.2.0",
+    "reviewFingerprintToolSha256": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "cOracle": "Unmodified C m_avoid_soko_push_loc and sgn extracted at test time; wrapper uses direct integer squared distance and one floor boulder. Not full C gameplay."
+  },
+  "setup": "Supported local scalar/grid fixture: Sokoban flag, peaceful or tame monster, hero at (10,10), one intervening boulder. Production JS avoidance predicate and GameMap, unmodified C avoidance function with isolated scalar/object lookup adapters.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/sokoban-sign-inline-negative/probe.test.mjs",
+  "expectedC": "All four cardinal candidates avoid the intervening boulder; diagonal, wrong-square, non-Sokoban, hostile, confused, stunned and Conflict controls do not. Tame control avoids it.",
+  "observedJS": "All 12 C/JS predicate rows match.",
+  "controls": "See README and per-row observations; all controls execute actual JS owner and C predicate.",
+  "scope": "Exact integer-coordinate call-site replacement of sgn by Math.sign; not general pathfinding or JS nonnumeric input equivalence.",
+  "evidence": [
+    "README.md",
+    "observations.txt",
+    "probe.test.mjs"
+  ],
+  "evidenceHashes": {
+    "README.md": "7c865b1bf0227dea3ee9494d4c32d2ac9cd604963f425f15f898981a2552a0f1",
+    "observations.txt": "0b8d04308429395a209e90dac9ef454a81d30730dcc188b5e026cb24f968853a",
+    "probe.test.mjs": "e093186bda35293b33e3c8524af0274166aa1c015959a1607884e839bdbb97fe"
+  },
+  "nextExperiment": null,
+  "failedScan": "Batch-c run 2128128abd20189db419 failed its provenance guard. It contributed no findings; this case uses the intact batch-b run. Relevant gameplay files were compared unchanged between batch-b and current base.",
+  "validation": {
+    "cleanBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "initialGitStatusPorcelain": "",
+    "submodule": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "result": "pass",
+    "testedAt": "2026-10-28T18:20:12.154301+00:00",
+    "procedure": "Separate detached worktree clean before evidence copied; both focused tests passed together. Final ring-of-conflict mask adjustment rechecked independently in same worktree."
+  }
+}

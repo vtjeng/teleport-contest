@@ -1,0 +1,21 @@
+{"case":"cardinal 1,0","c":true,"js":true}
+{"case":"cardinal -1,0","c":true,"js":true}
+{"case":"cardinal 0,1","c":true,"js":true}
+{"case":"cardinal 0,-1","c":true,"js":true}
+{"case":"diagonal","c":false,"js":false}
+{"case":"wrong boulder square","c":false,"js":false}
+{"case":"not Sokoban","c":false,"js":false}
+{"case":"hostile","c":false,"js":false}
+{"case":"tame","c":true,"js":true}
+{"case":"confused","c":false,"js":false}
+{"case":"stunned","c":false,"js":false}
+{"case":"conflict","c":false,"js":false}
+✔ C sgn call and JS Math.sign preserve cardinal Sokoban avoidance and gates (125.691582ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1099.788429
