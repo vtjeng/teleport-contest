@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T22:46:35Z",
+  "asOf": "2026-10-28T23:04:41Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -26105,6 +26105,152 @@
               "completedAt": "2026-10-28T22:46:35Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40782266116"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "selection-line-c-tie",
+      "title": "Match C selection line equality ties",
+      "investigator": "levels PR #64",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/selvar.c:selection_do_line",
+          "js/bigrm.js:selection_line"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-line-tie-20261028/probe.mjs"
+        ],
+        "test": [
+          "scripts/bigrm-selection-line-ties.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+          "committedAt": "2026-10-28T22:50:31Z",
+          "sourceCommit": "0328f0b4b1cce18fd8b10776f8a9e58324b1e976",
+          "sourceCommittedAt": "2026-10-28T22:50:27Z",
+          "runs": [
+            {
+              "id": 40783083147,
+              "name": "Checkpoint",
+              "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/selection-parity-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:51:11Z",
+              "completedAt": "2026-10-28T23:02:08Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40783083147"
+            },
+            {
+              "id": 40784494232,
+              "name": "Lint",
+              "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:02:46Z",
+              "completedAt": "2026-10-28T23:03:55Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40784494232"
+            },
+            {
+              "id": 40784494151,
+              "name": "Dashboard",
+              "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:02:46Z",
+              "completedAt": "2026-10-28T23:04:41Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40784494151"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "selection-match-offmap-stone",
+      "title": "Match off-map terrain as STONE in selection patterns",
+      "investigator": "levels PR #64",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:mapfrag_match",
+          "js/bigrm.js:selection_match"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-match-boundary-20261028/probe.mjs"
+        ],
+        "test": [
+          "scripts/bigrm-selection-match-boundary.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+          "committedAt": "2026-10-28T22:50:31Z",
+          "sourceCommit": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+          "sourceCommittedAt": "2026-10-28T22:50:31Z",
+          "runs": [
+            {
+              "id": 40783083147,
+              "name": "Checkpoint",
+              "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/selection-parity-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:51:11Z",
+              "completedAt": "2026-10-28T23:02:08Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40783083147"
+            },
+            {
+              "id": 40784494232,
+              "name": "Lint",
+              "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:02:46Z",
+              "completedAt": "2026-10-28T23:03:55Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40784494232"
+            },
+            {
+              "id": 40784494151,
+              "name": "Dashboard",
+              "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T23:02:46Z",
+              "completedAt": "2026-10-28T23:04:41Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40784494151"
             }
           ]
         }

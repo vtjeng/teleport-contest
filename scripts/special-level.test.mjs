@@ -9,7 +9,7 @@ import { monst_globals_init } from '../js/monsters.js';
 import { TIN, EGG, APPLE, CORPSE, STATUE, FIGURINE, objects_globals_init } from '../js/objects.js';
 import { PM_CHAMELEON, PM_CAVE_DWELLER, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
-import { ICE, ICED_POOL, ICED_MOAT, ROOM } from '../js/const.js';
+import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, STONE } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -74,6 +74,27 @@ test('special-level message uses the C string prefix before appending', async ()
         assert.equal(game.gl.lev_message, 'alpha\ntail');
     });
 });
+
+for (const [midpoint, carve, expected] of [
+    ['+', '.', ROOM], ['+', '#', CORR],
+    ['.', '.', ROOM], ['.', '#', CORR],
+]) {
+    test(`mazewalk ${carve} overwrites intermediate ${midpoint} terrain`, async () => {
+        await runLoader(async des => {
+            des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+            des.terrain(13, 11, midpoint);
+            des.terrain(14, 11, ' ');
+            assert.deepEqual([13, 14, 15].map(x => game.level.at(x, 11).typ),
+                [ROOM, midpoint === '+' ? DOOR : ROOM, STONE]);
+            enableRngLog();
+            des.mazewalk({ x: 11, y: 11, dir: 'east', typ: carve,
+                stocked: 0 });
+            assert.deepEqual([13, 14, 15].map(x => game.level.at(x, 11).typ),
+                [expected, expected, expected]);
+            assert.deepEqual(getRngLog(), ['rn2(1)=0']);
+        });
+    });
+}
 
 test('special-level API waits for map, room, and region contents callbacks',
     async () => {
