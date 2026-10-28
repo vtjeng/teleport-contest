@@ -1,0 +1,17 @@
+{
+  "command": "source /workspace/.setup/activate.sh; clang -E -P -I nethack-c/recorder/include nethack-c/recorder/src/allmain.c",
+  "macroCommand": "clang -E -dM -I nethack-c/recorder/include nethack-c/recorder/src/allmain.c",
+  "compiler": "Clang 19",
+  "present": [
+    "UNIX",
+    "TTY_GRAPHICS"
+  ],
+  "absent": [
+    "MICRO",
+    "WIN32CON",
+    "WIN32"
+  ],
+  "expandedSourceSha256": "8206ff3b6511475af38fabdaafcf9d688ca222a7d31ece3be946aab839166610",
+  "macroDumpSha256": "d27b456b07fa688711f0bbaa563e12be2b257a4518a8f21596db8df440d88344",
+  "occupationExcerpt": "    if (gm.multi >= 0 && go.occupation) {\n            if ((*go.occupation)() == 0)\n                go.occupation = 0;\n        if (\n            monster_nearby()) {\n            stop_occupation();\n            reset_eat();\n        }\n        runmode_delay_output();\n        return;\n    }\n"
+}

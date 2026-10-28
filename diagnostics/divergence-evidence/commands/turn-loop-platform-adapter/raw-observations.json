@@ -1,0 +1,153 @@
+[
+  {
+    "id": "edge-c-only:src/allmain.c:moveloop_core:pgetchar",
+    "kind": "edge-c-only",
+    "owner": "src/allmain.c:moveloop_core",
+    "target": "pgetchar",
+    "confidence": "missing-resolved-edge",
+    "rank": 49,
+    "sites": [
+      {
+        "file": "nethack-c/upstream/src/allmain.c",
+        "line": 491,
+        "conditions": [
+          "if defined(MICRO) || defined(WIN32CON)"
+        ],
+        "context": {
+          "startLine": 488,
+          "endLine": 493,
+          "text": "        if (kbhit()) {\n            char ch;\n\n            if ((ch = pgetchar()) == ABORT)\n                mvl_abort_lev++;\n            else"
+        },
+        "branchContext": {
+          "startLine": 472,
+          "endLine": 493,
+          "text": "    }\n    if (disp.botl || disp.botlx) {\n        bot();\n        curs_on_u();\n    } else if (disp.time_botl) {\n        timebot();\n        curs_on_u();\n    }\n\n    m_everyturn_effect(&gy.youmonst);\n\n    svc.context.move = 1;\n\n    if (gm.multi >= 0 && go.occupation) {\n#if defined(MICRO) || defined(WIN32CON)\n        mvl_abort_lev = 0;\n        if (kbhit()) {\n            char ch;\n\n            if ((ch = pgetchar()) == ABORT)\n                mvl_abort_lev++;\n            else"
+        }
+      }
+    ],
+    "details": {
+      "js": "js/allmain.js:moveloop_core",
+      "jsContext": {
+        "startLine": 1770,
+        "endLine": 1787,
+        "text": "}\n\n// C ref: allmain.c moveloop_core()\nexport async function moveloop_core() {\n    const g = game;\n\n    maybe_shuffle_customizations(g);\n\n    // C allmain.c:194 clears object bypass marks before deciding whether this\n    // input advances elapsed time. This is separate from movemon()'s tail, so\n    // a command with no monster scan still consumes the pending cleanup.\n    if (g.context?.bypasses)\n        clear_bypasses(g);\n\n    // C ref: allmain.c:200-201 resumes a terminal-interrupted wish before\n    // context.move can allocate elapsed time or dispatch another command.\n    if (g.context?.resume_wish) await makewish(g);\n"
+      },
+      "unresolvedCalls": [],
+      "declaredAlternative": null
+    },
+    "signals": {
+      "commandPath": null,
+      "turnPath": [
+        "src/allmain.c:moveloop_core"
+      ],
+      "callers": 2,
+      "effects": {
+        "rng": 7,
+        "message": 2,
+        "stateWriteHeuristic": true
+      },
+      "missingMessageOverlap": 1
+    },
+    "repairOverlap": [
+      "overexertion-fainting",
+      "periodic-teleport",
+      "burdened-automatic-search",
+      "delayed-polymorph",
+      "delayed-lycanthropy",
+      "elemental-level-upkeep",
+      "storm-upkeep",
+      "distress-display-owner",
+      "vampire-door-display-owner",
+      "sensing-vision-order",
+      "timeout-handoff",
+      "region-feedback-owner",
+      "lava-sink-elapsed-turn",
+      "egg-hatch-occupation-stop",
+      "demigod-turn-intervention",
+      "hallucinated-restore-welcome",
+      "mounted-hero-knockback-planning-handoff",
+      "vampire-expulsion-upkeep"
+    ],
+    "assignedOverlap": [],
+    "queueOverlap": [],
+    "evidenceKey": "e370f488fb2b480f4edc1b89f453ce56b28a02afce4400fd54bfab7fa7fcbe08",
+    "observed": true,
+    "classification": "needs-investigation",
+    "replayStatus": "unverified",
+    "reviews": [],
+    "reviewState": "unreviewed"
+  },
+  {
+    "id": "edge-js-only:src/allmain.c:moveloop_core:flush_screen",
+    "kind": "edge-js-only",
+    "owner": "src/allmain.c:moveloop_core",
+    "target": "flush_screen",
+    "confidence": "lexical",
+    "rank": 49,
+    "sites": [
+      {
+        "file": "js/allmain.js",
+        "line": 1880,
+        "context": {
+          "startLine": 1877,
+          "endLine": 1882,
+          "text": "    // until cmd.c parse() flushes before the next key.\n    if (g.disp?.botl || g.disp?.botlx) {\n        await bot();\n        await flush_screen(1);\n    } else if (g.disp?.time_botl) {\n        await timebot();"
+        }
+      }
+    ],
+    "details": {
+      "c": "src/allmain.c:moveloop_core",
+      "cContext": {
+        "startLine": 174,
+        "endLine": 191,
+        "text": "static int mvl_change = 0;\n\nvoid\nmoveloop_core(void)\n{\n    boolean monscanmove = FALSE;\n\n#ifdef SAFERHANGUP\n    if (program_state.done_hup)\n        end_of_input();\n#endif\n    get_nh_event();\n#ifdef POSITIONBAR\n    do_positionbar();\n#endif\n    if (iflags.pending_customizations)\n        maybe_shuffle_customizations();\n"
+      },
+      "jsTarget": "js/display.js:flush_screen",
+      "cTargets": [
+        "src/display.c:flush_screen"
+      ],
+      "warning": "May be helper extraction, macro expansion or adapter; source review required."
+    },
+    "signals": {
+      "commandPath": null,
+      "turnPath": [
+        "src/allmain.c:moveloop_core"
+      ],
+      "callers": 2,
+      "effects": {
+        "rng": 7,
+        "message": 2,
+        "stateWriteHeuristic": true
+      },
+      "missingMessageOverlap": 1
+    },
+    "repairOverlap": [
+      "overexertion-fainting",
+      "periodic-teleport",
+      "burdened-automatic-search",
+      "delayed-polymorph",
+      "delayed-lycanthropy",
+      "elemental-level-upkeep",
+      "storm-upkeep",
+      "distress-display-owner",
+      "vampire-door-display-owner",
+      "sensing-vision-order",
+      "timeout-handoff",
+      "region-feedback-owner",
+      "lava-sink-elapsed-turn",
+      "egg-hatch-occupation-stop",
+      "demigod-turn-intervention",
+      "hallucinated-restore-welcome",
+      "mounted-hero-knockback-planning-handoff",
+      "vampire-expulsion-upkeep"
+    ],
+    "assignedOverlap": [],
+    "queueOverlap": [],
+    "evidenceKey": "4129d51e43f25a2808a9cdb975e36bda9c05f2a22df9eef717e47a236f9a63eb",
+    "observed": true,
+    "classification": "needs-investigation",
+    "replayStatus": "unverified",
+    "reviews": [],
+    "reviewState": "unreviewed"
+  }
+]
