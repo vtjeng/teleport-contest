@@ -1,0 +1,742 @@
+{
+  "layouts": 6,
+  "subrooms": 72,
+  "positiveControl": "missing child room number detected",
+  "rows": [
+    {
+      "seed": 28104000,
+      "top": [
+        {
+          "index": 0,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 3,
+          "expectedRoomno": 3
+        },
+        {
+          "index": 1,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 4,
+          "expectedRoomno": 4
+        },
+        {
+          "index": 2,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 5,
+          "expectedRoomno": 5
+        },
+        {
+          "index": 3,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 6,
+          "expectedRoomno": 6
+        }
+      ],
+      "sub": [
+        {
+          "index": 41,
+          "rtype": 23,
+          "orig": null,
+          "roomno": 44,
+          "expectedRoomno": 44
+        },
+        {
+          "index": 42,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 45,
+          "expectedRoomno": 45
+        },
+        {
+          "index": 43,
+          "rtype": 10,
+          "orig": null,
+          "roomno": 46,
+          "expectedRoomno": 46
+        },
+        {
+          "index": 44,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 47,
+          "expectedRoomno": 47
+        },
+        {
+          "index": 45,
+          "rtype": 25,
+          "orig": null,
+          "roomno": 48,
+          "expectedRoomno": 48
+        },
+        {
+          "index": 46,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 49,
+          "expectedRoomno": 49
+        },
+        {
+          "index": 47,
+          "rtype": 22,
+          "orig": null,
+          "roomno": 50,
+          "expectedRoomno": 50
+        },
+        {
+          "index": 48,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 51,
+          "expectedRoomno": 51
+        },
+        {
+          "index": 49,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 52,
+          "expectedRoomno": 52
+        },
+        {
+          "index": 50,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 53,
+          "expectedRoomno": 53
+        },
+        {
+          "index": 51,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 54,
+          "expectedRoomno": 54
+        },
+        {
+          "index": 52,
+          "rtype": 14,
+          "orig": null,
+          "roomno": 55,
+          "expectedRoomno": 55
+        }
+      ]
+    },
+    {
+      "seed": 28104001,
+      "top": [
+        {
+          "index": 0,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 3,
+          "expectedRoomno": 3
+        },
+        {
+          "index": 1,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 4,
+          "expectedRoomno": 4
+        },
+        {
+          "index": 2,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 5,
+          "expectedRoomno": 5
+        },
+        {
+          "index": 3,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 6,
+          "expectedRoomno": 6
+        }
+      ],
+      "sub": [
+        {
+          "index": 41,
+          "rtype": 23,
+          "orig": null,
+          "roomno": 44,
+          "expectedRoomno": 44
+        },
+        {
+          "index": 42,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 45,
+          "expectedRoomno": 45
+        },
+        {
+          "index": 43,
+          "rtype": 10,
+          "orig": null,
+          "roomno": 46,
+          "expectedRoomno": 46
+        },
+        {
+          "index": 44,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 47,
+          "expectedRoomno": 47
+        },
+        {
+          "index": 45,
+          "rtype": 25,
+          "orig": null,
+          "roomno": 48,
+          "expectedRoomno": 48
+        },
+        {
+          "index": 46,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 49,
+          "expectedRoomno": 49
+        },
+        {
+          "index": 47,
+          "rtype": 22,
+          "orig": null,
+          "roomno": 50,
+          "expectedRoomno": 50
+        },
+        {
+          "index": 48,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 51,
+          "expectedRoomno": 51
+        },
+        {
+          "index": 49,
+          "rtype": 19,
+          "orig": null,
+          "roomno": 52,
+          "expectedRoomno": 52
+        },
+        {
+          "index": 50,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 53,
+          "expectedRoomno": 53
+        },
+        {
+          "index": 51,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 54,
+          "expectedRoomno": 54
+        },
+        {
+          "index": 52,
+          "rtype": 14,
+          "orig": null,
+          "roomno": 55,
+          "expectedRoomno": 55
+        }
+      ]
+    },
+    {
+      "seed": 28104002,
+      "top": [
+        {
+          "index": 0,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 3,
+          "expectedRoomno": 3
+        },
+        {
+          "index": 1,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 4,
+          "expectedRoomno": 4
+        },
+        {
+          "index": 2,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 5,
+          "expectedRoomno": 5
+        },
+        {
+          "index": 3,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 6,
+          "expectedRoomno": 6
+        },
+        {
+          "index": 4,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 7,
+          "expectedRoomno": 7
+        }
+      ],
+      "sub": [
+        {
+          "index": 41,
+          "rtype": 23,
+          "orig": null,
+          "roomno": 44,
+          "expectedRoomno": 44
+        },
+        {
+          "index": 42,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 45,
+          "expectedRoomno": 45
+        },
+        {
+          "index": 43,
+          "rtype": 10,
+          "orig": null,
+          "roomno": 46,
+          "expectedRoomno": 46
+        },
+        {
+          "index": 44,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 47,
+          "expectedRoomno": 47
+        },
+        {
+          "index": 45,
+          "rtype": 25,
+          "orig": null,
+          "roomno": 48,
+          "expectedRoomno": 48
+        },
+        {
+          "index": 46,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 49,
+          "expectedRoomno": 49
+        },
+        {
+          "index": 47,
+          "rtype": 22,
+          "orig": null,
+          "roomno": 50,
+          "expectedRoomno": 50
+        },
+        {
+          "index": 48,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 51,
+          "expectedRoomno": 51
+        },
+        {
+          "index": 49,
+          "rtype": 19,
+          "orig": null,
+          "roomno": 52,
+          "expectedRoomno": 52
+        },
+        {
+          "index": 50,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 53,
+          "expectedRoomno": 53
+        },
+        {
+          "index": 51,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 54,
+          "expectedRoomno": 54
+        },
+        {
+          "index": 52,
+          "rtype": 14,
+          "orig": null,
+          "roomno": 55,
+          "expectedRoomno": 55
+        }
+      ]
+    },
+    {
+      "seed": 28104003,
+      "top": [
+        {
+          "index": 0,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 3,
+          "expectedRoomno": 3
+        },
+        {
+          "index": 1,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 4,
+          "expectedRoomno": 4
+        },
+        {
+          "index": 2,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 5,
+          "expectedRoomno": 5
+        },
+        {
+          "index": 3,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 6,
+          "expectedRoomno": 6
+        },
+        {
+          "index": 4,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 7,
+          "expectedRoomno": 7
+        }
+      ],
+      "sub": [
+        {
+          "index": 41,
+          "rtype": 23,
+          "orig": null,
+          "roomno": 44,
+          "expectedRoomno": 44
+        },
+        {
+          "index": 42,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 45,
+          "expectedRoomno": 45
+        },
+        {
+          "index": 43,
+          "rtype": 10,
+          "orig": null,
+          "roomno": 46,
+          "expectedRoomno": 46
+        },
+        {
+          "index": 44,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 47,
+          "expectedRoomno": 47
+        },
+        {
+          "index": 45,
+          "rtype": 25,
+          "orig": null,
+          "roomno": 48,
+          "expectedRoomno": 48
+        },
+        {
+          "index": 46,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 49,
+          "expectedRoomno": 49
+        },
+        {
+          "index": 47,
+          "rtype": 22,
+          "orig": null,
+          "roomno": 50,
+          "expectedRoomno": 50
+        },
+        {
+          "index": 48,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 51,
+          "expectedRoomno": 51
+        },
+        {
+          "index": 49,
+          "rtype": 19,
+          "orig": null,
+          "roomno": 52,
+          "expectedRoomno": 52
+        },
+        {
+          "index": 50,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 53,
+          "expectedRoomno": 53
+        },
+        {
+          "index": 51,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 54,
+          "expectedRoomno": 54
+        },
+        {
+          "index": 52,
+          "rtype": 14,
+          "orig": null,
+          "roomno": 55,
+          "expectedRoomno": 55
+        }
+      ]
+    },
+    {
+      "seed": 28104004,
+      "top": [
+        {
+          "index": 0,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 3,
+          "expectedRoomno": 3
+        },
+        {
+          "index": 1,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 4,
+          "expectedRoomno": 4
+        },
+        {
+          "index": 2,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 5,
+          "expectedRoomno": 5
+        },
+        {
+          "index": 3,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 6,
+          "expectedRoomno": 6
+        }
+      ],
+      "sub": [
+        {
+          "index": 41,
+          "rtype": 23,
+          "orig": null,
+          "roomno": 44,
+          "expectedRoomno": 44
+        },
+        {
+          "index": 42,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 45,
+          "expectedRoomno": 45
+        },
+        {
+          "index": 43,
+          "rtype": 10,
+          "orig": null,
+          "roomno": 46,
+          "expectedRoomno": 46
+        },
+        {
+          "index": 44,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 47,
+          "expectedRoomno": 47
+        },
+        {
+          "index": 45,
+          "rtype": 25,
+          "orig": null,
+          "roomno": 48,
+          "expectedRoomno": 48
+        },
+        {
+          "index": 46,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 49,
+          "expectedRoomno": 49
+        },
+        {
+          "index": 47,
+          "rtype": 22,
+          "orig": null,
+          "roomno": 50,
+          "expectedRoomno": 50
+        },
+        {
+          "index": 48,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 51,
+          "expectedRoomno": 51
+        },
+        {
+          "index": 49,
+          "rtype": 19,
+          "orig": null,
+          "roomno": 52,
+          "expectedRoomno": 52
+        },
+        {
+          "index": 50,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 53,
+          "expectedRoomno": 53
+        },
+        {
+          "index": 51,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 54,
+          "expectedRoomno": 54
+        },
+        {
+          "index": 52,
+          "rtype": 14,
+          "orig": null,
+          "roomno": 55,
+          "expectedRoomno": 55
+        }
+      ]
+    },
+    {
+      "seed": 28104005,
+      "top": [
+        {
+          "index": 0,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 3,
+          "expectedRoomno": 3
+        },
+        {
+          "index": 1,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 4,
+          "expectedRoomno": 4
+        },
+        {
+          "index": 2,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 5,
+          "expectedRoomno": 5
+        },
+        {
+          "index": 3,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 6,
+          "expectedRoomno": 6
+        },
+        {
+          "index": 4,
+          "rtype": 0,
+          "orig": 0,
+          "roomno": 7,
+          "expectedRoomno": 7
+        }
+      ],
+      "sub": [
+        {
+          "index": 41,
+          "rtype": 23,
+          "orig": null,
+          "roomno": 44,
+          "expectedRoomno": 44
+        },
+        {
+          "index": 42,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 45,
+          "expectedRoomno": 45
+        },
+        {
+          "index": 43,
+          "rtype": 10,
+          "orig": null,
+          "roomno": 46,
+          "expectedRoomno": 46
+        },
+        {
+          "index": 44,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 47,
+          "expectedRoomno": 47
+        },
+        {
+          "index": 45,
+          "rtype": 25,
+          "orig": null,
+          "roomno": 48,
+          "expectedRoomno": 48
+        },
+        {
+          "index": 46,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 49,
+          "expectedRoomno": 49
+        },
+        {
+          "index": 47,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 50,
+          "expectedRoomno": 50
+        },
+        {
+          "index": 48,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 51,
+          "expectedRoomno": 51
+        },
+        {
+          "index": 49,
+          "rtype": 19,
+          "orig": null,
+          "roomno": 52,
+          "expectedRoomno": 52
+        },
+        {
+          "index": 50,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 53,
+          "expectedRoomno": 53
+        },
+        {
+          "index": 51,
+          "rtype": 0,
+          "orig": null,
+          "roomno": 54,
+          "expectedRoomno": 54
+        },
+        {
+          "index": 52,
+          "rtype": 14,
+          "orig": null,
+          "roomno": 55,
+          "expectedRoomno": 55
+        }
+      ]
+    }
+  ]
+}

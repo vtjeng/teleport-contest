@@ -1,0 +1,296 @@
+[
+  {
+    "status": "unresolved",
+    "elapsedMs": 1052,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 4900,
+          "js": 4900
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "9a2a15cf3950be8ceadd73a17aa72cb283f8e5c620525cf990d288ccfb5a3b21",
+    "rawHashes": {
+      "recipe.session.json": "889125a9400021b8c296c6142524a284b38ab095ce87dd6d8fb16f8ff5bbf90c",
+      "recorded.session.json": "287632fe40dd8beb9683164cc7a2d5a2cea48190c71ecb9680191a8d25cde766",
+      "js-output.json": "84bd89ef07aa5fcf8724ada717a4a11a104175d17cba8a9479097890208fc793"
+    },
+    "seed": 28104000,
+    "program": "minetn-4.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1052,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 5075,
+          "js": 5075
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "9a2a15cf3950be8ceadd73a17aa72cb283f8e5c620525cf990d288ccfb5a3b21",
+    "rawHashes": {
+      "recipe.session.json": "4d8913228116b80b8679e6342193f6c3fda2fa8eb21ed613da89394b8e8ca2ff",
+      "recorded.session.json": "437d47915d1a554f6c11b00f192a22d20b2ed7c302a508bc2a971d4ded4c0d17",
+      "js-output.json": "c128af58cb93a7bb99b472f0371f61154099a9b287b2cf6c3fe1652ace163f58"
+    },
+    "seed": 28104001,
+    "program": "minetn-4.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1217,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 7918,
+          "js": 7918
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "9a2a15cf3950be8ceadd73a17aa72cb283f8e5c620525cf990d288ccfb5a3b21",
+    "rawHashes": {
+      "recipe.session.json": "9272de416a0d95febd07e0d300c7da1adae42f4293a15fdeceda6bb9105034dc",
+      "recorded.session.json": "352a398e40b81e6171a1e9b93c804ea609e2d5ec6443bce41b0d47beac0c52a5",
+      "js-output.json": "e6b48cd000a7c8a02f79bb59418564085ef7906bdadca54e050192fd028ad073"
+    },
+    "seed": 28104002,
+    "program": "minetn-4.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1262,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 5647,
+          "js": 5647
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "9a2a15cf3950be8ceadd73a17aa72cb283f8e5c620525cf990d288ccfb5a3b21",
+    "rawHashes": {
+      "recipe.session.json": "0e2ab001263810090fcc4679457e67b65555e186c1dfc16a4f6bb6b66dbd1254",
+      "recorded.session.json": "21b45fe9a6fc95420a7528792ad447d64c961edd1ca027de65d39ec91a73a2fd",
+      "js-output.json": "af03230f6d48599fb8efb859c55b229e700b0d4ac20e2221743d4954489d0384"
+    },
+    "seed": 28104003,
+    "program": "minetn-4.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1255,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 4393,
+          "js": 4393
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "9a2a15cf3950be8ceadd73a17aa72cb283f8e5c620525cf990d288ccfb5a3b21",
+    "rawHashes": {
+      "recipe.session.json": "3ed4e10818f740277ac44cb954f46b681e0dd135122c36b6d46ba93f1543c12b",
+      "recorded.session.json": "c170961945b7ad8bbd1bf86924b8d76b6aea3c46a1dfc324e0eb0f0155978eed",
+      "js-output.json": "d4ff843a57051db9b85cc18d60d8e0e3ba38c898b616deb80d55e87a948cb0a9"
+    },
+    "seed": 28104004,
+    "program": "minetn-4.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1261,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 4085,
+          "js": 4085
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "9a2a15cf3950be8ceadd73a17aa72cb283f8e5c620525cf990d288ccfb5a3b21",
+    "rawHashes": {
+      "recipe.session.json": "a71651e822f4b6b410e5113fb17b921cd9c8e402eb493d8e07ea63c2f5de30b0",
+      "recorded.session.json": "4a45b65b25943e1853aca919dc3a28c06647d9cdf7f43c33b2ced37b105a8ef5",
+      "js-output.json": "c4267d04a2af2d366b23068b3f3f029a2dbebea04c8b07b43aa07bcafe861ed7"
+    },
+    "seed": 28104005,
+    "program": "minetn-4.lua"
+  }
+]
