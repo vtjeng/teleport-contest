@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {game} from '../../../../js/gstate.js';
+import {runSegment} from '../../../../js/jsmain.js';
+import {newMonster,place_monster} from '../../../../js/monst.js';
+import {PM_SHRIEKER,NON_PM} from '../../../../js/monsters.js';
+import {DEAF} from '../../../../js/const.js';
+import {set_occupation} from '../../../../js/cmd.js';
+import {runSimpleMonsterAction} from '../../../../js/unported_monster_actions.js';
+for(const deaf of [false,true])test(`normal shrieker action occupation deaf=${deaf}`,async()=>{
+ await runSegment({seed:7710044,datetime:'20261028120000',nethackrc:'OPTIONS=name:Shriek,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none\n',moves:''});
+ for(const c of game.level.monsters)c.fill(null);game.level.monlist=null;
+ const m=newMonster({data:game.mons[PM_SHRIEKER],m_id:6001,mx:game.u.ux+1,my:game.u.uy,mux:game.u.ux,muy:game.u.uy,mhp:12,mhpmax:12,m_lev:3,cham:NON_PM,mcanmove:1,mcansee:1});place_monster(m,m.mx,m.my,game);game.level.monlist=m;
+ game.u.uprops[DEAF].intrinsic=deaf?10:0;
+ set_occupation(()=>0,'searching',0,game);
+ const lines=[],draws=[];const random={rn2:n=>{draws.push(['rn2',n]);return n-1;},rnd:n=>1,rn1:(n,b)=>b,rne:()=>1,rnl:n=>n-1,rnz:n=>n,d:(n,k)=>n};
+ for(let i=0;i<20;i++)game.nhDisplay.terminal.pushKey(32);
+ const result=await runSimpleMonsterAction(m,{state:game,random,message:async s=>lines.push(s)});
+ console.log(JSON.stringify({deaf,result,occupationActive:!!game.go.occupation,lines,draws,topline:game._ttyToplines}));
+ assert.equal(!!game.go.occupation,deaf);assert.equal(lines.includes('The shrieker shrieks.'),!deaf);
+});

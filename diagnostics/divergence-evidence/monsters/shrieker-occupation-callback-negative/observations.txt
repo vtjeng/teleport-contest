@@ -1,0 +1,4 @@
+deaf=0 active=0 spoken=1 aggravate=1
+deaf=1 active=1 spoken=0 aggravate=1
+{"deaf":false,"result":0,"occupationActive":false,"lines":["The shrieker shrieks."],"draws":[["rn2",10],["rn2",5]],"topline":"You stop searching."}
+{"deaf":true,"result":0,"occupationActive":true,"lines":[],"draws":[["rn2",10],["rn2",5]],"topline":"Velkommen Shriek, welcome to NetHack!  You are a neutral human Valkyrie."}
