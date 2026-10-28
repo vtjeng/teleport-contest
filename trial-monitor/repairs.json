@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T16:34:21.788Z",
+  "asOf": "2026-10-28T16:50:20Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23768,7 +23768,58 @@
           "scripts/priest-boulder.test.mjs"
         ]
       },
-      "candidates": []
+      "candidates": [
+        {
+          "sha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+          "committedAt": "2026-10-28T16:34:30Z",
+          "sourceCommit": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+          "sourceCommittedAt": "2026-10-28T16:34:30Z",
+          "runs": [
+            {
+              "id": 40727338013,
+              "name": "Checkpoint",
+              "sha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/priest-boulder-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T16:34:44Z",
+              "completedAt": "2026-10-28T16:47:51Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40727338013"
+            },
+            {
+              "id": 40729624544,
+              "name": "Lint",
+              "sha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T16:48:43Z",
+              "completedAt": "2026-10-28T16:50:03Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40729624544"
+            },
+            {
+              "id": 40729624455,
+              "name": "Dashboard",
+              "sha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T16:48:43Z",
+              "completedAt": "2026-10-28T16:50:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40729624455"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
