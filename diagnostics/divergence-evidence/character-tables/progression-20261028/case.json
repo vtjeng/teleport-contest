@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "caseId": "progression-20261028",
+  "shard": "character-tables",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/role.c",
+      "symbol": "roles/races",
+      "start_line": 30,
+      "end_line": 685,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/u_init.c",
+      "symbol": "Skill_A through Skill_W",
+      "start_line": 257,
+      "end_line": 572,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/attrib.c",
+      "symbol": "innate arrays",
+      "start_line": 23,
+      "end_line": 112,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/roles.js",
+      "symbol": "roles/races",
+      "start_line": 51,
+      "end_line": 417,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    },
+    {
+      "side": "JS",
+      "path": "js/role_skills.js",
+      "symbol": "SKILL_A through SKILL_W",
+      "start_line": 58,
+      "end_line": 372,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": "innate arrays",
+      "start_line": 194,
+      "end_line": 283,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    }
+  ],
+  "hypothesis": "Selected role/race progression declarations may diverge after independent normalization.",
+  "expectedBehavior": "The selected declarative values agree with pinned C tables, preserving order and field semantics.",
+  "observedBehavior": "1206 comparisons match (1175 scalar fields and 31 table lengths); zero mismatch witnesses and candidate causes. Seven positive assertions, 16 source-text mutations and three malformed-input controls pass.",
+  "witness": {
+    "kind": "source",
+    "scope": "13 roles and five races: attribute vectors, HP/energy advancement vectors and role cutoff; 277 skill entries in 13 tables; 44 innate rows in 18 tables.",
+    "limitations": [
+      "Source declarations only; runtime correctness and exposure unestablished.",
+      "Dispatch, eligibility, random rolls, initialization and state updates are unexamined.",
+      "Existing tests already cover overlapping declarations; see README for incremental evidence and omitted fields.",
+      "Restricted parser for pinned syntax, not a general compiler or preprocessor."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "not_applicable",
+    "evidence": [],
+    "reason": "This is a scoped source-table negative without runtime execution or an exposure claim."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Explicit bounded character-table audit; no scanner keys or dispositions claimed.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/character-tables/progression-20261028/compare.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/character-tables/progression-20261028/compare.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/character-tables/progression-20261028/inputs.json",
+        "js/roles.js",
+        "js/role_skills.js",
+        "js/attrib.js",
+        "js/const.js",
+        "nethack-c/upstream/src/role.c",
+        "nethack-c/upstream/src/u_init.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/include/skills.h",
+        "nethack-c/upstream/include/prop.h",
+        "nethack-c/upstream/include/youprop.h",
+        "nethack-c/upstream/include/you.h",
+        "nethack-c/upstream/include/attrib.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/character-tables/progression-20261028/target-receipt.json"
+    },
+    {
+      "id": "controls",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/character-tables/progression-20261028/compare.mjs",
+        "controls"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/character-tables/progression-20261028/compare.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/character-tables/progression-20261028/inputs.json",
+        "js/roles.js",
+        "js/role_skills.js",
+        "js/attrib.js",
+        "js/const.js",
+        "nethack-c/upstream/src/role.c",
+        "nethack-c/upstream/src/u_init.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/include/skills.h",
+        "nethack-c/upstream/include/prop.h",
+        "nethack-c/upstream/include/youprop.h",
+        "nethack-c/upstream/include/you.h",
+        "nethack-c/upstream/include/attrib.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/character-tables/progression-20261028/controls-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/README.md",
+      "sha256": "953dfc767ec1a3fa351380ba5db615b216f2dd7a4610c901a4da96bbad406be9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/compare.mjs",
+      "sha256": "23c4a7ed2c10cfb0a156b65c18c308418dcc39d0c8af1b8c1237df55c1658743",
+      "role": "runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/controls-output.json",
+      "sha256": "d03b6265eac7b043089676f131d462c15480b87d7ff98744032b2097a4d0ca99",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/controls-receipt.json",
+      "sha256": "914ea82c633e7a993edb2f066bb966fb21b3a230bff340047a47a1a7d41bd929",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/inputs.json",
+      "sha256": "466a03fa22445ec235152c0e7818179fe9c9781db8f24367997c036153aac1c2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/record.mjs",
+      "sha256": "b45f9cb55904616bd0730563acf97c979fa0c0e39ce950a7b2ff7b54704f7ec0",
+      "role": "runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/target-output.json",
+      "sha256": "9ec91c03f338ff92072f01b57e8d9436b854fdafad1f1cf99a353b1378f50db2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/target-receipt.json",
+      "sha256": "5135489a707f480caab2ac22f33fb3294b157fdd941a74f5728ceca3375bd4d8",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "js/roles.js",
+      "sha256": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "js/role_skills.js",
+      "sha256": "c5cfd0b6ca097fbb6db46e6ab14de5c680e579f722b3a9f547bada5fb70682cb",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/upstream/src/role.c",
+      "sha256": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/upstream/src/u_init.c",
+      "sha256": "64a85cf484189ef817da3f3e913e2f9a4c4a6e2f31588632387c43d45ab2ec71",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/upstream/include/skills.h",
+      "sha256": "d67ac10770b8aff667c163e93020b8974e53f12eede903f10bf026d351b2c238",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/upstream/include/prop.h",
+      "sha256": "682e85c7ab20c1dc7b30115b2a3e850d564cc2ed341edfa782fec9d0dfea0761",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/upstream/include/youprop.h",
+      "sha256": "9c4e25bc385c405226085ae3526dc165bd9397ce922b8a18a46f67de21683a2f",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/upstream/include/you.h",
+      "sha256": "d19cfa0233582f1ad550b9dfc788f26166f3ff21225e3d8a0cd43b6de2094289",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/upstream/include/attrib.h",
+      "sha256": "f20418d80bc2983e3d9af6cc9a02d30f57aa6b54116691a8e4ebebd425de757d",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "scripts/role-init.test.mjs",
+      "sha256": "07e94c9d1314a3c39af0329c1d3aa800ffbbf3abaa1e4d8a94b61c3608cd209c",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "scripts/role-skills.test.mjs",
+      "sha256": "e92ff1e1b8415fa4eec9603575ae8d77e0c728b3397f4367b2e15cdfcb29811e",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "scripts/attrib-innate.test.mjs",
+      "sha256": "b54f6a2784a924f4361d7fe92e43782812018486f5a45c31a89e8869d5cd3e3a",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "scripts/hero-attributes.test.mjs",
+      "sha256": "fc2f10d55cc6bbb710852891f82f9cb5db65e6f275abbe91d0eca269a1d08594",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "nethack-c/patches/001-deterministic-runtime.patch",
+      "sha256": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "role": "pinned source or overlap/semantic reference"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source or overlap/semantic reference"
+    }
+  ]
+}
