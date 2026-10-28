@@ -43,7 +43,7 @@ and verify its hash, then use the existing hub `classify --run RUN --decisions
 binding test without downloading the full archive. Run:
 
 ```sh
-node --test diagnostics/reviews/scoped-negative-decisions-b-20261028/check.test.mjs
+node --test scripts/scoped-negative-decisions-b.test.mjs
 ```
 
 The separate Vrock downstream UI/vision finding is outside both decisions;

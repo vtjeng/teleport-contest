@@ -68,7 +68,7 @@ factory/const pattern. This review does not silently widen that pending patch.
 ## Validation
 
 ```sh
-node --test diagnostics/reviews/queued-negative-decisions-20261028/check.test.mjs
+node --test scripts/queued-negative-decisions.test.mjs
 ```
 
 Tests verify exact imports and hashes, preserve all raw rows and scope, retain

@@ -100,7 +100,7 @@ From repository root, decompress to a new local file and use the existing CLI:
 ```sh
 gzip -dc diagnostics/reviews/scoped-negative-decisions-20261028/run.json.gz > /tmp/scoped-negative-run.json
 node scripts/discovery-hub.mjs classify --run /tmp/scoped-negative-run.json --decisions diagnostics/reviews/scoped-negative-decisions-20261028/decisions.json --out /tmp/scoped-negative-classified.json
-node --test diagnostics/reviews/scoped-negative-decisions-20261028/check.test.mjs scripts/discovery-hub.test.mjs
+node --test scripts/scoped-negative-decisions.test.mjs scripts/discovery-hub.test.mjs
 ```
 
 The output must not already exist. Tests verify the frozen input hash, exact
