@@ -1,0 +1,6 @@
+{
+  "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "command": "node diagnostics/divergence-evidence/levels/levels-room-chance-20261028/probe.mjs",
+  "exit": 0,
+  "stdout": "{\n  \"scope\": \"Six room-type/chance decisions with explicit valid subroom geometry; not full generation equivalence\",\n  \"results\": [\n    {\n      \"chance\": 0,\n      \"draw\": 99,\n      \"created\": true,\n      \"rtype\": 4,\n      \"calls\": [],\n      \"matched\": true\n    },\n    {\n      \"chance\": 1,\n      \"draw\": 0,\n      \"created\": true,\n      \"rtype\": 4,\n      \"calls\": [\n        100\n      ],\n      \"matched\": true\n    },\n    {\n      \"chance\": 1,\n      \"draw\": 1,\n      \"created\": true,\n      \"rtype\": 0,\n      \"calls\": [\n        100\n      ],\n      \"matched\": true\n    },\n    {\n      \"chance\": 50,\n      \"draw\": 49,\n      \"created\": true,\n      \"rtype\": 4,\n      \"calls\": [\n        100\n      ],\n      \"matched\": true\n    },\n    {\n      \"chance\": 50,\n      \"draw\": 50,\n      \"created\": true,\n      \"rtype\": 0,\n      \"calls\": [\n        100\n      ],\n      \"matched\": true\n    },\n    {\n      \"chance\": 100,\n      \"draw\": 99,\n      \"created\": true,\n      \"rtype\": 4,\n      \"calls\": [\n        100\n      ],\n      \"matched\": true\n    }\n  ]\n}\n"
+}
