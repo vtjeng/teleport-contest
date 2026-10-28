@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-rect-allocation-guard-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "init-rect-post-allocation-null-guard",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/alloc.c",
+      "symbol": "alloc",
+      "start_line": 68,
+      "end_line": 81,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/alloc.c",
+      "symbol": "nhalloc",
+      "start_line": 152,
+      "end_line": 166,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/rect.c",
+      "symbol": "init_rect",
+      "start_line": 29,
+      "end_line": 42,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/rect.c",
+      "symbol": "free_rect",
+      "start_line": 45,
+      "end_line": 51,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/include/global.h",
+      "symbol": "allocator contract and monitor macros",
+      "start_line": 295,
+      "end_line": 345,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/rect.js",
+      "symbol": "init_rect",
+      "start_line": 14,
+      "end_line": 27,
+      "commit_sha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036"
+    },
+    {
+      "side": "JS",
+      "path": "js/rect.js",
+      "symbol": "free_rect",
+      "start_line": 30,
+      "end_line": 33,
+      "commit_sha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036"
+    }
+  ],
+  "hypothesis": "The missing Could not alloc rect message may be unreachable because the allocation wrapper never returns null.",
+  "expectedBehavior": "Allocation failure stops in alloc or nhalloc before init_rect tests its result; successful initialization returns one full-map rectangle.",
+  "observedBehavior": "Exact alloc/init_rect/free_rect bodies compiled in normal and MONITOR_HEAP configurations, with exact nhalloc in the latter. A deterministic malloc adapter returns null; a nonreturning panic capture verifies the allocator-level message is reached, never Could not alloc rect. Successful adapter controls exercise init/reinit/free/reinit and match production JS capacity56, count1 and full-map rectangle. global.h declares and documents the nonnull/nonreturning contract and monitor macro redirection.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Exact alloc/init_rect/free_rect bodies compiled in normal and MONITOR_HEAP configurations, with exact nhalloc in the latter. A deterministic malloc adapter returns null; a nonreturning panic capture verifies the allocator-level message is reached, never Could not alloc rect. Successful adapter controls exercise init/reinit/free/reinit and match production JS capacity56, count1 and full-map rectangle. global.h declares and documents the nonnull/nonreturning contract and monitor macro redirection.",
+    "limitations": [
+      "Control-flow proof for the specific post-allocation init_rect null diagnostic only, under the pinned nonreturning panic/non-null allocator contract. Do not suppress allocator-level failures, arbitrary panic messages, capacity diagnostics, changed allocators or overrides that return after panic.",
+      "Target uses a deterministic malloc adapter and a nonreturning panic capture; it does not exhaust memory or run a full process shutdown. MONITOR_HEAP test sets logging already initialized/disabled, so no log/environment access occurs. Both compile branches execute their exact allocator source bodies.",
+      "JS controls cover successful initialization, reinitialization storage reuse, free and fresh reallocation only. No actual JS/C OOM parity, arbitrary fragmentation, production gameplay reachability or shipped-score claim. Prior rectangle-choice/order evidence is not expanded."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "not_applicable",
+    "evidence": [],
+    "reason": "Source control-flow proof of an unreachable caller diagnostic, with deterministic failure adapter; no gameplay OOM exposure asserted."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The init_rect diagnostic after alloc cannot execute under the source allocator contract: alloc returns nonnull or panics without returning; MONITOR_HEAP redirects the caller to nhalloc, which also panics before returning null.",
+    "keys": [
+      "source-audit:message:src/rect.c:init_rect:8ad3bff1629fb9b8"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/README.md",
+      "sha256": "9ffd106c72e69f6c5a4c5b4ed166f91e6e2be090725998db2e21141cd20befbf",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/allocator-contract.txt",
+      "sha256": "827a0b353e8a61a873b7edca1ab47f56a854f7cf1573595366b992c45b1ab6ea",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/control-output.txt",
+      "sha256": "c0e6b844993453bfca04b53bb7c988872e3b8c10ed5a1684bdbda52fd2ec2704",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/control-receipt.json",
+      "sha256": "bb83334b2fbccdeb240ea9098a00becaf50f70a4f4e73fbb7a4fedadfe5b1844",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/decisions.json",
+      "sha256": "e1e5d4923d92bf9e0af23fc6c355ca5250e75288a03cf40db45af4252365b9c7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/oracle.c",
+      "sha256": "f742aac062cbe34d1ca265980c9e7f899c631f20a2df50ba050e98b1324132a7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/probe.mjs",
+      "sha256": "4a1194a2f24c23713fa5d77e53f8a9e570f994909d8edafee81586f4ebffad01",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/projection/manifest.json",
+      "sha256": "c1401f22c84c72731191b7fe8f0f843597f191300509e4777c8e6c11b98d0412",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/projection/projection.json",
+      "sha256": "87f7bc49a6673a42ba70d336981f8a5003445892e7efa3822987306a273800aa",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/projection/review-template.json",
+      "sha256": "7f0a9fdce1a1b640ad4bf4b92ccbbb9936f55109cd4ed9ad43476cfc5e181150",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/source-fingerprints.json",
+      "sha256": "903a5accc35affc0d67ca9fe1144a1c2f370b4f4820586e722f408d28ab890c4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/target-output.txt",
+      "sha256": "f9bca723ca2e0f40c6ed589c4f7b7746ac73b29a4e4200bcaba83d76a34f07f6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/target-receipt.json",
+      "sha256": "77ec49a03e9c4de325d3b45ce423123f8828c92e0c9988c9813e4af0a04fcc43",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

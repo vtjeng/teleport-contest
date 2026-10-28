@@ -1,0 +1,25 @@
+[
+  {
+    "key": "source-audit:message:src/rect.c:init_rect:8ad3bff1629fb9b8",
+    "evidenceKey": "3f5547fb5733ae0aee25e5a1a953b306c7d8d4aea41334da050b951257f852ac",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "f5dfd3429c6e49676553c7524f33b3484403a7886ff5fec5752cca46f9806939",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "The init_rect diagnostic after alloc cannot execute under the source allocator contract: alloc returns nonnull or panics without returning; MONITOR_HEAP redirects the caller to nhalloc, which also panics before returning null.",
+      "proof": "Exact alloc/init_rect/free_rect bodies compiled in normal and MONITOR_HEAP configurations, with exact nhalloc in the latter. A deterministic malloc adapter returns null; a nonreturning panic capture verifies the allocator-level message is reached, never Could not alloc rect. Successful adapter controls exercise init/reinit/free/reinit and match production JS capacity56, count1 and full-map rectangle. global.h declares and documents the nonnull/nonreturning contract and monitor macro redirection.",
+      "control": "Both successful-allocation configurations produce malloc call counts1,1,2 across initialization/reuse/reallocation and bounds0,0,79,20; JS reuses storage before free and allocates fresh storage afterward.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/rect.c:35",
+        "nethack-c/upstream/src/alloc.c:68",
+        "nethack-c/upstream/src/alloc.c:152",
+        "nethack-c/upstream/include/global.h:303",
+        "nethack-c/upstream/include/global.h:336"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028",
+      "reviewedBase": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

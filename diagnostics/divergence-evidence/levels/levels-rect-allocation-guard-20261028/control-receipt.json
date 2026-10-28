@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:34:14.801Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "4a1194a2f24c23713fa5d77e53f8a9e570f994909d8edafee81586f4ebffad01",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/oracle.c": "f742aac062cbe34d1ca265980c9e7f899c631f20a2df50ba050e98b1324132a7"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/control-output.txt"
+  ]
+}
