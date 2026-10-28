@@ -810,7 +810,7 @@ async function bigrm13(des, state) {
         // 6: random 50%
         () => (mathRandom(0, 1) === 0),
         // 7: corners and center
-        (x, y) => (Math.trunc(x / 3) % 2 === y % 2),
+        (x, y) => ((x / 3) % 2 === y % 2),
         // 8: slanted
         (x, y) => (Math.trunc((x + 1) / 3) === y),
     ];

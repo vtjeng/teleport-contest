@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T17:30:19Z",
+  "asOf": "2026-10-28T18:11:32Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23891,6 +23891,302 @@
               "completedAt": "2026-10-28T17:30:19Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40735991846"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "partly-eaten-container-weight",
+      "kind": "parity-repair",
+      "title": "Weight partly eaten food when stashing it in a container",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "objects PR #8",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pickup.c:in_container",
+          "nethack-c/upstream/src/mkobj.c:weight",
+          "js/pickup.js:in_container"
+        ],
+        "witness": [
+          "recordings/pickup.c/partly-eaten-container.session.json",
+          "recordings/pickup.c/whole-food-container.session.json"
+        ],
+        "test": [
+          "scripts/partly-eaten-container.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+          "committedAt": "2026-10-28T17:54:44Z",
+          "sourceCommit": "2df03d803ed259df4bc163393f65868d2700a7ec",
+          "sourceCommittedAt": "2026-10-28T17:52:15Z",
+          "runs": [
+            {
+              "id": 40740279092,
+              "name": "Checkpoint",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/evidence-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T17:55:25Z",
+              "completedAt": "2026-10-28T18:08:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40740279092"
+            },
+            {
+              "id": 40742420090,
+              "name": "Lint",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:09:07Z",
+              "completedAt": "2026-10-28T18:10:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420090"
+            },
+            {
+              "id": 40742420324,
+              "name": "Dashboard",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:09:07Z",
+              "completedAt": "2026-10-28T18:11:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420324"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "natural-horn-named-possessive",
+      "kind": "parity-repair",
+      "title": "Preserve C literal possessive for a named unicorn horn",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "monsters PR #7",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/muse.c:use_defensive",
+          "js/muse.js:use_defensive"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/unicorn-natural-horn.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+          "committedAt": "2026-10-28T17:54:44Z",
+          "sourceCommit": "180ab356a5256c920a3e035723ca72a1d4d84ee1",
+          "sourceCommittedAt": "2026-10-28T17:52:37Z",
+          "runs": [
+            {
+              "id": 40740279092,
+              "name": "Checkpoint",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/evidence-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T17:55:25Z",
+              "completedAt": "2026-10-28T18:08:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40740279092"
+            },
+            {
+              "id": 40742420090,
+              "name": "Lint",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:09:07Z",
+              "completedAt": "2026-10-28T18:10:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420090"
+            },
+            {
+              "id": 40742420324,
+              "name": "Dashboard",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:09:07Z",
+              "completedAt": "2026-10-28T18:11:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420324"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repeat-declined-prayer",
+      "kind": "parity-repair",
+      "title": "Repeat a declined prayer through the queued command",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #9",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:do_repeat",
+          "nethack-c/upstream/src/pray.c:dopray",
+          "js/cmd.js:rhack"
+        ],
+        "witness": [
+          "recordings/cmd.c/repeat-declined-prayer.session.json",
+          "recordings/cmd.c/explicit-declined-prayer.session.json"
+        ],
+        "test": [
+          "scripts/repeat-declined-prayer.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+          "committedAt": "2026-10-28T17:54:44Z",
+          "sourceCommit": "44def1e0d070baff028830a05e7da5b2125a2cec",
+          "sourceCommittedAt": "2026-10-28T17:53:48Z",
+          "runs": [
+            {
+              "id": 40740279092,
+              "name": "Checkpoint",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/evidence-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T17:55:25Z",
+              "completedAt": "2026-10-28T18:08:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40740279092"
+            },
+            {
+              "id": 40742420090,
+              "name": "Lint",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:09:07Z",
+              "completedAt": "2026-10-28T18:10:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420090"
+            },
+            {
+              "id": 40742420324,
+              "name": "Dashboard",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:09:07Z",
+              "completedAt": "2026-10-28T18:11:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420324"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vrock-gas-call-prompt-vision",
+      "kind": "parity-repair",
+      "title": "Resolve deferred vision before a text input prompt",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "monsters PR #12",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pline.c:vpline",
+          "nethack-c/upstream/win/tty/getline.c:hooked_tty_getlin",
+          "js/getline.js:hooked_tty_getlin"
+        ],
+        "witness": [
+          "recordings/getline.c/vrock-gas-call-prompt.session.json",
+          "recordings/getline.c/vrock-gas-more-control.session.json"
+        ],
+        "test": [
+          "scripts/vrock-gas-call-prompt.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+          "committedAt": "2026-10-28T17:54:44Z",
+          "sourceCommit": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+          "sourceCommittedAt": "2026-10-28T17:54:44Z",
+          "runs": [
+            {
+              "id": 40740279092,
+              "name": "Checkpoint",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/evidence-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T17:55:25Z",
+              "completedAt": "2026-10-28T18:08:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40740279092"
+            },
+            {
+              "id": 40742420090,
+              "name": "Lint",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:09:07Z",
+              "completedAt": "2026-10-28T18:10:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420090"
+            },
+            {
+              "id": 40742420324,
+              "name": "Dashboard",
+              "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:09:07Z",
+              "completedAt": "2026-10-28T18:11:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40742420324"
             }
           ]
         }

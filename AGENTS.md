@@ -27,6 +27,9 @@ explicitly changes the mode:
   positive controls preserve genuine differences. Recheck a disposition when
   its relevant source, configuration, or detector changes, and measure a new
   filter on fixed inputs before relying on it.
+- A proven general rule may exclude its matched leads with recorded evidence.
+  A heuristic may only lower priority: keep those leads visible with the reason
+  and provenance so a reviewer can still investigate them.
 - Four separately authorized analysis-only sessions may submit evidence PRs
   under `diagnostics/divergence-evidence/<shard>/<case-id>/`, scoped to level
   generation, player commands/conduct, monster movement/combat, and
