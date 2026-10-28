@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T18:31:09Z",
+  "asOf": "2026-10-28T18:53:45Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -24336,6 +24336,157 @@
               "completedAt": "2026-10-28T18:31:09Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40745486608"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-guard-occupation-interruption",
+      "kind": "parity-repair",
+      "title": "Preserve vault guard occupation interruption during runtime creation",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #25",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c:invault",
+          "js/allmain.js:finishElapsedTurnAfterHunger",
+          "js/vault.js:invault"
+        ],
+        "witness": [
+          "recordings/vault.c/guard-interrupts-search.session.json",
+          "recordings/vault.c/guard-unoccupied-control.session.json"
+        ],
+        "test": [
+          "scripts/vault-occupation-guard.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+          "committedAt": "2026-10-28T18:37:35Z",
+          "sourceCommit": "7c9049eff68c4c56990caca777930e836d12f93e",
+          "sourceCommittedAt": "2026-10-28T18:35:12Z",
+          "runs": [
+            {
+              "id": 40746935654,
+              "name": "Checkpoint",
+              "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-turn-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:38:02Z",
+              "completedAt": "2026-10-28T18:50:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40746935654"
+            },
+            {
+              "id": 40749006451,
+              "name": "Lint",
+              "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:51:32Z",
+              "completedAt": "2026-10-28T18:53:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40749006451"
+            },
+            {
+              "id": 40749006430,
+              "name": "Dashboard",
+              "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:51:32Z",
+              "completedAt": "2026-10-28T18:53:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40749006430"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-direct-binding",
+      "kind": "parity-repair",
+      "title": "Dispatch directly bound turn command through doturn",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #34",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:rhack",
+          "nethack-c/upstream/src/pray.c:doturn",
+          "js/cmd.js:rhack"
+        ],
+        "witness": [
+          "recordings/cmd.c/turn-direct-bound.session.json",
+          "recordings/cmd.c/turn-altmeta.session.json",
+          "recordings/cmd.c/turn-named-control.session.json"
+        ],
+        "test": [
+          "scripts/turn-direct-binding.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+          "committedAt": "2026-10-28T18:37:35Z",
+          "sourceCommit": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+          "sourceCommittedAt": "2026-10-28T18:37:35Z",
+          "runs": [
+            {
+              "id": 40746935654,
+              "name": "Checkpoint",
+              "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-turn-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:38:02Z",
+              "completedAt": "2026-10-28T18:50:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40746935654"
+            },
+            {
+              "id": 40749006451,
+              "name": "Lint",
+              "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:51:32Z",
+              "completedAt": "2026-10-28T18:53:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40749006451"
+            },
+            {
+              "id": 40749006430,
+              "name": "Dashboard",
+              "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T18:51:32Z",
+              "completedAt": "2026-10-28T18:53:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40749006430"
             }
           ]
         }
