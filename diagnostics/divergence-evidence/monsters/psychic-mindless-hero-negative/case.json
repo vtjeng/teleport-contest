@@ -1,0 +1,74 @@
+{
+  "caseId": "monsters-psychic-mindless-hero-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "binding": "manual/unbound; direct source comparison",
+  "jsBase": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingBase": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "tools": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "hypothesis": "A polymorphed mindless hero should share ordinary mindless-monster psychic immunity; apparent missing JS guard.",
+  "supportedSetup": "Initialized full monster action with native hostile mind flayer, native friendly iron golem/minotaur; real polymon establishes hero iron-golem form; valid RNG reaches psychic hit. Protected-prayer invulnerability bit is a separate initialized control.",
+  "expectedC": {
+    "human": [
+      1,
+      0,
+      1
+    ],
+    "ironGolem": [
+      1,
+      0,
+      1
+    ],
+    "invulnerableIronGolem": [
+      0,
+      0,
+      1
+    ],
+    "order": [
+      "hero damage",
+      "iron golem damage",
+      "minotaur damage"
+    ]
+  },
+  "observedJS": "Matches all three damage vectors through full production action adapter.",
+  "control": "Human hero, mindless ordinary monster, non-mindless ordinary monster, and hero invulnerability distinguish branch scope.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/psychic-mindless-hero-negative/*.test.mjs",
+  "sourceLocations": [
+    "src/monmove.c:mind_blast hero branch and monster loop",
+    "js/monmove.js:mind_blast and dochug psychic trigger",
+    "js/polyself.js:polymon",
+    "src/pray.c:2269 protected prayer sets uinvulnerable; js/pray.js:1867"
+  ],
+  "sourceSha256": {
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "nethack-c/upstream/include/monsters.h": "c63db922770c96a9956d221f364ba4368a9f81f81c8d64ed28251a0506d4a906",
+    "nethack-c/upstream/include/monflag.h": "89e4ef1dc1cd46fa8d81ff833351934c666420abdf902286bdacdca0bb171d88",
+    "js/monmove.js": "b33623a7c02a59be598f349d49ec4007c4f3f7fc730d497abb70caa4a962cf58",
+    "js/polyself.js": "79f65590104dca714ec424bb9fbc6b714eaa75ab4149cfce22863f716943ef45",
+    "js/unported_monster_actions.js": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902",
+    "nethack-c/upstream/src/pray.c": "6d9729fb4c9e7fbed44f355f85a241ccc527e73d53913ca4efb904e23f999f03",
+    "js/pray.js": "4f9dab22dc4fbb6f2e8e87befaa37ca44098fd641711bfa850fe4e2248198277"
+  },
+  "evidenceSha256": {
+    "observations.txt": "b1250adb91c442fb240ac95dbf3914d45ae8ea3906c5557552c62de2fbcde1bd",
+    "oracle.test.mjs": "50ae6ce1495159747979c0446358c6546d9ff881cb9bc6f44f0c9a9ad99a63fd",
+    "README.md": "b41cce4ebcd73d72bb1069f007c1cff866d5143670c223e55ddba87cd080e03f",
+    "probe.test.mjs": "c2bbb557ed20ef78318343834bdc81ea85a2dabdfe8646b9dd399c41b384d06a"
+  },
+  "discoveredAt": "2026-10-28T20:21:30.874605+00:00",
+  "discoveredAtNote": "Record creation after focused tests this continuation.",
+  "reviewedAt": "2026-10-28T20:21:30.874655+00:00",
+  "scope": "Nontelepathic nonlethal target/control values only; no public C recording and no full C/JS action RNG comparison. Not a universal psychic-equivalence or scanner suppression rule.",
+  "nextExperiment": null,
+  "cleanCheckoutValidation": {
+    "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "checkedAt": "2026-10-28T20:21:57.048799+00:00",
+    "tests": 4,
+    "passed": 4,
+    "method": "Clean detached base with only this evidence directory copied; documented command run there."
+  }
+}

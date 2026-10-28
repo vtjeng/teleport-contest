@@ -1,0 +1,18 @@
+variant=0 hero_mindless=0 hero_damage=1 golem_damage=0 minotaur_damage=1 rn2=2 rnd=2
+variant=1 hero_mindless=1 hero_damage=1 golem_damage=0 minotaur_damage=1 rn2=2 rnd=2
+variant=2 hero_mindless=1 hero_damage=0 golem_damage=0 minotaur_damage=1 rn2=1 rnd=1
+✔ complete upstream psychic blast treats mindless hero differently from mindless monster (104.766019ms)
+{"variant":"human","heroMindless":false,"heroDamage":1,"mindlessMonsterDamage":0,"ordinaryMonsterDamage":1,"lines":["A wave of psychic energy pours over you!","It locks on to your mind!"],"draws":[["rn2",5,4],["rn2",20,0],["rn2",10,0],["rnd",15,1],["rn2",10,0],["rnd",15,1],["rn2",5,4],["rn2",5,4]]}
+{"variant":"iron","heroMindless":true,"heroDamage":1,"mindlessMonsterDamage":0,"ordinaryMonsterDamage":1,"lines":["A wave of psychic energy pours over you!","It locks on to your mind!"],"draws":[["rn2",5,4],["rn2",20,0],["rn2",10,0],["rnd",15,1],["rn2",10,0],["rnd",15,1],["rn2",5,4],["rn2",25,24],["rn2",5,4],["rnd",1,1],["rn2",25,24]]}
+{"variant":"iron-invulnerable","heroMindless":true,"heroDamage":0,"mindlessMonsterDamage":0,"ordinaryMonsterDamage":1,"lines":["A wave of psychic energy pours over you!"],"draws":[["rn2",5,4],["rn2",20,0],["rn2",10,0],["rnd",15,1],["rn2",5,4],["rn2",25,24],["rn2",5,4],["rnd",1,1]]}
+✔ psychic blast hero/monster mindlessness asymmetry: human (166.145183ms)
+✔ psychic blast hero/monster mindlessness asymmetry: iron (82.776753ms)
+✔ psychic blast hero/monster mindlessness asymmetry: iron-invulnerable (57.653936ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1126.594664

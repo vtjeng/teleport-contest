@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {game} from '../../../../js/gstate.js';
+import {runSegment} from '../../../../js/jsmain.js';
+import {newMonster,place_monster} from '../../../../js/monst.js';
+import {PM_MIND_FLAYER,PM_IRON_GOLEM,PM_MINOTAUR,NON_PM} from '../../../../js/monsters.js';
+import {ROOM} from '../../../../js/const.js';
+import {mindless} from '../../../../js/mondata.js';
+import {polymon} from '../../../../js/polyself.js';
+import {recalc_block_point,vision_recalc} from '../../../../js/vision.js';
+import {runDirectMonsterAction} from '../../../../js/unported_monster_actions.js';
+for(const variant of ['human','iron','iron-invulnerable'])test(`psychic blast hero/monster mindlessness asymmetry: ${variant}`,async()=>{
+ await runSegment({seed:7710044,datetime:'20261028120000',nethackrc:'OPTIONS=name:Psychic,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n',moves:''});
+ for(const column of game.level.monsters)column.fill(null);game.level.monlist=null;
+ const lines=[],draws=[];
+ const random={rn2:n=>{const v=[10,20].includes(n)?0:n-1;draws.push(['rn2',n,v]);return v;},rnd:n=>{draws.push(['rnd',n,1]);return 1;},rn1:(n,b)=>b,rne:()=>1,rnl:n=>n-1,d:(n,k)=>n};
+ const env={state:game,random,message:async s=>lines.push(s),redraw:()=>{},redrawSquare:()=>{},unsupported:s=>assert.fail(s)};
+ for(let i=0;i<30;i++)game.nhDisplay.terminal.pushKey(32);
+ if(variant!=='human')assert.equal(await polymon(PM_IRON_GOLEM,game,env),1);
+ assert.equal(mindless(game.youmonst.data),variant!=='human');
+ if(variant==='iron-invulnerable')game.u.uinvulnerable=true;
+ const x=game.u.ux,y=game.u.uy;
+ for(let a=x-3;a<=x+5;a++)for(let b=y-1;b<=y+1;b++){game.level.at(a,b).typ=ROOM;game.level.objects[a][b]=null;recalc_block_point(a,b,game);}
+ vision_recalc(0,{state:game});
+ const spawn=(pm,dx,peace,hp)=>{const mon=newMonster({data:game.mons[pm],m_id:6000+pm,mx:x+dx,my:y,mux:x,muy:y,m_lev:game.mons[pm].mlevel,cham:NON_PM,mhp:hp,mhpmax:hp,mcanmove:1,mcansee:1,mpeaceful:peace});place_monster(mon,mon.mx,mon.my,game);mon.nmon=game.level.monlist;game.level.monlist=mon;return mon;};
+ const golem=spawn(PM_IRON_GOLEM,-2,true,80),bull=spawn(PM_MINOTAUR,-3,true,80),actor=spawn(PM_MIND_FLAYER,4,false,36);
+ const hp=()=>variant==='human'?game.u.uhp:game.u.mh;
+ const before=hp();lines.length=0;draws.length=0;game.context.mon_moving=true;
+ await runDirectMonsterAction(actor,env);
+ const delta=before-hp();
+ assert.equal(delta,variant==='iron-invulnerable'?0:1);
+ assert.equal(golem.mhp,80);assert.equal(bull.mhp,79);
+ assert.ok(lines.some(s=>s==='A wave of psychic energy pours over you!'));
+ assert.equal(lines.some(s=>s==='It locks on to your mind!'),variant!=='iron-invulnerable');
+ console.log(JSON.stringify({variant,heroMindless:mindless(game.youmonst.data),heroDamage:delta,mindlessMonsterDamage:80-golem.mhp,ordinaryMonsterDamage:80-bull.mhp,lines,draws}));
+});
