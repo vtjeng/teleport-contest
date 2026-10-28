@@ -2795,7 +2795,8 @@ async function dotravel_target(state = game) {
         await ttyPline('You are already here.', state);
         state.iflags.travelcc.x = 0;
         state.iflags.travelcc.y = 0;
-        state.iflags.getloc_travelmode = false;
+        // C returns here before clearing getloc_travelmode. Its later
+        // location menu still carries the travel-destination title.
         return ECMD_OK;
     }
 
