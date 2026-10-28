@@ -22,7 +22,7 @@
     "nethack-c/upstream/src/cmd.c:4819-4822",
     "nethack-c/upstream/src/cmd.c:5381-5390"
   ],
-  "reproduction": "node --test diagnostics/divergence-evidence/commands/clicklook-queued-dispatch/evidence.test.mjs",
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/clicklook-queued-dispatch/evidence-check.mjs",
   "discardedProbes": "Internal field name getpos_coords was initially used as an option and rejected; subsequent incomplete tip acknowledgements did not reach the action. Excluded from yield. Valid option is whatis_coord.",
   "nextExperimentForOriginLead": "After Main repairs clicklook dispatch, rerun coordinate-followup.recipe.json (whatis_coord:map) against none control; inspect feedback coordinates/history/cursor independently. Do not suppress auto_describe edge based on current blocked execution.",
   "tools": {
@@ -54,7 +54,7 @@
     "coordinate-followup.result.json",
     "current-main-check.json",
     "discovery-bindings.json",
-    "evidence.test.mjs",
+    "evidence-check.mjs",
     "export-validation.json",
     "keys.json",
     "manifest.json",
@@ -67,7 +67,8 @@
     "target.recording.json.gz",
     "target.result.json"
   ],
-  "reviewedCurrentBase": "1c4be74beb32edbfc897de805f218e180f8c6002",
-  "freshness": "Original C/JS observations and hashes stay pinned to 034443e92. Documented tests rerun from clean current Main 1c4be74be with source verification before/after; current-main-check.json preserves result.",
-  "relatedCases": "related-cases.md"
+  "reviewedCurrentBase": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+  "freshness": "Original C/JS observations and hashes stay pinned to 034443e92. Renamed manual runner and discovery guard rerun on clean 034443e92 and current Main 52d1911e5 with source verification before/after. Both controls and unresolved-origin check pass; target remains the expected failure.",
+  "relatedCases": "related-cases.md",
+  "packagingReviewedAt": "2026-10-28T20:43:21.872228+00:00"
 }

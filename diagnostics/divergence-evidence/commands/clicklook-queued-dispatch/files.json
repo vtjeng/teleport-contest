@@ -3,10 +3,6 @@
     "bytes": 14565,
     "sha256": "59a1ab85efede47e3feb65d24d7cf44da57bab110c76aec0785eb22c0650a5ad"
   },
-  "evidence.test.mjs": {
-    "bytes": 1408,
-    "sha256": "335c959f15ba144fdfb3b410348b1ffdcf73540795221b1b84757f644adf5678"
-  },
   "review-decisions.json": {
     "bytes": 1056,
     "sha256": "96a3356d1966fc7f599b60130ae9cc55d5779f13d989c474c7cbb8b1807e3968"
@@ -16,8 +12,8 @@
     "sha256": "c10a765a513052822eddac6323d7aab12a41e050a25ce0b7f461b90621e0bcf4"
   },
   "clean-base-check.json": {
-    "bytes": 1607,
-    "sha256": "01d1f0b1cc890925532be5fb279c1808678b063e6a0410c729e215e8b12857db"
+    "bytes": 2130,
+    "sha256": "329a7a8eb8a5813c0b9b80c8b51a8508bee151b943041180dd6392a82adf2762"
   },
   "binding-source-check.json": {
     "bytes": 234,
@@ -36,8 +32,8 @@
     "sha256": "a257c60dd879d3b55aba962ec1b7156e9cfaaa7e06d1c4072db85ba07f5e3f73"
   },
   "current-main-check.json": {
-    "bytes": 1609,
-    "sha256": "0777bf06bdb2fb831b8845b452719c70a6e90dfcf130370e4769141a4da8a98c"
+    "bytes": 2134,
+    "sha256": "c798870b47fb47505b1b42bd6b0dd6c2a8d1b6be9f8313359b802313a34a2d8c"
   },
   "control.result.json": {
     "bytes": 399,
@@ -52,8 +48,8 @@
     "sha256": "f58c3fac50d645007b1da07f11b771c177f0dc72c24aff83b2f0752cd68d0d44"
   },
   "case.json": {
-    "bytes": 4570,
-    "sha256": "1043d686ba80af616945574b683dbd9a139854ad9372bf262590bdd9c4d36606"
+    "bytes": 4713,
+    "sha256": "b4be1b1a1d1469f8b67182d54955c88421181c690484d0a0fc2e929e44f2fb6e"
   },
   "manifest.json": {
     "bytes": 888,
@@ -64,8 +60,8 @@
     "sha256": "f6f3e772d3063cb93ef13296b4d7bac30742f62682ac22a04d1cd06cb5ed32ce"
   },
   "README.md": {
-    "bytes": 3367,
-    "sha256": "fa3a6b5b8f15392035022e39d0ec01605bc48672c20d0330413fee7caaf7d01b"
+    "bytes": 3422,
+    "sha256": "ede6ced4c147884b2776a7820f474ac08e72c578852170256a67e7ddaeced9d3"
   },
   "control.js-output.json.gz": {
     "bytes": 14726,
@@ -94,5 +90,9 @@
   "coordinate-followup.recipe.json": {
     "bytes": 263,
     "sha256": "e6794df2c20c886169a4e0425485a00f00689bfa9640e4d7a5e6354e037c6ed0"
+  },
+  "evidence-check.mjs": {
+    "bytes": 1408,
+    "sha256": "335c959f15ba144fdfb3b410348b1ffdcf73540795221b1b84757f644adf5678"
   }
 }

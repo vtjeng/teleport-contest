@@ -9,10 +9,10 @@ The first missing JS screen/cursor is zero-based boundary 20, menu `d`. C record
 From repository root:
 
 ```
-node --test diagnostics/divergence-evidence/commands/clicklook-queued-dispatch/evidence.test.mjs
+node --test diagnostics/divergence-evidence/commands/clicklook-queued-dispatch/evidence-check.mjs
 ```
 
-On clean original base `034443e9246cb9fc19dfba9ba2d9c2893132e84c` and refreshed Main `1c4be74beb32edbfc897de805f218e180f8c6002`, the origin-retention test and control pass, while target deliberately fails. The regression stays outside default CI. Complete fixtures, source/tool/recorder hashes and clean-source verification are included. After repair all three checks should pass.
+On clean original base `034443e9246cb9fc19dfba9ba2d9c2893132e84c` and refreshed Main `52d1911e5e9e8ad6a185e2561caaf5fd92edc703`, the origin-retention test and control pass, while target deliberately fails. All six test-discovery guard checks pass. The manual .mjs regression stays outside default CI. Complete fixtures, source/tool/recorder hashes and clean-source verification are included. After repair all three checks should pass.
 
 Fresh recordings:
 
