@@ -1,0 +1,5 @@
+{
+  "name": "UnsupportedHeroCommandBoundaryError",
+  "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, prevmsg, versionshort, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+  "key": 86
+}
