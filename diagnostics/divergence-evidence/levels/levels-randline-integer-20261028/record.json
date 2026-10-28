@@ -1,0 +1,79 @@
+{
+  "caseId": "levels-randline-integer-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "jsBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:56:34.006Z",
+  "reviewedAt": "2026-10-28T17:58:13.957Z",
+  "hypothesis": "Math.trunc in the random-line midpoint/roughness calculations repeats the Lua real-division mistake and changes generated geometry.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/selvar.c:683",
+    "nethack-c/upstream/src/selvar.c:700",
+    "nethack-c/upstream/src/selvar.c:715",
+    "nethack-c/upstream/dat/Bar-strt.lua:44",
+    "js/quest_levels.js:136",
+    "js/quest_levels.js:145",
+    "js/quest_levels.js:160",
+    "js/quest_levels.js:272"
+  ],
+  "supportedSetup": "Direct exported selection_randline at valid integer map coordinates with roughness0/7 and recursion12; shipped Bar-strt.lua wizard level loads at prechosen seeds28103001/28103002. No natural-arrival search or gameplay edits.",
+  "expectedC": "selection_do_randline is C, not a translated Lua arithmetic expression. coordxy/schar operands promote to integers; sums/2, rough/2 and rough*2/3 truncate. rec<1 or identical endpoints returns without adding a point. Midpoint recursion executes left then right.",
+  "observedJS": "All five direct point sets match the verbatim extracted C helper: odd/even midpoint, equal-endpoint control, and two rough paths at Barbarian-start endpoints. C rn2 adapter checks every requested bound, value range and final draw count against the same explicit stream used by JS. Both full C/JS level streams match, with 4586/3982 RNG entries and 27 screens/cursors each.",
+  "negativeProof": "For valid bounded integer map coordinates and nonnegative roughness, the cited source operations are integer C division, so Math.trunc implements their semantics. Replacing these with real division would be a new divergence. This refutes the arithmetic-origin hypothesis; it does not certify coordinate-frame conversion, rejection behavior for arbitrary inputs, or every level seed.",
+  "control": "Even midpoint and identical-endpoint direct cases; two independent rough-path streams. The degenerate case is empty in both C and JS, so it is not evidence of a missing initial endpoint.",
+  "oracle": "probe.mjs extracts the actual pinned selection_do_randline function and compiles it with Clang. Only point storage and rn2 are adapted. coordxy is represented as int for these small bounded values; schar remains signed char. RN2 values are supplied from the seeded JS stream, so the direct oracle compares algorithm/state/draw schedule, not independent PRNG implementation. Fresh full recorder captures provide independent C/JS PRNG-stream comparisons.",
+  "rawCaveat": "The Lua adapter calls both attempts unresolved because it sees C selvar.c RNG attribution rather than a Bar-strt.lua Lua-frame marker. That raw status is preserved. At filename-submit step26 each C recording has 14 selection_do_randline calls; this corroborates execution without overriding the adapter status.",
+  "reproduce": [
+    "source /workspace/.setup/activate.sh",
+    "node diagnostics/divergence-evidence/levels/levels-randline-integer-20261028/probe.mjs",
+    "node scripts/lua-discovery.mjs diagnostics/divergence-evidence/levels/levels-randline-integer-20261028/config.json /tmp/NEW-randline-run"
+  ],
+  "expectedExit": 0,
+  "scannerBinding": {
+    "status": "unbound",
+    "origin": "Manual source inspection. No existing discovery-hub lead or canonical decision binding was used.",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null,
+    "adapterSummarySha256": "7e49649900f2fa332af165a7cc1834b79d779bccf069d67587fa417e101fb342",
+    "note": "Adapter case IDs and all outcomes remain in raw-observations.json; they are not hub review identities."
+  },
+  "fingerprints": {
+    "c": "af33824e7004e7799ca1e88d0b00813bb5b9a1087015b9fb5a250473b2318b58",
+    "js": "2973147f5a4d5df11a690657d8e5573f29035b0beeaa35619d9a0d172c505bd5",
+    "probe": "852d3162bce9b8905edd17784cb9c0d54e7bcf0f3ebfc6ba6ef389e14df6cfa0",
+    "config": "eb93164285b09c12cf18b1db8d694938dec86e377cb9cf34a8254ce20af7064c",
+    "adapter": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "comparison": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "recorderDriver": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "installedLua": "922f5de0ce375557ffb5ef31b9865a1c8f547e093ae06120f1bec0959ab82adc",
+    "toolchain": {
+      "clang": "Debian clang 19.1.7 (3+b1)",
+      "node": "v24.19.0"
+    },
+    "environment": {
+      "RERECORD_TZ": "America/New_York",
+      "SESSION_REPLAY_TIMEOUT_MS": "45000",
+      "NETHACK_LUA_RNGLOG_CTX": "default"
+    }
+  },
+  "evidencePaths": [
+    "0.js-output.json.gz",
+    "0.recorded.session.json.gz",
+    "1.js-output.json.gz",
+    "1.recorded.session.json.gz",
+    "28103001.recipe.json",
+    "28103002.recipe.json",
+    "config.json",
+    "observations.json",
+    "probe.mjs",
+    "raw-observations.json"
+  ],
+  "safeGeneralization": "Resolve arithmetic to its source language and operand types before classifying truncation. This exact proof does not suppress arbitrary Math.trunc or Lua / differences. Preserve the separate real-division divergence in PR #13.",
+  "historyCheck": "Fetched current main before selection and checked open PRs/history. Main owns PR #13; no overlapping random-line claim found.",
+  "adapterElapsedMs": 2700,
+  "nextExperiment": null
+}

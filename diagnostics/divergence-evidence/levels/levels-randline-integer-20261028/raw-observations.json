@@ -1,0 +1,160 @@
+[
+  {
+    "id": "471289914151c235c409cf6b18de25d9c50481cf305a461a37ac0a4c9036982c",
+    "sourceSha256": "922f5de0ce375557ffb5ef31b9865a1c8f547e093ae06120f1bec0959ab82adc",
+    "recipeSha256": "0a7ccca6da4bde9320432bf75adc3e2b8ead40ce2df21697df7b13b047ab2ba4",
+    "files": [
+      {
+        "path": "0.recorded.session.json.gz",
+        "uncompressedSha256": "86e7d14d20fad0e30abe7ce8b1d74548a78e7faa868c797808a8a70ce0ef4542"
+      },
+      {
+        "path": "0.js-output.json.gz",
+        "uncompressedSha256": "c907f8f9fc2291c6eae105a4aab25bd8103d772639c34b1be5fc87e85bfd471a"
+      }
+    ],
+    "step26RandlineDraws": [
+      "rn2(7)=5 @ selection_do_randline(selvar.c:704)",
+      "rn2(7)=6 @ selection_do_randline(selvar.c:705)",
+      "rn2(4)=3 @ selection_do_randline(selvar.c:704)",
+      "rn2(4)=2 @ selection_do_randline(selvar.c:705)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:704)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:705)",
+      "rn2(2)=0 @ selection_do_randline(selvar.c:704)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:705)",
+      "rn2(4)=3 @ selection_do_randline(selvar.c:704)",
+      "rn2(4)=1 @ selection_do_randline(selvar.c:705)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:704)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:705)",
+      "rn2(2)=0 @ selection_do_randline(selvar.c:704)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:705)"
+    ],
+    "attempts": [
+      {
+        "status": "unresolved",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4586,
+              "js": 4586
+            },
+            "screens": {
+              "c": 27,
+              "js": 27
+            },
+            "cursors": {
+              "c": 27,
+              "js": 27
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": false,
+          "witnesses": [],
+          "jsProgramEvidence": "unresolved",
+          "cUncoveredPercentSites": [],
+          "uncoveredPercentSites": []
+        },
+        "rawHashes": {
+          "recipe.session.json": "0a7ccca6da4bde9320432bf75adc3e2b8ead40ce2df21697df7b13b047ab2ba4",
+          "recorded.session.json": "86e7d14d20fad0e30abe7ce8b1d74548a78e7faa868c797808a8a70ce0ef4542",
+          "js-output.json": "c907f8f9fc2291c6eae105a4aab25bd8103d772639c34b1be5fc87e85bfd471a"
+        },
+        "elapsedMs": 1065
+      }
+    ]
+  },
+  {
+    "id": "bcd37b1066e41c50074e1e545e4e36eaf390fe8e384497ff73992e72d9c9b55c",
+    "sourceSha256": "922f5de0ce375557ffb5ef31b9865a1c8f547e093ae06120f1bec0959ab82adc",
+    "recipeSha256": "6c616606438653aea2e5a916646929344e7175521134d602950810c7ff6c21ef",
+    "files": [
+      {
+        "path": "1.recorded.session.json.gz",
+        "uncompressedSha256": "b07638d64d8f759f2fe2967ee5527a3069d62ae1a7ec36b8df2cb1f5fb3e68c4"
+      },
+      {
+        "path": "1.js-output.json.gz",
+        "uncompressedSha256": "a3499a8148aadc4dd9e447cf5043d268b5ed22e9ff899139c7c79e3cd262c63f"
+      }
+    ],
+    "step26RandlineDraws": [
+      "rn2(7)=5 @ selection_do_randline(selvar.c:704)",
+      "rn2(7)=2 @ selection_do_randline(selvar.c:705)",
+      "rn2(4)=2 @ selection_do_randline(selvar.c:704)",
+      "rn2(4)=3 @ selection_do_randline(selvar.c:705)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:704)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:705)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:704)",
+      "rn2(2)=0 @ selection_do_randline(selvar.c:705)",
+      "rn2(4)=3 @ selection_do_randline(selvar.c:704)",
+      "rn2(4)=1 @ selection_do_randline(selvar.c:705)",
+      "rn2(2)=0 @ selection_do_randline(selvar.c:704)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:705)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:704)",
+      "rn2(2)=1 @ selection_do_randline(selvar.c:705)"
+    ],
+    "attempts": [
+      {
+        "status": "unresolved",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 3982,
+              "js": 3982
+            },
+            "screens": {
+              "c": 27,
+              "js": 27
+            },
+            "cursors": {
+              "c": 27,
+              "js": 27
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": false,
+          "witnesses": [],
+          "jsProgramEvidence": "unresolved",
+          "cUncoveredPercentSites": [],
+          "uncoveredPercentSites": []
+        },
+        "rawHashes": {
+          "recipe.session.json": "6c616606438653aea2e5a916646929344e7175521134d602950810c7ff6c21ef",
+          "recorded.session.json": "b07638d64d8f759f2fe2967ee5527a3069d62ae1a7ec36b8df2cb1f5fb3e68c4",
+          "js-output.json": "a3499a8148aadc4dd9e447cf5043d268b5ed22e9ff899139c7c79e3cd262c63f"
+        },
+        "elapsedMs": 1095
+      }
+    ]
+  }
+]
