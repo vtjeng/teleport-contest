@@ -3,7 +3,7 @@
   "shard": "commands",
   "outcome": "confirmed divergence",
   "discoveredAt": "2026-10-28T17:46:19.589Z",
-  "reviewedAt": "2026-10-28T17:49:29.109Z",
+  "reviewedAt": "2026-10-28T17:51:27.207Z",
   "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
   "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
   "fingerprints": {
@@ -45,7 +45,7 @@
   ],
   "hypothesis": "The input helper mistakes Number.MAX_SAFE_INTEGER for C LONG_MAX, prematurely zeroing an entered count.",
   "supportedReachableSetup": "Ordinary neutral human Ranger with starting arrows; i opens inventory, c selects the 58-arrow stack, I selects the split-count item action. Type 9007199254740992 and space. No state injection, debug options, wishes, or object internals. Rejected count never splits the stack.",
-  "expectedC": "Zero-based boundary 19 displays Count: 9007199254740992, cursor [23,0,1]. Space rejects the amount as less than 58 required. This value fits recorder C long, and C AppendLongDigit only rejects signed-long overflow.",
+  "expectedC": "Zero-based boundary 19 displays Count: 9007199254740992, cursor [23,0,1]. Space yields Amount to split from current stack must be less than 58. The count fits the recorded C long, and AppendLongDigit rejects only signed-long overflow.",
   "observedJS": "Boundary 19 displays Count: 0, cursor [8,0,1]; following space says amount must be at least 1. All 2260 RNG calls and the preceding 19 screens match; total screens/cursors are 21 each.",
   "control": "Same ordinary setup, count 9007199254740991. Strict parity across 21 screens/cursors and 2260 RNG calls; both reject as too large for the 58-arrow stack.",
   "causalScope": "Command-count parsing and echo for maxcount=0 only. Parse/getobj callers capped at LARGEST_INT=32767 do not reach this threshold. No claim that JS Numbers can represent every C long; a repair must consider exact decimal accumulation and overflow semantics, not just raise the threshold.",
@@ -71,7 +71,7 @@
   ],
   "nextExperiment": "After a repair, test adjacent nonrepresentable decimal values and C signed-long overflow; the current witness does not certify that broader domain.",
   "evidenceSha256": {
-    "README.md": "0a65efa1bae2e5d0b8e544a2fc3d39bb886b64641bc1e15beed2b50e0076e6f3",
+    "README.md": "95ffe5bb2c3c71678fab5f48e7384572dbdee91d2fab2a3e946118f1ac75d475",
     "candidate.test.mjs": "ff70c0e1a222bf15f8b4a0e3233937ea18f85725c799d8276b53c4d2aeada9e4",
     "control.comparison.json": "5facbc5e249015793b33204e8a7c2f122f0a19cdf4100e59e403b9a66be62a67",
     "control.js-output.json": "c2ad64de5e14d12ef28fe66baab1e81f4c153243e8c58e0462550546eb5754ea",
@@ -86,5 +86,21 @@
   "validation": {
     "focused": "Control passes; only witness intentionally fails",
     "cleanSnapshotCli": "Witness exits 1 at numeric echo; control exits 0"
+  },
+  "platformScope": {
+    "cArithmetic": "AppendLongDigit uses signed long and LONG_MAX; the observed oracle preserves 9007199254740992. This result is scoped to the recorded 64-bit-long environment, not all C ABIs.",
+    "compilerObservation": {
+      "command": "clang -dM -E -x c /dev/null",
+      "sizeofLong": 8,
+      "longMax": "9223372036854775807",
+      "LP64": 1
+    },
+    "binaryObservation": "ELF 64-bit x86-64 recorder; binary hash pinned above. ELF class alone is not proof of long width; source and the actual recorded decimal result establish the relevant behavior.",
+    "portability": "On an ABI with 32-bit long, C overflows earlier and this exact expected count is invalid. Main should match the designated recorder platform. The adjacent control is below the JS safe-integer boundary and fits the recorded C long.",
+    "ordinaryInput": "The value is entered as 16 decimal digits into a normal inventory action. No huge item stack is required; both witness and control are rejected without a split."
+  },
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual review of get_count numeric accumulation followed by reachable differential probes. No corresponding canonical scanner lead was identified; this case does not authorize scanner suppression."
   }
 }

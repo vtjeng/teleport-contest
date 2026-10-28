@@ -19,3 +19,5 @@ Expected exits: witness 1, control 0, candidate tests 1 (control passes; witness
 `get_count` uses `Number.MAX_SAFE_INTEGER` as its overflow boundary; C's `AppendLongDigit` uses `LONG_MAX`. The reachable caller passes `maxcount=0`. Ordinary command prefixes capped at 32767 do not expose this. Implementing exact C-long parsing may require more than changing the threshold; nearby decimal values beyond JS integer precision remain separate follow-up checks.
 
 This case concerns command input parsing only, with no object implementation changes. See `case.json` for oracle hashes, source locations, raw setup observations and scope.
+
+Platform scope: the oracle preserves this value in C `long`. The available recorder toolchain reports `sizeof(long)=8`, `LONG_MAX=9223372036854775807`, and LP64; the recorder is an x86-64 ELF binary whose hash is pinned. The exact expectation is for that 64-bit-long environment. A 32-bit-long ABI would overflow earlier and needs a different expectation. The 16-digit input is ordinary player input; neither case requires a huge stack or performs a split.
