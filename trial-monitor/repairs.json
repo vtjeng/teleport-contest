@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T22:27:11Z",
+  "asOf": "2026-10-28T22:46:35Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25885,6 +25885,226 @@
               "completedAt": "2026-10-28T22:27:11Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40779844243"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sleeping-grabber-accessible-location",
+      "title": "Preserve sleeping grabber location in accessible message",
+      "investigator": "monsters PR #73",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mhitm.c:slept_monst",
+          "js/mhitm.js:slept_monst",
+          "js/pline.js:pline_mon"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/73"
+        ],
+        "test": [
+          "scripts/mhitm-sleep-release-accessible.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+          "committedAt": "2026-10-28T22:32:21Z",
+          "sourceCommit": "03885c5cff03d34970e3cf8fb02aa50f9fcafa3e",
+          "sourceCommittedAt": "2026-10-28T22:32:12Z",
+          "runs": [
+            {
+              "id": 40780822407,
+              "name": "Checkpoint",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/lichen-grip-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:33:04Z",
+              "completedAt": "2026-10-28T22:43:37Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40780822407"
+            },
+            {
+              "id": 40782266113,
+              "name": "Lint",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:44:32Z",
+              "completedAt": "2026-10-28T22:46:03Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40782266113"
+            },
+            {
+              "id": 40782266116,
+              "name": "Dashboard",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:44:32Z",
+              "completedAt": "2026-10-28T22:46:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40782266116"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "postpoly-monster-weapon-gate",
+      "title": "Use pre-movement species for monster ranged attack gate",
+      "investigator": "monsters PR #70",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c:dochug",
+          "js/monmove.js:dochug"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/70"
+        ],
+        "test": [
+          "scripts/monmove-postpoly-weapon-gate.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+          "committedAt": "2026-10-28T22:32:21Z",
+          "sourceCommit": "e4cb3d2854aaf4b0d0fa6a4fa74bc050a06cd6ad",
+          "sourceCommittedAt": "2026-10-28T22:32:16Z",
+          "runs": [
+            {
+              "id": 40780822407,
+              "name": "Checkpoint",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/lichen-grip-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:33:04Z",
+              "completedAt": "2026-10-28T22:43:37Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40780822407"
+            },
+            {
+              "id": 40782266113,
+              "name": "Lint",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:44:32Z",
+              "completedAt": "2026-10-28T22:46:03Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40782266113"
+            },
+            {
+              "id": 40782266116,
+              "name": "Dashboard",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:44:32Z",
+              "completedAt": "2026-10-28T22:46:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40782266116"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "retained-door-terrain-followup",
+      "title": "Apply terrain follow-up writes to resulting map type",
+      "investigator": "levels PR #61",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:sel_set_ter",
+          "js/mklev.js:sel_set_ter"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-arboreal-paint-20261028/probe.mjs"
+        ],
+        "test": [
+          "scripts/mklev-air-retained-door.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+          "committedAt": "2026-10-28T22:32:21Z",
+          "sourceCommit": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+          "sourceCommittedAt": "2026-10-28T22:32:21Z",
+          "runs": [
+            {
+              "id": 40780822407,
+              "name": "Checkpoint",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/lichen-grip-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:33:04Z",
+              "completedAt": "2026-10-28T22:43:37Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40780822407"
+            },
+            {
+              "id": 40782266113,
+              "name": "Lint",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:44:32Z",
+              "completedAt": "2026-10-28T22:46:03Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40782266113"
+            },
+            {
+              "id": 40782266116,
+              "name": "Dashboard",
+              "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:44:32Z",
+              "completedAt": "2026-10-28T22:46:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40782266116"
             }
           ]
         }
