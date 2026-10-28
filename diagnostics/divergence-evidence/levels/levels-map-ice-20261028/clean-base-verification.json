@@ -1,0 +1,25 @@
+{
+  "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "verifiedAt": "2026-10-28T20:34:13.791178+00:00",
+  "setup": "Clean detached gameplay checkout with this evidence directory overlaid; no C submodule required.",
+  "results": [
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-map-ice-20261028/probe.mjs target",
+      "exit": 1,
+      "stdoutSha256": "bcd99c2222334a510d1c646fcfbdc97b1ce61cae946afd02e867cd652dca8383",
+      "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: init=true pools=false map\n+ actual - expected\n\n  [\n    [\n      10,\n      6,\n      33,\n+     0\n-     16\n    ],\n    [\n      10,\n      7,\n      33,\n+     0\n-     16\n    ],\n    [\n      10,\n      8,\n      33,\n+     0\n-     16\n    ],\n    [\n      11,\n      6,\n      33,\n+     0\n-     16\n    ],\n    [\n      11,\n      7,\n      33,\n+     0\n-     16\n    ],\n    [\n      11,\n      8,\n      33,\n+     0\n-     16\n    ],\n    [\n      12,\n      6,\n      33,\n+     0\n-     16\n    ],\n    [\n      12,\n      7,\n      33,\n+     0\n-     16\n    ],\n    [\n      12,\n      8,\n      33,\n+     0\n-     16\n    ]\n  ]\n\n    at file:///workspace/levels-clean-base-09/diagnostics/divergence-evidence/levels/levels-map-ice-20261028/probe.mjs:50:51 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: [\n    [ 10, 6, 33, 0 ],\n    [ 10, 7, 33, 0 ],\n    [ 10, 8, 33, 0 ],\n    [ 11, 6, 33, 0 ],\n    [ 11, 7, 33, 0 ],\n    [ 11, 8, 33, 0 ],\n    [ 12, 6, 33, 0 ],\n    [ 12, 7, 33, 0 ],\n    [ 12, 8, 33, 0 ]\n  ],\n  expected: [\n    [ 10, 6, 33, 16 ],\n    [ 10, 7, 33, 16 ],\n    [ 10, 8, 33, 16 ],\n    [ 11, 6, 33, 16 ],\n    [ 11, 7, 33, 16 ],\n    [ 11, 8, 33, 16 ],\n    [ 12, 6, 33, 16 ],\n    [ 12, 7, 33, 16 ],\n    [ 12, 8, 33, 16 ]\n  ],\n  operator: 'deepStrictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n"
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-map-ice-20261028/probe.mjs control",
+      "exit": 0,
+      "stdoutSha256": "d5f89047514ca0eb0ac41e3300acef868d930532573c69572ee8b6f9f362af0b",
+      "stderr": ""
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-map-ice-20261028/probe.mjs observe",
+      "exit": 0,
+      "stdoutSha256": "2c21273df67b69d8f96af1ce2cca3e077854b17079cbc9efa8cd849730ba1fff",
+      "stderr": ""
+    }
+  ]
+}
