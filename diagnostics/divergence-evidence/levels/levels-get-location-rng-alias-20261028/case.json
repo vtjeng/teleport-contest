@@ -1,0 +1,67 @@
+{
+  "caseId": "levels-get-location-rng-alias-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "scope": "Only the scanner assertion that this function omits its rn2 edge. No whole-function or gameplay equivalence claim.",
+  "hypothesis": "get_location omits C rn2 calls",
+  "proof": "coordinateEnvironment defaults randomCore to imported rn2; the matching branches invoke randomCore with the C bounds and order. Relocation/alias obscures the direct-name edge.",
+  "expectedC": "get_location: xstart+rn2(xsize), then ystart+rn2(ysize); fixed coordinate uses no draws",
+  "observedJS": "Focused default-RNG and boundary checks match the C source expressions and draw counts.",
+  "setup": "Supported coordinate-helper inputs in a valid map frame/regular room; deterministic helper check, not a public-play recording.",
+  "control": "Fixed coordinates consume zero RNG calls; lower/upper scripted results verify bounds.",
+  "baseJs": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:04:29.728Z",
+  "reviewedAt": "2026-10-28T18:06:43.123700+00:00",
+  "scanner": {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:get_location:rn2",
+    "evidenceKey": "d8fb55ba1ddd894ab38f7d95abf9142317ab6d2cb1de5b6a0a48ced549a3b43e",
+    "runId": "141a19a089813e75a9ae",
+    "reviewFingerprint": "4e7859df97db4ef22826512197ca067ae28338dc922c5f62a9f18e0dc7cb5e86",
+    "status": null
+  },
+  "discoveryRun": {
+    "path": "/tmp/levels-hub-20261028-05/run.json",
+    "sha256": "79589345756287551d73f4d0a94f28ee33070cd817bbd3c51849168fc78fabc2",
+    "runId": "141a19a089813e75a9ae",
+    "portableProjection": "../levels-get-location-rng-alias-20261028/bound-run.json",
+    "projectionManifest": "../levels-get-location-rng-alias-20261028/projection.json"
+  },
+  "toolHashes": {
+    "sourceAudit": "89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+    "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+    "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+    "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+  },
+  "methodConfigHashes": {
+    "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+    "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+    "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+    "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+    "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+  },
+  "sourceHashes": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "js/room_coordinates.js": "9621ab8b435e3803438c5b0762793ba2db554a2f57f0f178f443b1663e8c08d9",
+    "js/rng.js": "072e95b76b014136e7578f023e7eb5165aea0b830063e60f4e8adf669e6bcb98"
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:1202-1268",
+    "js/room_coordinates.js:43-51",
+    "js/room_coordinates.js:217-277"
+  ],
+  "reproduce": "node --test diagnostics/divergence-evidence/levels/levels-get-location-rng-alias-20261028/focused.test.mjs",
+  "evidencePaths": [
+    "focused.test.mjs",
+    "result.tap"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+    "checkedAt": "2026-10-28T18:07:38.878584+00:00",
+    "exitCode": 0,
+    "combinedTestsPassed": 7,
+    "method": "Detached base worktree with evidence-only overlay; ran both documented test files together."
+  }
+}
