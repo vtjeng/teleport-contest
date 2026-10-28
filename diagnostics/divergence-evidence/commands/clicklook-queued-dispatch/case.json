@@ -56,10 +56,10 @@
     "discovery-bindings.json",
     "evidence.test.mjs",
     "export-validation.json",
-    "files.json",
     "keys.json",
     "manifest.json",
     "projection.json",
+    "related-cases.md",
     "review-decisions.json",
     "review-template.json",
     "target.js-output.json.gz",
@@ -68,5 +68,6 @@
     "target.result.json"
   ],
   "reviewedCurrentBase": "1c4be74beb32edbfc897de805f218e180f8c6002",
-  "freshness": "Original C/JS observations and hashes stay pinned to 034443e92. Documented tests rerun from clean current Main 1c4be74be with source verification before/after; current-main-check.json preserves result."
+  "freshness": "Original C/JS observations and hashes stay pinned to 034443e92. Documented tests rerun from clean current Main 1c4be74be with source verification before/after; current-main-check.json preserves result.",
+  "relatedCases": "related-cases.md"
 }
