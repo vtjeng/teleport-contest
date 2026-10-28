@@ -99,13 +99,22 @@ export function decodeEvidence(manifest, annotations, run, repository, kind) {
 
 function pages(github, path, field) {
     const values = [];
+    let total;
     for (let page = 1; ; page++) {
         ensure(page <= 1000, 'API pagination exceeds limit');
         const response = JSON.parse(github(`${path}${path.includes('?') ? '&' : '?'}per_page=100&page=${page}`));
         const rows = field ? response[field] : response;
-        ensure(Array.isArray(rows), 'invalid paginated API response');
+        ensure(Array.isArray(rows) && rows.length <= 100, 'invalid paginated API response');
+        if (field && response.total_count !== undefined) {
+            ensure(Number.isSafeInteger(response.total_count) && response.total_count >= 0
+                && (total === undefined || total === response.total_count), 'API page total changed or invalid');
+            total = response.total_count;
+        }
         values.push(...rows);
-        if (rows.length < 100) return values;
+        if (rows.length < 100) {
+            ensure(total === undefined || values.length === total, 'incomplete API pages');
+            return values;
+        }
     }
 }
 
@@ -135,6 +144,9 @@ export function readHostedEvidence({github, run, repository, kind}) {
     let manifest;
     try {manifest = JSON.parse(check.output?.summary);} catch {throw new Error('hosted evidence: combine job has no API result manifest');}
     const annotations = pages(github, `repos/${repository}/check-runs/${checkId}/annotations`);
+    if (check.output?.annotations_count !== undefined)
+        ensure(Number.isSafeInteger(check.output.annotations_count) && check.output.annotations_count === annotations.length,
+            'incomplete annotation pages');
     const files = decodeEvidence(manifest, annotations, run, repository, kind);
     return {files, proof: {provider: 'github-checks', checkRunId: checkId,
         manifest, fileHashes: Object.fromEntries([...files].map(([path, bytes]) => [path, sha256(bytes)]))}};
