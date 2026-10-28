@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+  "originalRunSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+  "originalLeadCount": 12537,
+  "projectionSha256": "805b850957773583f9b722a200f06d5dd8eb1c720e18b231b08233f98fe8cc0c",
+  "runId": "601667573d5ca5a23adf",
+  "selectedKeys": [
+    "source-audit:message:src/mcastu.c:castmu:2539bfa243197280"
+  ],
+  "decisionsSha256": "0be3fa716cf11fcfd3063c3fa17a24f9a6d0079b9448ce3010cef98c7802b859",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 1,
+    "decisionsChecked": 1,
+    "before": {
+      "active": 1,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 1,
+      "excluded": 0
+    }
+  }
+}
