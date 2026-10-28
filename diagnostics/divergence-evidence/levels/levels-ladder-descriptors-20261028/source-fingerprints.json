@@ -1,0 +1,25 @@
+{
+  "testedJsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:53:54.657027+00:00",
+  "reviewedAt": "2026-10-28T22:53:54.657027+00:00",
+  "toolingSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "exactCBodies": {
+    "nethack-c/upstream/src/sp_lev.c": [
+      "l_create_stairway"
+    ],
+    "nethack-c/upstream/src/nhlua.c": [
+      "nhl_get_xy_params"
+    ]
+  },
+  "jsFunctionUnchangedFromScanBase": true,
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:l_create_stairway": "deefce7ecf0a15df687b2dd62337a8a65fc239849a60caa554a21c6c90cc46cd",
+    "nethack-c/upstream/src/nhlua.c:nhl_get_xy_params": "a6821a12b3d557b3e3b2ed17d9a711c5b9c0f0c661d371c047c4cf2b6419cd97",
+    "js/mklev.js:l_create_stairway": "3d32ed7df0c776527e2acf615fa32a1af9411b38a9e9f450619f6ea6ec36edc0"
+  },
+  "limitations": [
+    "Eight fixed down-ladder forms on D:1 only. No random coordinates, up-ladder, dungeon-end stairs, existing trap removal, runtime traversal or full metadata proof.",
+    "C uses typed argument readers and fixed coordinate conversion, and captures stairway_add arguments; its complete list allocator and Lua interpreter are not executed."
+  ]
+}

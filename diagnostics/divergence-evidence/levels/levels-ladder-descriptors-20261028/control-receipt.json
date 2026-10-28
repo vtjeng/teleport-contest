@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:52:59.288Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "180d538dcf45ad7e3b4fb58dc02dd19938c067c159478115b6917034c56cf10a",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/oracle.c": "5c05cd9eb3464e4a8635d1fe98723abd93581b6331aca1d1d928467f2e1099ab"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/control-output.txt"
+  ]
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:l_create_stairway:isLuaTable",
+    "evidenceKey": "af8f0d96ed3af3d97b6ae613c9caf04e2cb5a1a826adb386ce41d0e5195071cd",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "f19e4504b352534151091d3560874984157a1f494495523abbc2f79571036d70",
+    "status": null
+  }
+]

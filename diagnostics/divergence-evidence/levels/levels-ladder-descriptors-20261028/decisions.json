@@ -1,0 +1,23 @@
+[
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:l_create_stairway:isLuaTable",
+    "evidenceKey": "af8f0d96ed3af3d97b6ae613c9caf04e2cb5a1a826adb386ce41d0e5195071cd",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "f19e4504b352534151091d3560874984157a1f494495523abbc2f79571036d70",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS isLuaTable dispatch corresponds to C LUA_TTABLE classification for the tested supported ladder descriptors.",
+      "proof": "Eight public down-ladder calls on D:1: x/y table, coord table, direction+two integers, two integers with default direction × two frames. Exact C l_create_stairway/nhl_get_xy_params with fixed typed readers and coordinate adapter match stairway-add arguments, terrain/ladder fields and SpLev_Map marker. No full C linked-list, random coordinate, up-stair/dungeon-end, trap removal, parser-generalization or movement claim.",
+      "control": "The two positional forms independently reach the non-table branch and agree with table forms at both positions.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:4147",
+        "nethack-c/upstream/src/nhlua.c:506",
+        "js/mklev.js:3042"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028",
+      "reviewedBase": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

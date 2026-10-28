@@ -1,0 +1,113 @@
+{
+  "scope": "15 exclusion registrations with two entries each: three coordinate frames and default/four types. Registration only.",
+  "results": [
+    {
+      "frame": 0,
+      "type": -1,
+      "expected": [
+        [
+          4,
+          1,
+          0,
+          3,
+          1
+        ],
+        [
+          4,
+          2,
+          1,
+          4,
+          2
+        ]
+      ],
+      "actual": [
+        [
+          4,
+          1,
+          0,
+          3,
+          1
+        ],
+        [
+          4,
+          2,
+          1,
+          4,
+          2
+        ]
+      ]
+    },
+    {
+      "frame": 1,
+      "type": -1,
+      "expected": [
+        [
+          4,
+          10,
+          6,
+          12,
+          7
+        ],
+        [
+          4,
+          11,
+          7,
+          13,
+          8
+        ]
+      ],
+      "actual": [
+        [
+          4,
+          10,
+          6,
+          12,
+          7
+        ],
+        [
+          4,
+          11,
+          7,
+          13,
+          8
+        ]
+      ]
+    },
+    {
+      "frame": 2,
+      "type": -1,
+      "expected": [
+        [
+          4,
+          11,
+          5,
+          13,
+          6
+        ],
+        [
+          4,
+          12,
+          6,
+          14,
+          7
+        ]
+      ],
+      "actual": [
+        [
+          4,
+          11,
+          5,
+          13,
+          6
+        ],
+        [
+          4,
+          12,
+          6,
+          14,
+          7
+        ]
+      ]
+    }
+  ]
+}
