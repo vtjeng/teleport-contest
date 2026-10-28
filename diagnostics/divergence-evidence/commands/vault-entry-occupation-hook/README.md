@@ -19,3 +19,5 @@ Expected: target exits 1, control exits 0, candidate test exits 1 with only its 
 Raw C and JS captures are gzip-compressed to keep this setup small. `gzip -dc <file.json.gz>` exposes their unchanged JSON. `case.json` pins compressed and uncompressed hashes, source/tool/oracle provenance, reachability and scope. `boundary.json` records the supported diagnostic hook output.
 
 The caller in `allmain.js` and the environment passed into runtime creation in `vault.js` need source-based occupation plumbing. The later explicit stop callback also lacks its message environment, but the demonstrated earliest failure is the runtime-creation guard; those are not counted as two bugs.
+
+Fresh target/control runs from a clean current-Main snapshot `acec7a75751e61f8e6b78c2f08c1579d19a10869` reproduce the same results; see `current-main-check.json`. Original captures and their initial base remain unchanged.

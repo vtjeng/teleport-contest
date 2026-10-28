@@ -1,0 +1,20 @@
+{
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "checkedAt": "2026-10-28T18:15:55.086Z",
+  "archiveSha256": "e0778947b9f4cbad35322dbf07bdf4dfd2a44587c12f34318670c41a97781919",
+  "method": "Pristine git archive verified before/after replay, scorer overlay applied, fresh isolated C recorder copies",
+  "checks": [
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/vault-entry-occupation-hook/witness.recipe.json",
+      "status": 1,
+      "stdout": "PRNG length mismatch: C=6228, JS=6163\nFirst PRNG mismatch at call 6164 (segment 1, step 64, key \"s\"):\n  C: rnd(2)=1\n  C caller: next_ident(mkobj.c:521)\n  JS: <missing>\nScreen length mismatch: C=65, JS=63\nFirst screen mismatch at boundary 64 (segment 1, step 64, key \"s\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=65, JS=63\nFirst cursor mismatch at boundary 64 (segment 1, step 64, key \"s\"):\n  C: [71,0,1]\n  JS: <missing>\nAnimation frame length mismatch: C=4, JS=0\nAnimation frames: match\nRESULT: FAIL\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/vault-entry-occupation-hook/control.recipe.json",
+      "status": 0,
+      "stdout": "PRNG length: C=6228, JS=6228\nPRNG values: match\nScreen length: C=91, JS=91\nScreen cells and attributes: match\nCursor length: C=91, JS=91\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\n",
+      "stderr": ""
+    }
+  ]
+}

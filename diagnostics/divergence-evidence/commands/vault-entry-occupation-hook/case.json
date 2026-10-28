@@ -3,7 +3,7 @@
   "shard": "commands",
   "outcome": "confirmed divergence",
   "discoveredAt": "2026-10-28T18:07:34.577Z",
-  "reviewedAt": "2026-10-28T18:12:47.264Z",
+  "reviewedAt": "2026-10-28T18:16:06.506Z",
   "jsBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
   "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
   "discoveryBinding": {
@@ -83,14 +83,14 @@
       "compressedSha256": "9cfddcb31481558324e7155691e3161615ff49607c140a3639aaed454f6a7007"
     }
   },
-  "historyCheck": "Current fetched main cfb72d469; no matching vault/occupation repair in history or open PR search. Independent from commands PRs #9/#15.",
+  "historyCheck": "Current fetched main cfb72d469; no matching vault/occupation repair in history or open PR search. Independent from commands PRs #9/#15. Clean current-main replay at acec7a757 reproduces identical target failure and passing control; relevant allmain/vault/makemon_create sources unchanged.",
   "nextExperiment": "After Main wires the occupation continuation, verify exactly one stop message and continued name prompt; preserve C ordering between guard creation, stop_occupation and prompting.",
   "validation": {
     "focused": "Control passes; only witness intentionally fails",
     "cleanBase": "Documented CLI witness exits 1 at boundary 63; control exits 0"
   },
   "evidenceSha256": {
-    "README.md": "bbd6ffd98708e142ff3e1469ff229a179d674099b285eef97b772cd53789fd10",
+    "README.md": "ce648bb388ce72370259da6f6c48b97b87baaa99efdf436bf622f3b568529cb8",
     "boundary.json": "e2a2e9aecd7cd9259756aed313fe41b935d2b272dcfcbedd2a64ffb733f25976",
     "candidate.test.mjs": "bb430e4f4e6f9dd4e6c9ad354a418c66ae4af59fb139697551d17bf73217f1eb",
     "control.comparison.json": "26d578d25818f12cb6963d7821ae474a7e11020b0d47f50fa8c3d41f2b00705f",
@@ -101,6 +101,8 @@
     "witness.comparison.json": "d68faae8b52db52c356227cd9792cbcea0613a21e64ca8e1d9f267dc14aeb446",
     "witness.js-output.json.gz": "c5c493eb23a11cc37a16d2435ebe9fde0ddf49d85a9a83dc7c7b0e2f91217a5e",
     "witness.recipe.json": "4472932b0d6f729aa79ad513b129b7e8032af10775a5a18da919e6b775b56432",
-    "witness.recording.json.gz": "a59def7db7a4fb9cc4dd5a26fe0fb69290bbcc64fd1aac2e08738995c172c867"
-  }
+    "witness.recording.json.gz": "a59def7db7a4fb9cc4dd5a26fe0fb69290bbcc64fd1aac2e08738995c172c867",
+    "current-main-check.json": "a48128d7908d3dcc0c8a1239f714351d745e5fa59855a65325e261d3939549e0"
+  },
+  "latestVerifiedMain": "acec7a75751e61f8e6b78c2f08c1579d19a10869"
 }
