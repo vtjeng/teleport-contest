@@ -449,6 +449,7 @@ function scan(opts) {
                 methods.sourceAudit.coverage = {
                     eligibleCFiles: report.scope?.eligibleCFiles ?? null,
                     itemKinds: report.totals?.itemKinds ?? null,
+                    messageFilters: report.totals?.messageFilters ?? null,
                     carriedUnobserved: backlog.entries.filter(item => !item.observed).length };
                 methods.sourceAudit.sourceHash = report.sourceHash ?? null;
                 leads.push(...backlog.entries.filter(item => item.observed)

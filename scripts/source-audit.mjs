@@ -159,9 +159,93 @@ export function inactiveLiteralIfZeroLines(source) {
     return malformed || stack.length ? new Set() : inactive;
 }
 
+// Build-independent proofs only: no macro evaluation or JS-text equivalence.
+// Keep the original #if 0 filter separately measurable. The added rule handles
+// literal false elif arms and alternatives after a definitely selected arm.
+export function inactiveLiteralBranchProofs(source) {
+    // Alternate preprocessing token spellings are outside this small grammar.
+    if (/\?\?[=/'()!<>-]|%:/u.test(source)) return new Map();
+    const lines = source.split('\n'), stack = [], proofs = new Map();
+    let block = false, malformed = false;
+    for (let index = 0; index < lines.length; index++) {
+        const first = index;
+        let logical = lines[index];
+        // C removes escaped newlines before comments and directives are read.
+        while (/\\\r?$/u.test(logical)) {
+            if (++index >= lines.length) return new Map();
+            logical = logical.replace(/\\\r?$/u, '') + lines[index];
+        }
+        let code = '', quote = null;
+        for (let i = 0; i < logical.length; i++) {
+            const c = logical[i], next = logical[i + 1];
+            if (block) { if (c === '*' && next === '/') { block = false; code += ' '; i++; } }
+            else if (quote) {
+                code += c;
+                if (c === '\\') code += logical[++i] ?? '';
+                else if (c === quote) quote = null;
+            } else if (c === '/' && next === '*') { block = true; i++; code += ' '; }
+            else if (c === '/' && next === '/') break;
+            else { code += c; if (c === '"' || c === "'") quote = c; }
+        }
+        if (quote) malformed = true;
+        const directive = /^\s*#\s*(if|ifdef|ifndef|elif|else|endif)\b(.*)$/u.exec(code);
+        if (directive) {
+            const [, kind, rest] = directive, tail = rest.trim();
+            const value = tail === '0' ? false : tail === '1' ? true : null;
+            if (['if', 'ifdef', 'ifndef'].includes(kind)) {
+                if (!tail) malformed = true;
+                stack.push({ selected: kind === 'if' && value === true,
+                    inactive: kind === 'if' && value === false, line: first + 1,
+                    reason: 'literal false condition', sawElse: false });
+            } else if (!stack.length) malformed = true;
+            else if (kind === 'endif') { if (tail) malformed = true; stack.pop(); }
+            else {
+                const arm = stack.at(-1);
+                if (arm.sawElse || kind === 'else' && tail || kind === 'elif' && !tail) malformed = true;
+                arm.inactive = arm.selected || kind === 'elif' && value === false;
+                arm.reason = arm.selected ? 'earlier literal true arm excludes this alternative' : 'literal false elif condition';
+                arm.line = first + 1;
+                if (kind === 'else') arm.sawElse = true;
+                if (kind === 'elif' && value === true) arm.selected = true;
+            }
+        } else {
+            const arm = stack.find(frame => frame.inactive);
+            if (arm) for (let line = first + 1; line <= index + 1; line++)
+                proofs.set(line, { directiveLine: arm.line, reason: arm.reason });
+        }
+    }
+    return malformed || block || stack.length ? new Map() : proofs;
+}
+
+export function filterMessageSources(messages, source, sourceBytes = Buffer.from(source)) {
+    const old = inactiveLiteralIfZeroLines(source), added = inactiveLiteralBranchProofs(source);
+    const sourceSha256 = hash(sourceBytes);
+    return messages.map(message => {
+        const baseline = old.has(message.callLine), proof = added.get(message.callLine);
+        if (!baseline && !proof) return { ...message, sourceFilter: null };
+        const rule = baseline ? 'literal-if-zero' : 'literal-inactive-arm';
+        return { ...message, sourceFilter: rule, sourceFilterEvidence: {
+            rule, reason: baseline ? 'complete literal #if 0 arm' : proof.reason,
+            directiveLine: proof?.directiveLine ?? null, sourceSha256,
+            toolSha256: loadedToolHash,
+            configSha256: hash('literal-preprocessor-only/v1;unknown-macros-visible;no-runtime-inference'),
+            profile: 'all-builds; literal preprocessor semantics only',
+        } };
+    });
+}
+
+export function messageFilterCounts(messages) {
+    const candidates = messages.filter(m => ['absent', 'raw-only-hit'].includes(m.status));
+    const old = candidates.filter(m => m.sourceFilter === 'literal-if-zero').length;
+    const added = candidates.filter(m => m.sourceFilter === 'literal-inactive-arm').length;
+    return { rawCandidates: candidates.length, oldLiteralIfZero: old,
+        beforeIncrementalRule: candidates.length - old, incrementalLiteralArms: added,
+        afterIncrementalRule: candidates.length - old - added };
+}
+
 export function missingMessageCandidates(messages) {
     return messages.filter(m => ['absent', 'raw-only-hit'].includes(m.status)
-        && m.sourceFilter !== 'literal-if-zero');
+        && !['literal-if-zero', 'literal-inactive-arm'].includes(m.sourceFilter));
 }
 
 function cKey(unit, root) { return `${relative(join(root, 'nethack-c/upstream'), unit.path)}:${unit.name}`; }
@@ -275,9 +359,7 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
         const owned = cUnits(text, path);
         units.push(...owned.filter(u => !EXCLUDED_SYMBOLS.includes(u.name)));
         const extracted = extractMessages(text, path, owned);
-        const inactiveLines = inactiveLiteralIfZeroLines(text);
-        messages.push(...extracted.messages.map(m => ({ ...m,
-            sourceFilter: inactiveLines.has(m.callLine) ? 'literal-if-zero' : null })));
+        messages.push(...filterMessageSources(extracted.messages, text, readFileSync(path)));
         printCalls.push(...extracted.calls.map(c => ({ ...c, file: relative(cRoot, path) })));
     }
     validateMappings(mappings, excludedNames);
@@ -468,6 +550,7 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
             rawOnlyByFileCategory: count(matchedMessages.filter(m => m.status === 'raw-only-hit'), 'fileCategory'),
             rawSourceAbsent: matchedMessages.filter(m => m.fragment.length && !m.raw).length,
             sourceFiltered: count(matchedMessages.filter(m => m.sourceFilter), 'sourceFilter'),
+            messageFilters: messageFilterCounts(matchedMessages),
             messageApis: { total: matchedMessages.filter(m => m.apiCategory === 'message').length,
                 absent: matchedMessages.filter(m => m.apiCategory === 'message' && m.status === 'absent').length,
                 rawSourceAbsent: matchedMessages.filter(m => m.apiCategory === 'message' && m.fragment.length && !m.raw).length,
