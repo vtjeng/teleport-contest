@@ -1,0 +1,77 @@
+{
+  "caseId": "monsters-passive-cold-accessible-message",
+  "shard": "monsters",
+  "outcome": "confirmed divergence",
+  "classification": "UI/accessibility message and cursor",
+  "binding": "manual/unbound; found by direct source comparison, not scanner-derived",
+  "jsBase": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingBase": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "tools": {
+    "node": "v24.19.0",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recorderTimezone": "America/New_York"
+  },
+  "sourceLocations": [
+    "src/mhitm.c:passivemm AD_COLD",
+    "src/pline.c:pline_mon and vpline",
+    "js/mhitm.js:passivemm AD_COLD",
+    "js/pline.js:pline_mon"
+  ],
+  "hypothesis": "The nonresistant cold passive message drops C pline_mon coordinate metadata.",
+  "supportedSetup": "Public wizard create tame red dragon, hostile blue jelly, eight wait/input groups; target accessiblemsg on and control off. Native API kitten misses blue jelly and receives cold passive response.",
+  "expectedC": "(west): The red dragon is suddenly very cold!--More--",
+  "observedJS": "The red dragon is suddenly very cold!--More--",
+  "control": "Identical recipe with accessiblemsg disabled matches all 2750 RNG calls, 87 screens and cursors.",
+  "targetResult": {
+    "rngCalls": 2750,
+    "screens": 87,
+    "firstMismatchStep": 66,
+    "cCursor": [
+      53,
+      0,
+      1
+    ],
+    "jsCursor": [
+      45,
+      0,
+      1
+    ],
+    "rngMismatch": null
+  },
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/passive-cold-accessible-message/replay.test.mjs",
+  "expectedCurrentExit": 1,
+  "characterizationCommand": "EXPECT_CURRENT_GAP=1 node --test diagnostics/divergence-evidence/monsters/passive-cold-accessible-message/*.test.mjs",
+  "discoveredAt": "2026-10-28T19:55:00Z",
+  "discoveredAtPrecision": "approximate minute; public target recorded during this turn",
+  "reviewedAt": "2026-10-28T20:00:30.128376+00:00",
+  "sourceSha256": {
+    "js/mhitm.js": "f823bac6efc732f993bc46d58b3430f10361ad0e6139de38a9218c4f6b413393",
+    "js/pline.js": "a2ce2402f9df63db196778241a47e6afaffb20f9145e7fd0e5d3a536924014cb",
+    "js/startup_a11y.js": "587ba85ec7fd133412d38e09fca02a6c17c3a08d41cd4c0bb3612c84e41f0db4",
+    "nethack-c/upstream/src/mhitm.c": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+    "nethack-c/upstream/src/pline.c": "394d4d33f3ecfa66005a0df96cacf582782c79437f34daeaaa9bf25238d857ff",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00"
+  },
+  "evidenceSha256": {
+    "control.session.json": "03695eb5acf47308d6f81ea37a39b7c0b683404335ec4c4f8bc8d489cbd9cfb8",
+    "target.session.json": "251325a855a2e47007ae55d0d0cd23f94b54eaba03d31da14b4b0d81323aaf0c",
+    "observations.json": "41ca20768e95e7da28916711500c9c64188727e561636cc36a64af0dea94536f",
+    "control.recipe.session.json": "31f7f1dbb4952efcbf1ed5e73846bbea58b4c8554c0a707e17c1a200d22d47c2",
+    "README.md": "e0d5cc82ca9918db99d5700477ff164f32b7688701b1d19e47124a79b1fe6737",
+    "probe.test.mjs": "aab50b3832e1b423e2fce97c55eead0980fbcd88b3fd58953d1af86d71c674f5",
+    "replay.test.mjs": "1bf5d9be46ccf4bc898208643ec99fd61ec7d8d09c9d05df7bda1de390857644",
+    "target.recipe.session.json": "9335059ea5e798a93e82fc7ae944bb7ed30005c090fa704423433231d0e44383",
+    "record.mjs": "7dea4b8674d9e0d747240d16fce946d1296589dc38929c348580b6e2635bc699"
+  },
+  "nextExperiment": "Main implementation and default/accessible replay validation. Similar passive branches are unqualified follow-up leads, not additional claims.",
+  "cleanCheckoutValidation": {
+    "base": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+    "checkedAt": "2026-10-28T20:01:11.219385+00:00",
+    "characterization": "3 tests pass",
+    "regression": "target fails at step66, control passes; exit1 as expected",
+    "method": "Only evidence directory copied into clean detached base checkout; commands executed there."
+  },
+  "recorderPatchTree": "f46a11014cbcd19fa6f88e6b512975ff05fa27b8"
+}
