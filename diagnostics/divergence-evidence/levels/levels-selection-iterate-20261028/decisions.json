@@ -1,0 +1,62 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:isok",
+    "evidenceKey": "bbf456b5475fbbdc34f915dc15fe1f2cd4f4b0ffb58cd4a9c62f64d5f14c6d6f",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "17e0fad666c99d2e0143e3b46ee467917c8ca4c01c6dcd8aba891e419d59b9ec",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS selection_iterate clamps x to1 and uses production bounds/get methods in place of C per-cell isok and selection helpers. The three edges are one bounded traversal-delegation cause.",
+      "proof": "Exact C iteration plus allocation/read/write/bounds helpers matches production JS iteration for all1680 singleton cells and64 subsets of six boundary points. Callback coordinates and order match, column0 is skipped, and JS input maps remain unchanged. Both use absolute selections and no origin conversion. This is a finite proof, not equivalence for arbitrary selections or alternate origins.",
+      "control": "All64 subsets of (0,0),(0,20),(1,0),(1,20),(79,0),(79,20), including empty and mixed valid/invalid-x cases, verify ordering and exclusion together.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/selvar.c:726",
+        "js/themerooms.js:267"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028",
+      "reviewedBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getbounds",
+    "evidenceKey": "cd4c0293dbbb2c80d77a6a3dc55d7dcccd1e4670cf8914c05e0b0d078fe6aa6b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "1abd4eed8a256ed004fad1b7c9ca2dfc33ded2a614fa528e8cbaea43f54a0a2c",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS selection_iterate clamps x to1 and uses production bounds/get methods in place of C per-cell isok and selection helpers. The three edges are one bounded traversal-delegation cause.",
+      "proof": "Exact C iteration plus allocation/read/write/bounds helpers matches production JS iteration for all1680 singleton cells and64 subsets of six boundary points. Callback coordinates and order match, column0 is skipped, and JS input maps remain unchanged. Both use absolute selections and no origin conversion. This is a finite proof, not equivalence for arbitrary selections or alternate origins.",
+      "control": "All64 subsets of (0,0),(0,20),(1,0),(1,20),(79,0),(79,20), including empty and mixed valid/invalid-x cases, verify ordering and exclusion together.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/selvar.c:726",
+        "js/themerooms.js:267"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028",
+      "reviewedBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getpoint",
+    "evidenceKey": "8d2f1fe8af67a8ad3e75d6f5ea801236a5ceb48eccb9dfa9f7ee5ba429520b21",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "31b745ad9efd04c686ac09501ba02ac8eb1f1834116bba31ee705a3afe59ed19",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS selection_iterate clamps x to1 and uses production bounds/get methods in place of C per-cell isok and selection helpers. The three edges are one bounded traversal-delegation cause.",
+      "proof": "Exact C iteration plus allocation/read/write/bounds helpers matches production JS iteration for all1680 singleton cells and64 subsets of six boundary points. Callback coordinates and order match, column0 is skipped, and JS input maps remain unchanged. Both use absolute selections and no origin conversion. This is a finite proof, not equivalence for arbitrary selections or alternate origins.",
+      "control": "All64 subsets of (0,0),(0,20),(1,0),(1,20),(79,0),(79,20), including empty and mixed valid/invalid-x cases, verify ordering and exclusion together.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/selvar.c:726",
+        "js/themerooms.js:267"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028",
+      "reviewedBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

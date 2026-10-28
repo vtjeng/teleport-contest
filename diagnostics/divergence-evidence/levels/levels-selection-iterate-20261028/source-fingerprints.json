@@ -1,0 +1,35 @@
+{
+  "testedJsSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+  "discoveredAt": "2026-10-28T23:12:29.700237+00:00",
+  "reviewedAt": "2026-10-28T23:12:29.700237+00:00",
+  "exactCBodies": {
+    "nethack-c/upstream/src/selvar.c": [
+      "selection_new",
+      "selection_free",
+      "selection_getbounds",
+      "selection_recalc_bounds",
+      "selection_getpoint",
+      "selection_setpoint",
+      "selection_iterate"
+    ]
+  },
+  "functionHashes": {
+    "nethack-c/upstream/src/selvar.c:selection_new": "6d913b8ca4caa82997ce67c6d04573d4dd4b4fffd0f4761de641dd7ed437429e",
+    "nethack-c/upstream/src/selvar.c:selection_free": "95bcd7908c68fb26631fc9e13829e699855a85e2ff15eb762efa0cd85513c6a2",
+    "nethack-c/upstream/src/selvar.c:selection_getbounds": "0ba39ab523a09a5882bc1e81c2cedc7b9f48ddc8f76a1f69fb846fcea3b7e28b",
+    "nethack-c/upstream/src/selvar.c:selection_recalc_bounds": "3b99f83da4317c35816190f7dfb383f6cc11cb6849be544ddaccd4450b9d675c",
+    "nethack-c/upstream/src/selvar.c:selection_getpoint": "47402ee879031e62fe0b0a5bf77092254de0470a5412a84bdaa261e4e3f88e41",
+    "nethack-c/upstream/src/selvar.c:selection_setpoint": "d9987187051df698ab2ac8a161e0d80665e930e56823477d5c1dfb359c889a1f",
+    "nethack-c/upstream/src/selvar.c:selection_iterate": "6e560cc2d13f9795671a604784f2dc05cc9c20d980aa37fa2724efce06866b88",
+    "js/themerooms.js:selection_iterate": "40f35b852c6178701ccaca0cfea96598c4f10c8c9b02a44e464b96920d48371e"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "clang -std=c99 -O2; COLNO80 ROWNO21; isok x>0,x<80,y>=0,y<21; default null origin",
+  "limitations": [
+    "All1680 singleton map coordinates plus64 subsets of six specified boundary points; finite Boolean selection domains only. No universal equivalence claim, arbitrary numeric values, corrupted bounds, null selection or throwing callback cases.",
+    "Production selection_new/set/selection_iterate exports with default null origin and absolute selections. No relative/origin-conversion, Lua iterator, mixed-frame, finalization, runtime or shipped-exposure claim.",
+    "Exact C selection_iterate and supporting selection storage/bounds helpers; callback captures coordinates in order. No Lua interpreter or custom JS state injection. Existing origin-conversion lead remains unreviewed."
+  ]
+}
