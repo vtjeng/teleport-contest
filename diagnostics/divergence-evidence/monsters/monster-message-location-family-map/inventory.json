@@ -1,0 +1,253 @@
+{
+  "caseId": "monster-message-location-family-map",
+  "shard": "monsters",
+  "outcome": "unresolved",
+  "binding": "manual source inventory; no scanner suppression or invented canonical keys",
+  "jsBase": "51f5686fac30306411156df215ca83ae910cf6bf",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:43:27Z",
+  "reviewedAt": "2026-10-28T21:44:02.861241+00:00",
+  "tooling": "manual source reading; verify.mjs under Node v24.19.0; no discovery run or C recorder executed",
+  "config": "accessiblemsg on/off proposed for future runtime qualification",
+  "sourceSha256": {
+    "nethack-c/upstream/src/mhitm.c": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+    "nethack-c/upstream/src/mhitu.c": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+    "js/mhitm.js": "f823bac6efc732f993bc46d58b3430f10361ad0e6139de38a9218c4f6b413393",
+    "js/mhitu.js": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9"
+  },
+  "sites": [
+    {
+      "id": "passivemm-cold-resistant",
+      "function": "passivemm",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitm.c",
+        "line": 1398,
+        "text": "                    pline_mon(magr, \"%s is mildly chilly.\", Monnam(magr));"
+      },
+      "js": {
+        "path": "js/mhitm.js",
+        "line": 1869,
+        "text": "                        `${Monnam(magr, state, env)} is mildly chilly.`, state,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "passivemm-cold-damage-existing-pr65",
+      "function": "passivemm",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitm.c",
+        "line": 1405,
+        "text": "                pline_mon(magr, \"%s is suddenly very cold!\", Monnam(magr));"
+      },
+      "js": {
+        "path": "js/mhitm.js",
+        "line": 1878,
+        "text": "                    `${Monnam(magr, state, env)} is suddenly very cold!`, state,"
+      },
+      "status": "existing-witness-pr65",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "passivemm-stun",
+      "function": "passivemm",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitm.c",
+        "line": 1414,
+        "text": "                    pline_mon(magr, \"%s %s...\", Monnam(magr),"
+      },
+      "js": {
+        "path": "js/mhitm.js",
+        "line": 1890,
+        "text": "                        `${Monnam(magr, state, env)} `"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "passivemm-fire-resistant",
+      "function": "passivemm",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitm.c",
+        "line": 1422,
+        "text": "                    pline_mon(magr, \"%s is mildly warmed.\", Monnam(magr));"
+      },
+      "js": {
+        "path": "js/mhitm.js",
+        "line": 1902,
+        "text": "                        `${Monnam(magr, state, env)} is mildly warmed.`, state,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "passivemm-fire-damage",
+      "function": "passivemm",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitm.c",
+        "line": 1429,
+        "text": "                pline_mon(magr, \"%s is suddenly very hot!\", Monnam(magr));"
+      },
+      "js": {
+        "path": "js/mhitm.js",
+        "line": 1911,
+        "text": "                    `${Monnam(magr, state, env)} is suddenly very hot!`, state,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "passivemm-electric-resistant",
+      "function": "passivemm",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitm.c",
+        "line": 1434,
+        "text": "                    pline_mon(magr, \"%s is mildly tingled.\", Monnam(magr));"
+      },
+      "js": {
+        "path": "js/mhitm.js",
+        "line": 1919,
+        "text": "                        `${Monnam(magr, state, env)} is mildly tingled.`, state,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "passivemm-electric-damage",
+      "function": "passivemm",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitm.c",
+        "line": 1441,
+        "text": "                pline_mon(magr, \"%s is jolted with electricity!\","
+      },
+      "js": {
+        "path": "js/mhitm.js",
+        "line": 1928,
+        "text": "                    `${Monnam(magr, state, env)} is jolted with electricity!`,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "gazemu-ineffectual-stoning",
+      "function": "gazemu",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitu.c",
+        "line": 1715,
+        "text": "                pline_mon(mtmp, \"%s %s.\", Monnam(mtmp),"
+      },
+      "js": {
+        "path": "js/mhitu.js",
+        "line": 3032,
+        "text": "                    `${Monnam(monster, state, env)} gazes ineffectually.`,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "gazemu-reflected-stoning",
+      "function": "gazemu",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitu.c",
+        "line": 1739,
+        "text": "                pline_mon(mtmp, \"%s is turned to stone!\", Monnam(mtmp));"
+      },
+      "js": {
+        "path": "js/mhitu.js",
+        "line": 3072,
+        "text": "                    `${Monnam(monster, state, env)} is turned to stone!`,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "gazemu-stun",
+      "function": "gazemu",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitu.c",
+        "line": 1787,
+        "text": "                pline_mon(mtmp, \"%s stares piercingly at you!\", Monnam(mtmp));"
+      },
+      "js": {
+        "path": "js/mhitu.js",
+        "line": 3153,
+        "text": "                    `${Monnam(monster, state, env)} stares piercingly at you!`,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "gazemu-cancelled-reaction",
+      "function": "gazemu",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitu.c",
+        "line": 1892,
+        "text": "        pline_mon(mtmp, \"%s looks %s%s.\", Monnam(mtmp),"
+      },
+      "js": {
+        "path": "js/mhitu.js",
+        "line": 3257,
+        "text": "            `${Monnam(monster, state, env)} looks ${adjective}`"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    },
+    {
+      "id": "mdisplacem-contact-petrification",
+      "function": "mdisplacem",
+      "c": {
+        "path": "nethack-c/upstream/src/mhitm.c",
+        "line": 235,
+        "text": "                pline_mon(magr, \"%s turns to stone!\", Monnam(magr));"
+      },
+      "js": {
+        "path": "js/mhitm.js",
+        "line": 675,
+        "text": "                `${Monnam(magr, state, nameEnv)} turns to stone!`,"
+      },
+      "status": "unresolved-source-only",
+      "expectedC": "pline_mon supplies attacker location when accessiblemsg is enabled",
+      "observedJS": "Source uses plain message; no new runtime execution in this inventory"
+    }
+  ],
+  "controlLocations": [
+    {
+      "path": "nethack-c/upstream/src/mhitm.c",
+      "line": 1382,
+      "text": "                        pline(\"%s is frozen by %s gaze!\", buf,"
+    },
+    {
+      "path": "nethack-c/upstream/src/mhitm.c",
+      "line": 1390,
+      "text": "                    pline(\"%s is frozen by %s.\", buf, mon_nam(mdef));"
+    },
+    {
+      "path": "nethack-c/upstream/src/mhitm.c",
+      "line": 232,
+      "text": "                    pline(\"%s tries to move %s out of %s way.\", Monnam(magr),"
+    },
+    {
+      "path": "nethack-c/upstream/src/mhitu.c",
+      "line": 1713,
+      "text": "                pline(\"Someone seems overdue for a serpent cut.\");"
+    }
+  ],
+  "relatedPRs": [
+    65,
+    73,
+    88,
+    90
+  ],
+  "nextExperiment": "Use the existing PR65 supported combat setup to reach a distinct resistant or elemental passive branch, with accessibility off control, before asserting a new runtime witness. Separately establish actual gaze/displacement branch reachability; do not invent state that bypasses guards."
+}
