@@ -1,0 +1,9 @@
+{
+  "tree": "PR72 branch with new corridor-door evidence overlay",
+  "branchHeadBeforeAddition": "2e499c5d914cf32cae34d53fc2a2b826788bef28",
+  "verifiedAt": "2026-10-28T20:46:29.517507+00:00",
+  "command": "node --test scripts/test-suites.test.mjs",
+  "exit": 0,
+  "stdout": "\u2714 the default suite admits ordinary tests and excludes registered suites (2.283985ms)\n\u2714 long-running tests start the default suite and the rest stay alphabetical (4.528297ms)\n\u2714 suite registration rejects missing and duplicate dedicated files (0.218986ms)\n\u2714 the repository registry lists all discovered tests with no dedicated suites (13.950712ms)\n\u2714 the stray-test scan reports test files outside the discovered roots (0.822252ms)\n\u2714 the repository has no test file outside the discovered roots (214.818791ms)\n\u2139 tests 6\n\u2139 suites 0\n\u2139 pass 6\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 359.265534\n",
+  "stderr": ""
+}
