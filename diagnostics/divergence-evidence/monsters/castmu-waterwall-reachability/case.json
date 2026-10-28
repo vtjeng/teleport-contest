@@ -1,0 +1,63 @@
+{
+  "caseId": "monsters-castmu-waterwall-reachability",
+  "shard": "monsters",
+  "outcome": "unresolved",
+  "binding": "manual/unbound",
+  "predecessor": "https://github.com/vtjeng/teleport-contest/pull/57",
+  "jsBase": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingBase": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "tools": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "hypothesis": "Wrong-target castmu on WATER differs in wording; supported full-action reachability missing.",
+  "expectedC": "Ordinary selector rejects WATER; adjacent remembered target after movement suppresses attack. If wrong-target castmu on WATER is reached, C says empty water.",
+  "observedJS": "Both route guards agree with C fragments. A deliberately spliced attack says thin air but bypasses the full-action guard.",
+  "control": "ROOM selection succeeds; stationary next lich full action casts at thin air; distant remembered target passes compiled C postmove gate.",
+  "setup": "Native initialized hero/map/monster state and actual polymorph trap with wizard monpolycontrol; no full public-input recipe demonstrated.",
+  "sourceLocations": [
+    "src/monmove.c:set_apparxy, distfleeck, dochug MMOVE_MOVED, postmov",
+    "src/mon.c:monnear",
+    "src/mcastu.c:castmu wrong-target message",
+    "src/mhitu.c:mattacku firstfoundyou",
+    "js/monmove.js:set_apparxy, dochug, postmov",
+    "js/mcastu.js:castmu"
+  ],
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/castmu-waterwall-reachability/*.test.mjs",
+  "nextExperiment": "Identify a supported stationary transition preserving a phasing target or changing target terrain before castmu, without another set_apparxy; none currently identified.",
+  "discoveredAt": "2026-10-28T19:44:00Z",
+  "reviewedAt": "2026-10-28T19:51:41.898577+00:00",
+  "sourceSha256": {
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "nethack-c/upstream/src/mon.c": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01",
+    "nethack-c/upstream/src/mcastu.c": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285",
+    "nethack-c/upstream/src/mhitu.c": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+    "nethack-c/upstream/src/trap.c": "1f6af30bbd0b75a2e4c043098355c1f4eff2a841de27aecdc9f47343d4d5402c",
+    "js/monmove.js": "b33623a7c02a59be598f349d49ec4007c4f3f7fc730d497abb70caa4a962cf58",
+    "js/mon.js": "8df046bda3602822e5443eea8f98a1e6f82a094e0a1d342224fcea951b9b6f0f",
+    "js/mcastu.js": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+    "js/mhitu.js": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9",
+    "js/trap_effects.js": "7bd0363037cad3e18c7059e00a031e37079e77f4ab96df07941da36b1986c6c5",
+    "js/unported_monster_actions.js": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902"
+  },
+  "evidencePaths": [
+    "README.md",
+    "probe.test.mjs",
+    "oracle.test.mjs",
+    "action-probe.test.mjs",
+    "trap-probe.test.mjs",
+    "observations.txt"
+  ],
+  "readyDivergences": 0,
+  "scopedRoutesRuledOut": 2,
+  "universalNegative": false,
+  "discoveredAtPrecision": "Approximate minute of focused trap experiment this turn; original source-only hypothesis is retained in PR #57.",
+  "cleanCheckoutValidation": {
+    "base": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+    "tests": 5,
+    "passed": 5,
+    "checkedAt": "2026-10-28T19:52:16.482379+00:00",
+    "method": "Detached clean checkout, only this evidence directory copied; documented command executed there."
+  }
+}
