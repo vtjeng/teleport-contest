@@ -1,0 +1,68 @@
+{
+  "caseId": "levels-flood-topology-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "hypothesis": "The quest-level selection flood helper should traverse diagonal neighbors for the shipped two-argument Lua calls.",
+  "proof": "nhlsel.c l_selection_flood defaults diagonals=FALSE. The port follows four neighbors. Extracted selvar.c execution matches the production JS helper on all 256 floor-centered 3x3 binary patterns at each of two valid origins. The corner-only positive control distinguishes diagonal from cardinal traversal.",
+  "scope": "Default cardinal connectivity only, plus the explicitly enumerated finite topology comparisons. No global equivalence claim for coordinate frames, column zero, arbitrary Lua, prefilled selections, callback state, or larger components. The constructed topology controls are unit inputs, not claimed public-play witnesses.",
+  "supportedSetup": "Unmodified shipped Rog-strt/Pri-strt/Mon-strt/minetn-1 loads through wizard level loading; recordings separate from topology proof.",
+  "expectedC": "512 cardinal topology bitmaps match JS; corner-only control cardinal=1 point, diagonal=2.",
+  "observedJS": "512/512 bitmap matches. Eight fresh full streams match; Rog-strt and minetn-1 have source attribution, Priest/Monk attribution remains unresolved.",
+  "control": "C diagonal=TRUE corner-only case must differ from default FALSE; 2 vs 1 selected points.",
+  "baseJs": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:00:34.702424+00:00",
+  "reviewedAt": "2026-10-28T19:01:21.763909+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/nhlsel.c:723",
+    "nethack-c/upstream/src/selvar.c:377",
+    "js/quest_levels.js:180",
+    "js/mines_levels.js:308"
+  ],
+  "sourceHashes": {
+    "js/quest_levels.js": "2973147f5a4d5df11a690657d8e5573f29035b0beeaa35619d9a0d172c505bd5",
+    "js/themerooms.js": "e14b071ab3c64e47ddb9ba6cfcac1a475f809b3ffbb43f634a24a854cd02ab3a",
+    "js/mines_levels.js": "b1251dd3cc1164034a2d6920d05a1e7ceb17e83dd53b56bd718bb46d9db28b61",
+    "nethack-c/upstream/src/selvar.c": "af33824e7004e7799ca1e88d0b00813bb5b9a1087015b9fb5a250473b2318b58",
+    "nethack-c/upstream/src/nhlsel.c": "ce93cdb316eb18ae4ad32238076ab61cec319973a5cff049ce95289a54239ec5",
+    "scripts/lua-discovery.mjs": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+    "nethack-c/upstream/dat/Rog-strt.lua": "e375e02db567addd2d087af7c5803d60e140bb3fdbb491810dd7a140cda8e55f",
+    "nethack-c/upstream/dat/Pri-strt.lua": "e448cf864996150862c9cd20ac919e25a59557d4f016ed6b9e7e71e3877a1049",
+    "nethack-c/upstream/dat/Mon-strt.lua": "3a61403d6d1888d918ea2a0bf67f1a1a2b45a5c5f043faa72960136e13993964",
+    "nethack-c/upstream/dat/minetn-1.lua": "91b7ef0e3b25471a38726e58be1c85c4aa531d2f93ef79a7af9cc94759c93906"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "configSha256": "21dff754a8bc0d74f091316021e683c90d93734e8fe9768ecf13dddf6f5f53a1",
+    "runProvenanceSha256": "2b8752ffa6abdcf0d36372f3e6c9644a8e04930df4c2c703c20f87afe2cc57ad",
+    "oracleExtractionSha256": "ef4cac816c807248085d4de40f0e65e2cf66550d8e02ca684ffebce7be0ccd3e",
+    "oracleFileSha256": "330a883c4967f367bd56b1c1197585b4fa220010f0b8de00d7d83df7178ac70f"
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/probe.mjs && node diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/replay.mjs",
+  "evidencePaths": [
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "recordings.json",
+    "replay.mjs",
+    "config.json"
+  ],
+  "nextExperiment": "For Priest/Monk coverage attribution, use a supported recorder source hook; matching outputs alone do not resolve that limitation. Re-review cardinal-default proof if the Lua signatures or neighbor dispatch changes.",
+  "cleanBaseVerification": {
+    "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "gameplaySourceUnchanged": true,
+    "probeExit": 0,
+    "replayExit": 0,
+    "matchedRecordings": 8
+  }
+}

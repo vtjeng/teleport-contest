@@ -1,0 +1,610 @@
+[
+  {
+    "status": "matching",
+    "elapsedMs": 1825,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3725,
+          "js": 3725
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": true,
+      "witnesses": [
+        {
+          "index": 3497,
+          "line": 160,
+          "entry": "rn2(4)=1 @ random src=nhlib.lua:10 parent=lua(Rog-strt.lua:160)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 3610,
+          "line": 164,
+          "entry": "rn2(4)=3 @ random src=nhlib.lua:10 parent=lua(Rog-strt.lua:164)",
+          "jsPrefixAgrees": true
+        }
+      ],
+      "jsProgramEvidence": "source-route-and-rng-prefix",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "317940e13150ebeef14d0dbe15066c29d0e567160593444ab048bc58f556cf3b",
+    "rawHashes": {
+      "recipe.session.json": "cb53d7206f8ac56bad3519211c361d98c3f9190cefab5537dc23979599214aca",
+      "recorded.session.json": "b63f52085f22ec32f698f5f488e94e58ee5bfe81aba40dca3a8cae8dcd3f081e",
+      "js-output.json": "7e648c779be05f61aaefcf11d5646bac7f120f847982a181fe87d7db3d6a28cc"
+    },
+    "seed": 28103800,
+    "program": "Rog-strt.lua"
+  },
+  {
+    "status": "matching",
+    "elapsedMs": 1405,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3609,
+          "js": 3609
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": true,
+      "witnesses": [
+        {
+          "index": 3296,
+          "line": 160,
+          "entry": "rn2(4)=3 @ random src=nhlib.lua:10 parent=lua(Rog-strt.lua:160)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 3523,
+          "line": 164,
+          "entry": "rn2(4)=0 @ random src=nhlib.lua:10 parent=lua(Rog-strt.lua:164)",
+          "jsPrefixAgrees": true
+        }
+      ],
+      "jsProgramEvidence": "source-route-and-rng-prefix",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "317940e13150ebeef14d0dbe15066c29d0e567160593444ab048bc58f556cf3b",
+    "rawHashes": {
+      "recipe.session.json": "9346b00d96a714385096dc8a8ee5b5a444c0b235411b266b45dceb02e0263187",
+      "recorded.session.json": "2924ed4b25b1a4ff9d34c8874f83b961f343afcb52da21d9c9e6d5ae533a65df",
+      "js-output.json": "58e1a8e3bd3894b30bbf17d545d3b8d16a453befcc8bc376f276c4bc2c510379"
+    },
+    "seed": 28103801,
+    "program": "Rog-strt.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1207,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3206,
+          "js": 3206
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "7de49868cbf4ee61db0e4b0bf14babcd6da8b4cde10b04ec9fc9ad165c9d45e3",
+    "rawHashes": {
+      "recipe.session.json": "c3e3ee838bc38b98e017c02fa31b700c226ace900dc04001991401114dca2829",
+      "recorded.session.json": "e49cc928769719935ff73ca813364ec78b960ad0e23b719bb4c359f92b7404fd",
+      "js-output.json": "8c448f433961719208e545c757266902f3e0cf88beca2bac839e080b776fca37"
+    },
+    "seed": 28103802,
+    "program": "Pri-strt.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1170,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3523,
+          "js": 3523
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "7de49868cbf4ee61db0e4b0bf14babcd6da8b4cde10b04ec9fc9ad165c9d45e3",
+    "rawHashes": {
+      "recipe.session.json": "2e69bd7ff133188a6d79adc2e6c8c3b65dae1abf33060e09fb5ab8dd33e11719",
+      "recorded.session.json": "a9b4c28128fbec0f222c723b9a34f5fff3d7dc6157bf5332c2d78483ba608806",
+      "js-output.json": "ac788be8ca3e1327f60af5204aed70bfc108979c1f0a0e1bf882c1d18aac6d52"
+    },
+    "seed": 28103803,
+    "program": "Pri-strt.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 1239,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 5258,
+          "js": 5258
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "72d805f90e17ab10e5158b390a4275672f46914b601484fe295f08b24ac36fc9",
+    "rawHashes": {
+      "recipe.session.json": "d1c1eefc44b7df6f2aeb3c5245b4478d487ea8f7ce0dfcdd3a17291e4827b4c7",
+      "recorded.session.json": "29a57c58086ed6353fb1b5cf750ba3fbe9fc9e70ebcd1eac4aa9b430931f122e",
+      "js-output.json": "7be2483dc8a6e4de63e1eed6dabef9114f21f260430dc0f975988c0c9eac9077"
+    },
+    "seed": 28103804,
+    "program": "Mon-strt.lua"
+  },
+  {
+    "status": "unresolved",
+    "elapsedMs": 2669,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3533,
+          "js": 3533
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": false,
+      "witnesses": [],
+      "jsProgramEvidence": "unresolved",
+      "cUncoveredPercentSites": [],
+      "uncoveredPercentSites": []
+    },
+    "fingerprint": "72d805f90e17ab10e5158b390a4275672f46914b601484fe295f08b24ac36fc9",
+    "rawHashes": {
+      "recipe.session.json": "ae626ba8c774248d102237cfbb3df897e0bd54361a55a8a95a2c7da96ded7471",
+      "recorded.session.json": "65e2164c78301086d67b799e3b747ae22bf7ff12ccb4c4365482610ce3a1e8dd",
+      "js-output.json": "ce7a58cb5f88058418fb97e4e8db5bb6b717e67122cdececbbc1715b96ade556"
+    },
+    "seed": 28103805,
+    "program": "Mon-strt.lua"
+  },
+  {
+    "status": "matching",
+    "elapsedMs": 1347,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 5464,
+          "js": 5464
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": true,
+      "witnesses": [
+        {
+          "index": 4112,
+          "line": 91,
+          "entry": "rn2(10)=4 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:91)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4268,
+          "line": 99,
+          "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:99)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4273,
+          "line": 101,
+          "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:101)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4278,
+          "line": 102,
+          "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:102)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4282,
+          "line": 103,
+          "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:103)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4287,
+          "line": 104,
+          "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:104)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4291,
+          "line": 105,
+          "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:105)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4314,
+          "line": 121,
+          "entry": "rn2(11)=6 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:121)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4758,
+          "line": 134,
+          "entry": "rn2(6)=2 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:134)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 4834,
+          "line": 140,
+          "entry": "rn2(10)=9 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:140)",
+          "jsPrefixAgrees": true
+        }
+      ],
+      "jsProgramEvidence": "source-route-and-rng-prefix",
+      "cUncoveredPercentSites": [
+        {
+          "line": 92,
+          "threshold": 90
+        },
+        {
+          "line": 122,
+          "threshold": 50
+        },
+        {
+          "line": 125,
+          "threshold": 80
+        },
+        {
+          "line": 141,
+          "threshold": 90
+        }
+      ],
+      "uncoveredPercentSites": [
+        {
+          "line": 92,
+          "threshold": 90
+        },
+        {
+          "line": 122,
+          "threshold": 50
+        },
+        {
+          "line": 125,
+          "threshold": 80
+        },
+        {
+          "line": 141,
+          "threshold": 90
+        }
+      ]
+    },
+    "fingerprint": "efe2be27afebe3417689e5364e417706755951ce04722349cac2b9de36c4359f",
+    "rawHashes": {
+      "recipe.session.json": "cf5b115233cb479df81ac9120c15eaa37049e0c9aaa708c69198e02786eb8dc6",
+      "recorded.session.json": "63b260231472b3220062a1333e76eb5b336dcc960234f02cefecdfd77379ac72",
+      "js-output.json": "867de3dab1b50c3ec0ba03d513375778d8f412b3448dd35c051ed646dfae2e3e"
+    },
+    "seed": 28103806,
+    "program": "minetn-1.lua"
+  },
+  {
+    "status": "matching",
+    "elapsedMs": 1741,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 6014,
+          "js": 6014
+        },
+        "screens": {
+          "c": 27,
+          "js": 27
+        },
+        "cursors": {
+          "c": 27,
+          "js": 27
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "witness": {
+      "route": "wizard-des",
+      "routeInputVerified": true,
+      "otherProgramObserved": false,
+      "cProgramObserved": true,
+      "witnesses": [
+        {
+          "index": 4899,
+          "line": 91,
+          "entry": "rn2(10)=5 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:91)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5057,
+          "line": 99,
+          "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:99)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5062,
+          "line": 101,
+          "entry": "rn2(3)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:101)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5067,
+          "line": 102,
+          "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:102)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5072,
+          "line": 103,
+          "entry": "rn2(3)=1 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:103)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5076,
+          "line": 104,
+          "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:104)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5082,
+          "line": 105,
+          "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:105)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5105,
+          "line": 121,
+          "entry": "rn2(11)=3 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:121)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5416,
+          "line": 134,
+          "entry": "rn2(6)=0 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:134)",
+          "jsPrefixAgrees": true
+        },
+        {
+          "index": 5427,
+          "line": 140,
+          "entry": "rn2(10)=5 @ random src=nhlib.lua:10 parent=lua(minetn-1.lua:140)",
+          "jsPrefixAgrees": true
+        }
+      ],
+      "jsProgramEvidence": "source-route-and-rng-prefix",
+      "cUncoveredPercentSites": [
+        {
+          "line": 92,
+          "threshold": 90
+        },
+        {
+          "line": 122,
+          "threshold": 50
+        },
+        {
+          "line": 125,
+          "threshold": 80
+        },
+        {
+          "line": 141,
+          "threshold": 90
+        }
+      ],
+      "uncoveredPercentSites": [
+        {
+          "line": 92,
+          "threshold": 90
+        },
+        {
+          "line": 122,
+          "threshold": 50
+        },
+        {
+          "line": 125,
+          "threshold": 80
+        },
+        {
+          "line": 141,
+          "threshold": 90
+        }
+      ]
+    },
+    "fingerprint": "efe2be27afebe3417689e5364e417706755951ce04722349cac2b9de36c4359f",
+    "rawHashes": {
+      "recipe.session.json": "83f70b7366a6e2400e166791a74c56ea3b518a0282226252910ff071fe52081f",
+      "recorded.session.json": "d65b152736272a25bd14bece58874b856c07390fb0a74720a2562acf7c5866e7",
+      "js-output.json": "17849871b7de0646d0b00d6c5a435a54b3585c754efdff6157e2d63d483c4f7c"
+    },
+    "seed": 28103807,
+    "program": "minetn-1.lua"
+  }
+]
