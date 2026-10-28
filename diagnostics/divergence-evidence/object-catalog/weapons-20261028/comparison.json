@@ -1,0 +1,2012 @@
+{
+  "c_revision": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "case_id": "weapons-20261028",
+  "constant_mismatches": [],
+  "constants": [
+    {
+      "c_source": "include/objclass.h:13",
+      "expected": 0,
+      "identity": "NO_MATERIAL",
+      "js_source": "js/objects.js:40",
+      "observed": 0
+    },
+    {
+      "c_source": "include/objclass.h:14",
+      "expected": 1,
+      "identity": "LIQUID",
+      "js_source": "js/objects.js:41",
+      "observed": 1
+    },
+    {
+      "c_source": "include/objclass.h:15",
+      "expected": 2,
+      "identity": "WAX",
+      "js_source": "js/objects.js:42",
+      "observed": 2
+    },
+    {
+      "c_source": "include/objclass.h:16",
+      "expected": 3,
+      "identity": "VEGGY",
+      "js_source": "js/objects.js:43",
+      "observed": 3
+    },
+    {
+      "c_source": "include/objclass.h:17",
+      "expected": 4,
+      "identity": "FLESH",
+      "js_source": "js/objects.js:44",
+      "observed": 4
+    },
+    {
+      "c_source": "include/objclass.h:18",
+      "expected": 5,
+      "identity": "PAPER",
+      "js_source": "js/objects.js:45",
+      "observed": 5
+    },
+    {
+      "c_source": "include/objclass.h:19",
+      "expected": 6,
+      "identity": "CLOTH",
+      "js_source": "js/objects.js:46",
+      "observed": 6
+    },
+    {
+      "c_source": "include/objclass.h:20",
+      "expected": 7,
+      "identity": "LEATHER",
+      "js_source": "js/objects.js:47",
+      "observed": 7
+    },
+    {
+      "c_source": "include/objclass.h:21",
+      "expected": 8,
+      "identity": "WOOD",
+      "js_source": "js/objects.js:48",
+      "observed": 8
+    },
+    {
+      "c_source": "include/objclass.h:22",
+      "expected": 9,
+      "identity": "BONE",
+      "js_source": "js/objects.js:49",
+      "observed": 9
+    },
+    {
+      "c_source": "include/objclass.h:23",
+      "expected": 10,
+      "identity": "DRAGON_HIDE",
+      "js_source": "js/objects.js:50",
+      "observed": 10
+    },
+    {
+      "c_source": "include/objclass.h:24",
+      "expected": 11,
+      "identity": "IRON",
+      "js_source": "js/objects.js:51",
+      "observed": 11
+    },
+    {
+      "c_source": "include/objclass.h:25",
+      "expected": 12,
+      "identity": "METAL",
+      "js_source": "js/objects.js:52",
+      "observed": 12
+    },
+    {
+      "c_source": "include/objclass.h:26",
+      "expected": 13,
+      "identity": "COPPER",
+      "js_source": "js/objects.js:53",
+      "observed": 13
+    },
+    {
+      "c_source": "include/objclass.h:27",
+      "expected": 14,
+      "identity": "SILVER",
+      "js_source": "js/objects.js:54",
+      "observed": 14
+    },
+    {
+      "c_source": "include/objclass.h:28",
+      "expected": 15,
+      "identity": "GOLD",
+      "js_source": "js/objects.js:55",
+      "observed": 15
+    },
+    {
+      "c_source": "include/objclass.h:29",
+      "expected": 16,
+      "identity": "PLATINUM",
+      "js_source": "js/objects.js:56",
+      "observed": 16
+    },
+    {
+      "c_source": "include/objclass.h:30",
+      "expected": 17,
+      "identity": "MITHRIL",
+      "js_source": "js/objects.js:57",
+      "observed": 17
+    },
+    {
+      "c_source": "include/objclass.h:31",
+      "expected": 18,
+      "identity": "PLASTIC",
+      "js_source": "js/objects.js:58",
+      "observed": 18
+    },
+    {
+      "c_source": "include/objclass.h:32",
+      "expected": 19,
+      "identity": "GLASS",
+      "js_source": "js/objects.js:59",
+      "observed": 19
+    },
+    {
+      "c_source": "include/objclass.h:33",
+      "expected": 20,
+      "identity": "GEMSTONE",
+      "js_source": "js/objects.js:60",
+      "observed": 20
+    },
+    {
+      "c_source": "include/objclass.h:34",
+      "expected": 21,
+      "identity": "MINERAL",
+      "js_source": "js/objects.js:61",
+      "observed": 21
+    },
+    {
+      "c_source": "include/defsym.h:468",
+      "expected": 2,
+      "identity": "WEAPON_CLASS",
+      "js_source": "js/objects.js:9",
+      "observed": 2
+    }
+  ],
+  "coverage": {
+    "constants": 23,
+    "row_fields": [
+      "id",
+      "name",
+      "weight",
+      "category",
+      "material"
+    ],
+    "weapon_rows": 71
+  },
+  "equal_control": "passed",
+  "js_revision": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "mismatches": [],
+  "positive_controls": [
+    {
+      "detected": {
+        "expected": 18,
+        "field": "id",
+        "identity": "ARROW",
+        "observed": 19
+      },
+      "kind": "synthetic table-copy mutation"
+    },
+    {
+      "detected": {
+        "expected": "arrow",
+        "field": "name",
+        "identity": "ARROW",
+        "observed": "synthetic changed name"
+      },
+      "kind": "synthetic table-copy mutation"
+    },
+    {
+      "detected": {
+        "expected": 1,
+        "field": "weight",
+        "identity": "ARROW",
+        "observed": 2
+      },
+      "kind": "synthetic table-copy mutation"
+    },
+    {
+      "detected": {
+        "expected": 2,
+        "field": "category",
+        "identity": "ARROW",
+        "observed": 3
+      },
+      "kind": "synthetic table-copy mutation"
+    },
+    {
+      "detected": {
+        "expected": 11,
+        "field": "material",
+        "identity": "ARROW",
+        "observed": 12
+      },
+      "kind": "synthetic table-copy mutation"
+    }
+  ],
+  "rows": [
+    {
+      "c_source": "include/objects.h:141",
+      "expected": {
+        "category": 2,
+        "id": 18,
+        "material": 11,
+        "name": "arrow",
+        "weight": 1
+      },
+      "identity": "ARROW",
+      "js_sources": {
+        "data": "js/objects.js:1062",
+        "id": "js/objects.js:93",
+        "name": "js/objects.js:577"
+      },
+      "macro": "PROJECTILE",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 18,
+        "material": 11,
+        "name": "arrow",
+        "weight": 1
+      }
+    },
+    {
+      "c_source": "include/objects.h:144",
+      "expected": {
+        "category": 2,
+        "id": 19,
+        "material": 8,
+        "name": "elven arrow",
+        "weight": 1
+      },
+      "identity": "ELVEN_ARROW",
+      "js_sources": {
+        "data": "js/objects.js:1063",
+        "id": "js/objects.js:94",
+        "name": "js/objects.js:578"
+      },
+      "macro": "PROJECTILE",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 19,
+        "material": 8,
+        "name": "elven arrow",
+        "weight": 1
+      }
+    },
+    {
+      "c_source": "include/objects.h:147",
+      "expected": {
+        "category": 2,
+        "id": 20,
+        "material": 11,
+        "name": "orcish arrow",
+        "weight": 1
+      },
+      "identity": "ORCISH_ARROW",
+      "js_sources": {
+        "data": "js/objects.js:1064",
+        "id": "js/objects.js:95",
+        "name": "js/objects.js:579"
+      },
+      "macro": "PROJECTILE",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 20,
+        "material": 11,
+        "name": "orcish arrow",
+        "weight": 1
+      }
+    },
+    {
+      "c_source": "include/objects.h:150",
+      "expected": {
+        "category": 2,
+        "id": 21,
+        "material": 14,
+        "name": "silver arrow",
+        "weight": 1
+      },
+      "identity": "SILVER_ARROW",
+      "js_sources": {
+        "data": "js/objects.js:1065",
+        "id": "js/objects.js:96",
+        "name": "js/objects.js:580"
+      },
+      "macro": "PROJECTILE",
+      "material_symbol": "SILVER",
+      "observed": {
+        "category": 2,
+        "id": 21,
+        "material": 14,
+        "name": "silver arrow",
+        "weight": 1
+      }
+    },
+    {
+      "c_source": "include/objects.h:153",
+      "expected": {
+        "category": 2,
+        "id": 22,
+        "material": 12,
+        "name": "ya",
+        "weight": 1
+      },
+      "identity": "YA",
+      "js_sources": {
+        "data": "js/objects.js:1066",
+        "id": "js/objects.js:97",
+        "name": "js/objects.js:581"
+      },
+      "macro": "PROJECTILE",
+      "material_symbol": "METAL",
+      "observed": {
+        "category": 2,
+        "id": 22,
+        "material": 12,
+        "name": "ya",
+        "weight": 1
+      }
+    },
+    {
+      "c_source": "include/objects.h:155",
+      "expected": {
+        "category": 2,
+        "id": 23,
+        "material": 11,
+        "name": "crossbow bolt",
+        "weight": 1
+      },
+      "identity": "CROSSBOW_BOLT",
+      "js_sources": {
+        "data": "js/objects.js:1067",
+        "id": "js/objects.js:98",
+        "name": "js/objects.js:582"
+      },
+      "macro": "PROJECTILE",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 23,
+        "material": 11,
+        "name": "crossbow bolt",
+        "weight": 1
+      }
+    },
+    {
+      "c_source": "include/objects.h:160",
+      "expected": {
+        "category": 2,
+        "id": 24,
+        "material": 11,
+        "name": "dart",
+        "weight": 1
+      },
+      "identity": "DART",
+      "js_sources": {
+        "data": "js/objects.js:1068",
+        "id": "js/objects.js:99",
+        "name": "js/objects.js:583"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 24,
+        "material": 11,
+        "name": "dart",
+        "weight": 1
+      }
+    },
+    {
+      "c_source": "include/objects.h:163",
+      "expected": {
+        "category": 2,
+        "id": 25,
+        "material": 11,
+        "name": "shuriken",
+        "weight": 1
+      },
+      "identity": "SHURIKEN",
+      "js_sources": {
+        "data": "js/objects.js:1069",
+        "id": "js/objects.js:100",
+        "name": "js/objects.js:584"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 25,
+        "material": 11,
+        "name": "shuriken",
+        "weight": 1
+      }
+    },
+    {
+      "c_source": "include/objects.h:166",
+      "expected": {
+        "category": 2,
+        "id": 26,
+        "material": 8,
+        "name": "boomerang",
+        "weight": 5
+      },
+      "identity": "BOOMERANG",
+      "js_sources": {
+        "data": "js/objects.js:1070",
+        "id": "js/objects.js:101",
+        "name": "js/objects.js:585"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 26,
+        "material": 8,
+        "name": "boomerang",
+        "weight": 5
+      }
+    },
+    {
+      "c_source": "include/objects.h:174",
+      "expected": {
+        "category": 2,
+        "id": 27,
+        "material": 11,
+        "name": "spear",
+        "weight": 30
+      },
+      "identity": "SPEAR",
+      "js_sources": {
+        "data": "js/objects.js:1071",
+        "id": "js/objects.js:102",
+        "name": "js/objects.js:586"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 27,
+        "material": 11,
+        "name": "spear",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:177",
+      "expected": {
+        "category": 2,
+        "id": 28,
+        "material": 8,
+        "name": "elven spear",
+        "weight": 30
+      },
+      "identity": "ELVEN_SPEAR",
+      "js_sources": {
+        "data": "js/objects.js:1072",
+        "id": "js/objects.js:103",
+        "name": "js/objects.js:587"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 28,
+        "material": 8,
+        "name": "elven spear",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:180",
+      "expected": {
+        "category": 2,
+        "id": 29,
+        "material": 11,
+        "name": "orcish spear",
+        "weight": 30
+      },
+      "identity": "ORCISH_SPEAR",
+      "js_sources": {
+        "data": "js/objects.js:1073",
+        "id": "js/objects.js:104",
+        "name": "js/objects.js:588"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 29,
+        "material": 11,
+        "name": "orcish spear",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:183",
+      "expected": {
+        "category": 2,
+        "id": 30,
+        "material": 11,
+        "name": "dwarvish spear",
+        "weight": 35
+      },
+      "identity": "DWARVISH_SPEAR",
+      "js_sources": {
+        "data": "js/objects.js:1074",
+        "id": "js/objects.js:105",
+        "name": "js/objects.js:589"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 30,
+        "material": 11,
+        "name": "dwarvish spear",
+        "weight": 35
+      }
+    },
+    {
+      "c_source": "include/objects.h:186",
+      "expected": {
+        "category": 2,
+        "id": 31,
+        "material": 14,
+        "name": "silver spear",
+        "weight": 36
+      },
+      "identity": "SILVER_SPEAR",
+      "js_sources": {
+        "data": "js/objects.js:1075",
+        "id": "js/objects.js:106",
+        "name": "js/objects.js:590"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "SILVER",
+      "observed": {
+        "category": 2,
+        "id": 31,
+        "material": 14,
+        "name": "silver spear",
+        "weight": 36
+      }
+    },
+    {
+      "c_source": "include/objects.h:189",
+      "expected": {
+        "category": 2,
+        "id": 32,
+        "material": 11,
+        "name": "javelin",
+        "weight": 20
+      },
+      "identity": "JAVELIN",
+      "js_sources": {
+        "data": "js/objects.js:1076",
+        "id": "js/objects.js:107",
+        "name": "js/objects.js:591"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 32,
+        "material": 11,
+        "name": "javelin",
+        "weight": 20
+      }
+    },
+    {
+      "c_source": "include/objects.h:194",
+      "expected": {
+        "category": 2,
+        "id": 33,
+        "material": 11,
+        "name": "trident",
+        "weight": 25
+      },
+      "identity": "TRIDENT",
+      "js_sources": {
+        "data": "js/objects.js:1077",
+        "id": "js/objects.js:108",
+        "name": "js/objects.js:592"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 33,
+        "material": 11,
+        "name": "trident",
+        "weight": 25
+      }
+    },
+    {
+      "c_source": "include/objects.h:200",
+      "expected": {
+        "category": 2,
+        "id": 34,
+        "material": 11,
+        "name": "dagger",
+        "weight": 10
+      },
+      "identity": "DAGGER",
+      "js_sources": {
+        "data": "js/objects.js:1078",
+        "id": "js/objects.js:109",
+        "name": "js/objects.js:593"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 34,
+        "material": 11,
+        "name": "dagger",
+        "weight": 10
+      }
+    },
+    {
+      "c_source": "include/objects.h:203",
+      "expected": {
+        "category": 2,
+        "id": 35,
+        "material": 8,
+        "name": "elven dagger",
+        "weight": 10
+      },
+      "identity": "ELVEN_DAGGER",
+      "js_sources": {
+        "data": "js/objects.js:1079",
+        "id": "js/objects.js:110",
+        "name": "js/objects.js:594"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 35,
+        "material": 8,
+        "name": "elven dagger",
+        "weight": 10
+      }
+    },
+    {
+      "c_source": "include/objects.h:206",
+      "expected": {
+        "category": 2,
+        "id": 36,
+        "material": 11,
+        "name": "orcish dagger",
+        "weight": 10
+      },
+      "identity": "ORCISH_DAGGER",
+      "js_sources": {
+        "data": "js/objects.js:1080",
+        "id": "js/objects.js:111",
+        "name": "js/objects.js:595"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 36,
+        "material": 11,
+        "name": "orcish dagger",
+        "weight": 10
+      }
+    },
+    {
+      "c_source": "include/objects.h:209",
+      "expected": {
+        "category": 2,
+        "id": 37,
+        "material": 14,
+        "name": "silver dagger",
+        "weight": 12
+      },
+      "identity": "SILVER_DAGGER",
+      "js_sources": {
+        "data": "js/objects.js:1081",
+        "id": "js/objects.js:112",
+        "name": "js/objects.js:596"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "SILVER",
+      "observed": {
+        "category": 2,
+        "id": 37,
+        "material": 14,
+        "name": "silver dagger",
+        "weight": 12
+      }
+    },
+    {
+      "c_source": "include/objects.h:212",
+      "expected": {
+        "category": 2,
+        "id": 38,
+        "material": 11,
+        "name": "athame",
+        "weight": 10
+      },
+      "identity": "ATHAME",
+      "js_sources": {
+        "data": "js/objects.js:1082",
+        "id": "js/objects.js:113",
+        "name": "js/objects.js:597"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 38,
+        "material": 11,
+        "name": "athame",
+        "weight": 10
+      }
+    },
+    {
+      "c_source": "include/objects.h:215",
+      "expected": {
+        "category": 2,
+        "id": 39,
+        "material": 12,
+        "name": "scalpel",
+        "weight": 5
+      },
+      "identity": "SCALPEL",
+      "js_sources": {
+        "data": "js/objects.js:1083",
+        "id": "js/objects.js:114",
+        "name": "js/objects.js:598"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "METAL",
+      "observed": {
+        "category": 2,
+        "id": 39,
+        "material": 12,
+        "name": "scalpel",
+        "weight": 5
+      }
+    },
+    {
+      "c_source": "include/objects.h:218",
+      "expected": {
+        "category": 2,
+        "id": 40,
+        "material": 11,
+        "name": "knife",
+        "weight": 5
+      },
+      "identity": "KNIFE",
+      "js_sources": {
+        "data": "js/objects.js:1084",
+        "id": "js/objects.js:115",
+        "name": "js/objects.js:599"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 40,
+        "material": 11,
+        "name": "knife",
+        "weight": 5
+      }
+    },
+    {
+      "c_source": "include/objects.h:221",
+      "expected": {
+        "category": 2,
+        "id": 41,
+        "material": 11,
+        "name": "stiletto",
+        "weight": 5
+      },
+      "identity": "STILETTO",
+      "js_sources": {
+        "data": "js/objects.js:1085",
+        "id": "js/objects.js:116",
+        "name": "js/objects.js:600"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 41,
+        "material": 11,
+        "name": "stiletto",
+        "weight": 5
+      }
+    },
+    {
+      "c_source": "include/objects.h:228",
+      "expected": {
+        "category": 2,
+        "id": 42,
+        "material": 9,
+        "name": "worm tooth",
+        "weight": 20
+      },
+      "identity": "WORM_TOOTH",
+      "js_sources": {
+        "data": "js/objects.js:1086",
+        "id": "js/objects.js:117",
+        "name": "js/objects.js:601"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "BONE",
+      "observed": {
+        "category": 2,
+        "id": 42,
+        "material": 9,
+        "name": "worm tooth",
+        "weight": 20
+      }
+    },
+    {
+      "c_source": "include/objects.h:231",
+      "expected": {
+        "category": 2,
+        "id": 43,
+        "material": 9,
+        "name": "crysknife",
+        "weight": 20
+      },
+      "identity": "CRYSKNIFE",
+      "js_sources": {
+        "data": "js/objects.js:1087",
+        "id": "js/objects.js:118",
+        "name": "js/objects.js:602"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "BONE",
+      "observed": {
+        "category": 2,
+        "id": 43,
+        "material": 9,
+        "name": "crysknife",
+        "weight": 20
+      }
+    },
+    {
+      "c_source": "include/objects.h:236",
+      "expected": {
+        "category": 2,
+        "id": 44,
+        "material": 11,
+        "name": "axe",
+        "weight": 60
+      },
+      "identity": "AXE",
+      "js_sources": {
+        "data": "js/objects.js:1088",
+        "id": "js/objects.js:119",
+        "name": "js/objects.js:603"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 44,
+        "material": 11,
+        "name": "axe",
+        "weight": 60
+      }
+    },
+    {
+      "c_source": "include/objects.h:239",
+      "expected": {
+        "category": 2,
+        "id": 45,
+        "material": 11,
+        "name": "battle-axe",
+        "weight": 120
+      },
+      "identity": "BATTLE_AXE",
+      "js_sources": {
+        "data": "js/objects.js:1089",
+        "id": "js/objects.js:120",
+        "name": "js/objects.js:604"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 45,
+        "material": 11,
+        "name": "battle-axe",
+        "weight": 120
+      }
+    },
+    {
+      "c_source": "include/objects.h:244",
+      "expected": {
+        "category": 2,
+        "id": 46,
+        "material": 11,
+        "name": "short sword",
+        "weight": 30
+      },
+      "identity": "SHORT_SWORD",
+      "js_sources": {
+        "data": "js/objects.js:1090",
+        "id": "js/objects.js:121",
+        "name": "js/objects.js:605"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 46,
+        "material": 11,
+        "name": "short sword",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:247",
+      "expected": {
+        "category": 2,
+        "id": 47,
+        "material": 8,
+        "name": "elven short sword",
+        "weight": 30
+      },
+      "identity": "ELVEN_SHORT_SWORD",
+      "js_sources": {
+        "data": "js/objects.js:1091",
+        "id": "js/objects.js:122",
+        "name": "js/objects.js:606"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 47,
+        "material": 8,
+        "name": "elven short sword",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:250",
+      "expected": {
+        "category": 2,
+        "id": 48,
+        "material": 11,
+        "name": "orcish short sword",
+        "weight": 30
+      },
+      "identity": "ORCISH_SHORT_SWORD",
+      "js_sources": {
+        "data": "js/objects.js:1092",
+        "id": "js/objects.js:123",
+        "name": "js/objects.js:607"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 48,
+        "material": 11,
+        "name": "orcish short sword",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:253",
+      "expected": {
+        "category": 2,
+        "id": 49,
+        "material": 11,
+        "name": "dwarvish short sword",
+        "weight": 30
+      },
+      "identity": "DWARVISH_SHORT_SWORD",
+      "js_sources": {
+        "data": "js/objects.js:1093",
+        "id": "js/objects.js:124",
+        "name": "js/objects.js:608"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 49,
+        "material": 11,
+        "name": "dwarvish short sword",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:256",
+      "expected": {
+        "category": 2,
+        "id": 50,
+        "material": 11,
+        "name": "scimitar",
+        "weight": 40
+      },
+      "identity": "SCIMITAR",
+      "js_sources": {
+        "data": "js/objects.js:1094",
+        "id": "js/objects.js:125",
+        "name": "js/objects.js:609"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 50,
+        "material": 11,
+        "name": "scimitar",
+        "weight": 40
+      }
+    },
+    {
+      "c_source": "include/objects.h:259",
+      "expected": {
+        "category": 2,
+        "id": 51,
+        "material": 14,
+        "name": "silver saber",
+        "weight": 40
+      },
+      "identity": "SILVER_SABER",
+      "js_sources": {
+        "data": "js/objects.js:1095",
+        "id": "js/objects.js:126",
+        "name": "js/objects.js:610"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "SILVER",
+      "observed": {
+        "category": 2,
+        "id": 51,
+        "material": 14,
+        "name": "silver saber",
+        "weight": 40
+      }
+    },
+    {
+      "c_source": "include/objects.h:262",
+      "expected": {
+        "category": 2,
+        "id": 52,
+        "material": 11,
+        "name": "broadsword",
+        "weight": 70
+      },
+      "identity": "BROADSWORD",
+      "js_sources": {
+        "data": "js/objects.js:1096",
+        "id": "js/objects.js:127",
+        "name": "js/objects.js:611"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 52,
+        "material": 11,
+        "name": "broadsword",
+        "weight": 70
+      }
+    },
+    {
+      "c_source": "include/objects.h:266",
+      "expected": {
+        "category": 2,
+        "id": 53,
+        "material": 8,
+        "name": "elven broadsword",
+        "weight": 70
+      },
+      "identity": "ELVEN_BROADSWORD",
+      "js_sources": {
+        "data": "js/objects.js:1097",
+        "id": "js/objects.js:128",
+        "name": "js/objects.js:612"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 53,
+        "material": 8,
+        "name": "elven broadsword",
+        "weight": 70
+      }
+    },
+    {
+      "c_source": "include/objects.h:270",
+      "expected": {
+        "category": 2,
+        "id": 54,
+        "material": 11,
+        "name": "long sword",
+        "weight": 40
+      },
+      "identity": "LONG_SWORD",
+      "js_sources": {
+        "data": "js/objects.js:1098",
+        "id": "js/objects.js:129",
+        "name": "js/objects.js:613"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 54,
+        "material": 11,
+        "name": "long sword",
+        "weight": 40
+      }
+    },
+    {
+      "c_source": "include/objects.h:273",
+      "expected": {
+        "category": 2,
+        "id": 55,
+        "material": 11,
+        "name": "two-handed sword",
+        "weight": 150
+      },
+      "identity": "TWO_HANDED_SWORD",
+      "js_sources": {
+        "data": "js/objects.js:1099",
+        "id": "js/objects.js:130",
+        "name": "js/objects.js:614"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 55,
+        "material": 11,
+        "name": "two-handed sword",
+        "weight": 150
+      }
+    },
+    {
+      "c_source": "include/objects.h:278",
+      "expected": {
+        "category": 2,
+        "id": 56,
+        "material": 11,
+        "name": "katana",
+        "weight": 40
+      },
+      "identity": "KATANA",
+      "js_sources": {
+        "data": "js/objects.js:1100",
+        "id": "js/objects.js:131",
+        "name": "js/objects.js:615"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 56,
+        "material": 11,
+        "name": "katana",
+        "weight": 40
+      }
+    },
+    {
+      "c_source": "include/objects.h:282",
+      "expected": {
+        "category": 2,
+        "id": 57,
+        "material": 12,
+        "name": "tsurugi",
+        "weight": 60
+      },
+      "identity": "TSURUGI",
+      "js_sources": {
+        "data": "js/objects.js:1101",
+        "id": "js/objects.js:132",
+        "name": "js/objects.js:616"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "METAL",
+      "observed": {
+        "category": 2,
+        "id": 57,
+        "material": 12,
+        "name": "tsurugi",
+        "weight": 60
+      }
+    },
+    {
+      "c_source": "include/objects.h:287",
+      "expected": {
+        "category": 2,
+        "id": 58,
+        "material": 11,
+        "name": "runesword",
+        "weight": 40
+      },
+      "identity": "RUNESWORD",
+      "js_sources": {
+        "data": "js/objects.js:1102",
+        "id": "js/objects.js:133",
+        "name": "js/objects.js:617"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 58,
+        "material": 11,
+        "name": "runesword",
+        "weight": 40
+      }
+    },
+    {
+      "c_source": "include/objects.h:294",
+      "expected": {
+        "category": 2,
+        "id": 59,
+        "material": 11,
+        "name": "partisan",
+        "weight": 80
+      },
+      "identity": "PARTISAN",
+      "js_sources": {
+        "data": "js/objects.js:1103",
+        "id": "js/objects.js:134",
+        "name": "js/objects.js:618"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 59,
+        "material": 11,
+        "name": "partisan",
+        "weight": 80
+      }
+    },
+    {
+      "c_source": "include/objects.h:298",
+      "expected": {
+        "category": 2,
+        "id": 60,
+        "material": 11,
+        "name": "ranseur",
+        "weight": 50
+      },
+      "identity": "RANSEUR",
+      "js_sources": {
+        "data": "js/objects.js:1104",
+        "id": "js/objects.js:135",
+        "name": "js/objects.js:619"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 60,
+        "material": 11,
+        "name": "ranseur",
+        "weight": 50
+      }
+    },
+    {
+      "c_source": "include/objects.h:302",
+      "expected": {
+        "category": 2,
+        "id": 61,
+        "material": 11,
+        "name": "spetum",
+        "weight": 50
+      },
+      "identity": "SPETUM",
+      "js_sources": {
+        "data": "js/objects.js:1105",
+        "id": "js/objects.js:136",
+        "name": "js/objects.js:620"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 61,
+        "material": 11,
+        "name": "spetum",
+        "weight": 50
+      }
+    },
+    {
+      "c_source": "include/objects.h:306",
+      "expected": {
+        "category": 2,
+        "id": 62,
+        "material": 11,
+        "name": "glaive",
+        "weight": 75
+      },
+      "identity": "GLAIVE",
+      "js_sources": {
+        "data": "js/objects.js:1106",
+        "id": "js/objects.js:137",
+        "name": "js/objects.js:621"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 62,
+        "material": 11,
+        "name": "glaive",
+        "weight": 75
+      }
+    },
+    {
+      "c_source": "include/objects.h:310",
+      "expected": {
+        "category": 2,
+        "id": 63,
+        "material": 11,
+        "name": "halberd",
+        "weight": 150
+      },
+      "identity": "HALBERD",
+      "js_sources": {
+        "data": "js/objects.js:1107",
+        "id": "js/objects.js:138",
+        "name": "js/objects.js:622"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 63,
+        "material": 11,
+        "name": "halberd",
+        "weight": 150
+      }
+    },
+    {
+      "c_source": "include/objects.h:314",
+      "expected": {
+        "category": 2,
+        "id": 64,
+        "material": 11,
+        "name": "bardiche",
+        "weight": 120
+      },
+      "identity": "BARDICHE",
+      "js_sources": {
+        "data": "js/objects.js:1108",
+        "id": "js/objects.js:139",
+        "name": "js/objects.js:623"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 64,
+        "material": 11,
+        "name": "bardiche",
+        "weight": 120
+      }
+    },
+    {
+      "c_source": "include/objects.h:318",
+      "expected": {
+        "category": 2,
+        "id": 65,
+        "material": 11,
+        "name": "voulge",
+        "weight": 125
+      },
+      "identity": "VOULGE",
+      "js_sources": {
+        "data": "js/objects.js:1109",
+        "id": "js/objects.js:140",
+        "name": "js/objects.js:624"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 65,
+        "material": 11,
+        "name": "voulge",
+        "weight": 125
+      }
+    },
+    {
+      "c_source": "include/objects.h:323",
+      "expected": {
+        "category": 2,
+        "id": 66,
+        "material": 11,
+        "name": "fauchard",
+        "weight": 60
+      },
+      "identity": "FAUCHARD",
+      "js_sources": {
+        "data": "js/objects.js:1110",
+        "id": "js/objects.js:141",
+        "name": "js/objects.js:625"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 66,
+        "material": 11,
+        "name": "fauchard",
+        "weight": 60
+      }
+    },
+    {
+      "c_source": "include/objects.h:326",
+      "expected": {
+        "category": 2,
+        "id": 67,
+        "material": 11,
+        "name": "guisarme",
+        "weight": 80
+      },
+      "identity": "GUISARME",
+      "js_sources": {
+        "data": "js/objects.js:1111",
+        "id": "js/objects.js:142",
+        "name": "js/objects.js:626"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 67,
+        "material": 11,
+        "name": "guisarme",
+        "weight": 80
+      }
+    },
+    {
+      "c_source": "include/objects.h:330",
+      "expected": {
+        "category": 2,
+        "id": 68,
+        "material": 11,
+        "name": "bill-guisarme",
+        "weight": 120
+      },
+      "identity": "BILL_GUISARME",
+      "js_sources": {
+        "data": "js/objects.js:1112",
+        "id": "js/objects.js:143",
+        "name": "js/objects.js:627"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 68,
+        "material": 11,
+        "name": "bill-guisarme",
+        "weight": 120
+      }
+    },
+    {
+      "c_source": "include/objects.h:335",
+      "expected": {
+        "category": 2,
+        "id": 69,
+        "material": 11,
+        "name": "lucern hammer",
+        "weight": 150
+      },
+      "identity": "LUCERN_HAMMER",
+      "js_sources": {
+        "data": "js/objects.js:1113",
+        "id": "js/objects.js:144",
+        "name": "js/objects.js:628"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 69,
+        "material": 11,
+        "name": "lucern hammer",
+        "weight": 150
+      }
+    },
+    {
+      "c_source": "include/objects.h:339",
+      "expected": {
+        "category": 2,
+        "id": 70,
+        "material": 11,
+        "name": "bec de corbin",
+        "weight": 100
+      },
+      "identity": "BEC_DE_CORBIN",
+      "js_sources": {
+        "data": "js/objects.js:1114",
+        "id": "js/objects.js:145",
+        "name": "js/objects.js:629"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 70,
+        "material": 11,
+        "name": "bec de corbin",
+        "weight": 100
+      }
+    },
+    {
+      "c_source": "include/objects.h:345",
+      "expected": {
+        "category": 2,
+        "id": 71,
+        "material": 11,
+        "name": "dwarvish mattock",
+        "weight": 120
+      },
+      "identity": "DWARVISH_MATTOCK",
+      "js_sources": {
+        "data": "js/objects.js:1115",
+        "id": "js/objects.js:146",
+        "name": "js/objects.js:630"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 71,
+        "material": 11,
+        "name": "dwarvish mattock",
+        "weight": 120
+      }
+    },
+    {
+      "c_source": "include/objects.h:348",
+      "expected": {
+        "category": 2,
+        "id": 72,
+        "material": 11,
+        "name": "lance",
+        "weight": 180
+      },
+      "identity": "LANCE",
+      "js_sources": {
+        "data": "js/objects.js:1116",
+        "id": "js/objects.js:147",
+        "name": "js/objects.js:631"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 72,
+        "material": 11,
+        "name": "lance",
+        "weight": 180
+      }
+    },
+    {
+      "c_source": "include/objects.h:355",
+      "expected": {
+        "category": 2,
+        "id": 73,
+        "material": 11,
+        "name": "mace",
+        "weight": 30
+      },
+      "identity": "MACE",
+      "js_sources": {
+        "data": "js/objects.js:1117",
+        "id": "js/objects.js:148",
+        "name": "js/objects.js:632"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 73,
+        "material": 11,
+        "name": "mace",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:359",
+      "expected": {
+        "category": 2,
+        "id": 74,
+        "material": 14,
+        "name": "silver mace",
+        "weight": 36
+      },
+      "identity": "SILVER_MACE",
+      "js_sources": {
+        "data": "js/objects.js:1118",
+        "id": "js/objects.js:149",
+        "name": "js/objects.js:633"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "SILVER",
+      "observed": {
+        "category": 2,
+        "id": 74,
+        "material": 14,
+        "name": "silver mace",
+        "weight": 36
+      }
+    },
+    {
+      "c_source": "include/objects.h:363",
+      "expected": {
+        "category": 2,
+        "id": 75,
+        "material": 11,
+        "name": "morning star",
+        "weight": 120
+      },
+      "identity": "MORNING_STAR",
+      "js_sources": {
+        "data": "js/objects.js:1119",
+        "id": "js/objects.js:150",
+        "name": "js/objects.js:634"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 75,
+        "material": 11,
+        "name": "morning star",
+        "weight": 120
+      }
+    },
+    {
+      "c_source": "include/objects.h:367",
+      "expected": {
+        "category": 2,
+        "id": 76,
+        "material": 11,
+        "name": "war hammer",
+        "weight": 50
+      },
+      "identity": "WAR_HAMMER",
+      "js_sources": {
+        "data": "js/objects.js:1120",
+        "id": "js/objects.js:151",
+        "name": "js/objects.js:635"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 76,
+        "material": 11,
+        "name": "war hammer",
+        "weight": 50
+      }
+    },
+    {
+      "c_source": "include/objects.h:371",
+      "expected": {
+        "category": 2,
+        "id": 77,
+        "material": 8,
+        "name": "club",
+        "weight": 30
+      },
+      "identity": "CLUB",
+      "js_sources": {
+        "data": "js/objects.js:1121",
+        "id": "js/objects.js:152",
+        "name": "js/objects.js:636"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 77,
+        "material": 8,
+        "name": "club",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:374",
+      "expected": {
+        "category": 2,
+        "id": 78,
+        "material": 18,
+        "name": "rubber hose",
+        "weight": 20
+      },
+      "identity": "RUBBER_HOSE",
+      "js_sources": {
+        "data": "js/objects.js:1122",
+        "id": "js/objects.js:153",
+        "name": "js/objects.js:637"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "PLASTIC",
+      "observed": {
+        "category": 2,
+        "id": 78,
+        "material": 18,
+        "name": "rubber hose",
+        "weight": 20
+      }
+    },
+    {
+      "c_source": "include/objects.h:377",
+      "expected": {
+        "category": 2,
+        "id": 79,
+        "material": 8,
+        "name": "quarterstaff",
+        "weight": 40
+      },
+      "identity": "QUARTERSTAFF",
+      "js_sources": {
+        "data": "js/objects.js:1123",
+        "id": "js/objects.js:154",
+        "name": "js/objects.js:638"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 79,
+        "material": 8,
+        "name": "quarterstaff",
+        "weight": 40
+      }
+    },
+    {
+      "c_source": "include/objects.h:381",
+      "expected": {
+        "category": 2,
+        "id": 80,
+        "material": 11,
+        "name": "aklys",
+        "weight": 15
+      },
+      "identity": "AKLYS",
+      "js_sources": {
+        "data": "js/objects.js:1124",
+        "id": "js/objects.js:155",
+        "name": "js/objects.js:639"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 80,
+        "material": 11,
+        "name": "aklys",
+        "weight": 15
+      }
+    },
+    {
+      "c_source": "include/objects.h:384",
+      "expected": {
+        "category": 2,
+        "id": 81,
+        "material": 11,
+        "name": "flail",
+        "weight": 15
+      },
+      "identity": "FLAIL",
+      "js_sources": {
+        "data": "js/objects.js:1125",
+        "id": "js/objects.js:156",
+        "name": "js/objects.js:640"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "IRON",
+      "observed": {
+        "category": 2,
+        "id": 81,
+        "material": 11,
+        "name": "flail",
+        "weight": 15
+      }
+    },
+    {
+      "c_source": "include/objects.h:390",
+      "expected": {
+        "category": 2,
+        "id": 82,
+        "material": 7,
+        "name": "bullwhip",
+        "weight": 20
+      },
+      "identity": "BULLWHIP",
+      "js_sources": {
+        "data": "js/objects.js:1126",
+        "id": "js/objects.js:157",
+        "name": "js/objects.js:641"
+      },
+      "macro": "WEAPON",
+      "material_symbol": "LEATHER",
+      "observed": {
+        "category": 2,
+        "id": 82,
+        "material": 7,
+        "name": "bullwhip",
+        "weight": 20
+      }
+    },
+    {
+      "c_source": "include/objects.h:395",
+      "expected": {
+        "category": 2,
+        "id": 83,
+        "material": 8,
+        "name": "bow",
+        "weight": 30
+      },
+      "identity": "BOW",
+      "js_sources": {
+        "data": "js/objects.js:1127",
+        "id": "js/objects.js:158",
+        "name": "js/objects.js:642"
+      },
+      "macro": "BOW",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 83,
+        "material": 8,
+        "name": "bow",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:397",
+      "expected": {
+        "category": 2,
+        "id": 84,
+        "material": 8,
+        "name": "elven bow",
+        "weight": 30
+      },
+      "identity": "ELVEN_BOW",
+      "js_sources": {
+        "data": "js/objects.js:1128",
+        "id": "js/objects.js:159",
+        "name": "js/objects.js:643"
+      },
+      "macro": "BOW",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 84,
+        "material": 8,
+        "name": "elven bow",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:399",
+      "expected": {
+        "category": 2,
+        "id": 85,
+        "material": 8,
+        "name": "orcish bow",
+        "weight": 30
+      },
+      "identity": "ORCISH_BOW",
+      "js_sources": {
+        "data": "js/objects.js:1129",
+        "id": "js/objects.js:160",
+        "name": "js/objects.js:644"
+      },
+      "macro": "BOW",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 85,
+        "material": 8,
+        "name": "orcish bow",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:401",
+      "expected": {
+        "category": 2,
+        "id": 86,
+        "material": 8,
+        "name": "yumi",
+        "weight": 30
+      },
+      "identity": "YUMI",
+      "js_sources": {
+        "data": "js/objects.js:1130",
+        "id": "js/objects.js:161",
+        "name": "js/objects.js:645"
+      },
+      "macro": "BOW",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 86,
+        "material": 8,
+        "name": "yumi",
+        "weight": 30
+      }
+    },
+    {
+      "c_source": "include/objects.h:403",
+      "expected": {
+        "category": 2,
+        "id": 87,
+        "material": 7,
+        "name": "sling",
+        "weight": 3
+      },
+      "identity": "SLING",
+      "js_sources": {
+        "data": "js/objects.js:1131",
+        "id": "js/objects.js:162",
+        "name": "js/objects.js:646"
+      },
+      "macro": "BOW",
+      "material_symbol": "LEATHER",
+      "observed": {
+        "category": 2,
+        "id": 87,
+        "material": 7,
+        "name": "sling",
+        "weight": 3
+      }
+    },
+    {
+      "c_source": "include/objects.h:405",
+      "expected": {
+        "category": 2,
+        "id": 88,
+        "material": 8,
+        "name": "crossbow",
+        "weight": 50
+      },
+      "identity": "CROSSBOW",
+      "js_sources": {
+        "data": "js/objects.js:1132",
+        "id": "js/objects.js:163",
+        "name": "js/objects.js:647"
+      },
+      "macro": "BOW",
+      "material_symbol": "WOOD",
+      "observed": {
+        "category": 2,
+        "id": 88,
+        "material": 8,
+        "name": "crossbow",
+        "weight": 50
+      }
+    }
+  ],
+  "source_sha256": {
+    "include/defsym.h": "009ae2e8921fa4c376fe0ae3b4a42407421274fc15d1a8834c6ae519dad82f87",
+    "include/objclass.h": "101f92e0024e4404033845fb15171f8ed4b79374907a6a172b4eb7b026e1eb52",
+    "include/objects.h": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+    "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353"
+  }
+}
