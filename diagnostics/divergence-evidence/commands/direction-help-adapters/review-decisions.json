@@ -1,0 +1,53 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/cmd.c:help_dir:pline",
+    "evidenceKey": "3b65a003c0299b86d8804c38a04fa08ffec8388880923e9c3d677a4fbe488e57",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "dc9251c6092908aaefd9bb87603fdcd21cfc66ff09c267eb7c7ba92d815a832d",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Both C help_dir pline call sites are disabled by literal #if 0. Current compiled help uses text-window output.",
+      "proof": "Configured Clang preprocessing excludes both calls. Source guard is literal zero, independent of cmdassist; no guarantee about disabled historical code.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/cmd.c:4170-4298",
+        "nethack-c/upstream/src/hacklib.c:69-79",
+        "js/cmd.js:1475-1539"
+      ]
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/cmd.c:help_dir:letter",
+    "evidenceKey": "aeee22584e62c9601d932cbc330c00314c5e83ecffab6e81b73960849062a436",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "e56772da5a425df4e723d71866700b7ed6887fb7dc8f6013a819580791120f1e",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C letter/highc tests and maps ASCII @, A-Z, a-z and bracket in this help branch; JS inlines the same predicate and uppercase arithmetic. These two observations share one character-adapter cause.",
+      "proof": "Compiled actual hacklib letter/highc exhaustively enumerates all 256 input bytes. Extracted production JS expressions match eligibility for all bytes and uppercase only on the reachable eligible domain. No claim about other highc callers or arbitrary Unicode.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/cmd.c:4170-4298",
+        "nethack-c/upstream/src/hacklib.c:69-79",
+        "js/cmd.js:1475-1539"
+      ]
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/cmd.c:help_dir:highc",
+    "evidenceKey": "81972ab80455491231b87457ec698ff084521bce20712c07857f53df5a3f28a1",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "79abbcdf114ecaa6b40032f24d242db1c733dfee9ed24d881fe14bdc6e4173da",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C letter/highc tests and maps ASCII @, A-Z, a-z and bracket in this help branch; JS inlines the same predicate and uppercase arithmetic. These two observations share one character-adapter cause.",
+      "proof": "Compiled actual hacklib letter/highc exhaustively enumerates all 256 input bytes. Extracted production JS expressions match eligibility for all bytes and uppercase only on the reachable eligible domain. No claim about other highc callers or arbitrary Unicode.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/cmd.c:4170-4298",
+        "nethack-c/upstream/src/hacklib.c:69-79",
+        "js/cmd.js:1475-1539"
+      ]
+    }
+  }
+]

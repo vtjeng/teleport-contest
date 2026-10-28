@@ -1,0 +1,70 @@
+help_dir(
+    char sym,
+    uchar spkey,
+    const char *msg)
+{
+    static const char wiz_only_list[] = "EFGIVW";
+    char ctrl;
+    winid win;
+    char buf[256], buf2[256], *explain;
+    const char *dothat ;
+    boolean prefixhandling ;
+    prefixhandling = (spkey != gc.Cmd.spkeys[NHKF_ESC]);
+    dothat = "do that";
+    buf[0] = '\0';
+    ((void) (prefixhandling));
+    win = (*windowprocs.win_create_nhwindow)(5);
+    if (!win)
+        return ((boolean) 0);
+    if (*buf) {
+        (*windowprocs.win_putstr)(win, 0, buf);
+        (*windowprocs.win_putstr)(win, 0, "");
+    } else if (msg) {
+        (void) sprintf(buf, "cmdassist: %s", msg);
+        (*windowprocs.win_putstr)(win, 0, buf);
+        (*windowprocs.win_putstr)(win, 0, "");
+    }
+    if (!prefixhandling && (letter(sym) || sym == '[')) {
+        sym = highc(sym);
+        ctrl = (sym - 'A') + 1;
+        if ((explain = dowhatdoes_core(ctrl, buf2)) != 0
+            && (!strchr(wiz_only_list, sym) || flags.debug)) {
+            (void) sprintf(buf, "Are you trying to use ^%c%s?", sym,
+                    strchr(wiz_only_list, sym) ? ""
+                        : " as specified in the Guidebook");
+            (*windowprocs.win_putstr)(win, 0, buf);
+            (*windowprocs.win_putstr)(win, 0, "");
+            (*windowprocs.win_putstr)(win, 0, explain);
+            (*windowprocs.win_putstr)(win, 0, "");
+            (*windowprocs.win_putstr)(win, 0,
+                  "To use that command, hold down the <Ctrl> key as a shift");
+            (void) sprintf(buf, "and press the <%c> key.", sym);
+            (*windowprocs.win_putstr)(win, 0, buf);
+            (*windowprocs.win_putstr)(win, 0, "");
+        }
+    }
+    (void) sprintf(buf, "Valid direction keys%s%s%s are:",
+            prefixhandling ? " to " : "", prefixhandling ? dothat : "",
+            ((u.umonnum) == PM_GRID_BUG) ? " in your current form" : "");
+    (*windowprocs.win_putstr)(win, 0, buf);
+    show_direction_keys(win, !prefixhandling ? '.' : ' ', ((u.umonnum) == PM_GRID_BUG));
+    if (!prefixhandling) {
+        (*windowprocs.win_putstr)(win, 0, "");
+        (*windowprocs.win_putstr)(win, 0, "          <  up");
+        (*windowprocs.win_putstr)(win, 0, "          >  down");
+        if (!prefixhandling) {
+            int selfi = gc.Cmd.num_pad ? NHKF_GETDIR_SELF2 : NHKF_GETDIR_SELF;
+            (void) sprintf(buf, "       %4s  direct at yourself",
+                    visctrl(gc.Cmd.spkeys[selfi]));
+            (*windowprocs.win_putstr)(win, 0, buf);
+        }
+    }
+    if (msg) {
+        (*windowprocs.win_putstr)(win, 0, "");
+        (*windowprocs.win_putstr)(win, 0,
+               "(Suppress this message with !cmdassist in config file.)");
+    }
+    (*windowprocs.win_display_nhwindow)(win, ((boolean) 0));
+    (*windowprocs.win_destroy_nhwindow)(win);
+    return ((boolean) 1);
+}

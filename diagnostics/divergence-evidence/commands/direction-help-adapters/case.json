@@ -1,0 +1,130 @@
+{
+  "shard": "commands",
+  "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:28:55.036290+00:00",
+  "reviewedAt": "2026-10-28T19:28:55.036290+00:00",
+  "outcome": "explained negatives",
+  "observationCount": 3,
+  "semanticCauseCount": 2,
+  "cases": [
+    {
+      "caseId": "direction-help-inactive-pline",
+      "semanticCause": "disabled-prefix-feedback",
+      "binding": {
+        "key": "source-audit:edge-c-only:src/cmd.c:help_dir:pline",
+        "evidenceKey": "3b65a003c0299b86d8804c38a04fa08ffec8388880923e9c3d677a4fbe488e57",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "dc9251c6092908aaefd9bb87603fdcd21cfc66ff09c267eb7c7ba92d815a832d",
+        "status": "explained_negative",
+        "reason": "unreachable",
+        "evidence": {
+          "explanation": "Both C help_dir pline call sites are disabled by literal #if 0. Current compiled help uses text-window output.",
+          "proof": "Configured Clang preprocessing excludes both calls. Source guard is literal zero, independent of cmdassist; no guarantee about disabled historical code.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/cmd.c:4170-4298",
+            "nethack-c/upstream/src/hacklib.c:69-79",
+            "js/cmd.js:1475-1539"
+          ]
+        }
+      },
+      "hypothesis": "Absent helper edge could omit direction help behavior",
+      "expectedC": "Both C help_dir pline call sites are disabled by literal #if 0. Current compiled help uses text-window output.",
+      "observedJS": "Configured Clang preprocessing excludes both calls. Source guard is literal zero, independent of cmdassist; no guarantee about disabled historical code.",
+      "outcome": "explained negative"
+    },
+    {
+      "caseId": "direction-help-inline-letter",
+      "semanticCause": "inline-ascii-character-adapter",
+      "binding": {
+        "key": "source-audit:edge-c-only:src/cmd.c:help_dir:letter",
+        "evidenceKey": "aeee22584e62c9601d932cbc330c00314c5e83ecffab6e81b73960849062a436",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "e56772da5a425df4e723d71866700b7ed6887fb7dc8f6013a819580791120f1e",
+        "status": "explained_negative",
+        "reason": "equivalent-implementation",
+        "evidence": {
+          "explanation": "C letter/highc tests and maps ASCII @, A-Z, a-z and bracket in this help branch; JS inlines the same predicate and uppercase arithmetic. These two observations share one character-adapter cause.",
+          "proof": "Compiled actual hacklib letter/highc exhaustively enumerates all 256 input bytes. Extracted production JS expressions match eligibility for all bytes and uppercase only on the reachable eligible domain. No claim about other highc callers or arbitrary Unicode.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/cmd.c:4170-4298",
+            "nethack-c/upstream/src/hacklib.c:69-79",
+            "js/cmd.js:1475-1539"
+          ]
+        }
+      },
+      "hypothesis": "Absent helper edge could omit direction help behavior",
+      "expectedC": "C letter/highc tests and maps ASCII @, A-Z, a-z and bracket in this help branch; JS inlines the same predicate and uppercase arithmetic. These two observations share one character-adapter cause.",
+      "observedJS": "Compiled actual hacklib letter/highc exhaustively enumerates all 256 input bytes. Extracted production JS expressions match eligibility for all bytes and uppercase only on the reachable eligible domain. No claim about other highc callers or arbitrary Unicode.",
+      "outcome": "explained negative"
+    },
+    {
+      "caseId": "direction-help-inline-highc",
+      "semanticCause": "inline-ascii-character-adapter",
+      "binding": {
+        "key": "source-audit:edge-c-only:src/cmd.c:help_dir:highc",
+        "evidenceKey": "81972ab80455491231b87457ec698ff084521bce20712c07857f53df5a3f28a1",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "79abbcdf114ecaa6b40032f24d242db1c733dfee9ed24d881fe14bdc6e4173da",
+        "status": "explained_negative",
+        "reason": "equivalent-implementation",
+        "evidence": {
+          "explanation": "C letter/highc tests and maps ASCII @, A-Z, a-z and bracket in this help branch; JS inlines the same predicate and uppercase arithmetic. These two observations share one character-adapter cause.",
+          "proof": "Compiled actual hacklib letter/highc exhaustively enumerates all 256 input bytes. Extracted production JS expressions match eligibility for all bytes and uppercase only on the reachable eligible domain. No claim about other highc callers or arbitrary Unicode.",
+          "sourceRefs": [
+            "nethack-c/upstream/src/cmd.c:4170-4298",
+            "nethack-c/upstream/src/hacklib.c:69-79",
+            "js/cmd.js:1475-1539"
+          ]
+        }
+      },
+      "hypothesis": "Absent helper edge could omit direction help behavior",
+      "expectedC": "C letter/highc tests and maps ASCII @, A-Z, a-z and bracket in this help branch; JS inlines the same predicate and uppercase arithmetic. These two observations share one character-adapter cause.",
+      "observedJS": "Compiled actual hacklib letter/highc exhaustively enumerates all 256 input bytes. Extracted production JS expressions match eligibility for all bytes and uppercase only on the reachable eligible domain. No claim about other highc callers or arbitrary Unicode.",
+      "outcome": "explained negative"
+    }
+  ],
+  "supportedSetup": "Ordinary human Ranger. Literal ^a then space/escape/look for invalid direction help; ^? then space/escape/look for requested help. Exact recipes retained.",
+  "control": "Both strict comparisons pass: six screens/cursors, 2959 RNG calls, zero animation frames. Partial import preserves two unreviewed observations; stale configuration preserves all three.",
+  "scope": "Byte-valued help_dir character branch and literal-zero prefix block only. Not universal direction parity.",
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/direction-help-adapters/evidence.test.mjs",
+  "tools": {
+    "node": "v24.19.0",
+    "exporterCommit": "a879e944617577d3eb59c14afc87ddbdb2724b18",
+    "clang": "Debian clang version 19.1.7 (3+b1)"
+  },
+  "hashes": {
+    "js/cmd.js": "e06f0ba7702992bf37c81cc5ade0dac3bed9b393c6c0fe1c342ab175f8023f3d",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/discovery-hub.mjs": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "nethack-c/upstream/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "nethack-c/upstream/src/hacklib.c": "9f9710dcd8fe0b3735c0b319eb7c26b7fb4148d32a5851ffe72ed94c3bbfeae2",
+    "nethack-c/recorder/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "nethack-c/recorder/src/hacklib.c": "78e81aedddb93a6bc8d966f3f586e689ae05c335d34dba36af6abb95700d5ec4",
+    "nethack-c/recorder/include/config.h": "5585d9c88d7ea21a9a78b45616cc31ae4ea680cb7b34026f70f92b91288a499f",
+    "nethack-c/recorder/install/games/lib/nethackdir/nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13"
+  },
+  "evidencePaths": [
+    "README.md",
+    "binding-source-check.json",
+    "character-oracle.c",
+    "character-oracle.jsonl",
+    "discovery-bindings.json",
+    "evidence.test.mjs",
+    "export-validation.json",
+    "help-dir.preprocessed.c.txt",
+    "invalid.js-output.json.gz",
+    "invalid.recipe.json",
+    "invalid.recording.json.gz",
+    "invalid.result.json",
+    "keys.json",
+    "manifest.json",
+    "projection.json",
+    "requested.js-output.json.gz",
+    "requested.recipe.json",
+    "requested.recording.json.gz",
+    "requested.result.json",
+    "review-decisions.json",
+    "review-template.json"
+  ]
+}
