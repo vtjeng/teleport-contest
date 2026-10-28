@@ -1,0 +1,9 @@
+{
+  "comparisons": 512,
+  "matched": 512,
+  "control": {
+    "cardinal": 1,
+    "diagonal": 2
+  },
+  "scope": "3x3 floor neighborhoods, floor center, origins (1,0)/(2,0); no global helper equivalence"
+}

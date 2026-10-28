@@ -1,0 +1,39 @@
+{
+  "maxCases": 8,
+  "repeats": 1,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "Rog-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/28103800.recipe.json"
+    },
+    {
+      "program": "Rog-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/28103801.recipe.json"
+    },
+    {
+      "program": "Pri-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/28103802.recipe.json"
+    },
+    {
+      "program": "Pri-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/28103803.recipe.json"
+    },
+    {
+      "program": "Mon-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/28103804.recipe.json"
+    },
+    {
+      "program": "Mon-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/28103805.recipe.json"
+    },
+    {
+      "program": "minetn-1.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/28103806.recipe.json"
+    },
+    {
+      "program": "minetn-1.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-flood-topology-20261028/28103807.recipe.json"
+    }
+  ]
+}
