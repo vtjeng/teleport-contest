@@ -1,0 +1,41 @@
+{
+  "base": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "cleanGameplayCheckout": true,
+  "verifiedAt": "2026-10-28T18:50:57.389Z",
+  "candidate": {
+    "exitCode": 1,
+    "target": "expected boundary assertion failure",
+    "control": "pass"
+  },
+  "verifyCurrent": {
+    "exitCode": 0,
+    "testsPassed": 1
+  },
+  "targetReplay": {
+    "passed": false,
+    "error": null,
+    "boundary": "an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+    "screensMatched": 35,
+    "screensTotal": 39,
+    "cursorsMatched": 35,
+    "cursorsTotal": 39,
+    "rngMatched": 2347,
+    "rngTotal": 2353,
+    "firstVisibleMismatch": 35
+  },
+  "controlReplay": {
+    "passed": true,
+    "screensMatched": 39,
+    "screensTotal": 39,
+    "cursorsMatched": 39,
+    "cursorsTotal": 39,
+    "rngMatched": 2353,
+    "rngTotal": 2353
+  },
+  "CSteps": {
+    "wishDropsStack": 31,
+    "countedPickup": 35,
+    "inventory": 38
+  },
+  "dependencies": "Node only; no install or rebuild. Clean checkout has evidence-only additions and no tracked gameplay edits."
+}

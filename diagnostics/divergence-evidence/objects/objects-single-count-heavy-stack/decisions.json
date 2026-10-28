@@ -1,0 +1,27 @@
+[
+  {
+    "key": "source-audit:edge-js-helper:src/pickup.c:pickup:preflightPickupObjects",
+    "evidenceKey": "7e6d209d3521edb4fd8253bb042ebacd3aafba513790415665efdb1f74e2f786",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "a38dd6261fdd4a911f7358b09acfb58a780f204187c0854efbc8cd52105e6850",
+    "status": "confirmed",
+    "witness": {
+      "setup": "Public debug wish for 1000 rocks drops stack to floor; target 1-comma requests one; control 2-comma requests two. No injected state.",
+      "failingCommand": "node --test diagnostics/divergence-evidence/objects/objects-single-count-heavy-stack/candidate.test.mjs",
+      "observed": "Target hits UnsupportedHeroCommandBoundaryError with pickup() requiring a partial or failed lift, carries zero rocks, and leaves 1000 below hero.",
+      "expected": "C accepts count one, carries one rock and leaves 999; visible pickup at step 35.",
+      "control": {
+        "command": "node --test --test-name-pattern=control diagnostics/divergence-evidence/objects/objects-single-count-heavy-stack/candidate.test.mjs",
+        "result": "Pass; full two-rock control matches 39 screens/cursors and 2353 RNG calls."
+      },
+      "evidenceBasis": "C-executed",
+      "sourceRefs": [
+        "nethack-c/upstream/src/pickup.c:1570",
+        "nethack-c/upstream/src/pickup.c:1589",
+        "js/pickup.js:942",
+        "js/pickup.js:1017",
+        "js/pickup.js:1040"
+      ]
+    }
+  }
+]
