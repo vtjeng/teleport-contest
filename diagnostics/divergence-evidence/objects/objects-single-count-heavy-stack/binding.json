@@ -1,0 +1,15 @@
+{
+  "fullRunId": "a381a949e765ae5aa2c8",
+  "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+  "fullRunRetainedAt": "diagnostics/divergence-evidence/objects/objects-triage-20261028/effects-hub/run.json",
+  "projectionSha256": "4e7f7595ed858fd9f4a3d4c0fca103691fc85c42ffed7a0ebf072e2261c84381",
+  "templateSha256": "44d9bea497e2ad175274edea827020f3b61294d2b802135a9e88bb2a4a820fec",
+  "decisionsSha256": "f23f4b749cc411583a0aee3c6697600243b8d94265653a4a5dd8269ff172fab1",
+  "selectedKeys": [
+    "source-audit:edge-js-helper:src/pickup.c:pickup:preflightPickupObjects"
+  ],
+  "createdAt": "2026-10-28T18:49:45.532Z",
+  "verifiedAtBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "sourceContinuity": "preflightPickupObjects is byte-identical to discovery base. Other pickup.js code changed in accepted food-stashing repair; full current file hash is separately recorded.",
+  "preflightSha256": "9f1bb6e0735dd74238299f9338641fac7fa5f486a16a28916a2e5bc6a6c1ecdd"
+}

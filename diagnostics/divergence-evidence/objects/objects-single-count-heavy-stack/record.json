@@ -1,0 +1,128 @@
+{
+  "caseId": "objects-single-count-heavy-stack",
+  "shard": "objects",
+  "outcome": "confirmed divergence",
+  "implementationCandidate": true,
+  "ready": true,
+  "semanticCauses": 1,
+  "rawWarnings": 1,
+  "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:47:25.303Z",
+  "reviewedAt": "2026-10-28T18:50:57.389Z",
+  "hypothesis": "Full-stack-weight preflight rejects a carryable count-one request because neither singleton nor count>1 exemptions apply.",
+  "supportedSetup": "Public wizard wish 1000 rocks creates floor stack, then 1-comma target versus 2-comma control; C captures establish both requested pickups.",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-single-count-heavy-stack/candidate.test.mjs",
+  "expectedC": "Pick up requested one rock and retain 999 in source stack.",
+  "observedJS": "an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+  "control": "Two-rock pickup passes candidate test and fully matches C.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/pickup.c:1570",
+    "nethack-c/upstream/src/pickup.c:1589",
+    "js/pickup.js:942",
+    "js/pickup.js:1017",
+    "js/pickup.js:1040"
+  ],
+  "sourceFingerprints": {
+    "nethack-c/upstream/src/pickup.c": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+    "js/pickup.js": "41c18651539aa80771f147fa8b4a7253fd9057530ffc1c1fca33e51503c45d27",
+    "js/cmd.js": "29211146cd75ea204322e663b9e88ac3e372385cd0566879c81e58b472d20e10"
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recordSession": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scorer": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "hub": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "compilerScan": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "patchSeries": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    }
+  },
+  "fixtureFingerprints": {
+    "control-capture-c.json": "ea8c13b91cad521df9e9bd46dc8859b7ca896a3f8145369eb8f1bc383a9fbd64",
+    "control-recipe.json": "55132dc4be711a23cdb599020087778755fce7d6b9d69d11aa92d30c188ca496",
+    "target-capture-c.json": "ab6f18e5b239a2fac069ed663a50f3c9f0f93f91cc3641adec85609bcf362ad9",
+    "target-recipe.json": "0c32db7d71c311f650466102db6e73c043d7f1fb299b4a4a8ff0e7de3d61556c"
+  },
+  "discoveryBinding": {
+    "fullRunId": "a381a949e765ae5aa2c8",
+    "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+    "bindingPath": "diagnostics/divergence-evidence/objects/objects-single-count-heavy-stack/binding.json",
+    "projectionPath": "diagnostics/divergence-evidence/objects/objects-single-count-heavy-stack/bound-run.json",
+    "decisions": [
+      {
+        "key": "source-audit:edge-js-helper:src/pickup.c:pickup:preflightPickupObjects",
+        "evidenceKey": "7e6d209d3521edb4fd8253bb042ebacd3aafba513790415665efdb1f74e2f786",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "a38dd6261fdd4a911f7358b09acfb58a780f204187c0854efbc8cd52105e6850"
+      }
+    ],
+    "classificationVerified": true
+  },
+  "cleanBaseValidation": {
+    "base": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+    "cleanGameplayCheckout": true,
+    "verifiedAt": "2026-10-28T18:50:57.389Z",
+    "candidate": {
+      "exitCode": 1,
+      "target": "expected boundary assertion failure",
+      "control": "pass"
+    },
+    "verifyCurrent": {
+      "exitCode": 0,
+      "testsPassed": 1
+    },
+    "targetReplay": {
+      "passed": false,
+      "error": null,
+      "boundary": "an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+      "screensMatched": 35,
+      "screensTotal": 39,
+      "cursorsMatched": 35,
+      "cursorsTotal": 39,
+      "rngMatched": 2347,
+      "rngTotal": 2353,
+      "firstVisibleMismatch": 35
+    },
+    "controlReplay": {
+      "passed": true,
+      "screensMatched": 39,
+      "screensTotal": 39,
+      "cursorsMatched": 39,
+      "cursorsTotal": 39,
+      "rngMatched": 2353,
+      "rngTotal": 2353
+    },
+    "CSteps": {
+      "wishDropsStack": 31,
+      "countedPickup": 35,
+      "inventory": 38
+    },
+    "dependencies": "Node only; no install or rebuild. Clean checkout has evidence-only additions and no tracked gameplay edits."
+  },
+  "evidencePaths": [
+    "README.md",
+    "binding.json",
+    "bound-run.json",
+    "candidate.test.mjs",
+    "control-capture-c.json",
+    "control-recipe.json",
+    "decision-template.json",
+    "decisions.json",
+    "hypothesis.md",
+    "keys.json",
+    "observations.json",
+    "target-capture-c.json",
+    "target-recipe.json",
+    "verify-current.test.mjs"
+  ],
+  "nextExperiment": null,
+  "scopeLimit": "Count one from an ordinary over-capacity floor stack; not special items or general pickup equivalence."
+}
