@@ -1,0 +1,167 @@
+[
+  {
+    "path": "js/const.js",
+    "line": 1764,
+    "text": "export const VIS_EFFECTS = 0x01;"
+  },
+  {
+    "path": "js/const.js",
+    "line": 2036,
+    "text": "export const MAY_HITMON = 0x1;"
+  },
+  {
+    "path": "js/const.js",
+    "line": 2037,
+    "text": "export const MAY_HITYOU = 0x2;"
+  },
+  {
+    "path": "js/const.js",
+    "line": 2038,
+    "text": "export const MAY_HIT = (0x1 | 0x2);"
+  },
+  {
+    "path": "js/const.js",
+    "line": 2039,
+    "text": "export const MAY_DESTROY = 0x4;"
+  },
+  {
+    "path": "js/const.js",
+    "line": 2040,
+    "text": "export const MAY_FRACTURE = 0x8;"
+  },
+  {
+    "path": "js/dbridge.js",
+    "line": 20,
+    "text": "import { SCATTER_MAY_HIT, scatter } from './explode.js';"
+  },
+  {
+    "path": "js/dbridge.js",
+    "line": 314,
+    "text": "            chain.ox, chain.oy, 1, SCATTER_MAY_HIT, chain, state, env,"
+  },
+  {
+    "path": "js/dokick.js",
+    "line": 222,
+    "text": "import { scatter, SCATTER_MAY_HIT, SCATTER_VIS_EFFECTS } from './explode.js';"
+  },
+  {
+    "path": "js/dokick.js",
+    "line": 833,
+    "text": "                await scatter(x, y, random.rnd(3), SCATTER_VIS_EFFECTS | SCATTER_MAY_HIT, object(), state, env);"
+  },
+  {
+    "path": "js/dokick.js",
+    "line": 1253,
+    "text": "            const nfall = await scatter(x, y, 2, SCATTER_MAY_HIT, treefruit, state, {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 231,
+    "text": "export const SCATTER_VIS_EFFECTS = 0x01;"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 232,
+    "text": "export const SCATTER_MAY_HITMON = 0x02;"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 233,
+    "text": "export const SCATTER_MAY_HITYOU = 0x04;"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 234,
+    "text": "export const SCATTER_MAY_HIT = SCATTER_MAY_HITMON | SCATTER_MAY_HITYOU;"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 235,
+    "text": "export const SCATTER_MAY_DESTROY = 0x08;"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 236,
+    "text": "export const SCATTER_MAY_FRACTURE = 0x10;"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 1085,
+    "text": "        if ((scflags & SCATTER_MAY_FRACTURE)"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 1129,
+    "text": "        } else if ((scflags & SCATTER_MAY_DESTROY)"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 1175,
+    "text": "                    if (scflags & SCATTER_MAY_HITMON) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 1183,
+    "text": "                    if (scflags & SCATTER_MAY_HITYOU) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 1207,
+    "text": "                } else if (scflags & SCATTER_VIS_EFFECTS) {"
+  },
+  {
+    "path": "js/pickup.js",
+    "line": 288,
+    "text": "    SCATTER_MAY_DESTROY,"
+  },
+  {
+    "path": "js/pickup.js",
+    "line": 289,
+    "text": "    SCATTER_MAY_HIT,"
+  },
+  {
+    "path": "js/pickup.js",
+    "line": 2536,
+    "text": "                SCATTER_MAY_HIT | SCATTER_MAY_DESTROY,"
+  },
+  {
+    "path": "js/trap_effects.js",
+    "line": 197,
+    "text": "    SCATTER_MAY_DESTROY,"
+  },
+  {
+    "path": "js/trap_effects.js",
+    "line": 198,
+    "text": "    SCATTER_MAY_FRACTURE,"
+  },
+  {
+    "path": "js/trap_effects.js",
+    "line": 199,
+    "text": "    SCATTER_MAY_HIT,"
+  },
+  {
+    "path": "js/trap_effects.js",
+    "line": 200,
+    "text": "    SCATTER_VIS_EFFECTS,"
+  },
+  {
+    "path": "js/trap_effects.js",
+    "line": 2939,
+    "text": "                        SCATTER_MAY_DESTROY | SCATTER_MAY_HIT"
+  },
+  {
+    "path": "js/trap_effects.js",
+    "line": 2940,
+    "text": "                            | SCATTER_MAY_FRACTURE | SCATTER_VIS_EFFECTS,"
+  },
+  {
+    "path": "js/trap_effects.js",
+    "line": 3663,
+    "text": "        SCATTER_MAY_DESTROY | SCATTER_MAY_HIT | SCATTER_MAY_FRACTURE"
+  },
+  {
+    "path": "js/trap_effects.js",
+    "line": 3664,
+    "text": "            | SCATTER_VIS_EFFECTS,"
+  }
+]

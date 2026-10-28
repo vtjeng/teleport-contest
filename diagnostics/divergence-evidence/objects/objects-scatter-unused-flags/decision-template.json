@@ -1,0 +1,44 @@
+[
+  {
+    "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_DESTROY|js/const.js|MAY_DESTROY",
+    "evidenceKey": "e76579fb49fa1ad0c0aff1af1c4eabe4426dfff48710cab51b22b1f60f3541a4",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "09d10b14081fea6387c6c1c70c4c934b524002a6f8d8c4078d6773149153e8b8",
+    "status": null
+  },
+  {
+    "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_FRACTURE|js/const.js|MAY_FRACTURE",
+    "evidenceKey": "665bdd23c53735ae55a408b3d6195dff1622e55c6c5bd636a92fd57b7696eab2",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "00cf808b75aaccde669179738d7820ceb69f585af2b16423cc51f81b55b5fc64",
+    "status": null
+  },
+  {
+    "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HIT|js/const.js|MAY_HIT",
+    "evidenceKey": "9f9e0618124c8a50e90a8ba21a679296bd27457f650868e61ac4cd9f24480c2d",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "4f9edc9da3b366c340cd3ea0527750e1721870de513fd77593f1eac56c32df09",
+    "status": null
+  },
+  {
+    "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITMON|js/const.js|MAY_HITMON",
+    "evidenceKey": "277cdf2834b3b9eb9ff12efc6c6995be5295ba56392db654ff1e6e2a1db0190d",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "303e8c3365e37e833c8462b8e100f5b74e3a8e92837e6618dc0a7de707e8d32c",
+    "status": null
+  },
+  {
+    "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITYOU|js/const.js|MAY_HITYOU",
+    "evidenceKey": "bfe593c0e7f268ff107cac39e18ccf3ab7d9a28f44de8786f84113c007f14d6e",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "4e690b6fb20ac151541aabe93c5385c5ca3be469bbc059d3db8204af2b33e04a",
+    "status": null
+  },
+  {
+    "key": "compiled-constants:header-macro-mismatch|include/objclass.h|BURNING_OIL|js/const.js|BURNING_OIL",
+    "evidenceKey": "b13d009f55c14b1c4a5fadfa0ed09434fb3c58444f8ca159893b71e95dca93b3",
+    "runId": "a381a949e765ae5aa2c8",
+    "reviewFingerprint": "e561f0e4ddcbb86f52310ccbc32bfd7035e98200b580e5899e06f0d19e095885",
+    "status": null
+  }
+]
