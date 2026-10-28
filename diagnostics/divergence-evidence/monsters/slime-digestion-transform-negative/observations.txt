@@ -1,0 +1,24 @@
+{"slime":true,"result":2,"species":208,"hp":1,"max":7,"lines":["The purple worm swallows the green slime.","\"Burrrrp!\"","The green slime is killed!","The purple worm turns into a green slime!"],"bounds":["d(1,10)","rn2(3)","rn2(6)","d(5,8)","rn2(1)","rn2(2)","rn2(15)","rnd(7)"]}
+{"slime":false,"result":2,"species":115,"hp":32,"max":121,"lines":["The purple worm swallows the lichen.","\"Burrrrp!\"","The lichen is killed!"],"bounds":["d(1,10)","rn2(2)","rn2(3)","rn2(6)","rnd(1)"]}
+✔ source fixes digestion transformation to green slime (3.535673ms)
+✔ digest victim slime=true (321.848766ms)
+✔ digest victim slime=false (120.433485ms)
+PRNG length: C=2947, JS=2947
+PRNG values: match
+Screen length: C=169, JS=169
+Screen cells and attributes: match
+Cursor length: C=169, JS=169
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: PASS
+
+✔ public witness matches C completely (1616.453915ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1763.508758

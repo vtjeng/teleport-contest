@@ -1,0 +1,21 @@
+{"nativeDigestion":[[115,11]],"wraithRejected":true,"solidNurseRejected":false}
+✔ current native digestion catalog and wraith guard explain the missing engulf (213.744654ms)
+PRNG length: C=3112, JS=3112
+PRNG values: match
+Screen length: C=104, JS=104
+Screen cells and attributes: match
+Cursor length: C=104, JS=104
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: PASS
+
+✔ public witness matches C completely (1185.004816ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1302.427396
