@@ -1,0 +1,28 @@
+TAP version 13
+# Subtest: stale comment does not describe the wired API
+ok 1 - stale comment does not describe the wired API
+  ---
+  duration_ms: 3.283723
+  type: 'test'
+  ...
+# Subtest: fixed fountain table creates terrain and requested flags
+ok 2 - fixed fountain table creates terrain and requested flags
+  ---
+  duration_ms: 6.49963
+  type: 'test'
+  ...
+# Subtest: existing different furniture is preserved and receives no fountain flags
+ok 3 - existing different furniture is preserved and receives no fountain flags
+  ---
+  duration_ms: 2.3375
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1073.529594
