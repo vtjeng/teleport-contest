@@ -1,0 +1,32 @@
+{
+  "testedJsSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+  "discoveredAt": "2026-10-28T23:30:51.483093+00:00",
+  "reviewedAt": "2026-10-28T23:30:51.483093+00:00",
+  "exactCBodies": {
+    "nethack-c/upstream/src/sp_lev.c": [
+      "create_door",
+      "rnddoor"
+    ],
+    "nethack-c/upstream/src/mklev.c": [
+      "bydoor",
+      "okdoor"
+    ]
+  },
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:create_door": "98a326cf85c4ff7618600e781249322ebfb89d09b1c88217abedea8c46482a4d",
+    "nethack-c/upstream/src/sp_lev.c:rnddoor": "fb5ccf34ca0ca0673593d85192cc6995e907623ece5aa6dfd632683afc045faa",
+    "nethack-c/upstream/src/mklev.c:bydoor": "d7d1b3e9eb301f50762ed68b4eec6299a21d9296011bf5963a51dbb8fae4a396",
+    "nethack-c/upstream/src/mklev.c:okdoor": "66f41d40cfecee1c601285e7bb28ae3aea985a5858b578c7b811a61c090fad3c",
+    "js/mklev.js:create_door": "49f461c7903dad58f52c6cdcd2ea1a0ccaf70fe1c60bfeb01212cdf3bfceab69",
+    "js/mklev.js:lspo_door": "b9dca17306565f03a53e356c49a8b83e71afb18ab549d8a6688ba9ddcdca97b8"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "clang -std=c99 -O2; five-bit rm.flags; ROLL_FROM expands to rn2(array length); captured room bounds11,5..15,9; default public RNG with checked C tape",
+  "limitations": [
+    "48 cases only: room bounds11,5..15,9, all four five-cell walls and open exterior, positions-1/random or2, seeds28105401/28105402, closed/secret/random states. No arbitrary room geometry, blocked exterior, nearby doors, exhausted100-attempt search, invalid placement, finalization, linkage or runtime-door claim.",
+    "Production JS startup, floor/wall terrain, region callback and des.door use the default RNG. C uses the asserted room/map postconditions, exact create_door/rnddoor/bydoor/okdoor bodies, fixed caller prelude and checked terrain-write adapter restricted to wall-to-door changes. Full C Lua parser/room allocation and set_levltyp side effects are not exercised.",
+    "C rn2 consumes the production JS tape with bounds/range/full-consumption assertions. This proves coupled-input RNG order and writes for these fixtures, not independent ISAAC equivalence or all seeds. Earlier orientation/descriptor proofs excluded room-wall placement and are not broadened."
+  ]
+}

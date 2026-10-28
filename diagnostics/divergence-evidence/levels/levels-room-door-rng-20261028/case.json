@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-room-door-rng-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "room-door-rng-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "create_door",
+      "start_line": 1714,
+      "end_line": 1806,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "rnddoor",
+      "start_line": 1148,
+      "end_line": 1153,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "bydoor",
+      "start_line": 1750,
+      "end_line": 1775,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "okdoor",
+      "start_line": 1779,
+      "end_line": 1789,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "create_door",
+      "start_line": 7322,
+      "end_line": 7397,
+      "commit_sha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_door",
+      "start_line": 3488,
+      "end_line": 3539,
+      "commit_sha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036"
+    }
+  ],
+  "hypothesis": "Missing direct C rn2 edges may indicate changed random state resolution or room-wall placement in JS create_door.",
+  "expectedBehavior": "For each shared RNG tape, C requests the same bounds/order, consumes all draws and places the same door type/mask/coordinate.",
+  "observedBehavior": "48 public room-wall door cases in a fixed five-by-five room with open exterior: four walls, fixed/random position, two seeds, random/closed/secret states. Exact C create_door/rnddoor/okdoor/bydoor replay the production JS draw tape with requested bounds and full consumption checked; resulting door coordinates/type/five-bit mask agree. The C caller prelude reproduces the random-state discarded rnddoor draw. No independent RNG or arbitrary-room proof.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "48 public room-wall door cases in a fixed five-by-five room with open exterior: four walls, fixed/random position, two seeds, random/closed/secret states. Exact C create_door/rnddoor/okdoor/bydoor replay the production JS draw tape with requested bounds and full consumption checked; resulting door coordinates/type/five-bit mask agree. The C caller prelude reproduces the random-state discarded rnddoor draw. No independent RNG or arbitrary-room proof.",
+    "limitations": [
+      "48 cases only: room bounds11,5..15,9, all four five-cell walls and open exterior, positions-1/random or2, seeds28105401/28105402, closed/secret/random states. No arbitrary room geometry, blocked exterior, nearby doors, exhausted100-attempt search, invalid placement, finalization, linkage or runtime-door claim.",
+      "Production JS startup, floor/wall terrain, region callback and des.door use the default RNG. C uses the asserted room/map postconditions, exact create_door/rnddoor/bydoor/okdoor bodies, fixed caller prelude and checked terrain-write adapter restricted to wall-to-door changes. Full C Lua parser/room allocation and set_levltyp side effects are not exercised.",
+      "C rn2 consumes the production JS tape with bounds/range/full-consumption assertions. This proves coupled-input RNG order and writes for these fixtures, not independent ISAAC equivalence or all seeds. Earlier orientation/descriptor proofs excluded room-wall placement and are not broadened."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Production room-wall API fixtures; shipped-level exposure not attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS create_door uses its injected random argument, defaulting to rn2 and supplied by the production des.door environment, in place of direct C rn2 calls.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:create_door:rn2"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/README.md",
+      "sha256": "1d36d3e739e6af4bfee4bda8ac10e629418023b56291b46d8cdbc97db048eaf9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/control-output.txt",
+      "sha256": "5324f35e44aa7245d56eaa5321c6269a1c9ddd89e65f56ead37dd03dbe887b04",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/control-receipt.json",
+      "sha256": "9c48364e94a9a5999d6cf426c43edbb1cda65c24d7451e65b2fe5c7fb8f04695",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/decisions.json",
+      "sha256": "eff4ef09f01e85b72c5808bde631a252f36bef54ab2ebd0f90011918adb57743",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/oracle.c",
+      "sha256": "b406ee8920b12d18a2e99b477d1ce2dab06a2678b5d5315ef9f502baa10d3ac1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/probe.mjs",
+      "sha256": "9c974e48e9ca92d79aa60ccf9e0032c708c647dd0ab96d3f49ce27f8058b6735",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/projection/manifest.json",
+      "sha256": "374d85081c5e30dd60c7f434eeb523eabdeb79b604005b623d3f7f7c6940019e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/projection/projection.json",
+      "sha256": "b135e95b908adfbc2ec59fadcc1215d9d5ff9dc3e90b92d36ab7e0055ddbff5d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/projection/review-template.json",
+      "sha256": "f8d3d0ba2f25f2e5ecb53b16658b3f3c9c8ec68f4c9eba91a201b41d012ce8cb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/source-fingerprints.json",
+      "sha256": "d88d07cd6d76fa54fed5b5f12a196200126ec17ba8499cfb8570ddbad9b0931a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/target-output.txt",
+      "sha256": "c9bbca13ae4e0ef78b1e03116edc64b89c001ad9fc129b4f287f04a163b406fc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/target-receipt.json",
+      "sha256": "f375166ab7bbbd54ca292359c0815d9339a0fa4792497a854911d0cbbca3f474",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
