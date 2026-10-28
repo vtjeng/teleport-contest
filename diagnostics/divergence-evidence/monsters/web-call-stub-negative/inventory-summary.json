@@ -21,11 +21,11 @@
     "edge-stub": 55,
     "message": 19
   },
-  "reviewedKeys": 5,
-  "resolvedKeys": 4,
+  "reviewedKeys": 7,
+  "resolvedKeys": 6,
   "reviewedUnresolvedKeys": 1,
-  "withoutRecordedReview": 684,
-  "reviewedAt": "2026-10-28T23:08:22.018444+00:00",
+  "withoutRecordedReview": 682,
+  "reviewedAt": "2026-10-28T23:19:43.576788+00:00",
   "inventoryKeysSha256": "9111e7977db1b5b5ecc90bdf55db81b2f4e71778586b9d75af402768597a011c",
   "reviews": [
     {
@@ -52,6 +52,16 @@
       "key": "source-audit:edge-stub:src/mcastu.c:mcast_lightning:mon_spell_hits_spot",
       "status": "explained_negative",
       "record": "sibling cleric-floor-spell-stub-negative package"
+    },
+    {
+      "key": "source-audit:edge-stub:src/mhitu.c:mattacku:which_armor",
+      "status": "explained_negative",
+      "record": "sibling fixed-armor-slot-stub-negative package"
+    },
+    {
+      "key": "source-audit:edge-stub:src/mhitm.c:mdisplacem:which_armor",
+      "status": "explained_negative",
+      "record": "sibling fixed-armor-slot-stub-negative package"
     }
   ]
 }

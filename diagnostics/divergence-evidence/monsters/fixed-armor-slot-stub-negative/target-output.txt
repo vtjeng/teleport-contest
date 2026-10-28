@@ -1,0 +1,1 @@
+{"mode":"target","sourceProof":"both literal armor slots exclude the sole unsupported hero-slot diagnostic","cResult":[11,22,11,22],"jsResult":[11,22,11,22],"scope":"complete pure lookup; no combat/equipment transition claim"}

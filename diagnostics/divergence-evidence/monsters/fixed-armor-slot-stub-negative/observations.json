@@ -1,0 +1,11 @@
+{
+  "discoveredAt": "2026-10-28T23:18:51.314293+00:00",
+  "reviewedAt": "2026-10-28T23:18:51.314304+00:00",
+  "scanBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "witnessBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+  "helperUnchangedFromScan": true,
+  "scope": "exact two call sites; neither combat path is replayed",
+  "oracle": "complete upstream which_armor extracted at execution, minimal structure/global declarations; impossible aborts if reached; no stubbed successful return",
+  "fixtures": "read-only pure lookup input records, not claims about how inventory was acquired or worn",
+  "excludedInvestigations": "none used; no denied-turn artifacts consumed"
+}

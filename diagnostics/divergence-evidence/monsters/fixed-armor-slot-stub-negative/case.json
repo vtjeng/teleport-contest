@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "caseId": "fixed-armor-slot-stub-negative",
+  "shard": "monsters",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "constant-argument-excludes-callee-diagnostic",
+  "relatedCases": [
+    "web-call-stub-negative",
+    "cleric-floor-spell-stub-negative"
+  ],
+  "provenance": {
+    "jsSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "JS",
+      "path": "js/worn.js",
+      "symbol": "which_armor",
+      "start_line": 476,
+      "end_line": 490,
+      "commit_sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca"
+    },
+    {
+      "side": "JS",
+      "path": "js/mhitu.js",
+      "symbol": "mattacku",
+      "start_line": 1732,
+      "end_line": 1732,
+      "commit_sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca"
+    },
+    {
+      "side": "JS",
+      "path": "js/mhitm.js",
+      "symbol": "mdisplacem",
+      "start_line": 654,
+      "end_line": 654,
+      "commit_sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/worn.c",
+      "symbol": "which_armor",
+      "start_line": 1005,
+      "end_line": 1036,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mhitu.c",
+      "symbol": "mattacku",
+      "start_line": 599,
+      "end_line": 599,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mhitm.c",
+      "symbol": "mdisplacem",
+      "start_line": 225,
+      "end_line": 225,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    }
+  ],
+  "hypothesis": "The two fixed armor-slot callers may encounter the which_armor unsupported marker.",
+  "expectedBehavior": "Fixed valid helmet/glove masks exclude the invalid hero armor-slot diagnostic; ordinary monster lookup has no marker.",
+  "observedBehavior": "Both exact call-site proofs pass; complete C helper and actual JS helper agree on present and absent helmet/glove lookups.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Complete pure lookup helper plus exact source argument/branch proof for two scanner keys.",
+    "limitations": [
+      "No full combat, displacement, petrification, equipment acquisition or equip transition claim.",
+      "Minimal C declarations model only fields the pure helper reads.",
+      "Hero and monster records are pure-function inputs, not a claimed public game setup."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/proof.mjs"
+    ],
+    "reason": "Production pure lookup helper accepts these records; source proves exact caller masks. No shipped full combat witness is asserted."
+  },
+  "origin": {
+    "kind": "scanner",
+    "keys": [
+      "source-audit:edge-stub:src/mhitu.c:mattacku:which_armor",
+      "source-audit:edge-stub:src/mhitm.c:mdisplacem:which_armor"
+    ],
+    "projection": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/projection.json",
+    "manifest": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/proof.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/proof.mjs",
+      "ci": "manual",
+      "inputs": [
+        "js/worn.js",
+        "js/const.js",
+        "js/mhitu.js",
+        "js/mhitm.js",
+        "nethack-c/upstream/src/worn.c",
+        "nethack-c/upstream/src/mhitu.c",
+        "nethack-c/upstream/src/mhitm.c",
+        "nethack-c/upstream/include/prop.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/proof.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/proof.mjs",
+      "ci": "manual",
+      "inputs": [
+        "js/worn.js",
+        "js/const.js",
+        "js/mhitu.js",
+        "js/mhitm.js",
+        "nethack-c/upstream/src/worn.c",
+        "nethack-c/upstream/src/mhitu.c",
+        "nethack-c/upstream/src/mhitm.c",
+        "nethack-c/upstream/include/prop.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/README.md",
+      "sha256": "9b63251f740bae9aecb8af98545b3a35326256468d0c01dab4edc1a1031299ed",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/control-output.txt",
+      "sha256": "833580e0456383fa474aaf759cf95c407c0d2ce123e07db56d3d79d677342f6b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/control-receipt.json",
+      "sha256": "d4cc74fb6b7f146f58c18c4947f9318dab1e68b39bedd570bddcda10a002d11f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/decisions.json",
+      "sha256": "b1fffe16ceed6bf61e021c1d5de006a42672092debabef5472fcf3ef599cae2c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/manifest.json",
+      "sha256": "4f2d007cdc9956a7a1e453c6dead3e9ccfde5f86d7dee689895126d757c656e6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/observations.json",
+      "sha256": "69cff48ff47aa17ada2f6a3e59045e252384d28841f28963f6757eb4f2d56bd2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/projection.json",
+      "sha256": "73fd31befc0b90b529d946bf68a57f37a60693f00e8057eded12a83245a495f3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/proof.mjs",
+      "sha256": "b69162d43c55315208a45f22883405b653c8807002ce608807d60fcb8ce0b60e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/target-output.txt",
+      "sha256": "4956ea8fa505cdcdc781669265246364226dbd67527f9ac8f7bfbedf416f1a37",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/target-receipt.json",
+      "sha256": "6b4c39f7f945be849d80b360d1b22b7e4714ded3cf8e2b840979208f1217bd8f",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "js/worn.js",
+      "sha256": "f0157f62162d45ccec085c83f6edf533afb859853ed59537ab806d731fe13e40",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/mhitu.js",
+      "sha256": "a4928cfdfde64021a4f6c8fe40082dd03f4f300dee846b2cdb4cced28fba9214",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/mhitm.js",
+      "sha256": "6ceb5f03f150b9db4c2a9a6bf54a55d25ecfbaf817d5ff2e82b2b0166a8771a6",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/worn.c",
+      "sha256": "0414baea25644ea52cc7b628dff4ab1a533eada1523405eaabe7d7555bc3d4cf",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/mhitu.c",
+      "sha256": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/mhitm.c",
+      "sha256": "f3674e65aca558ae7461a05463ed003a9fd755d9078a9298639a4752f44b4e22",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/include/prop.h",
+      "sha256": "682e85c7ab20c1dc7b30115b2a3e850d564cc2ed341edfa782fec9d0dfea0761",
+      "role": "pinned source input"
+    }
+  ]
+}
