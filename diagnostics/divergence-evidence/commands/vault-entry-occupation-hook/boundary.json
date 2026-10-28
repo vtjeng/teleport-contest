@@ -1,0 +1,14 @@
+{
+  "boundary": [
+    {
+      "name": "UnsupportedTurnBoundaryError",
+      "message": "unsupported initial-level monster creation: runtime creation while an occupation lacks stopOccupation"
+    }
+  ],
+  "screens": 63,
+  "inputExhausted": false,
+  "turn": 31,
+  "uinvault": 30,
+  "multi": 1,
+  "occupation": "searching"
+}
