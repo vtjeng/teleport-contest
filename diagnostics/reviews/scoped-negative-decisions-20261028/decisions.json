@@ -1,0 +1,178 @@
+[
+  {
+    "key": "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3",
+    "evidenceKey": "629cb9150ca5fc59b0fd9ad1aa0d778489508e19c0b4b8ebc78756a5faa7d99f",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "4270f88ddfbcd8d5230636931c503c1ade58cc29f434bba3020b312a0693ac9f",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Only this ugly literal is unreachable: react is initialized to -1, and its sole earlier assignment immediately breaks out before the ternary. No claim about other gaze behavior.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/e72c3a4d566b312e74d89d4493468eaf807d7c8c/diagnostics/divergence-evidence/monsters/medusa-ugly-react-negative/case.json",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mhitu.c:1678",
+        "nethack-c/upstream/src/mhitu.c:1709",
+        "js/mhitu.js:2989"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/src/mhitu.c": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+        "js/mhitu.js": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9"
+      },
+      "reviewNote": "Re-reviewed against this frozen run; earlier shard fingerprints were not reused. Eight focused checks passed on the frozen source base."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/pickup.c:tip_ok:isContainer",
+    "evidenceKey": "e90aa7e1ddc00bdfe417be83e97ce6ce09127a580b9e4aabda697f180b3754f5",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "2a03f744e41404e1566f5b4e00b3403cc9f3a77f6903a2e8b0e4028b233dd829",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "Only this tip_ok helper edge expands C Is_container: the same inclusive LARGE_BOX through BAG_OF_TRICKS object-type interval, following null/coin rejection. No claim about the full tip command or other helper callers.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/469465ded43271f69940f3895b9e27e21b8acbee/diagnostics/divergence-evidence/objects/objects-tip-container-macro/README.md",
+      "sourceRefs": [
+        "nethack-c/upstream/include/obj.h:337",
+        "nethack-c/upstream/src/pickup.c:3481",
+        "js/obj.js:1225",
+        "js/pickup.js:4302"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/include/obj.h": "a4d1b994c5acd6fe04d411485d84491553d6df02dfbd7480181a15a7a05456e2",
+        "nethack-c/upstream/src/pickup.c": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+        "nethack-c/upstream/include/objclass.h": "101f92e0024e4404033845fb15171f8ed4b79374907a6a172b4eb7b026e1eb52",
+        "nethack-c/upstream/src/objects.c": "1f1cc8de922d1f41f688da28b8d88d80eca2884619283b60f38418e7b965b340",
+        "js/obj.js": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+        "js/pickup.js": "f5868e4b769de59e2488007be977924edbbcbcbbf8a1d33f5d417e0d5b1bb83f",
+        "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+        "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3"
+      },
+      "reviewNote": "Re-reviewed against this frozen run; earlier shard fingerprints were not reused. Eight focused checks passed on the frozen source base."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:load_special:ensure_way_out",
+    "evidenceKey": "b70e25b3998fd58b3fbbfdc24bfd7555bd288c68c4585d11031122e6991526f5",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "3f82b6449b6c4e0a0fa75541c623bbc6b2309f8bb445b6d4c72579370f2eb47d",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "Only the missing finalization-call hypothesis is refuted: C load_special and JS des.finish call ensure_way_out under check_inaccessibles before map_cleanup. The focused two-pocket witness creates SDOOR only with the flag. Does not certify all escape methods, caller behavior, seeds, or Lua trace coverage.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/9d4a05d4baf006c74c14fbdc169b5cf9532f4b04/diagnostics/divergence-evidence/levels/levels-inaccessibles-20261028/record.json",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:6467",
+        "js/mklev.js:4957"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+        "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7"
+      },
+      "reviewNote": "Re-reviewed against this frozen run; earlier shard fingerprints were not reused. Eight focused checks passed on the frozen source base."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/do_wear.c:canwearobj:silly_thing",
+    "evidenceKey": "5aab22d0820706e2616bf3b93acd6635455d78b1577ad827d35a5fa1e1e4491b",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "33ff9e9ba988912e862b6bae37ba1a55a4dcdffe0e4f44ba074500c31aa5a5d0",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Only the final canwearobj fallback is unreachable for valid catalog-consistent armor through the two guarded production callers. All 85 armor types partition into the seven handled categories. Fabricated non-armor direct arguments differ and are outside this proof; new callers, categories or invariant changes require review.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/e36f22fd2af158e0b0f233247647b045f6116489/diagnostics/divergence-evidence/objects/objects-canwear-armor-partition/README.md",
+      "sourceRefs": [
+        "nethack-c/upstream/src/do_wear.c:2194",
+        "nethack-c/upstream/src/do_wear.c:2220",
+        "nethack-c/upstream/src/do_wear.c:3431",
+        "js/do_wear.js:3050",
+        "js/obj.js:1331"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/src/do_wear.c": "cf33ad9f5b18bcdfffd09d4e99867590802735a9ae2d34b9eb2b64880fa459c7",
+        "nethack-c/upstream/include/obj.h": "a4d1b994c5acd6fe04d411485d84491553d6df02dfbd7480181a15a7a05456e2",
+        "nethack-c/upstream/include/objclass.h": "101f92e0024e4404033845fb15171f8ed4b79374907a6a172b4eb7b026e1eb52",
+        "nethack-c/upstream/include/objects.h": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+        "nethack-c/upstream/src/objects.c": "1f1cc8de922d1f41f688da28b8d88d80eca2884619283b60f38418e7b965b340",
+        "js/do_wear.js": "79b707222826951268ca4772b981d782b1864fbc818c6434db1d2ca73e4d4438",
+        "js/obj.js": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+        "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+        "scripts/generate-objects.mjs": "56c120026576eb19825b88b0d4af46acad03eecae8352501c70da5cfd7a0087a"
+      },
+      "reviewNote": "Relevant JS files unchanged from PR #11; four focused checks and compiled C object catalog verification passed on the frozen base. Existing frozen run reused; no new scan."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/read.c:seffects:seffect_blank_paper",
+    "evidenceKey": "0cf9e33e6045e2accca764676dee221db37dbe4a3c16db6fa2ec60c644429e2f",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "55828097ce3c18af34b862a8bd52c14504cdc9ea997f1b6a569ef46f0339a7e2",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "Only the blank-scroll missing-helper edge is refuted: JS inlines the full C body, with the corresponding intrinsic/extrinsic/blocked blindness predicate, both messages, known flag mutation and no RNG. Surrounding scroll processing and other effects are outside this proof. Focused public-input sighted/blind checks pass; matching recordings alone are not the equivalence proof.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/e36f22fd2af158e0b0f233247647b045f6116489/diagnostics/divergence-evidence/objects/objects-blank-scroll-inline/README.md",
+      "sourceRefs": [
+        "nethack-c/upstream/src/read.c:2005",
+        "nethack-c/upstream/src/read.c:2222",
+        "nethack-c/upstream/include/youprop.h:103",
+        "js/read.js:886",
+        "js/read.js:3276"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/src/read.c": "ec15ad773e50f5d466ddc20515b441c9ddb4e99449abd1f34fa43a14e6a8b2c4",
+        "nethack-c/upstream/include/youprop.h": "9c4e25bc385c405226085ae3526dc165bd9397ce922b8a18a46f67de21683a2f",
+        "js/read.js": "4f94e68b298eb3a94ff3edc441bdbadf04b3c3682bca200101e13c0b00a21144",
+        "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+        "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3"
+      },
+      "reviewNote": "Relevant JS files unchanged from PR #11; four focused checks and compiled C object catalog verification passed on the frozen base. Existing frozen run reused; no new scan."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/pray.c:dopray:cmdq_add_ec",
+    "evidenceKey": "ae52f806112f62ca9c63a6f108ac6d03561ce4f4b0a956ff579fe2b4644a0b0f",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "5e401f8545ffbc218fec58fc014a013399946db743e046e0c656a1cf92ef9bca",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Only this cmdq_add_ec edge is compiled out in a complete literal #if 0 block. Adjacent paranoid_query, declined return, accepted conduct update and independently reported prayer-repeat behavior are not suppressed. The inactive cmdq_clear call has no corresponding C-only lead in this frozen run.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/f95ab60eb90f6d93dc42788434293290c8ba533f/diagnostics/divergence-evidence/commands/pray-inactive-repeat-reset/case.json",
+      "sourceRefs": [
+        "nethack-c/upstream/src/pray.c:2211",
+        "nethack-c/upstream/src/pray.c:2215",
+        "js/pray.js:1821"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/src/pray.c": "6d9729fb4c9e7fbed44f355f85a241ccc527e73d53913ca4efb904e23f999f03",
+        "js/pray.js": "4f9dab22dc4fbb6f2e8e87befaa37ca44098fd641711bfa850fe4e2248198277"
+      },
+      "reviewNote": "Five focused checks passed on the same frozen source base; existing scan reused. No prayer-repeat gameplay investigation."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/allmain.c:stop_occupation:You",
+    "evidenceKey": "1102b8020ed02229c98b476cbf5f84ac8004271b2f58070ce21681616cf433c6",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "9499834253348feb5eb53f189ab3eb6a29f134b6b3ee07c8a9d46d587031f98e",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "Only the missing direct You-call warning is refuted: stop_occupation resolves the required message callback and sends the interpolated stop text on the non-finished-meal arm. Focused waiting/searching and no-occupation controls verify formatting and state updates under the callback contract. This is not a claim that every caller supplies the callback or that completed-meal behavior is equivalent; the callback-resolution lead remains visible.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/f95ab60eb90f6d93dc42788434293290c8ba533f/diagnostics/divergence-evidence/commands/occupation-message-adapter/case.json",
+      "sourceRefs": [
+        "nethack-c/upstream/src/allmain.c:684",
+        "js/allmain.js:407",
+        "js/eat.js:1734"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/src/allmain.c": "6ce44a662ad3d180b9dcbf7660a1899b8d1356c8ef83e7787b21b39c6b2a35e4",
+        "nethack-c/upstream/src/eat.c": "2e3da760f9f3921c5209741992c8c73cbb14e795190b4e31dc8c0f6d1330f5d7",
+        "js/allmain.js": "9c4f8452f3a42e817ccad6d225f224e8c1c0872000cd888418aa317afacbd934",
+        "js/eat.js": "f593fb59d2ae5a5191ef224554cbf5532ec6f3c19e2d5739b28de7504f3de0ec"
+      },
+      "reviewNote": "Five focused checks passed on the same frozen source base; existing scan reused. No prayer-repeat gameplay investigation."
+    }
+  }
+]
