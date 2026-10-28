@@ -7,6 +7,14 @@ continue using the existing authenticated gh path. Flags cannot be combined.
 An authentication/permission failure never triggers a fallback between modes.
 The earlier reported GH_TOKEN/401 failure is not repaired or retried implicitly.
 
+After a validated Main push, use `node scripts/check-published-ci.mjs --public`
+with its usual `--commit`, `--synthetic-baseline`, and optional
+`--repair-members` arguments. This explicitly uses the same anonymous reader
+for Lint/Dashboard run discovery, exact Checkpoint/job completion reads, and
+receipt metadata. It still requires archived Checkpoint evidence and all
+existing exact-SHA publication and repair-register checks. The authenticated
+checker remains the default; neither mode falls back to the other.
+
 The read-only helper permits only workflow-run metadata, jobs for an exact run
 attempt, the combine check, and its annotations. It accepts no arbitrary host,
 repository, endpoint, write method, artifact URL, credential or query. Its Node
@@ -33,6 +41,7 @@ GitHub documents unauthenticated public access for these endpoints:
 - https://docs.github.com/en/rest/checks/runs#get-a-check-run
 - https://docs.github.com/en/rest/actions/workflow-runs#get-a-workflow-run
 - https://docs.github.com/en/rest/actions/workflow-jobs#list-jobs-for-a-workflow-run-attempt
+- https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository
 
 Live verification remains pending parent review. Proposed request:
 `GET https://api.github.com/repos/vtjeng/teleport-contest/check-runs/122647227685/annotations?per_page=100&page=1`

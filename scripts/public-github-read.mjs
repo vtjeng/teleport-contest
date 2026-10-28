@@ -16,7 +16,9 @@ export function publicReadUrl(path) {
     const tail = path.slice(prefix.length);
     const single = /^(?:actions\/runs|check-runs)\/[1-9]\d*$/u;
     const paged = /^(?:actions\/runs\/[1-9]\d*\/attempts\/[1-9]\d*\/jobs|check-runs\/[1-9]\d*\/annotations)\?per_page=100&page=[1-9]\d*$/u;
-    if (!single.test(tail) && !paged.test(tail)) throw new Error('public read: endpoint/query not allowed');
+    const published = /^actions\/runs\?head_sha=[a-f0-9]{40}&branch=main&event=push&per_page=100&page=[1-9]\d*$/u;
+    if (!single.test(tail) && !paged.test(tail) && !published.test(tail))
+        throw new Error('public read: endpoint/query not allowed');
     const url = new URL(`https://api.github.com/${path}`);
     if (url.origin !== 'https://api.github.com' || url.username || url.password || url.hash)
         throw new Error('public read: host not allowed');
@@ -63,10 +65,12 @@ export async function requestPublicJson(path, {fetchFn = globalThis.fetch, timeo
             try {data = JSON.parse(text);} catch {throw new Error('public read: malformed JSON');}
             const annotations = path.includes('/annotations?');
             const jobs = path.includes('/jobs?');
+            const published = path.includes('/actions/runs?');
             if (annotations ? !Array.isArray(data) : !data || typeof data !== 'object' || Array.isArray(data)
-                || (jobs ? !Array.isArray(data.jobs) : !Number.isSafeInteger(data.id)))
+                || (jobs ? !Array.isArray(data.jobs) : published ? !Array.isArray(data.workflow_runs)
+                    : !Number.isSafeInteger(data.id)))
                 throw new Error('public read: malformed API response');
-            if ((annotations ? data : jobs ? data.jobs : []).length > 100)
+            if ((annotations ? data : jobs ? data.jobs : published ? data.workflow_runs : []).length > 100)
                 throw new Error('public read: oversized API page');
             return text;
         })()]);
@@ -103,6 +107,19 @@ export function publicGithubRead(path, {execute = execFileSync, env = process.en
         .filter(flag => ['--use-system-ca', '--use-openssl-ca', '--use-bundled-ca'].includes(flag));
     return execute(process.execPath, [...trustFlags, script, path], {env: child, encoding: 'utf8',
         timeout: TIMEOUT_MS + 5000, maxBuffer: MAX_BYTES + 1024});
+}
+
+// Adapter for the existing read-only publication and receipt verifiers. Their
+// gh-shaped argument lists are intentionally limited to these public GETs.
+export function publicGithubCliRead(args, read = publicGithubRead) {
+    if (Array.isArray(args) && args.length === 6
+        && args.join('\0') === ['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner'].join('\0'))
+        return PUBLIC_REPOSITORY;
+    if (!Array.isArray(args) || args.length !== 2 || args[0] !== 'api')
+        throw new Error('public read: CLI operation not allowed');
+    const path = args[1].replace(/(\/jobs)\?per_page=100$/u, '$1?per_page=100&page=1');
+    publicReadUrl(path);
+    return read(path);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

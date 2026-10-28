@@ -7,6 +7,7 @@ import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { recordPublishedSynthetic } from './record-published-synthetic.mjs';
 import { parseRepairMembers } from './record-published-repairs.mjs';
+import { publicGithubCliRead } from './public-github-read.mjs';
 
 // These are the workflows triggered by a publication to main, not the separate
 // pre-acceptance Checkpoint workflow. Missing runs must remain pending discovery.
@@ -14,12 +15,14 @@ export const PUBLICATION_WORKFLOWS = ['lint.yml', 'dashboard.yml']
     .map(name => `.github/workflows/${name}`);
 const SHA = /^[a-f0-9]{40}$/;
 const succeeded = run => run.status === 'completed' && run.conclusion === 'success';
-const USAGE = `Usage: node scripts/check-published-ci.mjs [--commit <full-sha>] [--task <label>] [--file <pending-json>] [--synthetic-baseline <accepted-sha>] [--repair-members <id:source-sha,...>]
+const USAGE = `Usage: node scripts/check-published-ci.mjs [--public] [--commit <full-sha>] [--task <label>] [--file <pending-json>] [--synthetic-baseline <accepted-sha>] [--repair-members <id:source-sha,...>]
 
 Register a just-published commit (optional), then check all pending commits once.
 Defaults to .cache/loop-ci-pending.json. Run from the repository checkout.
 Uses gh authentication; performs read-only GitHub requests and updates only the
 local pending cache. Keeps missing, queued, failed and cancelled runs pending.
+--public explicitly uses anonymous reads of the public repository's workflow
+metadata for the same exact-SHA gates and receipts; it never falls back to gh.
 Exit 0: no known failures (pending may remain); 1: failed/cancelled run;
 2: invalid input or API/cache error; repeat the same invocation after recovery
 because failed checks do not register new commits.
@@ -55,9 +58,11 @@ export function publicationStatus(commit, runs, repository) {
         failed: workflows.some(run => run.status === 'completed' && run.conclusion !== 'success'), workflows };
 }
 
-export function checkPublishedCI({ file, commit, task, syntheticBaseline, repairMembers }, { gh = args =>
+export function checkPublishedCI({ file, commit, task, syntheticBaseline, repairMembers, publicRead = false }, { gh = args =>
     execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }),
-    recordSynthetic = recordPublishedSynthetic } = {}) {
+    readPublic = publicGithubCliRead, recordSynthetic = recordPublishedSynthetic } = {}) {
+    if (typeof publicRead !== 'boolean') throw new Error('Invalid public-read option');
+    const read = publicRead ? readPublic : gh;
     if (commit !== undefined && !SHA.test(commit)) throw new Error('Expected a full published commit SHA');
     if (syntheticBaseline && (!commit || !SHA.test(syntheticBaseline)))
         throw new Error('--synthetic-baseline requires --commit and a full accepted SHA');
@@ -94,13 +99,13 @@ export function checkPublishedCI({ file, commit, task, syntheticBaseline, repair
             if (repairMembers !== undefined) selectedEntry.repairMembers = repairMembers;
         }
         const repository = state.commits.length
-            ? gh(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim() : null;
+            ? read(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim() : null;
         const reports = [], runsByCommit = new Map();
         for (const entry of state.commits) {
             const runs = [];
             for (let page = 1; ; page++) {
                 if (page > 1000) throw new Error('Workflow pagination limit exceeded');
-                const response = JSON.parse(gh(['api',
+                const response = JSON.parse(read(['api',
                     `repos/${repository}/actions/runs?head_sha=${entry.commit}&branch=main&event=push&per_page=100&page=${page}`]));
                 if (!response || !Array.isArray(response.workflow_runs) || response.workflow_runs.length > 100)
                     throw new Error('Invalid workflow run response');
@@ -117,7 +122,7 @@ export function checkPublishedCI({ file, commit, task, syntheticBaseline, repair
             if (!entry.syntheticBaseline) continue;
             const repairMembers = entry.repairMembers ? parseRepairMembers(entry.repairMembers) : null;
             receipts.push({ commit: report.commit, result: recordSynthetic(process.cwd(),
-                report.commit, entry.syntheticBaseline, report, gh,
+                report.commit, entry.syntheticBaseline, report, read,
                 { repairMembers, publicationRuns: runsByCommit.get(report.commit) }) });
         }
         const synthetic = receipts.find(row => row.commit === commit)?.result ?? null;
@@ -147,11 +152,18 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (args.length === 1 && args[0] === '--help') console.log(USAGE);
         else {
             const options = {};
-            for (let index = 0; index < args.length; index += 2) {
+            for (let index = 0; index < args.length;) {
+                if (args[index] === '--public') {
+                    if (options.publicRead) throw new Error(USAGE);
+                    options.publicRead = true;
+                    index++;
+                    continue;
+                }
                 const key = args[index]?.slice(2);
                 if (!['commit', 'task', 'file', 'synthetic-baseline', 'repair-members'].includes(key) || args[index] !== `--${key}`
                     || !args[index + 1] || options[key] !== undefined) throw new Error(USAGE);
                 options[key] = args[index + 1];
+                index += 2;
             }
             options.syntheticBaseline = options['synthetic-baseline'];
             delete options['synthetic-baseline'];

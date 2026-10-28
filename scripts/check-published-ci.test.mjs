@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkPublishedCI, publicationStatus, PUBLICATION_WORKFLOWS } from './check-published-ci.mjs';
+import { PUBLIC_REPOSITORY, publicGithubCliRead } from './public-github-read.mjs';
 
 // Two different commits and monotonically increasing IDs model publications and
 // retries, with one run for each automatic publication workflow.
@@ -86,6 +87,32 @@ test('API failures preserve cache bytes, release locks, and allow retry', t => {
     assert.equal(readFileSync(file, 'utf8'), original);
     assert.equal(existsSync(`${file}.lock`), false);
     assert.equal(checkPublishedCI({ file }, { gh: client(passing(commit)) }).completed.length, 1);
+});
+
+test('explicit public mode uses anonymous reads for publication and receipt without gh fallback', t => {
+    const file = fixture(t);
+    const calls = [];
+    const publicRuns = passing(commit).map(run => ({...run,
+        repository: {full_name: PUBLIC_REPOSITORY}, head_repository: {full_name: PUBLIC_REPOSITORY}}));
+    const readPublic = args => publicGithubCliRead(args, path => {
+        calls.push(path);
+        if (path.includes('/jobs?')) return path;
+        assert.match(path, /actions\/runs\?head_sha=/u);
+        return JSON.stringify({workflow_runs: publicRuns});
+    });
+    const result = checkPublishedCI({file, commit, publicRead: true,
+        syntheticBaseline: other, repairMembers: `repair-one:${other}`}, {
+        gh: () => assert.fail('authenticated gh must not run in public mode'),
+        readPublic, recordSynthetic: (_root, _commit, _baseline, _report, read) => {
+            assert.equal(read, readPublic);
+            assert.equal(read(['api', `repos/${PUBLIC_REPOSITORY}/actions/runs/1/attempts/1/jobs?per_page=100`]),
+                `repos/${PUBLIC_REPOSITORY}/actions/runs/1/attempts/1/jobs?per_page=100&page=1`);
+            return {changed: true};
+        },
+    });
+    assert.deepEqual(result.completed, [commit]);
+    assert.equal(calls.length, 2);
+    assert.deepEqual(JSON.parse(readFileSync(file)).commits, []);
 });
 
 test('repair members require receipt validation; pending and failed gates do no register work', t => {

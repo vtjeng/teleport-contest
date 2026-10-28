@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {randomBytes} from 'node:crypto';
-import {PUBLIC_REPOSITORY, publicReadUrl, publicGithubRead, publicReadEnvironment, requestPublicJson} from './public-github-read.mjs';
+import {PUBLIC_REPOSITORY, publicReadUrl, publicGithubRead, publicGithubCliRead, publicReadEnvironment, requestPublicJson} from './public-github-read.mjs';
 import {CHUNK_SIZE, readHostedEvidence} from './hosted-evidence.mjs';
 import {evidenceApi} from './test-fixtures/hosted-evidence.mjs';
 const path = `repos/${PUBLIC_REPOSITORY}/actions/runs/123`;
@@ -39,6 +39,23 @@ test('host, repository, endpoint, queries, credentials and redirects cannot wide
         `repos/${PUBLIC_REPOSITORY}/check-runs/1/annotations?per_page=100&page=1&foo=bar`])
         assert.throws(() => publicReadUrl(bad), /not allowed/u);
     await assert.rejects(requestPublicJson(path, {fetchFn: async () => new Response('', {status: 302})}), /HTTP 302/u);
+});
+
+test('publication and receipt reads stay on exact public metadata endpoints', async () => {
+    const sha = 'a'.repeat(40);
+    const list = `repos/${PUBLIC_REPOSITORY}/actions/runs?head_sha=${sha}&branch=main&event=push&per_page=100&page=1`;
+    const jobs = `repos/${PUBLIC_REPOSITORY}/actions/runs/123/attempts/2/jobs?per_page=100&page=1`;
+    assert.equal(JSON.parse(await requestPublicJson(list, {fetchFn: async () => json({workflow_runs: []})})).workflow_runs.length, 0);
+    assert.equal(publicGithubCliRead(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']), PUBLIC_REPOSITORY);
+    assert.equal(publicGithubCliRead(['api', `repos/${PUBLIC_REPOSITORY}/actions/runs/123/attempts/2/jobs?per_page=100`],
+        path => path), jobs);
+    for (const bad of [list.replace('branch=main', 'branch=private'), list.replace(`head_sha=${sha}`, 'head_sha=short'),
+        list.replace('event=push', 'event=workflow_dispatch'), list + '&token=bad',
+        `repos/${PUBLIC_REPOSITORY}/actions/runs/123/artifacts`])
+        assert.throws(() => publicReadUrl(bad), /not allowed/u);
+    assert.throws(() => publicGithubCliRead(['api', list, '--method', 'POST']), /not allowed/u);
+    assert.throws(() => publicGithubCliRead(['run', 'download', '123']), /not allowed/u);
+    await assert.rejects(requestPublicJson(list, {fetchFn: async () => json({id: 1})}), /malformed/u);
 });
 
 test('HTTP errors, anonymous limits, malformed replies and timeouts fail without fallback', async () => {
