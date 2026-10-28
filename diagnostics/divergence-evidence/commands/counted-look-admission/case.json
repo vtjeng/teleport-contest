@@ -24,7 +24,7 @@
     "node": "v24.19.0"
   },
   "discardedProbes": "Lowercase v was not version binding and both target/control lacked boundaries; not counted. Uppercase V control has platform-dependent version text mismatch; excluded from claim. Raw probes remain private in /tmp.",
-  "reproduction": "node --test diagnostics/divergence-evidence/commands/counted-look-admission/evidence.test.mjs",
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/counted-look-admission/evidence.mjs",
   "hashes": {
     "js/cmd.js": "e06f0ba7702992bf37c81cc5ade0dac3bed9b393c6c0fe1c342ab175f8023f3d",
     "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
@@ -42,7 +42,7 @@
     "control.recipe.json",
     "control.recording.json.gz",
     "control.result.json",
-    "evidence.test.mjs",
+    "evidence.mjs",
     "target.js-output.json.gz",
     "target.recipe.json",
     "target.recording.json.gz",

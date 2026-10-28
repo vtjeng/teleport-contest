@@ -7,7 +7,7 @@ The count admission guard in `js/cmd.js:5681-5728` rejects `look` with positive 
 From repository root:
 
 ```
-node --test diagnostics/divergence-evidence/commands/counted-look-admission/evidence.test.mjs
+node --test diagnostics/divergence-evidence/commands/counted-look-admission/evidence.mjs
 ```
 
 Expected on the stated base: control passes, target fails deterministically at zero-based boundary 2 (`:`), with JS missing that boundary. This deliberate parity regression is outside default CI. After repair both should pass. All fixtures are included; only standard repository dependencies are needed.

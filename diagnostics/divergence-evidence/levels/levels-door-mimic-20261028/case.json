@@ -96,7 +96,7 @@
     "witnessFirstRngMismatch": 3357
   },
   "fixtureHashes": {
-    "binding.test.mjs": "01207aa13588e9a20e6ab8267d4e6466e8e230827d5f47298771d59e9c3a9758",
+    "binding.mjs": "01207aa13588e9a20e6ab8267d4e6466e8e230827d5f47298771d59e9c3a9758",
     "control.recorded.session.json.gz": "c0cfec44116c6f1a914632ed14fbf4bed2cf7857b01a1844db90145cb6cd7386",
     "witness.recorded.session.json.gz": "e33c710e1a2de8fb97ccad1bd1d9bbe38869711fd5c394541f417e0075740209",
     "replay.mjs": "6ff6df47f7f1ddb78de4a64b3168805bfba021c4a09238a57570784780097da1"

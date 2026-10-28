@@ -3,7 +3,7 @@
     "bytes": 11526,
     "sha256": "986b207ec9c9d9638fc1c5832200848872936c9d7bfaf383c8f00c4e21f48904"
   },
-  "evidence.test.mjs": {
+  "evidence.mjs": {
     "bytes": 789,
     "sha256": "03e5ea7ec21843e796166d2600de33c20f2cc60cc4aa59875e33778e02698b8e"
   },
