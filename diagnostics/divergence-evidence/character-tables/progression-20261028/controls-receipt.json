@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "commandId": "controls",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/character-tables/progression-20261028/compare.mjs",
+    "controls"
+  ],
+  "cwd": ".",
+  "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:22:27.948Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "23c4a7ed2c10cfb0a156b65c18c308418dcc39d0c8af1b8c1237df55c1658743",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/character-tables/progression-20261028/inputs.json": "466a03fa22445ec235152c0e7818179fe9c9781db8f24367997c036153aac1c2",
+    "js/roles.js": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+    "js/role_skills.js": "c5cfd0b6ca097fbb6db46e6ab14de5c680e579f722b3a9f547bada5fb70682cb",
+    "js/attrib.js": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "nethack-c/upstream/src/role.c": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+    "nethack-c/upstream/src/u_init.c": "64a85cf484189ef817da3f3e913e2f9a4c4a6e2f31588632387c43d45ab2ec71",
+    "nethack-c/upstream/src/attrib.c": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+    "nethack-c/upstream/include/skills.h": "d67ac10770b8aff667c163e93020b8974e53f12eede903f10bf026d351b2c238",
+    "nethack-c/upstream/include/prop.h": "682e85c7ab20c1dc7b30115b2a3e850d564cc2ed341edfa782fec9d0dfea0761",
+    "nethack-c/upstream/include/youprop.h": "9c4e25bc385c405226085ae3526dc165bd9397ce922b8a18a46f67de21683a2f",
+    "nethack-c/upstream/include/you.h": "d19cfa0233582f1ad550b9dfc788f26166f3ff21225e3d8a0cd43b6de2094289",
+    "nethack-c/upstream/include/attrib.h": "f20418d80bc2983e3d9af6cc9a02d30f57aa6b54116691a8e4ebebd425de757d"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/character-tables/progression-20261028/controls-output.json"
+  ]
+}

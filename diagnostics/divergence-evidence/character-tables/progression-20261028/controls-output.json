@@ -1,0 +1,288 @@
+{
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "mode": "controls",
+  "counts": {
+    "roles": 13,
+    "races": 5,
+    "skillTables": 13,
+    "skillEntries": 277,
+    "innateTables": 18,
+    "innateEntries": 44,
+    "comparisons": 1206,
+    "matched": 1206,
+    "mismatches": 0
+  },
+  "mismatches": [],
+  "controls": [
+    {
+      "path": "js/roles.js",
+      "before": "attrbase: [7, 10",
+      "after": "attrbase: [8, 10",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "roles.Arc.attrbase.0",
+          "c": 7,
+          "js": 8,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "attrdist: [20, 20",
+      "after": "attrdist: [21, 20",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "roles.Arc.attrdist.0",
+          "c": 20,
+          "js": 21,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "hpadv: advance(11, 0, 0, 8, 1, 0)",
+      "after": "hpadv: advance(12, 0, 0, 8, 1, 0)",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "roles.Arc.hpadv.0",
+          "c": 11,
+          "js": 12,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "enadv: advance(1, 0, 0, 1, 0, 1)",
+      "after": "enadv: advance(1, 0, 0, 1, 0, 2)",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "roles.Arc.enadv.5",
+          "c": 1,
+          "js": 2,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "xlev: 14",
+      "after": "xlev: 15",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "roles.Arc.xlev",
+          "c": 14,
+          "js": 15,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "attrmin: [3, 3",
+      "after": "attrmin: [4, 3",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "races.Hum.attrmin.0",
+          "c": 3,
+          "js": 4,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "attrmax: [118, 18",
+      "after": "attrmax: [119, 18",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "races.Hum.attrmax.0",
+          "c": 118,
+          "js": 119,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "hpadv: advance(2, 0, 0, 2, 1, 0)",
+      "after": "hpadv: advance(3, 0, 0, 2, 1, 0)",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "races.Hum.hpadv.0",
+          "c": 2,
+          "js": 3,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "enadv: advance(1, 0, 2, 0, 2, 0)",
+      "after": "enadv: advance(2, 0, 2, 0, 2, 0)",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "races.Hum.enadv.0",
+          "c": 1,
+          "js": 2,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/role_skills.js",
+      "before": "[P_DAGGER, P_BASIC]",
+      "after": "[P_AXE, P_BASIC]",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "skills.A.0.id",
+          "c": 1,
+          "js": 3,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/role_skills.js",
+      "before": "[P_DAGGER, P_BASIC]",
+      "after": "[P_DAGGER, P_EXPERT]",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "skills.A.0.cap",
+          "c": 2,
+          "js": 4,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/attrib.js",
+      "before": "innate(1, SEARCHING, '', '')",
+      "after": "innate(2, SEARCHING, '', '')",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "innates.arc_abil.0.level",
+          "c": 1,
+          "js": 2,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/attrib.js",
+      "before": "innate(1, SEARCHING, '', '')",
+      "after": "innate(1, FAST, '', '')",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "innates.arc_abil.0.property",
+          "c": 34,
+          "js": 64,
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/attrib.js",
+      "before": "innate(1, SEARCHING, '', '')",
+      "after": "innate(1, SEARCHING, 'changed', '')",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "innates.arc_abil.0.gain",
+          "c": "",
+          "js": "changed",
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/attrib.js",
+      "before": "innate(1, SEARCHING, '', '')",
+      "after": "innate(1, SEARCHING, '', 'changed')",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "innates.arc_abil.0.loss",
+          "c": "",
+          "js": "changed",
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/attrib.js",
+      "before": "const hum_abil = Object.freeze([]);",
+      "after": "const hum_abil = Object.freeze([innate(1, FAST, '', '')]);",
+      "detected": true,
+      "witnesses": [
+        {
+          "key": "innates.hum_abil.length",
+          "c": 0,
+          "js": 1,
+          "equal": false
+        },
+        {
+          "key": "innates.hum_abil.0.level",
+          "c": null,
+          "js": 1,
+          "equal": false
+        },
+        {
+          "key": "innates.hum_abil.0.property",
+          "c": null,
+          "js": 64,
+          "equal": false
+        },
+        {
+          "key": "innates.hum_abil.0.gain",
+          "c": null,
+          "js": "",
+          "equal": false
+        },
+        {
+          "key": "innates.hum_abil.0.loss",
+          "c": null,
+          "js": "",
+          "equal": false
+        }
+      ]
+    },
+    {
+      "path": "js/roles.js",
+      "before": "attrbase: [7, 10, 10, 7, 7, 7]",
+      "after": "attrbase: [7, 10, 10, 7, 7]",
+      "rejectedMalformedInput": true
+    },
+    {
+      "path": "js/role_skills.js",
+      "before": "[P_DAGGER, P_BASIC]",
+      "after": "[P_UNKNOWN, P_BASIC]",
+      "rejectedMalformedInput": true
+    },
+    {
+      "path": "nethack-c/upstream/src/u_init.c",
+      "before": "{ P_NONE, 0 }",
+      "after": "{ P_NONE, 1 }",
+      "rejectedMalformedInput": true
+    }
+  ],
+  "positiveControls": 7
+}

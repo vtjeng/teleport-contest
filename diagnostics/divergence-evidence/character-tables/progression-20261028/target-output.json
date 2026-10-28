@@ -1,0 +1,7257 @@
+{
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "mode": "target",
+  "counts": {
+    "roles": 13,
+    "races": 5,
+    "skillTables": 13,
+    "skillEntries": 277,
+    "innateTables": 18,
+    "innateEntries": 44,
+    "comparisons": 1206,
+    "matched": 1206,
+    "mismatches": 0
+  },
+  "mismatches": [],
+  "rows": [
+    {
+      "key": "roles.Arc.attrbase.0",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrbase.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrbase.2",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrbase.3",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrbase.4",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrbase.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrdist.0",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrdist.1",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrdist.2",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrdist.3",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrdist.4",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.attrdist.5",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.hpadv.0",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.enadv.5",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Arc.xlev",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrbase.0",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrbase.1",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrbase.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrbase.3",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrbase.4",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrbase.5",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrdist.0",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrdist.1",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrdist.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrdist.3",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrdist.4",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.attrdist.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.hpadv.0",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.hpadv.3",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.hpadv.4",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.enadv.5",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Bar.xlev",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrbase.0",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrbase.1",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrbase.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrbase.3",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrbase.4",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrbase.5",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrdist.0",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrdist.1",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrdist.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrdist.3",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrdist.4",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.attrdist.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.hpadv.0",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.hpadv.4",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.enadv.5",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Cav.xlev",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrbase.0",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrbase.1",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrbase.2",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrbase.3",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrbase.4",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrbase.5",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrdist.0",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrdist.1",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrdist.2",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrdist.3",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrdist.4",
+      "c": 25,
+      "js": 25,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.attrdist.5",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.hpadv.0",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.enadv.1",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.enadv.5",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Hea.xlev",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrbase.0",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrbase.1",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrbase.2",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrbase.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrbase.4",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrbase.5",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrdist.0",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrdist.1",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrdist.2",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrdist.3",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrdist.4",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.attrdist.5",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.hpadv.0",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.hpadv.4",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.enadv.1",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.enadv.5",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Kni.xlev",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrbase.0",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrbase.1",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrbase.2",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrbase.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrbase.4",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrbase.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrdist.0",
+      "c": 25,
+      "js": 25,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrdist.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrdist.2",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrdist.3",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrdist.4",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.attrdist.5",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.hpadv.0",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.enadv.0",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.enadv.1",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.enadv.3",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.enadv.5",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Mon.xlev",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrbase.0",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrbase.1",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrbase.2",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrbase.3",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrbase.4",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrbase.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrdist.0",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrdist.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrdist.2",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrdist.3",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrdist.4",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.attrdist.5",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.hpadv.0",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.enadv.0",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.enadv.1",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.enadv.3",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.enadv.5",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Pri.xlev",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrbase.0",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrbase.1",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrbase.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrbase.3",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrbase.4",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrbase.5",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrdist.0",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrdist.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrdist.2",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrdist.3",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrdist.4",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.attrdist.5",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.hpadv.0",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.enadv.5",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Rog.xlev",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrbase.0",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrbase.1",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrbase.2",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrbase.3",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrbase.4",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrbase.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrdist.0",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrdist.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrdist.2",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrdist.3",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrdist.4",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.attrdist.5",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.hpadv.0",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.hpadv.3",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.enadv.5",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Ran.xlev",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrbase.0",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrbase.1",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrbase.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrbase.3",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrbase.4",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrbase.5",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrdist.0",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrdist.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrdist.2",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrdist.3",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrdist.4",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.attrdist.5",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.hpadv.0",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.enadv.5",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Sam.xlev",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrbase.0",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrbase.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrbase.2",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrbase.3",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrbase.4",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrbase.5",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrdist.0",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrdist.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrdist.2",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrdist.3",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrdist.4",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.attrdist.5",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.hpadv.0",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.hpadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.enadv.5",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Tou.xlev",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrbase.0",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrbase.1",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrbase.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrbase.3",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrbase.4",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrbase.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrdist.0",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrdist.1",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrdist.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrdist.3",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrdist.4",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.attrdist.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.hpadv.0",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.hpadv.4",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.enadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.enadv.5",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Val.xlev",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrbase.0",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrbase.1",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrbase.2",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrbase.3",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrbase.4",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrbase.5",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrdist.0",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrdist.1",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrdist.2",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrdist.3",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrdist.4",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.attrdist.5",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.hpadv.0",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.hpadv.3",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.enadv.0",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.enadv.1",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.enadv.3",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.enadv.5",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "roles.Wiz.xlev",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmin.0",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmin.1",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmin.2",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmin.3",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmin.4",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmin.5",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmax.0",
+      "c": 118,
+      "js": 118,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmax.1",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmax.2",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmax.3",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmax.4",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.attrmax.5",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.hpadv.0",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.hpadv.3",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.enadv.2",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.enadv.3",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.enadv.4",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Hum.enadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmin.0",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmin.1",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmin.2",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmin.3",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmin.4",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmin.5",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmax.0",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmax.1",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmax.2",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmax.3",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmax.4",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.attrmax.5",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.hpadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.hpadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.hpadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.enadv.0",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.enadv.2",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.enadv.3",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.enadv.4",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Elf.enadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmin.0",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmin.1",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmin.2",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmin.3",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmin.4",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmin.5",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmax.0",
+      "c": 118,
+      "js": 118,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmax.1",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmax.2",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmax.3",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmax.4",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.attrmax.5",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.hpadv.0",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.hpadv.3",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.hpadv.4",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.enadv.0",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.enadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.enadv.3",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.enadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Dwa.enadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmin.0",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmin.1",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmin.2",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmin.3",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmin.4",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmin.5",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmax.0",
+      "c": 68,
+      "js": 68,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmax.1",
+      "c": 19,
+      "js": 19,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmax.2",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmax.3",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmax.4",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.attrmax.5",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.hpadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.hpadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.hpadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.enadv.0",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.enadv.2",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.enadv.3",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.enadv.4",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "races.Gno.enadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmin.0",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmin.1",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmin.2",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmin.3",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmin.4",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmin.5",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmax.0",
+      "c": 68,
+      "js": 68,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmax.1",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmax.2",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmax.3",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmax.4",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.attrmax.5",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.hpadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.hpadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.hpadv.2",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.hpadv.3",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.hpadv.4",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.hpadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.enadv.0",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.enadv.1",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.enadv.2",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.enadv.3",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.enadv.4",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "races.Orc.enadv.5",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    },
+    {
+      "key": "skills.A.length",
+      "c": 19,
+      "js": 19,
+      "equal": true
+    },
+    {
+      "key": "skills.A.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.A.0.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.1.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.2.id",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.A.2.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.A.3.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.A.3.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.4.id",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "skills.A.4.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.A.5.id",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "skills.A.5.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.A.6.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.A.6.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.A.7.id",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.A.7.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.A.8.id",
+      "c": 23,
+      "js": 23,
+      "equal": true
+    },
+    {
+      "key": "skills.A.8.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.9.id",
+      "c": 25,
+      "js": 25,
+      "equal": true
+    },
+    {
+      "key": "skills.A.9.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.A.10.id",
+      "c": 26,
+      "js": 26,
+      "equal": true
+    },
+    {
+      "key": "skills.A.10.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.A.11.id",
+      "c": 27,
+      "js": 27,
+      "equal": true
+    },
+    {
+      "key": "skills.A.11.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.A.12.id",
+      "c": 28,
+      "js": 28,
+      "equal": true
+    },
+    {
+      "key": "skills.A.12.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.13.id",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "skills.A.13.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.14.id",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "skills.A.14.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.A.15.id",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "skills.A.15.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.16.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.A.16.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.17.id",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "skills.A.17.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.A.18.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.A.18.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.B.length",
+      "c": 22,
+      "js": 22,
+      "equal": true
+    },
+    {
+      "key": "skills.B.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.B.0.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.B.1.id",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.1.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.B.2.id",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.B.2.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.3.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.B.3.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.B.4.id",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "skills.B.4.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.5.id",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "skills.B.5.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.6.id",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "skills.B.6.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.B.7.id",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "skills.B.7.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.8.id",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "skills.B.8.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.9.id",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "skills.B.9.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.10.id",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "skills.B.10.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.11.id",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "skills.B.11.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.B.12.id",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "skills.B.12.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.B.13.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.B.13.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.B.14.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.B.14.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.15.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.B.15.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.B.16.id",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.B.16.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.B.17.id",
+      "c": 28,
+      "js": 28,
+      "equal": true
+    },
+    {
+      "key": "skills.B.17.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.B.18.id",
+      "c": 33,
+      "js": 33,
+      "equal": true
+    },
+    {
+      "key": "skills.B.18.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.B.19.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.B.19.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.B.20.id",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "skills.B.20.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.B.21.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.B.21.cap",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.C.length",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.C.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.C.0.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.C.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.C.1.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.2.id",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.2.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.3.id",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.C.3.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.C.4.id",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "skills.C.4.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.C.5.id",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "skills.C.5.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.C.6.id",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "skills.C.6.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.C.7.id",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "skills.C.7.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.8.id",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "skills.C.8.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.9.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.C.9.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.C.10.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.C.10.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.11.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.C.11.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.C.12.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.C.12.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.13.id",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.C.13.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.14.id",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.C.14.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.C.15.id",
+      "c": 28,
+      "js": 28,
+      "equal": true
+    },
+    {
+      "key": "skills.C.15.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.C.16.id",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "skills.C.16.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.C.17.id",
+      "c": 25,
+      "js": 25,
+      "equal": true
+    },
+    {
+      "key": "skills.C.17.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.C.18.id",
+      "c": 27,
+      "js": 27,
+      "equal": true
+    },
+    {
+      "key": "skills.C.18.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.C.19.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.C.19.cap",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.H.length",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.H.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.H.0.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.H.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.H.1.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.H.2.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.H.2.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.H.3.id",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "skills.H.3.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.H.4.id",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "skills.H.4.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.H.5.id",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "skills.H.5.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.H.6.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.H.6.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.H.7.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.H.7.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.H.8.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.H.8.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.H.9.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.H.9.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.H.10.id",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.H.10.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.H.11.id",
+      "c": 23,
+      "js": 23,
+      "equal": true
+    },
+    {
+      "key": "skills.H.11.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.H.12.id",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.H.12.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.H.13.id",
+      "c": 27,
+      "js": 27,
+      "equal": true
+    },
+    {
+      "key": "skills.H.13.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.H.14.id",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "skills.H.14.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.H.15.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.H.15.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.length",
+      "c": 26,
+      "js": 26,
+      "equal": true
+    },
+    {
+      "key": "skills.K.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.K.0.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.1.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.2.id",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.2.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.3.id",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.K.3.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.4.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.K.4.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.5.id",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "skills.K.5.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.6.id",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "skills.K.6.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.K.7.id",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "skills.K.7.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.8.id",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "skills.K.8.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.9.id",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "skills.K.9.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.10.id",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "skills.K.10.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.11.id",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "skills.K.11.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.12.id",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "skills.K.12.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.13.id",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "skills.K.13.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.14.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.K.14.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.15.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.K.15.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.16.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.K.16.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.17.id",
+      "c": 19,
+      "js": 19,
+      "equal": true
+    },
+    {
+      "key": "skills.K.17.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.K.18.id",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.K.18.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.K.19.id",
+      "c": 22,
+      "js": 22,
+      "equal": true
+    },
+    {
+      "key": "skills.K.19.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.20.id",
+      "c": 28,
+      "js": 28,
+      "equal": true
+    },
+    {
+      "key": "skills.K.20.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.21.id",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "skills.K.21.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.22.id",
+      "c": 32,
+      "js": 32,
+      "equal": true
+    },
+    {
+      "key": "skills.K.22.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.23.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.K.23.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.K.24.id",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "skills.K.24.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.K.25.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.K.25.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.length",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.0.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.0.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.1.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.1.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.2.id",
+      "c": 22,
+      "js": 22,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.2.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.3.id",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.3.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.4.id",
+      "c": 28,
+      "js": 28,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.4.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.5.id",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.5.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.6.id",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.6.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.7.id",
+      "c": 31,
+      "js": 31,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.7.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.8.id",
+      "c": 32,
+      "js": 32,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.8.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.9.id",
+      "c": 33,
+      "js": 33,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.9.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.10.id",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.10.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.11.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.Mon.11.cap",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "skills.P.length",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.P.0.id",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "skills.P.0.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.1.id",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "skills.P.1.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.2.id",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "skills.P.2.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.3.id",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "skills.P.3.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.4.id",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "skills.P.4.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.5.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.P.5.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.6.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.P.6.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.P.7.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.P.7.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.P.8.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.P.8.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.P.9.id",
+      "c": 19,
+      "js": 19,
+      "equal": true
+    },
+    {
+      "key": "skills.P.9.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.P.10.id",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.P.10.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.P.11.id",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.P.11.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.P.12.id",
+      "c": 22,
+      "js": 22,
+      "equal": true
+    },
+    {
+      "key": "skills.P.12.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.P.13.id",
+      "c": 23,
+      "js": 23,
+      "equal": true
+    },
+    {
+      "key": "skills.P.13.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.P.14.id",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.P.14.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.P.15.id",
+      "c": 25,
+      "js": 25,
+      "equal": true
+    },
+    {
+      "key": "skills.P.15.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.P.16.id",
+      "c": 27,
+      "js": 27,
+      "equal": true
+    },
+    {
+      "key": "skills.P.16.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.P.17.id",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "skills.P.17.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.18.id",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "skills.P.18.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.19.id",
+      "c": 32,
+      "js": 32,
+      "equal": true
+    },
+    {
+      "key": "skills.P.19.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.P.20.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.P.20.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.length",
+      "c": 23,
+      "js": 23,
+      "equal": true
+    },
+    {
+      "key": "skills.R.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.R.0.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.R.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.1.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.R.2.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.R.2.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.R.3.id",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "skills.R.3.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.4.id",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "skills.R.4.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.5.id",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "skills.R.5.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.6.id",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "skills.R.6.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.7.id",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "skills.R.7.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.8.id",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "skills.R.8.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.9.id",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "skills.R.9.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.10.id",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "skills.R.10.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.11.id",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "skills.R.11.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.12.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.R.12.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.13.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.R.13.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.14.id",
+      "c": 22,
+      "js": 22,
+      "equal": true
+    },
+    {
+      "key": "skills.R.14.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.R.15.id",
+      "c": 23,
+      "js": 23,
+      "equal": true
+    },
+    {
+      "key": "skills.R.15.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.R.16.id",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.R.16.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.17.id",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "skills.R.17.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.18.id",
+      "c": 33,
+      "js": 33,
+      "equal": true
+    },
+    {
+      "key": "skills.R.18.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.19.id",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "skills.R.19.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.R.20.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.R.20.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.R.21.id",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "skills.R.21.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.R.22.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.R.22.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.length",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.0.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.1.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.2.id",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.2.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.3.id",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.3.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.4.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.4.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.5.id",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.5.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.6.id",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.6.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.7.id",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.7.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.8.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.8.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.9.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.9.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.10.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.10.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.11.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.11.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.12.id",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.12.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.13.id",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.13.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.14.id",
+      "c": 22,
+      "js": 22,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.14.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.15.id",
+      "c": 23,
+      "js": 23,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.15.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.16.id",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.16.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.17.id",
+      "c": 25,
+      "js": 25,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.17.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.18.id",
+      "c": 26,
+      "js": 26,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.18.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.19.id",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.19.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.20.id",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.20.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.21.id",
+      "c": 33,
+      "js": 33,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.21.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.22.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.22.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.23.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.Ran.23.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.S.length",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.S.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.S.0.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.S.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.S.1.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.S.2.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.S.2.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.S.3.id",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "skills.S.3.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.S.4.id",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "skills.S.4.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.S.5.id",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "skills.S.5.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.S.6.id",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "skills.S.6.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.S.7.id",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "skills.S.7.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.S.8.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.S.8.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.S.9.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.S.9.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.S.10.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.S.10.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.S.11.id",
+      "c": 19,
+      "js": 19,
+      "equal": true
+    },
+    {
+      "key": "skills.S.11.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.S.12.id",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.S.12.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.S.13.id",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.S.13.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.S.14.id",
+      "c": 28,
+      "js": 28,
+      "equal": true
+    },
+    {
+      "key": "skills.S.14.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.S.15.id",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "skills.S.15.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.S.16.id",
+      "c": 32,
+      "js": 32,
+      "equal": true
+    },
+    {
+      "key": "skills.S.16.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.S.17.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.S.17.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.S.18.id",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "skills.S.18.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.S.19.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.S.19.cap",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.T.length",
+      "c": 32,
+      "js": 32,
+      "equal": true
+    },
+    {
+      "key": "skills.T.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.T.0.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.T.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.1.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.T.2.id",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.T.2.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.3.id",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.T.3.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.4.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.T.4.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.T.5.id",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "skills.T.5.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.6.id",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "skills.T.6.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.7.id",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "skills.T.7.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.8.id",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "skills.T.8.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.T.9.id",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "skills.T.9.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.10.id",
+      "c": 12,
+      "js": 12,
+      "equal": true
+    },
+    {
+      "key": "skills.T.10.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.11.id",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "skills.T.11.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.12.id",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "skills.T.12.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.13.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.T.13.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.14.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.T.14.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.15.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.T.15.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.16.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.T.16.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.17.id",
+      "c": 19,
+      "js": 19,
+      "equal": true
+    },
+    {
+      "key": "skills.T.17.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.18.id",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.T.18.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.19.id",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.T.19.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.20.id",
+      "c": 22,
+      "js": 22,
+      "equal": true
+    },
+    {
+      "key": "skills.T.20.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.21.id",
+      "c": 23,
+      "js": 23,
+      "equal": true
+    },
+    {
+      "key": "skills.T.21.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.T.22.id",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.T.22.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.23.id",
+      "c": 25,
+      "js": 25,
+      "equal": true
+    },
+    {
+      "key": "skills.T.23.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.24.id",
+      "c": 26,
+      "js": 26,
+      "equal": true
+    },
+    {
+      "key": "skills.T.24.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.25.id",
+      "c": 27,
+      "js": 27,
+      "equal": true
+    },
+    {
+      "key": "skills.T.25.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.T.26.id",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "skills.T.26.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.27.id",
+      "c": 31,
+      "js": 31,
+      "equal": true
+    },
+    {
+      "key": "skills.T.27.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.28.id",
+      "c": 33,
+      "js": 33,
+      "equal": true
+    },
+    {
+      "key": "skills.T.28.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.T.29.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.T.29.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.T.30.id",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "skills.T.30.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.T.31.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.T.31.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.length",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "skills.V.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.V.0.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.V.1.id",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.1.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.V.2.id",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.V.2.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.3.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.V.3.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.4.id",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "skills.V.4.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.5.id",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "skills.V.5.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.V.6.id",
+      "c": 8,
+      "js": 8,
+      "equal": true
+    },
+    {
+      "key": "skills.V.6.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.V.7.id",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "skills.V.7.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.V.8.id",
+      "c": 14,
+      "js": 14,
+      "equal": true
+    },
+    {
+      "key": "skills.V.8.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.V.9.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.V.9.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.V.10.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.V.10.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.11.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.V.11.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.V.12.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.V.12.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.V.13.id",
+      "c": 19,
+      "js": 19,
+      "equal": true
+    },
+    {
+      "key": "skills.V.13.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.14.id",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.V.14.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.V.15.id",
+      "c": 28,
+      "js": 28,
+      "equal": true
+    },
+    {
+      "key": "skills.V.15.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.V.16.id",
+      "c": 33,
+      "js": 33,
+      "equal": true
+    },
+    {
+      "key": "skills.V.16.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.V.17.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.V.17.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.18.id",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "skills.V.18.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.V.19.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.V.19.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.W.length",
+      "c": 22,
+      "js": 22,
+      "equal": true
+    },
+    {
+      "key": "skills.W.0.id",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "skills.W.0.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.W.1.id",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.W.1.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.2.id",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.2.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.3.id",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "skills.W.3.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.W.4.id",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "skills.W.4.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.5.id",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "skills.W.5.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.W.6.id",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "skills.W.6.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.W.7.id",
+      "c": 16,
+      "js": 16,
+      "equal": true
+    },
+    {
+      "key": "skills.W.7.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.8.id",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "skills.W.8.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.W.9.id",
+      "c": 18,
+      "js": 18,
+      "equal": true
+    },
+    {
+      "key": "skills.W.9.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.W.10.id",
+      "c": 21,
+      "js": 21,
+      "equal": true
+    },
+    {
+      "key": "skills.W.10.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.11.id",
+      "c": 23,
+      "js": 23,
+      "equal": true
+    },
+    {
+      "key": "skills.W.11.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.W.12.id",
+      "c": 24,
+      "js": 24,
+      "equal": true
+    },
+    {
+      "key": "skills.W.12.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.W.13.id",
+      "c": 28,
+      "js": 28,
+      "equal": true
+    },
+    {
+      "key": "skills.W.13.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.W.14.id",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "skills.W.14.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.15.id",
+      "c": 30,
+      "js": 30,
+      "equal": true
+    },
+    {
+      "key": "skills.W.15.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.W.16.id",
+      "c": 31,
+      "js": 31,
+      "equal": true
+    },
+    {
+      "key": "skills.W.16.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.17.id",
+      "c": 32,
+      "js": 32,
+      "equal": true
+    },
+    {
+      "key": "skills.W.17.cap",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "skills.W.18.id",
+      "c": 33,
+      "js": 33,
+      "equal": true
+    },
+    {
+      "key": "skills.W.18.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.W.19.id",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "skills.W.19.cap",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "skills.W.20.id",
+      "c": 37,
+      "js": 37,
+      "equal": true
+    },
+    {
+      "key": "skills.W.20.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "skills.W.21.id",
+      "c": 35,
+      "js": 35,
+      "equal": true
+    },
+    {
+      "key": "skills.W.21.cap",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.length",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.0.property",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.1.level",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.1.property",
+      "c": 42,
+      "js": 42,
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.1.gain",
+      "c": "stealthy",
+      "js": "stealthy",
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.2.level",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.2.property",
+      "c": 64,
+      "js": 64,
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.2.gain",
+      "c": "quick",
+      "js": "quick",
+      "equal": true
+    },
+    {
+      "key": "innates.arc_abil.2.loss",
+      "c": "slow",
+      "js": "slow",
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.length",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.0.property",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.1.level",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.1.property",
+      "c": 64,
+      "js": 64,
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.1.gain",
+      "c": "quick",
+      "js": "quick",
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.1.loss",
+      "c": "slow",
+      "js": "slow",
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.2.level",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.2.property",
+      "c": 42,
+      "js": 42,
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.2.gain",
+      "c": "stealthy",
+      "js": "stealthy",
+      "equal": true
+    },
+    {
+      "key": "innates.bar_abil.2.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.0.level",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.0.property",
+      "c": 64,
+      "js": 64,
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.0.gain",
+      "c": "quick",
+      "js": "quick",
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.0.loss",
+      "c": "slow",
+      "js": "slow",
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.1.level",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.1.property",
+      "c": 31,
+      "js": 31,
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.1.gain",
+      "c": "sensitive",
+      "js": "sensitive",
+      "equal": true
+    },
+    {
+      "key": "innates.cav_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.0.property",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.1.level",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.1.property",
+      "c": 31,
+      "js": 31,
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.1.gain",
+      "c": "sensitive",
+      "js": "sensitive",
+      "equal": true
+    },
+    {
+      "key": "innates.hea_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.kni_abil.length",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.kni_abil.0.level",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "innates.kni_abil.0.property",
+      "c": 64,
+      "js": 64,
+      "equal": true
+    },
+    {
+      "key": "innates.kni_abil.0.gain",
+      "c": "quick",
+      "js": "quick",
+      "equal": true
+    },
+    {
+      "key": "innates.kni_abil.0.loss",
+      "c": "slow",
+      "js": "slow",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.length",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.0.property",
+      "c": 64,
+      "js": 64,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.1.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.1.property",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.1.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.2.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.2.property",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.2.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.2.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.3.level",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.3.property",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.3.gain",
+      "c": "healthy",
+      "js": "healthy",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.3.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.4.level",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.4.property",
+      "c": 42,
+      "js": 42,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.4.gain",
+      "c": "stealthy",
+      "js": "stealthy",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.4.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.5.level",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.5.property",
+      "c": 31,
+      "js": 31,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.5.gain",
+      "c": "sensitive",
+      "js": "sensitive",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.5.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.6.level",
+      "c": 9,
+      "js": 9,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.6.property",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.6.gain",
+      "c": "perceptive",
+      "js": "perceptive",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.6.loss",
+      "c": "unaware",
+      "js": "unaware",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.7.level",
+      "c": 11,
+      "js": 11,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.7.property",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.7.gain",
+      "c": "cool",
+      "js": "cool",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.7.loss",
+      "c": "warmer",
+      "js": "warmer",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.8.level",
+      "c": 13,
+      "js": 13,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.8.property",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.8.gain",
+      "c": "warm",
+      "js": "warm",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.8.loss",
+      "c": "cooler",
+      "js": "cooler",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.9.level",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.9.property",
+      "c": 5,
+      "js": 5,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.9.gain",
+      "c": "insulated",
+      "js": "insulated",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.9.loss",
+      "c": "conductive",
+      "js": "conductive",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.10.level",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.10.property",
+      "c": 47,
+      "js": 47,
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.10.gain",
+      "c": "controlled",
+      "js": "controlled",
+      "equal": true
+    },
+    {
+      "key": "innates.mon_abil.10.loss",
+      "c": "uncontrolled",
+      "js": "uncontrolled",
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.0.level",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.0.property",
+      "c": 31,
+      "js": 31,
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.0.gain",
+      "c": "sensitive",
+      "js": "sensitive",
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.1.level",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.1.property",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.1.gain",
+      "c": "cool",
+      "js": "cool",
+      "equal": true
+    },
+    {
+      "key": "innates.pri_abil.1.loss",
+      "c": "warmer",
+      "js": "warmer",
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.length",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.0.property",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.1.level",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.1.property",
+      "c": 42,
+      "js": 42,
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.1.gain",
+      "c": "stealthy",
+      "js": "stealthy",
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.2.level",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.2.property",
+      "c": 29,
+      "js": 29,
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.2.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.ran_abil.2.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.0.property",
+      "c": 42,
+      "js": 42,
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.1.level",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.1.property",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.1.gain",
+      "c": "perceptive",
+      "js": "perceptive",
+      "equal": true
+    },
+    {
+      "key": "innates.rog_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.0.property",
+      "c": 64,
+      "js": 64,
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.1.level",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.1.property",
+      "c": 42,
+      "js": 42,
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.1.gain",
+      "c": "stealthy",
+      "js": "stealthy",
+      "equal": true
+    },
+    {
+      "key": "innates.sam_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.0.level",
+      "c": 10,
+      "js": 10,
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.0.property",
+      "c": 34,
+      "js": 34,
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.0.gain",
+      "c": "perceptive",
+      "js": "perceptive",
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.1.level",
+      "c": 20,
+      "js": 20,
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.1.property",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.1.gain",
+      "c": "hardy",
+      "js": "hardy",
+      "equal": true
+    },
+    {
+      "key": "innates.tou_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.length",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.0.property",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.1.level",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.1.property",
+      "c": 42,
+      "js": 42,
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.1.gain",
+      "c": "stealthy",
+      "js": "stealthy",
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.2.level",
+      "c": 7,
+      "js": 7,
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.2.property",
+      "c": 64,
+      "js": 64,
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.2.gain",
+      "c": "quick",
+      "js": "quick",
+      "equal": true
+    },
+    {
+      "key": "innates.val_abil.2.loss",
+      "c": "slow",
+      "js": "slow",
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.0.level",
+      "c": 15,
+      "js": 15,
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.0.property",
+      "c": 31,
+      "js": 31,
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.0.gain",
+      "c": "sensitive",
+      "js": "sensitive",
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.1.level",
+      "c": 17,
+      "js": 17,
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.1.property",
+      "c": 47,
+      "js": 47,
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.1.gain",
+      "c": "controlled",
+      "js": "controlled",
+      "equal": true
+    },
+    {
+      "key": "innates.wiz_abil.1.loss",
+      "c": "uncontrolled",
+      "js": "uncontrolled",
+      "equal": true
+    },
+    {
+      "key": "innates.dwa_abil.length",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.dwa_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.dwa_abil.0.property",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "innates.dwa_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.dwa_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.0.property",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.1.level",
+      "c": 4,
+      "js": 4,
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.1.property",
+      "c": 3,
+      "js": 3,
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.1.gain",
+      "c": "awake",
+      "js": "awake",
+      "equal": true
+    },
+    {
+      "key": "innates.elf_abil.1.loss",
+      "c": "tired",
+      "js": "tired",
+      "equal": true
+    },
+    {
+      "key": "innates.gno_abil.length",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.gno_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.gno_abil.0.property",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "innates.gno_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.gno_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.length",
+      "c": 2,
+      "js": 2,
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.0.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.0.property",
+      "c": 36,
+      "js": 36,
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.0.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.0.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.1.level",
+      "c": 1,
+      "js": 1,
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.1.property",
+      "c": 6,
+      "js": 6,
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.1.gain",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.orc_abil.1.loss",
+      "c": "",
+      "js": "",
+      "equal": true
+    },
+    {
+      "key": "innates.hum_abil.length",
+      "c": 0,
+      "js": 0,
+      "equal": true
+    }
+  ]
+}
