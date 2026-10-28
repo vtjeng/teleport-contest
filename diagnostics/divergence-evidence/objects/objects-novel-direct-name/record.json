@@ -1,0 +1,78 @@
+{
+  "caseId": "objects-novel-direct-name",
+  "shard": "objects",
+  "outcome": "explained negative",
+  "implementationCandidate": false,
+  "jsBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:08:41.838Z",
+  "reviewedAt": "2026-10-28T18:08:41.838Z",
+  "hypothesis": "Omitted oname call might lose naming side effects for newly created novels.",
+  "supportedSetup": "Public debug Valkyrie wish for uncursed novel followed by inventory.",
+  "expectedC": "Fresh free novel receives selected title/index without artifact or inventory side effects.",
+  "observedJS": "All 41 title/index choices match table; public Thud! fixture matches all screens/cursors/RNG.",
+  "control": "Blank spellbook unnamed; exhaustive 41-title test.",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-novel-direct-name/check.test.mjs",
+  "results": {
+    "focused": "pass",
+    "screensMatched": 28,
+    "screensTotal": 28,
+    "cursorsMatched": 28,
+    "cursorsTotal": 28,
+    "rngMatched": 2597,
+    "rngTotal": 2597
+  },
+  "proof": "README.md",
+  "sourceFingerprints": {
+    "nethack-c/upstream/src/mkobj.c": "49c2de3bcf1125be55f11c17ffc4f614956f5288a5edfb56b2248b7fcaa3b488",
+    "nethack-c/upstream/src/do_name.c": "64c6cb5e7f4034e9edbd8fac983b313a7df0e029b4812bd3a9327852d12ad9d1",
+    "nethack-c/upstream/include/artilist.h": "5375cf830dac26aefd5dbefe1ab5bd79a1f1988b770e7a4dee61b6453c1dd3d3",
+    "js/obj.js": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+    "js/do_name.js": "71939a7cc8aedbd82e1f346aaa7359308ffbd0a300e5deb2dffd7544300bf129"
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recordSession": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scorer": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "hub": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "compilerScan": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "patchSeries": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    }
+  },
+  "discoveryBinding": {
+    "fullRunId": "a381a949e765ae5aa2c8",
+    "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+    "bindingPath": "diagnostics/divergence-evidence/objects/objects-novel-direct-name/binding.json",
+    "projectionPath": "diagnostics/divergence-evidence/objects/objects-novel-direct-name/bound-run.json",
+    "decisions": [
+      {
+        "key": "source-audit:edge-c-only:src/mkobj.c:mksobj:oname",
+        "evidenceKey": "85a3292b4919081ec0577aea8ee55dcf3d714c4e80eff314211dc34e893e10f8",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "750118dea3017cc194384d902cc94334bc2181bc7a9512e8d6747ffcdfec632a"
+      }
+    ],
+    "classificationVerified": true
+  },
+  "evidencePaths": [
+    "README.md",
+    "binding.json",
+    "bound-run.json",
+    "capture-c.json",
+    "check.test.mjs",
+    "decision-template.json",
+    "decisions.json",
+    "keys.json",
+    "recipe.json"
+  ],
+  "nextExperiment": null,
+  "scopeLimit": "Only fresh novel finalization naming; not arbitrary oname/mksobj behavior."
+}

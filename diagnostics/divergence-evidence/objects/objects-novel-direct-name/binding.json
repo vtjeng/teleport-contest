@@ -1,0 +1,13 @@
+{
+  "fullRunId": "a381a949e765ae5aa2c8",
+  "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+  "fullRunRetainedAt": "diagnostics/divergence-evidence/objects/objects-triage-20261028/effects-hub/run.json",
+  "projectionSha256": "dede38afc2e45d527c72a7475757175b1272241c7953028c405040e33d4c9979",
+  "templateSha256": "46e634e1024db1d7dbb7952aae9111e818476089631da30f104d7187be9182dd",
+  "decisionsSha256": "37d20ef9fc6e402d7d8a12fcf4bea3eca60bfd0ea0a05ac4708610f5f906e343",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/mkobj.c:mksobj:oname",
+    "source-audit:edge-c-only:src/objnam.c:an:nextobuf"
+  ],
+  "createdAt": "2026-10-28T18:08:41.838Z"
+}
