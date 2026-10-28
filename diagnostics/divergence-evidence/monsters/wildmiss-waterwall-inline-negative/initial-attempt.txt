@@ -1,0 +1,3 @@
+Initial fixture attempt, 2026-10-28: no classification.
+Error: place_monster: occupied location <19,15>
+The generated starting monster occupied the requested fixture square. The corrected fixture clears generated monsters, following the existing mhitu test setup, before placement. This was a setup error, not a C/JS difference or a negative proof.

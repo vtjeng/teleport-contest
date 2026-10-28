@@ -1,0 +1,13 @@
+{"typ":18,"cWaterwall":true,"jsMessage":"The xorn strikes at empty water!","targetBounds":[3,3,3],"messageBounds":[3]}
+{"typ":16,"cWaterwall":false,"jsMessage":"The xorn strikes at thin air!","targetBounds":[3,3,3],"messageBounds":[3]}
+{"typ":25,"cWaterwall":false,"jsMessage":"The xorn strikes at thin air!","targetBounds":[3,3,3],"messageBounds":[3]}
+{"typ":19,"cWaterwall":false,"jsMessage":"The xorn strikes at thin air!","targetBounds":[3,3,3],"messageBounds":[3]}
+✔ valid guessed waterwall target uses the same C predicate; pool and floor controls do not (410.138774ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1315.351512
