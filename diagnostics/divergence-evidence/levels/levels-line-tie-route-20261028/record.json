@@ -1,0 +1,41 @@
+{
+  "shard": "levels",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:41:56.770Z",
+  "reviewedAt": "2026-10-28T17:41:56.770Z",
+  "toolchain": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7 (3+b1)"
+  },
+  "historyCheck": "Fetched origin/main before choosing leads. Existing open PRs checked: no overlapping topology claim. PR #6 owns the prior selection cases.",
+  "caseId": "levels-line-tie-route-20261028",
+  "parentCase": "levels-line-tie-20261028",
+  "parentEvidence": "https://github.com/vtjeng/teleport-contest/pull/6",
+  "outcome": "unresolved",
+  "hypothesis": "A supported common custom Lua loading route can establish gameplay reachability of the previously observed selection-line diagonal ties.",
+  "sourceLocations": [
+    "js/mklev.js:1949",
+    "js/mklev.js:2018",
+    "js/nhlua.js:133",
+    "js/wizcmds.js:736",
+    "nethack-c/upstream/test/test_sel.lua:99",
+    "nethack-c/upstream/test/test_sel.lua:114"
+  ],
+  "supportedSetup": "Read-only route inspection at current main. No new C execution for arbitrary custom Lua; no runtime mutation or registry injection.",
+  "expectedC": "The upstream selection test includes diagonal calls; C can execute its Lua implementation.",
+  "observedJS": "load_special resolves only the private fixed SPECIAL_LEVEL_LOADERS registry. Unknown files record nhlua.c nhl_loadlua and return false. load_lua only implements nhlib.lua top-level effects, so wizloadlua is not a shared arbitrary-program route either.",
+  "control": "Known shipped registry programs continue to load, as the Minetown comparisons in the companion case demonstrate.",
+  "conclusion": "No common supported arbitrary-Lua execution route exists in the inspected implementation. This is a prerequisite limit, not a false-positive proof of the line algorithm and not a new confirmed defect. Preserve PR #6 line status as unresolved. Do not add test-only registry injection and call it gameplay reachability.",
+  "nextExperiment": "Deferred until a common supported Lua execution path exists or a shipped non-axis-aligned selection_line caller is identified. Resume only with that prerequisite; pursue other levels leads meanwhile.",
+  "fingerprints": {
+    "mklev": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "nhlua": "d8c580374c7cfb2d1d4b83e667e595e54522b389535033be96be777657def923",
+    "wizcmds": "1ae1874ae26e7c588057c0862345b33b035ddd0a25ee443296c4cf503fb5c5b2",
+    "upstreamSelectionTest": "eaca0d58c63013bd27dcc68a8d0cfa5117ffa3a9d4822c38f63935713afd3e61"
+  },
+  "reproduce": "rg -n 'SPECIAL_LEVEL_LOADERS|nhl_loadlua|function load_special' js/mklev.js; sed -n '128,147p' js/nhlua.js; rg -n 'selection.line' nethack-c/upstream/test/test_sel.lua",
+  "evidencePaths": [
+    "record.json"
+  ]
+}
