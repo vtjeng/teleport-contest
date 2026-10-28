@@ -1,0 +1,106 @@
+{
+  "id": "cmd-count-safe-integer-reset",
+  "shard": "commands",
+  "outcome": "confirmed divergence",
+  "discoveredAt": "2026-10-28T17:46:19.589Z",
+  "reviewedAt": "2026-10-28T17:51:27.207Z",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "fingerprints": {
+    "node": "v24.19.0",
+    "tools": {
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00"
+    },
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recorderSysconfSha256": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2",
+    "patches": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "source": {
+      "js/cmd.js": "01059f6bdb3784e35754576b458aec9738d16afa20866b61422d86945fc66f03",
+      "js/invent.js": "ed6e7464bd7ebb5449597a3ffb7f3f4783030965f0f7047aac29f0ac0e1f912e",
+      "nethack-c/upstream/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+      "nethack-c/upstream/src/invent.c": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+      "nethack-c/upstream/include/integer.h": "e88805c10f195e6de63b8c5cb46049f466ef040de9987a6ab61c36ef977f515a"
+    }
+  },
+  "methods": [
+    "source review",
+    "fresh C/JS differential"
+  ],
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c:5010 get_count",
+    "nethack-c/upstream/include/integer.h:120 AppendLongDigit",
+    "nethack-c/upstream/src/invent.c:5031 adjust_split calls get_count with maxcount=0",
+    "js/cmd.js:1734 appendLongDigit inside get_count",
+    "js/invent.js:5760 adjust_split calls get_count with maxcount=0"
+  ],
+  "hypothesis": "The input helper mistakes Number.MAX_SAFE_INTEGER for C LONG_MAX, prematurely zeroing an entered count.",
+  "supportedReachableSetup": "Ordinary neutral human Ranger with starting arrows; i opens inventory, c selects the 58-arrow stack, I selects the split-count item action. Type 9007199254740992 and space. No state injection, debug options, wishes, or object internals. Rejected count never splits the stack.",
+  "expectedC": "Zero-based boundary 19 displays Count: 9007199254740992, cursor [23,0,1]. Space yields Amount to split from current stack must be less than 58. The count fits the recorded C long, and AppendLongDigit rejects only signed-long overflow.",
+  "observedJS": "Boundary 19 displays Count: 0, cursor [8,0,1]; following space says amount must be at least 1. All 2260 RNG calls and the preceding 19 screens match; total screens/cursors are 21 each.",
+  "control": "Same ordinary setup, count 9007199254740991. Strict parity across 21 screens/cursors and 2260 RNG calls; both reject as too large for the 58-arrow stack.",
+  "causalScope": "Command-count parsing and echo for maxcount=0 only. Parse/getobj callers capped at LARGEST_INT=32767 do not reach this threshold. No claim that JS Numbers can represent every C long; a repair must consider exact decimal accumulation and overflow semantics, not just raise the threshold.",
+  "reproduction": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-count-safe-integer-reset/witness.recipe.json",
+  "controlCommand": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-count-safe-integer-reset/control.recipe.json",
+  "focusedTest": "node --test diagnostics/divergence-evidence/commands/cmd-count-safe-integer-reset/candidate.test.mjs (witness intentionally fails; outside default CI)",
+  "confirmation": {
+    "firstJsBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+    "freshJsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+    "originalRecordingSha256": "f299944f7eb7833b1c88d86547e62a2c010254f7cac7aae8d72320d8d1bac46a",
+    "independentRecordingSha256": "f299944f7eb7833b1c88d86547e62a2c010254f7cac7aae8d72320d8d1bac46a"
+  },
+  "historyCheck": "Fetched current main before selection; get_count source unchanged between 128fba220 and 5826a75fc. No matching repair found in count/split/overflow history; c53f836cc concerns count flag values, not arithmetic. Independent cause from prayer-repeat PR #9.",
+  "rawSetupObservations": [
+    {
+      "moves": "mi",
+      "result": "C and JS refuse m prefix for inventory; target miss, not a negative proof."
+    },
+    {
+      "moves": "ic",
+      "result": "C and JS reach the ordinary arrow item-actions menu, with I available."
+    }
+  ],
+  "nextExperiment": "After a repair, test adjacent nonrepresentable decimal values and C signed-long overflow; the current witness does not certify that broader domain.",
+  "evidenceSha256": {
+    "README.md": "95ffe5bb2c3c71678fab5f48e7384572dbdee91d2fab2a3e946118f1ac75d475",
+    "candidate.test.mjs": "ff70c0e1a222bf15f8b4a0e3233937ea18f85725c799d8276b53c4d2aeada9e4",
+    "control.comparison.json": "5facbc5e249015793b33204e8a7c2f122f0a19cdf4100e59e403b9a66be62a67",
+    "control.js-output.json": "c2ad64de5e14d12ef28fe66baab1e81f4c153243e8c58e0462550546eb5754ea",
+    "control.recipe.json": "fada5328e40107aad815f2a86198e190613fbc45870ddb491a829c4a7d12581a",
+    "control.recording.json": "0660194471bac7249fa2fdc0ade179307aaafacba4c197d836b41830b56bd737",
+    "pickup-check.json": "046c5a24847c430e17c2474a89cdfaa4430d3bb5d3037977e48c439ebda3e020",
+    "witness.comparison.json": "fa77ce7c4440ab80b28d8e616c684533dc8ec676077e31952a04ef8c8a900276",
+    "witness.js-output.json": "f27a0c7d89a18e0d17fe39db74275e195e88e06af1607a19f2b9c4c4b1d3b8b4",
+    "witness.recipe.json": "dce05f92dd2aedd306e0618b6ee4cf79426fb76c0592dba10db8fe093b0d64d4",
+    "witness.recording.json": "f299944f7eb7833b1c88d86547e62a2c010254f7cac7aae8d72320d8d1bac46a"
+  },
+  "validation": {
+    "focused": "Control passes; only witness intentionally fails",
+    "cleanSnapshotCli": "Witness exits 1 at numeric echo; control exits 0"
+  },
+  "platformScope": {
+    "cArithmetic": "AppendLongDigit uses signed long and LONG_MAX; the observed oracle preserves 9007199254740992. This result is scoped to the recorded 64-bit-long environment, not all C ABIs.",
+    "compilerObservation": {
+      "command": "clang -dM -E -x c /dev/null",
+      "sizeofLong": 8,
+      "longMax": "9223372036854775807",
+      "LP64": 1
+    },
+    "binaryObservation": "ELF 64-bit x86-64 recorder; binary hash pinned above. ELF class alone is not proof of long width; source and the actual recorded decimal result establish the relevant behavior.",
+    "portability": "On an ABI with 32-bit long, C overflows earlier and this exact expected count is invalid. Main should match the designated recorder platform. The adjacent control is below the JS safe-integer boundary and fits the recorded C long.",
+    "ordinaryInput": "The value is entered as 16 decimal digits into a normal inventory action. No huge item stack is required; both witness and control are rejected without a split."
+  },
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual review of get_count numeric accumulation followed by reachable differential probes. No corresponding canonical scanner lead was identified; this case does not authorize scanner suppression."
+  }
+}
