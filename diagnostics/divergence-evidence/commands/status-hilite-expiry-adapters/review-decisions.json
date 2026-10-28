@@ -1,0 +1,36 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/botl.c:status_eval_next_unhilite:hilite_reset_needed",
+    "evidenceKey": "03b1cd85e89e877930e56bc9edd7ca617880453bddf2fd8d57aba37f4b9860dd",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "bbd800acd5b50f9d11d61c2dffcba12f3a4aceba0ae4f4f5b19b2aed955c139b",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "For unchanged fields with no prior dirty status, set botl iff an eligible positive temporary timer is earlier than current moves and multi is0. Changed fields update both times and force botl.",
+      "proof": "C tracks the minimum eligible timer. If a previously chosen minimum is not expired, any later expired value is smaller and replaces it. Thus its dirty-status result is existence of an eligible expired timer, which JS tests directly. When any changed field dirties status, both implementations still process all change flags and skip irrelevant expiry checks.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/botl.c:2256-2320",
+        "js/display.js:6236-6273",
+        "js/allmain.js:535"
+      ]
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/botl.c:status_eval_next_unhilite:_setStatusHiliteChange",
+    "evidenceKey": "7fa476a8cf26af6632d7d3fc07d6d2363bb91dc4f25b8236732b45adaf33d641",
+    "runId": "7e93da55968668bc05fc",
+    "reviewFingerprint": "75b8a91e0b5a1c716e8eac110730ebb5e6dea320e819090869fb5d6e0e21a9f8",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "A changed field clears curr->chg and prev->chg after copying its time to both banks, including while multi is nonzero.",
+      "proof": "Exact source assignment adaptation curr->chg = prev->chg = FALSE maps to banks[0][fld] and banks[1][fld]. The separate bank initializer is not reviewed or generically suppressed.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/botl.c:2302-2306",
+        "js/display.js:6065-6069",
+        "js/display.js:6256-6261"
+      ]
+    }
+  }
+]

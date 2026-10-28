@@ -1,0 +1,147 @@
+{
+  "id": "status-hilite-expiry-adapters",
+  "cases": [
+    {
+      "shard": "commands",
+      "outcome": "explained negative",
+      "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+      "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "discoveredAt": "2026-10-28T19:08:09.998Z",
+      "reviewedAt": "2026-10-28T19:10:28.319Z",
+      "supportedReachableSetup": "Initialized status banks, positive configured highlight duration, safe non-overflowing turn values. Ordinary counted waiting, individual waiting and prayer with time highlights corroborate production wiring but do not by themselves prove expiry equivalence.",
+      "reproduction": "node --test diagnostics/divergence-evidence/commands/status-hilite-expiry-adapters/evidence.test.mjs",
+      "nextExperiment": null,
+      "id": "status-expiry-inline-predicate",
+      "discoveryBinding": {
+        "key": "source-audit:edge-c-only:src/botl.c:status_eval_next_unhilite:hilite_reset_needed",
+        "evidenceKey": "03b1cd85e89e877930e56bc9edd7ca617880453bddf2fd8d57aba37f4b9860dd",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "bbd800acd5b50f9d11d61c2dffcba12f3a4aceba0ae4f4f5b19b2aed955c139b",
+        "status": null
+      },
+      "sourceLocations": [
+        "nethack-c/upstream/src/botl.c:2256-2320",
+        "js/display.js:6236-6273",
+        "js/allmain.js:535"
+      ],
+      "hypothesis": "Missing hilite_reset_needed call loses temporary-highlight expiry.",
+      "expectedC": "For unchanged fields with no prior dirty status, set botl iff an eligible positive temporary timer is earlier than current moves and multi is0. Changed fields update both times and force botl.",
+      "observedJS": "Same predicate is evaluated inline; compiled C partitions match flags, timers and changed flags in both banks.",
+      "proof": "C tracks the minimum eligible timer. If a previously chosen minimum is not expired, any later expired value is smaller and replaces it. Thus its dirty-status result is existence of an eligible expired timer, which JS tests directly. When any changed field dirties status, both implementations still process all change flags and skip irrelevant expiry checks.",
+      "scope": "Only expiry dirty-flag/time transitions with initialized matching rule banks, positive duration and non-overflowing counters. Does not certify timer creation, rendering, all status inputs or arbitrary malformed states."
+    },
+    {
+      "shard": "commands",
+      "outcome": "explained negative",
+      "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+      "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "discoveredAt": "2026-10-28T19:08:09.998Z",
+      "reviewedAt": "2026-10-28T19:10:28.319Z",
+      "supportedReachableSetup": "Initialized status banks, positive configured highlight duration, safe non-overflowing turn values. Ordinary counted waiting, individual waiting and prayer with time highlights corroborate production wiring but do not by themselves prove expiry equivalence.",
+      "reproduction": "node --test diagnostics/divergence-evidence/commands/status-hilite-expiry-adapters/evidence.test.mjs",
+      "nextExperiment": null,
+      "id": "status-changebank-clear-adapter",
+      "discoveryBinding": {
+        "key": "source-audit:edge-js-helper:src/botl.c:status_eval_next_unhilite:_setStatusHiliteChange",
+        "evidenceKey": "7fa476a8cf26af6632d7d3fc07d6d2363bb91dc4f25b8236732b45adaf33d641",
+        "runId": "7e93da55968668bc05fc",
+        "reviewFingerprint": "75b8a91e0b5a1c716e8eac110730ebb5e6dea320e819090869fb5d6e0e21a9f8",
+        "status": null
+      },
+      "sourceLocations": [
+        "nethack-c/upstream/src/botl.c:2302-2306",
+        "js/display.js:6065-6069",
+        "js/display.js:6256-6261"
+      ],
+      "hypothesis": "Extra JS _setStatusHiliteChange call introduces a C-absent state update.",
+      "expectedC": "A changed field clears curr->chg and prev->chg after copying its time to both banks, including while multi is nonzero.",
+      "observedJS": "The helper sets both corresponding change-bank entries false; C oracle partitions confirm both bank flags and times.",
+      "proof": "Exact source assignment adaptation curr->chg = prev->chg = FALSE maps to banks[0][fld] and banks[1][fld]. The separate bank initializer is not reviewed or generically suppressed.",
+      "scope": "Only clearing flags through this call on already initialized banks. No claim about fallback initialization or other callers."
+    }
+  ],
+  "provenance": {
+    "jsBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "fingerprints": {
+      "node": "v24.19.0",
+      "tools": {
+        "scripts/discovery-hub.mjs": "f2748a2ace9177b0c8b61108487ef7d711c4e403bb27134cdd51f5b226eef5dc",
+        "scripts/source-audit.mjs": "e869da8153749f9ddb974086316d23be9eba45cbf65643357859892c391a1630",
+        "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+        "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61"
+      },
+      "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+      "recorderSysconfSha256": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2",
+      "patches": {
+        "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+        "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+        "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+        "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+        "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+        "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+        "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+      },
+      "sources": {
+        "nethack-c/upstream/src/botl.c": "765fe13d7ee604c606c6920bce9bcb2a8a82299dbd56073b2b90101409409360",
+        "nethack-c/recorder/src/botl.c": "765fe13d7ee604c606c6920bce9bcb2a8a82299dbd56073b2b90101409409360",
+        "nethack-c/upstream/include/botl.h": "c26c637bcb8b2615e82fbc0804175cd8c87f63a3caf35c742e0a6fa410a31009",
+        "js/display.js": "3782bffd34c0ddb199175912fa8f21959838dcdd6fb84e43b5db84de3336abe4",
+        "js/status_field_data.js": "29c8891e4ff05a23a5e71efc693a5f52d951db2c79925891b2bc9b01ba9acd26",
+        "js/allmain.js": "cb69f2ca68a242b0f92ba69c274f25218623e8bc396cafa67534856157f929a2"
+      }
+    }
+  },
+  "oracle": {
+    "compiler": "Clang19",
+    "command": "clang -ffunction-sections -fdata-sections -I nethack-c/recorder/include nethack-c/recorder/src/botl.c diagnostics/divergence-evidence/commands/status-hilite-expiry-adapters/expiry-oracle.c -Wl,--gc-sections -o /tmp/commands-expiry-oracle",
+    "binarySha256": "342f02f320b1776c2aede6172d796245ad93d6a89e2e5f744a8c398d29fecf0f",
+    "rawSha256": "a65e571b60ff8d54d853677350717405ef97a1de3d8679a176ab648f2ac74b7d",
+    "partitions": 1536,
+    "domain": "moves10,duration3; each timer in0,9,10,11; rule temp/persistent; changed flags all4; multi-1,0,1; initial botl0,1; AC/HP fields; both initialized banks",
+    "limits": "Finite boundary partitions corroborate algebraic/source proof; they are not exhaustive over every gameplay state or future implementation."
+  },
+  "control": "Three ordinary recorded paths match, but time changes each turn so they alone are not expiry proof. The separate bank-initializer scanner lead remains unreviewed and active.",
+  "discoveryExport": {
+    "exporterCommit": "a879e944617577d3eb59c14afc87ddbdb2724b18",
+    "manifest": "manifest.json",
+    "validation": "export-validation.json"
+  },
+  "validation": {
+    "focused": "5 tests pass, including1536 real-C oracle rows, active-view retention/staleness checks and3 recorded controls",
+    "sourceBinding": "Relevant helper bodies byte-identical to original scanner base",
+    "limits": "Two scanner negatives for one representation adaptation; no gameplay divergence claimed."
+  },
+  "evidenceSha256": {
+    "README.md": "9deb979005f4108fd49828edc62455e16d558be9d4f705989b2623ac4fc6097f",
+    "binding-source-check.json": "7677ffc6a766dd85cebb8b56b3a554870d40630683f8296f715230c2315e71e6",
+    "counted.js-output.json.gz": "7c85ef2b591c2ccc04a1e54ab008ee8c276610fcd268a17c7bea2a5aef584b1d",
+    "counted.js-output.json": "203b1d9b5e574c3361042c69c5a99853f190e57555bc816414c651f187809385",
+    "counted.recipe.json": "e171555ddb7b3631589580a8213a537645de86f10eb9372aa1747dcc444cd6dc",
+    "counted.recording.json.gz": "9021c608b1e768573462deef39ef68cbe80bbadf85c12e274f4ad81112988bf9",
+    "counted.recording.json": "3bd015215f77121905bb7bebbacd3bd119724d75c018b2b8d5ff76a7aa0223d3",
+    "discovery-bindings.json": "62122cdffe1a87b593829d697c6fcf6775664f58d2432261f035bdd99d42b38b",
+    "evidence.test.mjs": "928d363c60b8d886b34abbaa6211e6fe97020cc511030f217c60f03fbf2ed935",
+    "expiry-oracle.c": "3fd9fd2d2bc5a0f440cc8e08eb49a2cef48482b6124cdf9a73fc6593666b81d6",
+    "export-validation.json": "88b99e5661795258358f57abbefd2ca61fc75618de236e783b8c9fe03a6abb4c",
+    "individual.js-output.json.gz": "004efd13d6165116313ae77ed3130b534bae4bc97d3151d62f5a54ec6d102fba",
+    "individual.js-output.json": "67eab5251a1e638978ddcb12d3cf4a3c79388e608e8177b3543854b5cff4d66e",
+    "individual.recipe.json": "8f5b802fa5682b4c66955dd20b50dfe1752578b029699f9393f0d56b4112f297",
+    "individual.recording.json.gz": "53cfe473ccbbe129345b505de87f74d3e09f6a4292a101adaa365faac7c12958",
+    "individual.recording.json": "1adaf3b80b3008adba9a32798c20d7a8c2b60f4ad25410fc5ff452ae9ee8b0ba",
+    "keys.json": "456a732fa823015a722da93980aa680024a465ee7454186f9fb739d665a2a90f",
+    "manifest.json": "e33466ce416e959c273caf10855bf03c562ecf4e56cc14e4b8e780bf535f25b3",
+    "oracle.jsonl.gz": "31ff6ce67a012dce4a50cfeced6e64d66583fc9d785c792e8f2ed8d3a8390bd1",
+    "oracle.jsonl": "a65e571b60ff8d54d853677350717405ef97a1de3d8679a176ab648f2ac74b7d",
+    "prayer.js-output.json.gz": "fb9678463cd1c8fa4af17c8a15e4e54dcdffc479341483169615ec389941d119",
+    "prayer.js-output.json": "a7379c8e977c95ea91eeafe68af91eef46c2244469a357e83ade8c6b4a562f73",
+    "prayer.recipe.json": "29ee0b8b82fc2006bc34ec9d38c260290defcf8f4827c6040a146c1fcdf3b921",
+    "prayer.recording.json.gz": "561c0809340dcc086799c39c98f4cf32566944f2150f27baf976535af699499b",
+    "prayer.recording.json": "e2bae4f7537cef81540b582bf08cfe6caf3b891952c23f7ce796a7ac6262b1aa",
+    "projection.json": "61deab9c74d87bd0d0237afbc7ffdc60a049d7d4c1c4b0da9cd16f0a81be5eca",
+    "raw-observations.json": "d97b7d8052a747a5189d4581cdef9bc79c7f2867434597e2b2b5c4db0de2b102",
+    "review-decisions.json": "c409d570514f8a55849577697aa22f5f78e551b993fd8a377101884f11926e90",
+    "review-template.json": "1ebb7bdc2348898c2865864c8e705c5288eba3b09b4bfd4eedebe1340a0aa8d6",
+    "runtime-controls.json": "4234b21d698b27a0ba1221d263b32af62f30a2eda70e709f9ad0f0f42d610395"
+  }
+}

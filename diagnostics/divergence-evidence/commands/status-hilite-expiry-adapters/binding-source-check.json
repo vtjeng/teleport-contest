@@ -1,0 +1,18 @@
+{
+  "originalBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "reviewedBase": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "checks": [
+    {
+      "function": "export function status_eval_next_unhilite",
+      "originalSha256": "940bb6aefe055221b89544c71ea3542cddf78f3cc158b53c4165adde9d0b37bd",
+      "currentSha256": "940bb6aefe055221b89544c71ea3542cddf78f3cc158b53c4165adde9d0b37bd",
+      "same": true
+    },
+    {
+      "function": "function _setStatusHiliteChange",
+      "originalSha256": "50e9377f0b8942ea1419570f92642de610bc397f1822ff857cf3ed516db63ba8",
+      "currentSha256": "50e9377f0b8942ea1419570f92642de610bc397f1822ff857cf3ed516db63ba8",
+      "same": true
+    }
+  ]
+}
