@@ -119,6 +119,7 @@ import {
     PM_CHAMELEON,
     PM_CHIEFTAIN,
     PM_DWARF,
+    PM_DOPPELGANGER,
     PM_ELF,
     PM_ETTIN_ZOMBIE,
     PM_ETTIN,
@@ -782,6 +783,47 @@ test('a chameleon can select a random special-level monster form', () => {
     assert.equal(monster.m_ap_type, M_AP_NOTHING);
     assert.deepEqual(threes, []);
     assert.ok(calls.some(([kind, bound]) => kind === 'rn2' && bound === 98));
+});
+
+test('a special-level doppelganger takes a random monster form', () => {
+    // C #wizloaddes target adds a second select_newcham_form sequence and
+    // displays the selected form; the no-appearance control does not.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const random = quietObjectRandom();
+    const originalRn2 = random.rn2;
+    const calls = [];
+    random.rn2 = bound => {
+        calls.push(bound);
+        if (bound === 7) return 2;
+        if (bound === 3) return calls.filter(n => n === 3).length % 2 ? 0 : 2;
+        return originalRn2(bound);
+    };
+    random.rn1 = (bound, base) => {
+        if (bound === 330) return PM_GNOME_ZOMBIE;
+        return base;
+    };
+    const monster = lspo_monster([{
+        id: PM_DOPPELGANGER,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_DOPPELGANGER);
+    assert.equal(monster.data, state.mons[PM_GNOME_ZOMBIE]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.equal(calls.filter(bound => bound === 7).length, 2);
+});
+
+test('control: a special-level doppelganger without appearance keeps its initial form', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_DOPPELGANGER }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_DOPPELGANGER);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
 });
 
 test('a special-level vampire takes a valid named fog form', () => {
