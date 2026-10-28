@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
-import { validateDecision, applyDecisions } from '../../../scripts/discovery-hub.mjs';
+import { validateDecision, applyDecisions, activeLeadIndex } from '../../../scripts/discovery-hub.mjs';
 const rows = JSON.parse(readFileSync(new URL('decisions.json', import.meta.url)));
 test('two scoped decisions have original shard bindings and explicit run hash', () => {
     assert.equal(rows.length, 2);
@@ -20,4 +20,16 @@ test('original bindings cannot be silently reused on the earlier frozen run', ()
         '../scoped-negative-decisions-20261028/run.json.gz', import.meta.url))));
     for (const row of rows)
         assert.throws(() => applyDecisions(earlier, [row]), /stale/);
+});
+
+test('verified run projection accepts both original bindings and rejects stale inputs', () => {
+    const run = JSON.parse(readFileSync(new URL('bound-run.json', import.meta.url)));
+    assert.equal(activeLeadIndex(run).active.length, 2);
+    const reviewed = applyDecisions(run, rows);
+    assert.equal(activeLeadIndex(reviewed).active.length, 0);
+    assert.equal(activeLeadIndex(reviewed).filtered.length, 2);
+    assert.equal(reviewed.leads.length, run.leads.length);
+    for (const row of rows) assert.equal(reviewed.leads.find(l => l.key === row.key).resolution.scope, row.evidence.scope);
+    assert.throws(() => applyDecisions({ ...run, runId: 'different' }, rows), /stale review provenance/);
+    assert.throws(() => applyDecisions({ ...run, toolHashes: { ...run.toolHashes, sourceAudit: 'changed' } }, rows), /stale review provenance/);
 });
