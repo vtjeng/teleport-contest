@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:43:39.520Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "95b9fea8ddde80094b890ae4632bebb5fe3b5cb5ada12ffd79f18f06ccfd6c9d",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/oracle.c": "40c91020b59af298a3a4a890272d4b475ea8ce714c1c3d75bba991c7b0cbd107"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/control-output.txt"
+  ]
+}

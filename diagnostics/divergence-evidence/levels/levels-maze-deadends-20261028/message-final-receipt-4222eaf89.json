@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-10-28T22:43:36.094161+00:00",
+  "caseId": "levels-message-buffer-20261028",
+  "mainSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "routingStatus": "fully_accepted",
+  "receiptAuthority": "Parent independently read Main completion record msg_019edc70def51fa7016ae276f29ac88197ba93192d9de9f139 and reported it to this shard.",
+  "confirmedStages": [
+    "Checkpoint",
+    "archive comparison",
+    "Main Lint",
+    "Dashboard",
+    "complete 98-evaluation receipt"
+  ],
+  "clarification": "Earlier publication-only notice was insufficient to establish receipt completion. This follow-up supplies explicit completion provenance; it does not rewrite frozen evidence or count a new discovery."
+}

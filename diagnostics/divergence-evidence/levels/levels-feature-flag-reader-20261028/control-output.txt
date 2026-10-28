@@ -1,0 +1,69 @@
+{
+  "scope": "27 fresh feature initializations: three feature types × nine valid optional boolean representations. Exact C readers and flag helper; no runtime.",
+  "results": [
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": true,
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": false,
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": true,
+      "expected": 1,
+      "actual": 1,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": false,
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": true,
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": false,
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    }
+  ]
+}

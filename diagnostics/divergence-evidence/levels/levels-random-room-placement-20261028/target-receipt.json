@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:43:37.181Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "853f3016071298c342326e8f56289d40c77306de722951e76566aea8a50ebcaa",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/oracle.c": "30f116ee89c59c05ca51ffd898594d6f32e87e984e477ade95403a05212be41d"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/target-output.txt"
+  ]
+}

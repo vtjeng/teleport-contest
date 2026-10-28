@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-random-room-placement-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "random-first-room-placement-rng-aliases",
+  "relatedCases": [
+    "levels-room-obstruction-20261028"
+  ],
+  "provenance": {
+    "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "create_room",
+      "start_line": 1485,
+      "end_line": 1660,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "create_room",
+      "start_line": 6637,
+      "end_line": 6767,
+      "commit_sha": "4222eaf89f2cc3b1392273b70cc27b399418c691"
+    }
+  ],
+  "hypothesis": "Scanner RNG edges may represent missing random room placement draws.",
+  "expectedBehavior": "Fixed geometry uses no draws. Invalid one-dimension-random setup was discarded because both production wrappers require paired dimensions; it is not a negative case.",
+  "observedBehavior": "Ten public des.room comparisons: fully random, random position, random dimensions, random alignment and fixed control \u00d7 two seeds. Exact C create_room/check_room/get_rect bodies match acceptance, returned room bounds and primitive RNG consumption. C captures room creation and checks a one-rectangle allocator handoff; no complete storage/topology/allocator mutation proof. Raw JS draw labels retained; rnd is normalized to rn2+1 and C rn1 to rn2+base.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Ten public des.room comparisons: fully random, random position, random dimensions, random alignment and fixed control \u00d7 two seeds. Exact C create_room/check_room/get_rect bodies match acceptance, returned room bounds and primitive RNG consumption. C captures room creation and checks a one-rectangle allocator handoff; no complete storage/topology/allocator mutation proof. Raw JS draw labels retained; rnd is normalized to rn2+1 and C rn1 to rn2+base.",
+    "limitations": [
+      "Five first-room configurations/two seeds, empty stone map/one initial allocator rectangle. No repeated-room, vault, full allocator mutation, storage, topology, metadata or finalization proof.",
+      "C captures add_room bounds and checks split handoff instead of executing their storage/mutation.",
+      "RNG tapes are shared, normalized to zero-based primitive draws; not independent RNG or trace-label equivalence."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Focused public generation API tests, not shipped exposure attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS create_room injected RNG defaults preserve the C zero/one-based draws in tested first-room placement paths.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:create_room:rn2",
+      "source-audit:edge-c-only:src/sp_lev.c:create_room:rnd"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/README.md",
+      "sha256": "202c99f6069a6b8d1d6290a85fcb491d37adcc930b1e9ea841b28eb33a7b967a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/control-output.txt",
+      "sha256": "0a82754112c3b1f52e9c6e1d21e5a849b4bdd0aec7409cfa594bc3645ea5f9b8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/control-receipt.json",
+      "sha256": "74d26ac96acab99eb48229d0e101af47420208c2837d73e145f98e03df0481b7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/decisions.json",
+      "sha256": "84b9cc2b37670c436fafeb04db6b98f66b77f62424c724ddef50141b5826e665",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/oracle.c",
+      "sha256": "30f116ee89c59c05ca51ffd898594d6f32e87e984e477ade95403a05212be41d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/probe.mjs",
+      "sha256": "853f3016071298c342326e8f56289d40c77306de722951e76566aea8a50ebcaa",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/projection/manifest.json",
+      "sha256": "9e8a74babb075fbd5616655db038da86e043c47bc5708573a02aa38fc3590055",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/projection/projection.json",
+      "sha256": "32c8edcee09622f47c655a6c800609eb9b7f7d3ef761f82aee3f80b1c7f69cea",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/projection/review-template.json",
+      "sha256": "3a75752777a29b6955bc1328b3fc216655cfd9220f51a8e111af2e7cb5bf2cce",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/source-fingerprints.json",
+      "sha256": "b838c432bea43cf755dbc6a99aed04eb53913fe478612e3a4e30a2fba1ae3e1e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/target-output.txt",
+      "sha256": "074d8d6c24604f1c351019f84f9f5e3ba97250fe5d4570b7bd319bfa82b88955",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/target-receipt.json",
+      "sha256": "5a65b9a541fdefe033c0ac80a776dd422605b586e0587d37e01ee0153519629d",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

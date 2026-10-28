@@ -1,0 +1,42 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:create_room:rn2",
+    "evidenceKey": "78836b8a970f56b13900e0628e6c7e8caab9443314a1bf4a6d24aa182fc77f49",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "c51575219cbef6fc31f5389336163a310a853e03f816063c1873aab2b0e4a416",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS create_room injected RNG defaults preserve the C zero/one-based draws in tested first-room placement paths.",
+      "proof": "Ten public des.room comparisons: fully random, random position, random dimensions, random alignment and fixed control × two seeds. Exact C create_room/check_room/get_rect bodies match acceptance, returned room bounds and primitive RNG consumption. C captures room creation and checks a one-rectangle allocator handoff; no complete storage/topology/allocator mutation proof. Raw JS draw labels retained; rnd is normalized to rn2+1 and C rn1 to rn2+base.",
+      "control": "Fixed geometry uses no draws. Invalid one-dimension-random setup was discarded because both production wrappers require paired dimensions; it is not a negative case.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1485",
+        "js/mklev.js:6637"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028",
+      "reviewedBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:create_room:rnd",
+    "evidenceKey": "6b2a76be2c0819828f953b6a246cf13054f006a75d73542604be8671fb0a1bb2",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "30e270cdb48f5fcdb203abb37e5c353e2d6bdc0f8ebe201b1aa3da1e9ca7ed78",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS create_room injected RNG defaults preserve the C zero/one-based draws in tested first-room placement paths.",
+      "proof": "Ten public des.room comparisons: fully random, random position, random dimensions, random alignment and fixed control × two seeds. Exact C create_room/check_room/get_rect bodies match acceptance, returned room bounds and primitive RNG consumption. C captures room creation and checks a one-rectangle allocator handoff; no complete storage/topology/allocator mutation proof. Raw JS draw labels retained; rnd is normalized to rn2+1 and C rn1 to rn2+base.",
+      "control": "Fixed geometry uses no draws. Invalid one-dimension-random setup was discarded because both production wrappers require paired dimensions; it is not a negative case.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1485",
+        "js/mklev.js:6637"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028",
+      "reviewedBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

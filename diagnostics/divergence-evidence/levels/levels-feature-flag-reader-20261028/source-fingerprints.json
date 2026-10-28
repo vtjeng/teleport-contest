@@ -1,0 +1,28 @@
+{
+  "testedJsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:45:36.662749+00:00",
+  "reviewedAt": "2026-10-28T22:45:36.662749+00:00",
+  "toolingSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "exactCBodies": {
+    "nethack-c/upstream/src/sp_lev.c": [
+      "l_table_getset_feature_flag"
+    ],
+    "nethack-c/upstream/src/nhlua.c": [
+      "get_table_boolean",
+      "get_table_boolean_opt"
+    ]
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "files": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/nhlua.c": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1"
+  },
+  "jsFunctionSha256": "3faa9582915860fab0397b0e66a66328fb6b81d86fc1139e03595213c0fd0efe",
+  "limitations": [
+    "Fresh fountain/throne/tree initialization only, nine valid optional-value forms. No arbitrary preexisting metadata, other feature flags, or runtime behavior proof.",
+    "Fixed typed Lua field adapters implement tested input types/options; no Lua interpreter.",
+    "Unreachable claim is confined to this helper call through get_table_boolean_opt with default -2; no generic suppression of other RNG branches."
+  ],
+  "reachabilityProof": "Absent => default -2. Present bool/valid integer =>0/1; recognized string option=>0..3. Other values fail a Lua check or nhl_error, which calls lua_error and does not return (nhlua.c:199-218). Therefore successful calls cannot yield val=-1."
+}

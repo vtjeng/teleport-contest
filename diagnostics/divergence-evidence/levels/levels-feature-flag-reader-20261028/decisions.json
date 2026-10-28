@@ -1,0 +1,25 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:l_table_getset_feature_flag:rn2",
+    "evidenceKey": "787af8e3b2598d237f9301caec21c8aeab7801b1a7961abd2d9e665df2ea0623",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "04992d46c6e9314ce151e15eb3847a6d14b34045ec378ff0fab8e707cc24bac9",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Through this optional reader with default -2, the val == -1 RNG branch cannot be reached by a successful public feature argument read.",
+      "proof": "get_table_boolean_opt returns -2 for absent fields or calls get_table_boolean. Successful boolean/integer reads return 0/1, recognized strings return option index 0..3; all other reads raise a nonreturning Lua error. None returns -1. Exact C reader and flag-helper bodies plus 27 public JS initializations (fountain/throne/tree × nine valid representations) confirm mask writes and zero draws. This is a reader-local reachability proof, not universal boolean or runtime feature equivalence.",
+      "control": "Boolean true/false controls demonstrate the feature flag write path executes. Absent, numeric 0/1 and four recognized strings are targets. No forced internal -1 injection is used.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:4739",
+        "nethack-c/upstream/src/nhlua.c:1082",
+        "nethack-c/upstream/src/nhlua.c:1107",
+        "nethack-c/upstream/src/nhlua.c:199",
+        "js/mklev.js:3532"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028",
+      "reviewedBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]
