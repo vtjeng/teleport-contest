@@ -1088,7 +1088,7 @@ export function m_can_break_boulder(monster) {
 // Riders skip the incantation; others spend mspec_used and print a message.
 // fracture_rock() is owned by zap.c; this source caller preserves the shared
 // rock conversion and map updates after monster-only messaging and billing.
-async function m_break_boulder(mtmp, x, y, env = {}) {
+export async function m_break_boulder(mtmp, x, y, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn1 };
     const message = env.message ?? ttyPline;

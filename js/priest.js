@@ -88,7 +88,7 @@ import {
     passes_walls,
     resist_conflict,
 } from './mondata.js';
-import { mfndpos, monnear } from './monmove.js';
+import { m_break_boulder, mfndpos, monnear } from './monmove.js';
 import {
     AD_ELEC,
     PM_ALIGNED_CLERIC,
@@ -655,9 +655,10 @@ export async function move_special(
 
     if (nix !== omx || niy !== omy) {
         if (ninfo & ALLOW_ROCK) {
-            if (typeof env.breakBoulder !== 'function')
-                throw new Error('move_special: boulder breaking requires breakBoulder');
-            env.breakBoulder(mtmp, nix, niy, env);
+            // C priest.c:99-107 uses the same monmove.c helper as ordinary
+            // m_move(). Its messages, cooldown and fracture must finish
+            // before the special mover returns the spent action.
+            await m_break_boulder(mtmp, nix, niy, env);
             return 1;
         }
         if (ninfo & ALLOW_M) {
