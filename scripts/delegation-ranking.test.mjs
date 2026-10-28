@@ -86,6 +86,14 @@ test('real audit keeps the delegated RNG warning active despite wrong bounds and
         assert.equal(changed.rankingHint, null);
         assert.equal(changed.rank, lead.rank + 10);
         assert.notEqual(changed.evidenceKey, lead.evidenceKey);
+        put('js/coords.js', "import { rn2 } from './rng.js'; export function get_location(random = rn2) { const y = random(99); return random(1) + y; }");
+        const direct = audit({ root }).backlog.entries.find(l => l.id === lead.id);
+        assert.equal(direct.rankingHint.delta, -10);
+        assert.equal(direct.classification, 'needs-investigation');
+        assert.equal(direct.rank, lead.rank);
+        const directLeads = mergeLeads([normalizeSource(direct)], [], new Set(), 'now', {});
+        assert.equal(directLeads[0].status, 'unreviewed');
+        assert.deepEqual(activeLeadIndex({ leads: directLeads }).active, [normalizeSource(direct).key]);
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
@@ -99,4 +107,45 @@ test('PR21 supplied projection imports exact decisions without weakening identit
     assert.equal(activeLeadIndex(run).active.length, 2);
     assert.equal(activeLeadIndex(applyDecisions(run, decisions)).filtered.length, 2);
     assert.throws(() => applyDecisions({ ...run, runId: 'changed' }, decisions), /stale/);
+});
+
+test('direct named-import parameter defaults are hints, not call equivalence', () => {
+    const prefix = "import { rn2 as roll } from './rng.js';\n";
+    const text = prefix + 'export function choose(random = roll) { const y = random(99); return random(1) + y; }';
+    const traces = defaultImportDelegations(text, 'choose');
+    assert.equal(traces.length, 2);
+    assert.equal(traces[0].kind, 'parameter-default');
+    assert.equal(traces[0].imported, 'rn2');
+    const hint = delegationRankingHint('edge-c-only', 'rn2', traces);
+    assert.equal(hint.delta, -10);
+    assert.equal(hint.status, undefined);
+    assert.match(hint.limitation, /overrides.*arguments.*RNG order remain unproved/);
+    for (const body of [
+        'export function choose(random = unknown) { return random(5); }',
+        'export function choose(roll, random = roll) { return random(5); }',
+        'export function choose(random = roll) { random = other; return random(5); }',
+        'export function choose(random = roll) { [random] = values; return random(5); }',
+        'export function choose(random = roll) { for (random of values) {} return random(5); }',
+        'export function choose(random = roll, x = (random = other)) { return random(5); }',
+        'export function choose(random = roll) { { const random = other; return random(5); } }',
+        'export function choose(random = roll) { try {} catch (random) { return random(5); } }',
+        'export function choose(random = roll) { const { random: other } = raw; return random(5); }',
+        'export function choose(random = roll) { { function random() {} return random(5); } }',
+        'export function choose({random = roll}) { return random(5); }',
+        'export function choose(random = roll) { return 5; }',
+    ]) assert.deepEqual(defaultImportDelegations(prefix + body, 'choose'), []);
+});
+
+test('direct default argument and order defects retain raw and active candidates', async () => {
+    const { normalizeSource, mergeLeads, activeLeadIndex } = await import('./discovery-hub.mjs');
+    const text = "import { rn2 } from './rng.js'; export function choose(random = rn2) { random(99); return random(1); }";
+    const hint = delegationRankingHint('edge-c-only', 'rn2', defaultImportDelegations(text, 'choose'));
+    const item = { id: 'edge-c-only:src/rect.c:choose:rn2', kind: 'edge-c-only',
+        classification: 'needs-investigation', rankingHint: hint, rank: 40, sites: [], details: {} };
+    const normalized = normalizeSource(item);
+    const leads = mergeLeads([normalized], [], new Set(), 'now', { jsSha: 'a'.repeat(40), cGitlink: 'b'.repeat(40) });
+    assert.equal(leads.length, 1);
+    assert.equal(leads[0].status, 'unreviewed');
+    assert.deepEqual(activeLeadIndex({ leads }).active, [normalized.key]);
+    assert.equal(activeLeadIndex({ leads }).filtered.length, 0);
 });
