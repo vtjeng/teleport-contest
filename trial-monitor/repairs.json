@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T01:36:30Z",
+  "asOf": "2026-10-28T01:53:40Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23099,6 +23099,100 @@
           ]
         }
       ]
+    },
+    {
+      "id": "random-chameleon-appearance",
+      "kind": "parity-repair",
+      "title": "Select random special-level chameleon monster forms",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:create_monster",
+          "nethack-c/upstream/src/mon.c:select_newcham_form",
+          "js/themeroom_fill.js:createMonsterBody",
+          "js/mon.js:select_newcham_form"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/themeroom-fill.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "2334ab188dce37c487e62933b30877b24673ffb5",
+          "committedAt": "2026-10-28T01:39:56Z",
+          "sourceCommit": "2334ab188dce37c487e62933b30877b24673ffb5",
+          "sourceCommittedAt": "2026-10-28T01:39:56Z",
+          "runs": [
+            {
+              "id": 40616412462,
+              "name": "Checkpoint",
+              "sha": "2334ab188dce37c487e62933b30877b24673ffb5",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/random-chameleon-appearance-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:40:11Z",
+              "completedAt": "2026-10-28T01:51:07Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40616412462"
+            },
+            {
+              "id": 40617564188,
+              "name": "Lint",
+              "sha": "2334ab188dce37c487e62933b30877b24673ffb5",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:52:03Z",
+              "completedAt": "2026-10-28T01:53:13Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40617564188"
+            },
+            {
+              "id": 40617564212,
+              "name": "Dashboard",
+              "sha": "2334ab188dce37c487e62933b30877b24673ffb5",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:52:03Z",
+              "completedAt": "2026-10-28T01:53:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40617564212"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "named-vampire-appearance",
+      "kind": "parity-repair",
+      "title": "Apply named special-level vampire monster forms",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:create_monster",
+          "nethack-c/upstream/src/mon.c:validvamp",
+          "js/themeroom_fill.js:createMonsterBody"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/themeroom-fill.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }

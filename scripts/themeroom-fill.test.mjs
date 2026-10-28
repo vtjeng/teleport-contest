@@ -792,6 +792,34 @@ test('a chameleon can select a random special-level monster form', () => {
     assert.ok(calls.some(([kind, bound]) => kind === 'rn2' && bound === 98));
 });
 
+test('a special-level vampire takes a valid named fog form', () => {
+    // C sp_lev.c:create_monster() accepts mon:fog cloud through validvamp()
+    // and installs the species with set_mon_data(). A C #wizloaddes target
+    // displays fog cloud; the same level without appear_as displays a bat.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{
+        id: PM_VAMPIRE,
+        appear_as: 'mon:fog cloud',
+    }], room, { state, random: quietObjectRandom() });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_VAMPIRE);
+    assert.equal(monster.data, state.mons[PM_FOG_CLOUD]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('control: a special-level vampire without appearance keeps its natural selection', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_VAMPIRE }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_VAMPIRE);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
 test('a non-shapechanger ignores a requested monster appearance', () => {
     // C sp_lev.c:create_monster() only enters the appearance switch for a
     // mimic or shapechanger. Independent C custom-level target/control both
