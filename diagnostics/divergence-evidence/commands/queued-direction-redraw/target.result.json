@@ -1,0 +1,66 @@
+{
+  "passed": false,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 2973,
+      "js": 2973
+    },
+    "screens": {
+      "c": 20,
+      "js": 20
+    },
+    "cursors": {
+      "c": 20,
+      "js": 20
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": {
+    "index": 16,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 16,
+      "key": "a"
+    },
+    "kind": "ch",
+    "row": 0,
+    "column": 0,
+    "cCell": {
+      "ch": "c",
+      "color": 8,
+      "attr": 0,
+      "decgfx": 0
+    },
+    "jsCell": {
+      "ch": "I",
+      "color": 8,
+      "attr": 0,
+      "decgfx": 0
+    }
+  },
+  "cursorMismatch": {
+    "index": 16,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 16,
+      "key": "a"
+    },
+    "cCursor": [
+      8,
+      23,
+      1
+    ],
+    "jsCursor": [
+      19,
+      0,
+      1
+    ]
+  },
+  "animMismatch": null,
+  "segmentMismatch": null
+}
