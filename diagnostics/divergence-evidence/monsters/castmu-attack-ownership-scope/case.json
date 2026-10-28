@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "caseId": "castmu-attack-ownership-scope",
+  "shard": "monsters",
+  "status": "unresolved",
+  "readiness": "incomplete",
+  "rootCause": null,
+  "relatedCases": [
+    "cleric-floor-spell-stub-negative"
+  ],
+  "provenance": {
+    "jsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "JS",
+      "path": "js/mcastu.js",
+      "symbol": "castmu",
+      "start_line": 497,
+      "end_line": 670,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/monsters.js",
+      "symbol": "cloneMonster",
+      "start_line": 1072,
+      "end_line": 1078,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/mhitu.js",
+      "symbol": "getmattk",
+      "start_line": 1470,
+      "end_line": 1579,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/unported_monster_actions.js",
+      "symbol": "attackHeroWithMattacku",
+      "start_line": 1463,
+      "end_line": 1503,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mcastu.c",
+      "symbol": "castmu",
+      "start_line": 129,
+      "end_line": 305,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    }
+  ],
+  "hypothesis": "A variable attack-type argument after awaited callbacks may reach the floor helper unsupported-type marker.",
+  "expectedBehavior": "Normal Angel missile spells preserve their damage type across message delivery; resistance changes damage but does not change attack type.",
+  "observedBehavior": "Both native missile witnesses match. Normal getmattk returns mutable shared catalog attacks; callback ownership for the general contract remains unqualified.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Normal Angel missile damage and Antimagic paths, with read-only production attack-ownership observations.",
+    "limitations": [
+      "No whole-castmu or full callback contract proof.",
+      "AD_COLD not witnessed here.",
+      "No invented callback mutation or attack override used.",
+      "Frozen templates are not frozen game attack records."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target.session.json.gz",
+      "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/control.session.json.gz"
+    ],
+    "reason": "Supported public wizard creation of hostile Angel and ordinary turns; target missile and opposite Antimagic messages asserted."
+  },
+  "origin": {
+    "kind": "scanner",
+    "keys": [
+      "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot"
+    ],
+    "projection": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/projection.json",
+    "manifest": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/replay.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target.session.json.gz",
+        "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/ownership.mjs",
+        "js/mcastu.js",
+        "js/monsters.js",
+        "js/mhitu.js",
+        "js/unported_monster_actions.js",
+        "js/tty_message.js",
+        "nethack-c/upstream/src/mcastu.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/replay.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/control.session.json.gz",
+        "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/ownership.mjs",
+        "js/mcastu.js",
+        "js/monsters.js",
+        "js/mhitu.js",
+        "js/unported_monster_actions.js",
+        "js/tty_message.js",
+        "nethack-c/upstream/src/mcastu.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/README.md",
+      "sha256": "df981de8f6369e304e1537b6172b56b521e3925c93862a28b09f46a8f07206a8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/control-output.txt",
+      "sha256": "bef1188421c0e0e10101274406a5933720d3f53cfb27e8dd70472d92c33ccf85",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/control-receipt.json",
+      "sha256": "eb09834d424445c5bd4f57cf3aa557f7675f696154dad0ea0820f9d673111477",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/control.recipe.json",
+      "sha256": "abf53977450fe5f0e07a388719dabd93958745512bee09de846d4e3d61486a3a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/control.session.json.gz",
+      "sha256": "b75fdb54417e0b0126bf4472fa92d90b89376fcbc80090f5d436510f8f708f20",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/decisions.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/manifest.json",
+      "sha256": "b9403cb5b9d9c74b4698c336ddb3ae6cec3e7dd8eb0627728e63bf9e1060340c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/observations.json",
+      "sha256": "cda5cd2682e70a8d2ca28cc9451e512321e4b7e17da8eeb9a6b14cf7c1736deb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/ownership.mjs",
+      "sha256": "aa035e40b7bd2b0f051703b2701d788f77feb26f7fba2f7132a747bd0f33ebfb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/projection.json",
+      "sha256": "7c36641d1be9c089a1c6c37df39a4fc3831306c0988b49645820ce69e3f9f74f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/replay.mjs",
+      "sha256": "763f0a14811f7b6305a22f49ccd69853460ac79993ebe604d78cf59f5e4f3c65",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target-output.txt",
+      "sha256": "4272d487737d3c5bfbfc35539f530dc358da5144e6fb76444a34a5d4ddf9b548",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target-receipt.json",
+      "sha256": "6be035407bcdfd65d4c76ede18acdeb4d43d7183a90fd36dd2d853716b326615",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target.recipe.json",
+      "sha256": "e5417125d5820876cf362241d5d50f3ec1cae9903a8263989d5c8ebddf64cdfd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target.session.json.gz",
+      "sha256": "1cf7620e4d5008c37cf61a2b7f95f474750fb184b6ebd69d00e000e132002b9e",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "js/mcastu.js",
+      "sha256": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/monsters.js",
+      "sha256": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/mhitu.js",
+      "sha256": "a4928cfdfde64021a4f6c8fe40082dd03f4f300dee846b2cdb4cced28fba9214",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/unported_monster_actions.js",
+      "sha256": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/tty_message.js",
+      "sha256": "3385845c3ae01e5a5420a13a1cdf535e46082c6b66d95c7728b3fd21c20fee44",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/mcastu.c",
+      "sha256": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285",
+      "role": "pinned source input"
+    }
+  ]
+}

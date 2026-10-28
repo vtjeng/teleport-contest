@@ -115,7 +115,7 @@
   "artifacts": [
     {
       "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/README.md",
-      "sha256": "0250773d876e496f1b560746f40371636f6df24419e22ee604f13282be95b978",
+      "sha256": "4dcce8fb69d09bfac0faa704ca757885151c5055668d15404a62adfad83040a0",
       "role": "evidence"
     },
     {
@@ -150,7 +150,7 @@
     },
     {
       "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-summary.json",
-      "sha256": "1949f1cf5a45882b1b561b26ff7bd58fdb86766c62488f767edafa45f6aafe57",
+      "sha256": "762e56c7625e77e76c528584d0b26dd906efbac40240f23df49fc292feb50520",
       "role": "evidence"
     },
     {

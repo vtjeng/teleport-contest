@@ -21,11 +21,11 @@
     "edge-stub": 55,
     "message": 19
   },
-  "reviewedKeys": 7,
+  "reviewedKeys": 8,
   "resolvedKeys": 6,
-  "reviewedUnresolvedKeys": 1,
-  "withoutRecordedReview": 682,
-  "reviewedAt": "2026-10-28T23:19:43.576788+00:00",
+  "reviewedUnresolvedKeys": 2,
+  "withoutRecordedReview": 681,
+  "reviewedAt": "2026-10-28T23:54:34.774936+00:00",
   "inventoryKeysSha256": "9111e7977db1b5b5ecc90bdf55db81b2f4e71778586b9d75af402768597a011c",
   "reviews": [
     {
@@ -62,6 +62,11 @@
       "key": "source-audit:edge-stub:src/mhitm.c:mdisplacem:which_armor",
       "status": "explained_negative",
       "record": "sibling fixed-armor-slot-stub-negative package"
+    },
+    {
+      "key": "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot",
+      "status": "unresolved",
+      "record": "sibling castmu-attack-ownership-scope package"
     }
   ]
 }
