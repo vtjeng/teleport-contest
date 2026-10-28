@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-replace-selection-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "replace-terrain-selection-method-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_replace_terrain",
+      "start_line": 5051,
+      "end_line": 5143,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_replace_terrain",
+      "start_line": 3807,
+      "end_line": 3889,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    }
+  ],
+  "hypothesis": "The scanner C-only calls may represent omitted selection traversal in terrain replacement.",
+  "expectedBehavior": "Chance zero retains the input map but still consumes a draw per eligible floor; empty selection consumes none. Chance 100 changes all eligible floors. Region and explicit bounds agree; sparse selection filters membership.",
+  "observedBehavior": "30 comparisons: whole map, region, explicit rectangle, sparse absolute selection and empty selection \u00d7 chances 0/50/100 \u00d7 two seeds. Exact C lspo_replace_terrain and seven selection helper bodies match the public JS des.replace_terrain terrain coordinates and checked shared RNG tape. Typed table, default frame, and terrain-write adapters are explicit; no mapfragment, parser, lighting/metadata, relative frame composition or finalization claim.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "30 comparisons: whole map, region, explicit rectangle, sparse absolute selection and empty selection \u00d7 chances 0/50/100 \u00d7 two seeds. Exact C lspo_replace_terrain and seven selection helper bodies match the public JS des.replace_terrain terrain coordinates and checked shared RNG tape. Typed table, default frame, and terrain-write adapters are explicit; no mapfragment, parser, lighting/metadata, relative frame composition or finalization claim.",
+    "limitations": [
+      "Typed argument readers, default frame x+1 conversion, and terrain write are fixed adapters. Full Lua parsing and terrain metadata effects are not tested.",
+      "Floor-to-corridor fromterrain path only. No mapfragment, relative-selection composition, arbitrary bounds, all seeds or finalization.",
+      "C shares checked JS RNG draws; not independent RNG implementation equivalence."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Focused production JS API/C oracle tests; no shipped-level exposure attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS uses ThemeroomSelection constructor/set/get/bounds and an inline full-map clear; these C-only selection call edges are alternate implementations in the tested replacement domain.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_new",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_clear",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getbounds",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getpoint",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_setpoint"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/README.md",
+      "sha256": "6ac8e5b0eeea135a574845bad3fc07a2718485e923efce932df0928091b48241",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/control-output.txt",
+      "sha256": "e7b293b49a192c47cd1b132ae5add8ec49005fba1bf252b179cf1c3fd4aa3047",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/control-receipt.json",
+      "sha256": "de74f84d92e567ffd3505a877c052cfdb648cbf4f10f018a7bc7c626662bc130",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/decisions.json",
+      "sha256": "55775e5bc26a91513a65345ce8ff8a67bec1a94199ae08ad0992aaf622e4a7da",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/oracle.c",
+      "sha256": "9ebece1c2c0b98a86604520ca5e5f1bff83bd329e9b70f5def012483ab94b00e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/probe.mjs",
+      "sha256": "a030024bf3febc36c0007878e715c6610ecce9791ed496e998dcebdae572d5fd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/projection/manifest.json",
+      "sha256": "bedcb2bb392e3031cb7b2b865e8be9cde87c94c6736803cb40e60eaf8636a76a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/projection/projection.json",
+      "sha256": "ce19f78d397ca2567c79871625d805620886750624034df0d42ce9135c90f6f9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/projection/review-template.json",
+      "sha256": "6bfe925ff764517f7e6bec1e68879f0a44a323b457e4688876a3494e13e3df5e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/source-fingerprints.json",
+      "sha256": "db3c515648d5f79e9de55fad14009f796af12587f377d7b10dbd10d537ffee46",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/target-output.txt",
+      "sha256": "b398238916f93c00340bab8680caab1eaecfaa20965f0c84e4c1458c3bcebf45",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/target-receipt.json",
+      "sha256": "5618cc41e1b49fba8f5a3a2091b1ab9f2fa6c5c6a48b33d335fd59d89d0d7489",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

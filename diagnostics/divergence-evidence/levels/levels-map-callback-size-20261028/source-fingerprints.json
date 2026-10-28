@@ -1,0 +1,34 @@
+{
+  "testedJsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:29:18.771771+00:00",
+  "reviewedAt": "2026-10-28T22:29:18.771771+00:00",
+  "toolingSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "sourceAuditBindingBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "jsFunctionUnchangedFromScanBase": true,
+  "jsFunction": "l_push_wid_hei_table",
+  "functionSha256": "3853e6e27b3d7753afeb865757c2821ee50be7d742f904d31630e8177b65160d",
+  "exactCBodies": {
+    "nethack-c/upstream/src/sp_lev.c": [
+      "l_push_wid_hei_table",
+      "mapfrag_fromstr",
+      "mapfrag_free"
+    ],
+    "nethack-c/upstream/src/hacklib.c": [
+      "stripdigits",
+      "str_lines_maxlen"
+    ]
+  },
+  "files": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/hacklib.c": "9f9710dcd8fe0b3735c0b319eb7c26b7fb4148d32a5851ffe72ed94c3bbfeae2",
+    "scripts/discovery-project.mjs": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+    "scripts/discovery-hub.mjs": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7"
+  },
+  "testedJsFileSha256": "ab947e22fa852df29a546a526a5b8a1b8b8198cbcf69ad6ec2828bb1462638d0",
+  "limitations": [
+    "Only three 3x2 rectangular floor representations at two interior positions. No room clipping, single-cell reset, alignment, arbitrary Unicode, metadata or finalization.",
+    "C executes fragment parsing and table serialization with a fixed direct handoff, not the complete lspo_map wrapper or Lua interpreter."
+  ],
+  "mapWrapperCallbackCallUnchanged": "l_push_wid_hei_table(frame.xsize, frame.ysize)"
+}

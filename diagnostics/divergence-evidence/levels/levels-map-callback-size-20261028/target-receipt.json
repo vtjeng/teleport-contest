@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:28:20.162Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "9d215ec688eb588227692054365960a85387c2126e967713b3fc7c6fc237b797",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/oracle.c": "7531e46d17689e0a35ddd3ddd33bbb5d92d6526ffb5792d7829be6e5af38e4b4"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/target-output.txt"
+  ]
+}

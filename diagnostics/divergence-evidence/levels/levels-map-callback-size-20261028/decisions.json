@@ -1,0 +1,23 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_map:l_push_wid_hei_table",
+    "evidenceKey": "69a4a0caa20e3e0f3ba83fb711f75ab6ea40d56be8ae8f027ac3b8107bfcb2d6",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "d2c5fada059fbfee065836cd3fea89dd9301e11730dce466fd2c2e4ed96ff280",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "The JS des.map wrapper invokes l_push_wid_hei_table; the C-only call-site edge does not mean callback dimensions are omitted.",
+      "proof": "Six public JS map callbacks match exact C mapfrag_fromstr/stripdigits/str_lines_maxlen and l_push_wid_hei_table output. Three 3x2 floor representations (plain, trailing newline, ASCII digit labels), two interior positions; one callback with exactly width/height and unchanged painted extent. Fixed C typed table capture and fragment-to-descriptor handoff, not full C lspo_map execution.",
+      "control": "Plain 3x2 maps at (10,5) and (20,8); trailing newline and numeric-label forms preserve width 3 / height 2.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:3050",
+        "nethack-c/upstream/src/sp_lev.c:6309",
+        "js/mklev.js:4787"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]
