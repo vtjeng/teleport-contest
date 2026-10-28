@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T02:09:25Z",
+  "asOf": "2026-10-28T02:27:46Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23257,6 +23257,78 @@
         "source": [
           "nethack-c/upstream/src/sp_lev.c:create_monster",
           "nethack-c/upstream/src/mon.c:validvamp",
+          "js/themeroom_fill.js:assertSupportedMonsterAppearance"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/themeroom-fill.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "1293bffbf416873f4fa5d86a73698f1124afbd04",
+          "committedAt": "2026-10-28T02:13:30Z",
+          "sourceCommit": "1293bffbf416873f4fa5d86a73698f1124afbd04",
+          "sourceCommittedAt": "2026-10-28T02:13:30Z",
+          "runs": [
+            {
+              "id": 40619676796,
+              "name": "Checkpoint",
+              "sha": "1293bffbf416873f4fa5d86a73698f1124afbd04",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vlad-special-appearance-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T02:13:43Z",
+              "completedAt": "2026-10-28T02:24:33Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40619676796"
+            },
+            {
+              "id": 40620830758,
+              "name": "Lint",
+              "sha": "1293bffbf416873f4fa5d86a73698f1124afbd04",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T02:25:21Z",
+              "completedAt": "2026-10-28T02:26:34Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40620830758"
+            },
+            {
+              "id": 40620830777,
+              "name": "Dashboard",
+              "sha": "1293bffbf416873f4fa5d86a73698f1124afbd04",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T02:25:21Z",
+              "completedAt": "2026-10-28T02:27:46Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40620830777"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "random-vampire-appearance",
+      "kind": "parity-repair",
+      "title": "Select random special-level vampire forms",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:create_monster",
+          "nethack-c/upstream/src/mon.c:select_newcham_form",
           "js/themeroom_fill.js:assertSupportedMonsterAppearance"
         ],
         "witness": [],

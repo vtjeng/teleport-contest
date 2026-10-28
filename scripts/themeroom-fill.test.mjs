@@ -657,16 +657,6 @@ test('furniture and monster appearances resolve while unsupported shapes fail ea
     assert.equal(giantMimic.m_ap_type, M_AP_NOTHING);
     assert.equal(giantMimic.mappearance, 0);
 
-    const randomShape = monsterDescriptorFixture();
-    assert.throws(() => lspo_monster([{
-        id: PM_VAMPIRE,
-        appear_as: 'mon:random',
-    }], randomShape.room, {
-        state: randomShape.state,
-        random: quietObjectRandom(),
-    }), /unsupported initial-level monster creation/u);
-    assert.equal(randomShape.level.monlist, null);
-
     const { level, room, state } = monsterDescriptorFixture();
     const random = {};
     for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
@@ -820,6 +810,31 @@ test('control: a special-level vampire without appearance keeps its natural sele
     assert.equal(monster.cham, PM_VAMPIRE);
     assert.equal(monster.data, state.mons[monster.mnum]);
     assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('a special-level vampire accepts a random monster form', () => {
+    // C sp_lev.c:create_monster() selects through pickvampshape() for
+    // mon:random. A #wizloaddes target displays a vampire and differs from
+    // its no-appearance bat control; the C target rerecord is deterministic.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const calls = [];
+    const random = quietObjectRandom();
+    const originalRn2 = random.rn2;
+    random.rn2 = bound => {
+        calls.push(bound);
+        return originalRn2(bound);
+    };
+    const monster = lspo_monster([{
+        id: PM_VAMPIRE,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_VAMPIRE);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.ok(calls.filter(bound => bound === 4).length >= 2,
+        'initial and descriptor vampire shapes each draw');
 });
 
 test('Vlad with his special item ignores a requested fog appearance', () => {
