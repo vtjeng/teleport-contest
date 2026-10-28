@@ -1,0 +1,53 @@
+{
+  "caseId": "travel-current-square-mode",
+  "shard": "commands",
+  "outcome": "confirmed divergence",
+  "binding": "manual/unbound",
+  "discoveredAt": "2026-10-28T19:48:40.384562+00:00",
+  "reviewedAt": "2026-10-28T19:48:40.384562+00:00",
+  "jsBase": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "hypothesis": "JS clears getloc_travelmode in the current-square early-return arm, unlike C; the next nontravel location menu exposes the state difference.",
+  "supportedSetup": "Ordinary Ranger, seed 421081. _ then two spaces acknowledge More and initial farlook tip; . picks current square; ; enters farlook; ! enables location menus; d opens door menu. No movement, objects or wizard commands.",
+  "expectedC": "dotravel_target current-square return leaves getloc_travelmode true; later door menu title includes for travel destination.",
+  "observedJS": "Current-square return explicitly clears flag; later menu lacks travel-destination suffix.",
+  "control": "Replace only . with Escape to cancel travel; all eight screens/cursors and 2973 RNG calls match.",
+  "targetResult": "Eight screens/cursors, matching 2973 RNG calls. First strict mismatch zero-based boundary 7, d; title and title highlighting differ.",
+  "scope": "Current-square travel early return and subsequent farlook location-menu title. No general travel/pathfinding claim.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c:5348-5362",
+    "js/cmd.js:2764-2773",
+    "nethack-c/upstream/src/getpos.c:711-715",
+    "js/getpos.js:831-834"
+  ],
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/travel-current-square-mode/evidence.test.mjs",
+  "discardedProbes": "Initial probes omitted one or both startup travel acknowledgements and remained in More/tip windows; not evidence for the state hypothesis and excluded from yield.",
+  "tools": {
+    "node": "v24.19.0"
+  },
+  "hashes": {
+    "js/cmd.js": "e06f0ba7702992bf37c81cc5ade0dac3bed9b393c6c0fe1c342ab175f8023f3d",
+    "js/getpos.js": "dfa3538a88265be5f918509d91d87344012cc33a89e33f074083bc95b65d338e",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+    "nethack-c/recorder/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "nethack-c/recorder/src/getpos.c": "084d58880158ce5b538bec6e334a5c21b8584adda7d39b0393e6502d16b7c646",
+    "nethack-c/recorder/include/config.h": "5585d9c88d7ea21a9a78b45616cc31ae4ea680cb7b34026f70f92b91288a499f",
+    "nethack-c/recorder/install/games/lib/nethackdir/nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13"
+  },
+  "evidencePaths": [
+    "README.md",
+    "case.json",
+    "clean-base-check.json",
+    "control.js-output.json.gz",
+    "control.recipe.json",
+    "control.recording.json.gz",
+    "control.result.json",
+    "evidence.test.mjs",
+    "target.js-output.json.gz",
+    "target.recipe.json",
+    "target.recording.json.gz",
+    "target.result.json"
+  ]
+}
