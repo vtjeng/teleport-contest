@@ -4709,8 +4709,12 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c lspo_map() l_or_r2i[]/t_or_b2i[]: an absent
             // alignment is "none" (-1), which leaves that axis's start as it
             // was; only both absent makes the call a placement at x,y.
-            const lr = spec.halign ?? -1;
-            const tb = spec.valign ?? -1;
+            // Lua's explicit "none" is the same -1 alignment sentinel as an
+            // omitted option in C's l_or_r2i[] and t_or_b2i[] tables.
+            const lr = spec.halign == null || spec.halign === 'none'
+                ? -1 : spec.halign;
+            const tb = spec.valign == null || spec.valign === 'none'
+                ? -1 : spec.valign;
             frame.xsize = mf.wid;
             frame.ysize = mf.hei;
             if (lr === -1 && tb === -1) {
