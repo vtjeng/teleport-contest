@@ -1,0 +1,9 @@
+{
+  "base": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "verifiedAt": "2026-10-28T21:08:00.528598+00:00",
+  "command": "node diagnostics/divergence-evidence/levels/levels-gas-cloud-defaults-20261028/probe.mjs",
+  "exit": 0,
+  "stdoutSha256": "a77eb557b7ee071ef2c1f91bc32d871f27ed6a6141b5ab89ac633e417099038b",
+  "observationsMatch": true,
+  "setup": "Clean gameplay checkout with evidence overlay."
+}

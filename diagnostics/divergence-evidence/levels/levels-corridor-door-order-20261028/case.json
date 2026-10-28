@@ -1,0 +1,57 @@
+{
+  "caseId": "levels-corridor-door-order-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:46:16.009682+00:00",
+  "reviewedAt": "2026-10-28T20:46:16.009682+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "hypothesis": "Corridor door selection might use one-based indices, reverse order on opposite walls or skip secret doors.",
+  "supportedSetup": "Public lspo_terrain authors a rectangular floor and walls; lspo_region establishes room bounds11,5..17,11; lspo_door authors three legal door positions per side. Layouts are all ordinary or middle secret. Query the exported production search_door helper used by create_corridor. No private function extraction or field mutation.",
+  "expectedC": "Exact C search_door scans increasing x on north/south and increasing y on east/west; indices0..2 select corresponding doors, including SDOOR; index3 fails.",
+  "observedJS": "All32 queries match.",
+  "control": "Opposite-side order, middle secret versus ordinary, and exhausted index3 distinguish index and eligibility mistakes.",
+  "scope": "Two rectangular layouts \u00d7 four cardinal walls \u00d7 four nonnegative indices. Compares successful selected coordinate or no-door result; ignores C output coordinates on false, as create_corridor does. Does not compare corridor carving, random walls, corner doors, irregular rooms or topology/finalization.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:2492",
+    "nethack-c/upstream/src/sp_lev.c:2689",
+    "js/mklev.js:1635",
+    "js/mklev.js:1700"
+  ],
+  "sourceHashes": {
+    "js/mklev.js": "a2ff9d5b3c24c9030125951fa0939e5a0d74fe0b75ddf15270e0547046b44608",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/include/sp_lev.h": "a48d5bd2d9a5b20b474b790d52f4f19179678c87ec0b51019e39dc6684d7a6bf"
+  },
+  "oracleProvenance": "Exact search_door body; minimal room/type grid reproduces the public JS fixture geometry and ordinary/secret door positions. The C setup Lua APIs are not executed. This is a scoped helper comparison with supported public JS construction, not full corridor API equivalence.",
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "5280a4eea9b1d63264139d5005be0c7d7a885a380ccd02b185e09ddb47468853",
+    "probeSha256": "c369d0ec3810a033632ad9d8976e4425fa83bfba13e2294eb15fcbcf2b3ca341",
+    "exactBodySha256": "31ac0713acbc2cbff543ac097f871ac01cad0d973b279fc844e37f42e22d22c0"
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-corridor-door-order-20261028/probe.mjs",
+  "expectedExit": 0,
+  "evidencePaths": [
+    "README.md",
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "clean-base-verification.json",
+    "test-discovery-verification.json"
+  ],
+  "nextExperiment": null
+}

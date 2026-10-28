@@ -1,0 +1,11 @@
+{
+  "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "command": "node diagnostics/divergence-evidence/levels/levels-wall-properties-20261028/probe.mjs",
+  "exit": 0,
+  "verifiedAt": "2026-10-28T20:24:18.136300+00:00",
+  "stdoutSha256": "a2826247ddcf3707ca69d5e17e3fe1389f0a758449a2b17395daa3d0c0b78752",
+  "stdoutMatchesObservations": true,
+  "fixtures": 54,
+  "propertyStages": 108,
+  "setup": "Detached clean gameplay checkout, evidence-only overlay; bundled oracle needs no submodule checkout."
+}

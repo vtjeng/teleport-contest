@@ -1,0 +1,117 @@
+{
+  "scope": "Eight harmless single-cell construction cases; no region runtime behavior",
+  "results": [
+    {
+      "form": "coordinate",
+      "requestedTtl": null,
+      "rect": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "ttl": 6,
+      "calls": [
+        3
+      ],
+      "matched": true
+    },
+    {
+      "form": "coordinate",
+      "requestedTtl": -1,
+      "rect": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "ttl": -1,
+      "calls": [
+        3
+      ],
+      "matched": true
+    },
+    {
+      "form": "coordinate",
+      "requestedTtl": 0,
+      "rect": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "ttl": 0,
+      "calls": [
+        3
+      ],
+      "matched": true
+    },
+    {
+      "form": "coordinate",
+      "requestedTtl": 5,
+      "rect": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "ttl": 5,
+      "calls": [
+        3
+      ],
+      "matched": true
+    },
+    {
+      "form": "selection",
+      "requestedTtl": null,
+      "rect": [
+        12,
+        8,
+        12,
+        8
+      ],
+      "ttl": -1,
+      "calls": [],
+      "matched": true
+    },
+    {
+      "form": "selection",
+      "requestedTtl": -1,
+      "rect": [
+        12,
+        8,
+        12,
+        8
+      ],
+      "ttl": -1,
+      "calls": [],
+      "matched": true
+    },
+    {
+      "form": "selection",
+      "requestedTtl": 0,
+      "rect": [
+        12,
+        8,
+        12,
+        8
+      ],
+      "ttl": 0,
+      "calls": [],
+      "matched": true
+    },
+    {
+      "form": "selection",
+      "requestedTtl": 5,
+      "rect": [
+        12,
+        8,
+        12,
+        8
+      ],
+      "ttl": 5,
+      "calls": [],
+      "matched": true
+    }
+  ]
+}

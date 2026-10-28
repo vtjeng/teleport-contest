@@ -1,0 +1,9 @@
+{
+  "base": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+  "verifiedAt": "2026-10-28T20:46:16.839895+00:00",
+  "command": "node diagnostics/divergence-evidence/levels/levels-corridor-door-order-20261028/probe.mjs",
+  "exit": 0,
+  "stdoutSha256": "a1479aeb16fa800d76b17da439d17c2a14b94c21e2918e74ffa6967722d4cccc",
+  "observationsMatch": true,
+  "setup": "Clean gameplay checkout with evidence-only overlay."
+}

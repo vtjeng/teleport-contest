@@ -1,0 +1,57 @@
+{
+  "caseId": "levels-wall-properties-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "1c4be74beb32edbfc897de805f218e180f8c6002",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:23:59.773873+00:00",
+  "reviewedAt": "2026-10-28T20:23:59.773873+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "hypothesis": "Wall-property eligibility might omit iron bars, include secret doors through generic obstruction, or differ on arboreal levels.",
+  "supportedSetup": "Production lspo_terrain authors a single tested square and neighboring wall; lspo_level_flags optionally enables arboreal. lspo_non_diggable/non_passwall use relative selection_area or no selection; lspo_wall_property uses a singleton relative rectangle. All coordinates valid, no internal field mutation.",
+  "expectedC": "Exact sel_set_wall_property applies bitwise OR only for IS_STWALL, IS_TREE or IRONBARS. Tested eligible types yield 8 then 24; others add no bits.",
+  "observedJS": "All 54 fixtures match both cumulative property stages (108 comparisons); type/door metadata unchanged; neighboring wall excluded for local forms and included for whole-map.",
+  "control": "Ordinary and secret doors, secret corridor, floor and pool are excluded despite nearby eligible wall. Second property retains first. Neighbor distinguishes local from whole-map scope.",
+  "scope": "Nine authored terrain types \u00d7 two arboreal states \u00d7 three public API forms. C callback exact, minimal property accumulator and predicate macros; no full rm union/Lua wrapper execution or finalization equivalence. JS doormask unchanged is a JS-only invariant, not a complete C metadata comparison.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:986",
+    "nethack-c/upstream/src/sp_lev.c:5911",
+    "nethack-c/upstream/include/rm.h:118",
+    "js/mklev.js:1458",
+    "js/mklev.js:4434",
+    "js/mklev.js:4470"
+  ],
+  "sourceHashes": {
+    "js/mklev.js": "78abe491d86d6326e5e2bf498166bf72f4918c87ccd2c951ab5f0ef865aae48b",
+    "js/themerooms.js": "e14b071ab3c64e47ddb9ba6cfcac1a475f809b3ffbb43f634a24a854cd02ab3a",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "6d099dc3cb0a6f2b39db7f9635680cce98415267dbb02faa425c233a82b0b41f",
+    "probeSha256": "8df5cc97c3f455d773e25a50d7519805d1f8afa6ba0558f30e208ae39f38c974"
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-wall-properties-20261028/probe.mjs",
+  "expectedExit": 0,
+  "evidencePaths": [
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "clean-base-verification.json",
+    "README.md"
+  ],
+  "nextExperiment": null
+}
