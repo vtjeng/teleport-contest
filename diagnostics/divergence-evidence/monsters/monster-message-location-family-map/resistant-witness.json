@@ -1,0 +1,49 @@
+{
+  "caseId": "passivemm-cold-resistant-location",
+  "shard": "monsters",
+  "outcome": "confirmed divergence",
+  "rootCauseFamily": "existing accessibility-prefix omission; not a distinct root cause",
+  "binding": "manual/unbound",
+  "jsBase": "d1d8ac170b75dca71abe29819b5daa9972301221",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recorderSha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "toolFingerprint": {
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00"
+  },
+  "discoveredAt": "2026-10-28T21:50:22.258772+00:00",
+  "reviewedAt": "2026-10-28T21:50:22.258801+00:00",
+  "hypothesis": "Native cold resistance reaches the located mildly-chilly passive sentence, while JS emits a plain sentence.",
+  "setup": "Public wizard monster creation: tame winter wolf cub, hostile blue jelly, then wait. Native species attacks/resistance; no state injection.",
+  "sourceLocations": [
+    "src/mhitm.c:1398 passivemm",
+    "js/mhitm.js:1868 passivemm"
+  ],
+  "command": "node diagnostics/divergence-evidence/monsters/monster-message-location-family-map/proof.mjs",
+  "characterizationCommand": "CHARACTERIZE=1 node diagnostics/divergence-evidence/monsters/monster-message-location-family-map/proof.mjs",
+  "expectedC": "(east): The winter wolf cub is mildly chilly.",
+  "observedJS": "The winter wolf cub is mildly chilly.",
+  "control": "Identical recipe with !accessiblemsg matches fully; both variants have 2618 RNG calls and 92 screens/cursors, zero animation frames. Target first screen mismatch at step64; no RNG/cursor mismatch.",
+  "coverageMiss": "First native white-dragon variant killed blue jelly before passive response: 2607 matching RNG calls, 89 matching screens/cursors. This does not prove the resistant sentence equivalent. Raw attempt retained privately as passive-z-resistant; no negative claimed.",
+  "observations": {
+    "target": {
+      "rawSha256": "49b3e08fa12145c9d625e242380901277058f59967e354b667a634c883dfdcca",
+      "gzipSha256": "2bf62c6fef6c909d5c38eb5de13c4d622a83317c57a507d6fbb326b40b61cd2f",
+      "cStep64": "(east): The winter wolf cub is mildly chilly.",
+      "jsStep64": "The winter wolf cub is mildly chilly."
+    },
+    "control": {
+      "rawSha256": "1bad77e07218c741656b9ca55b645276c16527c6f5d82f8d118fea694594d730",
+      "gzipSha256": "69fb8da104962840e37f8901b0ce4271cf1aff120658c2e5d92b571467332057",
+      "cStep64": "The winter wolf cub is mildly chilly.",
+      "jsStep64": "The winter wolf cub is mildly chilly."
+    }
+  },
+  "evidencePaths": [
+    "target.recipe.session.json",
+    "control.recipe.session.json",
+    "target.session.json.gz",
+    "control.session.json.gz",
+    "proof.mjs"
+  ]
+}

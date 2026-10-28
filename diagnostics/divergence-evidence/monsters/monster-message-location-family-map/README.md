@@ -62,3 +62,38 @@ resistant/elemental passive branch with an accessibility-off control. Other two
 clusters require independent supported reachability before ready classification.
 The four earlier unresolved hypotheses remain separate; no previously excluded
 investigation or denied-turn artifact was used here.
+
+## Follow-up: native cold-resistance witness
+
+The initial map above remains a source snapshot. Subsequent qualification reaches
+`passivemm-cold-resistant` through public wizard creation of a tame winter wolf
+cub and hostile blue jelly. This is **one additional reached branch of the same
+formatting family**, not a new root cause. Ten of the map's eleven new sites remain
+source-only; the four earlier unresolved hypotheses are unchanged.
+
+At step 64 C prints `(east): The winter wolf cub is mildly chilly.` while JS prints
+`The winter wolf cub is mildly chilly.` Both engines match all 2,618 RNG calls and
+92 cursors; the first screen mismatch is at that message. With `!accessiblemsg`,
+the identical setup fully matches (2,618 RNG calls, 92 screens/cursors). Native
+cold resistance supplies the branch, with no injected state or bypassed guard.
+
+`resistant-witness.json` pins the current execution base
+`d1d8ac170b75dca71abe29819b5daa9972301221`, C binary/source identity, tool hashes,
+raw observations and fixture hashes. The two small compressed recordings contain
+only game recording data. Recipe inputs are bundled independently. From that
+clean base with this evidence directory copied in:
+
+```
+node diagnostics/divergence-evidence/monsters/monster-message-location-family-map/proof.mjs
+CHARACTERIZE=1 node diagnostics/divergence-evidence/monsters/monster-message-location-family-map/proof.mjs
+```
+
+The default command deliberately fails the target parity assertion and passes the
+control. Characterization asserts that exact existing failure and passes both.
+This ordinary `.mjs` runner is not registered in default CI. The source identity
+check and suite guard above still apply. No gameplay repair is included.
+
+The first white-dragon attempt killed the jelly before passive response and
+matched without reaching the target: retained as a coverage miss, not a negative.
+No further unrelated setup is inferred from this result. Preserve PR88's opposite
+speech-prefix control and the plain-message counterexamples above when repairing.
