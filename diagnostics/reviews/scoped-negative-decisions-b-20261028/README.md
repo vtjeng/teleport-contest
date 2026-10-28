@@ -17,34 +17,40 @@ Two exact decisions are prepared in the existing hub format:
 
 All source hashes supplied by both records match this checkout. Four focused
 source/behavior checks pass (catalog, ordinary returning-aklys control, ready
-Vrock and cooldown control). Two decision tests and focused lint pass. The
+Vrock and cooldown control). Three decision tests and focused lint pass. The
 second decision test rejects reuse of these bindings on the previous frozen
 run. No new scans, fresh C recordings or gameplay investigations were run.
 
-## Pending import verification
+## Completed import verification
 
-Original run ID: `601667573d5ca5a23adf`.
-Expected SHA-256 of uncompressed run.json:
+PR #12 head `5011e3c8e07714f645bac3aa5ca2b68f36315ac8` now preserves
+`diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/discovery-run.json.gz`
+(1,465,275 bytes). Independently decompressed and verified SHA-256:
 `22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e`.
+Original run ID: `601667573d5ca5a23adf`.
 
-The shard reports `/tmp/monsters-discovery-20261028-b/run.json` in its own
-execution environment. That path is not assumed to refer to this environment.
-PR #12 contains the bindings but not the run file. Parent has requested durable
-preservation. Once available, verify the uncompressed hash, then run existing
-hub `classify --run RUN --decisions decisions.json --out NEW_OUTPUT` and compare
-before/after active views. No provenance values should be reconstructed or
-refreshed automatically. Schema validation alone does not verify the reported
-fingerprints against the absent run.
+The existing hub CLI imported both decisions against that full run without
+changing their supplied review fingerprints. Full-run raw count stayed 12,537;
+active count fell **12,537 to 12,535**, filtered count zero to two. No new scan.
+These counts use a different frozen run from PR #14; do not sum denominators.
+`measurement.json` preserves this result. `bound-run.json` is a two-lead
+projection with all run-level fingerprint inputs unchanged. Its tests verify
+both imports and reject stale run/tool identity; it is not a full-corpus count.
 
-Incremental active-view reduction is **unmeasured/pending**; no import was
-performed. Expected applicability is two specific rows, conditional on the
-original run's verified contents. This is an artifact-availability dependency,
-not an access denial. The previous seven-decision batch remains unchanged.
+Reproduction: obtain the immutable gzip from the PR #12 commit above, decompress
+and verify its hash, then use the existing hub `classify --run RUN --decisions
+.../decisions.json --out NEW_OUTPUT`. The projection also supports a local
+binding test without downloading the full archive. Run:
 
-The shard contract is now sufficient in fields: exact key/evidenceKey/runId,
-reviewFingerprint and run hash are present. The remaining missing item is the
-durable, retrievable immutable run itself. No invented IDs are needed.
+```sh
+node --test diagnostics/reviews/scoped-negative-decisions-b-20261028/check.test.mjs
+```
 
-New payload: one Markdown report, one JSON decision file and one JavaScript
-test; no new compressed evidence, recordings or raw run archive. No publication
-has been attempted or requested for this batch.
+The separate Vrock downstream UI/vision finding is outside both decisions;
+its status is not altered. No generic artifact/catalog/delegation suppression
+is introduced. Main owns integration gates.
+
+Payload: one Markdown report, three JSON files (decisions, small run projection,
+measurement), one JavaScript test. No duplicate compressed archive or gameplay
+recording. The immutable full archive remains in evidence PR #12. This batch
+is stacked separately on PR #14's frozen seven-decision branch.
