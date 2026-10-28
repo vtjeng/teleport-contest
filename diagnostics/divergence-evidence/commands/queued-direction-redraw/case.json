@@ -1,0 +1,53 @@
+{
+  "caseId": "queued-direction-redraw",
+  "shard": "commands",
+  "outcome": "confirmed divergence",
+  "binding": "manual/unbound",
+  "discoveredAt": "2026-10-28T19:41:57.603830+00:00",
+  "reviewedAt": "2026-10-28T19:41:57.603830+00:00",
+  "jsBase": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "hypothesis": "JS applies redraw handling to queued getdir input, although C queued input jumps past redraw handling.",
+  "supportedSetup": "Ordinary human Ranger starts adjacent to southeast closed door at seed 421081. BINDINGS=n:redraw,N:movesoutheast. #therecmdmenu, direction N, select a (Open the door). No wizard commands, injected state, object creation or movement setup.",
+  "expectedC": "Queued southeast CMDQ_DIR maps to n then goto got_dirsym skips redraw. The rebound n is not a movement key, so cmdassist invalid-direction help appears.",
+  "observedJS": "Queued direction maps to n, then unconditional redraw_cmd triggers repaint and a fresh direction prompt.",
+  "control": "Remove only n:redraw, retaining N:movesoutheast and identical input. All 20 screens/cursors and 2978 RNG calls match.",
+  "targetResult": "20 screens/cursors, 2973 RNG calls match, but screen/cursor first differ at zero-based boundary 16 (menu a). C invalid direction help; JS In what direction?",
+  "scope": "getdir queued direction versus prompted redraw distinction under valid bindings. Door internals are not analyzed; selection only supplies the queue. Not a claim about general key bindings or all queued commands.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c:3962-3980",
+    "nethack-c/upstream/src/cmd.c:4013-4021",
+    "nethack-c/upstream/src/cmd.c:4694-4696",
+    "js/cmd.js:1574-1622",
+    "js/cmd.js:4728"
+  ],
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/queued-direction-redraw/evidence.test.mjs",
+  "discardedProbes": "First setup led to an open doorway without queued direction. Another used a long player name whose startup More consumed the intended command. Both invalid probes are excluded from yield. Short name QDir makes the recorded entry path explicit.",
+  "tools": {
+    "node": "v24.19.0"
+  },
+  "hashes": {
+    "js/cmd.js": "e06f0ba7702992bf37c81cc5ade0dac3bed9b393c6c0fe1c342ab175f8023f3d",
+    "js/command_bindings.js": "d997bf8722c11b70dc70cdcf552eb523add014cceaf82a16fcc4063aadb98661",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+    "nethack-c/recorder/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "nethack-c/recorder/include/config.h": "5585d9c88d7ea21a9a78b45616cc31ae4ea680cb7b34026f70f92b91288a499f",
+    "nethack-c/recorder/install/games/lib/nethackdir/nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13"
+  },
+  "evidencePaths": [
+    "README.md",
+    "case.json",
+    "clean-base-check.json",
+    "control.js-output.json.gz",
+    "control.recipe.json",
+    "control.recording.json.gz",
+    "control.result.json",
+    "evidence.test.mjs",
+    "target.js-output.json.gz",
+    "target.recipe.json",
+    "target.recording.json.gz",
+    "target.result.json"
+  ]
+}
