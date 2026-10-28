@@ -1,0 +1,19 @@
+[
+  {
+    "key": "source-audit:edge-stub:src/monmove.c:maybe_spin_web:maketrap",
+    "evidenceKey": "944781a3d5db80900f042919c75702303b65d2cfb21d3a953c6b9531b254b1ee",
+    "runId": "2bfc89cdcbaa6139046f",
+    "reviewFingerprint": "49c8f2244b5c6153fd6eff63053063726d67d739388273029f761331aa293b37",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "maybe_spin_web passes the constant WEB to maketrap. The sole stub marker within maketrap is confined to case TELEP_TRAP and typ is not reassigned. WEB and TELEP_TRAP are distinct. Only this exact caller/callee stub edge is classified; no broad trap equivalence claim.",
+      "proof": "source-proof.mjs verifies the complete JS callee, constant C/JS call argument, distinct trap constants and the confined marker. Native spider/ant recordings witness reached web creation and a non-webmaker control. The neighboring polymon and sleepy-gaze keys remain active.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/monmove.c:1280",
+        "js/monmove.js:3213",
+        "js/trap.js:1061"
+      ]
+    }
+  }
+]

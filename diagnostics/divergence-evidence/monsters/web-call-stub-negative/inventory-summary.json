@@ -1,0 +1,47 @@
+{
+  "recordedAt": "2026-10-28T22:50:45.971241+00:00",
+  "runId": "2bfc89cdcbaa6139046f",
+  "runSha256": "4e7ab2870a6c57b5c1d586b651917cfabf28056c485f9f92ebc0e202cfcc1b93",
+  "baseSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceFiles": [
+    "mhitm.c",
+    "mhitu.c",
+    "monmove.c",
+    "mcastu.c",
+    "dogmove.c",
+    "mondata.c"
+  ],
+  "countSemantics": "Raw immutable scanner keys, not bugs or universal review coverage. Historical reviews are not automatically valid on current Main. Scope enumeration grants no authority to investigate excluded scenarios.",
+  "totalKeys": 689,
+  "kindCounts": {
+    "edge-c-only": 275,
+    "edge-js-helper": 303,
+    "edge-js-only": 37,
+    "edge-stub": 55,
+    "message": 19
+  },
+  "reviewedKeys": 3,
+  "resolvedKeys": 2,
+  "reviewedUnresolvedKeys": 1,
+  "withoutRecordedReview": 686,
+  "reviewedAt": "2026-10-28T22:58:25.838953+00:00",
+  "inventoryKeysSha256": "9111e7977db1b5b5ecc90bdf55db81b2f4e71778586b9d75af402768597a011c",
+  "reviews": [
+    {
+      "key": "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3",
+      "status": "explained_negative",
+      "record": "PR #96"
+    },
+    {
+      "key": "source-audit:edge-stub:src/monmove.c:maybe_spin_web:maketrap",
+      "status": "explained_negative",
+      "record": "this package"
+    },
+    {
+      "key": "source-audit:edge-stub:src/mhitu.c:gazemu:polymon",
+      "status": "unresolved",
+      "record": "sibling medusa-stone-transition-scope package"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{"scope":"constant WEB call cannot select sole TELEP_TRAP marker","WEB":18,"TELEP_TRAP":15,"markerCount":1}
+{
+  "mode": "control",
+  "passed": true,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 3027,
+      "js": 3027
+    },
+    "screens": {
+      "c": 67,
+      "js": 67
+    },
+    "cursors": {
+      "c": 67,
+      "js": 67
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": null,
+  "cursorMismatch": null,
+  "animMismatch": null,
+  "segmentMismatch": null
+}

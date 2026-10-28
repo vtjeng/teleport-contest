@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "4e7ab2870a6c57b5c1d586b651917cfabf28056c485f9f92ebc0e202cfcc1b93",
+  "originalLeadCount": 12472,
+  "projectionSha256": "8c4185d5aa3de74752f79eeffbf36522e0f66abcd31210ecf25681355ce65807",
+  "runId": "2bfc89cdcbaa6139046f",
+  "selectedKeys": [
+    "source-audit:edge-stub:src/mhitu.c:gazemu:polymon",
+    "source-audit:edge-stub:src/monmove.c:maybe_spin_web:maketrap",
+    "source-audit:message:src/mhitu.c:gazemu:c7ea64ca2417d577"
+  ],
+  "decisionsSha256": "b5feec4b98c9bce0f5ea7448d8ad41241c96b659a5853bf8ba4d66caf00ee9ec",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 3,
+    "decisionsChecked": 1,
+    "before": {
+      "active": 3,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 2,
+      "filtered": 1,
+      "excluded": 0
+    }
+  }
+}

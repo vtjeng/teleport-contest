@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/web-call-stub-negative/replay.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:59:47.150289+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "5d58cad33cf45f781afada0ab4d22bab0ec62dc81e92e9ad7310e4fc46836ac1",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control.session.json.gz": "4b29d4437b17e1dd8793ec522afca1ba95401a066b8c56da47159fd5062319e5",
+    "diagnostics/divergence-evidence/monsters/web-call-stub-negative/source-proof.mjs": "5ee2aed6f8cb79d80d69b6102c22807910b066ccca858d123c9a1563a313188a",
+    "js/trap.js": "e951161317245450bc0e3a3bf6594c2e580705b7e2ef133dd90079d7998b1afe",
+    "js/monmove.js": "b6980f5a2bd1006fd75a39880d786c547f1a46f79df5618176d14236801a3658",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control-output.txt"
+  ]
+}
