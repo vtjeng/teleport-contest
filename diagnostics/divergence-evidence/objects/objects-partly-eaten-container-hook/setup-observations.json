@@ -1,0 +1,42 @@
+[
+  {
+    "sourceCapture": "setup-c.json",
+    "sha256": "e42b3eb8f9adaf4fcd47c5972a020cff0dcee4718e8f161cd8c9bb970938f554",
+    "inputs": {
+      "seed": 19870623,
+      "datetime": "20070623121000",
+      "nethackrc": "OPTIONS=name:ObjProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": "  #wizwish\nuncursed empty sack\n#wizwish\nuncursed partly eaten food ration\ni"
+    },
+    "lastStep": {
+      "key": "i",
+      "rng": [],
+      "screen": "\u001b[31C\u001b[7mWeapons\u001b[0m\n\u001b[31Ca - a +1 spear (weapon in right hand)\n\u001b[31Cb - a +0 dagger (alternate weapon; not wielded)\n\u001b[31C\u001b[7mArmor\u001b[0m\n\u001b[31Cc - an uncursed +3 small shield (being worn)\n\u001b[31C\u001b[7mComestibles\u001b[0m\n\u001b[31Cd - an uncursed food ration\n\u001b[31Cf - a partly eaten food ration\n\u001b[31C\u001b[7mTools\u001b[0m\n\u001b[31Ce - a bag\n\u001b[31C(end)\n\n\n\n\u001b[51C-------- --\n\u001b[51C|.........|\n\u001b[51C.\u001b[97m@\u001b[39m....\u001b[93m$\u001b[39m...|\n\u001b[51C|.....\u001b[33m%\u001b[39m...|\n\u001b[51C-----------\n\n\n\nWizard the Stripling\u001b[11CSt:15 Dx:12 Co:18 In:13 Wi:8 Ch:11 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1",
+      "cursor": [
+        37,
+        10,
+        1
+      ]
+    }
+  },
+  {
+    "sourceCapture": "menu-c.json",
+    "sha256": "f62c1ae2d5e6513d78f3e0c82464eb4ac3ab28d4a6fd22ddbf8b1b2dfdb04e7b",
+    "inputs": {
+      "seed": 19870623,
+      "datetime": "20070623121000",
+      "nethackrc": "OPTIONS=name:ObjProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": "  #wizwish\nuncursed empty sack\n#wizwish\nuncursed partly eaten food ration\nae"
+    },
+    "lastStep": {
+      "key": "e",
+      "rng": [],
+      "screen": "\u001b[38C\u001b[7mDo what with your bag?\u001b[0m\n\n\u001b[38C: - Look inside the bag\n\u001b[38Co - take something out\n\u001b[38Ci - put something in\n\u001b[38Cb - both; take out, then put in\n\u001b[38Cr - both reversed; put in, then take out\n\u001b[38Cs - stash one item into the bag\n\n\u001b[38Cq * do nothing\n\u001b[38C(end)\n\n\n\n\u001b[51C-------- --\n\u001b[51C|.........|\n\u001b[51C.\u001b[97m@\u001b[39m....\u001b[93m$\u001b[39m...|\n\u001b[51C|.....\u001b[33m%\u001b[39m...|\n\u001b[51C-----------\n\n\n\nWizard the Stripling\u001b[11CSt:15 Dx:12 Co:18 In:13 Wi:8 Ch:11 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1",
+      "cursor": [
+        44,
+        10,
+        1
+      ]
+    }
+  }
+]
