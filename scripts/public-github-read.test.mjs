@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {randomBytes} from 'node:crypto';
-import {PUBLIC_REPOSITORY, publicReadUrl, publicGithubRead, requestPublicJson} from './public-github-read.mjs';
+import {PUBLIC_REPOSITORY, publicReadUrl, publicGithubRead, publicReadEnvironment, requestPublicJson} from './public-github-read.mjs';
 import {CHUNK_SIZE, readHostedEvidence} from './hosted-evidence.mjs';
 import {evidenceApi} from './test-fixtures/hosted-evidence.mjs';
 const path = `repos/${PUBLIC_REPOSITORY}/actions/runs/123`;
@@ -24,7 +24,7 @@ test('public transport ignores invalid tokens and sends only explicit anonymous 
         return json({id: 123});
     }});
     assert.deepEqual(JSON.parse(text), {id: 123});
-    publicGithubRead(path, {execute: (binary, args, options) => {
+    publicGithubRead(path, {env: {GH_TOKEN: 'invalid-token', GITHUB_TOKEN: 'also-invalid'}, execute: (binary, args, options) => {
         assert.equal(binary, process.execPath);
         assert.equal(args.at(-1), path);
         assert.deepEqual(options.env, {});
@@ -74,4 +74,25 @@ test('anonymous multi-page annotation data retains existing chunk completeness a
     assert.deepEqual(readHostedEvidence({github: read, run, repository: PUBLIC_REPOSITORY, kind: 'checkpoint'}).files.get('summary.json'), files['summary.json']);
     responses.set(paths[3], '[]');
     assert.throws(() => readHostedEvidence({github: read, run, repository: PUBLIC_REPOSITORY, kind: 'checkpoint'}), /incomplete result chunks/u);
+});
+
+
+test('worker preserves configured proxy and CA settings without GitHub auth or Node hooks', () => {
+    const networking = {HTTPS_PROXY: 'http://configured-proxy.invalid:8080', HTTP_PROXY: 'http://configured-proxy.invalid:8080',
+        NO_PROXY: 'localhost', NODE_EXTRA_CA_CERTS: '/platform/ca.pem', SSL_CERT_FILE: '/platform/trust.pem',
+        SSL_CERT_DIR: '/platform/certs', NODE_USE_SYSTEM_CA: '1'};
+    const env = {...networking, GH_TOKEN: 'invalid', GITHUB_TOKEN: 'invalid',
+        Authorization: 'Bearer invalid', NODE_OPTIONS: '--require=/unwanted-hook.js --use-system-ca'};
+    assert.deepEqual(publicReadEnvironment(env), {...networking, NODE_USE_ENV_PROXY: '1'});
+    publicGithubRead(path, {env, execute: (binary, args, options) => {
+        assert.equal(binary, process.execPath);
+        assert.equal(args[0], '--use-system-ca');
+        assert.ok(!args.some(arg => arg.includes('unwanted')));
+        assert.deepEqual(options.env, {...networking, NODE_USE_ENV_PROXY: '1'});
+        assert.ok(!Object.keys(options.env).some(key => /token|authorization|node_options/iu.test(key)));
+        return '{"id":123}';
+    }});
+    assert.throws(() => publicReadEnvironment({...env, NODE_TLS_REJECT_UNAUTHORIZED: '0'}), /TLS verification/u);
+    assert.deepEqual(publicReadEnvironment({https_proxy: networking.HTTPS_PROXY, no_proxy: 'localhost'}),
+        {https_proxy: networking.HTTPS_PROXY, no_proxy: 'localhost', NODE_USE_ENV_PROXY: '1'});
 });

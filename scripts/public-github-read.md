@@ -10,8 +10,12 @@ The earlier reported GH_TOKEN/401 failure is not repaired or retried implicitly.
 The read-only helper permits only workflow-run metadata, jobs for an exact run
 attempt, the combine check, and its annotations. It accepts no arbitrary host,
 repository, endpoint, write method, artifact URL, credential or query. Its Node
-subprocess gets an empty environment, and requests send only Accept, User-Agent,
-and API-version headers. No token, cookie, Authorization header or gh config is
+subprocess receives only allowlisted existing proxy/NO_PROXY and CA settings;
+requests send only Accept, User-Agent, and API-version headers. GitHub tokens
+and arbitrary NODE_OPTIONS hooks are excluded. Node built-in environment proxy
+support is explicitly enabled when a proxy is configured (Node 22.21+ or 24+).
+Configured certificate files/system trust and explicit trust-selection flags are
+retained at child startup. TLS verification cannot be disabled. No token, cookie, Authorization header or gh config is
 used. Redirects fail. A request/body has a 30-second deadline (35-second process
 watchdog) and a 16-MiB page cap. HTTP failures, malformed responses and anonymous
 rate limits stop immediately with no retry; rate reset/retry-after numbers are
@@ -42,3 +46,12 @@ returned attempt/jobs to check `122647227685` and candidate
 and re-read run metadata. It must run from that candidate with this reviewed
 importer available under the existing integration procedure. Do not substitute
 this tooling branch's HEAD for the gameplay candidate or relax the exact-SHA gate.
+
+Node networking/trust references:
+- https://nodejs.org/learn/http/enterprise-network-configuration
+- https://nodejs.org/api/cli.html#node_extra_ca_certsfile
+
+The initial single-page live probe failed before an HTTP response. The
+original empty child environment discarded the platform networking/trust settings.
+The revised worker retains those settings without forwarding GitHub authentication.
+The first failure receipt is preserved locally; it did not establish HTTP access denial.
