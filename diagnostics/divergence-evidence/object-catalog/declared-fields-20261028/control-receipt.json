@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/object-catalog/declared-fields-20261028/check.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:21:43.275137+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "python": "Python 3.12.14",
+    "cpp": "cpp (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "9b84f56801489adb66eb11e6bd2af088195a27ecb95aaabacbd86e7b504af7ea",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/object-catalog/declared-fields-20261028/audit.py": "532a5cfda2c7d09d26e857c3c3b9c939b0ed825ff928ee911179fe6a6efd8c92",
+    "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+    "nethack-c/upstream/include/objects.h": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+    "nethack-c/upstream/include/objclass.h": "101f92e0024e4404033845fb15171f8ed4b79374907a6a172b4eb7b026e1eb52",
+    "nethack-c/upstream/include/defsym.h": "009ae2e8921fa4c376fe0ae3b4a42407421274fc15d1a8834c6ae519dad82f87",
+    "nethack-c/upstream/include/global.h": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/object-catalog/declared-fields-20261028/control-output.json"
+  ]
+}
