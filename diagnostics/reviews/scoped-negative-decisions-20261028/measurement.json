@@ -1,0 +1,55 @@
+{
+  "runId": "0d5255ecbeb6fd9acac2",
+  "baseSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "runSha256": "a8d24bef6d9410dbd1e97ed160acc7ea330790172333c5cbf1a03c5c7b1c7bb9",
+  "scanElapsedMs": 82946,
+  "before": {
+    "active": 12537,
+    "filtered": 0
+  },
+  "after": {
+    "active": 12534,
+    "filtered": 3
+  },
+  "incrementalReduction": 3,
+  "filtered": [
+    {
+      "key": "source-audit:edge-c-only:src/sp_lev.c:load_special:ensure_way_out",
+      "evidenceKey": "b70e25b3998fd58b3fbbfdc24bfd7555bd288c68c4585d11031122e6991526f5",
+      "explanation": "scanner-assumption-invalid",
+      "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "method": "sourceAudit",
+      "methodVersion": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "methodConfigHash": "a90b98efeb5bd40eb11bbfd04fe534a50966aad6519cabfcdf524fa6bfa0625f"
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/pickup.c:tip_ok:isContainer",
+      "evidenceKey": "e90aa7e1ddc00bdfe417be83e97ce6ce09127a580b9e4aabda697f180b3754f5",
+      "explanation": "equivalent-implementation",
+      "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "method": "sourceAudit",
+      "methodVersion": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "methodConfigHash": "a90b98efeb5bd40eb11bbfd04fe534a50966aad6519cabfcdf524fa6bfa0625f"
+    },
+    {
+      "key": "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3",
+      "evidenceKey": "629cb9150ca5fc59b0fd9ad1aa0d778489508e19c0b4b8ebc78756a5faa7d99f",
+      "explanation": "unreachable",
+      "jsSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "method": "sourceAudit",
+      "methodVersion": "sha256:49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "methodConfigHash": "a90b98efeb5bd40eb11bbfd04fe534a50966aad6519cabfcdf524fa6bfa0625f"
+    }
+  ],
+  "methods": {
+    "sourceAudit": "complete",
+    "mismatchQueue": "empty-input",
+    "compiledConstants": "unavailable",
+    "luaDiscovery": "unavailable",
+    "structuralPipeline": "unavailable"
+  }
+}

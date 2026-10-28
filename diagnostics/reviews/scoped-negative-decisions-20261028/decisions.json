@@ -1,0 +1,74 @@
+[
+  {
+    "key": "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3",
+    "evidenceKey": "629cb9150ca5fc59b0fd9ad1aa0d778489508e19c0b4b8ebc78756a5faa7d99f",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "4270f88ddfbcd8d5230636931c503c1ade58cc29f434bba3020b312a0693ac9f",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Only this ugly literal is unreachable: react is initialized to -1, and its sole earlier assignment immediately breaks out before the ternary. No claim about other gaze behavior.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/e72c3a4d566b312e74d89d4493468eaf807d7c8c/diagnostics/divergence-evidence/monsters/medusa-ugly-react-negative/case.json",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mhitu.c:1678",
+        "nethack-c/upstream/src/mhitu.c:1709",
+        "js/mhitu.js:2989"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/src/mhitu.c": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+        "js/mhitu.js": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9"
+      },
+      "reviewNote": "Re-reviewed against this frozen run; earlier shard fingerprints were not reused. Eight focused checks passed on the frozen source base."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/pickup.c:tip_ok:isContainer",
+    "evidenceKey": "e90aa7e1ddc00bdfe417be83e97ce6ce09127a580b9e4aabda697f180b3754f5",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "2a03f744e41404e1566f5b4e00b3403cc9f3a77f6903a2e8b0e4028b233dd829",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "Only this tip_ok helper edge expands C Is_container: the same inclusive LARGE_BOX through BAG_OF_TRICKS object-type interval, following null/coin rejection. No claim about the full tip command or other helper callers.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/469465ded43271f69940f3895b9e27e21b8acbee/diagnostics/divergence-evidence/objects/objects-tip-container-macro/README.md",
+      "sourceRefs": [
+        "nethack-c/upstream/include/obj.h:337",
+        "nethack-c/upstream/src/pickup.c:3481",
+        "js/obj.js:1225",
+        "js/pickup.js:4302"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/include/obj.h": "a4d1b994c5acd6fe04d411485d84491553d6df02dfbd7480181a15a7a05456e2",
+        "nethack-c/upstream/src/pickup.c": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+        "nethack-c/upstream/include/objclass.h": "101f92e0024e4404033845fb15171f8ed4b79374907a6a172b4eb7b026e1eb52",
+        "nethack-c/upstream/src/objects.c": "1f1cc8de922d1f41f688da28b8d88d80eca2884619283b60f38418e7b965b340",
+        "js/obj.js": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+        "js/pickup.js": "f5868e4b769de59e2488007be977924edbbcbcbbf8a1d33f5d417e0d5b1bb83f",
+        "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+        "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3"
+      },
+      "reviewNote": "Re-reviewed against this frozen run; earlier shard fingerprints were not reused. Eight focused checks passed on the frozen source base."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:load_special:ensure_way_out",
+    "evidenceKey": "b70e25b3998fd58b3fbbfdc24bfd7555bd288c68c4585d11031122e6991526f5",
+    "runId": "0d5255ecbeb6fd9acac2",
+    "reviewFingerprint": "3f82b6449b6c4e0a0fa75541c623bbc6b2309f8bb445b6d4c72579370f2eb47d",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "Only the missing finalization-call hypothesis is refuted: C load_special and JS des.finish call ensure_way_out under check_inaccessibles before map_cleanup. The focused two-pocket witness creates SDOOR only with the flag. Does not certify all escape methods, caller behavior, seeds, or Lua trace coverage.",
+      "proof": "https://github.com/vtjeng/teleport-contest/blob/9d4a05d4baf006c74c14fbdc169b5cf9532f4b04/diagnostics/divergence-evidence/levels/levels-inaccessibles-20261028/record.json",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:6467",
+        "js/mklev.js:4957"
+      ],
+      "sourceSha256": {
+        "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+        "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7"
+      },
+      "reviewNote": "Re-reviewed against this frozen run; earlier shard fingerprints were not reused. Eight focused checks passed on the frozen source base."
+    }
+  }
+]
