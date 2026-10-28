@@ -1,0 +1,30 @@
+{
+  "head": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "verifiedAt": "2026-10-28T17:50:04.208Z",
+  "trackedDiff": "",
+  "overlay": "Only this evidence case directory copied onto clean detached base. No gameplay modifications.",
+  "checks": [
+    {
+      "command": "node --test diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/focused.test.mjs",
+      "exitCode": 1,
+      "expectedExit": 1,
+      "stdout": "✖ corners and center uses Lua real division and places five pillars (6.896471ms)\n✔ slanted control retains explicit Lua floor division (1.13293ms)\nℹ tests 2\nℹ suites 0\nℹ pass 1\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 982.314057\n\n✖ failing tests:\n\ntest at diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/focused.test.mjs:19:1\n✖ corners and center uses Lua real division and places five pillars (6.896471ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  ... Skipped lines\n  \n    [\n      [\n        12,\n        4\n      ],\n      [\n  +     21,\n  +     4\n  +   ],\n  +   [\n  +     30,\n  +     4\n  +   ],\n  +   [\n        66,\n        4\n      ],\n      [\n        39,\n  ...\n      [\n  +     48,\n  +     9\n  +   ],\n  +   [\n  +     57,\n  +     9\n  +   ],\n  +   [\n        12,\n        14\n      ],\n      [\n  +     21,\n  +     14\n  +   ],\n  +   [\n  +     30,\n  +     14\n  +   ],\n  +   [\n        66,\n        14\n      ]\n    ]\n  \n      at TestContext.<anonymous> (file://<clean-checkout>/diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/focused.test.mjs:24:12)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [\n      [ 12, 4 ],  [ 21, 4 ],\n      [ 30, 4 ],  [ 66, 4 ],\n      [ 39, 9 ],  [ 48, 9 ],\n      [ 57, 9 ],  [ 12, 14 ],\n      [ 21, 14 ], [ 30, 14 ],\n      [ 66, 14 ]\n    ],\n    expected: [ [ 12, 4 ], [ 66, 4 ], [ 39, 9 ], [ 12, 14 ], [ 66, 14 ] ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+      "stderr": ""
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/replay.mjs witness",
+      "exitCode": 1,
+      "expectedExit": 1,
+      "stdout": "{\n  \"label\": \"witness\",\n  \"passed\": false,\n  \"error\": null,\n  \"lengths\": {\n    \"rng\": {\n      \"c\": 3598,\n      \"js\": 3598\n    },\n    \"screens\": {\n      \"c\": 27,\n      \"js\": 27\n    },\n    \"cursors\": {\n      \"c\": 27,\n      \"js\": 27\n    },\n    \"animFrames\": {\n      \"c\": 0,\n      \"js\": 0\n    }\n  },\n  \"rngMismatch\": null,\n  \"screenMismatch\": {\n    \"index\": 26,\n    \"location\": {\n      \"segmentIndex\": 0,\n      \"stepIndex\": 26,\n      \"key\": \"\\n\"\n    },\n    \"kind\": \"ch\",\n    \"row\": 2,\n    \"column\": 23,\n    \"cCell\": {\n      \"ch\": \"-\",\n      \"color\": 8,\n      \"attr\": 0,\n      \"decgfx\": 0\n    },\n    \"jsCell\": {\n      \"ch\": \" \",\n      \"color\": 8,\n      \"attr\": 0,\n      \"decgfx\": 0\n    }\n  },\n  \"cursorMismatch\": null,\n  \"animMismatch\": null,\n  \"segmentMismatch\": null\n}\n",
+      "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: witness: C/JS parity required\n\nfalse !== true\n\n    at file://<clean-checkout>/diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/replay.mjs:16:9 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n"
+    },
+    {
+      "command": "node diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/replay.mjs control",
+      "exitCode": 0,
+      "expectedExit": 0,
+      "stdout": "{\n  \"label\": \"control\",\n  \"passed\": true,\n  \"error\": null,\n  \"lengths\": {\n    \"rng\": {\n      \"c\": 3514,\n      \"js\": 3514\n    },\n    \"screens\": {\n      \"c\": 27,\n      \"js\": 27\n    },\n    \"cursors\": {\n      \"c\": 27,\n      \"js\": 27\n    },\n    \"animFrames\": {\n      \"c\": 0,\n      \"js\": 0\n    }\n  },\n  \"rngMismatch\": null,\n  \"screenMismatch\": null,\n  \"cursorMismatch\": null,\n  \"animMismatch\": null,\n  \"segmentMismatch\": null\n}\n",
+      "stderr": ""
+    }
+  ]
+}

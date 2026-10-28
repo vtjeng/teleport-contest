@@ -1,0 +1,1777 @@
+{
+  "scan": {
+    "range": [
+      28102901,
+      28102916
+    ],
+    "elapsedMs": 19159,
+    "counts": {
+      "matching": 14,
+      "mismatch": 2
+    },
+    "cases": [
+      {
+        "id": "eca191983ff9d22b792dda9d9ea3efc5abe2f6e4a38302a19006e2f3689e2fd9",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "2344503d0fd54ff19f7fa78c9be8c37225cf9e744733cca9546813c38e7c5cb0",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1136,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3645,
+                  "js": 3645
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2369,
+                  "line": 56,
+                  "entry": "rn2(8)=4 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "2344503d0fd54ff19f7fa78c9be8c37225cf9e744733cca9546813c38e7c5cb0",
+              "recorded.session.json": "a2e2af21d209a78b9d7c948e6acea4e919fd78a4d195f3692381eccbedb06aac",
+              "js-output.json": "02ed0408f62be8683b5de95e40fffafe3b4093f6030296d07efee114b4335745"
+            }
+          }
+        ]
+      },
+      {
+        "id": "0ff94a08fef587e88b711947279c21d27d4c55d4943722cb5a861c3293b168ba",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "6623a1ea66cff7e931e8f5f0fb2baac5daad5b17f8f7cf60978c09207af79ad2",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1128,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3606,
+                  "js": 3606
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2459,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "6623a1ea66cff7e931e8f5f0fb2baac5daad5b17f8f7cf60978c09207af79ad2",
+              "recorded.session.json": "ebaf7752345dc2f0dcc451dee3bee5fad4f41c47ebb08cc7dc5d70371facd358",
+              "js-output.json": "c7d3633a2a417053e56055f847b18c40aabebfecce84dbbd7a59721ae245727b"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fa8fa4f0befb24fe28db20010b9048b35c460757209b8e091494e4ca132837af",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "c1d664841ca559b468ab6d4971933b03a07c7a64c96de8c7ad2a0601b7a2b1d4",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1680,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3099,
+                  "js": 3099
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 1954,
+                  "line": 56,
+                  "entry": "rn2(8)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "c1d664841ca559b468ab6d4971933b03a07c7a64c96de8c7ad2a0601b7a2b1d4",
+              "recorded.session.json": "c8ee5534f98390c0a80b03d8f8d11f4fd4c4d738bbd5b6b5b6c5fcbcb9f8f61e",
+              "js-output.json": "d02275d8055eb33f353f8cea738fb20d6dfc6eda4fd77c4bb117100a13ccfd48"
+            }
+          }
+        ]
+      },
+      {
+        "id": "46768ef8eb772e023443fb9c165fc7baefa4ef0b48439eb1785f5791c9634608",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "713f069affc49d239523a122cefc6fccd49f0cf5362d3ca3e53538fbd84254d2",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1123,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3565,
+                  "js": 3565
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2307,
+                  "line": 56,
+                  "entry": "rn2(8)=5 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2308,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2309,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2310,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2311,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2312,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2313,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2314,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2315,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2316,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2317,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2318,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2319,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2320,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2321,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2322,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2323,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2324,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2325,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2326,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2327,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2328,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "713f069affc49d239523a122cefc6fccd49f0cf5362d3ca3e53538fbd84254d2",
+              "recorded.session.json": "ce776ea7f6b5cd2fb1f3de1f942132a85a61c666add61dbe97f2e6bcca39017b",
+              "js-output.json": "52a63dbfc709cb11f26d89506f8b29403531c33fdf63f76dda19f428e6337e14"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fffa075ede69480d5d9212a493700bc0c64856826ce81d90c86ca56f05d2be97",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "094b31676c41e5a30ef638231c55dab51da5e4203f468ab17984f42d6159e2ad",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1100,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 4126,
+                  "js": 4126
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2994,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "094b31676c41e5a30ef638231c55dab51da5e4203f468ab17984f42d6159e2ad",
+              "recorded.session.json": "a5680f596e23e7747cff17412aa4e29223cc94b021792f44dacb4a8fe8242232",
+              "js-output.json": "7a96b0889907996d792a4034170dec225c82214d61c9437332a9fb22b1fb57d5"
+            }
+          }
+        ]
+      },
+      {
+        "id": "7c42ca180bfd2441271393bf8e6f5fc765d61b6b8ec0f930eb2e813fb8d16d0b",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "e748eb9aeeba7a2cc8c0a8d21a9b0d12a54d90029230ac22ac058cd96423304e",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1120,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3738,
+                  "js": 3738
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2413,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "e748eb9aeeba7a2cc8c0a8d21a9b0d12a54d90029230ac22ac058cd96423304e",
+              "recorded.session.json": "b7b0aeb868bd3c281112795827b2e1bf5729aebef2d9574d5cf1bc4be5774e6c",
+              "js-output.json": "8c9163087dfebc12fb73b0f4566430e93652595b332936094c983fc06d4f49ee"
+            }
+          }
+        ]
+      },
+      {
+        "id": "00952f18a5a5549a667d91b0925ec361ec81735bd5b00e5d7512c19de68435ed",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "37cedadb30158c64cefb7b1c167e0cf6be7632fe77ba11b951f0b50a251ef68a",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1080,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3223,
+                  "js": 3223
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2295,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "37cedadb30158c64cefb7b1c167e0cf6be7632fe77ba11b951f0b50a251ef68a",
+              "recorded.session.json": "07129effa57b48fa01d7efd857518126460098ddc4c5e66808b525b3d3def881",
+              "js-output.json": "b20a3430d912565cb22e3352fb6612946b01b26936a484098656fd59e774be09"
+            }
+          }
+        ]
+      },
+      {
+        "id": "587b2e9e1320a7dd7d1b5d8c6c928939db6c2788fdc65b298d6d84b398d91a19",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "4b51155c977ecb88570d9ff0c0faa750cbe4b489826e74b2f1c6496d453f3d2c",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1123,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3515,
+                  "js": 3515
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2625,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "4b51155c977ecb88570d9ff0c0faa750cbe4b489826e74b2f1c6496d453f3d2c",
+              "recorded.session.json": "a269abe068f9abf78a58527f6bc73989a7049b93d747296f8ed69d157ed5cdd6",
+              "js-output.json": "6bd3153ff58a8a69a75f236776ad803bb3a882515fa6fd33b75366b3cfee823b"
+            }
+          }
+        ]
+      },
+      {
+        "id": "79742ad4dd7161c3a43ec5a8fa717c3798a4f8518247926ed68543a893f90148",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "f962bafe12171266c5c82828bc2d0ee297684ac7017d2ac87d1698195e0c35af",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "mismatch",
+            "elapsedMs": 1519,
+            "result": {
+              "passed": false,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3599,
+                  "js": 3599
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": {
+                "index": 26,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 26,
+                  "key": "\n"
+                },
+                "kind": "ch",
+                "row": 2,
+                "column": 23,
+                "cCell": {
+                  "ch": "-",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2497,
+                  "line": 56,
+                  "entry": "rn2(8)=6 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "aa386407b58a6ec6148ed25f2875728a0f6d50e0000521fd3bab24001ec1ab52",
+            "rawHashes": {
+              "recipe.session.json": "f962bafe12171266c5c82828bc2d0ee297684ac7017d2ac87d1698195e0c35af",
+              "recorded.session.json": "4ad28c8c237d1eb2c94d9001f61ec125a78db878c982dc5c46be37e867d55f38",
+              "js-output.json": "a712b0896815970f099b05628e9eb2e3cb5e64580a89670ef5db33215e03cfe4"
+            }
+          }
+        ]
+      },
+      {
+        "id": "ead88cef1497bcede2abdd61ca31519586bf886e99c94d5fb8d1cac722e34752",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "58dfb24d7f54809975696fb50a8acdc4f203a7165cbb18a28e0706b528a9bee0",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "mismatch",
+            "elapsedMs": 1221,
+            "result": {
+              "passed": false,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 4039,
+                  "js": 4121
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": {
+                "index": 2620,
+                "cEntry": "rnd(100)=90",
+                "cCaller": "mkobj(mkobj.c:280)",
+                "jsEntry": "rn2(79)=45",
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 26,
+                  "key": "\n"
+                }
+              },
+              "screenMismatch": {
+                "index": 26,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 26,
+                  "key": "\n"
+                },
+                "kind": "ch",
+                "row": 2,
+                "column": 8,
+                "cCell": {
+                  "ch": "-",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "cursorMismatch": {
+                "index": 26,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 26,
+                  "key": "\n"
+                },
+                "cCursor": [
+                  37,
+                  13,
+                  1
+                ],
+                "jsCursor": [
+                  46,
+                  12,
+                  1
+                ]
+              },
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2557,
+                  "line": 56,
+                  "entry": "rn2(8)=6 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "1a797641e71ee6e00133128dbe9f5c0a5e1ff14c4deb66dca1a3a367894fc187",
+            "rawHashes": {
+              "recipe.session.json": "58dfb24d7f54809975696fb50a8acdc4f203a7165cbb18a28e0706b528a9bee0",
+              "recorded.session.json": "bb5c8874a56a514e89626c3e346bcd1b29463679fdba67c7bce8150c519af260",
+              "js-output.json": "ed3fbc6f0583dcd74d4ae6fae513c90d51845ac04e3edbdd50e286e0b5bf3205"
+            }
+          }
+        ]
+      },
+      {
+        "id": "ab98874419b5f024bf8cbe48391e0f769e1826650c78f1114e2fe007cb531d87",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "d4448cc633a39bef8d8dd0e2a31c43c5a2cfd2a9935e438216896f38b5da92ee",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1085,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3224,
+                  "js": 3224
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2342,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "d4448cc633a39bef8d8dd0e2a31c43c5a2cfd2a9935e438216896f38b5da92ee",
+              "recorded.session.json": "d055f3cd5185cd52f21d53699d8b2e72c151aa65e03ea887f0f9fa050df01cbf",
+              "js-output.json": "f6e7326363389b3ccd1ae822e09d8af24ee30c79161217f1862c8f647d5d92a5"
+            }
+          }
+        ]
+      },
+      {
+        "id": "e918d1e8862c4f5f2173f4b971e6465bd491d638cbaaba44ec5485645a7c9851",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "650f95482e1d8a08e4cb88eae8cef854f0b57b3e3930805d48ca438fa2f13c3a",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1171,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 5937,
+                  "js": 5937
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 4932,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "650f95482e1d8a08e4cb88eae8cef854f0b57b3e3930805d48ca438fa2f13c3a",
+              "recorded.session.json": "b005fe217c5901a3a0d05a4bedca8a387c42012b18a12b4b5dc499301909c6cf",
+              "js-output.json": "28cf78528b1680c01f46ef07e7a5635bb638aa57ea9ca573e34fb4734867aeab"
+            }
+          }
+        ]
+      },
+      {
+        "id": "d37e03ef27c3813a2093e4b84e61aa74faa51eeb8791f2490fd8db7e8f01ede4",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "e200bfd28090296e09a036f8c919dc360c2fe80132e755e9398e83737c35f5e3",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1094,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3996,
+                  "js": 3996
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2802,
+                  "line": 56,
+                  "entry": "rn2(8)=5 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2803,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2804,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2805,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2806,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2807,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2808,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2809,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2810,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2811,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2812,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2813,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2814,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2815,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2816,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2817,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2818,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2819,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2820,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2821,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2822,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2823,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "e200bfd28090296e09a036f8c919dc360c2fe80132e755e9398e83737c35f5e3",
+              "recorded.session.json": "fc17f194f23c6cf43877c102fdab92d22ab5d3d542f161d327826553530a89bc",
+              "js-output.json": "02991609f3a0114005aaf477f82ce73ea560b9201b9242f0f681290ed76026c5"
+            }
+          }
+        ]
+      },
+      {
+        "id": "0872c8881a53750cf58996b17752abdbd84d728f0f1a69935eff39864e0a2ae8",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "ea9e29054fb58d235d797715ec5b16f590451712d04512a65f81f5389df7a8cf",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1093,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3388,
+                  "js": 3388
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2490,
+                  "line": 56,
+                  "entry": "rn2(8)=5 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2491,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2492,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2493,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2494,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2495,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2496,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2497,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2498,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2499,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2500,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2501,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2502,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2503,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2504,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2505,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2506,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2507,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2508,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2509,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2510,
+                  "line": 49,
+                  "entry": "rn2(2)=0 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                },
+                {
+                  "index": 2511,
+                  "line": 49,
+                  "entry": "rn2(2)=1 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:49)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "ea9e29054fb58d235d797715ec5b16f590451712d04512a65f81f5389df7a8cf",
+              "recorded.session.json": "02e657042d2cbfbc868138996eee772748af7c9a3e301e9676d3dd484db6b164",
+              "js-output.json": "31e66e1a7abf3c24f1de93c1d5b04273062b59d7cd007eaf9377fce83653c280"
+            }
+          }
+        ]
+      },
+      {
+        "id": "df121659ae6a2c3e79527f3e77686f71d19e84f423a5d813e969710a74bf3c82",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "d05a7adda5baa5f73edf59f72ee541f1df8aa36c35f75938adf08fa0486fa5d8",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1042,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 4013,
+                  "js": 4013
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2850,
+                  "line": 56,
+                  "entry": "rn2(8)=4 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "d05a7adda5baa5f73edf59f72ee541f1df8aa36c35f75938adf08fa0486fa5d8",
+              "recorded.session.json": "2ec7011d00d11252df5033bf91aef2a23efe3fece607e4bcc989d2b566955212",
+              "js-output.json": "1b4e9b0adb5935bc3f0a23ffa8e39f74ad9e1abfcfb7ee4412588351eb93b0f0"
+            }
+          }
+        ]
+      },
+      {
+        "id": "ecae9daaaa264aa246657035e0392ea893aefe1c41f5067afbbf80d1ef407d5f",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "95382ffcd119a70d8a5901b2e9cf0bb28a9867f3f6a5c37e01257ec9b69f5721",
+        "repeatable": false,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1093,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3394,
+                  "js": 3394
+                },
+                "screens": {
+                  "c": 55,
+                  "js": 55
+                },
+                "cursors": {
+                  "c": 55,
+                  "js": 55
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2196,
+                  "line": 56,
+                  "entry": "rn2(8)=4 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "95382ffcd119a70d8a5901b2e9cf0bb28a9867f3f6a5c37e01257ec9b69f5721",
+              "recorded.session.json": "8f36d4b97127d628d5c4ac32a84cff0ebbf1e5fe070094cf8a60815c06f021f2",
+              "js-output.json": "9bee5082446af853ab95b09dfbbb8fafcdb168811b6027c426f54f900d0d3564"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "confirmation": {
+    "elapsedMs": 4625,
+    "counts": {
+      "mismatch": 2,
+      "matching": 2
+    },
+    "cases": [
+      {
+        "id": "20599a2b0a9ca1ea537fe656d546b95417f3bddb9bd31f4a3453484c708025ad",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "38ef53e5d38a5dacc701b74e6ece782ffef6bd48957ea4088d1d9f990d3e4918",
+        "repeatable": true,
+        "reproducibleMismatch": true,
+        "attempts": [
+          {
+            "status": "mismatch",
+            "elapsedMs": 1118,
+            "result": {
+              "passed": false,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3598,
+                  "js": 3598
+                },
+                "screens": {
+                  "c": 27,
+                  "js": 27
+                },
+                "cursors": {
+                  "c": 27,
+                  "js": 27
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": {
+                "index": 26,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 26,
+                  "key": "\n"
+                },
+                "kind": "ch",
+                "row": 2,
+                "column": 23,
+                "cCell": {
+                  "ch": "-",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2497,
+                  "line": 56,
+                  "entry": "rn2(8)=6 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "aa386407b58a6ec6148ed25f2875728a0f6d50e0000521fd3bab24001ec1ab52",
+            "rawHashes": {
+              "recipe.session.json": "38ef53e5d38a5dacc701b74e6ece782ffef6bd48957ea4088d1d9f990d3e4918",
+              "recorded.session.json": "2831490a03aa54781652b79213bfa6ea73a5a2d6884f3db5ae8101a131385e07",
+              "js-output.json": "ae9872d41fb88c198e4f444247c1f2eb2f632c70d90cfc4411cd6eb6082e3218"
+            }
+          },
+          {
+            "status": "mismatch",
+            "elapsedMs": 1055,
+            "result": {
+              "passed": false,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3598,
+                  "js": 3598
+                },
+                "screens": {
+                  "c": 27,
+                  "js": 27
+                },
+                "cursors": {
+                  "c": 27,
+                  "js": 27
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": {
+                "index": 26,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 26,
+                  "key": "\n"
+                },
+                "kind": "ch",
+                "row": 2,
+                "column": 23,
+                "cCell": {
+                  "ch": "-",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2497,
+                  "line": 56,
+                  "entry": "rn2(8)=6 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "aa386407b58a6ec6148ed25f2875728a0f6d50e0000521fd3bab24001ec1ab52",
+            "rawHashes": {
+              "recipe.session.json": "38ef53e5d38a5dacc701b74e6ece782ffef6bd48957ea4088d1d9f990d3e4918",
+              "recorded.session.json": "2831490a03aa54781652b79213bfa6ea73a5a2d6884f3db5ae8101a131385e07",
+              "js-output.json": "ae9872d41fb88c198e4f444247c1f2eb2f632c70d90cfc4411cd6eb6082e3218"
+            }
+          }
+        ]
+      },
+      {
+        "id": "6ead92d3478e96bd016f3c96902401bec0858b36d6f1738c6c2fd30472d7e9cf",
+        "program": "bigrm-13.lua",
+        "sourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+        "recipeSha256": "b9e4c61aaf6f76e5b616762e6179b83ed5096f8c71b3597c96e48593d167dfd6",
+        "repeatable": true,
+        "reproducibleMismatch": false,
+        "attempts": [
+          {
+            "status": "matching",
+            "elapsedMs": 1051,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3514,
+                  "js": 3514
+                },
+                "screens": {
+                  "c": 27,
+                  "js": 27
+                },
+                "cursors": {
+                  "c": 27,
+                  "js": 27
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2625,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "b9e4c61aaf6f76e5b616762e6179b83ed5096f8c71b3597c96e48593d167dfd6",
+              "recorded.session.json": "2a33884f75cbbd07e1158ea66ac20e77391d62213a204fea90b532cbdfa90b62",
+              "js-output.json": "f28ae7e4a942f2a7bf01e66bc163baf1c8941ee5f24c5491ed9145a75549509b"
+            }
+          },
+          {
+            "status": "matching",
+            "elapsedMs": 1062,
+            "result": {
+              "passed": true,
+              "error": null,
+              "lengths": {
+                "rng": {
+                  "c": 3514,
+                  "js": 3514
+                },
+                "screens": {
+                  "c": 27,
+                  "js": 27
+                },
+                "cursors": {
+                  "c": 27,
+                  "js": 27
+                },
+                "animFrames": {
+                  "c": 0,
+                  "js": 0
+                }
+              },
+              "rngMismatch": null,
+              "screenMismatch": null,
+              "cursorMismatch": null,
+              "animMismatch": null,
+              "segmentMismatch": null
+            },
+            "witness": {
+              "route": "wizard-des",
+              "routeInputVerified": true,
+              "otherProgramObserved": false,
+              "cProgramObserved": true,
+              "witnesses": [
+                {
+                  "index": 2625,
+                  "line": 56,
+                  "entry": "rn2(8)=2 @ random src=nhlib.lua:10 parent=lua(bigrm-13.lua:56)",
+                  "jsPrefixAgrees": true
+                }
+              ],
+              "jsProgramEvidence": "source-route-and-rng-prefix",
+              "cUncoveredPercentSites": [],
+              "uncoveredPercentSites": []
+            },
+            "fingerprint": "7e24678bf5420892ba5cee5bd5d8c2b72d4289f4fe4508d845ab0bff822c4bc5",
+            "rawHashes": {
+              "recipe.session.json": "b9e4c61aaf6f76e5b616762e6179b83ed5096f8c71b3597c96e48593d167dfd6",
+              "recorded.session.json": "2a33884f75cbbd07e1158ea66ac20e77391d62213a204fea90b532cbdfa90b62",
+              "js-output.json": "f28ae7e4a942f2a7bf01e66bc163baf1c8941ee5f24c5491ed9145a75549509b"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

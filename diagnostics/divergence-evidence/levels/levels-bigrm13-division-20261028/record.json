@@ -1,0 +1,179 @@
+{
+  "caseId": "levels-bigrm13-division-20261028",
+  "shard": "levels",
+  "outcome": "confirmed divergence",
+  "readyForImplementation": true,
+  "discoveredAt": "2026-10-28T17:45:36.992Z",
+  "reviewedAt": "2026-10-28T17:51:09.731Z",
+  "jsRecordedBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "jsCleanVerifiedBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "baseChange": "Current main advanced during verification; js, frozen, recorder patches, discovery adapter and comparison scripts are unchanged between these bases. Target/control were rerun on the new clean base.",
+  "sourceLocations": [
+    "nethack-c/upstream/dat/bigrm-13.lua:51",
+    "nethack-c/upstream/dat/bigrm-13.lua:56",
+    "nethack-c/upstream/dat/bigrm-13.lua:61",
+    "js/bigrm.js:813",
+    "js/bigrm.js:818",
+    "js/mklev.js:2018"
+  ],
+  "hypothesis": "JS truncates Lua / in pillar filter 7, selecting extra grid columns.",
+  "supportedSetup": "Complete debug Valkyrie startup followed by .#wizloaddes\nbigrm-13.lua\n. Both engines load the shipped registered level. Filter 7 is selected by rn2(8)=6, visible in the C trace at bigrm-13.lua:56 with an agreeing JS prefix. No internal state injection or custom Lua runtime is needed for the recorded witness.",
+  "expectedC": "Lua / is real division. (x/3)%2 == y%2 selects grid (0,0),(6,0),(3,1),(0,2),(6,2), placing five pillars at relative coordinates (12,4),(66,4),(39,9),(12,14),(66,14).",
+  "observedJS": "Math.trunc(x/3) selects eleven pillars: six extra coordinates (21,4),(30,4),(48,9),(57,9),(21,14),(30,14). The reduced runtime witness first differs on screen at segment0 step26 (filename-submit newline), row2 column23, C dash versus JS space; all 3598 RNG entries, 27 cursors and prior screens agree.",
+  "control": "Reduced seed28102908 selects filter3 (checkerboard) and matches all 3514 RNG entries and 27 screens/cursors twice. Focused loader seed24 selects filter8, whose Lua // is intentional floor division, and the seven-coordinate control passes. Focused target seed4 selects filter7 and deterministically fails with eleven coordinates instead of five.",
+  "semanticCause": "One source translation error: real division was replaced by integer truncation. Both failing scan seeds are deduplicated to this one cause.",
+  "scope": "Shipped big-room level generation. Debug command is only the supported setup route; no command or runtime object/monster behavior is investigated. Natural-arrival seed not claimed.",
+  "search": {
+    "predeclaredSeeds": [
+      28102901,
+      28102916
+    ],
+    "cases": 16,
+    "yield": 2,
+    "matching": 14,
+    "failingSeeds": [
+      28102909,
+      28102910
+    ],
+    "unresolved": 0
+  },
+  "reproduction": {
+    "focused": "node --test diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/focused.test.mjs",
+    "focusedExpected": "exit 1: target fails, slanted control passes",
+    "targetReplay": "node diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/replay.mjs witness",
+    "targetExpected": "exit 1 at the recorded screen mismatch",
+    "controlReplay": "node diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/replay.mjs control",
+    "controlExpected": "exit 0, complete parity",
+    "optionalFresh": "source /workspace/.setup/activate.sh && node scripts/lua-discovery.mjs diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/confirm-config.json /tmp/NEW-bigrm13-confirmation",
+    "afterFix": "The focused tests and both replay commands should all exit 0. Do not alter filter8 floor division. Main owns gameplay implementation and validation."
+  },
+  "oracle": {
+    "kind": "Unmodified patched NetHack C recorder executing shipped bigrm-13.lua",
+    "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "luaSourceSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+    "installedLuaSha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868",
+    "patches": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+      "README.md": "6c29d9620b818ca61da4e133a16625ffe0be1973e19cf61dd77942017834d26c"
+    },
+    "toolchain": {
+      "node": "v24.19.0",
+      "clang": "Debian clang 19.1.7 (3+b1)"
+    },
+    "environment": {
+      "RERECORD_TZ": "America/New_York",
+      "SESSION_REPLAY_TIMEOUT_MS": "45000",
+      "NETHACK_LUA_RNGLOG_CTX": "default"
+    }
+  },
+  "fingerprints": {
+    "jsBigrm": "8ef1ba9c6e9b4facd53b7545fd327f831838b91df2c4a35c5b00d1b71c31ba74",
+    "adapter": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "comparison": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "recorderDriver": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "focused": "8c58ac80cf7aeb8a5e1920826fd519322181b4834756c0daf7db19f7366e6d80",
+    "replay": "faa0694c0e1423d9ff25760ce50acbf9fb3ca6c1ced505b4bebe718f11496b49",
+    "scanConfig": "99527d4990676d0e234181279685ab43bcf71596329d5f5ace6cdcf1be08572b",
+    "confirmationConfig": "61e97b89538c908439d3cd56f380878e021df408301c68913adb189389773f41"
+  },
+  "evidencePaths": [
+    "README.md",
+    "clean-base-verification.json",
+    "config.json",
+    "confirm-config.json",
+    "control.js-output.json.gz",
+    "control.recipe.json",
+    "control.recorded.session.json.gz",
+    "focused.test.mjs",
+    "raw-observations.json",
+    "replay.mjs",
+    "scan-7.js-output.json.gz",
+    "scan-7.recipe.session.json.gz",
+    "scan-7.recorded.session.json.gz",
+    "scan-8.js-output.json.gz",
+    "scan-8.recipe.session.json.gz",
+    "scan-8.recorded.session.json.gz",
+    "scan-9.js-output.json.gz",
+    "scan-9.recipe.session.json.gz",
+    "scan-9.recorded.session.json.gz",
+    "witness.js-output.json.gz",
+    "witness.recipe.json",
+    "witness.recorded.session.json.gz"
+  ],
+  "nextExperiment": null,
+  "remainingLeads": "Unknown; prior diagonal-line cause remains separately deferred in PRs #6/#10.",
+  "publication": "Evidence only. Deliberately failing checks reside outside scripts/ and default CI. No gameplay edits, CI dispatch or Main writes.",
+  "scannerBinding": {
+    "status": "unbound",
+    "origin": "Manual Lua/JS source comparison; no discovery-hub canonical lead was used.",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null,
+    "adapter": "lua-level-generation/v1",
+    "note": "Adapter case IDs and raw attempt fingerprints are retained in raw-observations.json; these are not invented hub identities or exact negative-filter decisions.",
+    "immutableScanSummarySha256": "bfccd027cbf9ab58fd2c694a59b3b6586076a540c34b7458baadb31c83d83161",
+    "immutableConfirmationSummarySha256": "35121b4e8f98d4f24f8b6ba3634879fcda1751020e56e5dd38f38339c188fa7e"
+  },
+  "captureIntegrity": {
+    "control.js-output.json.gz": {
+      "uncompressedSha256": "f28ae7e4a942f2a7bf01e66bc163baf1c8941ee5f24c5491ed9145a75549509b",
+      "compressedSha256": "d54f63bd118b5b63c436161797e043ee889e1a3cd0d4718c6862a62c9016793d"
+    },
+    "control.recorded.session.json.gz": {
+      "uncompressedSha256": "2a33884f75cbbd07e1158ea66ac20e77391d62213a204fea90b532cbdfa90b62",
+      "compressedSha256": "fa4a1f2d84eccb3bda8f0a67f04c39ae3b919ed5025e03dcc3e98950f9cd2a09"
+    },
+    "scan-7.js-output.json.gz": {
+      "uncompressedSha256": "6bd3153ff58a8a69a75f236776ad803bb3a882515fa6fd33b75366b3cfee823b",
+      "compressedSha256": "0a9d6f0228293ededd573e80a87e8a020cd17e9402a2fedab9f71a59ef420269"
+    },
+    "scan-7.recipe.session.json.gz": {
+      "uncompressedSha256": "4b51155c977ecb88570d9ff0c0faa750cbe4b489826e74b2f1c6496d453f3d2c",
+      "compressedSha256": "00332972a8b018963665cb0ecdc9f8520a55df2c87deb50a872d032645741569"
+    },
+    "scan-7.recorded.session.json.gz": {
+      "uncompressedSha256": "a269abe068f9abf78a58527f6bc73989a7049b93d747296f8ed69d157ed5cdd6",
+      "compressedSha256": "5dbc4d252ec7fe8b20c6791810112cf81e092f3848be56ff8f20548f7703d84a"
+    },
+    "scan-8.js-output.json.gz": {
+      "uncompressedSha256": "a712b0896815970f099b05628e9eb2e3cb5e64580a89670ef5db33215e03cfe4",
+      "compressedSha256": "4ac31470b0550660e0fb9b47c0efbb2cb1340479ff9d16824b2afb63b3805b31"
+    },
+    "scan-8.recipe.session.json.gz": {
+      "uncompressedSha256": "f962bafe12171266c5c82828bc2d0ee297684ac7017d2ac87d1698195e0c35af",
+      "compressedSha256": "1cc553e70e49577b17de2ab5e579a14c1f3cce4fd277103e038a320bb6d95da1"
+    },
+    "scan-8.recorded.session.json.gz": {
+      "uncompressedSha256": "4ad28c8c237d1eb2c94d9001f61ec125a78db878c982dc5c46be37e867d55f38",
+      "compressedSha256": "3f6ada59d7716cbc2cf5152d915b7eef91e28b768a9817e3b9fbb20b4f5a1553"
+    },
+    "scan-9.js-output.json.gz": {
+      "uncompressedSha256": "ed3fbc6f0583dcd74d4ae6fae513c90d51845ac04e3edbdd50e286e0b5bf3205",
+      "compressedSha256": "297cf06e49ab73390955168a9948c1dc1688a589237043a863eb37646a40d424"
+    },
+    "scan-9.recipe.session.json.gz": {
+      "uncompressedSha256": "58dfb24d7f54809975696fb50a8acdc4f203a7165cbb18a28e0706b528a9bee0",
+      "compressedSha256": "c93ea7761c29e8ab53168da420df9a5a530bc7c10f55e716f07880162b967c5b"
+    },
+    "scan-9.recorded.session.json.gz": {
+      "uncompressedSha256": "bb5c8874a56a514e89626c3e346bcd1b29463679fdba67c7bce8150c519af260",
+      "compressedSha256": "dc7f58211fa69ea97130209727e51ab231f928f3cb77ae4da0ce483c05ae4bd8"
+    },
+    "witness.js-output.json.gz": {
+      "uncompressedSha256": "ae9872d41fb88c198e4f444247c1f2eb2f632c70d90cfc4411cd6eb6082e3218",
+      "compressedSha256": "541e61dd2d8e9a75c3b1fbc325df53465d3c31ed801257b5ba852652000f9b79"
+    },
+    "witness.recorded.session.json.gz": {
+      "uncompressedSha256": "2831490a03aa54781652b79213bfa6ea73a5a2d6884f3db5ae8101a131385e07",
+      "compressedSha256": "cec0627040a30d710c260af9abcba34f10da15ddf873e1d9f8f808f3333509d2"
+    }
+  }
+}

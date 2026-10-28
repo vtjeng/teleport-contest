@@ -1,0 +1,15 @@
+{
+  "maxCases": 2,
+  "repeats": 2,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "bigrm-13.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/witness.recipe.json"
+    },
+    {
+      "program": "bigrm-13.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-bigrm13-division-20261028/control.recipe.json"
+    }
+  ]
+}
