@@ -1,0 +1,15 @@
+{
+  "maxCases": 2,
+  "repeats": 1,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "Bar-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-randline-integer-20261028/28103001.recipe.json"
+    },
+    {
+      "program": "Bar-strt.lua",
+      "recipe": "diagnostics/divergence-evidence/levels/levels-randline-integer-20261028/28103002.recipe.json"
+    }
+  ]
+}
