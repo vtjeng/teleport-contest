@@ -1,0 +1,13 @@
+{"name":null,"choice":{"kind":"unicorn horn","object":null},"messages":["Velkommen Probe, welcome to NetHack!  You are a neutral human Valkyrie.","The tip of the white unicorn's horn glows!","The white unicorn seems steadier now."]}
+{"name":"Ares","choice":{"kind":"unicorn horn","object":null},"messages":["Velkommen Probe, welcome to NetHack!  You are a neutral human Valkyrie.","The tip of Ares' horn glows!  Ares seems steadier now."]}
+✔ oracle format is the pinned C natural-horn format (1.7817ms)
+✔ natural horn message: unnamed control (200.777119ms)
+✔ natural horn message: Ares (43.152746ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1035.324398

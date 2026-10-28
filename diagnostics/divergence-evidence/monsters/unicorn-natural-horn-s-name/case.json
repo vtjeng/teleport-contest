@@ -1,0 +1,79 @@
+{
+  "shard": "monsters",
+  "jsBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:33:32.452Z",
+  "reviewedAt": "2026-10-28T17:37:15.137Z",
+  "discovery": {
+    "runId": "fe5349519bcde2966ea8",
+    "startedAt": "2026-10-28T17:29:50.177Z",
+    "completedAt": "2026-10-28T17:33:32.452Z",
+    "toolHashes": {
+      "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+      "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+      "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+    },
+    "methodConfigHashes": {
+      "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+      "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+      "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+      "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+      "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+    },
+    "methods": {
+      "sourceAudit": "complete",
+      "mismatchQueue": "empty-input",
+      "compiledConstants": "unavailable",
+      "luaDiscovery": "unavailable",
+      "structuralPipeline": "unavailable"
+    }
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "clang": "Debian clang version 19.1.7 (3+b1)",
+    "configuration": "Initialized JS API fixtures; ordinary visible awake non-hallucinating hero. No gameplay files edited. No whole C recording."
+  },
+  "caseId": "unicorn-natural-horn-s-name",
+  "outcome": "confirmed divergence",
+  "confirmationScope": "Focused message-format boundary: compiled C printf expression plus initialized JS find_defensive/use_defensive execution; NOT a complete recorded C game.",
+  "lead": "source-audit:message:src/muse.c:use_defensive:8e2295c18d2f9e4f",
+  "sourceLocations": [
+    "nethack-c/upstream/src/muse.c:475-486",
+    "nethack-c/upstream/src/muse.c:820-839",
+    "nethack-c/upstream/src/do_name.c:956-1003",
+    "nethack-c/upstream/src/uhitm.c:1911-1917",
+    "js/muse.js:775-798",
+    "js/muse.js:1828-1841"
+  ],
+  "hypothesis": "The missing literal might be equivalent possessive formatting; a name ending in s distinguishes literal apostrophe-s from s_suffix.",
+  "supportedSetup": "Initialized game; visible adjacent live white unicorn with confusion, canonical species, no inventory horn. christen_monst names it Ares. find_defensive itself selects natural horn. Naming is supported by do_mgivenname; confusion can be applied by a successful confusing melee hit (uhitm.c). No malformed monster catalog entry or forced defensive selection.",
+  "expectedC": "The tip of Ares's horn glows!",
+  "observedJS": "The tip of Ares' horn glows!",
+  "control": "Unnamed unicorn emits The tip of the white unicorn's horn glows! on both paths. Both JS cases select natural horn and clear confusion.",
+  "reproduction": "source /workspace/.setup/activate.sh; clang diagnostics/divergence-evidence/monsters/unicorn-natural-horn-s-name/format-oracle.c -o /tmp/monsters-horn-format-oracle; /tmp/monsters-horn-format-oracle; node --test diagnostics/divergence-evidence/monsters/unicorn-natural-horn-s-name/probe.test.mjs; EXPECT_C=1 node --test diagnostics/divergence-evidence/monsters/unicorn-natural-horn-s-name/probe.test.mjs",
+  "scope": "Only the natural-horn message with a resolved name ending in s is demonstrated. Standard unnamed control is an explained negative subcase, not a separate semantic cause. Do not globally suppress the source literal; s_suffix is not equivalent to C literal apostrophe-s. No claim about item horn use or all possessive messages.",
+  "evidencePaths": [
+    "probe.test.mjs",
+    "format-oracle.c",
+    "observed-js.txt",
+    "observed-c-format.txt",
+    "candidate-result.txt"
+  ],
+  "nextExperiment": "Optional full public-input C recorder witness: name a unicorn Ares, apply confusion, observe its next defensive action. The focused formatting difference does not establish a full replay trace.",
+  "leadEvidenceKey": "610179b757685d12b8f255b22bc51e4022d7b021a040439f503b2ea551d47149",
+  "fixtureSha256": {
+    "probe.test.mjs": "4ab1201d1b8d79adbf61e7ab34bd584ba9020067426f3ff97a0334736c4f4a34",
+    "format-oracle.c": "083db405f9799cfa5001e2a47fef0a3217e59ad86cb2c0cb248c9e119103d801",
+    "observed-js.txt": "0e905f265fc3105ebf474c40e6cde72c25f9180f87a48960756680e540b6ffbf",
+    "observed-c-format.txt": "aa20424dabb36304051b31654df7edf1861b80bd52ec9eb51536f7ed823a4b68",
+    "candidate-result.txt": "d982f51af084559452dd66347ea056601205d1d1ac596750c1c123745b9e8cab"
+  },
+  "logNormalization": "Candidate log removes workspace absolute prefix and trailing spaces; assertion and observations preserved.",
+  "latestMainReview": {
+    "sha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+    "reviewedAt": "2026-10-28T17:38:21.487Z",
+    "result": "Only delayed boot-removal level-change work advanced main; no changes to muse.js, mhitu.js, do_name.js or C source. Fixtures measured on jsBase."
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "shard": "monsters",
+  "jsBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:33:32.452Z",
+  "reviewedAt": "2026-10-28T17:37:15.137Z",
+  "discovery": {
+    "runId": "fe5349519bcde2966ea8",
+    "startedAt": "2026-10-28T17:29:50.177Z",
+    "completedAt": "2026-10-28T17:33:32.452Z",
+    "toolHashes": {
+      "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+      "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+      "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+    },
+    "methodConfigHashes": {
+      "sourceAudit": "1401493ea91dc83aa87df3584638c94e3934fb7428556593474b26a9060c0b86",
+      "mismatchQueue": "c9ef3818cc53b5b73f0511c8e8eac87da67250a7259807ee68b9e4fc2ae55026",
+      "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+      "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+      "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+    },
+    "methods": {
+      "sourceAudit": "complete",
+      "mismatchQueue": "empty-input",
+      "compiledConstants": "unavailable",
+      "luaDiscovery": "unavailable",
+      "structuralPipeline": "unavailable"
+    }
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "clang": "Debian clang version 19.1.7 (3+b1)",
+    "configuration": "Initialized JS API fixtures; ordinary visible awake non-hallucinating hero. No gameplay files edited. No whole C recording."
+  },
+  "caseId": "medusa-ugly-react-negative",
+  "outcome": "explained negative",
+  "lead": "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3",
+  "sourceLocations": [
+    "nethack-c/upstream/src/mhitu.c:1678-1719",
+    "js/mhitu.js:2989-3037",
+    "nethack-c/upstream/src/zap.c:3150-3197"
+  ],
+  "hypothesis": "Absent ugly literal means cancelled Medusa gaze feedback is missing.",
+  "supportedSetup": "Initialized runSegment game and canonical Medusa species, placed adjacent and asserted visible; cancellation bit corresponds to cancel_monst, blindness is a nearby control. API fixture isolates gazemu, not a recorded encounter.",
+  "expectedC": "Medusa gazes ineffectually. The ugly alternative requires !react, but react is -1. The sole earlier assignment is immediately followed by break.",
+  "observedJS": "Cancelled Medusa and blind uncancelled Medusa both emit Medusa gazes ineffectually., with zero RNG draws.",
+  "control": "Blind uncancelled Medusa; both fixtures assert visibility rather than accepting a silent path.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/medusa-ugly-react-negative/probe.test.mjs",
+  "scope": "Source proof only for this exact literal and pinned gazemu prefix. The test pins all react assignments before the ternary, including the early break. Do not suppress other gazemu warnings or infer overall gaze equivalence.",
+  "evidencePaths": [
+    "probe.test.mjs",
+    "observed.txt"
+  ],
+  "nextExperiment": null,
+  "leadEvidenceKey": "59d83c578c52beac0f3fef3e8ada1f21831c76fcb3757283ab4139c0b2d71ec1",
+  "fixtureSha256": {
+    "probe.test.mjs": "9229ad012912b64f146d7aff04370d6cca41a0f7567f84e0d9b6f71fe01d71cf",
+    "observed.txt": "3ca94925a1c406f4b9d2887edc9c61c24483b40be1e38391fd70daa1d564bb52"
+  },
+  "latestMainReview": {
+    "sha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+    "reviewedAt": "2026-10-28T17:38:21.483Z",
+    "result": "Only delayed boot-removal level-change work advanced main; no changes to muse.js, mhitu.js, do_name.js or C source. Fixtures measured on jsBase."
+  }
+}
