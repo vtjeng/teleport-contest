@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T20:57:25Z",
+  "asOf": "2026-10-28T21:32:38Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25221,6 +25221,298 @@
               "completedAt": "2026-10-28T20:57:25Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40767499957"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "large-status-threshold-order",
+      "kind": "parity-repair",
+      "title": "Compare long status highlight thresholds numerically",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "commands PR #78",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/botl.c:get_hilite",
+          "js/display.js:_selectStatusHilite"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/commands/large-status-threshold-order/case.json"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/commands/large-status-threshold-order/evidence-check.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+          "committedAt": "2026-10-28T21:18:52Z",
+          "sourceCommit": "49626a5673d361969361e57768c75e70dbab1104",
+          "sourceCommittedAt": "2026-10-28T21:00:51Z",
+          "runs": [
+            {
+              "id": 40770986599,
+              "name": "Checkpoint",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/status-threshold-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:19:30Z",
+              "completedAt": "2026-10-28T21:29:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40770986599"
+            },
+            {
+              "id": 40772526345,
+              "name": "Lint",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:30:36Z",
+              "completedAt": "2026-10-28T21:31:52Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526345"
+            },
+            {
+              "id": 40772526559,
+              "name": "Dashboard",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:30:36Z",
+              "completedAt": "2026-10-28T21:32:38Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526559"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "explicit-none-map-alignment",
+      "kind": "parity-repair",
+      "title": "Treat explicit none map alignment as absent",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "levels PR #74",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:lspo_map",
+          "js/mklev.js:des.map"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-map-none-20261028/case.json"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/levels/levels-map-none-20261028/probe.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+          "committedAt": "2026-10-28T21:18:52Z",
+          "sourceCommit": "21271522df5e16d899498ab515c515eab0a2d753",
+          "sourceCommittedAt": "2026-10-28T21:01:57Z",
+          "runs": [
+            {
+              "id": 40770986599,
+              "name": "Checkpoint",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/status-threshold-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:19:30Z",
+              "completedAt": "2026-10-28T21:29:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40770986599"
+            },
+            {
+              "id": 40772526345,
+              "name": "Lint",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:30:36Z",
+              "completedAt": "2026-10-28T21:31:52Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526345"
+            },
+            {
+              "id": 40772526559,
+              "name": "Dashboard",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:30:36Z",
+              "completedAt": "2026-10-28T21:32:38Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526559"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "map-overwrite-wall-properties",
+      "kind": "parity-repair",
+      "title": "Clear wall properties when map cells overwrite terrain",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "levels PR #79",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:sel_set_ter",
+          "js/mklev.js:set_themeroom_map_terrain"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-map-wall-reset-20261028/case.json"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/levels/levels-map-wall-reset-20261028/probe.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+          "committedAt": "2026-10-28T21:18:52Z",
+          "sourceCommit": "79baae3a96ec8e17e528a24997f561eaf946a9a5",
+          "sourceCommittedAt": "2026-10-28T21:02:52Z",
+          "runs": [
+            {
+              "id": 40770986599,
+              "name": "Checkpoint",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/status-threshold-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:19:30Z",
+              "completedAt": "2026-10-28T21:29:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40770986599"
+            },
+            {
+              "id": 40772526345,
+              "name": "Lint",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:30:36Z",
+              "completedAt": "2026-10-28T21:31:52Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526345"
+            },
+            {
+              "id": 40772526559,
+              "name": "Dashboard",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:30:36Z",
+              "completedAt": "2026-10-28T21:32:38Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526559"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "special-map-ice-origin",
+      "kind": "parity-repair",
+      "title": "Record ice origin when special maps paint ice",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": "levels PR #77",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:sel_set_ter",
+          "js/mklev.js:set_themeroom_map_terrain"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-map-ice-20261028/case.json"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/levels/levels-map-ice-20261028/probe.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+          "committedAt": "2026-10-28T21:18:52Z",
+          "sourceCommit": "05cb34c25a489e162cd8fa8f55b96b9ddbbb7f00",
+          "sourceCommittedAt": "2026-10-28T21:03:57Z",
+          "runs": [
+            {
+              "id": 40770986599,
+              "name": "Checkpoint",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/status-threshold-batch-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:19:30Z",
+              "completedAt": "2026-10-28T21:29:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40770986599"
+            },
+            {
+              "id": 40772526345,
+              "name": "Lint",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:30:36Z",
+              "completedAt": "2026-10-28T21:31:52Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526345"
+            },
+            {
+              "id": 40772526559,
+              "name": "Dashboard",
+              "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:30:36Z",
+              "completedAt": "2026-10-28T21:32:38Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526559"
             }
           ]
         }
