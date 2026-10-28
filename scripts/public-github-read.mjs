@@ -73,11 +73,35 @@ export async function requestPublicJson(path, {fetchFn = globalThis.fetch, timeo
     } finally {clearTimeout(timer); controller.abort();}
 }
 
-// Keep the existing synchronous importer interface. The child receives an empty
-// environment: invalid GH_TOKEN/GITHUB_TOKEN and Node credential hooks cannot leak.
-export function publicGithubRead(path, {execute = execFileSync} = {}) {
+// Only platform networking/trust configuration crosses into the worker.
+// GitHub tokens, NODE_OPTIONS hooks and TLS-disable settings are never forwarded.
+export function publicReadEnvironment(env = process.env) {
+    if (env.NODE_TLS_REJECT_UNAUTHORIZED === '0')
+        throw new Error('public read: TLS verification must remain enabled');
+    const child = {};
+    for (const key of ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy',
+        'NODE_EXTRA_CA_CERTS', 'SSL_CERT_FILE', 'SSL_CERT_DIR', 'NODE_USE_SYSTEM_CA']) {
+        if (env[key] !== undefined) child[key] = env[key];
+    }
+    // Enable Node's documented handling of the already configured proxy. Keep
+    // NO_PROXY intact; neither choose another proxy nor route around this one.
+    if (child.HTTP_PROXY || child.HTTPS_PROXY || child.http_proxy || child.https_proxy)
+        child.NODE_USE_ENV_PROXY = '1';
+    return child;
+}
+
+// Keep the existing synchronous importer interface. CA variables must reach the
+// child at startup; Node does not reload NODE_EXTRA_CA_CERTS during execution.
+export function publicGithubRead(path, {execute = execFileSync, env = process.env} = {}) {
     publicReadUrl(path);
-    return execute(process.execPath, [script, path], {env: {}, encoding: 'utf8',
+    const child = publicReadEnvironment(env);
+    const [major, minor] = process.versions.node.split('.').map(Number);
+    if (child.NODE_USE_ENV_PROXY && !(major >= 24 || major === 22 && minor >= 21))
+        throw new Error('public read: configured proxy requires Node 22.21+ or 24+');
+    // Retain only supported trust-selection flags, never arbitrary Node hooks.
+    const trustFlags = (env.NODE_OPTIONS || '').split(/\s+/u)
+        .filter(flag => ['--use-system-ca', '--use-openssl-ca', '--use-bundled-ca'].includes(flag));
+    return execute(process.execPath, [...trustFlags, script, path], {env: child, encoding: 'utf8',
         timeout: TIMEOUT_MS + 5000, maxBuffer: MAX_BYTES + 1024});
 }
 
