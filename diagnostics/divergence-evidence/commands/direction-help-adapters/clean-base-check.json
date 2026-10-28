@@ -1,0 +1,8 @@
+{
+  "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+  "sourceVerifiedBeforeAndAfter": true,
+  "cSourceFromPinnedGitlink": true,
+  "status": 0,
+  "stdout": "✔ production help character expressions match actual C over all 256 bytes (2.997232ms)\n✔ literal-zero help block contributes no compiled pline edge (1.481237ms)\n✔ exact import filters only supplied decisions and stale configuration filters none (13.678737ms)\n✔ ordinary direction help: invalid (757.847777ms)\n✔ ordinary direction help: requested (652.553477ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1564.163934\n",
+  "stderr": ""
+}

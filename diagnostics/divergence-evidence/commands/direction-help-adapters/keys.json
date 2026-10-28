@@ -1,0 +1,5 @@
+[
+  "source-audit:edge-c-only:src/cmd.c:help_dir:pline",
+  "source-audit:edge-c-only:src/cmd.c:help_dir:letter",
+  "source-audit:edge-c-only:src/cmd.c:help_dir:highc"
+]

@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+  "originalRunSha256": "1349082cfaa9d24b2f2e76adef76bbc2d75c10e511e4a0bce7eae7d64c571dde",
+  "originalLeadCount": 12537,
+  "projectionSha256": "9a83630053d23c75661ee7cb5be05f8305f27fca13d95e62e56de4aeba0905d8",
+  "runId": "7e93da55968668bc05fc",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/cmd.c:help_dir:highc",
+    "source-audit:edge-c-only:src/cmd.c:help_dir:letter",
+    "source-audit:edge-c-only:src/cmd.c:help_dir:pline"
+  ],
+  "decisionsSha256": "1eb032b21a2a1b20c4ec2852c99d6f5e7b0d6247469b24599cf40746946ee53c",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 3,
+    "decisionsChecked": 3,
+    "before": {
+      "active": 3,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 3,
+      "excluded": 0
+    }
+  }
+}

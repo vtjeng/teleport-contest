@@ -1,0 +1,15 @@
+{
+  "originalComparison": "verified",
+  "selected": 3,
+  "decisionsChecked": 3,
+  "before": {
+    "active": 3,
+    "filtered": 0,
+    "excluded": 0
+  },
+  "after": {
+    "active": 0,
+    "filtered": 3,
+    "excluded": 0
+  }
+}
