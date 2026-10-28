@@ -1,0 +1,12 @@
+{"returningTypes":["AKLYS"],"artifactIntersection":[],"mjollnirBaseReturns":false}
+✔ only aklys can enter the pinned C monster return path; no aklys artifact exists (3.272671ms)
+{"draws":["rn2(5)","rn2(100)","rn2(2)","rnd(3)"],"hpBefore":30,"hpAfter":28,"artifact":0,"messages":["You hear something hit it with a thud!"]}
+✔ ordinary returning aklys fumble at hp=30 (190.415318ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 908.297057

@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {readFileSync} from 'node:fs';
+import {autoreturn_weapon} from '../../../../js/weapon.js';
+import {createArtifactTable} from '../../../../js/artifacts.js';
+import {AKLYS, WAR_HAMMER} from '../../../../js/objects.js';
+const read=p=>readFileSync(new URL('../../../../nethack-c/upstream/'+p,import.meta.url),'utf8');
+test('only aklys can enter the pinned C monster return path; no aklys artifact exists',()=>{
+ const source=read('src/weapon.c');
+ const table=source.slice(source.indexOf('throw_and_return_weapon arwep[] = {'),source.indexOf('\n};',source.indexOf('throw_and_return_weapon arwep[] = {'))).replace(/\/\*[\s\S]*?\*\//g,'');
+ assert.deepEqual([...table.matchAll(/\{\s*(\w+)\s*,/g)].map(x=>x[1]),['AKLYS']);
+ assert.equal(/\bAKLYS\b/.test(read('include/artilist.h')),false);
+ const throwing=read('src/mthrowu.c');
+ assert.equal([...throwing.matchAll(/return_from_mtoss\(mon, singleobj, tethered_weapon\)/g)].length,1);
+ assert.ok(throwing.includes('if (arw && return_flightpath)\n        return_from_mtoss(mon, singleobj, tethered_weapon);'));
+ assert.ok(throwing.includes('if (otmp->oartifact)\n                (void) artifact_hit'));
+ const artifacts=createArtifactTable().filter(a=>a.otyp);
+ assert.deepEqual(artifacts.filter(a=>autoreturn_weapon({otyp:a.otyp})),[]);
+ assert.equal(autoreturn_weapon({otyp:AKLYS}).tethered,1);
+ assert.equal(autoreturn_weapon({otyp:WAR_HAMMER}),null);
+ console.log(JSON.stringify({returningTypes:['AKLYS'],artifactIntersection:[],mjollnirBaseReturns:false}));
+});

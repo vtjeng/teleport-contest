@@ -1,0 +1,57 @@
+{
+  "shard": "monsters",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "reviewedAt": "2026-10-28T17:49:33.458Z",
+  "discoveredAt": "2026-10-28T17:42:34.952Z",
+  "tools": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7",
+    "discoveryRun": "601667573d5ca5a23adf",
+    "toolHashes": {
+      "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+      "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+      "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+    },
+    "methodConfigHashes": {
+      "sourceAudit": "4b12f114c03356c62193bab858e963acd1b5c48b7f377c2a819bbbe38b922e4d",
+      "mismatchQueue": "736a53ee953197dd0395cddef8fcf1fa50279c2c941bb7afbfb779c4d700d148",
+      "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+      "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+      "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+    }
+  },
+  "cleanBaseVerification": {
+    "base": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+    "checkoutInitiallyClean": true,
+    "onlyEvidenceFilesAdded": true,
+    "checkedAt": "2026-10-28T17:49:33.458Z"
+  },
+  "caseId": "vrock-gas-delegation-negative",
+  "outcome": "explained negative",
+  "lead": "source-audit:edge-c-only:src/monmove.c:monflee:create_gas_cloud",
+  "hypothesis": "Missing direct edge means fleeing Vrocks omit their gas cloud.",
+  "sourceLocations": [
+    "src/monmove.c:520-523",
+    "js/monmove.js:2099-2104,2158-2166",
+    "js/region.js:create_gas_cloud"
+  ],
+  "supportedSetup": "Initialized live Vrock on an open room map. monflee is called with normal production region owner; no replacement createGasCloud operation. Cooldown 0 and 1 differ only in readiness.",
+  "expectedC": "Ready Vrock sets mspec_used to 75+rn2(25), creates gas size 5/damage 8, then enters fleeing state. Existing cooldown suppresses cloud and cooldown draw.",
+  "observedJS": "Default delegate creates one damage-8 five-cell region, mspec_used=75, mfleetim=5. Draw bounds [25,4,3,2,1,2,4,3,2,1,3]. Cooldown=1 control creates no region and consumes no draws.",
+  "control": "mspec_used=1 stays 1 with zero cloud creation and zero draws.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/probe.test.mjs",
+  "scope": "The local property-call/closure delegation hides the direct edge from the scanner. Presence of this owner does not prove complete cloud parity: sibling vrock-gas-call-prompt-vision confirms a downstream prompt/display divergence. Independent C recording in that sibling proves public-input reachability and prefix parity.",
+  "evidencePaths": [
+    "probe.test.mjs",
+    "observed.txt"
+  ],
+  "nextExperiment": null,
+  "leadEvidenceKey": "7cfad65dd668303fe49aa5047709d2ff79a686abb50fd62bdcbef92233b25538",
+  "fixtureSha256": {
+    "probe.test.mjs": "431af2afc59f660b99fa04db3ef28d4933ed79c2a413cbd04aef769aad15db09",
+    "observed.txt": "2be248278c326a0d577e349d9df43abfaa5f7c6724c23a87afd11e43fbc4451a"
+  }
+}

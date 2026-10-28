@@ -1,0 +1,62 @@
+{
+  "shard": "monsters",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "reviewedAt": "2026-10-28T17:49:33.458Z",
+  "discoveredAt": "2026-10-28T17:42:34.952Z",
+  "tools": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7",
+    "discoveryRun": "601667573d5ca5a23adf",
+    "toolHashes": {
+      "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+      "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+      "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+    },
+    "methodConfigHashes": {
+      "sourceAudit": "4b12f114c03356c62193bab858e963acd1b5c48b7f377c2a819bbbe38b922e4d",
+      "mismatchQueue": "736a53ee953197dd0395cddef8fcf1fa50279c2c941bb7afbfb779c4d700d148",
+      "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+      "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+      "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+    }
+  },
+  "cleanBaseVerification": {
+    "base": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+    "checkoutInitiallyClean": true,
+    "onlyEvidenceFilesAdded": true,
+    "checkedAt": "2026-10-28T17:49:33.458Z"
+  },
+  "caseId": "returning-artifact-catalog-negative",
+  "outcome": "explained negative",
+  "lead": "source-audit:edge-stub:src/mthrowu.c:return_from_mtoss:artifact_hit",
+  "hypothesis": "The omitted artifact_hit hook causes damage divergence on monster returning-weapon fumbles.",
+  "sourceLocations": [
+    "src/mthrowu.c:m_throw:584-587,829-830",
+    "src/mthrowu.c:return_from_mtoss:935-937",
+    "src/weapon.c:arwep:514-516",
+    "include/artilist.h",
+    "js/weapon.js:1979-1992",
+    "js/mthrowu.js:1390-1393"
+  ],
+  "supportedSetup": "Ordinary wielded aklys carried by a living confused uruk-hai; initialized room and floor map, source-valid throw direction, four forced legal RNG outcomes. Enter through m_throw, not direct artifact_hit injection. Fixture adapted from existing returning-aklys-lethal-cleanup test with independent seed and nonlethal HP.",
+  "expectedC": "Only AKLYS occurs in the monster autoreturn table; no AKLYS artifact exists in the pinned catalog. Thus the artifact_hit condition cannot hold for supported catalog objects on this call path. Ordinary return fumble deals two HP with the chosen draws.",
+  "observedJS": "Catalog intersection empty. Aklys fumble consumes rn2(5), rn2(100), rn2(2), rnd(3), reduces HP 30 to 28, puts weapon on floor, and never records artifact_hit as unported.",
+  "control": "Ordinary aklys exercises the throw and fumble path; WAR_HAMMER is rejected by autoreturn_weapon despite the Mjollnir comment in mthrowu.js.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/returning-artifact-catalog-negative/*.test.mjs",
+  "scope": "A catalog/caller proof at these revisions, not blanket suppression of artifact_hit gaps. Invalidate when arwep, artifact catalog or the caller gate changes. A manually assigned artifact flag on an aklys is not a valid counterexample. No C gameplay recording claimed.",
+  "evidencePaths": [
+    "catalog.test.mjs",
+    "throw-control.test.mjs",
+    "observed.txt"
+  ],
+  "nextExperiment": null,
+  "leadEvidenceKey": "c2416be1314fdf481359af4cb2aeafc2da0104b4b2dfb81264d46a40c78a3e5d",
+  "fixtureSha256": {
+    "catalog.test.mjs": "883fed0465ecd952c4ea8414a32e80d63b66e820451aed8c0df8144926b74787",
+    "throw-control.test.mjs": "e818c21dfd4ecf8b5d6f6c3e19d88021ea5c44a246d1080e689b3bd405f32a4e",
+    "observed.txt": "6642c4a53924bd3d834406cfa427f7dc0bc86d4bfe2b02183d90f5bc7ed37aba"
+  }
+}
