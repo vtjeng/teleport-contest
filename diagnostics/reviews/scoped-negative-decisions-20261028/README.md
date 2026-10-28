@@ -1,6 +1,6 @@
 # Exact scoped negative decisions, 2026-10-28
 
-Three manually reviewed decisions import successfully through the existing hub.
+Seven manually reviewed decisions import successfully through the existing hub.
 This is a frozen-run review artifact, not a general suppression rule or an
 automatic shard-record converter. No gameplay or production tooling changes.
 
@@ -18,7 +18,7 @@ source hashes and scope are also embedded in each decision.
 ## Measured effect on identical frozen inputs
 
 - 12,537 active, zero filtered before classification.
-- 12,534 active, three filtered afterward; all 12,537 raw leads retained.
+- 12,530 active, seven filtered afterward; all 12,537 raw leads retained.
 - No additional detector rules, no prior reviewed-negative suppressions.
 - Existing literal inactive-C filtering remains part of the original detector;
   PR #5's incremental rules are not in this base or measurement.
@@ -36,6 +36,35 @@ Successful bindings:
    — PR #10's missing-call hypothesis: the call lives in JS `des.finish`, with
    the same flag and ordering plus focused effect/control. Other escape-method
    leads stay active; three matching Minetown streams do not certify Lua coverage.
+
+4. `source-audit:edge-c-only:src/do_wear.c:canwearobj:silly_thing`
+   — PR #11's guarded armor-category fallback. Non-armor direct calls remain
+   outside the proof; changed callers, catalogs or invariants require review.
+5. `source-audit:edge-c-only:src/read.c:seffects:seffect_blank_paper`
+   — PR #11's fully inlined blank-scroll body, including blindness predicate,
+   both messages and known flag. Other scroll effects remain outside the proof.
+
+PR #11 at `e36f22fd2af158e0b0f233247647b045f6116489` adds two decisions
+without rescanning. Relevant JS files are identical to this frozen base; four
+additional focused checks pass, and `generate-objects.mjs --check` verifies
+all 85 armor types against compiled C data using the existing Clang setup.
+The initial batch reduced the active count by three; this increment reduces it
+by two, for five at that point. No fresh C capture was made in this review.
+
+6. `source-audit:edge-c-only:src/pray.c:dopray:cmdq_add_ec`
+   — PR #9's complete literal inactive block. No C-only `cmdq_clear` lead
+   exists here, so no second binding is fabricated. Active prayer behavior,
+   including the independently reported repeat difference, is outside scope.
+7. `source-audit:edge-c-only:src/allmain.c:stop_occupation:You`
+   — PR #9's direct-call-name warning is refuted by the required message
+   callback. Valid-callback non-eating behavior is tested; caller wiring and
+   completed meals remain unproven. The callback-resolution lead stays active.
+
+PR #9 at `f95ab60eb90f6d93dc42788434293290c8ba533f` adds two further
+exact decisions on the same run, with five additional focused checks passing.
+This brings the reduction to seven, without a new scan. Inactive call-edge
+annotation is a future reusable-rule opportunity; this batch adds only exact
+review decisions and does not extend the detector's message filters.
 
 PR #6 growth and reversed-area-bounds records cannot safely bind to this run.
 They supply no canonical lead key/evidence key or originating run/review
@@ -75,7 +104,7 @@ node --test diagnostics/reviews/scoped-negative-decisions-20261028/check.test.mj
 ```
 
 The output must not already exist. Tests verify the frozen input hash, exact
-three-row reduction, unchanged raw input, rejection of stale source/run/tool/
+seven-row reduction, unchanged raw input, rejection of stale source/run/tool/
 config/input provenance, rejection of a mismatched evidence key or retargeted
 helper domain, and visibility of nearby and unresolved leads. The active view
 also restores visibility when its source/tool/config provenance becomes stale.

@@ -12,12 +12,12 @@ const decisions = JSON.parse(read('decisions.json'));
 const measurement = JSON.parse(read('measurement.json'));
 const copy = value => structuredClone(value);
 
-test('frozen input and three exact decisions reproduce the measured reduction', () => {
+test('frozen input and seven exact decisions reproduce the measured reduction', () => {
     assert.equal(createHash('sha256').update(bytes).digest('hex'), measurement.runSha256);
     const before = activeLeadIndex(run), after = activeLeadIndex(applyDecisions(run, decisions));
     assert.equal(before.active.length, 12537);
     assert.equal(before.filtered.length, 0);
-    assert.equal(after.active.length, 12534);
+    assert.equal(after.active.length, 12530);
     assert.deepEqual(after.filtered.map(x => x.key).sort(), decisions.map(x => x.key).sort());
     assert.equal(run.leads.filter(x => x.status === 'explained_negative').length, 0);
 });
@@ -54,6 +54,7 @@ test('other escape-method and growth-call leads remain visible', () => {
         'source-audit:edge-c-only:src/sp_lev.c:ensure_way_out:selection_floodfill',
         'source-audit:edge-c-only:src/sp_lev.c:ensure_way_out:selection_free',
         'source-audit:edge-c-only:src/sp_lev.c:lspo_region:selection_do_grow',
+        'source-audit:edge-js-helper:src/allmain.c:stop_occupation:requireOccupationOperation',
     ]) assert.ok(active.includes(key), key);
 });
 
