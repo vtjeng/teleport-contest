@@ -1,0 +1,993 @@
+{
+  "version": "all-literal-inactive-calls-v1",
+  "fullInputSha256": "1a929a81850cc171195304f63186e4c08f0ac26593e24151003fbeece687bf59",
+  "inputCount": 12537,
+  "candidateCount": 4019,
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "filtered": 55,
+  "remaining": 12482,
+  "deprioritized": 0,
+  "repeatIdentical": true,
+  "entries": [
+    {
+      "id": "edge-c-only:src/steed.c:dismount_steed:mdrop_special_objs",
+      "rank": 76,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/steed.c",
+        "sourceSha256": "cff685476b7cb4654935b231654015336286ad0ad7020294cdb60ca066075fd2",
+        "occurrences": [
+          {
+            "line": 802,
+            "directiveLine": 793,
+            "reason": "earlier literal true arm excludes this alternative"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/dungeon.c:remdun_mapseen:savecemetery",
+      "rank": 25,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/dungeon.c",
+        "sourceSha256": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+        "occurrences": [
+          {
+            "line": 2826,
+            "directiveLine": 2821,
+            "reason": "earlier literal true arm excludes this alternative"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/muse.c:use_offensive:ignite_items",
+      "rank": -35,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/muse.c",
+        "sourceSha256": "df896ef2da5f5685353e788fad9c5d54d393927101e0053eccc269a564a99a26",
+        "occurrences": [
+          {
+            "line": 1975,
+            "directiveLine": 1956,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/muse.c:use_offensive:shieldeff",
+      "rank": -35,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/muse.c",
+        "sourceSha256": "df896ef2da5f5685353e788fad9c5d54d393927101e0053eccc269a564a99a26",
+        "occurrences": [
+          {
+            "line": 1970,
+            "directiveLine": 1956,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/mon.c:hideunder:You",
+      "rank": -36,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/mon.c",
+        "sourceSha256": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01",
+        "occurrences": [
+          {
+            "line": 4780,
+            "directiveLine": 4778,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/do_wear.c:find_ac:record_achievement",
+      "rank": -37,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/do_wear.c",
+        "sourceSha256": "cf33ad9f5b18bcdfffd09d4e99867590802735a9ae2d34b9eb2b64880fa459c7",
+        "occurrences": [
+          {
+            "line": 2518,
+            "directiveLine": 2511,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 2520,
+            "directiveLine": 2511,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 2522,
+            "directiveLine": 2511,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/dungeon.c:level_difficulty:In_W_tower",
+      "rank": -44,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/dungeon.c",
+        "sourceSha256": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+        "occurrences": [
+          {
+            "line": 2066,
+            "directiveLine": 2060,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/dungeon.c:level_difficulty:On_W_tower_level",
+      "rank": -44,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/dungeon.c",
+        "sourceSha256": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+        "occurrences": [
+          {
+            "line": 2066,
+            "directiveLine": 2060,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/shk.c:unpaid_cost:in_rooms",
+      "rank": -47,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/shk.c",
+        "sourceSha256": "b2b5b82934b15c1a4a3c9474a650ff5800a83f0b9634696fdf080d0458f16e1b",
+        "occurrences": [
+          {
+            "line": 3274,
+            "directiveLine": 3269,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/shk.c:unpaid_cost:next_shkp",
+      "rank": -47,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/shk.c",
+        "sourceSha256": "b2b5b82934b15c1a4a3c9474a650ff5800a83f0b9634696fdf080d0458f16e1b",
+        "occurrences": [
+          {
+            "line": 3278,
+            "directiveLine": 3269,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 3279,
+            "directiveLine": 3269,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/do_name.c:obj_pmname:Mgender",
+      "rank": -48,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/do_name.c",
+        "sourceSha256": "64c6cb5e7f4034e9edbd8fac983b313a7df0e029b4812bd3a9327852d12ad9d1",
+        "occurrences": [
+          {
+            "line": 1332,
+            "directiveLine": 1323,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/mkobj.c:copy_oextra:next_ident",
+      "rank": -48,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/mkobj.c",
+        "sourceSha256": "49c2de3bcf1125be55f11c17ffc4f614956f5288a5edfb56b2248b7fcaa3b488",
+        "occurrences": [
+          {
+            "line": 435,
+            "directiveLine": 434,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/dig.c:buried_ball_to_punishment:obj_to_any",
+      "rank": -50,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/dig.c",
+        "sourceSha256": "d90579058c1ff69bcbc882601a433fb8d5e34fdad418aedb0cebefce9ac6cf97",
+        "occurrences": [
+          {
+            "line": 1948,
+            "directiveLine": 1945,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/objnam.c:shield_simple_name:weight",
+      "rank": -50,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/objnam.c",
+        "sourceSha256": "445d0b8697ceeb93f1249599b16caffb101a832ee425d76f9eb3fd65088f1dd3",
+        "occurrences": [
+          {
+            "line": 5590,
+            "directiveLine": 5588,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/cmd.c:help_dir:pline",
+      "rank": -52,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/cmd.c",
+        "sourceSha256": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+        "occurrences": [
+          {
+            "line": 4219,
+            "directiveLine": 4195,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/dig.c:buried_ball_to_freedom:obj_to_any",
+      "rank": -52,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/dig.c",
+        "sourceSha256": "d90579058c1ff69bcbc882601a433fb8d5e34fdad418aedb0cebefce9ac6cf97",
+        "occurrences": [
+          {
+            "line": 1971,
+            "directiveLine": 1968,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:dlb_fclose",
+      "rank": -53,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2645,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 2650,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:dlb_fgets",
+      "rank": -53,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2616,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:dlb_fopen",
+      "rank": -53,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2599,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:highc",
+      "rank": -53,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2625,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 2627,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:pline",
+      "rank": -53,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2601,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:strip_newline",
+      "rank": -53,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2629,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:tabexpand",
+      "rank": -53,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2631,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:whatdoes_cond",
+      "rank": -53,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2619,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/options.c:parseoptions:check_misc_menu_command",
+      "rank": -54,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/options.c",
+        "sourceSha256": "494772974500aa9b42df179b4e090def15fd0bc8148f09a9c392bbadd05dd940",
+        "occurrences": [
+          {
+            "line": 652,
+            "directiveLine": 647,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/options.c:parseoptions:spcfn_misc_menu_cmd",
+      "rank": -54,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/options.c",
+        "sourceSha256": "494772974500aa9b42df179b4e090def15fd0bc8148f09a9c392bbadd05dd940",
+        "occurrences": [
+          {
+            "line": 655,
+            "directiveLine": 647,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/mondata.c:resists_blnd_by_arti:is_art",
+      "rank": -55,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/mondata.c",
+        "sourceSha256": "c7a19d003c169fed7dde555ecad9069627f059309142b7d8104314572f90a685",
+        "occurrences": [
+          {
+            "line": 294,
+            "directiveLine": 290,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pickup.c:tipcontainer_gettarget:count_target_containers",
+      "rank": -55,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pickup.c",
+        "sourceSha256": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+        "occurrences": [
+          {
+            "line": 3886,
+            "directiveLine": 3884,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pray.c:dopray:cmdq_add_ec",
+      "rank": -57,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pray.c",
+        "sourceSha256": "6d9729fb4c9e7fbed44f355f85a241ccc527e73d53913ca4efb904e23f999f03",
+        "occurrences": [
+          {
+            "line": 2215,
+            "directiveLine": 2211,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/dig.c:adj_pit_checks:is_ice",
+      "rank": -58,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/dig.c",
+        "sourceSha256": "d90579058c1ff69bcbc882601a433fb8d5e34fdad418aedb0cebefce9ac6cf97",
+        "occurrences": [
+          {
+            "line": 1805,
+            "directiveLine": 1803,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/invent.c:dotypeinv:doprgold",
+      "rank": -59,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/invent.c",
+        "sourceSha256": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+        "occurrences": [
+          {
+            "line": 3968,
+            "directiveLine": 3963,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/attrib.c:losestr:losexp",
+      "rank": -60,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/attrib.c",
+        "sourceSha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+        "occurrences": [
+          {
+            "line": 261,
+            "directiveLine": 257,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/invent.c:doperminv:update_inventory",
+      "rank": -60,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/invent.c",
+        "sourceSha256": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+        "occurrences": [
+          {
+            "line": 2830,
+            "directiveLine": 2825,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/sounds.c:dosounds:strstri",
+      "rank": -63,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/sounds.c",
+        "sourceSha256": "d67ce86f95b8d2180f6e676ebe5532aa63561e1a208fcd158c7fdc0b164c85e8",
+        "occurrences": [
+          {
+            "line": 298,
+            "directiveLine": 297,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 299,
+            "directiveLine": 297,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/mcastu.c:mcast_geyser:water_damage_chain",
+      "rank": -65,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/mcastu.c",
+        "sourceSha256": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285",
+        "occurrences": [
+          {
+            "line": 534,
+            "directiveLine": 532,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/priest.c:move_special:distant_name",
+      "rank": -70,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/priest.c",
+        "sourceSha256": "6d411a4285ba0d6d9b92de3e73f61fe4967c827642c5500de5ffbf2b7e7a8945",
+        "occurrences": [
+          {
+            "line": 131,
+            "directiveLine": 127,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/priest.c:move_special:mpickobj",
+      "rank": -70,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/priest.c",
+        "sourceSha256": "6d411a4285ba0d6d9b92de3e73f61fe4967c827642c5500de5ffbf2b7e7a8945",
+        "occurrences": [
+          {
+            "line": 133,
+            "directiveLine": 127,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/priest.c:move_special:pline",
+      "rank": -70,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/priest.c",
+        "sourceSha256": "6d411a4285ba0d6d9b92de3e73f61fe4967c827642c5500de5ffbf2b7e7a8945",
+        "occurrences": [
+          {
+            "line": 130,
+            "directiveLine": 127,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/mon.c:sanity_check_single_mon:levltyp_to_name",
+      "rank": -73,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/mon.c",
+        "sourceSha256": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01",
+        "occurrences": [
+          {
+            "line": 226,
+            "directiveLine": 223,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/muse.c:green_mon:strstri",
+      "rank": -78,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/muse.c",
+        "sourceSha256": "df896ef2da5f5685353e788fad9c5d54d393927101e0053eccc269a564a99a26",
+        "occurrences": [
+          {
+            "line": 3281,
+            "directiveLine": 3276,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 3282,
+            "directiveLine": 3276,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 3284,
+            "directiveLine": 3276,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/wizcmds.c:wiz_intrinsic:make_confused",
+      "rank": -95,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/wizcmds.c",
+        "sourceSha256": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f",
+        "occurrences": [
+          {
+            "line": 1026,
+            "directiveLine": 1023,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:win/tty/wintty.c:docorner:flush_screen",
+      "rank": -95,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/win/tty/wintty.c",
+        "sourceSha256": "43381180f9dfe41111b0dd34ba2ea0eb02f852b25e696810161c83e8c63745d5",
+        "occurrences": [
+          {
+            "line": 3672,
+            "directiveLine": 3665,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:win/tty/wintty.c:docorner:swallowed",
+      "rank": -95,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/win/tty/wintty.c",
+        "sourceSha256": "43381180f9dfe41111b0dd34ba2ea0eb02f852b25e696810161c83e8c63745d5",
+        "occurrences": [
+          {
+            "line": 3668,
+            "directiveLine": 3665,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/options.c:optfn_perminv_mode:nh_getenv",
+      "rank": -97,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/options.c",
+        "sourceSha256": "494772974500aa9b42df179b4e090def15fd0bc8148f09a9c392bbadd05dd940",
+        "occurrences": [
+          {
+            "line": 3058,
+            "directiveLine": 3055,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/sounds.c:choose_soundlib:alloc",
+      "rank": -98,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/sounds.c",
+        "sourceSha256": "d67ce86f95b8d2180f6e676ebe5532aa63561e1a208fcd158c7fdc0b164c85e8",
+        "occurrences": [
+          {
+            "line": 1831,
+            "directiveLine": 1807,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/sounds.c:choose_soundlib:config_error_add",
+      "rank": -98,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/sounds.c",
+        "sourceSha256": "d67ce86f95b8d2180f6e676ebe5532aa63561e1a208fcd158c7fdc0b164c85e8",
+        "occurrences": [
+          {
+            "line": 1839,
+            "directiveLine": 1807,
+            "reason": "literal false condition"
+          },
+          {
+            "line": 1853,
+            "directiveLine": 1807,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/sounds.c:choose_soundlib:eos",
+      "rank": -98,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/sounds.c",
+        "sourceSha256": "d67ce86f95b8d2180f6e676ebe5532aa63561e1a208fcd158c7fdc0b164c85e8",
+        "occurrences": [
+          {
+            "line": 1848,
+            "directiveLine": 1807,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/invent.c:sortloot:sortloot_cmp",
+      "rank": -100,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/invent.c",
+        "sourceSha256": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+        "occurrences": [
+          {
+            "line": 671,
+            "directiveLine": 653,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/options.c:optfn_palette:complain_about_duplicate",
+      "rank": -100,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/options.c",
+        "sourceSha256": "494772974500aa9b42df179b4e090def15fd0bc8148f09a9c392bbadd05dd940",
+        "occurrences": [
+          {
+            "line": 2758,
+            "directiveLine": 2732,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/options.c:restoptvals:alloc",
+      "rank": -100,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/options.c",
+        "sourceSha256": "494772974500aa9b42df179b4e090def15fd0bc8148f09a9c392bbadd05dd940",
+        "occurrences": [
+          {
+            "line": 835,
+            "directiveLine": 796,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/options.c:saveoptvals:freeroleoptvals",
+      "rank": -100,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/options.c",
+        "sourceSha256": "494772974500aa9b42df179b4e090def15fd0bc8148f09a9c392bbadd05dd940",
+        "occurrences": [
+          {
+            "line": 818,
+            "directiveLine": 796,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:win/tty/wintty.c:winch_handler:tty_nhgetch",
+      "rank": -100,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/win/tty/wintty.c",
+        "sourceSha256": "43381180f9dfe41111b0dd34ba2ea0eb02f852b25e696810161c83e8c63745d5",
+        "occurrences": [
+          {
+            "line": 382,
+            "directiveLine": 379,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/hack.c:losehp:impossible",
+      "rank": -101,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/hack.c",
+        "sourceSha256": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+        "occurrences": [
+          {
+            "line": 4261,
+            "directiveLine": 4258,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/pager.c:dowhatdoes_core:impossible",
+      "rank": -123,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/pager.c",
+        "sourceSha256": "92d078a4c4e0f81bf91c07b91383e848427eeed37b9877fa34d8564774b8952b",
+        "occurrences": [
+          {
+            "line": 2652,
+            "directiveLine": 2598,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-c-only:src/nhlua.c:nhl_error:panictrace_setsignals",
+      "rank": -135,
+      "proof": {
+        "version": "all-literal-inactive-calls-v1",
+        "reason": "Every represented direct C call occurs inside a completely parsed, build-independent inactive literal branch.",
+        "sourcePath": "nethack-c/upstream/src/nhlua.c",
+        "sourceSha256": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1",
+        "occurrences": [
+          {
+            "line": 214,
+            "directiveLine": 213,
+            "reason": "literal false condition"
+          }
+        ]
+      }
+    }
+  ]
+}
