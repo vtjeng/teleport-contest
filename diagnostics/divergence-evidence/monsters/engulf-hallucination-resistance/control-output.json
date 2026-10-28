@@ -1,0 +1,30 @@
+{
+  "mode": "control",
+  "cMessage": "You are covered in slime!  It burns!",
+  "jsMessage": "You are covered in slime!  It burns!",
+  "passed": true,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 2862,
+      "js": 2862
+    },
+    "screens": {
+      "c": 128,
+      "js": 128
+    },
+    "cursors": {
+      "c": 128,
+      "js": 128
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": null,
+  "cursorMismatch": null,
+  "animMismatch": null,
+  "segmentMismatch": null
+}

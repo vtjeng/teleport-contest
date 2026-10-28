@@ -1,0 +1,24 @@
+{
+  "target": {
+    "step": 137,
+    "cMessage": "You are covered in slime!  It burns!",
+    "jsMessage": "Ouch!  You've been slimed!",
+    "rawRecordingSha256": "31113fe191106e3537c8fe1b0458e395bac5e297998cbf922af61bc18e227bc2"
+  },
+  "control": {
+    "step": 127,
+    "cMessage": "You are covered in slime!  It burns!",
+    "jsMessage": "You are covered in slime!  It burns!",
+    "rawRecordingSha256": "39ddc4632ecd9d1ec5aeb46e00e941dd4f0448e42e949abbd21fde5f476fa13b"
+  },
+  "discoveredAt": "2026-10-28T22:04:59.512633+00:00",
+  "reviewedAt": "2026-10-28T22:04:59.512645+00:00",
+  "cRecorderSha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "recorderProfile": "Repository patched native tty recorder, America/New_York; recorderIsDst preserved in recordings",
+  "attempts": [
+    "Initial protected-potion route stopped at potion naming prompt; target not reached, not a negative.",
+    "Corrected protected-potion route reached acid engulf and matched; C peffect_hallucination returns before setting timeout when resistance is already active. Used as final control.",
+    "Drink-first/wield-second reached mismatch. Original longer run matched 3074 RNG calls but included later wizard death handling; final independent recorder rerun truncates input after first acid message."
+  ],
+  "scope": "Ordinary public wizard inputs only; no state injection, attack modification or artifact implementation change."
+}
