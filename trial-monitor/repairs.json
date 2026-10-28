@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T04:18:47Z",
+  "asOf": "2026-10-28T16:08:24Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23622,6 +23622,77 @@
         "witness": [],
         "test": [
           "scripts/mthrowu.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+          "committedAt": "2026-10-28T07:38:17Z",
+          "sourceCommit": "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+          "sourceCommittedAt": "2026-10-28T07:38:17Z",
+          "runs": [
+            {
+              "id": 40651408362,
+              "name": "Checkpoint",
+              "sha": "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/aklys-after-public-reads-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T07:38:39Z",
+              "completedAt": "2026-10-28T07:48:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40651408362"
+            },
+            {
+              "id": 40652628189,
+              "name": "Lint",
+              "sha": "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T07:50:04Z",
+              "completedAt": "2026-10-28T07:51:28Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40652628189"
+            },
+            {
+              "id": 40652628125,
+              "name": "Dashboard",
+              "sha": "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T07:50:04Z",
+              "completedAt": "2026-10-28T07:52:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40652628125"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-undead-first-conduct-log",
+      "kind": "parity-repair",
+      "title": "Record the first atheism-conduct break when turning undead",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pray.c:doturn",
+          "js/pray.js:doturn"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/pray.test.mjs"
         ]
       },
       "candidates": []
