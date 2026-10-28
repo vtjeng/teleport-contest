@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T02:51:44Z",
+  "asOf": "2026-10-28T03:45:40Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23393,6 +23393,78 @@
       "id": "random-doppelganger-appearance",
       "kind": "parity-repair",
       "title": "Select random special-level doppelganger forms",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:create_monster",
+          "nethack-c/upstream/src/mon.c:select_newcham_form",
+          "js/themeroom_fill.js:assertSupportedMonsterAppearance"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/themeroom-fill.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+          "committedAt": "2026-10-28T03:32:29Z",
+          "sourceCommit": "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+          "sourceCommittedAt": "2026-10-28T03:32:29Z",
+          "runs": [
+            {
+              "id": 40627297781,
+              "name": "Checkpoint",
+              "sha": "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/random-doppelganger-appearance-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T03:32:45Z",
+              "completedAt": "2026-10-28T03:43:00Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40627297781"
+            },
+            {
+              "id": 40628330440,
+              "name": "Lint",
+              "sha": "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T03:43:44Z",
+              "completedAt": "2026-10-28T03:45:08Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40628330440"
+            },
+            {
+              "id": 40628330437,
+              "name": "Dashboard",
+              "sha": "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T03:43:44Z",
+              "completedAt": "2026-10-28T03:45:40Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40628330437"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "random-sandestin-appearance",
+      "kind": "parity-repair",
+      "title": "Select random special-level sandestin forms",
       "window": "post-trial",
       "origin": "single-agent",
       "investigator": null,

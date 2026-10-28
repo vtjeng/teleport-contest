@@ -117,6 +117,7 @@ import {
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
     PM_CHAMELEON,
+    PM_SANDESTIN,
     PM_CHIEFTAIN,
     PM_DWARF,
     PM_DOPPELGANGER,
@@ -822,6 +823,44 @@ test('control: a special-level doppelganger without appearance keeps its initial
     });
     assert.ok(monster);
     assert.equal(monster.cham, PM_DOPPELGANGER);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('a special-level sandestin takes a random monster form', () => {
+    // A C #wizloaddes target draws a second select_newcham_form rn2(7)
+    // and displays the requested form. Its no-appearance control does not.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const random = quietObjectRandom();
+    const calls = [];
+    random.rn2 = bound => {
+        calls.push(bound);
+        if (bound === 7) return 0; // sandestin falls back to an ordinary form
+        return Math.max(0, bound - 1);
+    };
+    const forms = [PM_ETTIN_ZOMBIE, PM_GNOME_ZOMBIE];
+    random.rn1 = (bound, base) => bound === 330 ? forms.shift() : base;
+    const monster = lspo_monster([{
+        id: PM_SANDESTIN,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_SANDESTIN);
+    assert.equal(monster.data, state.mons[PM_GNOME_ZOMBIE]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.deepEqual(forms, []);
+    assert.equal(calls.filter(bound => bound === 7).length, 2);
+});
+
+test('control: a special-level sandestin without appearance keeps its initial form', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_SANDESTIN }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_SANDESTIN);
     assert.equal(monster.data, state.mons[monster.mnum]);
     assert.equal(monster.m_ap_type, M_AP_NOTHING);
 });

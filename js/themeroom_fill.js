@@ -133,6 +133,7 @@ import {
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
     PM_CHAMELEON,
+    PM_SANDESTIN,
     PM_CHIEFTAIN,
     PM_DWARF,
     PM_DOPPELGANGER,
@@ -745,6 +746,7 @@ function createMonsterBody(m, croom, env) {
                 mtmp.mappearance = 0;
             } else if (mtmp.cham === PM_CHAMELEON
                        || mtmp.cham === PM_DOPPELGANGER
+                       || mtmp.cham === PM_SANDESTIN
                        || is_vampshifter(mtmp)) {
                 const olddata = mtmp.data;
                 const target = state.mons[mndx];
@@ -865,6 +867,7 @@ function assertSupportedMonsterAppearance(m, state) {
         && (ismnum(m.id) ? (state.mons[m.id]?.mlet === S_MIMIC
             || m.id === PM_CHAMELEON
             || m.id === PM_DOPPELGANGER
+            || m.id === PM_SANDESTIN
             || m.id === PM_VAMPIRE || m.id === PM_VAMPIRE_LEADER
             || m.id === PM_VLAD_THE_IMPALER)
             : m.class === S_MIMIC)) return;
