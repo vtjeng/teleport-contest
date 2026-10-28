@@ -1,0 +1,17 @@
+{
+  "fullRunId": "a381a949e765ae5aa2c8",
+  "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+  "fullRunRetainedAt": "diagnostics/divergence-evidence/objects/objects-triage-20261028/effects-hub/run.json",
+  "projectionSha256": "26bf6ed1f687a023540bab56828d15d84e8983ee7e4a88ea578f2b4b3a36044c",
+  "templateSha256": "15124e56db066db999b0d6c8d3ae1f55b59fccdbbe169c1d65959a214969570b",
+  "decisionsSha256": "a871a3ecac4bda1810477cc35f6695852597121105652fbef9e088685a780578",
+  "selectedKeys": [
+    "compiled-constants:header-macro-mismatch|include/hack.h|MAY_DESTROY|js/const.js|MAY_DESTROY",
+    "compiled-constants:header-macro-mismatch|include/hack.h|MAY_FRACTURE|js/const.js|MAY_FRACTURE",
+    "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HIT|js/const.js|MAY_HIT",
+    "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITMON|js/const.js|MAY_HITMON",
+    "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITYOU|js/const.js|MAY_HITYOU",
+    "compiled-constants:header-macro-mismatch|include/objclass.h|BURNING_OIL|js/const.js|BURNING_OIL"
+  ],
+  "createdAt": "2026-10-28T17:57:15.355Z"
+}

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "baseSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "profile": {
+    "files": {
+      "nethack-c/upstream/include/config.h": "cc39455c748d1d73640606d98e847b55cb09d82338edc95f4fbc8acecedc9385",
+      "nethack-c/upstream/include/config1.h": "b9e97cefc8fcfe4f36a1145ebfb655099f2afd2591227fa5f93b3f4dc0071042",
+      "nethack-c/upstream/include/unixconf.h": "45a16d6359d913c9bffaedc6225b7a9b24a665a2e5e9ce660c43b8f189955dfe",
+      "nethack-c/upstream/sys/unix/hints/linux-minimal": "ba958b4e6f4e7f2dceb0d4911d1ca52e3b253405f2a3053036ea242a9dbe0a5a",
+      "nethack-c/build-recorder.sh": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38"
+    },
+    "recorderGeneratedHeaders": {
+      "nhlua": "48553ca9ab16ac2928479cabdf51d7f090fc38e1641dd5d97d819f612c6d87d9",
+      "date": "6f4c07025c5da74986dd5de44621225687c7e550556f95db0792b55e34f53efb"
+    },
+    "compiler": {
+      "name": "clang",
+      "available": true,
+      "version": "Debian clang version 19.1.7 (3+b1)",
+      "error": null
+    }
+  },
+  "toolHashes": {
+    "scripts/discover-constants.mjs": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "scripts/check-constants.mjs": "427c1da86b20dbce763f45268e96331e4134f3d0c8ea59f4b4599658db8968d5",
+    "scripts/generate-options.mjs": "30cbe4c87c299b34a00e084e7143a4d4149973120b3f31def69ec560d7fbe277",
+    "scripts/discover-constants.test.mjs": "34b0ccedb68c35e7883d2404268d0c093c108c9e502cdbc1bee6a5f24cc096fc"
+  },
+  "runtime": {
+    "node": "v24.19.0"
+  },
+  "status": "complete",
+  "candidates": [
+    {
+      "kind": "header-macro-mismatch",
+      "cPath": "include/hack.h",
+      "cSymbol": "MAY_DESTROY",
+      "cExpression": "0x08",
+      "cValue": 8,
+      "cBits": 32,
+      "cSignedness": "unsigned",
+      "jsPath": "js/const.js",
+      "jsExport": "MAY_DESTROY",
+      "jsValue": 4,
+      "fingerprint": {
+        "key": "header-macro-mismatch|include/hack.h|MAY_DESTROY|js/const.js|MAY_DESTROY",
+        "sha256": "f9665da7f688a036921abed5b7876af6591c7805d487e6a0874946bd19aab33c"
+      },
+      "evidenceSha256": "e76579fb49fa1ad0c0aff1af1c4eabe4426dfff48710cab51b22b1f60f3541a4",
+      "suppressionId": null,
+      "suppressionScope": null
+    },
+    {
+      "kind": "header-macro-mismatch",
+      "cPath": "include/hack.h",
+      "cSymbol": "MAY_FRACTURE",
+      "cExpression": "0x10",
+      "cValue": 16,
+      "cBits": 32,
+      "cSignedness": "unsigned",
+      "jsPath": "js/const.js",
+      "jsExport": "MAY_FRACTURE",
+      "jsValue": 8,
+      "fingerprint": {
+        "key": "header-macro-mismatch|include/hack.h|MAY_FRACTURE|js/const.js|MAY_FRACTURE",
+        "sha256": "2855c6d204b57d824dc127c53f0c1451e22d11a3811405b8df82c612d1c7fb90"
+      },
+      "evidenceSha256": "665bdd23c53735ae55a408b3d6195dff1622e55c6c5bd636a92fd57b7696eab2",
+      "suppressionId": null,
+      "suppressionScope": null
+    },
+    {
+      "kind": "header-macro-mismatch",
+      "cPath": "include/hack.h",
+      "cSymbol": "MAY_HIT",
+      "cExpression": "(MAY_HITMON | MAY_HITYOU)",
+      "cValue": 6,
+      "cBits": 32,
+      "cSignedness": "unsigned",
+      "jsPath": "js/const.js",
+      "jsExport": "MAY_HIT",
+      "jsValue": 3,
+      "fingerprint": {
+        "key": "header-macro-mismatch|include/hack.h|MAY_HIT|js/const.js|MAY_HIT",
+        "sha256": "442e3b98f39c7ff1be92069798451789a9300ef973b8186723b9812a982ba200"
+      },
+      "evidenceSha256": "9f9e0618124c8a50e90a8ba21a679296bd27457f650868e61ac4cd9f24480c2d",
+      "suppressionId": null,
+      "suppressionScope": null
+    },
+    {
+      "kind": "header-macro-mismatch",
+      "cPath": "include/hack.h",
+      "cSymbol": "MAY_HITMON",
+      "cExpression": "0x02",
+      "cValue": 2,
+      "cBits": 32,
+      "cSignedness": "unsigned",
+      "jsPath": "js/const.js",
+      "jsExport": "MAY_HITMON",
+      "jsValue": 1,
+      "fingerprint": {
+        "key": "header-macro-mismatch|include/hack.h|MAY_HITMON|js/const.js|MAY_HITMON",
+        "sha256": "37c0511c16724d5bc5775ce03c80cd4a4479ead792df010019d32c6eb1db5636"
+      },
+      "evidenceSha256": "277cdf2834b3b9eb9ff12efc6c6995be5295ba56392db654ff1e6e2a1db0190d",
+      "suppressionId": null,
+      "suppressionScope": null
+    },
+    {
+      "kind": "header-macro-mismatch",
+      "cPath": "include/hack.h",
+      "cSymbol": "MAY_HITYOU",
+      "cExpression": "0x04",
+      "cValue": 4,
+      "cBits": 32,
+      "cSignedness": "unsigned",
+      "jsPath": "js/const.js",
+      "jsExport": "MAY_HITYOU",
+      "jsValue": 2,
+      "fingerprint": {
+        "key": "header-macro-mismatch|include/hack.h|MAY_HITYOU|js/const.js|MAY_HITYOU",
+        "sha256": "a3eef1a70b355a12186dade1d7317336bf925d43bbecf17750eb1551322be126"
+      },
+      "evidenceSha256": "bfe593c0e7f268ff107cac39e18ccf3ab7d9a28f44de8786f84113c007f14d6e",
+      "suppressionId": null,
+      "suppressionScope": null
+    }
+  ]
+}

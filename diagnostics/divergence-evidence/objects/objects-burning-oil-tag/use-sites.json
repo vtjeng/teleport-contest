@@ -1,0 +1,312 @@
+[
+  {
+    "path": "js/const.js",
+    "line": 2023,
+    "text": "// - explode(..., expltype/olet) rendering and source class"
+  },
+  {
+    "path": "js/const.js",
+    "line": 2034,
+    "text": "export const BURNING_OIL = -2;"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 35,
+    "text": "    BURNING_OIL,"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 273,
+    "text": "function monsterResists(monster, adtyp, olet, state) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 280,
+    "text": "        return olet === WAND_CLASS"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 296,
+    "text": "export function explosionmask(monster, adtyp, olet, state = game) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 304,
+    "text": "            return (olet === WAND_CLASS"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 315,
+    "text": "    return monsterResists(monster, adtyp, olet, state) ? EXPL_MON : EXPL_NONE;"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 324,
+    "text": "export async function engulfer_explosion_msg(adtyp, olet, state = game, env = {}) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 334,
+    "text": "            adjective = olet === WAND_CLASS"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 349,
+    "text": "            adjective = olet === WAND_CLASS"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 364,
+    "text": "function adtypForExplosion(type, olet, state, env) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 371,
+    "text": "        description = olet === BURNING_OIL ? 'burning oil'"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 372,
+    "text": "            : olet === SCROLL_CLASS ? 'tower of flame' : 'fireball';"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 377,
+    "text": "        description = olet === WAND_CLASS ? 'death field' : 'disintegration field';"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 419,
+    "text": "    olet,"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 445,
+    "text": "    if (olet === WAND_CLASS) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 470,
+    "text": "    } else if (olet === BURNING_OIL) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 472,
+    "text": "    } else if (olet === SCROLL_CLASS) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 474,
+    "text": "    } else if (olet === TRAP_EXPLODE) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 488,
+    "text": "    if (olet === MON_EXPLODE && type < 0) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 498,
+    "text": "        const converted = adtypForExplosion(type, olet, state, env);"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 515,
+    "text": "                state.youmonst, adtyp, olet, state,"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 518,
+    "text": "            if (monster) mask |= explosionmask(monster, adtyp, olet, state);"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 574,
+    "text": "        if (olet === MON_EXPLODE || olet === TRAP_EXPLODE) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 578,
+    "text": "        if (!deaf(state) && olet !== SCROLL_CLASS) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 596,
+    "text": "                    if (!state.context?.mon_moving && olet === MON_EXPLODE"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 612,
+    "text": "                    await engulfer_explosion_msg(adtyp, olet, state, env);"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 631,
+    "text": "                    if (await resist(monster, olet, 0, false, state, random)) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 684,
+    "text": "        if (state.flags?.verbose && (type < 0 || olet !== SCROLL_CLASS)) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 722,
+    "text": "                if (olet === MON_EXPLODE) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 729,
+    "text": "                } else if (olet === TRAP_EXPLODE) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 734,
+    "text": "                } else if (type >= 0 && olet !== SCROLL_CLASS) {"
+  },
+  {
+    "path": "js/explode.js",
+    "line": 1274,
+    "text": "    await explode(x, y, 11, damage, BURNING_OIL, EXPL_FIERY, state,"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 29,
+    "text": "    char olet)       /* object class (only matters for AD_DISN) */"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 51,
+    "text": "            if ((olet == WAND_CLASS)"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 91,
+    "text": "            if ((olet == WAND_CLASS)"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 118,
+    "text": "engulfer_explosion_msg(uchar adtyp, char olet)"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 131,
+    "text": "            if (olet == WAND_CLASS)"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 159,
+    "text": "            if (olet == WAND_CLASS)"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 204,
+    "text": "    char olet,    /* object class or BURNING_OIL or MON_EXPLODE */"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 221,
+    "text": "    boolean you_exploding = (olet == MON_EXPLODE && type >= 0);"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 224,
+    "text": "    if (olet == WAND_CLASS) { /* retributive strike */"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 255,
+    "text": "    } else if (olet == BURNING_OIL) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 258,
+    "text": "    } else if (olet == SCROLL_CLASS) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 261,
+    "text": "    } else if (olet == TRAP_EXPLODE) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 298,
+    "text": "    if (olet == MON_EXPLODE && !you_exploding) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 320,
+    "text": "            adstr = (olet == BURNING_OIL) ? \"burning oil\""
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 321,
+    "text": "                     : (olet == SCROLL_CLASS) ? \"tower of flame\" : \"fireball\";"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 330,
+    "text": "            adstr = (olet == WAND_CLASS) ? \"death field\""
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 366,
+    "text": "                explmask[i][j] = explosionmask(&gy.youmonst, adtyp, olet);"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 375,
+    "text": "                explmask[i][j] |= explosionmask(mtmp, adtyp, olet);"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 440,
+    "text": "        if (olet == MON_EXPLODE || olet == TRAP_EXPLODE) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 444,
+    "text": "        if (!Deaf && olet != SCROLL_CLASS) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 504,
+    "text": "                    engulfer_explosion_msg(adtyp, olet);"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 534,
+    "text": "                    if (resist(mtmp, olet, 0, FALSE)) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 594,
+    "text": "        if (flags.verbose && (type < 0 || olet != SCROLL_CLASS)) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 645,
+    "text": "                if (olet == MON_EXPLODE) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 651,
+    "text": "                } else if (olet == TRAP_EXPLODE) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 656,
+    "text": "                } else if (type >= 0 && olet != SCROLL_CLASS) {"
+  },
+  {
+    "path": "nethack-c/upstream/src/explode.c",
+    "line": 968,
+    "text": "    explode(x, y, ZT_SPELL_O_FIRE, dmg, BURNING_OIL, EXPL_FIERY);"
+  },
+  {
+    "path": "nethack-c/upstream/include/objclass.h",
+    "line": 154,
+    "text": "#define BURNING_OIL (MAXOCLASSES + 1) /* Can be used as input to explode    */"
+  }
+]

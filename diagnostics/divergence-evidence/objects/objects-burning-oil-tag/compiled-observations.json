@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "baseSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "profile": {
+    "files": {
+      "nethack-c/upstream/include/config.h": "cc39455c748d1d73640606d98e847b55cb09d82338edc95f4fbc8acecedc9385",
+      "nethack-c/upstream/include/config1.h": "b9e97cefc8fcfe4f36a1145ebfb655099f2afd2591227fa5f93b3f4dc0071042",
+      "nethack-c/upstream/include/unixconf.h": "45a16d6359d913c9bffaedc6225b7a9b24a665a2e5e9ce660c43b8f189955dfe",
+      "nethack-c/upstream/sys/unix/hints/linux-minimal": "ba958b4e6f4e7f2dceb0d4911d1ca52e3b253405f2a3053036ea242a9dbe0a5a",
+      "nethack-c/build-recorder.sh": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38"
+    },
+    "recorderGeneratedHeaders": {
+      "nhlua": "48553ca9ab16ac2928479cabdf51d7f090fc38e1641dd5d97d819f612c6d87d9",
+      "date": "6f4c07025c5da74986dd5de44621225687c7e550556f95db0792b55e34f53efb"
+    },
+    "compiler": {
+      "name": "clang",
+      "available": true,
+      "version": "Debian clang version 19.1.7 (3+b1)",
+      "error": null
+    }
+  },
+  "toolHashes": {
+    "scripts/discover-constants.mjs": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "scripts/check-constants.mjs": "427c1da86b20dbce763f45268e96331e4134f3d0c8ea59f4b4599658db8968d5",
+    "scripts/generate-options.mjs": "30cbe4c87c299b34a00e084e7143a4d4149973120b3f31def69ec560d7fbe277",
+    "scripts/discover-constants.test.mjs": "34b0ccedb68c35e7883d2404268d0c093c108c9e502cdbc1bee6a5f24cc096fc"
+  },
+  "runtime": {
+    "node": "v24.19.0"
+  },
+  "status": "complete",
+  "candidates": [
+    {
+      "kind": "header-macro-mismatch",
+      "cPath": "include/objclass.h",
+      "cSymbol": "BURNING_OIL",
+      "cExpression": "(MAXOCLASSES + 1)",
+      "cValue": 19,
+      "cBits": 32,
+      "cSignedness": "unsigned",
+      "jsPath": "js/const.js",
+      "jsExport": "BURNING_OIL",
+      "jsValue": -2,
+      "fingerprint": {
+        "key": "header-macro-mismatch|include/objclass.h|BURNING_OIL|js/const.js|BURNING_OIL",
+        "sha256": "2987cda3e194180d81948184a0b80a8b567a4f3e2ba928be294dd1f652b7e21c"
+      },
+      "evidenceSha256": "b13d009f55c14b1c4a5fadfa0ed09434fb3c58444f8ca159893b71e95dca93b3",
+      "suppressionId": null,
+      "suppressionScope": null
+    }
+  ]
+}

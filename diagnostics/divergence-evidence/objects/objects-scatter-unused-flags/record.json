@@ -1,0 +1,102 @@
+{
+  "caseId": "objects-scatter-unused-flags",
+  "shard": "objects",
+  "outcome": "explained negative",
+  "implementationCandidate": false,
+  "jsBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:52:25.950Z",
+  "reviewedAt": "2026-10-28T17:58:01.051Z",
+  "hypothesis": "The five MAY_* numeric mismatches might select incorrect scatter effects.",
+  "supportedSetup": "Source-proven absence of runtime readers for legacy exports; runtime aliases select source-identical masks.",
+  "expectedC": "Active scatter bit flags 1/2/4/8/16 with MAY_HIT=6.",
+  "observedJS": "Unused legacy declarations differ numerically; active SCATTER_* aliases match every one of 32 masks.",
+  "control": "Legacy numeric mismatches remain asserted while live aliases and all bit combinations match C.",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-scatter-unused-flags/check.test.mjs",
+  "results": {
+    "focused": "pass",
+    "combinations": 32,
+    "noProductionIdentifierReaders": true
+  },
+  "proof": "README.md",
+  "sourceFingerprints": {
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/explode.js": "caa559434cf5c8aa469675fd1e8ed4e3f8cf5cd1b9d40bf024efe8de4b106527",
+    "js/dokick.js": "41a378fe652a770a5a171644b50f1ad2d22c8845c60775c86f639bf1c904b1ad",
+    "js/trap_effects.js": "7bd0363037cad3e18c7059e00a031e37079e77f4ab96df07941da36b1986c6c5",
+    "js/dbridge.js": "de70c7aa041a849357d2663cc1b18a8bf4356c1d8d6f4d2dddacc85499a37314",
+    "js/pickup.js": "f5868e4b769de59e2488007be977924edbbcbcbbf8a1d33f5d417e0d5b1bb83f",
+    "js/display.js": "3782bffd34c0ddb199175912fa8f21959838dcdd6fb84e43b5db84de3336abe4",
+    "js/mon.js": "8df046bda3602822e5443eea8f98a1e6f82a094e0a1d342224fcea951b9b6f0f",
+    "nethack-c/upstream/include/hack.h": "2840a9bd41fb0c09384839fafdbd427a5d8705ad8d3eb5e2a0308cccea36813b"
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recordSession": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scorer": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "hub": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "compilerScan": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "patchSeries": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    }
+  },
+  "discoveryBinding": {
+    "fullRunId": "a381a949e765ae5aa2c8",
+    "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+    "bindingPath": "diagnostics/divergence-evidence/objects/objects-scatter-unused-flags/binding.json",
+    "projectionPath": "diagnostics/divergence-evidence/objects/objects-scatter-unused-flags/bound-run.json",
+    "decisions": [
+      {
+        "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_DESTROY|js/const.js|MAY_DESTROY",
+        "evidenceKey": "e76579fb49fa1ad0c0aff1af1c4eabe4426dfff48710cab51b22b1f60f3541a4",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "09d10b14081fea6387c6c1c70c4c934b524002a6f8d8c4078d6773149153e8b8"
+      },
+      {
+        "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_FRACTURE|js/const.js|MAY_FRACTURE",
+        "evidenceKey": "665bdd23c53735ae55a408b3d6195dff1622e55c6c5bd636a92fd57b7696eab2",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "00cf808b75aaccde669179738d7820ceb69f585af2b16423cc51f81b55b5fc64"
+      },
+      {
+        "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HIT|js/const.js|MAY_HIT",
+        "evidenceKey": "9f9e0618124c8a50e90a8ba21a679296bd27457f650868e61ac4cd9f24480c2d",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "4f9edc9da3b366c340cd3ea0527750e1721870de513fd77593f1eac56c32df09"
+      },
+      {
+        "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITMON|js/const.js|MAY_HITMON",
+        "evidenceKey": "277cdf2834b3b9eb9ff12efc6c6995be5295ba56392db654ff1e6e2a1db0190d",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "303e8c3365e37e833c8462b8e100f5b74e3a8e92837e6618dc0a7de707e8d32c"
+      },
+      {
+        "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITYOU|js/const.js|MAY_HITYOU",
+        "evidenceKey": "bfe593c0e7f268ff107cac39e18ccf3ab7d9a28f44de8786f84113c007f14d6e",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "4e690b6fb20ac151541aabe93c5385c5ca3be469bbc059d3db8204af2b33e04a"
+      }
+    ],
+    "classificationVerified": true
+  },
+  "evidencePaths": [
+    "README.md",
+    "binding.json",
+    "bound-run.json",
+    "check.test.mjs",
+    "compiled-observations.json",
+    "decision-template.json",
+    "decisions.json",
+    "keys.json",
+    "use-sites.json"
+  ],
+  "nextExperiment": null,
+  "scopeLimit": "Only this value-use proof; not general scatter/explosion parity. Reopen on new readers or changed representation uses."
+}

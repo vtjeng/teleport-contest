@@ -1,0 +1,542 @@
+{
+  "schemaVersion": 1,
+  "runId": "a381a949e765ae5aa2c8",
+  "baseSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "startedAt": "2026-10-28T17:52:25.950Z",
+  "inputHashes": {
+    "sourcePrevious": null,
+    "plan": null,
+    "luaConfig": null
+  },
+  "toolHashes": {
+    "sourceAudit": "89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+    "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+    "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+    "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+  },
+  "methodConfigHashes": {
+    "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+    "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+    "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+    "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+    "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+  },
+  "exclusionsSha256": null,
+  "methods": {
+    "sourceAudit": {
+      "sourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227"
+    },
+    "compiledConstants": {
+      "status": "complete"
+    }
+  },
+  "leads": [
+    {
+      "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_DESTROY|js/const.js|MAY_DESTROY",
+      "sourceKey": "header-macro-mismatch|include/hack.h|MAY_DESTROY|js/const.js|MAY_DESTROY",
+      "evidenceKey": "e76579fb49fa1ad0c0aff1af1c4eabe4426dfff48710cab51b22b1f60f3541a4",
+      "kind": "header-macro-mismatch",
+      "sourceRefs": [
+        "include/hack.h",
+        "js/const.js"
+      ],
+      "summary": "MAY_DESTROY: C=8, JS=4",
+      "method": "compiledConstants",
+      "symbol": "MAY_DESTROY",
+      "rank": null,
+      "title": "MAY_DESTROY: C=8, JS=4",
+      "discoveredBy": [
+        "compiledConstants"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:56:30.346Z",
+      "lastChecked": "2026-10-28T17:56:30.346Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+        "runId": "a381a949e765ae5aa2c8",
+        "sourceAuditSourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227",
+        "methodConfigHashes": {
+          "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+          "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+          "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "023ff3b5958baa805a3eb57e2f4dabc944a3ba98ed250f59dbebe7f966f9c647",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "e76579fb49fa1ad0c0aff1af1c4eabe4426dfff48710cab51b22b1f60f3541a4"
+      },
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": null,
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "include/hack.h",
+          "symbol": "MAY_DESTROY",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/const.js",
+          "symbol": "MAY_DESTROY",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "cfb72d4699bfe6080b46f21894f929f35b68414f"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "constant_compare",
+          "version": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "run_id": "a381a949e765ae5aa2c8"
+        }
+      ]
+    },
+    {
+      "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_FRACTURE|js/const.js|MAY_FRACTURE",
+      "sourceKey": "header-macro-mismatch|include/hack.h|MAY_FRACTURE|js/const.js|MAY_FRACTURE",
+      "evidenceKey": "665bdd23c53735ae55a408b3d6195dff1622e55c6c5bd636a92fd57b7696eab2",
+      "kind": "header-macro-mismatch",
+      "sourceRefs": [
+        "include/hack.h",
+        "js/const.js"
+      ],
+      "summary": "MAY_FRACTURE: C=16, JS=8",
+      "method": "compiledConstants",
+      "symbol": "MAY_FRACTURE",
+      "rank": null,
+      "title": "MAY_FRACTURE: C=16, JS=8",
+      "discoveredBy": [
+        "compiledConstants"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:56:30.346Z",
+      "lastChecked": "2026-10-28T17:56:30.346Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+        "runId": "a381a949e765ae5aa2c8",
+        "sourceAuditSourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227",
+        "methodConfigHashes": {
+          "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+          "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+          "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "023ff3b5958baa805a3eb57e2f4dabc944a3ba98ed250f59dbebe7f966f9c647",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "665bdd23c53735ae55a408b3d6195dff1622e55c6c5bd636a92fd57b7696eab2"
+      },
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": null,
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "include/hack.h",
+          "symbol": "MAY_FRACTURE",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/const.js",
+          "symbol": "MAY_FRACTURE",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "cfb72d4699bfe6080b46f21894f929f35b68414f"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "constant_compare",
+          "version": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "run_id": "a381a949e765ae5aa2c8"
+        }
+      ]
+    },
+    {
+      "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HIT|js/const.js|MAY_HIT",
+      "sourceKey": "header-macro-mismatch|include/hack.h|MAY_HIT|js/const.js|MAY_HIT",
+      "evidenceKey": "9f9e0618124c8a50e90a8ba21a679296bd27457f650868e61ac4cd9f24480c2d",
+      "kind": "header-macro-mismatch",
+      "sourceRefs": [
+        "include/hack.h",
+        "js/const.js"
+      ],
+      "summary": "MAY_HIT: C=6, JS=3",
+      "method": "compiledConstants",
+      "symbol": "MAY_HIT",
+      "rank": null,
+      "title": "MAY_HIT: C=6, JS=3",
+      "discoveredBy": [
+        "compiledConstants"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:56:30.346Z",
+      "lastChecked": "2026-10-28T17:56:30.346Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+        "runId": "a381a949e765ae5aa2c8",
+        "sourceAuditSourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227",
+        "methodConfigHashes": {
+          "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+          "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+          "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "023ff3b5958baa805a3eb57e2f4dabc944a3ba98ed250f59dbebe7f966f9c647",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "9f9e0618124c8a50e90a8ba21a679296bd27457f650868e61ac4cd9f24480c2d"
+      },
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": null,
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "include/hack.h",
+          "symbol": "MAY_HIT",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/const.js",
+          "symbol": "MAY_HIT",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "cfb72d4699bfe6080b46f21894f929f35b68414f"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "constant_compare",
+          "version": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "run_id": "a381a949e765ae5aa2c8"
+        }
+      ]
+    },
+    {
+      "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITMON|js/const.js|MAY_HITMON",
+      "sourceKey": "header-macro-mismatch|include/hack.h|MAY_HITMON|js/const.js|MAY_HITMON",
+      "evidenceKey": "277cdf2834b3b9eb9ff12efc6c6995be5295ba56392db654ff1e6e2a1db0190d",
+      "kind": "header-macro-mismatch",
+      "sourceRefs": [
+        "include/hack.h",
+        "js/const.js"
+      ],
+      "summary": "MAY_HITMON: C=2, JS=1",
+      "method": "compiledConstants",
+      "symbol": "MAY_HITMON",
+      "rank": null,
+      "title": "MAY_HITMON: C=2, JS=1",
+      "discoveredBy": [
+        "compiledConstants"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:56:30.346Z",
+      "lastChecked": "2026-10-28T17:56:30.346Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+        "runId": "a381a949e765ae5aa2c8",
+        "sourceAuditSourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227",
+        "methodConfigHashes": {
+          "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+          "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+          "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "023ff3b5958baa805a3eb57e2f4dabc944a3ba98ed250f59dbebe7f966f9c647",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "277cdf2834b3b9eb9ff12efc6c6995be5295ba56392db654ff1e6e2a1db0190d"
+      },
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": null,
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "include/hack.h",
+          "symbol": "MAY_HITMON",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/const.js",
+          "symbol": "MAY_HITMON",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "cfb72d4699bfe6080b46f21894f929f35b68414f"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "constant_compare",
+          "version": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "run_id": "a381a949e765ae5aa2c8"
+        }
+      ]
+    },
+    {
+      "key": "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITYOU|js/const.js|MAY_HITYOU",
+      "sourceKey": "header-macro-mismatch|include/hack.h|MAY_HITYOU|js/const.js|MAY_HITYOU",
+      "evidenceKey": "bfe593c0e7f268ff107cac39e18ccf3ab7d9a28f44de8786f84113c007f14d6e",
+      "kind": "header-macro-mismatch",
+      "sourceRefs": [
+        "include/hack.h",
+        "js/const.js"
+      ],
+      "summary": "MAY_HITYOU: C=4, JS=2",
+      "method": "compiledConstants",
+      "symbol": "MAY_HITYOU",
+      "rank": null,
+      "title": "MAY_HITYOU: C=4, JS=2",
+      "discoveredBy": [
+        "compiledConstants"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:56:30.346Z",
+      "lastChecked": "2026-10-28T17:56:30.346Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+        "runId": "a381a949e765ae5aa2c8",
+        "sourceAuditSourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227",
+        "methodConfigHashes": {
+          "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+          "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+          "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "023ff3b5958baa805a3eb57e2f4dabc944a3ba98ed250f59dbebe7f966f9c647",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "bfe593c0e7f268ff107cac39e18ccf3ab7d9a28f44de8786f84113c007f14d6e"
+      },
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": null,
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "include/hack.h",
+          "symbol": "MAY_HITYOU",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/const.js",
+          "symbol": "MAY_HITYOU",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "cfb72d4699bfe6080b46f21894f929f35b68414f"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "constant_compare",
+          "version": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "run_id": "a381a949e765ae5aa2c8"
+        }
+      ]
+    },
+    {
+      "key": "compiled-constants:header-macro-mismatch|include/objclass.h|BURNING_OIL|js/const.js|BURNING_OIL",
+      "sourceKey": "header-macro-mismatch|include/objclass.h|BURNING_OIL|js/const.js|BURNING_OIL",
+      "evidenceKey": "b13d009f55c14b1c4a5fadfa0ed09434fb3c58444f8ca159893b71e95dca93b3",
+      "kind": "header-macro-mismatch",
+      "sourceRefs": [
+        "include/objclass.h",
+        "js/const.js"
+      ],
+      "summary": "BURNING_OIL: C=19, JS=-2",
+      "method": "compiledConstants",
+      "symbol": "BURNING_OIL",
+      "rank": null,
+      "title": "BURNING_OIL: C=19, JS=-2",
+      "discoveredBy": [
+        "compiledConstants"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:56:30.346Z",
+      "lastChecked": "2026-10-28T17:56:30.346Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+        "runId": "a381a949e765ae5aa2c8",
+        "sourceAuditSourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227",
+        "methodConfigHashes": {
+          "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+          "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+          "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "023ff3b5958baa805a3eb57e2f4dabc944a3ba98ed250f59dbebe7f966f9c647",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "b13d009f55c14b1c4a5fadfa0ed09434fb3c58444f8ca159893b71e95dca93b3"
+      },
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": null,
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "include/objclass.h",
+          "symbol": "BURNING_OIL",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/const.js",
+          "symbol": "BURNING_OIL",
+          "start_line": null,
+          "end_line": null,
+          "commit_sha": "cfb72d4699bfe6080b46f21894f929f35b68414f"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "constant_compare",
+          "version": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "run_id": "a381a949e765ae5aa2c8"
+        }
+      ]
+    }
+  ],
+  "projectionOf": {
+    "sha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+    "fullRunId": "a381a949e765ae5aa2c8",
+    "selectedKeys": [
+      "compiled-constants:header-macro-mismatch|include/hack.h|MAY_DESTROY|js/const.js|MAY_DESTROY",
+      "compiled-constants:header-macro-mismatch|include/hack.h|MAY_FRACTURE|js/const.js|MAY_FRACTURE",
+      "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HIT|js/const.js|MAY_HIT",
+      "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITMON|js/const.js|MAY_HITMON",
+      "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITYOU|js/const.js|MAY_HITYOU",
+      "compiled-constants:header-macro-mismatch|include/objclass.h|BURNING_OIL|js/const.js|BURNING_OIL"
+    ],
+    "description": "Scoped projection; all review-fingerprint inputs preserved unchanged."
+  }
+}

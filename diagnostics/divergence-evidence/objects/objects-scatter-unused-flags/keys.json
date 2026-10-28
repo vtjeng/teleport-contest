@@ -1,0 +1,8 @@
+[
+  "compiled-constants:header-macro-mismatch|include/hack.h|MAY_DESTROY|js/const.js|MAY_DESTROY",
+  "compiled-constants:header-macro-mismatch|include/hack.h|MAY_FRACTURE|js/const.js|MAY_FRACTURE",
+  "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HIT|js/const.js|MAY_HIT",
+  "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITMON|js/const.js|MAY_HITMON",
+  "compiled-constants:header-macro-mismatch|include/hack.h|MAY_HITYOU|js/const.js|MAY_HITYOU",
+  "compiled-constants:header-macro-mismatch|include/objclass.h|BURNING_OIL|js/const.js|BURNING_OIL"
+]
