@@ -311,7 +311,10 @@ successful CI checks locally.
    dispatching any full Checkpoint; a nonzero exit blocks dispatch. This reads
    the exact committed tree, so commit corrections and check the new SHA.
    Keep source-relative evidence runners as `check.mjs` and register intended
-   automated tests through `scripts/*.test.mjs` wrappers. Before evidence or
+   automated tests through `scripts/*.test.mjs` wrappers. New evidence handoffs
+   use the versioned existing `case.json` format and packaging validator in
+   [docs/evidence-package.md](../docs/evidence-package.md). Legacy cases remain
+   explicit legacy; do not mass-migrate or infer readiness from matching outputs. Before evidence or
    tooling publication, also run `node --test scripts/test-suites.test.mjs`.
    This guards the repeated evidence-runner naming failures; it does not replace
    full Checkpoint gates or certify test behavior.

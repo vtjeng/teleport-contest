@@ -1263,3 +1263,17 @@ commit containing this entry; recording details are in trial-monitor/README.md.
   `check.mjs`, with intended automated tests exposed in `scripts/*.test.mjs`.
 - Follow-up: unmeasured. No compute/time savings claimed. Run the discovery test
   before evidence publication and the exact-commit guard before each dispatch.
+
+## 2026-10-28 — Validate evidence packaging without promoting conclusions
+
+- Why: differing case field names, omitted projection metadata, missing shared
+  files and test-runner placement caused repeated handoff rework.
+- Implementation: this commit's `evidence-package.mjs` template/validator and
+  `docs/evidence-package.md` standardize the existing case.json. Reuse discovery
+  projection validation and committed-tree preflight; no new ledger.
+- Tradeoff: command receipts and dependency hashes require explicit authoring.
+  The validator checks consistency, not oracle fidelity or semantic correctness;
+  expected failures and unresolved exposure remain visible. Legacy cases are
+  reported as unvalidated, with no mass migration or retrospective receipts.
+- Follow-up: unmeasured. Three bounded legacy packaging demonstrations preserve
+  missing receipts as incomplete; no repeat gameplay probes or savings claim.
