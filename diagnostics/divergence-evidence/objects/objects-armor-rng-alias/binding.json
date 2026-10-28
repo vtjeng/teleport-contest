@@ -1,0 +1,15 @@
+{
+  "fullRunId": "a381a949e765ae5aa2c8",
+  "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+  "fullRunRetainedAt": "diagnostics/divergence-evidence/objects/objects-triage-20261028/effects-hub/run.json",
+  "projectionSha256": "ba28b2833df8f40903e47b2955202879162e09dec0029abac195cfd670385925",
+  "templateSha256": "5f3ae2aaa197c2382ff378e44a7ec648eb348abaacbc53826085dfd46d2d35ca",
+  "decisionsSha256": "367d52728a5b803e78fa985cdef48f2e0dcfc7fac09cce221955262b6208750e",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/do_wear.c:some_armor:rn2",
+    "source-audit:edge-c-only:src/do_wear.c:find_ac:record_achievement"
+  ],
+  "createdAt": "2026-10-28T18:14:14.467Z",
+  "verifiedAtBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "relevantFilesUnchangedSinceRun": true
+}
