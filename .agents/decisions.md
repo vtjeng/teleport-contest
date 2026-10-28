@@ -1248,3 +1248,18 @@ commit containing this entry; recording details are in trial-monitor/README.md.
 - Follow-up: unmeasured. Check subsequent ordinary publications for correct
   selected execution revision and measurement time; do not infer compute or
   active time from publication latency.
+
+## 2026-10-28 — Check committed test layout before Checkpoint dispatch
+
+- Why: two integration batches reached full hosted validation with evidence
+  `*.test.mjs` runners outside the discovered test roots.
+- Implementation: the commit containing this entry adds
+  `checkpoint-preflight.mjs` and invokes its committed-tree layout guard from
+  delivery preflight. The standalone CLI covers candidates without task records.
+  Both use the existing stray-test policy; no workflow or settings change.
+- Tradeoff: one local Git tree read detects this layout failure without running
+  gameplay tests. It does not replace full gates, inspect test behavior, or
+  intercept direct external dispatch. Source-relative evidence checks use
+  `check.mjs`, with intended automated tests exposed in `scripts/*.test.mjs`.
+- Follow-up: unmeasured. No compute/time savings claimed. Run the discovery test
+  before evidence publication and the exact-commit guard before each dispatch.
