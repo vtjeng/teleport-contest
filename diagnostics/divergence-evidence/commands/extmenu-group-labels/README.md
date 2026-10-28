@@ -24,8 +24,10 @@ The sibling `extmenu-choice-bound` and `extmenu-prefix-bound` cases explain two 
 The two import decisions reuse the small projection published in PR #30, not a copy of its large original run. Extract that immutable file from its pinned commit, then classify:
 
 ```
-git show b2eb6dd2b9c0700c3b4e0bebc8fc48dc57d0a026:diagnostics/divergence-evidence/commands/turn-loop-platform-adapter/discovery-run.projection.json > /tmp/commands-projection.json
+git show b5b2d146d5905cc0efc067583573c50733c9c83a:diagnostics/divergence-evidence/commands/turn-loop-platform-adapter/discovery-run.projection.json > /tmp/commands-projection.json
 node scripts/discovery-hub.mjs classify --run /tmp/commands-projection.json --decisions diagnostics/divergence-evidence/commands/extmenu-group-labels/negative-decisions.json --out /tmp/commands-extmenu-reviewed.json
 ```
 
 `projection-reference.json` pins the projection SHA-256, original run identity/hash, repository and commit. If that evidence commit is not in the local clone, fetch its published `analysis/commands/20261028-turn-loop-negatives` branch first. Clean-checkout import of both original-fingerprint decisions is recorded in `pickup-check.json`. No rescan, guessed canonical ID, or private environment access is required.
+
+The corrected shared projection includes the original top-level method configuration hashes and source-audit source hash. Clean active-view verification filters exactly these two negatives and retains four other unreviewed leads. Import acceptance alone is not the gate; no validation rules were weakened.

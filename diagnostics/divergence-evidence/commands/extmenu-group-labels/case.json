@@ -27,7 +27,7 @@
   "historyCheck": "Fetched current main58ad57cea before choosing lead. No matching open extmenu claim. Does not modify direct turn binding, count input or occupation implementation.",
   "nextExperiment": "After Main ports source row construction, test narrowing and width wrapping as part of the same source function.",
   "evidenceSha256": {
-    "README.md": "bcec0589c5be0e2a394860ccbf6d89551963aef76281860a9aebf26c70fbac47",
+    "README.md": "acb01f2d7dde6e1a98098112603075fecd16c65eecfcaabcb959612fd85d44a3",
     "candidate.test.mjs": "502d5798f46efd99ed876c2e567b7b5eae3fe8563514b927bdde95ea6b4c6d82",
     "control.comparison.json": "4244642d10e3cd6f062361dc8765c95edee08878c5566d81e0d768eb423ac285",
     "control.js-output.json.gz": "3dc713bb306340d27a8ecb24d0025309c9c6049139ffea3269296030a5b22fb6",
@@ -36,8 +36,8 @@
     "control.recording.json.gz": "1f705bb4a09c2ea85f959c5daddcbf3926edc36abf7c5b7e0fe147fe6a77fb84",
     "control.recording.json": "d308ce23858ad947db4783192d72417ee91fc4eda86869248ed7158f6e19a114",
     "negative-decisions.json": "208a3cbfb67fb5114dbdcda27d1d8660d0317383e6df0fcb034c85ed3632720f",
-    "pickup-check.json": "c92e5190d9479a3bf68f277eedb9efa841d74955e0751b16f261a5ac52abb453",
-    "projection-reference.json": "acb87ee2eafa1c70dc5149e9abe4e27081f84a60fd1ee7792d01accbf8668f26",
+    "pickup-check.json": "35604cbcd966db9229e9afb792eb330351f8163e000f8e5bd223f170d78dccf0",
+    "projection-reference.json": "04938a118a1a0f7f6128b3f0727fed158da44925fb8a97fe1940e512b61d6f35",
     "provenance.json": "2680092dee5ea5aa17038f72e47051f32cd1cb45886ef6f5ed96e1263f247e09",
     "witness.comparison.json": "564d15e8cf0a3c21b2f3db9e444cc6101523903c35c951f3d70438686e87d274",
     "witness.js-output.json.gz": "6208872aada36bcf1ad7d3b8d5df35ec467f42b22e7e53020be965b6d9cd52bb",
@@ -49,6 +49,6 @@
   "validation": {
     "fresh": "Pristine pinned-base CLI witness1/control0",
     "focused": "Control and2 bounded negatives pass; only display witness fails intentionally",
-    "negativeImport": "Two original-fingerprint decisions import as current from shared pinned projection"
+    "negativeImport": "Two original-fingerprint decisions import and filter from active view; four unreviewed leads retained."
   }
 }
