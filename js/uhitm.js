@@ -6806,7 +6806,10 @@ export async function mhitm_ad_pest(
     } else {
         const message = requireAttackOperation(env, 'message');
         await message(
-            `${Monnam(magr, state, env)} reaches out, and you feel fever and chills.`,
+            messageAt(
+                `${Monnam(magr, state, env)} reaches out, and you feel fever and chills.`,
+                magr.mx, magr.my, state,
+            ),
             state,
             env,
         );

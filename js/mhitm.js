@@ -1866,7 +1866,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             if (Resists_Elem(magr, COLD_RES, state)) {
                 if (canseemon(magr, state)) {
                     await message(
-                        `${Monnam(magr, state, env)} is mildly chilly.`, state,
+                        messageAt(`${Monnam(magr, state, env)} is mildly chilly.`,
+                            magr.mx, magr.my, state), state,
                     );
                     await golemeffects(magr, AD_COLD, tmp, { ...env, state });
                 }
@@ -1875,7 +1876,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             }
             if (canseemon(magr, state)) {
                 await message(
-                    `${Monnam(magr, state, env)} is suddenly very cold!`, state,
+                    messageAt(`${Monnam(magr, state, env)} is suddenly very cold!`,
+                        magr.mx, magr.my, state), state,
                 );
             }
             healmon(mdef, Math.trunc(tmp / 2), Math.trunc(tmp / 2));
