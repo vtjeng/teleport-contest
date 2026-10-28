@@ -1,0 +1,35 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_engraving:dupstr",
+    "evidenceKey": "6510080d605d0dd76fbffac75a8b5b476694cfdd43db65f0ac79c214c2408ac3",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "fdff2d9941f4e8b651b989dad6d5a05789b1079fc35d3c0bdbd201fbd7cfadfc",
+    "status": "confirmed",
+    "witness": {
+      "setup": "Production special loader with solidfill floor then public des.engraving table or positional form, text alpha-NUL-omega, at local2,2. C executes exact wrapper/string copier/constructor with typed stack adapters.",
+      "failingCommand": "node diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/probe.mjs target",
+      "observed": "JS stores full alpha-NUL-omega in three text states, size12/allocation36.",
+      "expected": "C dupstr and make_engr_at store alpha prefix, size6/allocation18.",
+      "control": {
+        "command": "node diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/probe.mjs control",
+        "result": "Exit0 for six plain alpha, empty and UTF-8 café controls across both forms."
+      },
+      "evidenceBasis": "C-executed",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:3917",
+        "nethack-c/upstream/src/alloc.c:238",
+        "nethack-c/upstream/src/engrave.c:408",
+        "js/mklev.js:2779",
+        "js/engrave.js:164"
+      ]
+    },
+    "claim": {
+      "expected": "C-string prefix at level-construction engraving API boundary.",
+      "suspectedDifference": "JS preserves suffix and embedded NUL; duplicate-string allocation edge itself is not the defect."
+    },
+    "handoff": {
+      "caseId": "levels-engraving-string-prefix-20261028",
+      "qualification": "API-scoped construction; related to accepted level-message NUL case; shipped exposure unknown"
+    }
+  }
+]

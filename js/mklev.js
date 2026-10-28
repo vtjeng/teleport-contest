@@ -1791,6 +1791,7 @@ function lvlfill_solid(filling, lit, frame, state) {
                 continue;
             const loc = state.level.at(x, y);
             loc.flags = 0;
+            loc.wall_info = 0;
             loc.doormask = 0;
             loc.horizontal = false;
             loc.roomno = 0;
@@ -2796,7 +2797,8 @@ export function lspo_engraving(args, env) {
 
     const c = { x, y };
     get_location_coord(c, DRY, coder.croom, ecoord, env);
-    make_engr_at(c.x, c.y, txt, null, 0, etyp, env);
+    // C dupstr/make_engr_at see the first NUL-terminated string prefix.
+    make_engr_at(c.x, c.y, txt?.split('\0', 1)[0] ?? null, null, 0, etyp, env);
     const ep = engr_at(c.x, c.y, state);
     if (ep) {
         ep.guardobjects = Boolean(guardobjs);
@@ -5516,10 +5518,9 @@ function walkfrom(x, y, typ, state, bounds) {
         // mz_move step 1: advance to intermediate cell and set it.
         x += dx[dir];
         y += dy[dir];
-        if (!IS_DOOR(state.level.at(x, y).typ)) {
-            state.level.at(x, y).typ = typ;
-            state.level.at(x, y).flags = 0;
-        }
+        // C overwrites this square even when it was an authored door; only
+        // the start/destination cell has the door-preserving guard above.
+        state.level.at(x, y).typ = typ;
         // mz_move step 2: advance to destination cell.
         x += dx[dir];
         y += dy[dir];

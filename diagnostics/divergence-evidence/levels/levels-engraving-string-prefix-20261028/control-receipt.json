@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:23:42.880Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "e865f124e2f57f65b4669cca8a37eecdaa45d64bfd9f81ce56ad84698b600cc5",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/oracle.c": "88fc23e94ad8e7f567487f68fe4b1d0dc767a4834b02ef083a809e474992bd4f"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/control-output.txt"
+  ]
+}

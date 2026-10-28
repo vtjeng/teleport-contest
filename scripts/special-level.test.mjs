@@ -9,7 +9,7 @@ import { monst_globals_init } from '../js/monsters.js';
 import { TIN, EGG, APPLE, CORPSE, STATUE, FIGURINE, objects_globals_init } from '../js/objects.js';
 import { PM_CHAMELEON, PM_CAVE_DWELLER, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
-import { ICE, ICED_POOL, ICED_MOAT, ROOM } from '../js/const.js';
+import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, STONE } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -65,6 +65,26 @@ async function runLoader(body) {
     );
 }
 
+for (const [property, bit] of [['nondiggable', 8], ['nonpasswall', 16]]) {
+    for (const style of ['solidfill', 'mazegrid']) {
+        test(`${style} ${property} wall flags after repeated level_init`, async () => {
+            await runLoader(async des => {
+                des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+                for (let x = 10; x < 13; x++) for (let y = 6; y < 9; y++)
+                    des.terrain({ x: x - 1, y, typ: '-', lit: 0 });
+                des.wall_property({ region: [9, 6, 11, 8], property });
+                const cells = [];
+                for (let x = 10; x < 13; x++) for (let y = 6; y < 9; y++)
+                    cells.push(game.level.at(x, y));
+                assert.deepEqual(cells.map(cell => cell.wall_info), Array(9).fill(bit));
+                des.level_init({ style, fg: '-', bg: '-', lit: 0 });
+                assert.deepEqual(cells.map(cell => cell.wall_info),
+                    Array(9).fill(style === 'solidfill' ? 0 : bit));
+            });
+        });
+    }
+}
+
 test('special-level message uses the C string prefix before appending', async () => {
     await runLoader(async des => {
         des.level_init({ style: 'solidfill', fg: '.' });
@@ -74,6 +94,46 @@ test('special-level message uses the C string prefix before appending', async ()
         assert.equal(game.gl.lev_message, 'alpha\ntail');
     });
 });
+
+for (const form of ['table', 'positional']) {
+    for (const [text, expected] of [['alpha\0omega', 'alpha'],
+        ['alpha', 'alpha'], ['', ''], ['café', 'café']]) {
+        test(`${form} level engraving stores the C string prefix of ${JSON.stringify(text)}`, async () => {
+            await runLoader(async des => {
+                des.level_init({ style: 'solidfill', fg: '.' });
+                if (form === 'table')
+                    des.engraving({ x: 2, y: 2, type: 'engrave', text });
+                else
+                    des.engraving([2, 2], 'engrave', text);
+                const engraving = game.head_engr;
+                assert.deepEqual(engraving.engr_txt, [expected, expected, expected]);
+                assert.equal(engraving.engr_szeach, Buffer.byteLength(expected) + 1);
+                assert.equal(engraving.engr_alloc, 3 * (Buffer.byteLength(expected) + 1));
+            });
+        });
+    }
+}
+
+for (const [midpoint, carve, expected] of [
+    ['+', '.', ROOM], ['+', '#', CORR],
+    ['.', '.', ROOM], ['.', '#', CORR],
+]) {
+    test(`mazewalk ${carve} overwrites intermediate ${midpoint} terrain`, async () => {
+        await runLoader(async des => {
+            des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+            des.terrain(13, 11, midpoint);
+            des.terrain(14, 11, ' ');
+            assert.deepEqual([13, 14, 15].map(x => game.level.at(x, 11).typ),
+                [ROOM, midpoint === '+' ? DOOR : ROOM, STONE]);
+            enableRngLog();
+            des.mazewalk({ x: 11, y: 11, dir: 'east', typ: carve,
+                stocked: 0 });
+            assert.deepEqual([13, 14, 15].map(x => game.level.at(x, 11).typ),
+                [expected, expected, expected]);
+            assert.deepEqual(getRngLog(), ['rn2(1)=0']);
+        });
+    });
+}
 
 test('special-level API waits for map, room, and region contents callbacks',
     async () => {
