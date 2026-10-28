@@ -2811,7 +2811,7 @@ export function accept_newcham_form(monster, mndx, state = game) {
 }
 
 // C ref: mon.c mgender_from_permonst() (5254-5272).
-function mgender_from_permonst(monster, species, random) {
+export function mgender_from_permonst(monster, species, random) {
     if (is_male(species)) monster.female = false;
     else if (is_female(species)) monster.female = true;
     else if (!is_neuter(species) && !random.rn2(10)

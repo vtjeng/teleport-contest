@@ -679,11 +679,9 @@ test('furniture and monster appearances resolve while unsupported shapes fail ea
             },
         },
     };
-    // Shapechanger transformations remain outside this narrow mimic span.
+    // Other shapechanger transformations remain outside this narrow span.
     // An appear_as prefix the C does not know is a Lua parser error.
     const invalid = [
-        [{ id: PM_CHAMELEON, appear_as: 'mon:jackal' },
-            /unsupported initial-level monster creation/u],
         [{ class: S_MIMIC, appear_as: 'chest' }, /Unknown appear_as type/u],
     ];
 
@@ -694,6 +692,46 @@ test('furniture and monster appearances resolve while unsupported shapes fail ea
         );
         assert.equal(level.monlist, null);
     }
+});
+
+test('a special-level chameleon takes its named monster form', () => {
+    // C sp_lev.c:create_monster() installs a named form with set_mon_data().
+    // A C #wizloaddes recording independently accepts mon:jackal for a
+    // chameleon; the focused API test checks its internal state and RNG path.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const calls = [];
+    const random = quietObjectRandom();
+    const rn2 = random.rn2;
+    random.rn2 = bound => {
+        calls.push(bound);
+        return rn2(bound);
+    };
+    const monster = lspo_monster([{
+        id: PM_CHAMELEON,
+        appear_as: 'mon:jackal',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(monster.data, state.mons[PM_JACKAL]);
+    assert.equal(monster.mnum, PM_JACKAL);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.equal(monster.mappearance, 0);
+    assert.ok(calls.includes(10), 'C mgender_from_permonst draws for jackal');
+});
+
+test('control: a special-level chameleon without appearance keeps its natural form', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_CHAMELEON }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    // C makemon may already select an initial shape. Without appear_as,
+    // create_monster leaves that normal selection alone.
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
 });
 
 test('create_monster relocates an occupied fixed coordinate inside its room', () => {
