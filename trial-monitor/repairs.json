@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T16:50:20Z",
+  "asOf": "2026-10-28T17:30:19Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23816,6 +23816,81 @@
               "completedAt": "2026-10-28T16:50:20Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40729624455"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "levitation-doff-trapdoor",
+      "kind": "parity-repair",
+      "title": "Complete deferred level change after delayed levitation-boot removal",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c:moveloop_core",
+          "nethack-c/upstream/src/do_wear.c:Boots_off",
+          "nethack-c/upstream/src/trap.c:float_down",
+          "js/allmain.js:finishElapsedTurnAfterLevelEffects",
+          "js/do_wear.js:Boots_off",
+          "js/trap.js:float_down"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/levitation-doff-trapdoor.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+          "committedAt": "2026-10-28T17:11:02Z",
+          "sourceCommit": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+          "sourceCommittedAt": "2026-10-28T17:11:02Z",
+          "runs": [
+            {
+              "id": 40733309504,
+              "name": "Checkpoint",
+              "sha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/levitation-doff-trapdoor-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T17:11:26Z",
+              "completedAt": "2026-10-28T17:27:08Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40733309504"
+            },
+            {
+              "id": 40735991524,
+              "name": "Lint",
+              "sha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T17:28:05Z",
+              "completedAt": "2026-10-28T17:29:29Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40735991524"
+            },
+            {
+              "id": 40735991846,
+              "name": "Dashboard",
+              "sha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T17:28:05Z",
+              "completedAt": "2026-10-28T17:30:19Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40735991846"
             }
           ]
         }

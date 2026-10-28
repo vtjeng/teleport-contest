@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import { cUnits, jsUnits } from './structural-signals.mjs';
-import { extractMessages, inactiveLiteralIfZeroLines, missingMessageCandidates, longestFixed, decodeCString, messageMatch, resolveC, mergeBacklog, applyDecisions } from './source-audit.mjs';
+import { extractMessages, filterMessageSources, inactiveLiteralBranchProofs, messageFilterCounts, inactiveLiteralIfZeroLines, missingMessageCandidates, longestFixed, decodeCString, messageMatch, resolveC, mergeBacklog, applyDecisions } from './source-audit.mjs';
 
 test('literal threshold applies to full string, longest fragment may be shorter than fourteen', () => {
     const source = 'void\nf(void) { You("brief %s fragment"); }';
@@ -153,4 +154,74 @@ test('explicit aliases and function mappings cannot bypass exclusions', async ()
     const { validateMappings } = await import('./source-audit.mjs');
     assert.throws(() => validateMappings({ functions: { 'src/test.c:ok': 'js/example.js:blocked' } }, new Set(['blocked'])), /excluded/u);
     assert.throws(() => validateMappings({ renames: { safe: 'blocked' } }, new Set(['blocked'])), /excluded/u);
+});
+
+
+test('literal alternatives filter only proved dead messages, preserving adjacent live/unknown paths', () => {
+    const text = [
+        'void f(void) {', '#if 1 /* fixed choice */',
+        'pline("genuine live difference message");', '#else',
+        'pline("excluded alternative message");', '#endif',
+        '#if FEATURE', 'pline("unknown profile difference message");',
+        '#elif 0', 'pline("excluded false elif message");',
+        '#elif 1', 'pline("possibly reached elif message");',
+        '#else', 'pline("excluded after covering elif message");', '#endif',
+        '#if 0', 'pline("old filtered message long enough");', '#endif',
+        '}',
+    ].join('\n');
+    const extracted = extractMessages(text, 'fixture.c', cUnits(text, 'fixture.c')).messages;
+    const frozen = filterMessageSources(extracted, text).map(m => ({...m, status: 'absent'}));
+    assert.deepEqual(missingMessageCandidates(frozen).map(m => m.literal), [
+        'genuine live difference message', 'unknown profile difference message', 'possibly reached elif message',
+    ]);
+    assert.deepEqual(messageFilterCounts(frozen), {rawCandidates: 7, oldLiteralIfZero: 1,
+        beforeIncrementalRule: 6, incrementalLiteralArms: 3, afterIncrementalRule: 3});
+    const proof = frozen.find(m => m.sourceFilter === 'literal-inactive-arm').sourceFilterEvidence;
+    for (const key of ['sourceSha256', 'toolSha256', 'configSha256']) assert.match(proof[key], /^[a-f0-9]{64}$/u);
+    assert.ok(proof.reason && proof.directiveLine);
+    const changed = text.replace('#if 1 /* fixed choice */', '#if NEW_PROFILE');
+    const refreshed = filterMessageSources(extracted, changed);
+    assert.equal(refreshed[1].sourceFilter, null, 'changed condition reopens alternative');
+    assert.notEqual(refreshed.find(m => m.sourceFilter).sourceFilterEvidence.sourceSha256, proof.sourceSha256);
+});
+
+test('literal proof parser respects comments, splicing, nesting and invalid guards', () => {
+    const lines = ['#if 1', '#else', '#ifdef FEATURE', 'dead_nested();', '#endif', '#endif',
+        '// ignored guard ' + '\\', '#if 1', 'ordinary_live();'];
+    const proofs = inactiveLiteralBranchProofs(lines.join('\n'));
+    assert.equal(proofs.has(4), true);
+    assert.equal(proofs.has(9), false);
+    for (const text of ['#if 1\n#else\n#else\ndead();\n#endif',
+        '#if 1\n#else\ndead();', '#if 1\n#else garbage\ndead();\n#endif',
+        '#if 1\n#else\ndead();\n#endif\n/* unclosed',
+        '#if 1\n#else\ndead();\n#endif\n%:if 0'])
+        assert.equal(inactiveLiteralBranchProofs(text).size, 0, text);
+    const comment = '/*\n#if 1\n*/\nlive();';
+    assert.equal(inactiveLiteralBranchProofs(comment).size, 0);
+    assert.equal(inactiveLiteralBranchProofs('#ifdef UNKNOWN\nlive();\n#else\nlive_too();\n#endif').size, 0);
+});
+
+test('a helper or same string elsewhere never supplies an inactive-source proof', () => {
+    const text = 'void caller(void) { pline("distinct missing path message"); }';
+    const messages = extractMessages(text, 'fixture.c', cUnits(text, 'fixture.c')).messages;
+    // Even a global literal match is independent of this source reachability rule.
+    for (const status of ['absent', 'raw-only-hit']) {
+        const filtered = filterMessageSources(messages, text).map(m => ({...m, status}));
+        assert.equal(missingMessageCandidates(filtered).length, 1);
+    }
+});
+
+
+test('pinned commented inactive arm is filtered but enabling it restores the source lead', () => {
+    const source = readFileSync('nethack-c/upstream/src/pickup.c', 'utf8');
+    const messages = extractMessages(source, 'src/pickup.c', cUnits(source, 'src/pickup.c')).messages;
+    const selected = messages.filter(m => m.literal === 'Tipping contents to floor only...');
+    assert.equal(selected.length, 1);
+    const filtered = filterMessageSources(selected, source).map(m => ({...m, status: 'absent'}));
+    assert.equal(filtered[0].sourceFilter, 'literal-inactive-arm');
+    assert.equal(missingMessageCandidates(filtered).length, 0);
+    const enabled = source.replace('#if 0   /* [skip potential early return', '#if 1   /* [skip potential early return');
+    assert.notEqual(enabled, source);
+    const visible = filterMessageSources(selected, enabled).map(m => ({...m, status: 'absent'}));
+    assert.equal(missingMessageCandidates(visible).length, 1);
 });

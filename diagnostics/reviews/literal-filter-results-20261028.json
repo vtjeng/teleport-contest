@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "baseSha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "sourceHash": "429028183425d22f14baca0861d50b8994e94cae549a72904f40802e6edc0804",
+  "command": "node scripts/source-audit.mjs scan --out /workspace/negative-filter-frozen-scan",
+  "inputArchive": "diagnostics/reviews/literal-filter-frozen-20261028.json.gz",
+  "inputArchiveSha256": "da98f0e0179f1ab9ce020430b863ea5f94750169cf4982f4f37ce0bdc6d67340",
+  "inputPlainSha256": "a6315362195edd71674fa61a06b911cb8096947620ff131749d2c2b55caa03c7",
+  "scope": {
+    "eligibleCFiles": 303,
+    "qualifyingLiteralOccurrences": 5932
+  },
+  "counts": {
+    "rawCandidates": 1788,
+    "oldLiteralIfZero": 35,
+    "beforeIncrementalRule": 1753,
+    "incrementalLiteralArms": 15,
+    "afterIncrementalRule": 1738
+  },
+  "incrementalByCategory": {
+    "non-gameplay/diagnostic": 12,
+    "gameplay/diagnostic": 2,
+    "gameplay/message": 1
+  },
+  "incrementalSites": [
+    {
+      "path": "outdated/sys/amiga/txt2iff.c",
+      "line": 394,
+      "owner": "map_colors",
+      "reason": "earlier literal true arm excludes this alternative",
+      "sourceSha256": "fa0420ebacc574eade2e04c97b5ac5e4e56d93961006a43df69116ba6340a0b3"
+    },
+    {
+      "path": "src/alloc.c",
+      "line": 258,
+      "owner": "dupstr_n",
+      "reason": "literal false condition",
+      "sourceSha256": "b5bae0ab6e2e506517bee0825582914644e968da6b09f7fa3d5d0b277ef16a31"
+    },
+    {
+      "path": "src/hack.c",
+      "line": 4261,
+      "owner": "losehp",
+      "reason": "literal false condition",
+      "sourceSha256": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665"
+    },
+    {
+      "path": "src/mon.c",
+      "line": 232,
+      "owner": "sanity_check_single_mon",
+      "reason": "literal false condition",
+      "sourceSha256": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01"
+    },
+    {
+      "path": "src/pickup.c",
+      "line": 3890,
+      "owner": "tipcontainer_gettarget",
+      "reason": "literal false condition",
+      "sourceSha256": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134"
+    },
+    {
+      "path": "sys/windows/windmain.c",
+      "line": 601,
+      "owner": "early_options",
+      "reason": "literal false condition",
+      "sourceSha256": "b7b0d99dddc33a2a23acb08efb3be0b89fbd5b7f55f54a22561a43fc25d0d8af"
+    },
+    {
+      "path": "sys/windows/windmain.c",
+      "line": 650,
+      "owner": "early_options",
+      "reason": "literal false condition",
+      "sourceSha256": "b7b0d99dddc33a2a23acb08efb3be0b89fbd5b7f55f54a22561a43fc25d0d8af"
+    },
+    {
+      "path": "util/makedefs.c",
+      "line": 2232,
+      "owner": "do_objs",
+      "reason": "literal false condition",
+      "sourceSha256": "2eaa5e0eeedc7b1e9e89dd3e2fe796676835d15cd5873798f92ab55f5262ee78"
+    },
+    {
+      "path": "util/makedefs.c",
+      "line": 2322,
+      "owner": "do_objs",
+      "reason": "literal false condition",
+      "sourceSha256": "2eaa5e0eeedc7b1e9e89dd3e2fe796676835d15cd5873798f92ab55f5262ee78"
+    },
+    {
+      "path": "util/recover.c",
+      "line": 413,
+      "owner": "restore_savefile",
+      "reason": "literal false condition",
+      "sourceSha256": "d6b65a9b5928899cc30ea7753c2fd8d7a8b9c829a041b8f6e499969c88ab46cf"
+    },
+    {
+      "path": "util/sftags.c",
+      "line": 984,
+      "owner": "<file-scope>",
+      "reason": "literal false condition",
+      "sourceSha256": "3c4354c0e303d5d55ea392e1ceced000b0d50a80656865ccb20c1ac52e7ed8ee"
+    },
+    {
+      "path": "util/sftags.c",
+      "line": 1193,
+      "owner": "<file-scope>",
+      "reason": "literal false condition",
+      "sourceSha256": "3c4354c0e303d5d55ea392e1ceced000b0d50a80656865ccb20c1ac52e7ed8ee"
+    },
+    {
+      "path": "util/sftags.c",
+      "line": 1219,
+      "owner": "<file-scope>",
+      "reason": "literal false condition",
+      "sourceSha256": "3c4354c0e303d5d55ea392e1ceced000b0d50a80656865ccb20c1ac52e7ed8ee"
+    },
+    {
+      "path": "util/sftags.c",
+      "line": 1341,
+      "owner": "<file-scope>",
+      "reason": "literal false condition",
+      "sourceSha256": "3c4354c0e303d5d55ea392e1ceced000b0d50a80656865ccb20c1ac52e7ed8ee"
+    },
+    {
+      "path": "win/curses/cursinit.c",
+      "line": 478,
+      "owner": "curses_choose_character",
+      "reason": "literal false condition",
+      "sourceSha256": "9c34c04301b65b1b90c39872e09f29e497b95288239d3b5b00d95f86c6d32559"
+    }
+  ],
+  "elapsedScanMs": 36844.313652,
+  "limitations": [
+    "Occurrence counts, not confirmed defects or runtime coverage.",
+    "Before/after use exactly the same frozen candidate/status rows; old #if0 and incremental rules counted separately.",
+    "No compute/time savings measurement.",
+    "No helper-existence, inactive-macro-profile, table-domain, setup-failure or matching-seed suppression added.",
+    "Main private log unavailable; only committed review notes consulted."
+  ]
+}

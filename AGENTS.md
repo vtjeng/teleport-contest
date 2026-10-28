@@ -20,6 +20,20 @@ explicitly changes the mode:
 - Keep the existing source-tracing, test, validation, acceptance, scoring, and
   publication requirements. Single-agent mode changes who performs the steps,
   not the evidence or correctness gates.
+- For each investigated discovery lead, retain a stable source identity, check
+  time, source/tool provenance, and the evidence for its disposition. A failed
+  or invalid setup remains unresolved. Group recurring explained negatives for
+  the separate tooling work; filter them only when a source-backed rule and
+  positive controls preserve genuine differences. Recheck a disposition when
+  its relevant source, configuration, or detector changes, and measure a new
+  filter on fixed inputs before relying on it.
+- Four separately authorized analysis-only sessions may submit evidence PRs
+  under `diagnostics/divergence-evidence/<shard>/<case-id>/`, scoped to level
+  generation, player commands/conduct, monster movement/combat, and
+  object/inventory mechanics. Their confirmed cases and explained negatives
+  are candidate handoffs, not accepted repairs. This session remains the sole
+  gameplay integrator and Main writer; excluded or denied investigations stay
+  excluded, and evidence PRs do not waive gameplay validation.
 - On restart, resume in this single-agent mode and consult the current
   continuation state before acting. Keep this mode until Vincent explicitly
   changes it.
