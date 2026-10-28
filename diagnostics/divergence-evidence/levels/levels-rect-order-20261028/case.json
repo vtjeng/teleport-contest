@@ -1,0 +1,58 @@
+{
+  "caseId": "levels-rect-order-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:55:57.551280+00:00",
+  "reviewedAt": "2026-10-28T20:56:48.164289+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "hypothesis": "JS rectangle-object copying might differ from C array replacement during recursive splitting, changing free-space order or containment.",
+  "supportedSetup": "Exported allocator init_rect/get_rect/split_rects/free_rect sequence, the same entry points used by room generation. Every cut is contained in a live free rectangle, asserted independently by C and JS. No private helper extraction or internal rectangle mutation. Eight frozen valid sequences.",
+  "expectedC": "Exact rect.c implementation produces the bundled ordered free-rectangle lists after each cut; allocated rectangle is no longer contained.",
+  "observedJS": "All28 cuts and36 snapshots match C including array order.",
+  "control": "Cuts [11,9,17,13] versus [10,9,16,13] straddle the strict left-fragment threshold: C/JS retain [0,0,9,20] only in the former. Multi-cut sequences exercise overlapping free-space recursion. JS value-copy lookup and allocation removal are additional invariants.",
+  "scope": "Eight frozen allocator sequences, 28 cuts, 36 ordered snapshots. No all-layout, room-generation, rnd_rect RNG or full-level equivalence. This manual source-led proof does not bind to an old scanner record.",
+  "oracleProvenance": "Complete upstream rect.c with only hack.h replaced by a minimal type/allocation shim and an appended deterministic driver. Production function bodies unchanged. Unexpected RNG/capacity/error paths abort.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/rect.c:146",
+    "nethack-c/upstream/src/rect.c:181",
+    "js/rect.js:105",
+    "js/rect.js:122"
+  ],
+  "sourceHashes": {
+    "js/rect.js": "e7c2fa4b62b528783be6f307e696e3e82914affeff352706a6ca253fb34ead05",
+    "nethack-c/upstream/src/rect.c": "0ba24377934d74be6846e39885bc2f886801c3709c41afb702445261d8f73562",
+    "nethack-c/upstream/include/rect.h": "dee168e068baa3aa15748725752d07659f8cb4e471116f7fab4acf080dc69f90"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "eff394e6edfbf6dca66c1f701ab262e56655a0d21dde14d65cb6e2987d806218",
+    "probeSha256": "df8849db6eb5136af113c29345d190a8a3699d01347423d40e09441513efb302",
+    "allocationsSha256": "212f2b57234086e9904f48aefd3d5736131168e0a3e1b62dd8ef8783a139b730"
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-rect-order-20261028/probe.mjs",
+  "expectedExit": 0,
+  "evidencePaths": [
+    "README.md",
+    "oracle.c",
+    "probe.mjs",
+    "allocations.json",
+    "observations.json",
+    "clean-base-verification.json",
+    "test-discovery-verification.json"
+  ],
+  "nextExperiment": null,
+  "discoveredBaseJs": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703"
+}

@@ -1,0 +1,17 @@
+{
+  "base": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "verifiedAt": "2026-10-28T20:56:48.163726+00:00",
+  "command": "node diagnostics/divergence-evidence/levels/levels-rect-order-20261028/probe.mjs",
+  "exit": 0,
+  "stdoutSha256": "67c9d8668dfab0f3bd42c2b0656c33fbdfae6c661c1574bc8653cc6bc50633fa",
+  "observationsMatch": true,
+  "priorVerification": {
+    "base": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+    "verifiedAt": "2026-10-28T20:55:57.921615+00:00",
+    "command": "node diagnostics/divergence-evidence/levels/levels-rect-order-20261028/probe.mjs",
+    "exit": 0,
+    "stdoutSha256": "67c9d8668dfab0f3bd42c2b0656c33fbdfae6c661c1574bc8653cc6bc50633fa",
+    "observationsMatch": true,
+    "setup": "Clean gameplay checkout with evidence-only overlay."
+  }
+}
