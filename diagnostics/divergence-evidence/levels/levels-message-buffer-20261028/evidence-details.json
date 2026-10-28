@@ -1,0 +1,77 @@
+{
+  "caseId": "levels-message-buffer-20261028",
+  "shard": "levels",
+  "outcome": "confirmed divergence",
+  "qualification": "supported-production-API; shipped exposure unknown",
+  "semanticCause": "lspo_message JS concatenates the full string while C uses strlen and copies only the prefix before the first embedded NUL.",
+  "baseJs": "51f5686fac30306411156df215ca83ae910cf6bf",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:46:27.366549+00:00",
+  "reviewedAt": "2026-10-28T21:46:27.366549+00:00",
+  "hypothesis": "C-string sizing in level-message accumulation may differ from JS string concatenation for a valid message containing an embedded NUL.",
+  "supportedSetup": "Production startup and mklev special loader, public des.level_init floor then public des.message calls. Input is an ordinary language string containing an embedded NUL (Lua escape \\0, JavaScript escape \\0). No arbitrary internal state mutation, special level, object/monster setup or player command.",
+  "expectedC": "One alpha-NUL-omega message stores alpha. Appending tail stores alpha newline tail.",
+  "observedJS": "One call retains alpha-NUL-omega; appending tail retains alpha-NUL-omega newline tail.",
+  "control": "Ordinary alpha then tail and empty string then tail match C exactly, including newline insertion after an empty first message.",
+  "scope": "Initialization buffer contents only. One cause, two targets. No rendering, screen, player-command, hidden-score or shipped-level impact claim. No connection to excluded coordinate-description work.",
+  "oracleProvenance": "Exact upstream lspo_message body compiled with fixed single-string Lua-stack adapters. Each input byte string is hex-decoded with embedded bytes retained; luaL_checkstring returns its NUL-terminated storage pointer, and the unchanged C function chooses length using strlen. No new Lua runtime or full Lua parser is supplied. Public Lua fixture included to specify equivalent supported calls.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:3076",
+    "js/mklev.js:2249",
+    "js/nhlua.js:248"
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "js/mklev.js": "ab947e22fa852df29a546a526a5b8a1b8b8198cbcf69ad6ec2828bb1462638d0",
+    "js/nhlua.js": "d8c580374c7cfb2d1d4b83e667e595e54522b389535033be96be777657def923"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "6d614f63a32127c531c2bd61db128cdbcaa783d01bae01efdbecbf070d43deea",
+    "probeSha256": "b9ca43576e58e9ada8628b4df9bea111f17d3a81a7fd7ec9d05868b09e7c2aae"
+  },
+  "reproduce": {
+    "observe": "node diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs observe",
+    "target": "node diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs target",
+    "control": "node diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs control"
+  },
+  "expectedExit": {
+    "observe": 0,
+    "target": 1,
+    "control": 0
+  },
+  "evidencePaths": [
+    "README.md",
+    "oracle.c",
+    "probe.mjs",
+    "target.lua",
+    "control.lua",
+    "observations.json",
+    "verification.json",
+    "decisions.json",
+    "projection/projection.json",
+    "projection/manifest.json"
+  ],
+  "nextExperiment": null,
+  "scannerOrigin": {
+    "kind": "scanner-derived-source-inspection",
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_message:alloc",
+    "evidenceKey": "04e30f777f3195f60f0a59ba157f0ca47c86690bf8e398e2253a268e9a0c8b4e",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "fb65aab1388cf7e6b1af149e847e3e2eb56a35d66f1254f34f8b64ed4937109c",
+    "status": null,
+    "interpretation": "Allocation edge prompted C string-sizing inspection; not a claim that JS needs manual allocation."
+  },
+  "discoveryRun": {
+    "runId": "ea2181cadbad5793b4be",
+    "base": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+    "sha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+    "projection": "projection/projection.json"
+  },
+  "ready": true
+}

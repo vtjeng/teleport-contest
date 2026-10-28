@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-message-buffer-20261028",
+  "shard": "levels",
+  "status": "candidate",
+  "readiness": "review_ready",
+  "rootCause": "level-message-c-string-prefix",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_message",
+      "start_line": 3076,
+      "end_line": 3111,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_message",
+      "start_line": 2249,
+      "end_line": 2257,
+      "commit_sha": "d1d8ac170b75dca71abe29819b5daa9972301221"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlua.js",
+      "symbol": "luaL_checkstring",
+      "start_line": 248,
+      "end_line": 252,
+      "commit_sha": "d1d8ac170b75dca71abe29819b5daa9972301221"
+    }
+  ],
+  "hypothesis": "C-string sizing in level-message accumulation may differ from JS string concatenation for a valid message containing an embedded NUL.",
+  "expectedBehavior": "One alpha-NUL-omega message stores alpha. Appending tail stores alpha newline tail.",
+  "observedBehavior": "One call retains alpha-NUL-omega; appending tail retains alpha-NUL-omega newline tail.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Production startup and mklev special loader, public des.level_init floor then public des.message calls. Input is an ordinary language string containing an embedded NUL (Lua escape \\0, JavaScript escape \\0). No arbitrary internal state mutation, special level, object/monster setup or player command.",
+    "limitations": [
+      "Initialization buffer contents only. One cause, two targets. No rendering, screen, player-command, hidden-score or shipped-level impact claim. No connection to excluded coordinate-description work.",
+      "Exact upstream lspo_message body compiled with fixed single-string Lua-stack adapters. Each input byte string is hex-decoded with embedded bytes retained; luaL_checkstring returns its NUL-terminated storage pointer, and the unchanged C function chooses length using strlen. No new Lua runtime or full Lua parser is supplied. Public Lua fixture included to specify equivalent supported calls."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+      "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/target-output.txt",
+      "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/control-output.txt"
+    ],
+    "reason": "Public production des.message reached in startup/loader. Shipped exposure unknown; no rendering or hidden-score claim."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Frozen allocation edge prompted inspection of string sizing; missing allocation is not the claim. Immutable run identity preserved.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_message:alloc"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/oracle.c"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/control-receipt.json"
+    },
+    {
+      "id": "post_fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/README.md",
+      "sha256": "3155587e8020ae084432fa293373e7425107d857b7619d005a553bed1bd03e3b",
+      "role": "README.md"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/control-output.txt",
+      "sha256": "f205b3c767f802701ad3c230dbe7e32bbb2aed80f09026957b06c61b0e112085",
+      "role": "control-output.txt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/control-receipt.json",
+      "sha256": "0794549450cc72a012c7d1e96239bb6807412b7e71e6e6cbcc21e4759b4576d0",
+      "role": "control-receipt.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/control.lua",
+      "sha256": "5dfc53b64e5f8e0e0dba6c46a449ca799d30e852c9277faea15476b443c2a543",
+      "role": "control.lua"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/decisions.json",
+      "sha256": "3d060a8a11f3062d80ffe8d2ef2b84dbc1b9e123b53f2207577d4fe1c3c67d2c",
+      "role": "decisions.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/evidence-details.json",
+      "sha256": "929d087053f0d6aff0a615f3c09ab841f25ae6b23e8556faf953b6182401686a",
+      "role": "evidence-details.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/observations.json",
+      "sha256": "0c99fd3f1c7173518270fb687f867b5aec8f0dc27c6989da07399019789e0b36",
+      "role": "observations.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
+      "sha256": "b9ca43576e58e9ada8628b4df9bea111f17d3a81a7fd7ec9d05868b09e7c2aae",
+      "role": "probe.mjs"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/projection/manifest.json",
+      "sha256": "fc644e1890c20fc8a99eb15894bd77bfda619e79458fb355ad4eaaf2840144a1",
+      "role": "manifest.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/projection/projection.json",
+      "sha256": "2a1c1713346252e5697d057aa892896e8e4c63424cedf9891e12b7ed88dc556b",
+      "role": "projection.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/projection/review-template.json",
+      "sha256": "85a06f9e07cc1f942b995b191d0db51a9133ffa1bc0397594092c6c4aa56a73f",
+      "role": "review-template.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/target-output.txt",
+      "sha256": "56af551cbf088c1b87b5d0f6364f36bac614c1c0547ff62dd1a7db49227a3cdf",
+      "role": "target-output.txt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/target-receipt.json",
+      "sha256": "5f0f907f11e3da86d307cff8a75e09011eb5fc5afbd540734342891a736546af",
+      "role": "target-receipt.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/target.lua",
+      "sha256": "a5b11788b5d28bead8625c32f281f6a11b1f944c566df8ceb3f444b564dfa252",
+      "role": "target.lua"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/verification.json",
+      "sha256": "3a06f99d8c7191737c689aec0f2169499fcc3195cb154e54b7d415f0e91affb7",
+      "role": "verification.json"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/oracle.c",
+      "sha256": "6d614f63a32127c531c2bd61db128cdbcaa783d01bae01efdbecbf070d43deea",
+      "role": "C oracle input"
+    }
+  ]
+}

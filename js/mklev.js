@@ -2249,7 +2249,10 @@ function create_des_coder(state, frame) {
 export function lspo_message(args, env) {
     const { state } = env;
     if (args.length < 1) throw new Error('Wrong parameters');
-    const msg = luaL_checkstring(args[0]);
+    // C appends with strlen(), so bytes after the first NUL are not retained.
+    const text = luaL_checkstring(args[0]);
+    const nul = text.indexOf('\0');
+    const msg = nul < 0 ? text : text.slice(0, nul);
     state.gl ??= {};
     const old = state.gl.lev_message;
     state.gl.lev_message = old != null ? `${old}\n${msg}` : msg;

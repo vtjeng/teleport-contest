@@ -65,6 +65,16 @@ async function runLoader(body) {
     );
 }
 
+test('special-level message uses the C string prefix before appending', async () => {
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: '.' });
+        des.message('alpha\0omega');
+        assert.equal(game.gl.lev_message, 'alpha');
+        des.message('tail');
+        assert.equal(game.gl.lev_message, 'alpha\ntail');
+    });
+});
+
 test('special-level API waits for map, room, and region contents callbacks',
     async () => {
         const events = [];
