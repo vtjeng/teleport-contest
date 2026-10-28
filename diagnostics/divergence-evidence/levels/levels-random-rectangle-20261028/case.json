@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-random-rectangle-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "rnd-rect-default-rng-alias",
+  "relatedCases": [
+    "levels-rect-order-20261028"
+  ],
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/rect.c",
+      "symbol": "rnd_rect",
+      "start_line": 103,
+      "end_line": 107,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/rect.js",
+      "symbol": "rnd_rect",
+      "start_line": 62,
+      "end_line": 65,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    }
+  ],
+  "hypothesis": "The C-only rn2 scanner edge may represent omitted random free-rectangle selection.",
+  "expectedBehavior": "Empty allocator returns null without a draw; nonempty allocator selects the indexed rectangle with one rn2(count) call.",
+  "observedBehavior": "All 13 bounded comparisons match; JS random defaults to rn2. The scanner edge is a parameter alias.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "13 rectangle-choice checks through production allocator operations over four legal states.",
+    "limitations": [
+      "C and JS share selected random results; not independent RNG implementation parity.",
+      "Four legal states only; not all split geometries, capacities, level finalization or gameplay generation."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Allocator API tests only; no shipped-level attribution claimed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Original C-only rnd_rect rn2 edge, reviewed against unchanged implementation.",
+    "keys": [
+      "source-audit:edge-c-only:src/rect.c:rnd_rect:rn2"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/README.md",
+      "sha256": "8185659c43d9b2f610796a73b4383b1ff2435b6707e803018de19f5ee8806ffe",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/control-output.txt",
+      "sha256": "9f80d3561e30870372e926e17984c572bbe4f95e8e08cef72cbea6fd2fee58aa",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/control-receipt.json",
+      "sha256": "cf01ef7b96fe722033f97cf09937564600f5aecdf2413f38926c554ab1b63ad1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/decisions.json",
+      "sha256": "cbce97f814745b2f754e5ccdbe6b8f5163a9b75afc26df6e8421ecdc0a86c75f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/oracle.c",
+      "sha256": "f2669d9afa7259a407268172cad5dceccb2e7667d368114b60924169b7df4a6e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/probe.mjs",
+      "sha256": "a1f42f6150c600ac2c0e78dbb1b42de4fb9e409144fd4017409fec8bc0f12120",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/projection/manifest.json",
+      "sha256": "73036c61d5672aed0f7928a7cea1243038ad582677939d7fd5d87b42cab90147",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/projection/projection.json",
+      "sha256": "569538662b8ced42e2c64856c4522b74c34e4773333e5b18478d598322ce4cd6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/projection/review-template.json",
+      "sha256": "e867bc920e49752d4c10ba9fba1e10f6bef52d9b71d1bacb9068e2326690c315",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/source-fingerprints.json",
+      "sha256": "c6c9e2fa4356e610589f3906539ef9df366d2414cf29587366e7297af5b5da76",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/target-output.txt",
+      "sha256": "1420786a493899aacf4e1f089b6193c3e586f118e951a6abdeb2131e1b71977c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/target-receipt.json",
+      "sha256": "e1137519efc7ea3c0eef4d4bceceac66c4783c28e5118541ca255241350c75d2",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

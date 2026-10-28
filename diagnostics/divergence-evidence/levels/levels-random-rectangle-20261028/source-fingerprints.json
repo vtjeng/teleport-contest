@@ -1,0 +1,20 @@
+{
+  "testedJsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:17:02.155071+00:00",
+  "reviewedAt": "2026-10-28T22:17:02.155071+00:00",
+  "toolingSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "sourceAuditBindingBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "jsRectUnchangedFromScanBase": true,
+  "exactCBody": "Entire rect.c after hack.h replaced by fixed definitions; production function bodies unchanged. RNG adapter returns checked requested index and counts calls.",
+  "files": {
+    "js/rect.js": "e7c2fa4b62b528783be6f307e696e3e82914affeff352706a6ca253fb34ead05",
+    "nethack-c/upstream/src/rect.c": "0ba24377934d74be6846e39885bc2f886801c3709c41afb702445261d8f73562",
+    "scripts/discovery-project.mjs": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+    "scripts/discovery-hub.mjs": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7"
+  },
+  "limitations": [
+    "C and JS share selected random results; not independent RNG implementation parity.",
+    "Four legal states only; not all split geometries, capacities, level finalization or gameplay generation."
+  ]
+}

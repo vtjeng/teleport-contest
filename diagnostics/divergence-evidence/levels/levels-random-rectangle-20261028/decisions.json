@@ -1,0 +1,22 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/rect.c:rnd_rect:rn2",
+    "evidenceKey": "4d42fd7e6d444e452c70da9bd637fd6e145a8fb9f087e927fc13f3733cf9dfa4",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "9dbf19d2df683f92c9ab741f3022a940a685caf217f961658ca1d5c7a83301af",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "rnd_rect(random = rn2) calls its default random(rect_cnt); the C-only rn2 edge is an injected-parameter alias.",
+      "proof": "13 comparisons across four reachable allocator states (counts 1,1,2,0): exhaustive legal index values and two JS RNG seeds per state. Exact C rectangle code checks the same selected indices. Empty consumes zero draws; nonempty consumes one. No independent RNG or universal geometry claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/rect.c:104",
+        "js/rect.js:62"
+      ],
+      "control": "Initial singleton and emptied allocator; target states produced by one/two legal split_rects calls. Default production RNG path checked alongside injected exhaustive indices.",
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]
