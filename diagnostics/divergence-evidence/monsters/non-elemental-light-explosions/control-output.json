@@ -1,0 +1,33 @@
+{
+  "mode": "control",
+  "observedMessages": [
+    "The ogre wields a club!  The yellow light explodes!--More--",
+    "The ogre is blinded.--More--",
+    "You have a melancholy feeling for a moment, then it passes."
+  ],
+  "passed": true,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 3029,
+      "js": 3029
+    },
+    "screens": {
+      "c": 59,
+      "js": 59
+    },
+    "cursors": {
+      "c": 59,
+      "js": 59
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": null,
+  "cursorMismatch": null,
+  "animMismatch": null,
+  "segmentMismatch": null
+}

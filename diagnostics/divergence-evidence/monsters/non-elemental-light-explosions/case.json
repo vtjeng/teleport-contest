@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "caseId": "non-elemental-light-explosions",
+  "shard": "monsters",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mhitm.c",
+      "symbol": "explmm",
+      "start_line": 970,
+      "end_line": 1009,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/uhitm.c",
+      "symbol": "mhitm_ad_halu",
+      "start_line": 3897,
+      "end_line": 3921,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mhitm.js",
+      "symbol": "explmm",
+      "start_line": 1054,
+      "end_line": 1095,
+      "commit_sha": "4222eaf89f2cc3b1392273b70cc27b399418c691"
+    },
+    {
+      "side": "JS",
+      "path": "js/uhitm.js",
+      "symbol": "mhitm_ad_halu",
+      "start_line": 7518,
+      "end_line": 7550,
+      "commit_sha": "4222eaf89f2cc3b1392273b70cc27b399418c691"
+    }
+  ],
+  "hypothesis": "The non-elemental AT_EXPL production caller could omit status dispatch or exploder death despite isolated status-helper tests passing.",
+  "expectedBehavior": "Native black-light explosion confuses an eyed, seeing ogre; native yellow-light explosion blinds it. Both tame exploders die and emit melancholy feedback.",
+  "observedBehavior": "Both native public-input paths are reached and C/JS match every recorded RNG call, screen and cursor through status and death feedback: target 3035 RNG/57 screens/cursors, control 3029 RNG/59 screens/cursors.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Two native wizard-created tame light versus hostile ogre encounters, through observed status and death feedback. Full recorded RNG, screens and cursors compared.",
+    "limitations": [
+      "One fixed seed/date and pair per variant; not universal explosion equivalence.",
+      "No cancellation, resistance, equipment, lifesaving, leash, blindness of the hero, or repeat-confusion coverage.",
+      "Internal HP/status fields are not independently captured by these terminal recordings; their updates are supported by source and existing focused tests.",
+      "No scanner suppression or equivalence claim for neighboring leads."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target.session.json.gz",
+      "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/control.session.json.gz",
+      "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/observations.json"
+    ],
+    "reason": "Unmodified native monster species created through supported wizard commands enter ordinary monster turns; target step 55 and control steps 56\u201358 reach explosion, status and tame death feedback."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Manual production-wiring hypothesis, not a canonical scanner lead decision; no invented binding or suppression.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/replay.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/replay.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/control.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/README.md",
+      "sha256": "fb19cf443490a3a3163fcad1cf9666c615657a6ea225234a3541ed636152c606",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/control-output.json",
+      "sha256": "02ec7fb55a414e58a56736db671439c2b962182cc65b12832664a9174ddee55f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/control-receipt.json",
+      "sha256": "e09b792edb6240340527284346e8bd423354535beb84abe1ed391dff6880dcba",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/control.recipe.json",
+      "sha256": "3c5a12c8f74a7d46404c924ffa29b0cac43310e269afaacce80efc53e953908f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/control.session.json.gz",
+      "sha256": "a08da18badf01daa10a2089885161426a81656eb053dae50c6e778ddc2f3ec77",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/observations.json",
+      "sha256": "a5d057fbbf8054dc754eb7fca7f8b3203755253dfb9cb0685b4a32c8030c63c9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/replay.mjs",
+      "sha256": "fcd4d2272127ad608610706f7f559a198c96d836d6d11e883667fb2e46bbf83c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target-output.json",
+      "sha256": "f4437c532a89dbe08f6376e2c6a5f1708db7ee8a881754a5165f94d6b9423eee",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target-receipt.json",
+      "sha256": "2212dad03b72b9e043b3370a8a3bc01e11d6fc532504664074e00602f5d13b2d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target.recipe.json",
+      "sha256": "a89d89a0b89e0630dae3dd4e8d7a4d788dd4142a63bf4e72e4a05ede44d9ee52",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/target.session.json.gz",
+      "sha256": "492112f448a401adf228a62bf423344c373090f7034ff75b654d137ac0ad041b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/non-elemental-light-explosions/unqualified-cancellation.recipe.json",
+      "sha256": "0bc9599ba2588ab10abe4afae5b3360eef336e8b4759bd23d16f7d17f1084203",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
