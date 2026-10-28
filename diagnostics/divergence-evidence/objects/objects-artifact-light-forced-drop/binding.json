@@ -1,0 +1,16 @@
+{
+  "fullRunId": "a381a949e765ae5aa2c8",
+  "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+  "fullRunRetainedAt": "diagnostics/divergence-evidence/objects/objects-triage-20261028/effects-hub/run.json",
+  "projectionSha256": "ceadb91ee3c5f14b1c2afe0ad0bd303c4ef7ea5fbe87af6883f00fd39c10183e",
+  "templateSha256": "2e1dab44727022e7dc4c57cc662083930cd13916483cab0c7700c3aea339d78f",
+  "decisionsSha256": "f8c60cf464c9212f5aabfe3d434e75e08fa0b336e9657be3d21ebf04e2b2ae37",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/wield.c:uwepgone:pline",
+    "source-audit:edge-c-only:src/wield.c:uwepgone:Tobjnam"
+  ],
+  "semanticCauses": 1,
+  "createdAt": "2026-10-28T18:40:36.492Z",
+  "verifiedAtBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "relevantFilesUnchangedSinceRun": true
+}

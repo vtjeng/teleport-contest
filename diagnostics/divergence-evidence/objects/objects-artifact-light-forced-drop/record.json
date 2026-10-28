@@ -1,0 +1,134 @@
+{
+  "caseId": "objects-artifact-light-forced-drop",
+  "shard": "objects",
+  "outcome": "confirmed divergence",
+  "implementationCandidate": true,
+  "ready": true,
+  "semanticCauses": 1,
+  "rawWarnings": 2,
+  "jsBase": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:36:18.736Z",
+  "reviewedAt": "2026-10-28T18:44:12.179Z",
+  "hypothesis": "Explicit JS artifact-light rejection in uwepgone could abort a public polymorph-forced weapon drop which C completes.",
+  "supportedSetup": "Lawful debug Valkyrie wishes/wields Sunsword, then #polyself giant bat; C capture proves shine, forced drop and extinguishing.",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-artifact-light-forced-drop/candidate.test.mjs",
+  "expectedC": "Extinguish Sunsword, report stop shining, clear weapon slot and drop object; polymorph finishes.",
+  "observedJS": "uwepgone: artifact-light extinguishing not wired (needs end_burn + Tobjnam message)",
+  "control": "Ordinary long sword with the same seed/form fully matches C and passes candidate test.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/wield.c:873",
+    "nethack-c/upstream/src/polyself.c:1346",
+    "js/wield.js:1244",
+    "js/polyself.js:965"
+  ],
+  "sourceFingerprints": {
+    "nethack-c/upstream/src/wield.c": "dccf8af84cf299ac659ab07ee6c106d9c8f9726d1fca1360a4df81d576adbd4c",
+    "nethack-c/upstream/src/polyself.c": "2f2f3dc74c2cbdd122f7a1401bd3e4e77efbc37ff6c499371cb8e57c9e39a5c8",
+    "js/wield.js": "67a8a4c5af881a058586d3dbeff8af4a97fe92242ce8c7ebf0c3f0dcd442b652",
+    "js/polyself.js": "79f65590104dca714ec424bb9fbc6b714eaa75ab4149cfce22863f716943ef45",
+    "js/timeout.js": "6b24f86cea548629eff8659cafb3e9c0da239dc7595ef230fb2733277f84b9d0",
+    "js/light.js": "a60e709c0f5dc853b90a5718b4e705049bf4ab90714112c858f927b6687769ec"
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recordSession": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scorer": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "hub": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "compilerScan": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "patchSeries": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    }
+  },
+  "fixtureFingerprints": {
+    "control-capture-c.json": "50fd2d388f710d79fec9a74c644938ba29e84b3f7dda3cdd0a7b03ca5ea5c01e",
+    "control-recipe.json": "e43de14f9c94279d4b9c1ab0c834935baaa6a3fa3eb9860588e0dd3767793ad5",
+    "target-capture-c.json": "feb6d3ee1b1a4e0f85a795199932bc23b13e3a4cc721d802c25e1418bfc72349",
+    "target-recipe.json": "7dc60aa07005404402722d54b4f1137e07e26a1079166acf9599a3c457036994"
+  },
+  "discoveryBinding": {
+    "fullRunId": "a381a949e765ae5aa2c8",
+    "fullRunSha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+    "bindingPath": "diagnostics/divergence-evidence/objects/objects-artifact-light-forced-drop/binding.json",
+    "projectionPath": "diagnostics/divergence-evidence/objects/objects-artifact-light-forced-drop/bound-run.json",
+    "decisions": [
+      {
+        "key": "source-audit:edge-c-only:src/wield.c:uwepgone:pline",
+        "evidenceKey": "bfa470d0743656e653becaab79d67f3eeb3726dc88f35baa9b98e7a2310db256",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "40bd28ce6d501fd01094c5a4863d06ee22383638c6b5f76d4f8ed70487d346df"
+      },
+      {
+        "key": "source-audit:edge-c-only:src/wield.c:uwepgone:Tobjnam",
+        "evidenceKey": "76e5864e2b8307decaf2437ed4b2d6cb469ed3242ebecc893f7e48c862e0f4f3",
+        "runId": "a381a949e765ae5aa2c8",
+        "reviewFingerprint": "55bbbae5833c29115f40e2b4de209a76bc78821b2447cff87659baffac1d470f"
+      }
+    ],
+    "classificationVerified": true
+  },
+  "cleanBaseValidation": {
+    "base": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+    "cleanCheckout": true,
+    "verifiedAt": "2026-10-28T18:44:12.179Z",
+    "dependencySetup": "Detached checkout plus evidence directory; no package install or C build required for tests. Pinned C submodule checkout completed for source inspection.",
+    "candidate": {
+      "exitCode": 1,
+      "target": "expected failure: uwepgone artifact-light extinguishing not wired",
+      "control": "pass"
+    },
+    "verifyCurrent": {
+      "exitCode": 0,
+      "testsPassed": 1
+    },
+    "targetReplay": {
+      "passed": false,
+      "error": "uwepgone: artifact-light extinguishing not wired (needs end_burn + Tobjnam message)",
+      "captureScreens": 70,
+      "captureRngCalls": 2278,
+      "metricsCaveat": "Frozen worker aborts on exception and reports zero matched counters; not a measured mismatch prefix."
+    },
+    "controlReplay": {
+      "passed": true,
+      "screensMatched": 69,
+      "screensTotal": 69,
+      "cursorsMatched": 69,
+      "cursorsTotal": 69,
+      "rngMatched": 2277,
+      "rngTotal": 2277
+    },
+    "CSteps": {
+      "shine": 44,
+      "polymorph": 64,
+      "forceDrop": 66,
+      "extinguish": 67,
+      "inventory": 69
+    },
+    "infrastructure": "Transient exec disconnect recovered; clean verification completed. No remaining blocker."
+  },
+  "evidencePaths": [
+    "README.md",
+    "binding.json",
+    "bound-run.json",
+    "candidate.test.mjs",
+    "control-capture-c.json",
+    "control-recipe.json",
+    "decision-template.json",
+    "decisions.json",
+    "hypothesis.md",
+    "keys.json",
+    "observations.json",
+    "target-capture-c.json",
+    "target-recipe.json",
+    "verify-current.test.mjs"
+  ],
+  "nextExperiment": null,
+  "scopeLimit": "Confirmed public Sunsword force-drop path; no universal claims about artifact removal, other forms or blind feedback."
+}

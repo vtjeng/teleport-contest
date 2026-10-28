@@ -1,0 +1,39 @@
+{
+  "base": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+  "cleanCheckout": true,
+  "verifiedAt": "2026-10-28T18:44:12.179Z",
+  "dependencySetup": "Detached checkout plus evidence directory; no package install or C build required for tests. Pinned C submodule checkout completed for source inspection.",
+  "candidate": {
+    "exitCode": 1,
+    "target": "expected failure: uwepgone artifact-light extinguishing not wired",
+    "control": "pass"
+  },
+  "verifyCurrent": {
+    "exitCode": 0,
+    "testsPassed": 1
+  },
+  "targetReplay": {
+    "passed": false,
+    "error": "uwepgone: artifact-light extinguishing not wired (needs end_burn + Tobjnam message)",
+    "captureScreens": 70,
+    "captureRngCalls": 2278,
+    "metricsCaveat": "Frozen worker aborts on exception and reports zero matched counters; not a measured mismatch prefix."
+  },
+  "controlReplay": {
+    "passed": true,
+    "screensMatched": 69,
+    "screensTotal": 69,
+    "cursorsMatched": 69,
+    "cursorsTotal": 69,
+    "rngMatched": 2277,
+    "rngTotal": 2277
+  },
+  "CSteps": {
+    "shine": 44,
+    "polymorph": 64,
+    "forceDrop": 66,
+    "extinguish": 67,
+    "inventory": 69
+  },
+  "infrastructure": "Transient exec disconnect recovered; clean verification completed. No remaining blocker."
+}
