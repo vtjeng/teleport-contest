@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T01:53:40Z",
+  "asOf": "2026-10-28T02:09:25Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23186,6 +23186,78 @@
           "nethack-c/upstream/src/sp_lev.c:create_monster",
           "nethack-c/upstream/src/mon.c:validvamp",
           "js/themeroom_fill.js:createMonsterBody"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/themeroom-fill.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "d169996310d3a746394ec7cee4a4cc5421f9503a",
+          "committedAt": "2026-10-28T01:56:35Z",
+          "sourceCommit": "d169996310d3a746394ec7cee4a4cc5421f9503a",
+          "sourceCommittedAt": "2026-10-28T01:56:35Z",
+          "runs": [
+            {
+              "id": 40618018523,
+              "name": "Checkpoint",
+              "sha": "d169996310d3a746394ec7cee4a4cc5421f9503a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/named-vampire-appearance-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:56:48Z",
+              "completedAt": "2026-10-28T02:06:37Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40618018523"
+            },
+            {
+              "id": 40619069753,
+              "name": "Lint",
+              "sha": "d169996310d3a746394ec7cee4a4cc5421f9503a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T02:07:27Z",
+              "completedAt": "2026-10-28T02:08:39Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40619069753"
+            },
+            {
+              "id": 40619069879,
+              "name": "Dashboard",
+              "sha": "d169996310d3a746394ec7cee4a4cc5421f9503a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T02:07:27Z",
+              "completedAt": "2026-10-28T02:09:25Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40619069879"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vlad-special-appearance",
+      "kind": "parity-repair",
+      "title": "Accept Vlad special-level monster appearance descriptors",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:create_monster",
+          "nethack-c/upstream/src/mon.c:validvamp",
+          "js/themeroom_fill.js:assertSupportedMonsterAppearance"
         ],
         "witness": [],
         "test": [

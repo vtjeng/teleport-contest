@@ -166,6 +166,7 @@ import {
     PM_TOURIST,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
+    PM_VLAD_THE_IMPALER,
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
@@ -860,7 +861,8 @@ function assertSupportedMonsterAppearance(m, state) {
     if (m.appear === M_AP_MONSTER
         && (ismnum(m.id) ? (state.mons[m.id]?.mlet === S_MIMIC
             || m.id === PM_CHAMELEON
-            || ((m.id === PM_VAMPIRE || m.id === PM_VAMPIRE_LEADER)
+            || ((m.id === PM_VAMPIRE || m.id === PM_VAMPIRE_LEADER
+                    || m.id === PM_VLAD_THE_IMPALER)
                 && m.appear_as.toLowerCase() !== 'random'))
             : m.class === S_MIMIC)) return;
     if (m.appear !== M_AP_OBJECT && m.appear !== M_AP_FURNITURE) {

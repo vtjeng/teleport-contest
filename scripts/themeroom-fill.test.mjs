@@ -151,6 +151,7 @@ import {
     PM_THUG,
     PM_TOURIST,
     PM_VAMPIRE,
+    PM_VLAD_THE_IMPALER,
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
@@ -170,6 +171,7 @@ import {
 } from '../js/timeout.js';
 import { S_altar } from '../js/symbols.js';
 import { set_levltyp } from '../js/terrain.js';
+import { mon_has_special } from '../js/wizard.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
@@ -817,6 +819,34 @@ test('control: a special-level vampire without appearance keeps its natural sele
     assert.ok(monster);
     assert.equal(monster.cham, PM_VAMPIRE);
     assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('Vlad with his special item ignores a requested fog appearance', () => {
+    // C #wizloaddes target and no-appearance control both display Vlad with
+    // identical post-load RNG. mon.c:validvamp() forces the Vlad form when
+    // mon_has_special() is true.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{
+        id: PM_VLAD_THE_IMPALER,
+        appear_as: 'mon:fog cloud',
+    }], room, { state, random: quietObjectRandom() });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_VLAD_THE_IMPALER);
+    assert.equal(mon_has_special(monster), true);
+    assert.equal(monster.data, state.mons[PM_VLAD_THE_IMPALER]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('control: special-level Vlad without appearance stays Vlad', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_VLAD_THE_IMPALER }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    assert.equal(monster.data, state.mons[PM_VLAD_THE_IMPALER]);
     assert.equal(monster.m_ap_type, M_AP_NOTHING);
 });
 
