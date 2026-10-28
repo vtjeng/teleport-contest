@@ -1610,9 +1610,10 @@ export async function getdir(s, state = game) {
         }
         needsPrompt = true;
 
-        if (redraw_cmd(dirsym, state)) {
+        if (fromPrompt && redraw_cmd(dirsym, state)) {
             // cmd.c:4013-4015: refresh the current glyph buffer, then retry
-            // the prompt without adding the redraw key to CQ_REPEAT.
+            // the prompt without adding the redraw key to CQ_REPEAT. A queued
+            // direction jumps past this check to got_dirsym in C.
             // Planning clones have no terminal; the live replay owns the
             // source redraw, while both paths retry the same input prompt.
             if (state === game) await docrt({ refreshOnly: true });
