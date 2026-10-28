@@ -1,0 +1,19 @@
+{
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "checkedAt": "2026-10-28T17:48:48.506Z",
+  "method": "Pristine git-archive snapshot verified against base tree before and after replay, only evidence files added and protected scorer overlays applied",
+  "checks": [
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-count-safe-integer-reset/witness.recipe.json",
+      "status": 1,
+      "stdout": "PRNG length: C=2260, JS=2260\nPRNG values: match\nScreen length: C=21, JS=21\nFirst screen mismatch at boundary 20 (segment 1, step 20, key \"2\"):\n  Cell row 1, column 8 (ch):\n  C: {ch:\"9\", rendered:\"9\", color:8, attr:0 (none), decgfx:0}\n  JS: {ch:\"0\", rendered:\"0\", color:8, attr:0 (none), decgfx:0}\nCursor length: C=21, JS=21\nFirst cursor mismatch at boundary 20 (segment 1, step 20, key \"2\"):\n  C: [23,0,1]\n  JS: [8,0,1]\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/cmd-count-safe-integer-reset/control.recipe.json",
+      "status": 0,
+      "stdout": "PRNG length: C=2260, JS=2260\nPRNG values: match\nScreen length: C=21, JS=21\nScreen cells and attributes: match\nCursor length: C=21, JS=21\nCursor values: match\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: PASS\n",
+      "stderr": ""
+    }
+  ]
+}
