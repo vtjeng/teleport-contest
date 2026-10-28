@@ -305,6 +305,16 @@ successful CI checks locally.
    manifest in immutable delivery evidence, outside admitted manifests.
    Commit the combined candidate.
 4. Run `worker-state.mjs preflight --task <id>` and resolve its omissions.
+   Preflight rejects committed `*.test.mjs` files outside the test discovery
+   roots. For a candidate without a task record, run
+   `node scripts/checkpoint-preflight.mjs --commit <candidate-sha>` before
+   dispatching any full Checkpoint; a nonzero exit blocks dispatch. This reads
+   the exact committed tree, so commit corrections and check the new SHA.
+   Keep source-relative evidence runners as `check.mjs` and register intended
+   automated tests through `scripts/*.test.mjs` wrappers. Before evidence or
+   tooling publication, also run `node --test scripts/test-suites.test.mjs`.
+   This guards the repeated evidence-runner naming failures; it does not replace
+   full Checkpoint gates or certify test behavior.
    Its `focusedTests` list identifies affected tests, not a mandatory second
    local test run. Use local checks only for the specific problems above.
    Preflight checks quality-area ownership; CI runs lint and reports review debt.
