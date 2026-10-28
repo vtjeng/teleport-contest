@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "runId": "a381a949e765ae5aa2c8",
+  "baseSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "startedAt": "2026-10-28T17:52:25.950Z",
+  "inputHashes": {
+    "sourcePrevious": null,
+    "plan": null,
+    "luaConfig": null
+  },
+  "toolHashes": {
+    "sourceAudit": "89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+    "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+    "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+    "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+  },
+  "methodConfigHashes": {
+    "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+    "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+    "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+    "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+    "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+  },
+  "exclusionsSha256": null,
+  "methods": {
+    "sourceAudit": {
+      "sourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227"
+    },
+    "compiledConstants": {
+      "status": "complete"
+    }
+  },
+  "leads": [
+    {
+      "key": "source-audit:edge-c-only:src/do_wear.c:find_ac:record_achievement",
+      "sourceKey": "edge-c-only:src/do_wear.c:find_ac:record_achievement",
+      "evidenceKey": "93f051d775a021c17daf2ecfbc265148938f181897f745a1c4bf95cf1a9e663d",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/do_wear.c:2518",
+        "nethack-c/upstream/src/do_wear.c:2520",
+        "nethack-c/upstream/src/do_wear.c:2522"
+      ],
+      "summary": "src/do_wear.c:find_ac -> record_achievement",
+      "method": "sourceAudit",
+      "symbol": "src/do_wear.c:find_ac",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -37,
+      "title": "src/do_wear.c:find_ac -> record_achievement",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:56:30.346Z",
+      "lastChecked": "2026-10-28T17:56:30.346Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+        "runId": "a381a949e765ae5aa2c8",
+        "sourceAuditSourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227",
+        "methodConfigHashes": {
+          "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+          "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+          "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "023ff3b5958baa805a3eb57e2f4dabc944a3ba98ed250f59dbebe7f966f9c647",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "93f051d775a021c17daf2ecfbc265148938f181897f745a1c4bf95cf1a9e663d"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/do_wear.c",
+          "symbol": "src/do_wear.c:find_ac",
+          "start_line": 2518,
+          "end_line": 2518,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/do_wear.c",
+          "symbol": "src/do_wear.c:find_ac",
+          "start_line": 2520,
+          "end_line": 2520,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/do_wear.c",
+          "symbol": "src/do_wear.c:find_ac",
+          "start_line": 2522,
+          "end_line": 2522,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "a381a949e765ae5aa2c8"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-c-only:src/do_wear.c:some_armor:rn2",
+      "sourceKey": "edge-c-only:src/do_wear.c:some_armor:rn2",
+      "evidenceKey": "11c5592ce16477582c6d2259aa49aa33c5863cfa70b5b29a5c53fccd6a4d2e44",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/do_wear.c:2641",
+        "nethack-c/upstream/src/do_wear.c:2644",
+        "nethack-c/upstream/src/do_wear.c:2647",
+        "nethack-c/upstream/src/do_wear.c:2650"
+      ],
+      "summary": "src/do_wear.c:some_armor -> rn2",
+      "method": "sourceAudit",
+      "symbol": "src/do_wear.c:some_armor",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 48,
+      "title": "src/do_wear.c:some_armor -> rn2",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T17:56:30.346Z",
+      "lastChecked": "2026-10-28T17:56:30.346Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+        "runId": "a381a949e765ae5aa2c8",
+        "sourceAuditSourceHash": "b6ff6e2064784948fa533903fa97768e2b16a723e8dccd85feb00349a892c227",
+        "methodConfigHashes": {
+          "sourceAudit": "31c4bdc25a5dd9a6ab8454a87160528abc54e208981ccac1c14142a2ed9206be",
+          "mismatchQueue": "a905d69528cb3fa3dea35fee51ce0edc6435366c28700785752f1ca2e489e56e",
+          "compiledConstants": "980dff14408a0fabc33e5ba4eaf43e497ae6d9ace7c2320ad950dc3befbc3c1a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "023ff3b5958baa805a3eb57e2f4dabc944a3ba98ed250f59dbebe7f966f9c647",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "11c5592ce16477582c6d2259aa49aa33c5863cfa70b5b29a5c53fccd6a4d2e44"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/do_wear.c",
+          "symbol": "src/do_wear.c:some_armor",
+          "start_line": 2641,
+          "end_line": 2641,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/do_wear.c",
+          "symbol": "src/do_wear.c:some_armor",
+          "start_line": 2644,
+          "end_line": 2644,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/do_wear.c",
+          "symbol": "src/do_wear.c:some_armor",
+          "start_line": 2647,
+          "end_line": 2647,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/do_wear.c",
+          "symbol": "src/do_wear.c:some_armor",
+          "start_line": 2650,
+          "end_line": 2650,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "a381a949e765ae5aa2c8"
+        }
+      ]
+    }
+  ],
+  "projectionOf": {
+    "sha256": "d413e72740a2ebd5cc7c63ebf2b97495055c419bc30c000b523969b3ed8a5075",
+    "fullRunId": "a381a949e765ae5aa2c8",
+    "selectedKeys": [
+      "source-audit:edge-c-only:src/do_wear.c:some_armor:rn2",
+      "source-audit:edge-c-only:src/do_wear.c:find_ac:record_achievement"
+    ],
+    "description": "Exact two-lead projection retaining original fingerprint inputs; full run preserved in private shard workspace."
+  }
+}
