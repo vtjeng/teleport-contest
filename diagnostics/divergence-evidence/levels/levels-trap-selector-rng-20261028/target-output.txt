@@ -1,0 +1,33 @@
+{
+  "mode": "target",
+  "comparisons": 7000,
+  "rejection": 2746,
+  "secondaryDraws": 280,
+  "resultKinds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    18,
+    19,
+    20,
+    21,
+    22
+  ],
+  "inputSha256": "50e4cc304f83230dd43c8bfd86ca8924724b3167545d1968ee75fdfc312bfcd8",
+  "matchingRowsSha256": "52017efdf52d56e60ec4fd0a3f5d9f3ae7005fc9acfa88fa169f2a3e43539339",
+  "scope": "Exact selection result and draw count with checked bounds and supplied draw values; no trap construction or runtime effects."
+}

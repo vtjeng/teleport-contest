@@ -1,0 +1,18 @@
+{
+  "mode": "control",
+  "comparisons": 7,
+  "rejection": 0,
+  "secondaryDraws": 0,
+  "resultKinds": [
+    1,
+    2,
+    5,
+    8,
+    9,
+    11,
+    14
+  ],
+  "inputSha256": "c62d54194a3c5f3f133483f746f149750dfbb766ca1ad28abd8da94c1cf215f2",
+  "matchingRowsSha256": "7233281b8b731bf283c3a2f80e6bfc2d5d57c8e3175d989dc8a570fa2648bb35",
+  "scope": "Exact selection result and draw count with checked bounds and supplied draw values; no trap construction or runtime effects."
+}
