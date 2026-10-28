@@ -1,0 +1,31 @@
+{
+  "scope": "Six fixed-room acceptance/bounds handoffs with shared draw tapes; no full allocator/topology proof",
+  "results": [
+    {
+      "seed": 28105201,
+      "mode": 0,
+      "calls": 1,
+      "bounds": [
+        17,
+        5,
+        24,
+        10
+      ],
+      "tape": [],
+      "matched": true
+    },
+    {
+      "seed": 28105202,
+      "mode": 0,
+      "calls": 1,
+      "bounds": [
+        17,
+        5,
+        24,
+        10
+      ],
+      "tape": [],
+      "matched": true
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "testedJsSha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "reviewedAt": "2026-10-28T21:54:53.300010+00:00",
+  "exactCFunctionBodies": 3,
+  "jsConstructorsUnchangedFromScanBase": true,
+  "toolingSha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+  "files": {
+    "js/mklev.js": "ab947e22fa852df29a546a526a5b8a1b8b8198cbcf69ad6ec2828bb1462638d0",
+    "js/rect.js": "e7c2fa4b62b528783be6f307e696e3e82914affeff352706a6ca253fb34ead05",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/rect.c": "0ba24377934d74be6846e39885bc2f886801c3709c41afb702445261d8f73562"
+  }
+}
