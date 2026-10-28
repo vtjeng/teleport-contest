@@ -1,0 +1,24 @@
+{"nurse":true,"result":2,"hp":120,"max":121,"lines":["The purple worm swallows the nurse.","\"Burrrrp!\"","The nurse is killed!","The purple worm looks healthy."],"bounds":["d(1,10)","rn2(2)","rn2(3)","rn2(6)","rn2(1)","rn2(15)","rnd(12)"]}
+{"nurse":false,"result":2,"hp":32,"max":121,"lines":["The purple worm swallows the stone golem.","\"Burrrrp!\"","The stone golem is destroyed!"],"bounds":["d(1,10)","rn2(3)","rn2(6)","rnd(15)"]}
+✔ C digestion heals before growth (3.411487ms)
+✔ digestion nurse=true (402.370236ms)
+✔ digestion nurse=false (160.459974ms)
+PRNG length: C=3311, JS=3311
+PRNG values: match
+Screen length: C=163, JS=163
+Screen cells and attributes: match
+Cursor length: C=163, JS=163
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: PASS
+
+✔ public nurse-digestion witness matches C completely (1868.733222ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2051.759361
