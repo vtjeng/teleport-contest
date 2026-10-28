@@ -8,7 +8,7 @@ import { l_selection_or } from './nhlsel.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
     COLNO, ROWNO, IS_STWALL,
-    MAX_TYPE, MATCH_WALL,
+    MAX_TYPE, MATCH_WALL, STONE,
 } from './const.js';
 import { splev_chr2typ } from './mklev.js';
 
@@ -111,19 +111,18 @@ export function selection_match(pattern, state) {
                     const ch = lines[py][px];
                     const tx = x + px - cx;
                     const ty = y + py - cy;
-                    if (tx < 0 || tx >= COLNO || ty < 0 || ty >= ROWNO) {
-                        match = false;
-                        continue;
-                    }
-                    const loc = state.level.at(tx, ty);
+                    // C mapfrag_match treats an off-map footprint cell as
+                    // STONE; the center itself remains a valid map cell.
+                    const terrain = tx < 0 || tx >= COLNO || ty < 0
+                        || ty >= ROWNO ? STONE : state.level.at(tx, ty).typ;
                     const expected = splev_chr2typ(ch);
                     if (expected === MAX_TYPE) {
                         continue;
                     } else if (expected === MATCH_WALL) {
                         // Match any wall type.
-                        if (!IS_STWALL(loc.typ)) match = false;
+                        if (!IS_STWALL(terrain)) match = false;
                     } else {
-                        if (loc.typ !== expected) match = false;
+                        if (terrain !== expected) match = false;
                     }
                 }
             }
