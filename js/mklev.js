@@ -2797,7 +2797,8 @@ export function lspo_engraving(args, env) {
 
     const c = { x, y };
     get_location_coord(c, DRY, coder.croom, ecoord, env);
-    make_engr_at(c.x, c.y, txt, null, 0, etyp, env);
+    // C dupstr/make_engr_at see the first NUL-terminated string prefix.
+    make_engr_at(c.x, c.y, txt?.split('\0', 1)[0] ?? null, null, 0, etyp, env);
     const ep = engr_at(c.x, c.y, state);
     if (ep) {
         ep.guardobjects = Boolean(guardobjs);

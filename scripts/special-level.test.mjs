@@ -95,6 +95,25 @@ test('special-level message uses the C string prefix before appending', async ()
     });
 });
 
+for (const form of ['table', 'positional']) {
+    for (const [text, expected] of [['alpha\0omega', 'alpha'],
+        ['alpha', 'alpha'], ['', ''], ['café', 'café']]) {
+        test(`${form} level engraving stores the C string prefix of ${JSON.stringify(text)}`, async () => {
+            await runLoader(async des => {
+                des.level_init({ style: 'solidfill', fg: '.' });
+                if (form === 'table')
+                    des.engraving({ x: 2, y: 2, type: 'engrave', text });
+                else
+                    des.engraving([2, 2], 'engrave', text);
+                const engraving = game.head_engr;
+                assert.deepEqual(engraving.engr_txt, [expected, expected, expected]);
+                assert.equal(engraving.engr_szeach, Buffer.byteLength(expected) + 1);
+                assert.equal(engraving.engr_alloc, 3 * (Buffer.byteLength(expected) + 1));
+            });
+        });
+    }
+}
+
 for (const [midpoint, carve, expected] of [
     ['+', '.', ROOM], ['+', '#', CORR],
     ['.', '.', ROOM], ['.', '#', CORR],

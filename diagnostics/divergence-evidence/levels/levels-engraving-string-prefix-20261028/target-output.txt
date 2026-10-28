@@ -1,0 +1,75 @@
+{
+  "scope": "Level-construction engraving text/storage only; no player engraving commands, rendering or effects.",
+  "results": [
+    {
+      "form": 0,
+      "inputHex": "616c706861006f6d656761",
+      "expected": {
+        "x": 3,
+        "y": 2,
+        "type": 2,
+        "time": 0,
+        "size": 6,
+        "allocation": 18,
+        "guardobjects": 0,
+        "nowipeout": 0,
+        "textHex": [
+          "616c706861",
+          "616c706861",
+          "616c706861"
+        ]
+      },
+      "actual": {
+        "x": 3,
+        "y": 2,
+        "type": 2,
+        "time": 0,
+        "size": 12,
+        "allocation": 36,
+        "guardobjects": 0,
+        "nowipeout": 0,
+        "textHex": [
+          "616c706861006f6d656761",
+          "616c706861006f6d656761",
+          "616c706861006f6d656761"
+        ]
+      },
+      "matched": false
+    },
+    {
+      "form": 1,
+      "inputHex": "616c706861006f6d656761",
+      "expected": {
+        "x": 3,
+        "y": 2,
+        "type": 2,
+        "time": 0,
+        "size": 6,
+        "allocation": 18,
+        "guardobjects": 0,
+        "nowipeout": 0,
+        "textHex": [
+          "616c706861",
+          "616c706861",
+          "616c706861"
+        ]
+      },
+      "actual": {
+        "x": 3,
+        "y": 2,
+        "type": 2,
+        "time": 0,
+        "size": 12,
+        "allocation": 36,
+        "guardobjects": 0,
+        "nowipeout": 0,
+        "textHex": [
+          "616c706861006f6d656761",
+          "616c706861006f6d656761",
+          "616c706861006f6d656761"
+        ]
+      },
+      "matched": false
+    }
+  ]
+}
