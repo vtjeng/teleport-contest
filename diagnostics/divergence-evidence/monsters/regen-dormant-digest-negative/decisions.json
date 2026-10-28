@@ -1,0 +1,21 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/monmove.c:mon_regen:finish_meating",
+    "evidenceKey": "7a016afdb881d26e58c021d9741406593a5eabccdcc6aca31930542e988dd17e",
+    "runId": "601667573d5ca5a23adf",
+    "reviewFingerprint": "5a2c62dff19ee14e8b674c9accf78211f25a06ec1cc38a5ad20cd9e40ed75cfb",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "Only shipped C source caller passes FALSE to digest_meal; missing finish_meating edge inside the TRUE branch is inactive in the shipped call graph. Direct TRUE API remains unsupported in JS and is explicitly not declared equivalent.",
+      "proof": "proof.mjs enumerates all identifier references in C src/*.c, pins the sole FALSE caller, compiles the unchanged C mon_regen with false/true controls, and checks the separate normal m_move completion owner. Do not generalize if a new caller, function pointer, generated caller, or true-argument contract is admitted.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mon.c:1193",
+        "nethack-c/upstream/src/monmove.c:307",
+        "nethack-c/upstream/src/monmove.c:1748",
+        "js/mon.js:2560",
+        "diagnostics/divergence-evidence/monsters/regen-dormant-digest-negative/proof.mjs"
+      ]
+    }
+  }
+]
