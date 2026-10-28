@@ -1,0 +1,72 @@
+{
+  "armor_enum_mutation": "detected",
+  "equal_control": "passed",
+  "independent_source_anchors": [
+    "DAGGER six declared fields",
+    "ELVEN_LEATHER_HELM 10-ac",
+    "FOOD_RATION computed cost"
+  ],
+  "normalization_controls": [
+    "10-ac",
+    "signed values",
+    "C integer division truncates toward zero"
+  ],
+  "positive_controls": [
+    {
+      "expected": 8,
+      "field": "oc_cost",
+      "identity": "ELVEN_LEATHER_HELM",
+      "observed": 9
+    },
+    {
+      "expected": 6,
+      "field": "oc_prob",
+      "identity": "ELVEN_LEATHER_HELM",
+      "observed": 7
+    },
+    {
+      "expected": 0,
+      "field": "oc_wsdam",
+      "identity": "ELVEN_LEATHER_HELM",
+      "observed": 1
+    },
+    {
+      "expected": 0,
+      "field": "oc_wldam",
+      "identity": "ELVEN_LEATHER_HELM",
+      "observed": 1
+    },
+    {
+      "expected": 1,
+      "field": "oc_oc1",
+      "identity": "ELVEN_LEATHER_HELM",
+      "observed": 2
+    },
+    {
+      "expected": 0,
+      "field": "oc_oc2",
+      "identity": "ELVEN_LEATHER_HELM",
+      "observed": 1
+    },
+    {
+      "expected": 2,
+      "field": "oc_subtyp",
+      "identity": "ELVEN_LEATHER_HELM",
+      "observed": 3
+    }
+  ],
+  "scope_guards": {
+    "armor_subtype_rows": 84,
+    "excluded_ranges": [
+      [
+        4,
+        1
+      ],
+      [
+        173,
+        28
+      ]
+    ],
+    "rows": 453
+  }
+}
