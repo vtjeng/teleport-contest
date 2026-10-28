@@ -1791,6 +1791,7 @@ function lvlfill_solid(filling, lit, frame, state) {
                 continue;
             const loc = state.level.at(x, y);
             loc.flags = 0;
+            loc.wall_info = 0;
             loc.doormask = 0;
             loc.horizontal = false;
             loc.roomno = 0;

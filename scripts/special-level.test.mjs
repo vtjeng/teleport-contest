@@ -65,6 +65,26 @@ async function runLoader(body) {
     );
 }
 
+for (const [property, bit] of [['nondiggable', 8], ['nonpasswall', 16]]) {
+    for (const style of ['solidfill', 'mazegrid']) {
+        test(`${style} ${property} wall flags after repeated level_init`, async () => {
+            await runLoader(async des => {
+                des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+                for (let x = 10; x < 13; x++) for (let y = 6; y < 9; y++)
+                    des.terrain({ x: x - 1, y, typ: '-', lit: 0 });
+                des.wall_property({ region: [9, 6, 11, 8], property });
+                const cells = [];
+                for (let x = 10; x < 13; x++) for (let y = 6; y < 9; y++)
+                    cells.push(game.level.at(x, y));
+                assert.deepEqual(cells.map(cell => cell.wall_info), Array(9).fill(bit));
+                des.level_init({ style, fg: '-', bg: '-', lit: 0 });
+                assert.deepEqual(cells.map(cell => cell.wall_info),
+                    Array(9).fill(style === 'solidfill' ? 0 : bit));
+            });
+        });
+    }
+}
+
 test('special-level message uses the C string prefix before appending', async () => {
     await runLoader(async des => {
         des.level_init({ style: 'solidfill', fg: '.' });

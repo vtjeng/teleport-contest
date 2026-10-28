@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:17:11.438Z",
+  "exitCode": 1,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "09cd159af0cf3d12c639a4c837b626dbcc3313f69b6325f81eab6b968d0e876a",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/oracle.c": "6f93fb812d75df9c800d786cce413cf2b15688721cfc682d54846fc0f184d836"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/target-output.txt"
+  ]
+}
