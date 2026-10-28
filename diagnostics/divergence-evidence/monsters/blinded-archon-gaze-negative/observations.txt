@@ -1,0 +1,14 @@
+C exact gaze guard: blinded Archon allowed; blinded ordinary gaze rejected
+✔ compile exact upstream gaze rejection predicate for blinded native attackers (81.707612ms)
+{"species":125,"setup":{"blind":65,"lines":["The phial crashes on the Archon's head and breaks into shards.","The potion of blindness evaporates."],"bounds":["rn2(7)","rn2(5)","rn2(32)","rn2(32)","rn2(87)"]},"result":1,"blind":2,"cansee":0,"hp":115,"lines":["The Archon hits the minotaur.","The Archon hits the minotaur.","The blinded Archon gazes toward the minotaur...","The minotaur is blinded.","The Archon hits the minotaur."],"bounds":["rnd(20)","d(2,4)","rn2(3)","rn2(6)","rn2(3)","rnd(21)","d(2,4)","rn2(3)","rn2(6)","rn2(3)","d(2,6)","rn2(2)","d(2,6)","rn2(3)","rn2(6)","rn2(3)","rnd(23)","d(1,8)","rn2(3)","rn2(6)","rn2(3)"]}
+{"species":11,"setup":{"blind":65,"lines":["The phial crashes on the pyrolisk's head and breaks into shards.","The potion of blindness evaporates."],"bounds":["rn2(7)","rn2(5)","rn2(32)","rn2(32)","rn2(100)"]},"result":1,"blind":0,"cansee":1,"hp":119,"lines":["The pyrolisk gazes at the minotaur...","but nothing happens.","The pyrolisk bites the minotaur."],"bounds":["rn2(3)","rnd(21)","d(1,6)","rn2(3)","rn2(6)","rn2(3)"]}
+✔ blinded gaze species=125 (215.054142ms)
+✔ blinded gaze species=11 (74.103058ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1141.172828
