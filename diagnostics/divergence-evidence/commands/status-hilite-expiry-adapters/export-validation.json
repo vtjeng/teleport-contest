@@ -1,0 +1,20 @@
+{
+  "exporterCommit": "a879e944617577d3eb59c14afc87ddbdb2724b18",
+  "checkedAt": "2026-10-28T19:10:19.779Z",
+  "command": "node scripts/discovery-project.mjs validate --projection /tmp/commands-status-expiry-export-a/projection.json --run /tmp/commands-discovery-20261028-a/run.json --decisions /workspace/teleport-contest/diagnostics/divergence-evidence/commands/status-hilite-expiry-adapters/review-decisions.json",
+  "result": {
+    "originalComparison": "verified",
+    "selected": 3,
+    "decisionsChecked": 2,
+    "before": {
+      "active": 3,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 1,
+      "filtered": 2,
+      "excluded": 0
+    }
+  }
+}

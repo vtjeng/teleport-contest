@@ -1,0 +1,150 @@
+[
+  {
+    "id": "edge-c-only:src/botl.c:status_eval_next_unhilite:hilite_reset_needed",
+    "kind": "edge-c-only",
+    "owner": "src/botl.c:status_eval_next_unhilite",
+    "target": "hilite_reset_needed",
+    "confidence": "missing-resolved-edge",
+    "rank": 26,
+    "sites": [
+      {
+        "file": "nethack-c/upstream/src/botl.c",
+        "line": 2311,
+        "conditions": [
+          "ifdef STATUS_HILITES"
+        ],
+        "context": {
+          "startLine": 2308,
+          "endLine": 2313,
+          "text": "        this_unhilite = curr->time;\n        if (this_unhilite > 0L\n            && (next_unhilite == 0L || this_unhilite < next_unhilite)\n            && hilite_reset_needed(curr, this_unhilite + 1L)) {\n            next_unhilite = this_unhilite;\n            if (next_unhilite < gb.bl_hilite_moves)"
+        },
+        "branchContext": {
+          "startLine": 2292,
+          "endLine": 2313,
+          "text": "\n        if (curr->chg) {\n            struct istat_s *prev = &gb.blstats[1][i];\n\n            if (Is_Temp_Hilite(curr->hilite_rule))\n                curr->time = (gb.bl_hilite_moves + iflags.hilite_delta);\n            else\n                curr->time = 0L;\n            prev->time = curr->time;\n\n            curr->chg = prev->chg = FALSE;\n            disp.botl = TRUE;\n        }\n        if (disp.botl)\n            continue; /* just process other gb.blstats[][].time and .chg */\n\n        this_unhilite = curr->time;\n        if (this_unhilite > 0L\n            && (next_unhilite == 0L || this_unhilite < next_unhilite)\n            && hilite_reset_needed(curr, this_unhilite + 1L)) {\n            next_unhilite = this_unhilite;\n            if (next_unhilite < gb.bl_hilite_moves)"
+        }
+      }
+    ],
+    "details": {
+      "js": "js/display.js:status_eval_next_unhilite",
+      "jsContext": {
+        "startLine": 6233,
+        "endLine": 6250,
+        "text": "// C ref: botl.c status_eval_next_unhilite(), called once after each hero\n// took-time action. This owns the two timer banks and requests botl only once\n// an existing temporary highlight expires.\nexport function status_eval_next_unhilite(state = game) {\n    const gb = state.gb ??= {};\n    const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;\n    gb.status_hilite_times ??= [Array(size).fill(0), Array(size).fill(0)];\n    gb.status_hilite_times[0] ??= Array(size).fill(0);\n    gb.status_hilite_times[1] ??= Array(size).fill(0);\n    _statusHiliteChangeBanks(gb, size);\n    const moves = state.moves ?? 0;\n    const multi = state.multi ?? 0;\n    const duration = state.iflags?.hilite_delta ?? 0;\n    for (const field of STATUS_FIELDS) {\n        const fld = field.fld;\n        const rule = gb.status_hilite_rule?.[0]?.[fld] ?? null;\n        if (gb.status_hilite_chg_banks[0][fld]) {\n            const until = rule?.behavior === 'changed' && duration > 0"
+      },
+      "unresolvedCalls": [],
+      "declaredAlternative": null
+    },
+    "signals": {
+      "commandPath": null,
+      "turnPath": [
+        "src/allmain.c:moveloop_core",
+        "src/botl.c:status_eval_next_unhilite"
+      ],
+      "callers": 1,
+      "effects": {
+        "rng": 0,
+        "message": 0,
+        "stateWriteHeuristic": true
+      },
+      "missingMessageOverlap": 0
+    },
+    "repairOverlap": [
+      "cold-underwater-redraw",
+      "detected-blank-glyphs",
+      "holder-status-family",
+      "submerged-status-condition",
+      "trapped-status-family",
+      "glowing-hands-status",
+      "slippery-hands-status",
+      "wounded-legs-status",
+      "incapacitated-status-family",
+      "gold-status-display-cap",
+      "vital-status-display-caps",
+      "tactile-hero-object",
+      "vampire-door-display-owner",
+      "worm-hidden-tail",
+      "swallowed-redraw-phases",
+      "newsym-direct-monster-detection",
+      "self-see-invisible",
+      "previous-level-annotation",
+      "status-time-width-refresh",
+      "getdir-redraw-retry"
+    ],
+    "assignedOverlap": [],
+    "queueOverlap": [],
+    "evidenceKey": "03b1cd85e89e877930e56bc9edd7ca617880453bddf2fd8d57aba37f4b9860dd",
+    "observed": true,
+    "classification": "needs-investigation",
+    "replayStatus": "unverified",
+    "reviews": [],
+    "reviewState": "unreviewed"
+  },
+  {
+    "id": "edge-js-helper:src/botl.c:status_eval_next_unhilite:_setStatusHiliteChange",
+    "kind": "edge-js-helper",
+    "owner": "src/botl.c:status_eval_next_unhilite",
+    "target": "_setStatusHiliteChange",
+    "confidence": "adapter-or-extracted-helper",
+    "rank": -4,
+    "sites": [
+      {
+        "file": "js/display.js",
+        "line": 6254,
+        "context": {
+          "startLine": 6251,
+          "endLine": 6256,
+          "text": "                ? moves + duration : 0;\n            gb.status_hilite_times[0][fld] = until;\n            gb.status_hilite_times[1][fld] = until;\n            _setStatusHiliteChange(gb, fld, false);\n            state.disp ??= {};\n            state.disp.botl = true;"
+        }
+      }
+    ],
+    "details": {
+      "jsTarget": "js/display.js:_setStatusHiliteChange",
+      "category": "JS helper with no same-name C function; may inline C macros or adapted operations."
+    },
+    "signals": {
+      "commandPath": null,
+      "turnPath": [
+        "src/allmain.c:moveloop_core",
+        "src/botl.c:status_eval_next_unhilite"
+      ],
+      "callers": 1,
+      "effects": {
+        "rng": 0,
+        "message": 0,
+        "stateWriteHeuristic": true
+      },
+      "missingMessageOverlap": 0
+    },
+    "repairOverlap": [
+      "cold-underwater-redraw",
+      "detected-blank-glyphs",
+      "holder-status-family",
+      "submerged-status-condition",
+      "trapped-status-family",
+      "glowing-hands-status",
+      "slippery-hands-status",
+      "wounded-legs-status",
+      "incapacitated-status-family",
+      "gold-status-display-cap",
+      "vital-status-display-caps",
+      "tactile-hero-object",
+      "vampire-door-display-owner",
+      "worm-hidden-tail",
+      "swallowed-redraw-phases",
+      "newsym-direct-monster-detection",
+      "self-see-invisible",
+      "previous-level-annotation",
+      "status-time-width-refresh",
+      "getdir-redraw-retry"
+    ],
+    "assignedOverlap": [],
+    "queueOverlap": [],
+    "evidenceKey": "7fa476a8cf26af6632d7d3fc07d6d2363bb91dc4f25b8236732b45adaf33d641",
+    "observed": true,
+    "classification": "needs-investigation",
+    "replayStatus": "unverified",
+    "reviews": [],
+    "reviewState": "unreviewed"
+  }
+]

@@ -1,0 +1,5 @@
+[
+  "source-audit:edge-c-only:src/botl.c:status_eval_next_unhilite:hilite_reset_needed",
+  "source-audit:edge-js-helper:src/botl.c:status_eval_next_unhilite:_setStatusHiliteChange",
+  "source-audit:edge-js-helper:src/botl.c:status_eval_next_unhilite:_statusHiliteChangeBanks"
+]

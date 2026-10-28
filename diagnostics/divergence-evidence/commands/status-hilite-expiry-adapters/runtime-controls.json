@@ -1,0 +1,92 @@
+[
+  {
+    "kind": "counted",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2435,
+          "js": 2435
+        },
+        "screens": {
+          "c": 4,
+          "js": 4
+        },
+        "cursors": {
+          "c": 4,
+          "js": 4
+        },
+        "animFrames": {
+          "c": 15,
+          "js": 15
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "kind": "individual",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2435,
+          "js": 2435
+        },
+        "screens": {
+          "c": 7,
+          "js": 7
+        },
+        "cursors": {
+          "c": 7,
+          "js": 7
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "kind": "prayer",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2431,
+          "js": 2431
+        },
+        "screens": {
+          "c": 11,
+          "js": 11
+        },
+        "cursors": {
+          "c": 11,
+          "js": 11
+        },
+        "animFrames": {
+          "c": 15,
+          "js": 15
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  }
+]
