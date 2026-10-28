@@ -1,0 +1,44 @@
+{
+  "caseId": "polymorphed-guardian-admission",
+  "shard": "monsters",
+  "outcome": "unresolved",
+  "ready": false,
+  "binding": "manual/unbound JS-only admission guard",
+  "jsBase": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:48:13.570249+00:00",
+  "reviewedAt": "2026-10-28T20:48:13.570259+00:00",
+  "hypothesis": "Species-only Angel admission rejects genuine polymorphed guardian",
+  "expectedC": "Hypothesis: retained tame minion enters dog_move; full C transition not verified",
+  "observedJS": "Actual newcham Angel->ogre retains mtame/isminion/emin/no-edog; next normal action refuses",
+  "control": "Same genuine guardian without polymorph completes normal action",
+  "missingStep": "Full supported C guardian polymorph and subsequent admission target/control",
+  "nextExperiment": "Record actual polymorph path or execute full pinned C transition; preserve resistance/selection guards",
+  "sources": [
+    "src/mon.c:newcham",
+    "src/monmove.c:m_move",
+    "src/dogmove.c:dog_move",
+    "js/unported_monster_actions.js:assertSimpleActionState"
+  ],
+  "sourceSha256": {
+    "js/mon.js": "8df046bda3602822e5443eea8f98a1e6f82a094e0a1d342224fcea951b9b6f0f",
+    "js/dogmove.js": "3aac796d86b1897cd4245c1f8f147184e8ce2734bebc2dcbed8fdf019db682c0",
+    "js/unported_monster_actions.js": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902",
+    "nethack-c/upstream/src/mon.c": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01",
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "nethack-c/upstream/src/dogmove.c": "d6b80a15c36009ea34974179033fff53475400c39910ff74da4eac2b64e8cb40",
+    "recipes/monmove.c/guardian-angel-movement-cat.session.json": "37fca1e13763fb42f2b45bcaed33e3eaf28a1f4bd46841ac46756c124dc23734",
+    "recordings/monmove.c/guardian-angel-movement-cat.session.json": "1b39b4913a798c0d431ffd5d1fa3c0a639a2fe95ab5219ee1bf38864782a8014"
+  },
+  "evidence": [
+    "README.md",
+    "probe.mjs",
+    "source-check.mjs",
+    "observations.txt"
+  ],
+  "tools": {
+    "node": "v24.19.0",
+    "recorder": "not used"
+  },
+  "validation": "Clean detached stated base: 3 characterization/source checks pass; suite guard 6 pass. No C transition oracle."
+}
