@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7710049,
+      "datetime": "20381207164013",
+      "nethackrc": "OPTIONS=name=PestilenceNewtProbe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\nOPTIONS=accessiblemsg\n",
+      "moves": "#levelchange\n30\n                             #wizgenesis\nhostile Pestilence\ny. . . ."
+    }
+  ]
+}
