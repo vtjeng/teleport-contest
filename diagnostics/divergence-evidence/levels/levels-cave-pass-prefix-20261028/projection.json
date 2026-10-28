@@ -1,0 +1,8 @@
+{
+  "originalRunSha256": "79589345756287551d73f4d0a94f28ee33070cd817bbd3c51849168fc78fabc2",
+  "originalLeadCount": 12525,
+  "projectionSha256": "382a235b8863ba174bfc9480624bf156e5854a24bea6f44ca0aa41976da7dc41",
+  "projectedLeadCount": 5,
+  "rule": "All original top-level metadata unchanged; only leads projected to five verbatim objects.",
+  "verifiedAt": "2026-10-28T18:14:49.056202+00:00"
+}

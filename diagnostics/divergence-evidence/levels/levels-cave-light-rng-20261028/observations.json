@@ -1,0 +1,103 @@
+{
+  "exactMatches": 7,
+  "traceLayout": [
+    "result",
+    "rndCalls",
+    "rn2Calls",
+    "rndBound",
+    "rn2Bound"
+  ],
+  "results": [
+    {
+      "lit": 0,
+      "depth": 1,
+      "rndResult": 1,
+      "rn2Result": 1,
+      "observed": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "lit": 1,
+      "depth": 1,
+      "rndResult": 1,
+      "rn2Result": 1,
+      "observed": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "lit": -1,
+      "depth": 1,
+      "rndResult": 1,
+      "rn2Result": 0,
+      "observed": [
+        0,
+        1,
+        1,
+        2,
+        77
+      ]
+    },
+    {
+      "lit": -1,
+      "depth": 1,
+      "rndResult": 2,
+      "rn2Result": 76,
+      "observed": [
+        1,
+        1,
+        1,
+        2,
+        77
+      ]
+    },
+    {
+      "lit": -1,
+      "depth": 20,
+      "rndResult": 10,
+      "rn2Result": 1,
+      "observed": [
+        1,
+        1,
+        1,
+        21,
+        77
+      ]
+    },
+    {
+      "lit": -1,
+      "depth": 20,
+      "rndResult": 11,
+      "rn2Result": 1,
+      "observed": [
+        0,
+        1,
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "lit": -1,
+      "depth": -20,
+      "rndResult": 21,
+      "rn2Result": 1,
+      "observed": [
+        0,
+        1,
+        0,
+        21,
+        0
+      ]
+    }
+  ]
+}
