@@ -7,6 +7,7 @@ import { basename, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT, parseCFunctions } from './c-functions.mjs';
 import { cTokens, cUnits, cGuards, jsUnits, resolveCall, diagnosticSourceHash, hash } from './structural-signals.mjs';
+import { delegationModule, delegationRankingHint, DELEGATION_HINT_VERSION } from './delegation-ranking.mjs';
 import { extcmdlist, CMD_NOT_AVAILABLE, INTERNALCMD, WIZMODECMD } from '../js/extcmdlist_data.js';
 
 export const EXCLUDED_FILES = ['do.c', 'timeout.c', 'apply.c'];
@@ -31,6 +32,8 @@ const FORMAT = /%(?:\d+\$)?[-+ #0']*(?:\d+|\*(?:\d+\$)?)?(?:\.(?:\d+|\*(?:\d+\$)
 const VERDICTS = ['needs-investigation', 'confirmed-missing-behavior', 'alternate-implementation', 'unreachable', 'already-fixed'];
 const contextLines = new Map();
 const loadedToolHash = hash(readFileSync(fileURLToPath(import.meta.url)));
+const delegationToolPath = fileURLToPath(new URL('./delegation-ranking.mjs', import.meta.url));
+const delegationToolHash = hash(readFileSync(delegationToolPath));
 const normalize = value => value.replace(/\s+/gu, ' ').trim().toLowerCase();
 const readJson = path => JSON.parse(readFileSync(path, 'utf8'));
 const save = (path, value) => writeFileSync(path, JSON.stringify(value, null, 2) + '\n', { flag: 'wx' });
@@ -301,7 +304,7 @@ export function validateMappings(mappings, excluded) {
 // Uses raw bytes (some legacy platform files are not UTF-8), exactly as scan.
 export function auditIdentity({ root = PROJECT_ROOT, mappings = {} } = {}) {
     const cRoot = join(root, 'nethack-c/upstream');
-    return hash(JSON.stringify([diagnosticSourceHash(root), mappings, hash(readFileSync(fileURLToPath(import.meta.url))),
+    return hash(JSON.stringify([diagnosticSourceHash(root), mappings, hash(readFileSync(fileURLToPath(import.meta.url))), hash(readFileSync(delegationToolPath)),
         filesUnder(cRoot, '.c').filter(path => !EXCLUDED_FILES.includes(basename(path)))
             .map(path => [relative(cRoot, path), hash(readFileSync(path))])]));
 }
@@ -403,7 +406,7 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
     const modules = new Map([...jsSources].map(([path, text]) => [path, jsUnits(text, path)]));
     const js = [...modules.values()].flatMap(m => m.units), jsRaw = [...jsSources.values()].join('\n');
     const jsStrings = [...modules.values()].flatMap(m => m.strings).join('\n');
-    const sourceHash = hash(JSON.stringify([initialSourceHash, mappings, loadedToolHash,
+    const sourceHash = hash(JSON.stringify([initialSourceHash, mappings, loadedToolHash, delegationToolHash,
         [...cBytes].map(([path, digest]) => [relative(cRoot, path), digest])]));
     // All platform/outdated files count in literal coverage. The executable
     // graph uses the repository inventory's src + tty target, not alternate OS
@@ -452,6 +455,7 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
     }
     const repairs = existsSync(join(root, 'trial-monitor/repairs.json')) ? readJson(join(root, 'trial-monitor/repairs.json')).repairs : [];
     const goals = existsSync(join(root, 'GOALS.json')) ? readJson(join(root, 'GOALS.json')).goals.filter(g => !['complete', 'closed', 'superseded', 'parked'].includes(g.status)) : [];
+    const delegationCache = new Map(), delegationModules = new Map();
     const items = new Map(), edgeStats = {}, alignments = [], unmatched = [];
     const bump = key => { edgeStats[key] = (edgeStats[key] ?? 0) + 1; };
     const add = (owner, kind, target, site, details, confidence = 'lexical') => {
@@ -464,8 +468,20 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
         const commandPath = commands.get(ownerKey) ?? null, turnPath = turn.get(ownerKey) ?? null;
         const diagnostic = kind === 'message' ? DIAGNOSTIC.test(details.api) || details.fileCategory === 'non-gameplay'
             : /^(?:panic|paniclog|impossible|debugpline)/u.test(target);
-        const rankingHint = macroHelperRankingHint(kind, target,
+        let rankingHint = macroHelperRankingHint(kind, target,
             typeof owner === 'string' ? [] : owner.calls, macroDefinitions);
+        if (kind === 'edge-c-only' && jsOwner) {
+            const key = jsKey(jsOwner, root);
+            if (!delegationModules.has(jsOwner.path)) delegationModules.set(jsOwner.path,
+                delegationModule(jsSources.get(jsOwner.path)));
+            if (!delegationCache.has(key)) delegationCache.set(key,
+                delegationModules.get(jsOwner.path)(jsOwner.name));
+            const traces = delegationCache.get(key).filter(trace => {
+                const resolved = resolveCall(jsOwner.path, trace.importLocal, modules);
+                return resolved && canon(resolved.name) === target;
+            });
+            rankingHint = delegationRankingHint(kind, target, traces);
+        }
         const rank = (commandPath ? Math.max(0, 40 - commandPath.length * 3) : 0)
             + (turnPath ? Math.max(0, 25 - turnPath.length * 2) : 0) + Math.min(incoming.get(ownerKey) ?? 0, 10)
             + Math.min(effects.rng ?? 0, 5) * 2 + Math.min(effects.message ?? 0, 5)
@@ -581,7 +597,9 @@ export function audit({ root = PROJECT_ROOT, previous, mappings = {}, queue = nu
         totals: { cFunctions: units.length, jsFunctions: js.length, printCalls: printCalls.length, printCallKinds: count(printCalls, 'status'),
             graphFunctions: graphUnits.length,
             rankingHints: { version: MACRO_HINT_VERSION, filtered: 0,
-                deprioritized: sorted.filter(item => item.rankingHint).length },
+                deprioritized: sorted.filter(item => item.rankingHint?.version === MACRO_HINT_VERSION).length },
+            delegationRankingHints: { version: DELEGATION_HINT_VERSION, filtered: 0,
+                deprioritized: sorted.filter(item => item.rankingHint?.version === DELEGATION_HINT_VERSION).length },
             qualifyingLiteralOccurrences: matchedMessages.length, uniqueLiterals: new Set(matchedMessages.map(m => m.literal)).size,
             literalStartsOnPrintLine: matchedMessages.filter(m => m.line === m.callLine).length,
             literalStartsOnContinuationLine: matchedMessages.filter(m => m.line !== m.callLine).length,

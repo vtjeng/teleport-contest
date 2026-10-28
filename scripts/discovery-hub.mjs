@@ -451,6 +451,7 @@ function scan(opts) {
                     itemKinds: report.totals?.itemKinds ?? null,
                     messageFilters: report.totals?.messageFilters ?? null,
                     rankingHints: report.totals?.rankingHints ?? null,
+                    delegationRankingHints: report.totals?.delegationRankingHints ?? null,
                     carriedUnobserved: backlog.entries.filter(item => !item.observed).length };
                 methods.sourceAudit.sourceHash = report.sourceHash ?? null;
                 leads.push(...backlog.entries.filter(item => item.observed)
@@ -591,6 +592,7 @@ function scan(opts) {
     const sourceAuditDependencies = Object.fromEntries([
         sourcePath,
         join(gameRoot, 'scripts/c-functions.mjs'),
+        join(gameRoot, 'scripts/delegation-ranking.mjs'),
         join(gameRoot, 'scripts/structural-signals.mjs'),
         join(gameRoot, 'scripts/check-namespace-members.mjs'),
         join(gameRoot, 'js/extcmdlist_data.js'), mapping,

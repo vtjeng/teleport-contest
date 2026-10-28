@@ -1,0 +1,86 @@
+{
+  "version": "default-import-delegation-v1",
+  "inputSha256": "1a929a81850cc171195304f63186e4c08f0ac26593e24151003fbeece687bf59",
+  "sourceBase": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "rawBefore": 12537,
+  "rawAfter": 12537,
+  "filtered": 0,
+  "deprioritized": 2,
+  "macroHintDeprioritizedSeparately": 165,
+  "repeatIdentical": true,
+  "rankingEvaluationMs": 1443.1510460000004,
+  "changed": [
+    {
+      "key": "source-audit:edge-c-only:src/sp_lev.c:get_location:rn2",
+      "beforeRank": 11,
+      "afterRank": 1,
+      "classification": "needs-investigation",
+      "hint": {
+        "version": "default-import-delegation-v1",
+        "delta": -10,
+        "reason": "Paired JS owner calls a const-bound property/alias whose factory defaults to the matching named import.",
+        "limitation": "Lexical hint only: overrides, mutation through other calls, arguments, branch reachability and RNG order remain unproved; retain the candidate.",
+        "traces": [
+          {
+            "factory": "coordinateEnvironment",
+            "property": "randomCore",
+            "importLocal": "rn2",
+            "module": "./rng.js",
+            "imported": "rn2",
+            "definitionLine": 48,
+            "alias": "randomCore",
+            "bindingLine": 219,
+            "callLine": 232
+          },
+          {
+            "factory": "coordinateEnvironment",
+            "property": "randomCore",
+            "importLocal": "rn2",
+            "module": "./rng.js",
+            "imported": "rn2",
+            "definitionLine": 48,
+            "alias": "randomCore",
+            "bindingLine": 219,
+            "callLine": 233
+          }
+        ]
+      }
+    },
+    {
+      "key": "source-audit:edge-c-only:src/sp_lev.c:get_room_loc:rn2",
+      "beforeRank": 6,
+      "afterRank": -4,
+      "classification": "needs-investigation",
+      "hint": {
+        "version": "default-import-delegation-v1",
+        "delta": -10,
+        "reason": "Paired JS owner calls a const-bound property/alias whose factory defaults to the matching named import.",
+        "limitation": "Lexical hint only: overrides, mutation through other calls, arguments, branch reachability and RNG order remain unproved; retain the candidate.",
+        "traces": [
+          {
+            "factory": "coordinateEnvironment",
+            "property": "randomCore",
+            "importLocal": "rn2",
+            "module": "./rng.js",
+            "imported": "rn2",
+            "definitionLine": 48,
+            "alias": "env.randomCore",
+            "bindingLine": 323,
+            "callLine": 331
+          },
+          {
+            "factory": "coordinateEnvironment",
+            "property": "randomCore",
+            "importLocal": "rn2",
+            "module": "./rng.js",
+            "imported": "rn2",
+            "definitionLine": 48,
+            "alias": "env.randomCore",
+            "bindingLine": 323,
+            "callLine": 333
+          }
+        ]
+      }
+    }
+  ]
+}
