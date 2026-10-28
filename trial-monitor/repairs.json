@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T00:47:09Z",
+  "asOf": "2026-10-28T01:04:37Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -22879,6 +22879,78 @@
               "completedAt": "2026-10-28T00:47:09Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40610747216"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chameleon-monster-appearance",
+      "kind": "parity-repair",
+      "title": "Apply named special-level monster form to chameleons",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:create_monster",
+          "js/themeroom_fill.js:createMonsterBody",
+          "js/mon.js:mgender_from_permonst"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/themeroom-fill.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+          "committedAt": "2026-10-28T00:51:41Z",
+          "sourceCommit": "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+          "sourceCommittedAt": "2026-10-28T00:51:41Z",
+          "runs": [
+            {
+              "id": 40611488391,
+              "name": "Checkpoint",
+              "sha": "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/chameleon-monster-appearance-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T00:52:03Z",
+              "completedAt": "2026-10-28T01:01:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40611488391"
+            },
+            {
+              "id": 40612635023,
+              "name": "Lint",
+              "sha": "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:02:54Z",
+              "completedAt": "2026-10-28T01:04:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40612635023"
+            },
+            {
+              "id": 40612635012,
+              "name": "Dashboard",
+              "sha": "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:02:54Z",
+              "completedAt": "2026-10-28T01:04:37Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40612635012"
             }
           ]
         }

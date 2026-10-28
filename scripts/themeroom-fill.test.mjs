@@ -734,6 +734,35 @@ test('control: a special-level chameleon without appearance keeps its natural fo
     assert.equal(monster.m_ap_type, M_AP_NOTHING);
 });
 
+test('a non-shapechanger ignores a requested monster appearance', () => {
+    // C sp_lev.c:create_monster() only enters the appearance switch for a
+    // mimic or shapechanger. Independent C custom-level target/control both
+    // show a jackal and use identical 3125-entry RNG logs.
+    function create(appear_as) {
+        const { state, room } = monsterDescriptorFixture();
+        const calls = [];
+        const random = quietObjectRandom();
+        for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
+            const original = random[name];
+            random[name] = (...args) => {
+                calls.push([name, ...args]);
+                return original(...args);
+            };
+        }
+        const descriptor = { id: PM_JACKAL };
+        if (appear_as) descriptor.appear_as = appear_as;
+        const monster = lspo_monster([descriptor], room, { state, random });
+        assert.ok(monster);
+        assert.equal(monster.data, state.mons[PM_JACKAL]);
+        assert.equal(monster.m_ap_type, M_AP_NOTHING);
+        assert.equal(monster.mappearance, 0);
+        return calls;
+    }
+    const control = create(null);
+    assert.deepEqual(create('mon:giant ant'), control);
+    assert.deepEqual(create('mon:random'), control);
+});
+
 test('create_monster relocates an occupied fixed coordinate inside its room', () => {
     const { level, room, state } = monsterDescriptorFixture();
     level.rooms[0] = { ...room, rtype: THEMEROOM };
