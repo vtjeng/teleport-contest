@@ -401,7 +401,7 @@ import {
     selection_new,
     set_selection_floodfillchk,
 } from './themerooms.js';
-import { collectLookaroundMessages, messageAt } from './startup_a11y.js';
+import { collectLookaroundMessages, heroIsBlind, messageAt } from './startup_a11y.js';
 import { cansee, vision_reset } from './vision.js';
 import { m_at } from './monst.js';
 import { linedup } from './mthrowu.js';
@@ -5714,6 +5714,9 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // rhack() reset gm.multi after one display instead of asking
             // moveloop_core() to repeat this no-time command.
             && command !== 'inventory'
+            // A sighted dolook() returns ECMD_OK; rhack() clears its count
+            // after the single look instead of entering moveloop repetition.
+            && !(command === 'look' && !heroIsBlind(state))
             && !Object.hasOwn(MOVEMENT_INTENTS, command)
             // These commands clear a count with their no-time result.
             && command !== 'wizsmell' && command !== 'wizkill'
