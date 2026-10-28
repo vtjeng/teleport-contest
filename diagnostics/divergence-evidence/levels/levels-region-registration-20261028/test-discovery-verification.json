@@ -1,0 +1,8 @@
+{
+  "verifiedAt": "2026-10-28T21:16:15.728126+00:00",
+  "command": "node --test scripts/test-suites.test.mjs",
+  "exit": 0,
+  "passed": 6,
+  "stdoutSha256": "e33449a0039e4db005d05692f5c36d6012aebeb4dfdda4e4aaa6a7c15a26bdf6",
+  "scope": "Assembled PR evidence tree; runners use ordinary .mjs names. Clean Main suite guard also passed."
+}

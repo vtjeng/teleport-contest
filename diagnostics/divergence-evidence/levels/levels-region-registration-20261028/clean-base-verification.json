@@ -1,0 +1,9 @@
+{
+  "base": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "verifiedAt": "2026-10-28T21:15:58.599993+00:00",
+  "command": "node diagnostics/divergence-evidence/levels/levels-region-registration-20261028/probe.mjs",
+  "exit": 0,
+  "stdoutSha256": "528dcfd4bf2f508eac7095fff15e1a1c353e79a59d8e38f4666145ce908212f0",
+  "observationsMatch": true,
+  "setup": "Clean gameplay checkout with evidence-only overlays. An initial invocation used the wrong working directory and failed before loading the missing probe; after copying the evidence the documented command passed."
+}
