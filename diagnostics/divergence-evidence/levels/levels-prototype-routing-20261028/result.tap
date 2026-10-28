@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: only shipped dungeon prototype has a guaranteed named level in every slot
+ok 1 - only shipped dungeon prototype has a guaranteed named level in every slot
+  ---
+  duration_ms: 3.183085
+  type: 'test'
+  ...
+# Subtest: production initialization resolves all three tower slots before proto fallback
+ok 2 - production initialization resolves all three tower slots before proto fallback
+  ---
+  duration_ms: 7.832414
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 824.906421
