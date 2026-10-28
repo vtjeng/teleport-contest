@@ -1,0 +1,84 @@
+{
+  "caseId": "objects-towel-blindfold-removal",
+  "shard": "objects",
+  "outcome": "explained negative",
+  "implementationCandidate": false,
+  "jsBase": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T18:26:07.690Z",
+  "reviewedAt": "2026-10-28T18:26:07.690Z",
+  "hypothesis": "Cursed towel removal of worn eyewear might diverge in drop/visibility/prompt order.",
+  "supportedSetup": "Public debug worn uncursed/cursed blindfold followed by three cursed-towel applications.",
+  "expectedC": "Uncursed blindfold removed and dropped; cursed control retained with extra cosmetic RNG draw.",
+  "observedJS": "Both complete replays match; state checks confirm target blindfold absent from worn/inventory, cursed control retained.",
+  "control": "stuck",
+  "reproduction": "node --test diagnostics/divergence-evidence/objects/objects-towel-blindfold-removal/check.test.mjs",
+  "sourceLocations": [
+    "nethack-c/upstream/src/apply.c:139",
+    "js/apply.js:4426"
+  ],
+  "results": {
+    "removable": {
+      "screensMatched": 65,
+      "screensTotal": 65,
+      "cursorsMatched": 65,
+      "cursorsTotal": 65,
+      "rngMatched": 2653,
+      "rngTotal": 2653
+    },
+    "stuck": {
+      "screensMatched": 63,
+      "screensTotal": 63,
+      "cursorsMatched": 63,
+      "cursorsTotal": 63,
+      "rngMatched": 2668,
+      "rngTotal": 2668
+    }
+  },
+  "proof": "README.md",
+  "sourceFingerprints": {
+    "nethack-c/upstream/src/apply.c": "3599e3ce2ea7ce4dac10730dc1a5496114a363dc951d5c1f0289a8575b40e24b",
+    "nethack-c/upstream/src/weapon.c": "75769f6a3113224ea20414f75fc8b1159b6712bc7154905443e4fc1a4912bc2d",
+    "nethack-c/upstream/src/do_wear.c": "cf33ad9f5b18bcdfffd09d4e99867590802735a9ae2d34b9eb2b64880fa459c7",
+    "js/apply.js": "65bcf71a36f99676ae7a2ee9b5e8e21c62d27a2619a1374b4f2921b30b4357b5",
+    "js/weapon.js": "82539139a1110c4040f056a9e530693d9e83c65a39da3fd18f5705e1d155f527",
+    "js/do_wear.js": "79b707222826951268ca4772b981d782b1864fbc818c6434db1d2ca73e4d4438"
+  },
+  "toolFingerprints": {
+    "node": "v24.19.0",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recordSession": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scorer": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "hub": "5a17e23c793a47a0e4c8aa7f96a400eca4799b2a19989fd61b292e0fec1b645e",
+    "compilerScan": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "patchSeries": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    }
+  },
+  "fixtureFingerprints": {
+    "removable-capture-c.json": "6cf9ac3e0010bf1836e69e4e7cbb417485e0c451fc856b11c96e6839f180d5b3",
+    "removable-recipe.json": "911602d94027af5d75a441bf46ee076def19e1c8e316c23a1777c9a8dec096e3",
+    "stuck-capture-c.json": "74a54dbeaebcfdca884d6105f41711df0979c218b693533f2a685a1469b033a6",
+    "stuck-recipe.json": "85e0ea1ec6ed2fb0317af6d6c6ebbe3f96f3af61ccfe3d624c454134a5f39dd7"
+  },
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual combined behavioral hypothesis; no matching canonical scanner lead. Nearby message/helper edges are not mapped to this case."
+  },
+  "evidencePaths": [
+    "README.md",
+    "check.test.mjs",
+    "removable-capture-c.json",
+    "removable-recipe.json",
+    "stuck-capture-c.json",
+    "stuck-recipe.json"
+  ],
+  "nextExperiment": null,
+  "scopeLimit": "Only these public target/control paths, source order and final-state assertions. Matching seeds do not establish universal equivalence or authorize scanner suppression."
+}
