@@ -1,0 +1,59 @@
+{
+  "fields": [
+    "typ",
+    "doormask",
+    "horizontal",
+    "arboreal_sdoor"
+  ],
+  "results": [
+    {
+      "name": "terrain-air-target",
+      "c": [
+        14,
+        4,
+        1,
+        1
+      ],
+      "js": [
+        14,
+        8,
+        0,
+        1
+      ],
+      "matched": false
+    },
+    {
+      "name": "replace-air-control",
+      "c": [
+        14,
+        8,
+        0,
+        1
+      ],
+      "js": [
+        14,
+        8,
+        0,
+        1
+      ],
+      "matched": true
+    },
+    {
+      "name": "terrain-secret-control",
+      "c": [
+        14,
+        4,
+        1,
+        0
+      ],
+      "js": [
+        14,
+        4,
+        1,
+        0
+      ],
+      "matched": true
+    }
+  ],
+  "scope": "Supported descriptor API sequence; shipped exposure and score relevance unknown"
+}

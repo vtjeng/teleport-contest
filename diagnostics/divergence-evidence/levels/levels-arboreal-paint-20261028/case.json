@@ -1,0 +1,94 @@
+{
+  "caseId": "levels-arboreal-paint-20261028",
+  "shard": "levels",
+  "outcome": "confirmed divergence",
+  "ready": true,
+  "baseJs": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T19:43:46.559103+00:00",
+  "reviewedAt": "2026-10-28T19:49:10.729981+00:00",
+  "scannerOrigin": {
+    "kind": "manual-unbound",
+    "key": null,
+    "evidenceKey": null,
+    "runId": null,
+    "reviewFingerprint": null
+  },
+  "hypothesis": "sel_set_ter dispatches on requested terrain instead of the retained SDOOR after AIR painting.",
+  "supportedSetup": "Production lspo_terrain builds 3x3 ROOM patch, lspo_door creates secret door then locks it, lspo_terrain paints HWALL on left. Default whole-level frame xstart=1. C exact callbacks execute equivalent literal descriptor sequence; both assert pre-target [14,8,0,0]. No direct door-state mutation.",
+  "expectedC": "AIR target remains SDOOR, gets D_CLOSED, horizontal=1, arboreal=1.",
+  "observedJS": "AIR target remains SDOOR but retains D_LOCKED and horizontal=0; arboreal=1.",
+  "control": "replace_terrain SDOOR->AIR matches [14,8,0,1]; terrain SDOOR->SDOOR matches [14,4,1,0].",
+  "scope": "Valid supported descriptor API difference. Not a shipped recording or hidden-score impact claim. Garden replacement path matches and is not the target.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/mkmaze.c:77",
+    "nethack-c/upstream/src/sp_lev.c:4609",
+    "nethack-c/upstream/dat/themerms.lua:1072",
+    "js/mklev.js:1432",
+    "js/themeroom_fill.js:994",
+    "nethack-c/upstream/src/sp_lev.c:206",
+    "nethack-c/upstream/src/sp_lev.c:1042",
+    "nethack-c/upstream/src/sp_lev.c:4647",
+    "nethack-c/upstream/src/sp_lev.c:4671",
+    "nethack-c/upstream/src/sp_lev.c:4978",
+    "nethack-c/upstream/src/sp_lev.c:5051"
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/dat/themerms.lua": "bcd213626a0d773c2149abe53eb0623caa944cde7e89d42f2f7446a486945fbb",
+    "js/mklev.js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "js/terrain.js": "69ab84e2467bc01abfa4b22ee4b4847775ed48e22f5bc52bd5ea3b28a79eec6c",
+    "js/mkmaze.js": "e0722923b9f99824b30b2089f0869c055ff56eb9a24dfda832f52b60c29fd4db",
+    "js/themeroom_fill.js": "44c66312991ca37821dfc0f9e6be90db4f6e95752ab8abd3aa4644870acb158d"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "oracleSha256": "c2e40f22e9019560c568c6f0f028159f71263894416d79b1a915b76820f1a220",
+    "probeSha256": "b434065fee11c77cf460391674e56a45c3e49f71820cd6eec3385876ab68b69a",
+    "exactCBodyHashes": {
+      "mkmaze-setters": "f1ea9d05451a17240fcfd809d83a1d16c2fda02a989176e9623fa19aab72ba80",
+      "sp-lev-sel-set-ter": "341d417ad5979577d8f2b4945e61c4a2ced92e5409a35a8a89766f15ee6217bb",
+      "set_door_orientation": "74dc59d900dcbfc292144b1c35bffa54e3c1251048deda18fea28a2b981a7925",
+      "sel_set_door": "b6e521e55d3a2f3c50f50597de6f173fd0fbd4fa70b89959fe0aadba739f5343"
+    }
+  },
+  "oracleProvenance": "Exact set_levltyp, set_levltyp_lit, sel_set_ter, set_door_orientation and sel_set_door extracted from pinned C. Wrapper supplies default map and scalar coordinate translation from public literal calls. Unused effects abort. No arbitrary Lua interpreter; full parser and RNG trace excluded.",
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-arboreal-paint-20261028/probe.mjs --assert-target",
+  "expectedExit": 1,
+  "targetAssertion": "Append --assert-target for deliberate exit 1, outside default CI.",
+  "evidencePaths": [
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "clean-base-verification.json",
+    "README.md",
+    "setup.lua",
+    "original-observations.json",
+    "original-clean-base-verification.json"
+  ],
+  "nextExperiment": null,
+  "cleanBaseVerification": {
+    "base": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+    "receipt": "clean-base-verification.json",
+    "targetExit": 1,
+    "controlExit": 0
+  },
+  "qualificationScope": "Supported level-descriptor API parity; shipped exposure and hidden-score impact unknown.",
+  "qualificationRationale": "Secret-door retention while locking is explicit in sel_set_door. C comments explicitly permit a door without adjacent walls. Coordinates are valid in default whole-level frame, AIR is accepted by terrain, and calls may compose without intermediate finalization. Shipped exposure is a priority question, not a missing setup invariant.",
+  "controlCommand": "node diagnostics/divergence-evidence/levels/levels-arboreal-paint-20261028/probe.mjs --control",
+  "controlExpectedExit": 0,
+  "qualificationHistory": [
+    {
+      "commit": "1e2864f4a",
+      "status": "unresolved",
+      "reason": "Initial direct-state fixture and shipped exposure threshold."
+    },
+    {
+      "status": "confirmed API-scoped",
+      "reason": "Parent clarified supported API qualification; replaced direct setup with equivalent production descriptor sequence and asserted identical pre-target state."
+    }
+  ]
+}
