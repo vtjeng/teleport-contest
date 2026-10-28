@@ -65,7 +65,7 @@
     "key": "source-audit:edge-stub:src/mthrowu.c:return_from_mtoss:artifact_hit",
     "evidenceKey": "c2416be1314fdf481359af4cb2aeafc2da0104b4b2dfb81264d46a40c78a3e5d",
     "reviewFingerprint": "5e5a153b33526f1aed0cf10e68bf174564b73ac49923c891791a2a23d149698c",
-    "availability": "Immutable run retained in shard execution environment as monsters-discovery-20261028-b/run.json; request this existing artifact for exact classification import."
+    "availability": "Repository artifact: diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/discovery-run.json.gz. See adjacent discovery-run-receipt.json for exact extraction/hash verification. Shared by both negative cases."
   },
   "latestMainReview": {
     "sha": "cfb72d4699bfe6080b46f21894f929f35b68414f",

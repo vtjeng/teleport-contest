@@ -46,13 +46,17 @@
   "scope": "The local property-call/closure delegation hides the direct edge from the scanner. Presence of this owner does not prove complete cloud parity: sibling vrock-gas-call-prompt-vision confirms a downstream prompt/display divergence. Independent C recording in that sibling proves public-input reachability and prefix parity.",
   "evidencePaths": [
     "probe.test.mjs",
-    "observed.txt"
+    "observed.txt",
+    "discovery-run.json.gz",
+    "discovery-run-receipt.json"
   ],
   "nextExperiment": null,
   "leadEvidenceKey": "7cfad65dd668303fe49aa5047709d2ff79a686abb50fd62bdcbef92233b25538",
   "fixtureSha256": {
     "probe.test.mjs": "431af2afc59f660b99fa04db3ef28d4933ed79c2a413cbd04aef769aad15db09",
-    "observed.txt": "2be248278c326a0d577e349d9df43abfaa5f7c6724c23a87afd11e43fbc4451a"
+    "observed.txt": "2be248278c326a0d577e349d9df43abfaa5f7c6724c23a87afd11e43fbc4451a",
+    "discovery-run.json.gz": "d971104c066275880e45bbed483d36f67a3090c259e296e7be08bbe612e2abb3",
+    "discovery-run-receipt.json": "ea6bef83c6a277dc224edbfac5324d76fd920382069f8e6323cba22eb1cb14d0"
   },
   "discoveryBinding": {
     "runId": "601667573d5ca5a23adf",
@@ -60,7 +64,7 @@
     "key": "source-audit:edge-c-only:src/monmove.c:monflee:create_gas_cloud",
     "evidenceKey": "7cfad65dd668303fe49aa5047709d2ff79a686abb50fd62bdcbef92233b25538",
     "reviewFingerprint": "9c68e4d082cf26f7261e65a2043e1f4e170cc28c386c64b57fdc0679cb696409",
-    "availability": "Immutable run retained in shard execution environment as monsters-discovery-20261028-b/run.json; request this existing artifact for exact classification import."
+    "availability": "Repository artifact: diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/discovery-run.json.gz. See adjacent discovery-run-receipt.json for exact extraction/hash verification. Shared by both negative cases."
   },
   "latestMainReview": {
     "sha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
