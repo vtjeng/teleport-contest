@@ -1,0 +1,75 @@
+{
+  "shard": "levels",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T17:41:56.770Z",
+  "reviewedAt": "2026-10-28T17:41:56.770Z",
+  "toolchain": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7 (3+b1)"
+  },
+  "historyCheck": "Fetched origin/main before choosing leads. Existing open PRs checked: no overlapping topology claim. PR #6 owns the prior selection cases.",
+  "caseId": "levels-inaccessibles-20261028",
+  "outcome": "explained negative",
+  "hypothesis": "The ensure_way_out TODO and stale load_special comment indicate that the inaccessibles finalization call is missing in JS.",
+  "supportedSetup": "Shipped minetn-6.lua wizard load, two independent prechosen seeds 28102801/28102802; minetn-5.lua seed28102801 control. Focused JS test uses established initialized mklev specialLevelLoader setup: two one-cell floor pockets separated by an authored wall, down staircase in left pocket, no flips, corrmaze. des.finish runs through the real special-level API.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:5146",
+    "nethack-c/upstream/src/sp_lev.c:5217",
+    "nethack-c/upstream/src/sp_lev.c:6467",
+    "nethack-c/upstream/dat/minetn-6.lua:10",
+    "js/mklev.js:3892",
+    "js/mklev.js:3963",
+    "js/mklev.js:4957"
+  ],
+  "expectedC": "load_special conditionally calls ensure_way_out before map_cleanup. Stair-connected squares are flooded; generate_way_out_method connects a separated pocket through a one-wall secret door when possible.",
+  "observedJS": "des.finish calls ensure_way_out under coder.check_inaccessibles. The focused two-pocket witness becomes connected through SDOOR; without the flag the wall remains VWALL. Three fresh C/JS streams match (9041, 6792, and 4633 RNG entries; 55 screens/cursors each).",
+  "control": "Identical focused map with inaccessibles absent leaves authored wall intact. Neighboring shipped minetn-5 stream also matches.",
+  "negativeProof": "The exact TODO text is copied from C sp_lev.c at 6467 and precedes a live call in both languages. The stale js/mklev.js:2046 prose claiming a recorded gap is contradicted by executable finish code and the initialized des.finish witness. This refutes only the missing-call hypothesis; it does not certify every escape method, flag interaction, caller, or seed.",
+  "rawCaveat": "All three adapter outcomes remain unresolved because no program-specific Lua trace witness was recognized. Full-stream equality is retained as raw observation, not promoted to universal equivalence or branch coverage. The focused source-derived test independently establishes the JS flag-controlled secret-door effect.",
+  "reproduce": [
+    "source /workspace/.setup/activate.sh",
+    "node --test diagnostics/divergence-evidence/levels/levels-inaccessibles-20261028/focused.test.mjs",
+    "node scripts/lua-discovery.mjs diagnostics/divergence-evidence/levels/levels-inaccessibles-20261028/config.json /tmp/NEW-inaccessibles-run"
+  ],
+  "fingerprints": {
+    "c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "js": "71f8ac928f3814245d006ac249b02dd985b2e6fd7e340fbde97304b761c92ca7",
+    "test": "a30f4cd8a050871eaf6fbbe309768e40c0544495996586c6ac3dca4250d4b7d6",
+    "adapter": "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a",
+    "differential": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "recorderDriver": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "config": "8f01905854b7978b46e7c847a553b1355ee0e56657b4bf4c9844ee518bb4c48e",
+    "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "environment": {
+      "RERECORD_TZ": "America/New_York",
+      "SESSION_REPLAY_TIMEOUT_MS": "45000",
+      "NETHACK_LUA_RNGLOG_CTX": "default"
+    },
+    "recorderInstallFiles": {
+      "minetn-5.lua": "01e4af2c4ed385b87c5c29ff6e4d6a776cdddd2f1a9a88ab98765a15dd90b7ce",
+      "minetn-6.lua": "c9e08eedd8251ebf88c7a96ae52c8a1f3e2a67cc2d99f10ae4f61c239cdca42b",
+      "nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+      "nhcore.lua": "45c42ace2fe61acea1d4202bf1fc040937275d5d9b20d1898358b4a95d6afd94",
+      "nhlib.lua": "5ea21df2d77e0fbde7e5e96167c907986b332458326a0568be87b33929e5daf0",
+      "sysconf": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2"
+    }
+  },
+  "evidencePaths": [
+    "focused.test.mjs",
+    "config.json",
+    "raw-observations.json",
+    "0-recipe.session.json",
+    "0-recorded.session.json.gz",
+    "0-js-output.json.gz",
+    "1-recipe.session.json",
+    "1-recorded.session.json.gz",
+    "1-js-output.json.gz",
+    "2-recipe.session.json",
+    "2-recorded.session.json.gz",
+    "2-js-output.json.gz"
+  ],
+  "adapterElapsedMs": 4139,
+  "nextExperiment": null,
+  "safeGeneralization": "A copied TODO is not an absence detector. Suppress only this exact missing-call claim after validating matching source/tool fingerprints, the live conditional call, and focused effect/control; do not filter all TODO comments or all ensure_way_out behavior."
+}

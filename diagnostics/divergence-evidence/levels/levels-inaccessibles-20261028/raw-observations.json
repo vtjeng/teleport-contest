@@ -1,0 +1,264 @@
+[
+  {
+    "id": "28176f2187208ef9d90c8a98f45a598654a4b2954321599b9c0ab11e52dc4848",
+    "program": "minetn-6.lua",
+    "sourceSha256": "c9e08eedd8251ebf88c7a96ae52c8a1f3e2a67cc2d99f10ae4f61c239cdca42b",
+    "recipeSha256": "1505239f950598738180f880b305c7c16bb666011233bcc4a7ebde0bf17e0b5b",
+    "files": [
+      {
+        "path": "0-recipe.session.json",
+        "uncompressedSha256": "1505239f950598738180f880b305c7c16bb666011233bcc4a7ebde0bf17e0b5b"
+      },
+      {
+        "path": "0-recorded.session.json.gz",
+        "uncompressedSha256": "7e0eb81418511d77afa0400fda8e56e5cf5261b6fd2115d95135518d251628ff"
+      },
+      {
+        "path": "0-js-output.json.gz",
+        "uncompressedSha256": "bdfde5439f618c15db516a093811df6c9b292e6e21cb7ad00371998044741212"
+      }
+    ],
+    "attempts": [
+      {
+        "status": "unresolved",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 9041,
+              "js": 9041
+            },
+            "screens": {
+              "c": 55,
+              "js": 55
+            },
+            "cursors": {
+              "c": 55,
+              "js": 55
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": false,
+          "witnesses": [],
+          "jsProgramEvidence": "unresolved",
+          "cUncoveredPercentSites": [],
+          "uncoveredPercentSites": []
+        },
+        "rawHashes": {
+          "recipe.session.json": "1505239f950598738180f880b305c7c16bb666011233bcc4a7ebde0bf17e0b5b",
+          "recorded.session.json": "7e0eb81418511d77afa0400fda8e56e5cf5261b6fd2115d95135518d251628ff",
+          "js-output.json": "bdfde5439f618c15db516a093811df6c9b292e6e21cb7ad00371998044741212"
+        },
+        "elapsedMs": 1303
+      }
+    ]
+  },
+  {
+    "id": "1ab5a22a0c4b973fbb183a28156c43c839e24a754107092db5e113c424b2684a",
+    "program": "minetn-6.lua",
+    "sourceSha256": "c9e08eedd8251ebf88c7a96ae52c8a1f3e2a67cc2d99f10ae4f61c239cdca42b",
+    "recipeSha256": "bf81c0f1c51ff7065465c6971d04b59355262b062fac831c680f973ce227ec05",
+    "files": [
+      {
+        "path": "1-recipe.session.json",
+        "uncompressedSha256": "bf81c0f1c51ff7065465c6971d04b59355262b062fac831c680f973ce227ec05"
+      },
+      {
+        "path": "1-recorded.session.json.gz",
+        "uncompressedSha256": "bbf372222fd19b4839b12e14841a1d3234e8221869772c34833f489d4c90a115"
+      },
+      {
+        "path": "1-js-output.json.gz",
+        "uncompressedSha256": "96c2f3f8a25f668db53f44e7c1c36ed7693bae4a98631137384561b1f7d636da"
+      }
+    ],
+    "attempts": [
+      {
+        "status": "unresolved",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 6792,
+              "js": 6792
+            },
+            "screens": {
+              "c": 55,
+              "js": 55
+            },
+            "cursors": {
+              "c": 55,
+              "js": 55
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": false,
+          "witnesses": [],
+          "jsProgramEvidence": "unresolved",
+          "cUncoveredPercentSites": [],
+          "uncoveredPercentSites": []
+        },
+        "rawHashes": {
+          "recipe.session.json": "bf81c0f1c51ff7065465c6971d04b59355262b062fac831c680f973ce227ec05",
+          "recorded.session.json": "bbf372222fd19b4839b12e14841a1d3234e8221869772c34833f489d4c90a115",
+          "js-output.json": "96c2f3f8a25f668db53f44e7c1c36ed7693bae4a98631137384561b1f7d636da"
+        },
+        "elapsedMs": 1237
+      }
+    ]
+  },
+  {
+    "id": "af44b9c3e3b68dfa4f061da89b9f1454a024673460d738bf6f73eeab07d72600",
+    "program": "minetn-5.lua",
+    "sourceSha256": "01e4af2c4ed385b87c5c29ff6e4d6a776cdddd2f1a9a88ab98765a15dd90b7ce",
+    "recipeSha256": "8c394f8cfb269a4bb8b37235a688bd6bc6cab377bfc40f20b8d6502a05953158",
+    "files": [
+      {
+        "path": "2-recipe.session.json",
+        "uncompressedSha256": "8c394f8cfb269a4bb8b37235a688bd6bc6cab377bfc40f20b8d6502a05953158"
+      },
+      {
+        "path": "2-recorded.session.json.gz",
+        "uncompressedSha256": "5043710695ae3acf307800af96ab41a6b25bd625ed27e9c37300085229698d78"
+      },
+      {
+        "path": "2-js-output.json.gz",
+        "uncompressedSha256": "2ead4cd9c9d694579dad75e1f1c8ea9ab0546960c622b68ec332ec3b380174f8"
+      }
+    ],
+    "attempts": [
+      {
+        "status": "unresolved",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4633,
+              "js": 4633
+            },
+            "screens": {
+              "c": 55,
+              "js": 55
+            },
+            "cursors": {
+              "c": 55,
+              "js": 55
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "witness": {
+          "route": "wizard-des",
+          "routeInputVerified": true,
+          "otherProgramObserved": false,
+          "cProgramObserved": false,
+          "witnesses": [],
+          "jsProgramEvidence": "unresolved",
+          "cUncoveredPercentSites": [
+            {
+              "line": 36,
+              "threshold": 75
+            },
+            {
+              "line": 37,
+              "threshold": 50
+            },
+            {
+              "line": 43,
+              "threshold": 75
+            },
+            {
+              "line": 44,
+              "threshold": 50
+            },
+            {
+              "line": 50,
+              "threshold": 50
+            },
+            {
+              "line": 54,
+              "threshold": 50
+            },
+            {
+              "line": 60,
+              "threshold": 50
+            }
+          ],
+          "uncoveredPercentSites": [
+            {
+              "line": 36,
+              "threshold": 75
+            },
+            {
+              "line": 37,
+              "threshold": 50
+            },
+            {
+              "line": 43,
+              "threshold": 75
+            },
+            {
+              "line": 44,
+              "threshold": 50
+            },
+            {
+              "line": 50,
+              "threshold": 50
+            },
+            {
+              "line": 54,
+              "threshold": 50
+            },
+            {
+              "line": 60,
+              "threshold": 50
+            }
+          ]
+        },
+        "rawHashes": {
+          "recipe.session.json": "8c394f8cfb269a4bb8b37235a688bd6bc6cab377bfc40f20b8d6502a05953158",
+          "recorded.session.json": "5043710695ae3acf307800af96ab41a6b25bd625ed27e9c37300085229698d78",
+          "js-output.json": "2ead4cd9c9d694579dad75e1f1c8ea9ab0546960c622b68ec332ec3b380174f8"
+        },
+        "elapsedMs": 1140
+      }
+    ]
+  }
+]
