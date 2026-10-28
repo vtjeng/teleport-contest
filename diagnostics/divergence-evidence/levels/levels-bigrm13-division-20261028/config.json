@@ -1,0 +1,71 @@
+{
+  "maxCases": 16,
+  "repeats": 1,
+  "budgetSeconds": 120,
+  "cases": [
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102901
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102902
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102903
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102904
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102905
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102906
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102907
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102908
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102909
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102910
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102911
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102912
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102913
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102914
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102915
+    },
+    {
+      "program": "bigrm-13.lua",
+      "seed": 28102916
+    }
+  ]
+}
