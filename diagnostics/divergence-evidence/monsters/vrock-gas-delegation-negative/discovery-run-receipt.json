@@ -1,0 +1,15 @@
+{
+  "runId": "601667573d5ca5a23adf",
+  "uncompressedSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+  "compressedSha256": "d971104c066275880e45bbed483d36f67a3090c259e296e7be08bbe612e2abb3",
+  "uncompressedBytes": 42926676,
+  "compressedBytes": 1465275,
+  "encoding": "gzip of exact original run.json bytes; no redaction or rewriting",
+  "inspection": {
+    "reviewedAt": "2026-10-28T17:57:18.198Z",
+    "result": "No credential markers, passwords, authorization strings, remote URLs, /home or /Users paths found. Schema contains source-derived leads, fingerprints and scanner statistics; generic workspace/tmp tool paths retained to preserve identity.",
+    "scope": "Full source scan is retained once because exact reviewed-negative import binds to this immutable run. Not additional gameplay claims for other shards or excluded topics."
+  },
+  "extract": "gzip -dc diagnostics/divergence-evidence/monsters/vrock-gas-delegation-negative/discovery-run.json.gz > /tmp/monsters-discovery-run-601667573d5ca5a23adf.json",
+  "verify": "sha256sum /tmp/monsters-discovery-run-601667573d5ca5a23adf.json"
+}

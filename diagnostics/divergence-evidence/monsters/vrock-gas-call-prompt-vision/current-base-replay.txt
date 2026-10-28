@@ -1,0 +1,64 @@
+PRNG length: C=2569, JS=2569
+PRNG values: match
+Screen length: C=43, JS=43
+Screen cells and attributes: match
+Cursor length: C=43, JS=43
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: PASS
+
+PRNG length: C=2578, JS=2578
+PRNG values: match
+Screen length: C=45, JS=45
+First screen mismatch at boundary 44 (segment 1, step 44, key " "):
+  Cell row 7, column 66 (ch):
+  C: {ch:".", rendered:".", color:8, attr:0 (none), decgfx:0}
+  JS: {ch:"#", rendered:"#", color:10, attr:0 (none), decgfx:0}
+Cursor length: C=45, JS=45
+Cursor values: match
+Animation frame length: C=0, JS=0
+Animation frames: match
+RESULT: FAIL
+
+✔ Vrock gas control matches C (734.105771ms)
+✖ Vrock gas target matches C (670.192108ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1524.778271
+
+✖ failing tests:
+
+test at diagnostics/divergence-evidence/monsters/vrock-gas-call-prompt-vision/replay.test.mjs:6:40
+✖ Vrock gas target matches C (670.192108ms)
+  AssertionError [ERR_ASSERTION]: PRNG length: C=2578, JS=2578
+  PRNG values: match
+  Screen length: C=45, JS=45
+  First screen mismatch at boundary 44 (segment 1, step 44, key " "):
+    Cell row 7, column 66 (ch):
+    C: {ch:".", rendered:".", color:8, attr:0 (none), decgfx:0}
+    JS: {ch:"#", rendered:"#", color:10, attr:0 (none), decgfx:0}
+  Cursor length: C=45, JS=45
+  Cursor values: match
+  Animation frame length: C=0, JS=0
+  Animation frames: match
+  RESULT: FAIL
+
+
+  false !== true
+
+      at TestContext.<anonymous> (diagnostics/divergence-evidence/monsters/vrock-gas-call-prompt-vision/replay.test.mjs:10:112)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,127 @@
+{
+  "shard": "monsters",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "reviewedAt": "2026-10-28T17:49:33.458Z",
+  "discoveredAt": "2026-10-28T17:42:34.952Z",
+  "tools": {
+    "node": "v24.19.0",
+    "clang": "Debian clang 19.1.7",
+    "discoveryRun": "601667573d5ca5a23adf",
+    "toolHashes": {
+      "sourceAudit": "49a0cb72061c9937b7decfdeea974fff997c3c23ad8caeb6f2ce882b8ce8fdbb",
+      "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+      "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+      "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+      "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+    },
+    "methodConfigHashes": {
+      "sourceAudit": "4b12f114c03356c62193bab858e963acd1b5c48b7f377c2a819bbbe38b922e4d",
+      "mismatchQueue": "736a53ee953197dd0395cddef8fcf1fa50279c2c941bb7afbfb779c4d700d148",
+      "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+      "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+      "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+    }
+  },
+  "cleanBaseVerification": {
+    "base": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+    "checkoutInitiallyClean": true,
+    "onlyEvidenceFilesAdded": true,
+    "checkedAt": "2026-10-28T17:49:33.458Z",
+    "recheckedCurrentBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+    "currentResult": "control passes; target fails at the same screen cell with matching RNG/cursors"
+  },
+  "caseId": "vrock-gas-call-prompt-vision",
+  "outcome": "confirmed divergence",
+  "routing": "UI/vision prompt owner; exposed by a monster action. Do not implement as monster gas-generation fix.",
+  "hypothesis": "The line-input prompt bypasses vpline deferred-vision recalculation after Vrock gas changes sight obstruction.",
+  "sourceLocations": [
+    "src/read.c:seffect_scare_monster",
+    "src/monmove.c:522-523",
+    "src/region.c:add_region",
+    "win/tty/getline.c:65",
+    "src/pline.c:266-270",
+    "js/getline.js:113-116",
+    "js/tty_message.js:417"
+  ],
+  "supportedSetup": "Public-input debug wish for blessed scroll of scare monster, create Vrock, read scroll, answer More, Escape naming prompt. Acoustics disabled keeps the scroll unnamed. Target branches are wizard-independent. Complete patched-C recordings committed.",
+  "expectedC": "At the Call prompt, visibility is recalculated: segment 0 step 43, row 6 column 65 is remembered floor dot, color 8.",
+  "observedJS": "Same boundary retains cloud # color 10. All 2578 RNG entries and 45 cursors match; first screen mismatch only after opening the Call prompt.",
+  "control": "Same seed, character, options and inputs through scroll read, stopping at More: strict parity across 2569 RNG entries, 43 screens, 43 cursors. Gas-creation draw attribution present on both recordings.",
+  "reproduction": "node --test diagnostics/divergence-evidence/monsters/vrock-gas-call-prompt-vision/replay.test.mjs",
+  "expectedExit": 1,
+  "expectedTestResult": "one passing control; one deterministic failing target",
+  "scope": "One independently chosen seed demonstrates the reachable prompt difference, not universal equivalence or every cloud/prompt combination. Original probe surplus spaces are not elapsed turns. The source owner is identified but no repair is included.",
+  "evidencePaths": [
+    "README.md",
+    "boundary-observations.json",
+    "clean-base-replay.txt",
+    "control-result.json",
+    "control.recipe.session.json",
+    "control.session.json",
+    "original-observations.json",
+    "original-result.json",
+    "original.recipe.session.json",
+    "recipe.session.json",
+    "record.mjs",
+    "replay.test.mjs",
+    "target-result.json",
+    "target.session.json",
+    "current-base-replay.txt"
+  ],
+  "nextExperiment": null,
+  "fixtureSha256": {
+    "README.md": "c99b943a80c03e0daa04a7e6e828812bf67bc0ff6ed5b2d94b54a3258e6efe13",
+    "boundary-observations.json": "6135ed66de4853117c3231711154af413a2f53609f9beff39a81e465732b2483",
+    "clean-base-replay.txt": "5e2aa790a59d7d5119d0b0308bfe189e5ecbb73aef509e5181bcfc5643e9cfe5",
+    "control-result.json": "5600e42f2e56963e387663dee0458d68a99127f8a742bf3dc21655ba20f8ea55",
+    "control.recipe.session.json": "cfe568dfecca6a40a98cf52c0f1411a0de663f8a972424675e51e61d16e92aa1",
+    "control.session.json": "dd7baf6e739e1b5da32d43784ed2999c9f1416e04dcaffacebb17f7c22f8fb48",
+    "original-observations.json": "2238b8287f0fe79da52a73e8d16e710661ec0aadd7e5b532a915ad619d4bc434",
+    "original-result.json": "6bd57aec4f62e2867d661ac4ed989c9e2d2aeae4bee79b2cd44ed9727804fd1f",
+    "original.recipe.session.json": "f78a8eef342e3fb8a40d94b7762fcbdc42d0e01f63385c154b4df6c0ee6245ca",
+    "recipe.session.json": "4caf82ada3750c353a88d9ccb49216705e56638737cb987c2238febba53975c2",
+    "record.mjs": "3a7f3ec8ab19e052561118feacb8bc1b6a9fb459b95e655b3e4abb5e743f46d0",
+    "replay.test.mjs": "111946f127a884b3eb4d3131d24aebb19271fc466bd8ac2746bb3b212174dc5d",
+    "target-result.json": "f665d094ea38dc2a24f92279f4eb7fa9c8358f9b2302fa85e145bfbe949c11fe",
+    "target.session.json": "e4613a1d99b748adc88741db14be882c3d59ec81fcab36bb3768954003fec2fd",
+    "current-base-replay.txt": "b8b99625902165ddc6ee9ccdf4b085fa067dc11b77c14c295e2e4eb022ef7134"
+  },
+  "recorder": {
+    "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "recordSessionSha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "diffFreshSha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "patches": {
+      "001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    },
+    "configuration": "Existing saved Clang recorder; source /workspace/.setup/activate.sh. Canonical TZ America/New_York; recorded recorderIsDst retained. Private installation per runDifferential call.",
+    "buildCompatibility": "Build script and patches unchanged from saved a37ef64c8 to jsBase. recorder/src/monmove.c, recorder/src/region.c and recorder/win/tty/getline.c byte-match pinned upstream source.",
+    "sessions": {
+      "targetSha256": "e4613a1d99b748adc88741db14be882c3d59ec81fcab36bb3768954003fec2fd",
+      "controlSha256": "dd7baf6e739e1b5da32d43784ed2999c9f1416e04dcaffacebb17f7c22f8fb48"
+    }
+  },
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual runtime divergence discovered while testing a different source-call lead. No invented canonical scanner identity."
+  },
+  "latestMainReview": {
+    "sha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+    "reviewedAt": "2026-10-28T17:51:46.587Z",
+    "changeScope": "Discovery tooling only; relevant game sources unchanged."
+  },
+  "sourceSha256": {
+    "nethack-c/upstream/win/tty/getline.c": "43abddf287e558949bb7bd17d0d7fa42201eb6f86a84146e9ee5889bc7f66afc",
+    "nethack-c/upstream/src/pline.c": "394d4d33f3ecfa66005a0df96cacf582782c79437f34daeaaa9bf25238d857ff",
+    "nethack-c/upstream/src/region.c": "ff09423d896d87b9a53dde460efc76e7cb14a6e459b17a8ea971dd18c2362d92",
+    "js/getline.js": "563ee8f9c0aad45ef7ce1f6a0dc0700603c63cc16124f2b74914b76c965a1c46",
+    "js/tty_message.js": "3385845c3ae01e5a5420a13a1cdf535e46082c6b66d95c7728b3fd21c20fee44",
+    "js/region.js": "218f90d79178a1228f5b6882aed282ba244ca1084a9531cf015235b34e4286e8"
+  }
+}

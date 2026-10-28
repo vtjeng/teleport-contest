@@ -1,0 +1,57 @@
+{
+  "indexConvention": "zero-based segment 0, steps 42 creation and 43 naming prompt",
+  "boundaries": [
+    {
+      "step": 42,
+      "c": {
+        "key": "e",
+        "rng": [
+          "rn2(19)=9 @ exercise(attrib.c:509)",
+          "rn2(102)=74 @ resist(zap.c:6141)",
+          "rn2(25)=11 @ monflee(monmove.c:522)",
+          "rn2(4)=2 @ create_gas_cloud(region.c:1255)",
+          "rn2(3)=0 @ create_gas_cloud(region.c:1255)",
+          "rn2(2)=1 @ create_gas_cloud(region.c:1255)",
+          "rn2(1)=0 @ create_gas_cloud(region.c:1255)",
+          "rn2(4)=2 @ create_gas_cloud(region.c:1255)",
+          "rn2(3)=0 @ create_gas_cloud(region.c:1255)",
+          "rn2(2)=0 @ create_gas_cloud(region.c:1255)",
+          "rn2(1)=0 @ create_gas_cloud(region.c:1255)",
+          "rn2(3)=1 @ create_gas_cloud(region.c:1303)",
+          "rn2(108)=64 @ resist(zap.c:6141)"
+        ],
+        "screen": "As you read the scroll, it disappears.--More--\n\n\n\n\n\u001b[55C---------------\n\u001b[55C\u001b[33m+\u001b[39m.......\u001b[92m#\u001b[32m&\u001b[92m#\u001b[39m.o.|\n\u001b[55C|.......\u001b[97m@\u001b[92m##\u001b[39m...|\n\u001b[55C|.............|\n\u001b[55C|.............|\n\u001b[55C|.............|\n\u001b[55C---------------\n\n\n\n\n\n\n\n\n\n\nWizard the Stripling\u001b[11CSt:16 Dx:16 Co:18 In:10 Wi:8 Ch:7 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1",
+        "cursor": [
+          46,
+          0,
+          1
+        ]
+      },
+      "jsScreen": "As you read the scroll, it disappears.--More--\n\n\n\n\n\u001b[55C---------------\n\u001b[55C\u001b[33m+\u001b[39m.......\u001b[92m#\u001b[32m&\u001b[92m#\u001b[39m.o.|\n\u001b[55C|.......\u001b[97m@\u001b[92m##\u001b[39m...|\n\u001b[55C|.............|\n\u001b[55C|.............|\n\u001b[55C|.............|\n\u001b[55C---------------\n\n\n\n\n\n\n\n\n\n\nWizard the Stripling           St:16 Dx:16 Co:18 In:10 Wi:8 Ch:7 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1",
+      "jsCursor": [
+        46,
+        0,
+        1
+      ]
+    },
+    {
+      "step": 43,
+      "c": {
+        "key": " ",
+        "rng": [],
+        "screen": "Call a scroll labeled FNORD:\n\n\n\n\n\u001b[55C---------------\n\u001b[55C\u001b[33m+\u001b[39m.......\u001b[92m#\u001b[32m&\u001b[90m....\u001b[39m|\n\u001b[55C|.......\u001b[97m@\u001b[92m#\u001b[90m....\u001b[39m|\n\u001b[55C|..........\u001b[90m...\u001b[39m|\n\u001b[55C|............\u001b[90m.\u001b[39m|\n\u001b[55C|.............|\n\u001b[55C---------------\n\n\n\n\n\n\n\n\n\n\nWizard the Stripling\u001b[11CSt:16 Dx:16 Co:18 In:10 Wi:8 Ch:7 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1",
+        "cursor": [
+          29,
+          0,
+          1
+        ]
+      },
+      "jsScreen": "Call a scroll labeled FNORD:\n\n\n\n\n\u001b[55C---------------\n\u001b[55C\u001b[33m+\u001b[39m.......\u001b[92m#\u001b[32m&\u001b[92m#\u001b[39m.o.|\n\u001b[55C|.......\u001b[97m@\u001b[92m##\u001b[39m...|\n\u001b[55C|.............|\n\u001b[55C|.............|\n\u001b[55C|.............|\n\u001b[55C---------------\n\n\n\n\n\n\n\n\n\n\nWizard the Stripling           St:16 Dx:16 Co:18 In:10 Wi:8 Ch:7 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1",
+      "jsCursor": [
+        29,
+        0,
+        1
+      ]
+    }
+  ]
+}
