@@ -1,0 +1,58 @@
+{
+  "caseId": "monster-wrap-orientation-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "binding": "manual/unbound; no scanner suppression",
+  "jsBase": "d1d8ac170b75dca71abe29819b5daa9972301221",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceSha256": {
+    "nethack-c/upstream/src/uhitm.c": "4cc2f8a0ffe0121801a777978a9a555a063db720e0fe972308fb6ab0e96feb12",
+    "js/uhitm.js": "ad673dbf7e3515ad683f6da337a141feb6dceef7e7455a716ba727e84baa6353",
+    "js/monsters.js": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+    "scripts/uhitm.test.mjs": "53df67064b28f0320388290f9aa3f34a46a84c6c7c5b6a1499d027fc7feaf961"
+  },
+  "toolFingerprint": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0",
+    "proofSha256": "dd0ebfe858b88f72189d9a09034a4a1f9d90d50770dd3c18dceb59f368be8266"
+  },
+  "config": "Effect-dispatch API; native python AD_WRAP 1d4; non-hero jackal; input damage4; explicit cancellation0/1; no injected water or attack catalog changes",
+  "hypothesis": "JS omits monster-versus-monster wrap drowning that C performs.",
+  "supportedSetup": "Native species and attack table; explicit production dispatcher callbacks. Constructed effect-boundary state, not a public-play/full-turn witness.",
+  "expectedC": [
+    {
+      "cancelled": 0,
+      "damage": 4
+    },
+    {
+      "cancelled": 1,
+      "damage": 0
+    }
+  ],
+  "observedJS": [
+    {
+      "cancelled": 0,
+      "damage": 4
+    },
+    {
+      "cancelled": 1,
+      "damage": 0
+    }
+  ],
+  "control": "Cancellation switches retained damage to zero; both participants remain non-hero. Hero drowning paths excluded.",
+  "oracleLimit": "Exact C final orientation arm compiled with display stubs, not complete C function or recorder. Full-function source establishes water logic is in hero branches only.",
+  "sourceLocations": [
+    "src/uhitm.c:3337 mhitm_ad_wrap",
+    "src/uhitm.c:3415 non-hero branch",
+    "js/uhitm.js:6119 mhitm_ad_wrap",
+    "js/uhitm.js:7688 dispatcher AD_WRAP"
+  ],
+  "command": "node diagnostics/divergence-evidence/monsters/monster-wrap-orientation-negative/proof.mjs",
+  "evidencePaths": [
+    "README.md",
+    "proof.mjs"
+  ],
+  "discoveredAt": "2026-10-28T21:56:57.405997+00:00",
+  "reviewedAt": "2026-10-28T21:56:57.405997+00:00",
+  "nextExperiment": null
+}
