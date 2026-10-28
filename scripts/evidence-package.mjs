@@ -142,8 +142,13 @@ export function validatePackage(c, { root = process.cwd() } = {}) {
             && hash(manifest.exporterSha256) && hash(manifest.hubSha256), 'invalid projection manifest provenance');
         assert.deepEqual(manifest.selectedKeys, projection.leads.map(lead => lead.key), 'projection manifest keys mismatch');
         for (const key of origin.keys) check(projection.leads.some(lead => lead.key === key), `unknown scanner key: ${key}`);
+        check(manifest.decisionsSha256 === null || hash(manifest.decisionsSha256),
+            'manifest decisionsSha256 must be null or a SHA-256 hash');
+        check((manifest.decisionsSha256 === null) === (origin.decisions === null),
+            'manifest decisions hash/reference mismatch');
         const decisions = origin.decisions === null ? undefined : json(origin.decisions);
-        if (decisions) {
+        if (decisions !== undefined) {
+            check(Array.isArray(decisions), 'decisions must be an array');
             check(manifest.decisionsSha256 === digest(file(origin.decisions)), 'decision manifest hash mismatch; re-export with final decisions');
             check(decisions.every(d => origin.keys.includes(d.key)), 'unrelated decision in case');
             const expected = { explained_negative: 'explained_negative', unresolved: 'unresolved', candidate: 'confirmed' }[c.status];

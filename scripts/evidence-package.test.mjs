@@ -89,7 +89,7 @@ test('references cannot escape the package root or silently omit runner dependen
     f.c.commands[0].inputs.push('unlisted.json'); assert.throws(f.validate, /unlisted reference/);
 });
 
-test('scanner negative uses unchanged discovery guards and preserves the unresolved neighbor', t => {
+function scannerFixture(t) {
     const f = fixture(t, 'explained_negative');
     const provenance = { ...f.c.provenance, runId: 'run', methodVersions: { sourceAudit: 'sha256:tool' },
         methodConfigHashes: { sourceAudit: 'config' }, sourceAuditSourceHash: 'source' };
@@ -111,6 +111,11 @@ test('scanner negative uses unchanged discovery guards and preserves the unresol
     f.put('manifest.json', manifest);
     f.c.origin = { kind: 'scanner', keys: [leads[0].key], projection: 'projection.json',
         manifest: 'manifest.json', decisions: 'decisions.json' };
+    return { ...f, projection, manifest };
+}
+
+test('scanner negative uses unchanged discovery guards and preserves the unresolved neighbor', t => {
+    const f = scannerFixture(t), { projection, manifest } = f;
     assert.deepEqual(f.validate().discovery.after, { active: 1, filtered: 1, excluded: 0 });
     projection.methodConfigHashes.sourceAudit = 'stale';
     manifest.projectionSha256 = hash(f.put('projection.json', projection)); f.put('manifest.json', manifest);
@@ -139,4 +144,38 @@ test('CLI requires a clean committed layout and reports legacy separately withou
     writeFileSync(join(f.root, 'legacy.json'), '{}');
     assert.equal(run(['validate', 'legacy.json']).status, 2);
     assert.equal(JSON.parse(run(['template', 'new-case', 'levels']).stdout).readiness, 'incomplete');
+});
+
+for (const status of ['candidate', 'unresolved']) {
+    test(`scanner ${status} cannot omit decisions recorded by its export manifest`, t => {
+        const f = scannerFixture(t);
+        f.c.status = status; f.c.readiness = 'incomplete';
+        f.c.origin.decisions = null;
+        f.c.artifacts = f.c.artifacts.filter(a => a.path !== 'decisions.json');
+        rmSync(join(f.root, 'decisions.json'));
+        assert.throws(f.validate, /hash\/reference mismatch/);
+    });
+}
+test('scanner manifest requires the referenced file and rejects null or changed hashes', t => {
+    const f = scannerFixture(t);
+    f.c.artifacts = f.c.artifacts.filter(a => a.path !== 'decisions.json');
+    assert.throws(f.validate, /unlisted reference: decisions.json/);
+    f.put('decisions.json', []);
+    rmSync(join(f.root, 'decisions.json'));
+    assert.throws(f.validate, /ENOENT/);
+    f.put('decisions.json', []);
+    assert.throws(f.validate, /decision manifest hash mismatch/);
+    f.manifest.decisionsSha256 = null; f.put('manifest.json', f.manifest);
+    assert.throws(f.validate, /hash\/reference mismatch/);
+    delete f.manifest.decisionsSha256; f.put('manifest.json', f.manifest);
+    assert.throws(f.validate, /must be null or a SHA-256/);
+});
+test('scanner unresolved no-decisions export remains valid and visible', t => {
+    const f = scannerFixture(t);
+    f.c.status = 'unresolved'; f.c.readiness = 'incomplete';
+    f.c.origin.decisions = null; f.manifest.decisionsSha256 = null;
+    f.put('manifest.json', f.manifest);
+    f.c.artifacts = f.c.artifacts.filter(a => a.path !== 'decisions.json');
+    rmSync(join(f.root, 'decisions.json'));
+    assert.deepEqual(f.validate().discovery.after, { active: 2, filtered: 0, excluded: 0 });
 });
