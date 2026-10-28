@@ -124,7 +124,7 @@ export function normalizeSource(item) {
         method: 'sourceAudit', symbol: item.owner ?? null,
         sourceAuditReviews: item.reviews ?? [],
         sourceAuditClassification: item.classification ?? null,
-        rank: item.rank ?? null };
+        rank: item.rank ?? null, rankingHint: item.rankingHint ?? null };
 }
 
 export function normalizeConstant(item) {
@@ -450,6 +450,7 @@ function scan(opts) {
                     eligibleCFiles: report.scope?.eligibleCFiles ?? null,
                     itemKinds: report.totals?.itemKinds ?? null,
                     messageFilters: report.totals?.messageFilters ?? null,
+                    rankingHints: report.totals?.rankingHints ?? null,
                     carriedUnobserved: backlog.entries.filter(item => !item.observed).length };
                 methods.sourceAudit.sourceHash = report.sourceHash ?? null;
                 leads.push(...backlog.entries.filter(item => item.observed)
