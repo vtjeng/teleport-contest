@@ -1,0 +1,41 @@
+{
+  "caseId": "shrieker-occupation-callback-negative",
+  "shard": "monsters",
+  "outcome": "explained negative",
+  "scope": "Normal runSimpleMonsterAction wrapper only; bare helper API and other callers not qualified",
+  "jsBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:05:48.524823+00:00",
+  "reviewedAt": "2026-10-28T21:05:48.524833+00:00",
+  "hypothesis": "JS shrieker helper loses stop_occupation during normal turns",
+  "expectedC": "Hearing calls stop; deaf does not; both call aggravate",
+  "observedJS": "Normal action hearing clears actual occupation; deaf retains it",
+  "control": "Timed deafness only; same native shrieker and bounded random stream",
+  "binding": "Exact scanner binding retained, no whole-lead suppression decision",
+  "sourceSha256": {
+    "js/mon.js": "8df046bda3602822e5443eea8f98a1e6f82a094e0a1d342224fcea951b9b6f0f",
+    "js/monmove.js": "b33623a7c02a59be598f349d49ec4007c4f3f7fc730d497abb70caa4a962cf58",
+    "js/unported_monster_actions.js": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902",
+    "js/allmain.js": "cb69f2ca68a242b0f92ba69c274f25218623e8bc396cafa67534856157f929a2",
+    "js/cmd.js": "2eb74b97b277a2b752e7203b6e7da36c8ca9e3ed19d4ed900cd594f3faaf3a7c",
+    "nethack-c/upstream/src/mon.c": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01"
+  },
+  "tools": {
+    "node": "v24.19.0",
+    "cc": "Debian GCC14.2.0-19"
+  },
+  "sourceLocations": [
+    "src/mon.c:4089",
+    "js/mon.js:m_respond_shrieker",
+    "js/unported_monster_actions.js:runSimpleMonsterAction",
+    "js/monmove.js:dochugw"
+  ],
+  "validation": "Clean detached base: 3 focused checks pass; suite guard 6 pass",
+  "evidence": [
+    "README.md",
+    "proof.mjs",
+    "oracle.mjs",
+    "scanner-binding.json",
+    "observations.txt"
+  ]
+}

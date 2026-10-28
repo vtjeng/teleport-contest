@@ -1,0 +1,8 @@
+{
+  "key": "source-audit:edge-c-only:src/mon.c:m_respond_shrieker:stop_occupation",
+  "evidenceKey": "05463f97779214488001496942a04d9fe7090a913778fab2692bdde4f07bb2b3",
+  "runId": "601667573d5ca5a23adf",
+  "reviewFingerprint": "45fe6f5e5438c5b3f1220ee8b52f17e98f8e3baa51dee8e2ab3a0be96a867c06",
+  "originalRunSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+  "scope": "Only normal runSimpleMonsterAction path qualified. No automatic suppression decision: bare helper API without a callback is not covered."
+}
