@@ -1,0 +1,38 @@
+[
+  {
+    "key": "source-audit:edge-stub:src/mcastu.c:mcast_fire_pillar:mon_spell_hits_spot",
+    "evidenceKey": "97310f931e986814aeca31159bcf19814613f421cddd5c105b35be88abf38198",
+    "runId": "2bfc89cdcbaa6139046f",
+    "reviewFingerprint": "cd1a3d8140d02a97d46b8f1d38768f39b63b75b306ed5f645bcbccb8c3960311",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "This exact caller passes literal AD_FIRE or AD_ELEC. Both lie in the callee accepted AD_MAGM..AD_ACID range. The sole note_unported marker is in the complementary else arm, and adtyp is never reassigned. No global spell or terrain equivalence claim.",
+      "proof": "source-proof.mjs checks both C/JS call sites, complete callee guard and marker, and C damage constants against JS values; AD_PHYS is an out-of-range discriminator control. Pinned native Grand Master fire-pillar and lightning recordings reach both spells and compare all streams. General castmu and polymon keys remain active.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mcastu.c:562",
+        "nethack-c/upstream/src/mcastu.c:593",
+        "nethack-c/upstream/src/zap.c:5517",
+        "js/zap.js:5640"
+      ]
+    }
+  },
+  {
+    "key": "source-audit:edge-stub:src/mcastu.c:mcast_lightning:mon_spell_hits_spot",
+    "evidenceKey": "00f6ca25bad7aab0d98d390f6ee27ba2b9010ae2e76c700f792863f097a46db1",
+    "runId": "2bfc89cdcbaa6139046f",
+    "reviewFingerprint": "d663fcd2073281edc1b4f241adb0638412607c2da8176784146a73361884430a",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "This exact caller passes literal AD_FIRE or AD_ELEC. Both lie in the callee accepted AD_MAGM..AD_ACID range. The sole note_unported marker is in the complementary else arm, and adtyp is never reassigned. No global spell or terrain equivalence claim.",
+      "proof": "source-proof.mjs checks both C/JS call sites, complete callee guard and marker, and C damage constants against JS values; AD_PHYS is an out-of-range discriminator control. Pinned native Grand Master fire-pillar and lightning recordings reach both spells and compare all streams. General castmu and polymon keys remain active.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mcastu.c:562",
+        "nethack-c/upstream/src/mcastu.c:593",
+        "nethack-c/upstream/src/zap.c:5517",
+        "js/zap.js:5640"
+      ]
+    }
+  }
+]

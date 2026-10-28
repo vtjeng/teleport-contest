@@ -21,11 +21,11 @@
     "edge-stub": 55,
     "message": 19
   },
-  "reviewedKeys": 3,
-  "resolvedKeys": 2,
+  "reviewedKeys": 5,
+  "resolvedKeys": 4,
   "reviewedUnresolvedKeys": 1,
-  "withoutRecordedReview": 686,
-  "reviewedAt": "2026-10-28T22:58:25.838953+00:00",
+  "withoutRecordedReview": 684,
+  "reviewedAt": "2026-10-28T23:08:22.018444+00:00",
   "inventoryKeysSha256": "9111e7977db1b5b5ecc90bdf55db81b2f4e71778586b9d75af402768597a011c",
   "reviews": [
     {
@@ -42,6 +42,16 @@
       "key": "source-audit:edge-stub:src/mhitu.c:gazemu:polymon",
       "status": "unresolved",
       "record": "sibling medusa-stone-transition-scope package"
+    },
+    {
+      "key": "source-audit:edge-stub:src/mcastu.c:mcast_fire_pillar:mon_spell_hits_spot",
+      "status": "explained_negative",
+      "record": "sibling cleric-floor-spell-stub-negative package"
+    },
+    {
+      "key": "source-audit:edge-stub:src/mcastu.c:mcast_lightning:mon_spell_hits_spot",
+      "status": "explained_negative",
+      "record": "sibling cleric-floor-spell-stub-negative package"
     }
   ]
 }
