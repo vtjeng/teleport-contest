@@ -132,3 +132,61 @@ The CSV is a compact view; keep exact commands, setup limits, source proof,
 control results, and review rationale in the JSON detail. Do not infer active
 compute time from adapter wall time or treat thousands of scanner warnings as
 thousands of bugs.
+
+
+## Portable run projections
+
+Use the supported exporter instead of hand-selecting run metadata. `keys.json`
+is a nonempty JSON array of exact canonical lead IDs. The original run is read
+without mutation; every top-level field is preserved, and only `leads` is
+projected, in original order. Unknown/future metadata is preserved too.
+
+```sh
+node scripts/discovery-project.mjs export \
+  --run .cache/discovery-run-1/run.json \
+  --keys keys.json \
+  --out .cache/discovery-projection-1 \
+  --decisions decisions.json
+```
+
+`--decisions` is optional when preparing a review. The new output directory
+contains `projection.json`, `review-template.json`, and `manifest.json`. The
+manifest records original/projection SHA-256, original lead count, selected
+IDs, exporter/hub hashes, optional decision hash, and before/after active-view
+counts. It lives outside the projection so original run metadata is unchanged.
+The exporter validates everything before writing output and refuses overwrites.
+
+Validate a received projection with the same supported command:
+
+```sh
+node scripts/discovery-project.mjs validate \
+  --projection .cache/discovery-projection-1/projection.json \
+  --decisions decisions.json
+```
+
+Add `--run ORIGINAL_RUN.json` when available to verify exact metadata and
+selected-lead equality, fingerprints and original active-view membership.
+Without that original the result explicitly says `originalComparison:
+not-supplied`; it checks completeness and review behavior, not the claimed
+original full-run hash. Compare the received projection bytes to its manifest
+hash as part of artifact transfer.
+
+Both exporter and validator require run-level `methodConfigHashes` and
+`methods.sourceAudit.sourceHash` for observed source-audit leads, as well as
+identity/tool/input metadata. A matching review fingerprint alone is not enough:
+when decisions are supplied, an explained negative must actually enter the
+filtered view. An observed unresolved decision must remain active. Stale
+source/tool/config reviews are never forced through by loosening the active-view
+guards. Stale or unobserved historical rows can still be projected without new
+decisions and retain their existing visibility/history.
+
+Do not reconstruct omitted metadata from a lead's provenance or a neighboring
+run. Return to the immutable original and export again. Projection counts cover
+only selected leads, never a full-corpus filter-yield denominator.
+
+Validation example from the tooling pilot: original run
+`601667573d5ca5a23adf` (12,537 leads), three selected leads and two known exact
+negative decisions exported and validated with **3 active → 1 active, 2 filtered**.
+The incomplete PR #30 projection was rejected with
+`missing run.methodConfigHashes`, rather than reported as a successful filter.
+No discovery scan or gameplay replay was performed for this pilot.
