@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:05:19.945193+00:00",
+  "exitCode": 1,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "5f13ba7c3f9738767932796b6b9f997198122885917fb64bd795ac0871665ac3",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.session.json.gz": "4bb4252e60b33e42e275657952ec14cb1306d04c06f98fd1da4c28cf01b714fe"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target-output.json"
+  ]
+}

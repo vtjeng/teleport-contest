@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 1,
+  "caseId": "engulf-hallucination-resistance",
+  "shard": "monsters",
+  "status": "candidate",
+  "readiness": "review_ready",
+  "rootCause": "engulf-raw-hallucination-property",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/mhitu.c",
+      "symbol": "gulpmu",
+      "start_line": 1454,
+      "end_line": 1470,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "include/youprop.h",
+      "symbol": "Hallucination",
+      "start_line": 117,
+      "end_line": 120,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/potion.c",
+      "symbol": "make_hallucinated",
+      "start_line": 369,
+      "end_line": 410,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/potion.c",
+      "symbol": "peffect_hallucination",
+      "start_line": 696,
+      "end_line": 706,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mhitu.js",
+      "symbol": "gulpmu",
+      "start_line": 2256,
+      "end_line": 2258,
+      "commit_sha": "d1d8ac170b75dca71abe29819b5daa9972301221"
+    },
+    {
+      "side": "JS",
+      "path": "js/mhitu.js",
+      "symbol": "gulpmu",
+      "start_line": 2470,
+      "end_line": 2485,
+      "commit_sha": "d1d8ac170b75dca71abe29819b5daa9972301221"
+    }
+  ],
+  "hypothesis": "Acid engulf uses raw hallucination timeout instead of effective Hallucination when Grayswandir suppresses it.",
+  "expectedBehavior": "At target step137 C prints You are covered in slime!  It burns!; the protected-before-drinking control prints the same ordinary acid sentence.",
+  "observedBehavior": "JS target prints Ouch!  You've been slimed! with matching 2,874 RNG calls and 138 cursors; control fully matches 2,862 RNG calls and 128 screens/cursors.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Public wizard item/monster creation followed by native drink, wield, wait and ochre-jelly engulf. Complete C recorder streams and JS replay compared through first acid message.",
+    "limitations": [
+      "Only this acid-engulf suppression route is qualified; no all-spell or all-artifact equivalence.",
+      "Wizard mode supplies setup; ordinary generated encounter exposure is not separately recorded.",
+      "No gameplay changes; post-fix checks remain planned."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.session.json.gz",
+      "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.recipe.json",
+      "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/observations.json"
+    ],
+    "reason": "The bundled native public-input recording reaches the shipped ochre-jelly acid engulf handler. No injected state or altered attack/resistance predicates."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Manual comparison of gulpmu raw property read to C effective Hallucination macro; no discovery lead binding asserted.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.session.json.gz"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/control.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/control-receipt.json"
+    },
+    {
+      "id": "after-fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    },
+    {
+      "id": "after-fix-control",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/control.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/README.md",
+      "sha256": "c401676a6ea670fbcc2d983df67ef589ada4d5f920134332b625b38c3cf2af82",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/control-output.json",
+      "sha256": "8adc6c334872095abcbca41380088ea8effbc0e97eb60c36f11ec63ec5202acc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/control-receipt.json",
+      "sha256": "e0e12ee07fad439f2f82c68a33c496c3f48b0250e3125b6df2337dda5b615971",
+      "role": "receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/control.recipe.json",
+      "sha256": "2c29fe5229ab73dfa1297ea42f2116ff6651d15c53d889e15c35ea497ec0e8c0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/control.session.json.gz",
+      "sha256": "f57d67bd927f386ef945fa4460d97d16b0507e0b1b87da5b2ebf1359339156da",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/observations.json",
+      "sha256": "0bad13872fa4ebd56663a818fd619b6e988849c82a6aabe7b95257e0ae930ad6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+      "sha256": "5f13ba7c3f9738767932796b6b9f997198122885917fb64bd795ac0871665ac3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target-output.json",
+      "sha256": "cb8d42d7e91aac02a6c3a17a041dd8c8b4e06360986f81dd9a5b4c49198eba1e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target-receipt.json",
+      "sha256": "ef20e803f2c1dd0f9ced4918f2e78f417ce532c7dafe68cbe273f2d15c114b84",
+      "role": "receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.recipe.json",
+      "sha256": "133442c1eac4a94aaf29362678de707f81e45c272fac4708cf7257997e3c6115",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.session.json.gz",
+      "sha256": "4bb4252e60b33e42e275657952ec14cb1306d04c06f98fd1da4c28cf01b714fe",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "scripts/scoring-workspace.mjs",
+      "sha256": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "js/mhitu.js",
+      "sha256": "4ffa437ca2383980ab6a02b2c1e395c521fba9244af3c6c45fc3d612bdb227d9",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/mhitu.c",
+      "sha256": "5e0fb2e24f51f8e8803e58e4016f126bbe3fdbff9dd2ddbdc73b9d1d20c024b3",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "nethack-c/upstream/include/youprop.h",
+      "sha256": "9c4e25bc385c405226085ae3526dc165bd9397ce922b8a18a46f67de21683a2f",
+      "role": "pinned source or tooling dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/potion.c",
+      "sha256": "05176768623072e3e1337fc23b91e1f3991980dbefb4ca2fc44c0fe6d1115aa9",
+      "role": "pinned source or tooling dependency"
+    }
+  ]
+}

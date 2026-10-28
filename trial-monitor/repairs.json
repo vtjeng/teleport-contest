@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T21:32:38Z",
+  "asOf": "2026-10-28T22:07:15Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25513,6 +25513,231 @@
               "completedAt": "2026-10-28T21:32:38Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40772526559"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "queued-userinput-query-menu",
+      "title": "Route queued user input through query menu",
+      "investigator": "commands PR #82",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/cmd.c:yn_function",
+          "js/cmd.js:yn_function"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/commands/queued-userinput-query-menu/case.json"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/commands/queued-userinput-query-menu/evidence-check.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+          "committedAt": "2026-10-28T21:53:34Z",
+          "sourceCommit": "82925e4fff73c4662dfd4c237acb497012a3ff4b",
+          "sourceCommittedAt": "2026-10-28T21:53:19Z",
+          "runs": [
+            {
+              "id": 40775767289,
+              "name": "Checkpoint",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/query-menu-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:54:28Z",
+              "completedAt": "2026-10-28T22:04:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40775767289"
+            },
+            {
+              "id": 40777210063,
+              "name": "Lint",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:05:20Z",
+              "completedAt": "2026-10-28T22:06:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40777210063"
+            },
+            {
+              "id": 40777210085,
+              "name": "Dashboard",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:05:20Z",
+              "completedAt": "2026-10-28T22:07:15Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40777210085"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gremlin-verbalized-fear-location",
+      "title": "Keep verbalized monster fear free of location prefix",
+      "investigator": "monsters PR #88",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c:monflee",
+          "js/monmove.js:monfleeMessage"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/monsters/gremlin-verbalized-fear/case.json"
+        ],
+        "test": [
+          "diagnostics/divergence-evidence/monsters/gremlin-verbalized-fear/proof.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+          "committedAt": "2026-10-28T21:53:34Z",
+          "sourceCommit": "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+          "sourceCommittedAt": "2026-10-28T21:53:23Z",
+          "runs": [
+            {
+              "id": 40775767289,
+              "name": "Checkpoint",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/query-menu-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:54:28Z",
+              "completedAt": "2026-10-28T22:04:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40775767289"
+            },
+            {
+              "id": 40777210063,
+              "name": "Lint",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:05:20Z",
+              "completedAt": "2026-10-28T22:06:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40777210063"
+            },
+            {
+              "id": 40777210085,
+              "name": "Dashboard",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:05:20Z",
+              "completedAt": "2026-10-28T22:07:15Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40777210085"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "monster-location-bearing-feedback",
+      "title": "Keep qualified monster feedback location in accessible messages",
+      "investigator": "monsters PRs #65, #90, #91",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mhitm.c:passivemm",
+          "nethack-c/upstream/src/uhitm.c:mhitm_ad_pest",
+          "js/mhitm.js:passivemm",
+          "js/uhitm.js:mhitm_ad_pest"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/65",
+          "diagnostics/divergence-evidence/monsters/pestilence-touch-location/target.session.json.gz",
+          "diagnostics/divergence-evidence/monsters/monster-message-location-family-map/target.session.json.gz"
+        ],
+        "test": [
+          "scripts/mhitm-passive-cold-accessible.test.mjs",
+          "diagnostics/divergence-evidence/monsters/pestilence-touch-location/proof.mjs",
+          "diagnostics/divergence-evidence/monsters/monster-message-location-family-map/proof.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+          "committedAt": "2026-10-28T21:53:34Z",
+          "sourceCommit": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+          "sourceCommittedAt": "2026-10-28T21:53:34Z",
+          "runs": [
+            {
+              "id": 40775767289,
+              "name": "Checkpoint",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/query-menu-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T21:54:28Z",
+              "completedAt": "2026-10-28T22:04:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40775767289"
+            },
+            {
+              "id": 40777210063,
+              "name": "Lint",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:05:20Z",
+              "completedAt": "2026-10-28T22:06:21Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40777210063"
+            },
+            {
+              "id": 40777210085,
+              "name": "Dashboard",
+              "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T22:05:20Z",
+              "completedAt": "2026-10-28T22:07:15Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40777210085"
             }
           ]
         }

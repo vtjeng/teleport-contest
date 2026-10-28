@@ -2253,9 +2253,11 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         prop(MAGICAL_BREATHING).intrinsic
             || prop(MAGICAL_BREATHING).extrinsic,
     );
-    const hallucinating = Boolean(
-        prop(HALLUC).intrinsic || prop(HALLUC).extrinsic,
-    );
+    // C's Hallucination macro reads the timed intrinsic only when effective
+    // hallucination resistance is absent.  A suppressed timeout must not
+    // select the hallucination-only acid-engulf message.
+    const hallucinating = Boolean(prop(HALLUC).intrinsic)
+        && !Boolean(prop(HALLUC_RES).intrinsic || prop(HALLUC_RES).extrinsic);
     const acidResistant = Boolean(
         prop(ACID_RES).intrinsic || prop(ACID_RES).extrinsic,
     );
