@@ -1,0 +1,83 @@
+{
+  "checkedAt": "2026-10-28T17:41:17.572Z",
+  "jsBase": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "archiveSha256": "f78c6bfd58ed41184d7027ad75f62d394dc51dda6832a5d39febc4e6e1815a8c",
+  "method": "Fresh-process replay of unchanged C fixtures against git archive of fetched origin/main; frozen scorer overlay applied",
+  "results": {
+    "witness": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3046,
+          "js": 3046
+        },
+        "screens": {
+          "c": 10,
+          "js": 8
+        },
+        "cursors": {
+          "c": 10,
+          "js": 8
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": {
+        "index": 8,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 8,
+          "key": "\u0001"
+        },
+        "kind": "js-missing"
+      },
+      "cursorMismatch": {
+        "index": 8,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 8,
+          "key": "\u0001"
+        },
+        "cCursor": [
+          40,
+          0,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "control": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3046,
+          "js": 3046
+        },
+        "screens": {
+          "c": 15,
+          "js": 15
+        },
+        "cursors": {
+          "c": 15,
+          "js": 15
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  }
+}
