@@ -1,0 +1,202 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:occupied:is_pool",
+    "evidenceKey": "49a7793fc08b3d235477d84117c3797b25b91b0340f1e257af5b8d74fd2ec34b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "dccfccaad5b1bdd0c91e8cdf2abec86b6a516d887146e20d9577ef780e3c1556",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+      "proof": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) ×4 directions ×ordinary/Juiblex identity ×humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+      "control": "72 controls:9 direct/lowered terrains ×ordinary/Juiblex identity ×4 humidity masks. Direct POOL/MOAT/WATER stay wet on Juiblex, direct lava remains hot, and stone/room/ice/lowered bridge remain nonliquid. All fixed interior-cell results match. This does not prove bridge construction/operation, arbitrary placement, object/monster/runtime effects or whole topology.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mklev.c:1806",
+        "nethack-c/upstream/src/dbridge.c:46",
+        "nethack-c/upstream/src/dbridge.c:62",
+        "nethack-c/upstream/src/dbridge.c:100",
+        "js/room_coordinates.js:156",
+        "js/mktrap.js:151"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028",
+      "reviewedBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:occupied:is_lava",
+    "evidenceKey": "aa6fed8dc0b03fb6407d5de1f0f23e0119311e464a9b0e8c44f413d49e5171e1",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "9e459272fa87be106178ac511efdfcf9b62f92e8ac27bbe880025fc3e11795e8",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+      "proof": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) ×4 directions ×ordinary/Juiblex identity ×humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+      "control": "72 controls:9 direct/lowered terrains ×ordinary/Juiblex identity ×4 humidity masks. Direct POOL/MOAT/WATER stay wet on Juiblex, direct lava remains hot, and stone/room/ice/lowered bridge remain nonliquid. All fixed interior-cell results match. This does not prove bridge construction/operation, arbitrary placement, object/monster/runtime effects or whole topology.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mklev.c:1806",
+        "nethack-c/upstream/src/dbridge.c:46",
+        "nethack-c/upstream/src/dbridge.c:62",
+        "nethack-c/upstream/src/dbridge.c:100",
+        "js/room_coordinates.js:156",
+        "js/mktrap.js:151"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028",
+      "reviewedBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mklev.c:occupied:isPoolAt",
+    "evidenceKey": "90c372040679a1654944bec21f1064cdc194758f796d50c035adbccfaf40039b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "cae03a7796c22f5827d8708db1537f2164b97a22e1f68dec2fd29e7aa2e3e007",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+      "proof": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) ×4 directions ×ordinary/Juiblex identity ×humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+      "control": "72 controls:9 direct/lowered terrains ×ordinary/Juiblex identity ×4 humidity masks. Direct POOL/MOAT/WATER stay wet on Juiblex, direct lava remains hot, and stone/room/ice/lowered bridge remain nonliquid. All fixed interior-cell results match. This does not prove bridge construction/operation, arbitrary placement, object/monster/runtime effects or whole topology.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mklev.c:1806",
+        "nethack-c/upstream/src/dbridge.c:46",
+        "nethack-c/upstream/src/dbridge.c:62",
+        "nethack-c/upstream/src/dbridge.c:100",
+        "js/room_coordinates.js:156",
+        "js/mktrap.js:151"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028",
+      "reviewedBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mklev.c:occupied:isLavaAt",
+    "evidenceKey": "a8266bd497a0866fb7a6f94656a0aa74ffa723c6890b35b817c83bd3da1b9408",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "55d8d7385089783294462a3e65d86a3c6572d69987e627d8a7ecf6fa4f86dd6c",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+      "proof": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) ×4 directions ×ordinary/Juiblex identity ×humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+      "control": "72 controls:9 direct/lowered terrains ×ordinary/Juiblex identity ×4 humidity masks. Direct POOL/MOAT/WATER stay wet on Juiblex, direct lava remains hot, and stone/room/ice/lowered bridge remain nonliquid. All fixed interior-cell results match. This does not prove bridge construction/operation, arbitrary placement, object/monster/runtime effects or whole topology.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mklev.c:1806",
+        "nethack-c/upstream/src/dbridge.c:46",
+        "nethack-c/upstream/src/dbridge.c:62",
+        "nethack-c/upstream/src/dbridge.c:100",
+        "js/room_coordinates.js:156",
+        "js/mktrap.js:151"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028",
+      "reviewedBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_pool",
+    "evidenceKey": "e4c70201cf9a07d9a318fcf57446a3fc65d685134adedd03ec7abf763145bc31",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "7e001f4223035bc8092118f86fd71828547f09f6bab29b151b93cbf528d46c4b",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+      "proof": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) ×4 directions ×ordinary/Juiblex identity ×humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+      "control": "72 controls:9 direct/lowered terrains ×ordinary/Juiblex identity ×4 humidity masks. Direct POOL/MOAT/WATER stay wet on Juiblex, direct lava remains hot, and stone/room/ice/lowered bridge remain nonliquid. All fixed interior-cell results match. This does not prove bridge construction/operation, arbitrary placement, object/monster/runtime effects or whole topology.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mklev.c:1806",
+        "nethack-c/upstream/src/dbridge.c:46",
+        "nethack-c/upstream/src/dbridge.c:62",
+        "nethack-c/upstream/src/dbridge.c:100",
+        "js/room_coordinates.js:156",
+        "js/mktrap.js:151"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028",
+      "reviewedBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_lava",
+    "evidenceKey": "4b9e20a5a801a27ea9e1839f767c7654f77a9b1a1d943908cf3450789e1b0c3b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "f3d13b1f1c8aa16ea253031ba64ed2eb1613e7c0557877c44ddb52a6164c2b7a",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+      "proof": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) ×4 directions ×ordinary/Juiblex identity ×humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+      "control": "72 controls:9 direct/lowered terrains ×ordinary/Juiblex identity ×4 humidity masks. Direct POOL/MOAT/WATER stay wet on Juiblex, direct lava remains hot, and stone/room/ice/lowered bridge remain nonliquid. All fixed interior-cell results match. This does not prove bridge construction/operation, arbitrary placement, object/monster/runtime effects or whole topology.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mklev.c:1806",
+        "nethack-c/upstream/src/dbridge.c:46",
+        "nethack-c/upstream/src/dbridge.c:62",
+        "nethack-c/upstream/src/dbridge.c:100",
+        "js/room_coordinates.js:156",
+        "js/mktrap.js:151"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028",
+      "reviewedBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isPoolAt",
+    "evidenceKey": "67a6e895e700bcc07718e73781020981035f04a1e377b6f20abd7444970be13f",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "c52b18baf37b0840533f52ed0e9d19fe07f593522ccb88badf5f53e2a28542aa",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+      "proof": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) ×4 directions ×ordinary/Juiblex identity ×humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+      "control": "72 controls:9 direct/lowered terrains ×ordinary/Juiblex identity ×4 humidity masks. Direct POOL/MOAT/WATER stay wet on Juiblex, direct lava remains hot, and stone/room/ice/lowered bridge remain nonliquid. All fixed interior-cell results match. This does not prove bridge construction/operation, arbitrary placement, object/monster/runtime effects or whole topology.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mklev.c:1806",
+        "nethack-c/upstream/src/dbridge.c:46",
+        "nethack-c/upstream/src/dbridge.c:62",
+        "nethack-c/upstream/src/dbridge.c:100",
+        "js/room_coordinates.js:156",
+        "js/mktrap.js:151"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028",
+      "reviewedBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isLavaAt",
+    "evidenceKey": "5e2069aeecf4b411e60163fcce7eadbe4d069a46656a52a0fc7a687c630aa70a",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "5adbbd0934dd90882560bdcb3fda5e9d403cf6f1e201004a2232ec9ee61ae326",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+      "proof": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) ×4 directions ×ordinary/Juiblex identity ×humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+      "control": "72 controls:9 direct/lowered terrains ×ordinary/Juiblex identity ×4 humidity masks. Direct POOL/MOAT/WATER stay wet on Juiblex, direct lava remains hot, and stone/room/ice/lowered bridge remain nonliquid. All fixed interior-cell results match. This does not prove bridge construction/operation, arbitrary placement, object/monster/runtime effects or whole topology.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mklev.c:1806",
+        "nethack-c/upstream/src/dbridge.c:46",
+        "nethack-c/upstream/src/dbridge.c:62",
+        "nethack-c/upstream/src/dbridge.c:100",
+        "js/room_coordinates.js:156",
+        "js/mktrap.js:151"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028",
+      "reviewedBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

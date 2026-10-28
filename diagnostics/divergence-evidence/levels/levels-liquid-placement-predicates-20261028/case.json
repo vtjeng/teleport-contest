@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-liquid-placement-predicates-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "liquid-placement-predicate-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "is_ok_location",
+      "start_line": 1280,
+      "end_line": 1308,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "occupied",
+      "start_line": 1806,
+      "end_line": 1811,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_pool",
+      "start_line": 46,
+      "end_line": 59,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_lava",
+      "start_line": 62,
+      "end_line": 74,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_moat",
+      "start_line": 100,
+      "end_line": 113,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/include/rm.h",
+      "symbol": "levl_typ_types",
+      "start_line": 55,
+      "end_line": 110,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mktrap.js",
+      "symbol": "occupied",
+      "start_line": 152,
+      "end_line": 160,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/mktrap.js",
+      "symbol": "isPoolAt",
+      "start_line": 127,
+      "end_line": 135,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/mktrap.js",
+      "symbol": "isLavaAt",
+      "start_line": 137,
+      "end_line": 142,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/mktrap.js",
+      "symbol": "raisedDrawbridgeOver",
+      "start_line": 122,
+      "end_line": 125,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "is_ok_location",
+      "start_line": 156,
+      "end_line": 190,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "isPoolAt",
+      "start_line": 128,
+      "end_line": 135,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "isLavaAt",
+      "start_line": 137,
+      "end_line": 142,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "raisedDrawbridgeOver",
+      "start_line": 123,
+      "end_line": 126,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "coordinateEnvironment",
+      "start_line": 43,
+      "end_line": 51,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    }
+  ],
+  "hypothesis": "Replacing C is_pool/is_lava with local helpers may change raised-drawbridge substrate classification or the Juiblex exception in level-placement consumers.",
+  "expectedBehavior": "For the stated empty-cell contexts, C and JS agree on liquid eligibility and occupancy, including direct MOAT versus a raised bridge over moat on Juiblex.",
+  "observedBehavior": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) \u00d74 directions \u00d7ordinary/Juiblex identity \u00d7humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "128 raised-drawbridge comparisons:4 substrate masks (moat/lava/ice/floor) \u00d74 directions \u00d7ordinary/Juiblex identity \u00d7humidity0/WET/HOT/both. Exact C is_ok_location/occupied plus is_pool/is_moat/is_lava bodies match production JS exported consumers for eligibility and occupancy. Stored terrain/mask is unchanged. No trap, invocation position, custom predicate or water-level override is present.",
+    "limitations": [
+      "Fixed interior coordinate11,5 and humidity0/WET/HOT/both only. Target covers the16 legal raised-bridge direction/substrate masks in ordinary and Juiblex identity; controls cover9 direct/lowered terrains. No arbitrary flags, boundary coordinates or other humidity modes.",
+      "Exact C bodies use fixed-context adapters: no water-level override, no custom is_ok_location predicate, empty trap cell and non-invocation position. JS uses a fresh GameMap and absent invocation position with corresponding level identities. C sobj_at aborts if called; the chosen humidity domain never enters object lookup.",
+      "This compares predicates on explicitly constructed valid terrain/mask encodings, not production bridge construction or open/close/destruction. No object/monster/runtime behavior or global dungeon-state equivalence is asserted.",
+      "Only eight liquid-helper edge keys are reviewed. Invocation, coordinateEnvironment, water-level/on_level and other humidity/coordinate warnings are not suppressed. Shipped exposure and full placement/finalization remain unestablished."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exact fixed-cell predicate comparison through exported consumers, not bridge construction or shipped attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "C pool/lava calls are reproduced by local JS predicates in both level-placement consumers. Eight keys describe one shared predicate-delegation cause. The Juiblex exception applies to raised drawbridge moat substrate, not direct MOAT terrain.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:occupied:is_pool",
+      "source-audit:edge-c-only:src/mklev.c:occupied:is_lava",
+      "source-audit:edge-js-helper:src/mklev.c:occupied:isPoolAt",
+      "source-audit:edge-js-helper:src/mklev.c:occupied:isLavaAt",
+      "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_pool",
+      "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_lava",
+      "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isPoolAt",
+      "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isLavaAt"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/README.md",
+      "sha256": "d3873fb8b2d09fa8a1d382a6f880aece39e1ae4016d1427d6f1521af10810dfa",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/control-output.txt",
+      "sha256": "279537a07bd1d6413ddd4416219a538aa4866e16f2d3af593fd9d2b4e03a0a37",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/control-receipt.json",
+      "sha256": "4cf25265f35628a211659c778f3ce619fbafd0db86a4264e1cf9a68963ce0dec",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/decisions.json",
+      "sha256": "bc00dc4732a3ffe64deab8058f58f8d8e9909b5b2cab864a79c0a6e080cecc98",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/oracle.c",
+      "sha256": "19bb2a640d46b77f708c19b733afa210306094f9e75e6bc8f1484799582385ca",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/probe.mjs",
+      "sha256": "21f311a153a9f52658a7dac223f42c9e158a7233936e494e95d6fd4b41280f58",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/projection/manifest.json",
+      "sha256": "edef0f5c3f9bc8fef67dd450a6cf2775a662a3fcd36eaeb63c6ed4fd42513336",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/projection/projection.json",
+      "sha256": "68cfc3694a3c62e9554296c9240d15edbe7155a5102c7c2834c648e3b2a80ffb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/projection/review-template.json",
+      "sha256": "ece530cdda5bffc86f3566bfc667d54d0e8f7a35a7c3dead336c1e3804985057",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/source-fingerprints.json",
+      "sha256": "8c3a33c5557e091d7463fd362cf6938f9e9e5da128b619d29f0bcb64ae60d55e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/target-output.txt",
+      "sha256": "a7a482c770a4af07d3e9e07065038817b2cbf824a3729a8c17ff3fb307d51e92",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/target-receipt.json",
+      "sha256": "ae0adde4fec8da7c2fe13bb9157ee04727095b520771e2a6de525a5baed94964",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
