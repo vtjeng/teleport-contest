@@ -1,0 +1,79 @@
+{
+  "id": "count-output-initialization",
+  "shard": "commands",
+  "outcome": "explained negative",
+  "discoveredAt": "2026-10-28T18:01:07.780Z",
+  "reviewedAt": "2026-10-28T18:01:07.781Z",
+  "jsBase": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveryBinding": {
+    "status": "unbound",
+    "reason": "Manual source comparison after count-overflow analysis; no matching canonical scanner lead identified."
+  },
+  "fingerprints": {
+    "node": "v24.19.0",
+    "files": {
+      "js/cmd.js": "01059f6bdb3784e35754576b458aec9738d16afa20866b61422d86945fc66f03",
+      "js/invent.js": "ed6e7464bd7ebb5449597a3ffb7f3f4783030965f0f7047aac29f0ac0e1f912e",
+      "nethack-c/upstream/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "recorderBinary": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13"
+    }
+  },
+  "sourceLocations": [
+    "nethack-c/upstream/src/cmd.c:5033 get_count initial *count=0",
+    "js/cmd.js:1710 get_count",
+    "js/cmd.js:1844 parse initializes countOut.value=0",
+    "js/invent.js:1196 getobj initializes countOut.value=0",
+    "js/invent.js:5759 adjust_split initializes count.value=0"
+  ],
+  "hypothesis": "The missing initial output write allows an old count to survive Escape or an early backspace.",
+  "supportedReachableSetup": "Current production call sites all construct a fresh {value:0} immediately before invoking get_count. A caller-provided stale nonzero output is outside this reachable domain.",
+  "expectedC": "C writes *count=0 before reading; Escape or early backspace leaves it zero.",
+  "observedJS": "Escape/early-backspace does not overwrite countOut, but every enumerated runtime caller supplies zero. The returned count therefore matches zero under current call-site preconditions.",
+  "proof": "Enumerated all get_count uses in js/: one exported definition, three awaited calls in parse/getobj/adjust_split, and the direct import in invent.js. Each of the three calls uses a new zero-valued output object; none carries state across calls. This proof is specific to these source hashes.",
+  "control": {
+    "setup": "Ordinary Ranger types 12, Escape, then look (:).",
+    "comparison": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2235,
+          "js": 2235
+        },
+        "screens": {
+          "c": 5,
+          "js": 5
+        },
+        "cursors": {
+          "c": 5,
+          "js": 5
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  "scope": "Only the initial-output omission for current production callers. Does not claim get_count API equivalence for arbitrary caller-supplied objects, numeric-overflow equivalence, or universal parity from one seed. A future reused/nonzero countOut invalidates this proof.",
+  "reproduction": "node scripts/diff-fresh.mjs diagnostics/divergence-evidence/commands/count-output-initialization/control.recipe.json",
+  "focusedTest": "node --test diagnostics/divergence-evidence/commands/count-output-initialization/evidence.test.mjs",
+  "nextExperiment": null,
+  "generalization": "A missing initialization can be harmless only after proving every reachable caller initializes the exact same value before each call. Do not suppress based on one matching input or one caller.",
+  "evidenceSha256": {
+    "README.md": "ea60975c8dcc8fa2c0c73bbd332ba630b569cd1bd6292916198498100d9018b8",
+    "control.comparison.json": "0e9dcca4ebc3414f690902d71bceff0bba4b7a4891c8544273e78174799ffeef",
+    "control.js-output.json": "a2deed94ead5fe40ac2d3e9c9c81544827837d695c48cbb2eeb0a9b56a45e98b",
+    "control.recipe.json": "8ffbb2e5ebabe52d1bb48b8015f7519ab4c6b9766295d4850de73327a108a930",
+    "control.recording.json": "0446bfc200cadf284b86f7153ff8b805411387d88a67df3037530761d0cbd93e",
+    "evidence.test.mjs": "5a453edf84989282f72d68095c07b4899cc5f61bc53067298be43cd5f59820da"
+  }
+}
