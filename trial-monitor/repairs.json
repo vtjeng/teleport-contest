@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-28T01:19:49Z",
+  "asOf": "2026-10-28T01:36:30Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -23022,6 +23022,79 @@
               "completedAt": "2026-10-28T01:19:49Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40614178369"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "random-mimic-appearance",
+      "kind": "parity-repair",
+      "title": "Select random special-level mimic monster forms",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:create_monster",
+          "nethack-c/upstream/src/mon.c:select_newcham_form",
+          "js/themeroom_fill.js:createMonsterBody",
+          "js/mon.js:select_newcham_form"
+        ],
+        "witness": [],
+        "test": [
+          "scripts/themeroom-fill.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+          "committedAt": "2026-10-28T01:23:46Z",
+          "sourceCommit": "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+          "sourceCommittedAt": "2026-10-28T01:23:46Z",
+          "runs": [
+            {
+              "id": 40614802660,
+              "name": "Checkpoint",
+              "sha": "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/random-mimic-appearance-20261028",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:23:58Z",
+              "completedAt": "2026-10-28T01:33:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40614802660"
+            },
+            {
+              "id": 40615873130,
+              "name": "Lint",
+              "sha": "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:34:40Z",
+              "completedAt": "2026-10-28T01:35:53Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40615873130"
+            },
+            {
+              "id": 40615873114,
+              "name": "Dashboard",
+              "sha": "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-28T01:34:40Z",
+              "completedAt": "2026-10-28T01:36:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40615873114"
             }
           ]
         }

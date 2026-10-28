@@ -128,6 +128,7 @@ import {
     PM_GHOST,
     PM_FOG_CLOUD,
     PM_GIANT_MIMIC,
+    PM_GNOME_ZOMBIE,
     PM_GIANT_SPIDER,
     PM_HEALER,
     PM_HUMAN,
@@ -149,6 +150,7 @@ import {
     PM_STUDENT,
     PM_THUG,
     PM_TOURIST,
+    PM_VAMPIRE,
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
@@ -655,7 +657,7 @@ test('furniture and monster appearances resolve while unsupported shapes fail ea
 
     const randomShape = monsterDescriptorFixture();
     assert.throws(() => lspo_monster([{
-        id: PM_CHAMELEON,
+        id: PM_VAMPIRE,
         appear_as: 'mon:random',
     }], randomShape.room, {
         state: randomShape.state,
@@ -756,6 +758,38 @@ test('a mimic can select a random monster appearance from C form selection', () 
     assert.equal(monster.m_ap_type, M_AP_MONSTER);
     assert.equal(monster.mappearance, PM_ETTIN_ZOMBIE);
     assert.deepEqual(calls.filter(([bound]) => bound === 330), [[330, 0]]);
+});
+
+test('a chameleon can select a random special-level monster form', () => {
+    // The C recording reaches the initial chameleon fallback, then the
+    // appear_as selector's animal arm: rn2(3)=0, rn2(98)=79.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const random = quietObjectRandom();
+    const originalRn2 = random.rn2;
+    const calls = [];
+    const threes = [0, 2, 0];
+    random.rn2 = bound => {
+        calls.push(['rn2', bound]);
+        if (bound === 3) return threes.shift() ?? 2;
+        if (bound === 98) return 79;
+        return originalRn2(bound);
+    };
+    random.rn1 = (bound, base) => {
+        calls.push(['rn1', bound, base]);
+        return bound === 330 ? PM_GNOME_ZOMBIE : base;
+    };
+    const monster = lspo_monster([{
+        id: PM_CHAMELEON,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(state.ga.animal_list_count, 98);
+    assert.equal(monster.data, state.mons[state.ga.animal_list[79]]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.deepEqual(threes, []);
+    assert.ok(calls.some(([kind, bound]) => kind === 'rn2' && bound === 98));
 });
 
 test('a non-shapechanger ignores a requested monster appearance', () => {
