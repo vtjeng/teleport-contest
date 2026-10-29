@@ -1,0 +1,46 @@
+[
+  {
+    "n": 1,
+    "hp": 18,
+    "max": 20,
+    "moves": 2,
+    "wound": {
+      "intrinsic": 0,
+      "extrinsic": 0,
+      "blocked": 0
+    }
+  },
+  {
+    "n": 2,
+    "hp": 14,
+    "max": 20,
+    "moves": 3,
+    "wound": {
+      "intrinsic": 0,
+      "extrinsic": 0,
+      "blocked": 0
+    }
+  },
+  {
+    "n": 3,
+    "hp": 10,
+    "max": 20,
+    "moves": 4,
+    "wound": {
+      "intrinsic": 0,
+      "extrinsic": 0,
+      "blocked": 0
+    }
+  },
+  {
+    "n": 4,
+    "hp": 5,
+    "max": 20,
+    "moves": 5,
+    "wound": {
+      "intrinsic": 0,
+      "extrinsic": 0,
+      "blocked": 0
+    }
+  }
+]

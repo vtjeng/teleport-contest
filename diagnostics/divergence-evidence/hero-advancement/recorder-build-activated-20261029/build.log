@@ -1,0 +1,48 @@
+=== NetHack 5.0 recorder build ===
+    Upstream:   /tmp/hero-recorder-build-activated-20261029/nethack-c/upstream
+    Patches:    /tmp/hero-recorder-build-activated-20261029/nethack-c/patches (7 patches)
+    Recorder:   /tmp/hero-recorder-build-activated-20261029/nethack-c/recorder
+    Install:    /tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install
+    Pinned:     16ff59115 (NetHack-5.0.0_Release)
+
+[ok] upstream NetHack 5.0 ready
+[step 2] Building recorder tree...
+  applying 001-deterministic-runtime.patch...
+warning: recount: unexpected line: ALSO pin the recorder's BUILD_DATE to NetHack 5.0.0's release date.
+
+  applying 002-deterministic-qsort.patch...
+  applying 003-rng-log-core.patch...
+  applying 004-rng-log-lua-context.patch...
+  applying 005-rng-display-logging.patch...
+  applying 006-nomux-capture.patch...
+warning: recount: unexpected line: ALSO mirror tty_askname's backspace handler into the NOMUX shadow buffer.
+
+  applying 007-stable-pointer-format.patch...
+[ok] 7 patches applied
+[step 3] Configuring for Linux...
+[step 4] Fetching Lua...
+[step 4] Building Lua...
+ar: `u' modifier ignored since `D' is the default (see `U')
+[step 5] Building NetHack (parallel -j5)...
+/bin/sh: 1: nroff: not found
+/bin/sh: 1: col: not found
+/bin/sh: 1: tbl: not found
+make[1]: [Makefile:113: Guidebook] Error 127 (ignored)
+nhlua.c:977:16: warning: address of array 'ar.short_src' will always evaluate to 'true' [-Wpointer-bool-conversion]
+  977 |         if (ar.short_src && *ar.short_src) {
+      |             ~~~^~~~~~~~~ ~~
+nhlua.c:1015:17: warning: address of array 'ar2.short_src' will always evaluate to 'true' [-Wpointer-bool-conversion]
+ 1015 |         if (ar2.short_src && *ar2.short_src) {
+      |             ~~~~^~~~~~~~~ ~~
+2 warnings generated.
+[step 5] Disabling unavailable sysconf GDBPATH (/usr/bin/gdb)...
+[step 5] Admitting every login to debug mode (sysconf WIZARDS=*)...
+[ok] recorder smoke: 2870 core RNG calls
+
+[ok] recorder built: /tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/src/nethack
+[ok] installed to:    /tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir/
+
+Try recording a session:
+  NETHACK_SEED=8000 NETHACK_FIXED_DATETIME=20260502143000 \
+    NETHACK_RNGLOG=/tmp/rng.log \
+    /tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir/nethack

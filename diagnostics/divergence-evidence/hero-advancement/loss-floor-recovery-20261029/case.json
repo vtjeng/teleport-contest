@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-loss-floor-recovery-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-ability-traversals-20261029"
+  ],
+  "provenance": {
+    "jsSha": "fdaa960271b2eab9d9e2314d413f80258122b577",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/role.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    },
+    {
+      "side": "JS",
+      "path": "js/roles.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    }
+  ],
+  "hypothesis": "Remaining ordinary advancement boundaries require an executed, explicitly restricted C comparison.",
+  "expectedBehavior": "C and JS agree on the declared component projection and pinned controls.",
+  "observedBehavior": "16 target states and one control match level-one XP reset, higher-level HP floors and Welcome back recovery. Zero new semantic causes.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Nine complete C arithmetic/transition bodies with PR109 restricted human Wizard adapter; nonfatal API states, adjabil and side-effect stubs retained.",
+    "limitations": [
+      "Constructed API states; natural-play histories are not established.",
+      "Adapter, observer and dependency restrictions are detailed in README.md and shim.h.",
+      "This does not establish provenance of the separately preinstalled full recorder."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/control/results.json",
+      "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/results.json"
+    ],
+    "reason": "Actual JS component APIs and freshly compiled complete C function bodies execute the declared state projection."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/run.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/driver.c",
+        "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/matrix.json",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/src/role.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/run.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/driver.c",
+        "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/matrix.json",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/src/role.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/README.md",
+      "sha256": "e102f5ec0b4744e94724f53b6434f2e612e61e0b2e46b67ca9b5935fbbd45b47",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/control/compiler.json",
+      "sha256": "498cb7c1016153ed3ca49e0301270b01d83ac50735444be097bf125a26bd1ecb",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/control/oracle.c",
+      "sha256": "d66c61a11586a3c43a33971b45547ac83889fbe981cb0e4053a8a6c20d1048fb",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/control/results.json",
+      "sha256": "bae2bd51ef1c55eb71c586b114de26f3a97817a975860803f97ca5908cd842d2",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/control/source-bindings.json",
+      "sha256": "4908305c421264a922447f787edfb7337ab9575167091cd77182c0b6a2a83847",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/control-receipt.json",
+      "sha256": "87c76c416d9ca9d5afb3ae357929237a263da0457512cc06e30c6b32e7d2e133",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/driver.c",
+      "sha256": "f465f5c7f0d1de03adf411546b07e37c89f914f9869e5fdc3aa845411d3bc4e4",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/environment.json",
+      "sha256": "0b5485a7d4c85e03b1b215bc2eccbed9a900c1e998dd0f6642eea0941f0d7823",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/focused-tests.txt",
+      "sha256": "01fd23b038ca6f4bc24bd4ef663b787e9df79425445cb46b6e1124160b1c0b6b",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/matrix.json",
+      "sha256": "ec2e2800f99357b210bf21db2870dfdf5252dfc433f9765b45ae6a817e516a12",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/run.mjs",
+      "sha256": "312353d3382660182d43723a2b4605d9ed97b1f0aa3732b9d7a995c7da3d5e30",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/shim.h",
+      "sha256": "6ffe738049ec230ebb8c4db7e6b308a1d360d7eb533e67413bc0102c3f4fd0f8",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/compiler.json",
+      "sha256": "498cb7c1016153ed3ca49e0301270b01d83ac50735444be097bf125a26bd1ecb",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/oracle.c",
+      "sha256": "d66c61a11586a3c43a33971b45547ac83889fbe981cb0e4053a8a6c20d1048fb",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/results.json",
+      "sha256": "fcf3f06e3b5f7edb07d50eee3227bff0c9acbcb2588f609bb03383188d751b31",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target/source-bindings.json",
+      "sha256": "4908305c421264a922447f787edfb7337ab9575167091cd77182c0b6a2a83847",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/loss-floor-recovery-20261029/target-receipt.json",
+      "sha256": "886d423ebbb620ebdce49876ff72a88bdebe09f44a16bba16060a7273091f8c5",
+      "role": "audit evidence or pinned dependency"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/roles.js",
+      "sha256": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/include/global.h",
+      "sha256": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/include/you.h",
+      "sha256": "d19cfa0233582f1ad550b9dfc788f26166f3ff21225e3d8a0cd43b6de2094289",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/role.c",
+      "sha256": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "audit evidence or pinned dependency"
+    }
+  ]
+}

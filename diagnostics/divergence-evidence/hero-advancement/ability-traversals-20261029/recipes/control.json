@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73160317,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:AbilityAudit,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,showexp\n",
+      "moves": "#levelchange\n1\n     "
+    }
+  ]
+}

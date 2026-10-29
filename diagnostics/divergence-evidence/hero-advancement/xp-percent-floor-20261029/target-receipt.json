@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+    "target",
+    "/tmp/hero-fresh-floor-target-20261029"
+  ],
+  "cwd": ".",
+  "environment": {
+    "NETHACK_INSTALL": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir",
+    "NETHACK_BINARY": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir/nethack"
+  },
+  "activation": "/workspace/.setup/activate.sh",
+  "jsSha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:34:23.730207+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/target.json": "9abc06924dbf07ce04d9d4ac32d38d1266d1ccbae7f600534d03078f9bc8c6cf",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/worker.json"
+  ]
+}

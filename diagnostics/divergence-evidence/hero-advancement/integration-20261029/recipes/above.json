@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73160291,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:AdvIntegration,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,showexp\n",
+      "moves": "\u001621\n        "
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "valkyrie",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+    "valkyrie",
+    "/tmp/hero-ability-valkyrie-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:18:19.127176+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/valkyrie.json": "269830d396dbccb6e1a6b31ea029bc3a78d9830e86edaf54724736fc7cfbfaa8"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/worker.json"
+  ]
+}

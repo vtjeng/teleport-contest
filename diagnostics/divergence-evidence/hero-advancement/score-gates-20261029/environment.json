@@ -1,0 +1,16 @@
+{
+  "node": "v24.19.0",
+  "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+  "runs": {
+    "control": {
+      "binarySha256": "a83a3c3adbdee58fcc5b83efd4f9ef2d1cc3ef07a175c49327ff5229bfb7c060",
+      "elapsedSeconds": 0.09200239181518555,
+      "scope": "generated source to saved result; elapsed, not active compute"
+    },
+    "target": {
+      "binarySha256": "2af0c14a16f18c2925098e74fcf5e4619f347bfa4f35fd06e9c4a77a7769fce4",
+      "elapsedSeconds": 0.08400225639343262,
+      "scope": "generated source to saved result; elapsed, not active compute"
+    }
+  }
+}

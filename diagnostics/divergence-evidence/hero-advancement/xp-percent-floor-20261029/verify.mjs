@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import{gunzipSync}from'node:zlib';import{dirname,resolve}from'node:path';import{fileURLToPath}from'node:url';
+import{decodeScreen}from'../../../../frozen/screen-decode.mjs';import{compareSessionOutputs}from'../../../../scripts/diff-fresh.mjs';import{runSegment}from'../../../../js/jsmain.js';import{game}from'../../../../js/gstate.js';
+const here=dirname(fileURLToPath(import.meta.url));const expectedRules=[['<',1],['>=',2]].map(([relation,color])=>({field:'experience-level',behavior:'percentage',relation,value:1,text:'',style:{attrib:0,color}}));const recordings={};
+for(const name of ['control','target','visible-control','visible-target']){
+ const read=f=>JSON.parse(gunzipSync(readFileSync(resolve(here,name,f+'.gz'))));const c=read('recorded.session.json'),js=read('js-output.json');recordings[name]=c;assert.equal(compareSessionOutputs(c,js).passed,true);const target=name.endsWith('target'),visible=name.startsWith('visible-');
+ const row=decodeScreen(c.segments[0].steps.at(-1).screen).find(r=>r.map(x=>x.ch).join('').includes('Xp:'));const text=row.map(x=>x.ch).join('').trimEnd(),idx=text.indexOf('Xp:');assert.ok(text.includes(visible?`Xp:10/${target?5122:5120}`:'Xp:10'));if(!visible)assert.notEqual(row[idx+5].ch,'/');assert.ok(row.slice(idx,idx+5).every(c=>c.color===(target?2:1)));
+ const segment=JSON.parse(readFileSync(resolve(here,'recipes',name+'.json'))).segments[0];let boundary;await runSegment(segment,{onBoundary:e=>boundary=e});if(boundary)throw boundary;assert.equal(game.u.ulevel,10);assert.equal(game.u.uexp,target?5122:5120);assert.equal(game.flags.showexp,visible);assert.deepEqual(game.iflags.status_hilites,expectedRules);assert.deepEqual(game.gb.status_hilite_rule[0][13],expectedRules[target?1:0]);assert.equal(game.gb.status_hilite_percent[0][13],target?1:0);
+ console.log(JSON.stringify({name,cStatus:text,xp:game.u.uexp,level:game.u.ulevel,percent:game.gb.status_hilite_percent[0][13],selected:game.gb.status_hilite_rule[0][13]}));
+ if(!visible){const old=JSON.parse(gunzipSync(readFileSync(resolve(here,'preinstalled-'+name,'recorded.session.json.gz'))));assert.deepEqual(old.segments[0].steps,c.segments[0].steps);}
+}
+for(const kind of ['control','target'])assert.deepEqual(recordings[kind].segments[0].steps.flatMap(s=>s.rng??[]),recordings['visible-'+kind].segments[0].steps.flatMap(s=>s.rng??[]));
+console.log('Fresh/preinstalled C controls match; visible companions pin5120/5122; parsed1% selection and full C/JS parity pass.');

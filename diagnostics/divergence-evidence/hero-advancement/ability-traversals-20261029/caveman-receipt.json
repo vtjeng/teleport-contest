@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "caveman",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+    "caveman",
+    "/tmp/hero-ability-caveman-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:17:45.468409+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/caveman.json": "f324772ad1f440eeda2ea3edea96181b763596bb038aef9574bce0b5e660bd6b"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/worker.json"
+  ]
+}

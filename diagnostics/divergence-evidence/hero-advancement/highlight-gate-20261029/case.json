@@ -1,0 +1,350 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-highlight-gate-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-xp-highlight-20261029",
+    "hero-advancement-score-gates-20261029"
+  ],
+  "provenance": {
+    "jsSha": "270f005cc1c9f7e37a43eddc17a6323264cfd4e5",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/botl.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "270f005cc1c9f7e37a43eddc17a6323264cfd4e5"
+    },
+    {
+      "side": "JS",
+      "path": "js/display.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "270f005cc1c9f7e37a43eddc17a6323264cfd4e5"
+    },
+    {
+      "side": "JS",
+      "path": "js/options.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "270f005cc1c9f7e37a43eddc17a6323264cfd4e5"
+    }
+  ],
+  "hypothesis": "Percentage change alone must not request redraw unless rule selection changes; XP changes must pass chg=0 to up/down rules.",
+  "expectedBehavior": "Executed C and production JS agree on exp_percent_changing and more_experienced redraw output under explicit prior-bank state.",
+  "observedBehavior": "112 target states and four controls match changed/redraw/XP/score; no new semantic cause.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Six complete C function bodies, actual botl/wintype/color headers, numerical XP rules and explicit prior status bank.",
+    "limitations": [
+      "Constructed API/bank state, not complete renderer lifecycle.",
+      "Unreached text/critical-HP dependencies abort; no polymorph or other status effects.",
+      "Prior JS bank selection is explicitly constructed from the declared presets; C independently selects its old rule.",
+      "No full-recorder build attestation or full-game C call-site instrumentation."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/summary.json",
+      "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/summary.json"
+    ],
+    "reason": "Compiled actual C dependency closure for numerical XP rule gate versus unchanged JS APIs."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/run.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/driver.c",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/botl.c",
+        "nethack-c/upstream/include/botl.h",
+        "nethack-c/upstream/include/wintype.h",
+        "nethack-c/upstream/include/color.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/run.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/driver.c",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/botl.c",
+        "nethack-c/upstream/include/botl.h",
+        "nethack-c/upstream/include/wintype.h",
+        "nethack-c/upstream/include/color.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/README.md",
+      "sha256": "0bf707db43a0fa72625973647bcbf73be06c4d9dd159481a3517b13ce72bb009",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/c-output.jsonl.gz",
+      "sha256": "380a504c13eee172b012cdfb260da29dc7c9a4ea43a60199881ab5f6b2b4ef03",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/compiler.json",
+      "sha256": "2be018811b327861211ecf1d508117944bf3c8aee1f91589defc01c4c588645f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/input.txt.gz",
+      "sha256": "e42107a9f2126e0249927fc3b393591f221b23be903166982557e98e9e02dbe4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/js-output.jsonl.gz",
+      "sha256": "380a504c13eee172b012cdfb260da29dc7c9a4ea43a60199881ab5f6b2b4ef03",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/matrix.json.gz",
+      "sha256": "e7325c8c8478acc2a81aa83d926da05b4858b4ff36373dfb435f9bc0c02464f4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/mismatches.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/oracle.c",
+      "sha256": "abc47a188301c9fd4496085f7ba757207c3e2cfa4dbe8703519135ec15d2a272",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/source-bindings.json",
+      "sha256": "ac847fc4f2c8e8a39448aeb52b34173c28fc73e9d7725549d8f76ed15d4a5651",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control/summary.json",
+      "sha256": "3dbbb80b72009056a823b77303744dacc37e6ff3f3ea1468c2b8ffe01e2a9f8b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/control-receipt.json",
+      "sha256": "2044eed898db5a67eb759bce7d9bde190a20712b1159bcd5dd0c9ef489c0f85e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/driver.c",
+      "sha256": "0084b73e07610dd1177e44b774f9470e03b39cdb4f8275eed9bd096cc55586e6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/environment.json",
+      "sha256": "1ba9f2bea55f29f02b653f350624a06786e963eb54cd80447ed2accc0da21ecb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/run.mjs",
+      "sha256": "e8bd65dde0c35e1bf9016027b735625257a6b317434cf30f0ce4d13bb0374f73",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/shim.h",
+      "sha256": "2fe0cb08a2787e396236f7b9c8e4225b5c894d4793d346d5475d8d09bb9ba4cf",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/c-output.jsonl.gz",
+      "sha256": "26eaecdb2e9aca1594838855ea072a1b745d4a4ca1d2bc29e67339493500c953",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/compiler.json",
+      "sha256": "8bbfa8f40a1fe493f22b4d1e5f83df0028a491074b56e93bfce11113a130202a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/input.txt.gz",
+      "sha256": "82afbc31ca36eb6be87f19622604e9f1a5282e2f5fb1ddfbcee25efb2ddd1162",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/js-output.jsonl.gz",
+      "sha256": "26eaecdb2e9aca1594838855ea072a1b745d4a4ca1d2bc29e67339493500c953",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/matrix.json.gz",
+      "sha256": "742761c98d7303e905c2092b235b470e8a7cfc08a827c5225b2d28985b8c0f68",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/mismatches.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/oracle.c",
+      "sha256": "abc47a188301c9fd4496085f7ba757207c3e2cfa4dbe8703519135ec15d2a272",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/source-bindings.json",
+      "sha256": "ac847fc4f2c8e8a39448aeb52b34173c28fc73e9d7725549d8f76ed15d4a5651",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/summary.json",
+      "sha256": "c55da70aec293084e060875cfeddbe5f982f96a5aefb37ce9f69887d6740256a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target-receipt.json",
+      "sha256": "fdb60cb0299b1f13b2c301c5cfd6c951d9453d754f5f30e138608c2a25efc544",
+      "role": "audit artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/focused-tests.txt",
+      "sha256": "3f46819f3b0e1733f8c7acef6c4660ed7a6eee00f6465b07993636b2efe3c7de",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/verification.txt",
+      "sha256": "919ef66ca02788f9be3ce49ac195b2289588e9f9bfdb0ec7f0a22ef0e6be5215",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "js/display.js",
+      "sha256": "985814e50ce84c95837948b805d0bb60748864d2215133d66da6707d5d6ed783",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "js/monsters.js",
+      "sha256": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "js/options.js",
+      "sha256": "ebaea358250181d35c2aa1f44e3056d8df19d2274a434a5ac987e3987f5cd618",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "nethack-c/upstream/include/botl.h",
+      "sha256": "c26c637bcb8b2615e82fbc0804175cd8c87f63a3caf35c742e0a6fa410a31009",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "nethack-c/upstream/include/color.h",
+      "sha256": "f7ab4cdf5113898bf58ba85217f5d693b8564c232ff706ee894fdf070a3a105b",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "nethack-c/upstream/include/config.h",
+      "sha256": "cc39455c748d1d73640606d98e847b55cb09d82338edc95f4fbc8acecedc9385",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "nethack-c/upstream/include/global.h",
+      "sha256": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "nethack-c/upstream/include/wintype.h",
+      "sha256": "e5bfd60534831210bdace1ba6eaef62f65d16dab8d8ac0fcddadebd000d53698",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "nethack-c/upstream/src/botl.c",
+      "sha256": "765fe13d7ee604c606c6920bce9bcb2a8a82299dbd56073b2b90101409409360",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source/tool or prior executed validation"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source/tool or prior executed validation"
+    }
+  ]
+}

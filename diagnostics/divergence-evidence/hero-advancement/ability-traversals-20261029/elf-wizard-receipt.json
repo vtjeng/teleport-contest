@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "elf-wizard",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+    "elf-wizard",
+    "/tmp/hero-ability-elf-wizard-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:18:31.026896+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/elf-wizard.json": "b66e4a5e52df3d9c0a1245f1215b2257c2731bc56f2255f42e0e0ecf74334e42"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/worker.json"
+  ]
+}

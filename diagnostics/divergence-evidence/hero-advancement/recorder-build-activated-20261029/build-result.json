@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "bash",
+    "nethack-c/build-recorder.sh"
+  ],
+  "cwd": "/tmp/hero-recorder-build-activated-20261029",
+  "activation": "/workspace/.setup/activate.sh",
+  "exitCode": 0,
+  "elapsedSeconds": 14.439631462097168,
+  "startedAt": "2026-10-29T05:33:00.420295+00:00",
+  "finishedAt": "2026-10-29T05:33:14.860009+00:00"
+}

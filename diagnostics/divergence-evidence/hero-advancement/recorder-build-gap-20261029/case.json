@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-recorder-build-gap-20261029",
+  "shard": "hero-advancement",
+  "status": "invalid_setup",
+  "readiness": "incomplete",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-integration-20261029"
+  ],
+  "provenance": {
+    "jsSha": "e6e03e2635b3444476e9f5d4d6aee60fd2a98929",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "JS",
+      "path": "nethack-c/build-recorder.sh",
+      "symbol": null,
+      "start_line": 42,
+      "end_line": 46,
+      "commit_sha": "e6e03e2635b3444476e9f5d4d6aee60fd2a98929"
+    }
+  ],
+  "hypothesis": "An unchanged isolated supported recorder build might establish stronger binary provenance.",
+  "expectedBehavior": "With required tools available, the supported build produces a fresh binary and smoke-checks it before advancement controls.",
+  "observedBehavior": "Isolated unchanged script exits1 at missing clang before creating recorder directory; bison/flex/rsync also absent. No fresh binary or control replay. Subsequent existing activation verified all four tools; see ACTIVATION-UPDATE.md and the separate successful build package. Historical attempt remains unchanged.",
+  "witness": {
+    "kind": "source",
+    "scope": "Supported build-path inspection and actual isolated prerequisite failure; not C/JS gameplay evidence.",
+    "limitations": [
+      "No compilation, smoke test or new-binary advancement control occurred.",
+      "Planned inputs hashed but not applied or built.",
+      "Preinstalled binary retains its prior provenance limitation."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "unresolved",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/build-result.json"
+    ],
+    "reason": "Build qualification gap only; no gameplay conclusion."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Follow-on supported recorder provenance prerequisite check.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/ACTIVATION-UPDATE.md",
+      "sha256": "70c8c9fc04b6947c2613ba24501e991f70e770b5c103545fa11b56afc85d7b61",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/README.md",
+      "sha256": "f0642b415b969b5d33c50b77e41cd3844e4451ced3864cf306897c8bbdc6d076",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/activated-availability.json",
+      "sha256": "713342d483b63144db3e73f322f0b28bb8d44c1f5b3a97d68cd49a66b3ef77a4",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/build-result.json",
+      "sha256": "cecd7b6e9695b5621f60324d8aecada74d8c322a4907cdc3a208998ca25b4962",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/input-inventory.json",
+      "sha256": "512ce4ccdf4d6593454c2753be73073985d66f4bad20fe7bc78a40966e922206",
+      "role": "audit or build artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/build-recorder.sh",
+      "sha256": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/README.md",
+      "sha256": "74b0e7d371770eaf43865e557127a84328774a9f6b87d0367c5fe7ac4877cdaa",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/patches/README.md",
+      "sha256": "6c29d9620b818ca61da4e133a16625ffe0be1973e19cf61dd77942017834d26c",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/upstream/sys/unix/hints/linux-minimal",
+      "sha256": "ba958b4e6f4e7f2dceb0d4911d1ca52e3b253405f2a3053036ea242a9dbe0a5a",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "scripts/smoke-recorder.mjs",
+      "sha256": "97488f3d2f61478495e4b5a2936885433b5728dede3ef9deab6149102b370b10",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/patches/001-deterministic-runtime.patch",
+      "sha256": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/patches/002-deterministic-qsort.patch",
+      "sha256": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/patches/003-rng-log-core.patch",
+      "sha256": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/patches/004-rng-log-lua-context.patch",
+      "sha256": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/patches/005-rng-display-logging.patch",
+      "sha256": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/patches/006-nomux-capture.patch",
+      "sha256": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "nethack-c/patches/007-stable-pointer-format.patch",
+      "sha256": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+      "role": "supported build input or documentation"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "versioned package tooling"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "versioned package tooling"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "versioned package tooling"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "versioned package tooling"
+    }
+  ]
+}

@@ -1,0 +1,1516 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-ability-traversals-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-integration-20261029"
+  ],
+  "provenance": {
+    "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/weapon.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/insight.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "3f0abcf1846d55999c260505a257647b12e570b8"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "3f0abcf1846d55999c260505a257647b12e570b8"
+    },
+    {
+      "side": "JS",
+      "path": "js/weapon.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "3f0abcf1846d55999c260505a257647b12e570b8"
+    },
+    {
+      "side": "JS",
+      "path": "js/insight.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "3f0abcf1846d55999c260505a257647b12e570b8"
+    }
+  ],
+  "hypothesis": "Whole role/race crossings, martial slot costs and silent intrinsic changes need full-runtime evidence beyond selected advancement fixtures.",
+  "expectedBehavior": "All named public debug paths match complete C output and reach the specified level, skill and attribute states.",
+  "observedBehavior": "22 recordings match; 17 role/race traversals reach 30 and return to 1, martial rollback matches slots/ranks, and Ranger sees invisible only in the level-15 attributes view.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "13 human-role and four race-variant traversals, no-op control, martial target/control, silent intrinsic target/control.",
+    "limitations": [
+      "Debug-assisted setup, not normal practice/walking histories.",
+      "Existing C recorder build attestation remains unavailable.",
+      "Finite role/race sampling and visible projections do not certify all hidden state."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/verification.txt"
+    ],
+    "reason": "Public debug commands execute real C/JS advancement dependencies with no stubs/internal-state injection."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next permitted frontiers in the ongoing ordinary advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "archeologist",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "archeologist",
+        "/tmp/hero-ability-archeologist-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/archeologist.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist-receipt.json"
+    },
+    {
+      "id": "barbarian",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "barbarian",
+        "/tmp/hero-ability-barbarian-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/barbarian.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian-receipt.json"
+    },
+    {
+      "id": "caveman",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "caveman",
+        "/tmp/hero-ability-caveman-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/caveman.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "control",
+        "/tmp/hero-ability-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/control.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/control-receipt.json"
+    },
+    {
+      "id": "dwarf-archeologist",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "dwarf-archeologist",
+        "/tmp/hero-ability-dwarf-archeologist-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/dwarf-archeologist.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/dwarf-archeologist-receipt.json"
+    },
+    {
+      "id": "elf-wizard",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "elf-wizard",
+        "/tmp/hero-ability-elf-wizard-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/elf-wizard.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard-receipt.json"
+    },
+    {
+      "id": "gnome-wizard",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "gnome-wizard",
+        "/tmp/hero-ability-gnome-wizard-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/gnome-wizard.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/gnome-wizard-receipt.json"
+    },
+    {
+      "id": "healer",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "healer",
+        "/tmp/hero-ability-healer-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/healer.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/healer-receipt.json"
+    },
+    {
+      "id": "knight",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "knight",
+        "/tmp/hero-ability-knight-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/knight.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight-receipt.json"
+    },
+    {
+      "id": "martial-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "martial-control",
+        "/tmp/hero-ability-martial-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/martial-control.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-control-receipt.json"
+    },
+    {
+      "id": "martial-refund",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "martial-refund",
+        "/tmp/hero-ability-martial-refund-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/martial-refund.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-refund-receipt.json"
+    },
+    {
+      "id": "monk",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "monk",
+        "/tmp/hero-ability-monk-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/monk.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk-receipt.json"
+    },
+    {
+      "id": "orc-barbarian",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "orc-barbarian",
+        "/tmp/hero-ability-orc-barbarian-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/orc-barbarian.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/orc-barbarian-receipt.json"
+    },
+    {
+      "id": "priest",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "priest",
+        "/tmp/hero-ability-priest-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/priest.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/priest-receipt.json"
+    },
+    {
+      "id": "ranger",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "ranger",
+        "/tmp/hero-ability-ranger-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/ranger.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/ranger-receipt.json"
+    },
+    {
+      "id": "rogue",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "rogue",
+        "/tmp/hero-ability-rogue-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/rogue.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/rogue-receipt.json"
+    },
+    {
+      "id": "samurai",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "samurai",
+        "/tmp/hero-ability-samurai-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/samurai.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai-receipt.json"
+    },
+    {
+      "id": "silent-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "silent-control",
+        "/tmp/hero-ability-silent-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/silent-control.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-control-receipt.json"
+    },
+    {
+      "id": "silent-roundtrip",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "silent-roundtrip",
+        "/tmp/hero-ability-silent-roundtrip-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/silent-roundtrip.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-roundtrip-receipt.json"
+    },
+    {
+      "id": "tourist",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "tourist",
+        "/tmp/hero-ability-tourist-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/tourist.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/tourist-receipt.json"
+    },
+    {
+      "id": "valkyrie",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "valkyrie",
+        "/tmp/hero-ability-valkyrie-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/valkyrie.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie-receipt.json"
+    },
+    {
+      "id": "wizard",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+        "wizard",
+        "/tmp/hero-ability-wizard-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/wizard.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/wizard-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/README.md",
+      "sha256": "50a1ddb29546f5f878260fa653907f9424aa0e624044d2a5dbac4253aa151c85",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/js-output.json.gz",
+      "sha256": "4d25b71131ebf5212890a63af0efab8d0fb928ff8d0df51720a2b10c7f18b5bf",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/recipe.session.json",
+      "sha256": "b2e540b13332567c82e2d82e4f84246774bdc3049af5832dee2d931a3ec47bc6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/recorded.session.json.gz",
+      "sha256": "5d9612028ad652234a222e19a3e45ffb7791d729a91b9029583c8249ac3b53ba",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/recorder.json",
+      "sha256": "6252e3318d3bb51bd7b7951b21d4a0f0e594fc99ad4ba62e44c665fe794079b2",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/result.json",
+      "sha256": "69fb3f63d49613f6a3b84d72a507885bf26aeaecde7cdb14fefc2c606b6d5300",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/worker.json",
+      "sha256": "a33f93cd97a22f99b311d830179dbb64eb554b320b54733881140cc6d8a304fe",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist-receipt.json",
+      "sha256": "dc81133b8f3dfdcc793dc7716740bf3576ee9447ba52819d2c36ecf3c5d82f4c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/js-output.json.gz",
+      "sha256": "aeeece4a526ff0260244a61f596f10277480f1c6c395141d65811a506f5c7063",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/recipe.session.json",
+      "sha256": "4196a1b5eadb352b0b28faedeaa80fd19f32fbe4adc15f574f5d1d345e06e767",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/recorded.session.json.gz",
+      "sha256": "93c127819fef995e49dc110c7aa58c1a76c9e2700663a14abe415282a161f185",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/recorder.json",
+      "sha256": "2a4c05ee708c962e2cfd55cb5478e3d9e03abb12340fc1a49ebbc7a9190303e3",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/result.json",
+      "sha256": "87fb530dcac9f881e29f85cec91c1b75caeb40555b3a7ffbb02c3973bfca6813",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/worker.json",
+      "sha256": "417811bd843b547c5fb4f4d9f058e2877cdb1153907c9d4e6e005e3cf931a63d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian-receipt.json",
+      "sha256": "b146e19184d57605f52b1bf628ebaf33f944af07955b35fa4b6c08a10f75a001",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/js-output.json.gz",
+      "sha256": "c54f665292db4e6f7b38d52e0c4b0e2f703c76001b51fa453e1312ebef01c7c8",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/recipe.session.json",
+      "sha256": "5ec004b25ff687d3dbe2b20769b26890373c0e241b2b16a4f3af4a47375a2105",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/recorded.session.json.gz",
+      "sha256": "9a433bf4e8dbc8c2c15d9b04698d8bb7e71c943052c39a3b2d31a605dea0b07f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/recorder.json",
+      "sha256": "4fba80b1a346638879fcc20d604fffd7b95820fcd21a70219c53a8c105faf291",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/result.json",
+      "sha256": "abd649c60d591338dc7bcec31b425441184b085871e22118703a1d095f972547",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman/worker.json",
+      "sha256": "78d5d507ab3fb47cfa759b2f56a40280085517b537e65e419f48e86a825d7569",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/caveman-receipt.json",
+      "sha256": "8ddc628467ae8de6e7483dc47b3d4d3e656b6899ce8e67e82d8c93f03fa6f91f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/control/js-output.json.gz",
+      "sha256": "0b94154dc772a28f0c8f0733f3589ec011571e1142c80c4c47018a73bfea688b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/control/recipe.session.json",
+      "sha256": "ef0fd39f41ec1c4302a4c5bdfe2cd858e294ccfddd0bc9450815c42ee46bc4cd",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/control/recorded.session.json.gz",
+      "sha256": "6857d8f6cbcdafdf6d680d8301bcc47e1c4908300c87d6ba7ab3e59c789f36db",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/control/recorder.json",
+      "sha256": "97eb92a44ebb8c7e2174a72ae36c59ddf722fbb4dfc64b73057c97478f11a1b4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/control/result.json",
+      "sha256": "a12a2b4393ec0271a839b063dfebbf8446debce7cbbd001a276775f1190b26b9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/control/worker.json",
+      "sha256": "fe8ee1f74fe824b58a6aca3a751c39af17db4bf39c01636bb0418bf6b43891a6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/control-receipt.json",
+      "sha256": "9aafdbf896fcb7222ac96a8a24fa5ef83788ca3ee7f50ebfee53c1352dbeebd5",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/dwarf-archeologist/js-output.json.gz",
+      "sha256": "07110bf0f43d91a2fb287d2c60e958bd8a571c0ad53b48e706c5751fb280d28d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/dwarf-archeologist/recipe.session.json",
+      "sha256": "55f9eeef9b140a5b9a6c06ff25aa047a0c122650cc747c87bbf97cfe9baa2e84",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/dwarf-archeologist/recorded.session.json.gz",
+      "sha256": "a699f6ef5b7c6289e9b0fc4b4aadebdc2c1daaec2aa896efc0711da00a0e4d79",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/dwarf-archeologist/recorder.json",
+      "sha256": "a0be585a4b366c1f0e711d7fd7abdfe4c5c3352eb6a6b06769be1b37710b591a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/dwarf-archeologist/result.json",
+      "sha256": "ded057d70d1cd59f05f10ea8f47eb1449b97f0d25e081b7a522c48864d72daae",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/dwarf-archeologist/worker.json",
+      "sha256": "5f643ca40d50c324156748ed8fc0e00183fb55251a894cf5f72c6a0fb73b38f5",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/dwarf-archeologist-receipt.json",
+      "sha256": "f6f5aea541b03c7ca4de1488dae9aeea4ab569b299a35dd985121f8afe93c2e9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/js-output.json.gz",
+      "sha256": "8e9ef6a87e3c2dcc3c66082c856d013457ee6fa9173f95b4f90f580ecd53adeb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/recipe.session.json",
+      "sha256": "2bc141488a83d1755f03b8d109231839f4e622f9b08954ed124f6233b0db6614",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/recorded.session.json.gz",
+      "sha256": "bf5588bee11928b6a48ec7cd6909a7c9e550ce7e5fd8af788daa337886d3e043",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/recorder.json",
+      "sha256": "7802f537881fee42702c51400cce754c4e3be1680a9feff7fd38e1571fb5a52b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/result.json",
+      "sha256": "8f708c01d9a8c130883f33434f82d3d1a74b7476c3b7e8ffcdb1ad133b5e6b16",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard/worker.json",
+      "sha256": "fa799745ec71809b9008ce9cb65f5bdaebbb6681655eb943d6b7109223338e6b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/elf-wizard-receipt.json",
+      "sha256": "e2bb63feab8bfcfa1454150912071ea520cb1e053605a75eef95169cc80d6f61",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/gnome-wizard/js-output.json.gz",
+      "sha256": "d74c6976baf71181af5483db312c0a69eb1f4f696cd5e27106c4da6f236b5f09",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/gnome-wizard/recipe.session.json",
+      "sha256": "f8684ddb418b08b0a471db88f627c7d6d94604dc9dd0916ee90f97bc30abeab7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/gnome-wizard/recorded.session.json.gz",
+      "sha256": "6e7f2cfa6d3072a6528bf48620a56bd649ad691652452ae5deb21a8ff687d712",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/gnome-wizard/recorder.json",
+      "sha256": "0b4ae5af25428444323ca6a644b08de693e854e4dd7bb3f42ea01b118ca51c82",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/gnome-wizard/result.json",
+      "sha256": "ba7aa6a3308a7250aee0aaa6c10917e92021532fdd8b2c56082b233da12930f7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/gnome-wizard/worker.json",
+      "sha256": "b9001e1abce6ffd8f36e3802918e35cbde56201c1d4d1b43b279b4497edc4cc6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/gnome-wizard-receipt.json",
+      "sha256": "e9856cf3894642f75b39cc34363032ca69a51a7d76f5032ed13ed49602346c83",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/healer/js-output.json.gz",
+      "sha256": "7f79b845cd5d98f45f42c94981c8391c3f6440effcc915d76912ceb67822c5f7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/healer/recipe.session.json",
+      "sha256": "c7a4c6187fac67c1464a32f30fad3dafe48c53151079f5b221d4b7eb4a65911c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/healer/recorded.session.json.gz",
+      "sha256": "ef94c367d6a8e210511500d8dc82b37d4b0ab534f53cd4d20b56e6a279756aa9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/healer/recorder.json",
+      "sha256": "07ff996704a4f01d5e104d7e8cbcb9497a1d370a190e63586fb8960d54180d30",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/healer/result.json",
+      "sha256": "79af69704496c624406cf03e65e6cdb928315425e710d0c3436d5122d00bd5e0",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/healer/worker.json",
+      "sha256": "573218fb33492c31b40e3d87a5e6863f4749482a47ed75e0fc660bdff7343356",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/healer-receipt.json",
+      "sha256": "dd10614b2251d0bc0e79e960aae99231d33d166eb02249f81ae495399f278a9a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/js-output.json.gz",
+      "sha256": "a18e25cd473dde650f8c7d7e007e2a8fdfc632f03b3eb12d1d0faad5ddebbb25",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/recipe.session.json",
+      "sha256": "eee2991cde2b1884bfd9eff1cfff561dab497f8a955092a1b14365deedc4d576",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/recorded.session.json.gz",
+      "sha256": "2db9a62c3313d914c4780a2df70c833aaf98ba050920d003aa3b7b5f5b9ebed4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/recorder.json",
+      "sha256": "d966e00bfd38399829b264e807dbcd9d3c0dd3b929ab3fef60aa8741021a0206",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/result.json",
+      "sha256": "a45eacc4ba7a14066930ebc551150a280ae3e5f4b313f4a095c09afdff117ac9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight/worker.json",
+      "sha256": "49aa056794a795887600dd841bdf704ba8a65dc45aabc5afa5ede54193c33a86",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/knight-receipt.json",
+      "sha256": "6610906f499d12f0b2b904a6f5bf48309754d1cedc171a7b6ad76c303561a7c0",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-control/js-output.json.gz",
+      "sha256": "c316cf3de4d8c0b957502239e2fa2d6db4d89618e13e91cd51552de2044f7450",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-control/recipe.session.json",
+      "sha256": "50cea0bde6bb4ef0aca16a6949e76310718b2df4e2c493f07e2ddfd4bd661ef2",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-control/recorded.session.json.gz",
+      "sha256": "2119eb6bc92240d63d33d8cc60a34998e187fca8b3fe906e1c8e9a39c83a6cbc",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-control/recorder.json",
+      "sha256": "400b70f6d4370382aa6df4818780261cfb082f66f581ad5584c0861bd937aba1",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-control/result.json",
+      "sha256": "367235971870b442eedc28f5a7fa8b09931ec03df05f31d81c685d3fcd0177e9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-control/worker.json",
+      "sha256": "e482acdcc836c47eb10c81385047048522c52dc9941ec87b3c1537a1683f12f5",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-control-receipt.json",
+      "sha256": "f68d83cbfa6f42b10dd3fbeb3071ee991aa458c821bb8e84f371b871d9938a36",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-refund/js-output.json.gz",
+      "sha256": "7cf522d56d9bd1c40b1d0e53b4cb6f811914dc37bd11699ccb72f3dd57c6bc65",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-refund/recipe.session.json",
+      "sha256": "af72dbb3030cd811c40920fd04eb558cce0a18cfee068ae652f1cbb47e2ab401",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-refund/recorded.session.json.gz",
+      "sha256": "c5439eceecae6e63b47496cc6d37da63269eae4347b84d14f1136241063d5400",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-refund/recorder.json",
+      "sha256": "00b26f3ca4a5aaf326d7b6aa8977edb3296eb16b06b106ca61867eb0f02264c3",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-refund/result.json",
+      "sha256": "fe577b4387e58026ee58ef7dcd505f72892b8ae25916f224414219654f194f23",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-refund/worker.json",
+      "sha256": "aa4da9715d32e904b33fd687d077dab9b9043c82302aa94b952018dbdd846384",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/martial-refund-receipt.json",
+      "sha256": "d4c632f5c16b94dc04b463f271ce4654dca56d907be5b6a6ee516ea412c67b5b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/js-output.json.gz",
+      "sha256": "63b52418d92aa8ac4fa8a184bf8b4d4964787bc2deed5edc2eb65c583d37674a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/recipe.session.json",
+      "sha256": "a9d24e0bdb3247ba83cc860a53a55f2cbd9bf2b24020c74db84e420c2107d569",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/recorded.session.json.gz",
+      "sha256": "62648c184f8e15c3be2e0dcf8bd464a0c46bdb643f9c0681e3ec656835e72f76",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/recorder.json",
+      "sha256": "7d4ba312eb2ee9ce653576a4cca703e4f09a5c109e5f5960131b19f17e5e68f1",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/result.json",
+      "sha256": "3098c728590e2cb727023f512cd6b5f0008a14eeaad6b876fd0e7d9a992ea93e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/worker.json",
+      "sha256": "b915eac6074436ad045bfbdd404fbc33beecb8a29e359a56ce232ab9cb4109d0",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk-receipt.json",
+      "sha256": "95943103db62d575b2d43d395c685cb85370e973afd009196e320e8d654932e9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/orc-barbarian/js-output.json.gz",
+      "sha256": "290d95bcc54aede26b4f6b3a9679aea173645fb24846c0658beeb8da4d6efabf",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/orc-barbarian/recipe.session.json",
+      "sha256": "0dd8f28b9a7facab31dcf2cbb617aa2e1c9d89e092c0bec57bad53c46baf0e11",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/orc-barbarian/recorded.session.json.gz",
+      "sha256": "0606ce28a2528c9d37f5118fe5f995cfeba35a75ce837e453d7c928ae00efa34",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/orc-barbarian/recorder.json",
+      "sha256": "a4f83fb486c56e3f4c80fca3ce0e04bc4ab6c52a0b10800a9931536569c4138b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/orc-barbarian/result.json",
+      "sha256": "ed3c2038e6764977cb82bd9335419c82c81fdd6899a3a3468e27c0559e60f15c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/orc-barbarian/worker.json",
+      "sha256": "322bdef949ce83c50fcdccdfc3385853f0ff1f33bb65fec4d7dee03464cc3c82",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/orc-barbarian-receipt.json",
+      "sha256": "f2cb7184e6ddcaed85ff24cf0dae5f2cd61c16c0e3b01f34a0c37aec41d3af6e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/priest/js-output.json.gz",
+      "sha256": "633896d107d8571f3e539703d9350f19a23efdd70da11bbb40d60c2b2a265c8b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/priest/recipe.session.json",
+      "sha256": "db2365cc2b5c213abc522c50ef44eac3e6fdab1ebb0819e78a121970192fa669",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/priest/recorded.session.json.gz",
+      "sha256": "7adfd8cc5d7535216c8f2086432fec645e6c841441c180428655cfcc930ad305",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/priest/recorder.json",
+      "sha256": "7651cf75bed5d276b48643e94e602bcbcf99cf4aaa9dc280524499e4dbb832e5",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/priest/result.json",
+      "sha256": "63ba11350db95dad05fe3e1016e39d49ee527369c7629b9304569dff371e38b7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/priest/worker.json",
+      "sha256": "213d421acb584f5873deea1b8964d1c4edfeaa5cb00e7c5d18830382d54516b3",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/priest-receipt.json",
+      "sha256": "655135c30f1b997765750a0d540959c57e29bc08816bb64cccc39df16ea61c24",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/ranger/js-output.json.gz",
+      "sha256": "e24fc9ee5201b831c9928745ddb941aca78678e336225c605ac545cec023c26b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/ranger/recipe.session.json",
+      "sha256": "94773dba5f767661284b773a1f29ad4dacf11bde54e926429a01f1339c09c590",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/ranger/recorded.session.json.gz",
+      "sha256": "df79ce65180ff7ad11cb0cdbe15687ec64096a8710eb87ce4acd4cb6150c9b2f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/ranger/recorder.json",
+      "sha256": "94ba1caa46a186c585b4afdb2b93861b1ad5cbb1da59aff9f0a4c2b1e6005b27",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/ranger/result.json",
+      "sha256": "3e89172e393c99215e274eafca971352449a53f0863cb49832169840dd9d49aa",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/ranger/worker.json",
+      "sha256": "cabafa208a7a61272279a0baa5a521ec30c20f7ea223222430d150e1deecfc54",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/ranger-receipt.json",
+      "sha256": "bfacdb20ff280fea3c8ba58af73126d35746825239d461bb832f76084f3108b7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/archeologist.json",
+      "sha256": "4548b159ca1ede8701f15ed54d030a366780c58db2304b0f4e1b88138518494e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/barbarian.json",
+      "sha256": "ab8f5e576d3ddcb5bd9c8a4cb2e1237c08b1e7689b9c27b773bc6883cd923b9a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/caveman.json",
+      "sha256": "f324772ad1f440eeda2ea3edea96181b763596bb038aef9574bce0b5e660bd6b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/control.json",
+      "sha256": "2411ff9c26ca32ac23d2ac473657868658bf558db2053c0e30dd85e012bd76fa",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/dwarf-archeologist.json",
+      "sha256": "5d8d05f5f9e15599b955d105983a4c7a9194e2c712628dba49fb46c8f9e02c83",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/elf-wizard.json",
+      "sha256": "b66e4a5e52df3d9c0a1245f1215b2257c2731bc56f2255f42e0e0ecf74334e42",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/gnome-wizard.json",
+      "sha256": "27062916b21e82761898cc3180063b2675297012b9144097f3c96c379695d26a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/healer.json",
+      "sha256": "2ae4e49d77bbdc6aa4687debe214b31fc2c141d1775b8b77b51481e5c68178d4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/knight.json",
+      "sha256": "a61a01deaa32806d257bc639fc37855dbc8ef43cab45d30cc3948209e23670da",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/martial-control.json",
+      "sha256": "89951b77f112b300b1219214979e11390e973fa5e0a1f694a052bb757999db97",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/martial-refund.json",
+      "sha256": "54f616bee95e272aa593c1e236aafd79bf29277f0f72a021af02bd3cc94c6941",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/monk.json",
+      "sha256": "0598ad5fa7f1273b1ddf48bb5df76685d6e3a622473bb3fc2b431d075da5f3a0",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/orc-barbarian.json",
+      "sha256": "c835e6b2cd1e6ec2442ab975bc7a64434c5dac2534a6ae1152284d2f4a34f17d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/priest.json",
+      "sha256": "f66c81754006a96e7f5ab4e9727dde33ab5bfb166cebf61ea73ef8f1d5e004e9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/ranger.json",
+      "sha256": "bc69408f99438ba9396c91e1f3a18a8ec4bd7d8e3a272ed2f256715cc49e1ece",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/rogue.json",
+      "sha256": "6ad3bfad64ba24414016d30213c7b90ecb2954a3b2183f81091483eda743de52",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/samurai.json",
+      "sha256": "84e085ee86cf7cf7882ec83817b14d4922c0f61ad2dec73238d461dc48f5452a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/silent-control.json",
+      "sha256": "b962c1adba777f565d6ae9b8c5c3543c8027f208009f30e226ac21a686560509",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/silent-roundtrip.json",
+      "sha256": "0fd3408dbce7b40be4ddd484af4038e06d81664d42748de8015d64e32f84abcc",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/tourist.json",
+      "sha256": "0be117ee4034e6aa8cce6e0c409695d2fa9b0c3bbf26ab444fe8e168d27553f2",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/valkyrie.json",
+      "sha256": "269830d396dbccb6e1a6b31ea029bc3a78d9830e86edaf54724736fc7cfbfaa8",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/wizard.json",
+      "sha256": "ac0725df31935fc488cbe3489dd42f9bb663c0376007cacee00440aeb9650613",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/rogue/js-output.json.gz",
+      "sha256": "0edd7d2372b63bc83c2ff9c8df431f364efb6ec5a0fb753664d96f41a0a84d62",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/rogue/recipe.session.json",
+      "sha256": "583bd5d9f1cafab7e04379b65005f87724322d3ca7914b6f978e408150c379fb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/rogue/recorded.session.json.gz",
+      "sha256": "91891bcdbe735e06bdaa433a688537fa6eb9d7fb0de6ea213e7b90ea03d94473",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/rogue/recorder.json",
+      "sha256": "c76aff68d9015c9a105b6c88781a98da8e6d38b05ca2dfd6a810db37d370d594",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/rogue/result.json",
+      "sha256": "8838ec912467ec28068968d4bd39b050c03a6dc8525ebb16bd00486aefa2a9a0",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/rogue/worker.json",
+      "sha256": "fb2c7846ecfd8cbe4f6ea98272ff9b7fc220639c3c953d6300443386769304e3",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/rogue-receipt.json",
+      "sha256": "091b54391775ec8f21e4d2f5619848d998fa72a1b57e2720bf62ff4f88096bdf",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/js-output.json.gz",
+      "sha256": "bbbd3e72d06b2fe2f4bcc2a3a8e84beb0a284836aed1f8b476238a23de9603d0",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/recipe.session.json",
+      "sha256": "1d602be5706b5f4bf203705fba89eadbeb17cd81199796ee44285d5a816781f2",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/recorded.session.json.gz",
+      "sha256": "37598f834382b03f218eab0999eb64d6139d259af50bbbe8366bd8e885691ac5",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/recorder.json",
+      "sha256": "cc6e31e24e57b3d267951ebb3c2c359da1358b9240b59a1a4adc67e57c80356c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/result.json",
+      "sha256": "b8d6713125b167d2276b745c7ab51c6c333a60a3a4859684f2549e35da2da7ea",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/worker.json",
+      "sha256": "e12c1d0bb074e21ad5ed9698f263671b91b4badc9497f12d8566b6f1dfd5d708",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai-receipt.json",
+      "sha256": "94fde261b0f20739a0d07b36503cafdf2369e6a8ad07835273da6a30f614164a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-control/js-output.json.gz",
+      "sha256": "45975221c95048ea7c6ac251a0ab6c628bd3d97399b6a275266c93e15fe23268",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-control/recipe.session.json",
+      "sha256": "ec958adc48568e8dc63a3d4ad2d5d6173d03e836a91ed859c20a993b776f1ccd",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-control/recorded.session.json.gz",
+      "sha256": "a2d3504a16cc266a2b0d389d88c36aeca54e21269f3d23b1197b6d292ae64be7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-control/recorder.json",
+      "sha256": "b2ba9e1287cedfc68ed55c704c46cc1bf4e71eaff277780bf813c5dfa91eb23f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-control/result.json",
+      "sha256": "c6af2b0c51e1da0745ca0008646221f833844c8669f339e9c88a5f6402382910",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-control/worker.json",
+      "sha256": "b24f9fec85efa9ff37ee069cd6355176c3eb6f45421d8924f763ba08998152c2",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-control-receipt.json",
+      "sha256": "476fb737194cd4d7a4fe20dc261b813e976d38c7aa81bd8f331f88949c96fd9c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-roundtrip/js-output.json.gz",
+      "sha256": "d6e1f1c981080bfee8bf0f360acdee33f4b54f52d7c6997bc5c122b9949bee6c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-roundtrip/recipe.session.json",
+      "sha256": "8c96c8a0d595ee17f92a905d45f87363390ab37f6974f5250b6c53ca08fac547",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-roundtrip/recorded.session.json.gz",
+      "sha256": "9d29f5449a63f58469ee0f1775ddd24cd4c65b60bae79a2b1b13594a88927452",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-roundtrip/recorder.json",
+      "sha256": "f28a94dcf2b0f6c2e7bf4f6977f8b6d94d5b53d9bd898e785776aaddb0175af6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-roundtrip/result.json",
+      "sha256": "687f7476ce36854f8d298d20c9b3b6920ccf3e024235c24bde439abf99f887b2",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-roundtrip/worker.json",
+      "sha256": "b7b19c392118ee37120ea9d4999974ecc58193ef783774eb8b917d94e0d2891f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/silent-roundtrip-receipt.json",
+      "sha256": "5e9509a3dc0fe98bc54b94d02be1d66a61df7e1175b0cfdcdc898b4de7a85a9a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/timing.json",
+      "sha256": "e2d3d090211a12dc27a8583c2473c452594f383cb16a7f18e1d346e6289772f6",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/tourist/js-output.json.gz",
+      "sha256": "5ce4f51fe43fbc376de5eb4fe73bf0017522b25ff02e420630cee20fd39ff9f8",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/tourist/recipe.session.json",
+      "sha256": "a55762ac4e9f3a7997a9364e160228c308b4f911015830340990850a9491237d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/tourist/recorded.session.json.gz",
+      "sha256": "b20af4f62dcecf3f6c5291d27d554a84c66ffa25b19fb3a704a4e9e8cacb1b17",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/tourist/recorder.json",
+      "sha256": "a82b824e70685075fc41effa487bb61bdb77acc934c9276308aa880f86d57cff",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/tourist/result.json",
+      "sha256": "26a1f79f28eb7bc68ebd12947a5296e0739a4a4d9e0dd1f429a2af253e3ed02c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/tourist/worker.json",
+      "sha256": "72fd1e2273b4722544845ac78f153ca8d1bd6ce01a73fbf20c7d4b8d1714fb21",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/tourist-receipt.json",
+      "sha256": "e68fd3ec331f939a6c7f971ccdde9bb35fff585d86ea5a3ff1242a922e6582b3",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/js-output.json.gz",
+      "sha256": "557ceaac93ea3f0cf2e8ff8de7bc87b42bcd5156c158b10f3d0e3e71debdc08f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/recipe.session.json",
+      "sha256": "45524521bb6ed8ce9184c639103389aa7a6713903f1602e7d7725589f72dfb6a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/recorded.session.json.gz",
+      "sha256": "297cf21796e9c69ebd7b6973dfc74c0185a2aa970a7598669d0a847cb759f78a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/recorder.json",
+      "sha256": "90a501362cb521f175ca3bdb213bdba6ef8c5adc0fa61f21cf9b3baaa4374193",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/result.json",
+      "sha256": "e3aa3746129b9a8704645856621db31b2704d62656c7dcbf0d8f439647a19a3e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie/worker.json",
+      "sha256": "1ef320bd9353a85befecb29cb9efb7035e69a4072496fe681cda009ee001c64e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/valkyrie-receipt.json",
+      "sha256": "a552d88d7b60da5e38670b5fd712cd72b7b4974b5873861f224e01312d4f11bd",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/verification.txt",
+      "sha256": "2f02cacefdaf734d5079b4ba331345121ab15444cddce4d644bb82a2d5e8ad36",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/verify.mjs",
+      "sha256": "468fcdbde1bf492a436e7a5b757dd2baefe232ce5b3b15541a905719d92d191e",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/wizard/js-output.json.gz",
+      "sha256": "ebdd118cc74b1d9c7f23a03c8a8090c769396684bacc70051c0a142f13314528",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/wizard/recipe.session.json",
+      "sha256": "d39a17f9a637481f1cf88029f69dfa0d5cd2bcb6001ebfe2df87e312be729acb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/wizard/recorded.session.json.gz",
+      "sha256": "7948aa314136122a92426844cc379d876871e613d1b6ddc789c5aed3b64600d9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/wizard/recorder.json",
+      "sha256": "2071a2fdfde6aa6f49675d69d83127a0d31177763e07f7fdba25507dc859c657",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/wizard/result.json",
+      "sha256": "1be5d263db48b8bd86ed83e15c8842fa8304e1ee1004cf69a1e0ba1bc75ce662",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/wizard/worker.json",
+      "sha256": "4215692d9cf13786634010f43c925a49e262a83ef0410a74fe4fead4572e3cc4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/wizard-receipt.json",
+      "sha256": "74c474d4d854b9d359e89cae38fa8f61a24e7db4d4679a5ec264674495dd211f",
+      "role": "audit artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/weapon.c",
+      "sha256": "75769f6a3113224ea20414f75fc8b1159b6712bc7154905443e4fc1a4912bc2d",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/insight.c",
+      "sha256": "190e28746d8e11d297df8bccce183c588833c97434627660cda0b903d9cebc50",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "js/weapon.js",
+      "sha256": "82539139a1110c4040f056a9e530693d9e83c65a39da3fd18f5705e1d155f527",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "js/insight.js",
+      "sha256": "c39130119f72f5df928926a45d22ac60983fae4866568a411f8077b9dcae5510",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "scripts/diff-fresh-worker.mjs",
+      "sha256": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "scripts/record-session.mjs",
+      "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "scripts/recorder-prompt-plan.mjs",
+      "sha256": "17454f8fb06adf124b17ffa1abf6b21d6445da816685e44faaea75565aa0633b",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "scripts/scoring-workspace.mjs",
+      "sha256": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/environment.json",
+      "sha256": "72eae41b57d6a940b584176ec444383d9c01d7be9899cae1c565f621db2fc01d",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/focused-tests.txt",
+      "sha256": "c13a060008e6517aa5c055b2229b42229a19dcac959e2ca917e240ef71a3218c",
+      "role": "pinned source/tooling or prior identical-code provenance"
+    }
+  ]
+}
