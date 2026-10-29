@@ -53,10 +53,11 @@ test('missing and invalid timestamps, returns, static audits and explicit waitin
 test('committed snapshot separates finite scanner populations and static units',()=>{
   const evidence=JSON.parse(readFileSync(new URL('../trial-monitor/evidence.json',import.meta.url)));
   const [levels,monsters]=evidence.cohorts;
-  assert.equal(levels.summary.total,523); assert.equal(levels.summary.counts.explained_negative,28);
-  assert.equal(levels.summary.counts.stale,8); assert.equal(levels.summary.counts.unreviewed,485);
-  assert.equal(monsters.summary.total,689); assert.equal(monsters.summary.reviewed,3);
-  assert.equal(monsters.summary.counts.unresolved,1); assert.equal(monsters.summary.counts.unreviewed,686);
+  for (const cohort of [levels,monsters]) {
+    assert.equal(Object.values(cohort.summary.counts).reduce((sum,n)=>sum+n,0),cohort.summary.total);
+    assert.equal(cohort.summary.withoutCurrentReview,cohort.summary.counts.unreviewed+cohort.summary.counts.stale);
+    assert.equal(cohort.summary.resolved,cohort.summary.counts.explained_negative+cohort.summary.counts.confirmed+cohort.summary.counts.accepted);
+  }
   assert.equal(evidence.audits.length,3);
   assert(!JSON.stringify(evidence).includes('/workspace/')); assert(!JSON.stringify(evidence).includes('/tmp/'));
   assert(levels.strata.every(s=>s.method.run_id===levels.runId));

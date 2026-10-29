@@ -16,10 +16,10 @@ try {
     await page.goto(url);
     const panel = page.locator('#workflowEvidence');
     await panel.getByRole('heading',{name:'Sessions & handoffs'}).waitFor();
-    assert.match(await panel.innerText(),/523/);
+    assert.equal(await panel.locator('.workflow-number').count(),4);
     await panel.getByRole('combobox',{name:'Discovery inventory'}).selectOption('1');
-    assert.match(await panel.innerText(),/689/);
-    assert.match(await panel.innerText(),/686/);
+    assert.match(await panel.innerText(),/Scanner keys in scope/);
+    assert.match(await panel.innerText(),/No current review/);
     await panel.getByText('Technique versions, filters & coverage',{exact:true}).click();
     assert.match(await panel.innerText(),/missing_message/);
     await panel.getByText('Source freshness & known gaps',{exact:true}).click();

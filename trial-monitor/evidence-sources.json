@@ -3,129 +3,787 @@
   "inventories": [
     {
       "id": "levels",
-      "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+      "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
       "pr": 89,
       "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/inventory.json",
       "cases": [
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-room-callback-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-room-callback-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
           "pr": 89,
-          "path": "diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/case.json"
+          "path": "diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
           "ref": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
           "pr": 92,
           "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/case.json"
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-solidfill-ice-reset-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ],
+          "refreshSource": null
         }
       ],
-      "completion": {
-        "ref": "2e7b13b795b5ffee0cf73f0099b74a823eaceaad",
-        "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/message-final-receipt-4222eaf89.json"
-      }
+      "refresh": {
+        "sources": [
+          {
+            "pr": 89,
+            "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+            "inventory": true,
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ],
+            "deniedHeads": [
+              "096ab017"
+            ]
+          }
+        ]
+      },
+      "refreshStatus": {
+        "state": "unchanged",
+        "attemptedAt": "2026-10-29T00:42:37.111Z",
+        "lastSuccessAt": "2026-10-29T00:42:38.612Z",
+        "resolved": [
+          {
+            "pr": 89,
+            "branch": "analysis/levels/20261028-maze-deadends-31",
+            "head": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+            "base": "51f5686fac30306411156df215ca83ae910cf6bf",
+            "sourceCommittedAt": "2026-10-29T00:35:20Z",
+            "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ]
+          }
+        ]
+      },
+      "completions": [
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/message-final-receipt-4222eaf89.json",
+          "pr": 89,
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/accepted-routing.json",
+          "pr": 89,
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        }
+      ],
+      "skippedMetadata": []
     },
     {
       "id": "monsters",
-      "ref": "4472bdbaa7255c3b8b4208e43986597133cb2b40",
+      "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
       "pr": 102,
       "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-summary.json",
       "keysPath": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-keys.json",
       "cases": [
         {
-          "ref": "4472bdbaa7255c3b8b4208e43986597133cb2b40",
+          "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
           "pr": 102,
-          "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/case.json"
+          "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
-          "ref": "4472bdbaa7255c3b8b4208e43986597133cb2b40",
+          "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
           "pr": 102,
-          "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/case.json"
+          "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         },
         {
           "ref": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
           "pr": 96,
-          "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/case.json"
+          "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
+          "pr": 102,
+          "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
+        },
+        {
+          "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
+          "pr": 102,
+          "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+          "refreshSource": null,
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ]
         }
-      ]
+      ],
+      "refresh": {
+        "sources": [
+          {
+            "pr": 102,
+            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+            "inventory": true,
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ],
+            "deniedHeads": [
+              "096ab017"
+            ]
+          },
+          {
+            "pr": 96,
+            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+            "inventory": false,
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ],
+            "deniedHeads": [
+              "096ab017"
+            ]
+          }
+        ]
+      },
+      "refreshStatus": {
+        "state": "unchanged",
+        "attemptedAt": "2026-10-29T00:42:37.111Z",
+        "lastSuccessAt": "2026-10-29T00:42:39.966Z",
+        "resolved": [
+          {
+            "pr": 102,
+            "branch": "analysis/monsters/20261028-af",
+            "head": "462a52f28782449e8afc22e02da7fc48bd972e42",
+            "base": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+            "sourceCommittedAt": "2026-10-28T23:20:13Z",
+            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ]
+          },
+          {
+            "pr": 96,
+            "branch": "analysis/monsters/20261028-ac",
+            "head": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
+            "base": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+            "sourceCommittedAt": "2026-10-28T22:19:43Z",
+            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ]
+          }
+        ]
+      },
+      "completions": [],
+      "skippedMetadata": []
     }
   ],
   "audits": [
