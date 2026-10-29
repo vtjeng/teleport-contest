@@ -1,6 +1,6 @@
 // Git-backed delivery snapshots and cheap integration checks. None of these
 // functions merges, pushes, replays a game or claims to prove source equivalence.
-import { checkTestLayout } from './checkpoint-preflight.mjs';
+import { checkCheckpointInputs } from './checkpoint-preflight.mjs';
 import {validateSourceParityGoal, SOURCE_PARITY_BASIS} from './source-parity.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
@@ -655,9 +655,12 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
         const pending = new Set([...pendingGroup, ...grouped.map(id => state.tasks[id]?.deliveries.at(-1))]);
         checkCandidate(root, state, task, commit, new Set(), new Map(), pending);
     });
+    const inputTests = [];
     inspect('test discovery', () => {
-        const layout = checkTestLayout(root, commit);
-        check(layout.passed, `test files outside discovered roots: ${layout.stray.join(', ')}`);
+        const layout = checkCheckpointInputs(root, commit, delivery.base);
+        inputTests.push(...layout.focusedTests);
+        check(layout.passed, [...(layout.stray.length ? [`test files outside discovered roots: ${layout.stray.join(', ')}`] : []),
+            ...layout.register.errors].join('; '));
     });
     let evidence;
     inspect(task.kind === 'challenge-preparation' ? 'prepared C cases' : 'source evidence',
@@ -690,6 +693,7 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
     });
     const focused = new Set(deliveryPaths.filter(path => /^scripts\/.*\.test\.mjs$/u.test(path)
         && git(root, 'ls-tree', commit, '--', path)));
+    for (const path of inputTests) focused.add(path);
     for (const fn of evidence?.functions ?? []) for (const path of fn.tests) focused.add(path);
     // Direct importer tests catch stale callers without launching the full suite.
     const changedJs = deliveryPaths.filter(path => path.startsWith('js/'));
