@@ -26765,6 +26765,30 @@
           ]
         }
       ]
+    },
+    {
+      "id": "monster-missile-catch-runtime-handoff",
+      "title": "Complete a successful monster missile catch through inventory handoff",
+      "investigator": "monsters PR #80",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mthrowu.c:u_catch_thrown_obj/m_throw",
+          "nethack-c/upstream/src/invent.c:hold_another_object",
+          "js/mthrowu.js:u_catch_thrown_obj/m_throw",
+          "js/invent.js:hold_another_object"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/monsters/monster-missile-catch/case.json"
+        ],
+        "test": [
+          "scripts/mthrowu-catch.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }

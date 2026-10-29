@@ -232,6 +232,7 @@ import {
     mshot_xname,
     obj_is_pname,
     singular,
+    simpleonames,
     the,
     The,
     otense,
@@ -516,7 +517,7 @@ function maybeHalfPhysical(damage, state) {
 // C ref: mthrowu.c u_catch_thrown_obj() (531-549), through the failed-catch
 // result selected by an ordinary monster missile. A successful catch hands the
 // object to hold_another_object(), which remains a named boundary.
-function u_catch_thrown_obj(obj, env) {
+async function u_catch_thrown_obj(obj, env) {
     const { state, random } = env;
     const role = state.urole?.mnum;
     const catchChance = 100 - acurr(state, A_DEX)
@@ -530,7 +531,22 @@ function u_catch_thrown_obj(obj, env) {
         && freehand(state)
         && calc_capacity(obj.owt, state) <= SLT_ENCUMBER
         && random.rn2(catchChance) === 0) {
-        return refuseRanged(env, 'successful monster missile catch');
+        const name = simpleonames(obj, state);
+        // pickup.c owns encumber_msg; load it at the live handoff to avoid
+        // introducing a static inventory/pickup/throw import cycle.
+        const { encumber_msg } = await import('./pickup.js');
+        await hold_another_object(obj, 'You catch, but drop, the %s.',
+            name, `You catch the ${name}!`, {
+                ...env,
+                hooks: {
+                    ...env.hooks,
+                    message: env.message ?? ttyPline,
+                    encumberMessage: env.hooks?.encumberMessage
+                        ?? env.encumberMessage
+                        ?? (subject => encumber_msg(subject, { message: env.message ?? ttyPline })),
+                },
+            });
+        return true;
     }
     return false;
 }
@@ -1013,7 +1029,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 && await ucatchgem(singleobj, monster, env)) {
                 break;
             }
-            if (!tethered_weapon && u_catch_thrown_obj(singleobj, env)) {
+            if (!tethered_weapon && await u_catch_thrown_obj(singleobj, env)) {
                 break;
             }
             if (singleobj.oclass === POTION_CLASS) {
