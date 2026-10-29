@@ -96,3 +96,13 @@ full-game C call-site observation remains uninstrumented. No source-only
 suspicions or new causes. The selected branch inventory now has executed public
 or qualified component evidence for these fronts; natural history/lifecycle and
 full-binary provenance limits remain, without claiming global exhaustion.
+
+
+Recorder-build prerequisite checked: recorder-build-gap-20261029 preserves the
+unchanged isolated script's exit1 before tree creation: clang is absent; bison,
+flex and rsync are also unavailable. No build, install, replacement binary or
+control replay; no policy denial or pending approval. Existing binary hash is
+unchanged. The supported public tooling exposes RNG/terminal outputs, not an
+existing full-state observer. Next reachable distinct branch is the nonzero XP
+percentage floor at level10 (5120→5122), using parsed1% highlight rules; recipe
+plan is documented, execution still pending. No global exhaustion claim.
