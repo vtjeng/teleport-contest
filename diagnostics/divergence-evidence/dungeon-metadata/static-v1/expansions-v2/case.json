@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "caseId": "dungeon-metadata-expansions-v2",
+  "shard": "dungeon-metadata",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "dungeon-metadata-static-v1"
+  ],
+  "provenance": {
+    "jsSha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "include/you.h",
+      "symbol": "struct Role.filecode",
+      "start_line": 183,
+      "end_line": 190,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/role.c",
+      "symbol": "roles",
+      "start_line": 30,
+      "end_line": 577,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "include/hack.h",
+      "symbol": "dgn_topology and alias macros",
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/roles.js",
+      "symbol": "roles",
+      "start_line": 51,
+      "end_line": 357,
+      "commit_sha": "de3380e285e5f4abf40375459f9490f92569e7dc"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon_data.js",
+      "symbol": "DUNGEON_DATA",
+      "start_line": 4,
+      "end_line": 345,
+      "commit_sha": "de3380e285e5f4abf40375459f9490f92569e7dc"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon.js",
+      "symbol": "LEVEL_MAP",
+      "start_line": 157,
+      "end_line": 184,
+      "commit_sha": "de3380e285e5f4abf40375459f9490f92569e7dc"
+    }
+  ],
+  "hypothesis": "Declared filecodes, placeholder suffixes, numbered stems and level aliases may form missing, duplicated or inconsistent static filenames or references.",
+  "expectedBehavior": "Restrict expansions to the names and counts declared at the pinned sources; distinguish lexical consistency from runtime interpretation.",
+  "observedBehavior": "13 role filecodes agree. All 39 placeholder joins and 65 authored quest-family filenames are accounted for. The tower stem has exactly three declared numbered levels/files. All 26 aliases resolve to declared prototypes and C topology fields. No unexplained static discrepancy.",
+  "witness": {
+    "kind": "source",
+    "scope": "Supplemental lexical joins and alias reference checks; original static v1 evidence unchanged.",
+    "limitations": [
+      "Quest joins are lexical consistency checks using the declared filecode and x-* suffixes, not execution of substitution logic.",
+      "tower1/2/3 agree with declared base=3 and listed levels; no assertion about runtime stem selection or generated depth.",
+      "Rog-fila/Rog-filb share an identifier; body equivalence remains untested.",
+      "rogue/dummy lack literal assets; runtime marker behavior and Val-strt wrapper semantics remain excluded.",
+      "No Lua, game handlers, level generation, special-level APIs, or C oracle executed.",
+      "Role fields other than filecode and runtime marker/wrapper behavior are outside scope."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "not_applicable",
+    "evidence": [],
+    "reason": "Static consistency evidence; no runtime exposure or gameplay-equivalence claim."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Authorized finite continuation of the static metadata boundary, using only the new static-v1 inventory and source declarations.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/audit.mjs"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/audit.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/dungeon-metadata/static-v1/target-output.json",
+        "js/dungeon_data.js",
+        "nethack-c/upstream/src/role.c",
+        "nethack-c/upstream/include/you.h",
+        "js/roles.js",
+        "nethack-c/upstream/include/hack.h",
+        "js/dungeon.js",
+        "package.json",
+        "package-lock.json",
+        "node_modules/acorn/dist/acorn.js",
+        "node_modules/acorn/package.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/audit.mjs",
+        "--controls"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/audit.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/dungeon-metadata/static-v1/target-output.json",
+        "js/dungeon_data.js",
+        "nethack-c/upstream/src/role.c",
+        "nethack-c/upstream/include/you.h",
+        "js/roles.js",
+        "nethack-c/upstream/include/hack.h",
+        "js/dungeon.js",
+        "package.json",
+        "package-lock.json",
+        "node_modules/acorn/dist/acorn.js",
+        "node_modules/acorn/package.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/audit.mjs",
+      "sha256": "8860314929c0a2a0f654086f3af381a48a6557ff2f0c62507090ec5cb02bf10f",
+      "role": "versioned supplemental static evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/record.mjs",
+      "sha256": "3c496735722c4f9eafab1d554d3787e641f81cd43d048d3089063f5022b488bd",
+      "role": "versioned supplemental static evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/README.md",
+      "sha256": "4b091e5511caf2b252c7198b7e3e000f7afe42fadcede052df080a95e1569518",
+      "role": "versioned supplemental static evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/target-output.json",
+      "sha256": "30c09e62fecf45f25f5b7d1ed81309722d88b51bb176d10759f0b8565b708b42",
+      "role": "versioned supplemental static evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/target-receipt.json",
+      "sha256": "e6ce337866b090de1ffff2260c201d44fc762df1a22ce8b25488824f2a62abdf",
+      "role": "versioned supplemental static evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/control-output.json",
+      "sha256": "5f8b6192fcf4930f6dee77d482b5ab1473de557fea8b318837f2b13d685e9187",
+      "role": "versioned supplemental static evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/control-receipt.json",
+      "sha256": "f8cf467b1fb2966a282b7cb96164bee67599a89eecaf18e3956b45bf6d77f95f",
+      "role": "versioned supplemental static evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/target-output.json",
+      "sha256": "1037434250a4abef4de169ee478ea05fbbb49ef0fadc3ae9e0026cf4076a1b2e",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "js/dungeon_data.js",
+      "sha256": "de25792331f13079a3b8a74fd668e9a5a93e9218c67dc78b3f0559cb9a3015c1",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "nethack-c/upstream/src/role.c",
+      "sha256": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "nethack-c/upstream/include/you.h",
+      "sha256": "d19cfa0233582f1ad550b9dfc788f26166f3ff21225e3d8a0cd43b6de2094289",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "js/roles.js",
+      "sha256": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "nethack-c/upstream/include/hack.h",
+      "sha256": "2840a9bd41fb0c09384839fafdbd427a5d8705ad8d3eb5e2a0308cccea36813b",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "js/dungeon.js",
+      "sha256": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "package.json",
+      "sha256": "32a370c374e37d0c8a8a8e182996f0e2039d8348411ca2f9257081646e26c644",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "666fb7d8a593d86d659bb1ef15c4b8a5788d3b2c689c3b2d5420ce59846dabf0",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "node_modules/acorn/dist/acorn.js",
+      "sha256": "fc3ed7b81e58464715d0291402892f22c3d86ea75302645a330390f85d8015c9",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    },
+    {
+      "path": "node_modules/acorn/package.json",
+      "sha256": "5c1ed7259579a7899b303f514b0194adcb9fe474fc7d136a84c6a45f10eefc84",
+      "role": "pinned declarations, prior static inventory or installed parser"
+    }
+  ]
+}

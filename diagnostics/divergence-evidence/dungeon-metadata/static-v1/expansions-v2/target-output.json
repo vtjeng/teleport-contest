@@ -1,0 +1,564 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "jsSha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "priorEvidenceCommit": "d2a9051ce46de072b1c49f2cf1c38cc0c1a37272",
+  "roles": {
+    "numRoles": 13,
+    "cCodes": [
+      "Arc",
+      "Bar",
+      "Cav",
+      "Hea",
+      "Kni",
+      "Mon",
+      "Pri",
+      "Rog",
+      "Ran",
+      "Sam",
+      "Tou",
+      "Val",
+      "Wiz"
+    ],
+    "jsCodes": [
+      "Arc",
+      "Bar",
+      "Cav",
+      "Hea",
+      "Kni",
+      "Mon",
+      "Pri",
+      "Rog",
+      "Ran",
+      "Sam",
+      "Tou",
+      "Val",
+      "Wiz"
+    ],
+    "differences": {
+      "missing": [],
+      "extra": [],
+      "duplicates": []
+    },
+    "sameOrder": true
+  },
+  "questExpansion": {
+    "rows": [
+      {
+        "code": "Arc",
+        "placeholder": "x-strt",
+        "file": "Arc-strt.lua"
+      },
+      {
+        "code": "Arc",
+        "placeholder": "x-loca",
+        "file": "Arc-loca.lua"
+      },
+      {
+        "code": "Arc",
+        "placeholder": "x-goal",
+        "file": "Arc-goal.lua"
+      },
+      {
+        "code": "Bar",
+        "placeholder": "x-strt",
+        "file": "Bar-strt.lua"
+      },
+      {
+        "code": "Bar",
+        "placeholder": "x-loca",
+        "file": "Bar-loca.lua"
+      },
+      {
+        "code": "Bar",
+        "placeholder": "x-goal",
+        "file": "Bar-goal.lua"
+      },
+      {
+        "code": "Cav",
+        "placeholder": "x-strt",
+        "file": "Cav-strt.lua"
+      },
+      {
+        "code": "Cav",
+        "placeholder": "x-loca",
+        "file": "Cav-loca.lua"
+      },
+      {
+        "code": "Cav",
+        "placeholder": "x-goal",
+        "file": "Cav-goal.lua"
+      },
+      {
+        "code": "Hea",
+        "placeholder": "x-strt",
+        "file": "Hea-strt.lua"
+      },
+      {
+        "code": "Hea",
+        "placeholder": "x-loca",
+        "file": "Hea-loca.lua"
+      },
+      {
+        "code": "Hea",
+        "placeholder": "x-goal",
+        "file": "Hea-goal.lua"
+      },
+      {
+        "code": "Kni",
+        "placeholder": "x-strt",
+        "file": "Kni-strt.lua"
+      },
+      {
+        "code": "Kni",
+        "placeholder": "x-loca",
+        "file": "Kni-loca.lua"
+      },
+      {
+        "code": "Kni",
+        "placeholder": "x-goal",
+        "file": "Kni-goal.lua"
+      },
+      {
+        "code": "Mon",
+        "placeholder": "x-strt",
+        "file": "Mon-strt.lua"
+      },
+      {
+        "code": "Mon",
+        "placeholder": "x-loca",
+        "file": "Mon-loca.lua"
+      },
+      {
+        "code": "Mon",
+        "placeholder": "x-goal",
+        "file": "Mon-goal.lua"
+      },
+      {
+        "code": "Pri",
+        "placeholder": "x-strt",
+        "file": "Pri-strt.lua"
+      },
+      {
+        "code": "Pri",
+        "placeholder": "x-loca",
+        "file": "Pri-loca.lua"
+      },
+      {
+        "code": "Pri",
+        "placeholder": "x-goal",
+        "file": "Pri-goal.lua"
+      },
+      {
+        "code": "Rog",
+        "placeholder": "x-strt",
+        "file": "Rog-strt.lua"
+      },
+      {
+        "code": "Rog",
+        "placeholder": "x-loca",
+        "file": "Rog-loca.lua"
+      },
+      {
+        "code": "Rog",
+        "placeholder": "x-goal",
+        "file": "Rog-goal.lua"
+      },
+      {
+        "code": "Ran",
+        "placeholder": "x-strt",
+        "file": "Ran-strt.lua"
+      },
+      {
+        "code": "Ran",
+        "placeholder": "x-loca",
+        "file": "Ran-loca.lua"
+      },
+      {
+        "code": "Ran",
+        "placeholder": "x-goal",
+        "file": "Ran-goal.lua"
+      },
+      {
+        "code": "Sam",
+        "placeholder": "x-strt",
+        "file": "Sam-strt.lua"
+      },
+      {
+        "code": "Sam",
+        "placeholder": "x-loca",
+        "file": "Sam-loca.lua"
+      },
+      {
+        "code": "Sam",
+        "placeholder": "x-goal",
+        "file": "Sam-goal.lua"
+      },
+      {
+        "code": "Tou",
+        "placeholder": "x-strt",
+        "file": "Tou-strt.lua"
+      },
+      {
+        "code": "Tou",
+        "placeholder": "x-loca",
+        "file": "Tou-loca.lua"
+      },
+      {
+        "code": "Tou",
+        "placeholder": "x-goal",
+        "file": "Tou-goal.lua"
+      },
+      {
+        "code": "Val",
+        "placeholder": "x-strt",
+        "file": "Val-strt.lua"
+      },
+      {
+        "code": "Val",
+        "placeholder": "x-loca",
+        "file": "Val-loca.lua"
+      },
+      {
+        "code": "Val",
+        "placeholder": "x-goal",
+        "file": "Val-goal.lua"
+      },
+      {
+        "code": "Wiz",
+        "placeholder": "x-strt",
+        "file": "Wiz-strt.lua"
+      },
+      {
+        "code": "Wiz",
+        "placeholder": "x-loca",
+        "file": "Wiz-loca.lua"
+      },
+      {
+        "code": "Wiz",
+        "placeholder": "x-goal",
+        "file": "Wiz-goal.lua"
+      }
+    ],
+    "duplicateCodes": [],
+    "duplicateFiles": [],
+    "missingFiles": [],
+    "missingMappings": []
+  },
+  "roleFamilies": {
+    "suffixes": [
+      "-fila.lua",
+      "-filb.lua",
+      "-goal.lua",
+      "-loca.lua",
+      "-strt.lua"
+    ],
+    "files": [
+      "Arc-fila.lua",
+      "Arc-filb.lua",
+      "Arc-goal.lua",
+      "Arc-loca.lua",
+      "Arc-strt.lua",
+      "Bar-fila.lua",
+      "Bar-filb.lua",
+      "Bar-goal.lua",
+      "Bar-loca.lua",
+      "Bar-strt.lua",
+      "Cav-fila.lua",
+      "Cav-filb.lua",
+      "Cav-goal.lua",
+      "Cav-loca.lua",
+      "Cav-strt.lua",
+      "Hea-fila.lua",
+      "Hea-filb.lua",
+      "Hea-goal.lua",
+      "Hea-loca.lua",
+      "Hea-strt.lua",
+      "Kni-fila.lua",
+      "Kni-filb.lua",
+      "Kni-goal.lua",
+      "Kni-loca.lua",
+      "Kni-strt.lua",
+      "Mon-fila.lua",
+      "Mon-filb.lua",
+      "Mon-goal.lua",
+      "Mon-loca.lua",
+      "Mon-strt.lua",
+      "Pri-fila.lua",
+      "Pri-filb.lua",
+      "Pri-goal.lua",
+      "Pri-loca.lua",
+      "Pri-strt.lua",
+      "Ran-fila.lua",
+      "Ran-filb.lua",
+      "Ran-goal.lua",
+      "Ran-loca.lua",
+      "Ran-strt.lua",
+      "Rog-fila.lua",
+      "Rog-filb.lua",
+      "Rog-goal.lua",
+      "Rog-loca.lua",
+      "Rog-strt.lua",
+      "Sam-fila.lua",
+      "Sam-filb.lua",
+      "Sam-goal.lua",
+      "Sam-loca.lua",
+      "Sam-strt.lua",
+      "Tou-fila.lua",
+      "Tou-filb.lua",
+      "Tou-goal.lua",
+      "Tou-loca.lua",
+      "Tou-strt.lua",
+      "Val-fila.lua",
+      "Val-filb.lua",
+      "Val-goal.lua",
+      "Val-loca.lua",
+      "Val-strt.lua",
+      "Wiz-fila.lua",
+      "Wiz-filb.lua",
+      "Wiz-goal.lua",
+      "Wiz-loca.lua",
+      "Wiz-strt.lua"
+    ],
+    "comparison": {
+      "missing": [],
+      "extra": [],
+      "duplicates": []
+    }
+  },
+  "stems": [
+    {
+      "stem": "tower",
+      "declaredBase": 3,
+      "declaredLevels": [
+        "tower1",
+        "tower2",
+        "tower3"
+      ],
+      "comparison": {
+        "missing": [],
+        "extra": [],
+        "duplicates": []
+      },
+      "fileFamily": {
+        "missing": [],
+        "extra": [],
+        "duplicates": []
+      },
+      "missingMappings": []
+    }
+  ],
+  "aliases": [
+    {
+      "prototype": "air",
+      "destination": "air_level",
+      "cField": "d_air_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "asmodeus",
+      "destination": "asmodeus_level",
+      "cField": "d_asmodeus_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "astral",
+      "destination": "astral_level",
+      "cField": "d_astral_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "baalz",
+      "destination": "baalzebub_level",
+      "cField": "d_baalzebub_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "bigrm",
+      "destination": "bigroom_level",
+      "cField": "d_bigroom_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "castle",
+      "destination": "stronghold_level",
+      "cField": "d_stronghold_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "earth",
+      "destination": "earth_level",
+      "cField": "d_earth_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "fakewiz1",
+      "destination": "portal_level",
+      "cField": "d_portal_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "fire",
+      "destination": "fire_level",
+      "cField": "d_fire_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "juiblex",
+      "destination": "juiblex_level",
+      "cField": "d_juiblex_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "knox",
+      "destination": "knox_level",
+      "cField": "d_knox_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "medusa",
+      "destination": "medusa_level",
+      "cField": "d_medusa_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "oracle",
+      "destination": "oracle_level",
+      "cField": "d_oracle_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "orcus",
+      "destination": "orcus_level",
+      "cField": "d_orcus_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "rogue",
+      "destination": "rogue_level",
+      "cField": "d_rogue_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "sanctum",
+      "destination": "sanctum_level",
+      "cField": "d_sanctum_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "valley",
+      "destination": "valley_level",
+      "cField": "d_valley_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "water",
+      "destination": "water_level",
+      "cField": "d_water_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "wizard1",
+      "destination": "wiz1_level",
+      "cField": "d_wiz1_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "wizard2",
+      "destination": "wiz2_level",
+      "cField": "d_wiz2_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "wizard3",
+      "destination": "wiz3_level",
+      "cField": "d_wiz3_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "minend",
+      "destination": "mineend_level",
+      "cField": "d_mineend_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "soko1",
+      "destination": "sokoend_level",
+      "cField": "d_sokoend_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "x-strt",
+      "destination": "qstart_level",
+      "cField": "d_qstart_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "x-loca",
+      "destination": "qlocate_level",
+      "cField": "d_qlocate_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    },
+    {
+      "prototype": "x-goal",
+      "destination": "nemesis_level",
+      "cField": "d_nemesis_level",
+      "prototypeExists": true,
+      "fieldExists": true
+    }
+  ],
+  "duplicateAliasSources": [],
+  "duplicateAliasDestinations": [],
+  "sharedBindings": [
+    {
+      "path": "js/quest_levels.js",
+      "symbol": "rogFila",
+      "keys": [
+        "Rog-fila",
+        "Rog-filb"
+      ]
+    }
+  ],
+  "limits": [
+    "Quest joins are lexical consistency checks using the declared filecode and x-* suffixes, not execution of substitution logic.",
+    "tower1/2/3 agree with declared base=3 and listed levels; no assertion about runtime stem selection or generated depth.",
+    "Rog-fila/Rog-filb share an identifier; body equivalence remains untested.",
+    "rogue/dummy lack literal assets; runtime marker behavior and Val-strt wrapper semantics remain excluded."
+  ],
+  "sourceHashes": {
+    "diagnostics/divergence-evidence/dungeon-metadata/static-v1/target-output.json": "1037434250a4abef4de169ee478ea05fbbb49ef0fadc3ae9e0026cf4076a1b2e",
+    "js/dungeon_data.js": "de25792331f13079a3b8a74fd668e9a5a93e9218c67dc78b3f0559cb9a3015c1",
+    "nethack-c/upstream/src/role.c": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+    "nethack-c/upstream/include/you.h": "d19cfa0233582f1ad550b9dfc788f26166f3ff21225e3d8a0cd43b6de2094289",
+    "js/roles.js": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+    "nethack-c/upstream/include/hack.h": "2840a9bd41fb0c09384839fafdbd427a5d8705ad8d3eb5e2a0308cccea36813b",
+    "js/dungeon.js": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c"
+  }
+}

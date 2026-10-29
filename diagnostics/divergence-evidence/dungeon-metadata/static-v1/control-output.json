@@ -1,0 +1,33 @@
+{
+  "passed": 28,
+  "controls": [
+    "positive: independent parsers agree",
+    "positive: field order and comments do not change Lua data",
+    "reject duplicate Lua field",
+    "reject executable Lua",
+    "reject executable JS metadata",
+    "reject duplicate JS field",
+    "detect metadata depth",
+    "detect metadata range",
+    "detect metadata variant count",
+    "detect metadata flags",
+    "detect metadata branch direction",
+    "detect metadata missing optional field",
+    "detect metadata extra field",
+    "detect metadata removed dungeon",
+    "detect metadata reordered dungeons",
+    "detect duplicate dungeon",
+    "detect duplicate level",
+    "detect duplicate branch",
+    "detect dangling branch",
+    "detect dangling chain",
+    "positive: documented file coverage is complete",
+    "detect missing loader",
+    "detect extra loader",
+    "detect duplicate loader",
+    "detect dangling metadata asset",
+    "detect changed numeric constant",
+    "detect changed vocabulary",
+    "detect changed level map"
+  ]
+}
