@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T04:35:26Z",
+  "asOf": "2026-10-29T04:52:52Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25797,7 +25797,10 @@
           "scripts/mhitm-passive-fire-accessible.test.mjs",
           "scripts/mhitm-passive-elements-accessible.test.mjs",
           "scripts/baalzebub-stun-accessible.test.mjs",
-          "scripts/displacement-stone-accessible.test.mjs"
+          "scripts/displacement-stone-accessible.test.mjs",
+          "scripts/medusa-cancelled-accessible.test.mjs",
+          "scripts/medusa-reflected-accessible.test.mjs",
+          "scripts/hallucinated-gaze-reaction-accessible.test.mjs"
         ]
       },
       "candidates": [
@@ -25998,6 +26001,56 @@
               "completedAt": "2026-10-29T04:35:26Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40818450174"
+            }
+          ]
+        },
+        {
+          "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+          "committedAt": "2026-10-29T04:38:45Z",
+          "sourceCommit": "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
+          "sourceCommittedAt": "2026-10-29T04:38:15Z",
+          "runs": [
+            {
+              "id": 40818918532,
+              "name": "Checkpoint",
+              "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/petrification-levregion-prefix-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:38:54Z",
+              "completedAt": "2026-10-29T04:49:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40818918532"
+            },
+            {
+              "id": 40820024096,
+              "name": "Lint",
+              "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:50:54Z",
+              "completedAt": "2026-10-29T04:52:00Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40820024096"
+            },
+            {
+              "id": 40820024034,
+              "name": "Dashboard",
+              "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:50:54Z",
+              "completedAt": "2026-10-29T04:52:52Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40820024034"
             }
           ]
         }
@@ -26358,6 +26411,56 @@
               "completedAt": "2026-10-29T02:29:35Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40806422768"
+            }
+          ]
+        },
+        {
+          "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+          "committedAt": "2026-10-29T04:38:45Z",
+          "sourceCommit": "de3380e285e5f4abf40375459f9490f92569e7dc",
+          "sourceCommittedAt": "2026-10-29T04:38:45Z",
+          "runs": [
+            {
+              "id": 40818918532,
+              "name": "Checkpoint",
+              "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/petrification-levregion-prefix-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:38:54Z",
+              "completedAt": "2026-10-29T04:49:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40818918532"
+            },
+            {
+              "id": 40820024096,
+              "name": "Lint",
+              "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:50:54Z",
+              "completedAt": "2026-10-29T04:52:00Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40820024096"
+            },
+            {
+              "id": 40820024034,
+              "name": "Dashboard",
+              "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:50:54Z",
+              "completedAt": "2026-10-29T04:52:52Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40820024034"
             }
           ]
         }

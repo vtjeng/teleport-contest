@@ -3031,8 +3031,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 );
             } else {
                 await message(
-                    `${Monnam(monster, state, env)} gazes ineffectually.`,
-                    state,
+                    messageAt(`${Monnam(monster, state, env)} gazes ineffectually.`,
+                        monster.mx, monster.my, state), state,
                     env,
                 );
             }
@@ -3071,8 +3071,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
             }
             if (useeit) {
                 await message(
-                    `${Monnam(monster, state, env)} is turned to stone!`,
-                    state,
+                    messageAt(`${Monnam(monster, state, env)} is turned to stone!`,
+                        monster.mx, monster.my, state), state,
                     env,
                 );
             }
@@ -3256,9 +3256,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
             : already ? 'quite '
                 : (!draw('rn2', 2) ? 'a bit ' : 'somewhat ');
         await message(
-            `${Monnam(monster, state, env)} looks ${adjective}`
-                + `${reactions[react]}.`,
-            state,
+            messageAt(`${Monnam(monster, state, env)} looks ${adjective}`
+                + `${reactions[react]}.`, monster.mx, monster.my, state), state,
             env,
         );
     }
