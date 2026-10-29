@@ -2120,6 +2120,10 @@ export async function doturn(state = game, env = {}) {
         return ECMD_OK;
     }
 
+    // C pray.c:2426-2428 records the first conduct break before the chant
+    // eligibility check, including a failed attempt to call on the deity.
+    if (!state.u.uconduct.gnostic)
+        livelog_printf(LL_CONDUCT, 'rejected atheism by turning undead', state);
     state.u.uconduct.gnostic++;
     const Gname = halu_gname(state.u.ualign.type, state);
     if (!can_chant(state.youmonst, state)) {

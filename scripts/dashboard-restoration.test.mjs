@@ -10,7 +10,10 @@ test('restored reporting identifies the gameplay baseline and separate historica
   const notice = reportingContextNotice(context);
   for (const key of ['baselineCommit', 'baselineSourceCommit', 'baselineTree', 'reportingSourceCommit'])
     assert.ok(notice.includes(context[key]));
-  assert.match(notice, /not repairs applied to this gameplay baseline/);
+  assert.match(notice, /not an applied-repair inventory/);
+  for (const source of context.reintroducedSources ?? []) assert.ok(notice.includes(source));
+  assert.throws(() => reportingContextNotice({...context, reintroducedSources:['<script>']}), /provenance/);
+  assert.match(reportingContextNotice({...context, reintroducedSources:[]}), /No post-baseline gameplay source changes are recorded/);
   assert.match(notice, /does not refresh/);
   assert.equal(reportingContextNotice(null), '');
   assert.throws(() => reportingContextNotice({...context, reportingSourceCommit:'<script>'}), /provenance/);
@@ -33,4 +36,14 @@ test('dashboard injection embeds self-contained models and the historical notice
   assert.match(output, /function renderWorkflow\(/);
   assert.doesNotMatch(output, /\/\*(?:WORKFLOW_[A-Z_]+)_PLACEHOLDER\*\//u);
   assert.doesNotMatch(output, /<!--REPORTING_CONTEXT_PLACEHOLDER-->/u);
+});
+
+test('applied-source notice matches only the local selected original patches', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../experiments/restoration/later-source-selection-20261029.json', import.meta.url), 'utf8'));
+  assert.deepEqual(context.reintroducedSources, manifest.includedSources);
+  assert.equal(new Set(context.reintroducedSources).size, context.reintroducedSources.length);
+  for (const decision of manifest.decisions) {
+    assert.equal(context.reintroducedSources.includes(decision.sha),
+      decision.status === 'selected-reconciliation', decision.sha);
+  }
 });

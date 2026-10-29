@@ -337,6 +337,36 @@ test('water_damage deletes an acid potion through pot_acid_damage and delobj',
         assert.deepEqual(draws, [100]);
     });
 
+test('washed-off grease exposes an acid potion to water; retained grease protects it',
+    async () => {
+        for (const washOff of [true, false]) {
+            await runSegment(STARTUP_INPUT);
+            const state = game;
+            const originalInventory = state.invent;
+            const obj = mksobj(POT_ACID, false, false, { state });
+            obj.greased = true;
+            obj.dknown = 1;
+            obj.invlet = 'z';
+            obj.where = OBJ_INVENT;
+            obj.nobj = state.invent;
+            state.invent = obj;
+            const draws = [];
+            const result = await water_damage(obj, null, true, {
+                state,
+                message: () => {},
+                random: { rn2: bound => {
+                    draws.push(bound);
+                    return washOff ? 0 : 1;
+                } },
+            });
+            assert.equal(result, washOff ? ER_DESTROYED : ER_GREASED);
+            assert.equal(obj.where, washOff ? OBJ_DELETED : OBJ_INVENT);
+            assert.equal(state.invent, washOff ? originalInventory : obj);
+            assert.equal(Boolean(obj.greased), !washOff);
+            assert.deepEqual(draws, washOff ? [2, 100] : [2]);
+        }
+    });
+
 test('a previously diluted potion becomes uncursed water', async () => {
     const state = { u: { uprops: [] }, gm: {} };
     const obj = {

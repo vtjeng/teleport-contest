@@ -497,11 +497,14 @@ export async function kick_monster(mon, x, y, state = game) {
 
     const i = -inv_weight(state);
     const j = weight_cap(state);
+    let bypassClumsiness = false;
     if (i < Math.trunc((j * 3) / 10)) {
         if (!rn2(i < Math.trunc(j / 10) ? 2
             : i < Math.trunc(j / 5) ? 3 : 4)) {
             if (martialKick) {
-                clumsy = false;
+                // dokick.c:238 jumps to `doit`, skipping both the Fumbling
+                // and bulky-armor clumsiness checks below.
+                bypassClumsiness = true;
             } else {
                 await ttyPline('Your clumsy kick does no damage.', state);
                 await passive(mon, state.uarmf, false, true, AT_KICK, false,
@@ -515,9 +518,11 @@ export async function kick_monster(mon, x, y, state = game) {
         }
     }
 
-    if (Fumbling(state)) clumsy = true;
-    else if (state.uarm && state.objects?.[state.uarm.otyp]?.oc_bulky
-             && acurr(state, A_DEX) < rnd(25)) clumsy = true;
+    if (!bypassClumsiness) {
+        if (Fumbling(state)) clumsy = true;
+        else if (state.uarm && state.objects?.[state.uarm.otyp]?.oc_bulky
+                 && acurr(state, A_DEX) < rnd(25)) clumsy = true;
+    }
 
     await ttyPline(`You kick ${mon_nam(mon, state)}.`, state);
     if (!rn2(clumsy ? 3 : 4) && (clumsy || !bigmonst(mon.data))

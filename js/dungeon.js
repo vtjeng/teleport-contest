@@ -75,11 +75,11 @@ import {
 import { SHTYPES } from './shtypes_data.js';
 // js/display.js imports update_lastseentyp() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
-import { see_nearby_objects } from './display.js';
+import { describe_level, see_nearby_objects } from './display.js';
 import { hliquid } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { switch_terrain } from './hack.js';
-import { mungspaces, strstri } from './hacklib.js';
+import { mungspaces, strstri, strsubst, trimspaces } from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
 import { cmap_to_type } from './mkroom.js';
 import { within_bounded_area } from './rect.js';
@@ -2224,8 +2224,8 @@ export function print_mapseen(
 
 // C ref: dungeon.c query_annotation() (2499-2567).
 // Asks the player to annotate a dungeon level. When lev is null, uses the
-// current level. The describe_level path (for annotating a different level)
-// is not exercised by any witness session and is not ported.
+// current level. The selected-level path temporarily assigns u.uz while
+// describing the level, then restores it before rewriting the prompt text.
 // EDIT_GETLIN is disabled in upstream config.h, so the #else branch applies.
 async function query_annotation(lev, state = game) {
     const mptr = find_mapseen(lev ?? state.u.uz, state);
@@ -2243,16 +2243,17 @@ async function query_annotation(lev, state = game) {
         );
     } else {
         // No existing annotation. The lev==null / on_level branch applies
-        // for the current level; the describe_level branch (different level)
-        // is not ported.
+        // for the current level; other selected levels use describe_level().
         let lbuf;
         if (!lev || on_level(state.u.uz, lev)) {
             lbuf = 'this dungeon level';
         } else {
-            // describe_level path -- out of scope for the current goal.
-            throw new Error(
-                'query_annotation: describe_level path is not ported',
-            );
+            const dflgs = lev.dnum === state.u.uz.dnum ? 0 : 2;
+            const saveUz = state.u.uz;
+            state.u.uz = { ...lev };
+            lbuf = describe_level(dflgs, state);
+            state.u.uz = saveUz;
+            lbuf = trimspaces(strsubst(lbuf, 'Dlvl:', 'level '));
         }
         nbuf = await getlin(
             `What do you want to call ${lbuf}?`, state,

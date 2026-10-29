@@ -226,6 +226,8 @@ import { digests } from './dothrow.js';
 import {
     dismissPendingTtyMessage,
     displayPendingTtyMessageWindow,
+    TOPLINE_EMPTY,
+    TOPLINE_NEED_MORE,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
@@ -1075,6 +1077,14 @@ export async function monster_detect(
     const message = env.message ?? ttyPline;
     const browse = env.browseMap ?? browse_map;
     const redisplay = env.mapRedisplay ?? map_redisplay;
+    const waitMap = env.waitMap ?? (async waitState => {
+        // C's tty_display_nhwindow(WIN_MAP, TRUE) promotes an occupied
+        // topline to --More--, then displays the message window.
+        if (waitState.nhDisplay
+            && waitState.nhDisplay.toplin !== TOPLINE_EMPTY)
+            waitState.nhDisplay.toplin = TOPLINE_NEED_MORE;
+        await displayPendingTtyMessageWindow(waitState);
+    });
 
     const swallowed = Boolean(state.u?.uswallow);
     await clearScreen();
@@ -1098,7 +1108,7 @@ export async function monster_detect(
     if (woken) await message('Monsters sense the presence of you.', state);
 
     if (otmp?.blessed && !unconstrained) {
-        note_unported('detect.c display_nhwindow');
+        await waitMap(state);
     } else {
         const detection = state.u.uprops[DETECT_MONSTERS] ??= {
             intrinsic: 0,

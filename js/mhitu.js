@@ -2253,9 +2253,11 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         prop(MAGICAL_BREATHING).intrinsic
             || prop(MAGICAL_BREATHING).extrinsic,
     );
-    const hallucinating = Boolean(
-        prop(HALLUC).intrinsic || prop(HALLUC).extrinsic,
-    );
+    // C's Hallucination macro reads the timed intrinsic only when effective
+    // hallucination resistance is absent.  A suppressed timeout must not
+    // select the hallucination-only acid-engulf message.
+    const hallucinating = Boolean(prop(HALLUC).intrinsic)
+        && !Boolean(prop(HALLUC_RES).intrinsic || prop(HALLUC_RES).extrinsic);
     const acidResistant = Boolean(
         prop(ACID_RES).intrinsic || prop(ACID_RES).extrinsic,
     );
@@ -3029,8 +3031,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 );
             } else {
                 await message(
-                    `${Monnam(monster, state, env)} gazes ineffectually.`,
-                    state,
+                    messageAt(`${Monnam(monster, state, env)} gazes ineffectually.`,
+                        monster.mx, monster.my, state), state,
                     env,
                 );
             }
@@ -3069,8 +3071,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
             }
             if (useeit) {
                 await message(
-                    `${Monnam(monster, state, env)} is turned to stone!`,
-                    state,
+                    messageAt(`${Monnam(monster, state, env)} is turned to stone!`,
+                        monster.mx, monster.my, state), state,
                     env,
                 );
             }
@@ -3150,8 +3152,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 monster.mspec_used = (monster.mspec_used ?? 0)
                     + stun + draw('rn2', 6);
                 await message(
-                    `${Monnam(monster, state, env)} stares piercingly at you!`,
-                    state,
+                    messageAt(`${Monnam(monster, state, env)} stares piercingly at you!`,
+                        monster.mx, monster.my, state), state,
                     env,
                 );
                 const property = state.u?.uprops?.[STUNNED];
@@ -3254,9 +3256,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
             : already ? 'quite '
                 : (!draw('rn2', 2) ? 'a bit ' : 'somewhat ');
         await message(
-            `${Monnam(monster, state, env)} looks ${adjective}`
-                + `${reactions[react]}.`,
-            state,
+            messageAt(`${Monnam(monster, state, env)} looks ${adjective}`
+                + `${reactions[react]}.`, monster.mx, monster.my, state), state,
             env,
         );
     }

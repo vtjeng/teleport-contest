@@ -1005,7 +1005,9 @@ async function gd_move_proceed(
     if (newspot && g_at(nx, ny, state)) {
         // Gold here (likely from mineralize()); pick it up now so the guard
         // doesn't later think the hero dropped it.
-        mpickgold(grd, gdEnv);
+        mpickgold(grd, { ...env, state });
+        if (canspotmon(grd, state))
+            await env.message(`${Monnam(grd, state)} picks up some gold.`, state, env);
     } else {
         newsym(grd.mx, grd.my);
     }

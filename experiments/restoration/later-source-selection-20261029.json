@@ -1,0 +1,3820 @@
+{
+  "version": 1,
+  "createdAt": "2026-10-29T17:52:25.865Z",
+  "base": "9d0de92cfd2a5fe3dadf1edf8f7e8ff84392f110",
+  "originalDraft": "d485894ba370b37e87a1b1967af3ad770728cb94",
+  "scope": "LOCAL preparation; no publication/full-gate acceptance.",
+  "includedSources": [
+    "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+    "31c06a1840696aa879ef4f13f64671231bb18459",
+    "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+    "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+    "d10c2ca001b6e37c226338c6327fe20140f67af4",
+    "24829e0c969d64aa54602a69e80e336866efef98",
+    "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+    "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+    "a417b8757506d80247d65920f56fbd80cfcb802e",
+    "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+    "362972c8776200aa1afa01b960c8d82b3f26839a",
+    "31ff0967e40690a429f0565faed1f15b18a378b8",
+    "9bedae28a45a79361b5511e550302631d19c93ad",
+    "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+    "462b798181c86d27e4b2664619c16287156784f0",
+    "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+    "ee16ba2d55e473c23a3b8622e38518fb07d6fa71",
+    "0d693cf362aab175af64b73f46e0613534ac510e",
+    "72899cc3a69cf4ec0e7d29f90b54768d5139850c",
+    "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+    "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+    "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+    "fb2b4c33aed28df36bda5d8cbeeab27894f3fd2b",
+    "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+    "3108052babe42b5b7cbd3b8656f34766a74e9314",
+    "e23c28201c58642fb5b13cd5638b5373c092cfef",
+    "81a9a34b0fc1dd692a1c594debf7a7938e5e013c",
+    "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+    "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+    "513507b6cb96460df2d20d5e42daff581265fd44",
+    "707255022097adb75759ec0e9d302e64cc8d6713",
+    "da903a3bb561b686986985d176e538fc0a211c1a",
+    "28887f127150a4e5499a41114fbea90692e991c1",
+    "fadaf1bd04e99606ac730a0a55170ba93a627157",
+    "3a541bf65a2625c705156e8cc221beed88fe94f9",
+    "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+    "f65996d10b662e3e26ce3f4cdf6e456d3576b07c",
+    "2df03d803ed259df4bc163393f65868d2700a7ec",
+    "180ab356a5256c920a3e035723ca72a1d4d84ee1",
+    "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "afc035b41e49d29bcd9e18fcc6befa63504f3233",
+    "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "91b65d284dcadcf324cb38573ec228a095db3d78",
+    "03885c5cff03d34970e3cf8fb02aa50f9fcafa3e",
+    "0328f0b4b1cce18fd8b10776f8a9e58324b1e976",
+    "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+    "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+    "5099d3bb2edb348fd076f3ebc39f28266465b700",
+    "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+    "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+    "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+    "9205e0859870d4c8967254334152b10742407260",
+    "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
+    "71421a2cc835750c412e88e3692b616434d5fd2b"
+  ],
+  "decisions": [
+    {
+      "sha": "4b227e84c703872a8553f369007f177d8bbc27f5",
+      "title": "Open source-matched version information choices",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "2cc0ebdb41195463974532e39a1e54dfd47e4a5e",
+      "title": "Port live message type option editor from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "940b4376659b8dad2f0d5630f485ef1bde7e8544",
+      "title": "Port live autopickup exception editor from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "625a7134f5ca64a3d4fd9c8cb31c571a5f74f6d2",
+      "title": "Port live status condition choice menu from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "04476af09075f3142326db6be3674ce1869dc0e7",
+      "title": "Port live pile limit option from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "ea75d53f11aa4cd514d3d635f4a0a15ce5d8f8fb",
+      "title": "Port live packorder option from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "639fd2aabb0da98853d10090041f2f91cafd1115",
+      "title": "Port live menu inversion option from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "8f0fc22d3e915cda17046348eae8a5f569100ee8",
+      "title": "Port live status line count option from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "3359f25e9f125241258212cc23a886c4f123843f",
+      "title": "Port live boulder symbol option from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "979586cf6cceb9bd47402f0fe673c637f791c48d",
+      "title": "Port live suppress alert option from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "ffb64f0ae9a782ec05106961c16431666df997b1",
+      "title": "Port live crash name option from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "5704dd908b33d54832d204cabf698456a91ca178",
+      "title": "Port live crash email option from C",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "ffa4671df2c32f5a8d10f657701960f673d1407b",
+      "title": "Show shared validation groups as distinct dashboard repairs",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "88dcf874fb64e9298b626c0cfe0a2c67444dd534",
+      "title": "Record published repair groups with receipt",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "9b76849dea47ad2b3cb2818a0772318bfac816bd",
+      "title": "Preserve repair receipt context and exact gate times",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+      "title": "Match live key-rebind feedback to C",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/bind-keys-live.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing binding, help, getdir and reqmenu contracts; retries rejoin the original getdir result path. Grid-bug refusal exits before domove. doset_simple exists in G; no omitted options algorithm is imported. Arrival/movement admission was dropped.",
+        "testPaths": [
+          "scripts/bind-keys-live.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "0833c1638473e40b5c32ba7b04d676652f9c3681",
+      "title": "Synchronize coordinate door overwrite with C mask",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-missing-window-correction-prerequisite",
+      "reason": "Door-mask/overwrite correction belongs to excluded 352dbfee shop-mask chain. No window implementation restored to satisfy it.",
+      "dependencies": [
+        "352dbfee403c177e71e00bf8abd042e2702f8a52"
+      ]
+    },
+    {
+      "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+      "title": "Interrupt occupations during timed egg hatching",
+      "paths": [
+        "js/allmain.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/allmain.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "8b345aa3bc4246da501cb32474da30edac179caa",
+      "title": "Cover flags-only shop door state after repair 246",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "d0af437ed909a8bb2e9a4a5c7c945937f12bab42",
+      "title": "Port live crash URL limit option",
+      "paths": [
+        "js/options.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/options.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "b07f50fb0f818c8ec3e86aa55966fc78dd55101b",
+      "title": "Release confused holders after moving away",
+      "paths": [
+        "js/monmove.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/monmove.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "31c06a1840696aa879ef4f13f64671231bb18459",
+      "title": "Retry direction prompt after help",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/getdir-help-retry.test.mjs",
+        "scripts/help-dir.test.mjs",
+        "scripts/ride-direction.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing binding, help, getdir and reqmenu contracts; retries rejoin the original getdir result path. Grid-bug refusal exits before domove. doset_simple exists in G; no omitted options algorithm is imported. Arrival/movement admission was dropped.",
+        "testPaths": [
+          "scripts/getdir-help-retry.test.mjs",
+          "scripts/help-dir.test.mjs",
+          "scripts/ride-direction.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+      "title": "Correct exact monster naming mask",
+      "paths": [
+        "js/const.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/do-name.test.mjs",
+        "scripts/exact-name-bump.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "EXACT_NAME is consumed by existing naming helpers; no new state representation.",
+        "testPaths": [
+          "scripts/do-name.test.mjs",
+          "scripts/exact-name-bump.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+      "title": "Describe selected earlier levels when annotating",
+      "paths": [
+        "js/dungeon.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/previous-level-annotation.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Synchronous describe_level; u.uz restored before input. No level transition.",
+        "testPaths": [
+          "scripts/previous-level-annotation.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "d10c2ca001b6e37c226338c6327fe20140f67af4",
+      "title": "Match finite POSIX repeated captures",
+      "paths": [
+        "js/posixregex.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/posixregex-repeated-greeting.test.mjs",
+        "scripts/startup-autopickup-exception.test.mjs",
+        "scripts/startup-msgtype.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Local finite endpoint rules; unsupported unbounded forms remain gated; no gameplay state.",
+        "testPaths": [
+          "scripts/posixregex-repeated-greeting.test.mjs",
+          "scripts/startup-autopickup-exception.test.mjs",
+          "scripts/startup-msgtype.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "c6453133a27510c5a393eb474d74359703628de6",
+      "title": "Honor C message flags in getpos descriptions",
+      "paths": [
+        "js/getpos.js",
+        "js/tty_message.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/getpos.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "bfb69a5cc3d4d7edc654d44e91e25ee5fbc6e8cd",
+      "title": "Refit status row as turn counter widens",
+      "paths": [
+        "js/display.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/display.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "a055456935507c605949174214825c4099fd9874",
+      "title": "Format engraving coordinates in configured modes",
+      "paths": [
+        "js/pager.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/pager.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "047103bd88541bea2cef67d5bc27a7fe73fd8f93",
+      "title": "Preserve status padding on time refresh",
+      "paths": [
+        "js/display.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/display.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+      "title": "Report discoveries when written items merge",
+      "paths": [
+        "js/write.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/write.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+      "title": "Implement fakewiz1 special level generation",
+      "paths": [
+        "js/fakewiz1_levels.js",
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+      "title": "Implement fakewiz2 special level generation",
+      "paths": [
+        "js/fakewiz2_level.js",
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "24829e0c969d64aa54602a69e80e336866efef98",
+      "title": "Dispatch options simple extended command",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/options-simple-extcmd.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing binding, help, getdir and reqmenu contracts; retries rejoin the original getdir result path. Grid-bug refusal exits before domove. doset_simple exists in G; no omitted options algorithm is imported. Arrival/movement admission was dropped.",
+        "testPaths": [
+          "scripts/options-simple-extcmd.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+      "title": "Dispatch named reqmenu command",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/reqmenu-named-cancel.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing binding, help, getdir and reqmenu contracts; retries rejoin the original getdir result path. Grid-bug refusal exits before domove. doset_simple exists in G; no omitted options algorithm is imported. Arrival/movement admission was dropped.",
+        "testPaths": [
+          "scripts/reqmenu-named-cancel.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+      "title": "Implement cure blindness spell effect",
+      "paths": [
+        "js/spell.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/cure-blindness-spell.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing healup/condition owners and yn_function/menu contracts; no new timer owner.",
+        "testPaths": [
+          "scripts/cure-blindness-spell.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "a417b8757506d80247d65920f56fbd80cfcb802e",
+      "title": "Match martial kick clumsiness bypass",
+      "paths": [
+        "js/dokick.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/kick-martial-burden-clumsiness.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Local martial-success bypass, unchanged weight/capacity formulas and later kick owner. Original ordinary target/control reused.",
+        "testPaths": [
+          "scripts/kick-martial-burden-clumsiness.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+      "title": "Describe secret corridor in lookaround",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/lookaround-scorr.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing binding, help, getdir and reqmenu contracts; retries rejoin the original getdir result path. Grid-bug refusal exits before domove. doset_simple exists in G; no omitted options algorithm is imported. Arrival/movement admission was dropped.",
+        "testPaths": [
+          "scripts/lookaround-scorr.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "0a858777abe969c404a84965138f99cf78ce9725",
+      "title": "Restore wizard remap arrival collision handling",
+      "paths": [
+        "js/cmd.js",
+        "js/do.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Arrival collision changes remap control flow; no standalone regression test in original patch. Omitted rather than infer broader movement admission independence.",
+      "dependencies": [],
+      "testPaths": [],
+      "testPatch": "no-test-path-in-source-commit"
+    },
+    {
+      "sha": "f1b5c013ff2d7a792a1a21af1ca449db85af97ee",
+      "title": "Keep stair-fall source test anchored to exported collision helper",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "362972c8776200aa1afa01b960c8d82b3f26839a",
+      "title": "Match quest leader post-thanks repeat chat",
+      "paths": [
+        "js/quest.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/quest-finish.test.mjs",
+        "scripts/quest-posthanks.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing pager keys and expulsion(false). Hostile leader strategy/movement is omitted.",
+        "testPaths": [
+          "scripts/quest-finish.test.mjs",
+          "scripts/quest-posthanks.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "8525496587556ca185d7004bde9a03bccb5421dd",
+      "title": "Record validated quest post-thanks receipt and next repair identities",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "31ff0967e40690a429f0565faed1f15b18a378b8",
+      "title": "Match repeated quest leader audience before assignment",
+      "paths": [
+        "js/quest.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/quest-posthanks.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing pager keys and expulsion(false). Hostile leader strategy/movement is omitted.",
+        "testPaths": [
+          "scripts/quest-posthanks.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "9bedae28a45a79361b5511e550302631d19c93ad",
+      "title": "Match quest leader encouragement after assignment",
+      "paths": [
+        "js/quest.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/quest-posthanks.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing pager keys and expulsion(false). Hostile leader strategy/movement is omitted.",
+        "testPaths": [
+          "scripts/quest-posthanks.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "a6787f3045d1023dba3ca8de9f374a7b4fcc5cad",
+      "title": "Record validated quest audience batch and next repair identity",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+      "title": "Continue hostile quest leader speech and movement",
+      "paths": [
+        "js/quest.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Hostile quest-leader strategy enables movement. Conservatively held with newly admitted mover paths rather than rely on the omitted dochug post-move guard.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/quest-posthanks.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+      "title": "Preserve sleeping holder release order after potion hit",
+      "paths": [
+        "js/potion.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/potion-sleep-holder.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Await existing slept_monst; preserve release/cooldown and following message order.",
+        "testPaths": [
+          "scripts/potion-sleep-holder.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "462b798181c86d27e4b2664619c16287156784f0",
+      "title": "Report a visible monster behind a closing drawbridge",
+      "paths": [
+        "js/dbridge.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/dbridge-entity.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing visibility/entity/death owners; extra feedback after existing second death attempt, no new movement admission.",
+        "testPaths": [
+          "scripts/dbridge-entity.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "7562c7fff53126b7e8c733947e8600331842f94e",
+      "title": "Add opt-in structural source audits and bounded differential plans",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+      "title": "Match traditional spell selection prompt and retries",
+      "paths": [
+        "js/spell.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/spell-traditional-selection.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing healup/condition owners and yn_function/menu contracts; no new timer owner.",
+        "testPaths": [
+          "scripts/spell-traditional-selection.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "f5dd54670288f3071f763cfa1e371097e5a256e2",
+      "title": "Record traditional spell selection C witnesses",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "4f99512cb875ca1c89448323c9341288cf7e7756",
+      "title": "Record traditional spell witness correction receipt",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "d5b4ccf871320b8a292636b7acfd4fcad0e74c8d",
+      "title": "Merge PR #2 structural diagnostics",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "325dd70469f91f4feedc42dadaccbd859016d8a3",
+      "title": "Match pet golem destruction farewell in monkilled",
+      "paths": [
+        "js/mon.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mon.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "ee16ba2d55e473c23a3b8622e38518fb07d6fa71",
+      "title": "Match cancelled wand engraving dust message",
+      "paths": [
+        "js/engrave.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/engrave-cancelled-wand.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Cancelled-wand message only; same following useup. Blind-marker write.js change is absent.",
+        "testPaths": [
+          "scripts/engrave-cancelled-wand.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "f719ff20d6818b452afddea028c84e3aa4e01e85",
+      "title": "Update pet golem test for completed C farewell",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "0d693cf362aab175af64b73f46e0613534ac510e",
+      "title": "Match visible hero portcullis feedback",
+      "paths": [
+        "js/dbridge.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/dbridge-visible-hero-portcullis.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing visibility/entity/death owners; extra feedback after existing second death attempt, no new movement admission.",
+        "testPaths": [
+          "scripts/dbridge-visible-hero-portcullis.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "cf8d38f4effcba3efd874c31b5e6fe6b52df1f5b",
+      "title": "Document focused source audit handoffs",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "72899cc3a69cf4ec0e7d29f90b54768d5139850c",
+      "title": "Handle vault guard pickup on a new corridor square",
+      "paths": [
+        "js/vault.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/vault-guard-newspot-gold.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Correct existing gold-pickup environment and feedback, no corridor algorithm change.",
+        "testPaths": [
+          "scripts/vault-guard-newspot-gold.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "a22105b4ee6a9e0182b3e118d97a0c817fee9632",
+      "title": "Record vault gold audit disposition",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "8ecbdaed3ed63833785e291489828d7b0d42f362",
+      "title": "Complete following shopkeeper speech and reminder turn",
+      "paths": [
+        "js/shk.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Following-shopkeeper speech changes pursuit state/RNG during movement. Conservatively omitted with the movement lifecycle family pending evidence for old dochug post-move death behavior.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/shk-move.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+      "title": "Admit selected harmful gas clouds during level generation",
+      "paths": [
+        "js/region.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/region.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing cloud/callback representation retains positive damage; in_mklev/runtime guards remain.",
+        "testPaths": [
+          "scripts/region.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+      "title": "Remove destination trap after sealed Quest expulsion",
+      "paths": [
+        "js/do.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/ball-fall.test.mjs",
+        "scripts/deferred-portal-removal.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing goto_level then deltrap; the window adds lava sinking, not trap deletion. Remap collision and Wizard construction are omitted.",
+        "testPaths": [
+          "scripts/ball-fall.test.mjs",
+          "scripts/deferred-portal-removal.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+      "title": "Match hallucinated drawbridge moat-fall message",
+      "paths": [
+        "js/dbridge.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/dbridge-hallu-fall.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing visibility/entity/death owners; extra feedback after existing second death attempt, no new movement admission.",
+        "testPaths": [
+          "scripts/dbridge-hallu-fall.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "fb2b4c33aed28df36bda5d8cbeeab27894f3fd2b",
+      "title": "Reject diagonal grid-bug movement commands",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/grid-bug-command-diagonal.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing binding, help, getdir and reqmenu contracts; retries rejoin the original getdir result path. Grid-bug refusal exits before domove. doset_simple exists in G; no omitted options algorithm is imported. Arrival/movement admission was dropped.",
+        "testPaths": [
+          "scripts/grid-bug-command-diagonal.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+      "title": "Show swallowed hero in engulfer inventory",
+      "paths": [
+        "js/invent.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/swallowed-hero-minventory.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing self_lookat/digests/glyph/menu and finally-owned temporary state. Financial report uses existing bookkeeping and shkname; window changes stock_room doors, not naming.",
+        "testPaths": [
+          "scripts/swallowed-hero-minventory.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "3108052babe42b5b7cbd3b8656f34766a74e9314",
+      "title": "Match current-shop financial report passes",
+      "paths": [
+        "js/invent.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/shop-financial-current-shop.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing self_lookat/digests/glyph/menu and finally-owned temporary state. Financial report uses existing bookkeeping and shkname; window changes stock_room doors, not naming.",
+        "testPaths": [
+          "scripts/shop-financial-current-shop.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "e23c28201c58642fb5b13cd5638b5373c092cfef",
+      "title": "Render wizard artifact dump in discovery window",
+      "paths": [
+        "js/artifacts.js",
+        "js/o_init.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/artifact-discovery-dump-window.test.mjs",
+        "scripts/o_init-discoveries.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Output callback joins existing dump to discovery window; no artifact/inventory state changes.",
+        "testPaths": [
+          "scripts/artifact-discovery-dump-window.test.mjs",
+          "scripts/o_init-discoveries.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "81a9a34b0fc1dd692a1c594debf7a7938e5e013c",
+      "title": "Complete lethal returning aklys death lifecycle",
+      "paths": [
+        "js/mthrowu.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/returning-aklys-lethal-cleanup.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing monkilled/make_stoned/inventory owners inside throw path; returning weapon skips its extra retreat draw. No migration/species-object delivery.",
+        "testPaths": [
+          "scripts/returning-aklys-lethal-cleanup.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "36eea64a217afee2e7d79cf1953382dcbc08908a",
+      "title": "Register three qualified parity candidates",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "7cdbbe313f166c28429d11024676bbbe4cdb0a49",
+      "title": "Use runtime Wizard construction for resurrection",
+      "paths": [
+        "js/do.js",
+        "js/makemon_create.js",
+        "js/wizard.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Runtime Wizard resurrection changes creation/goto lifecycle across multiple files. Omitted from this first bulk cut pending separate scoped lifecycle qualification; no investigation of held scopes.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/leaving-level-helpers.test.mjs",
+        "scripts/wizard-resurrection-runtime.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+      "title": "Explain control-key help for invalid trap directions",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/showtrap-help-control-key.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing binding, help, getdir and reqmenu contracts; retries rejoin the original getdir result path. Grid-bug refusal exits before domove. doset_simple exists in G; no omitted options algorithm is imported. Arrival/movement admission was dropped.",
+        "testPaths": [
+          "scripts/showtrap-help-control-key.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "55d005248dd22863a0499479769691504c8a263e",
+      "title": "Run demigod interventions during elapsed turns",
+      "paths": [
+        "js/allmain.js",
+        "js/unported_monster_actions.js",
+        "js/wizard.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/allmain.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "4256900f8cd74636b40a8b6773ae7e48d5590e05",
+      "title": "Deliver migrating species objects to monsters",
+      "paths": [
+        "js/dog.js",
+        "js/dokick.js",
+        "js/makemon_create.js"
+      ],
+      "status": "omitted-safety-exclusion",
+      "reason": "Explicit deliver_obj_to_mon/species-object scope exclusion; metadata only.",
+      "dependencies": []
+    },
+    {
+      "sha": "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f",
+      "title": "Show hallucination prelude on restored welcome",
+      "paths": [
+        "js/allmain.js",
+        "js/jsmain.js",
+        "js/role_init.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/allmain.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+      "title": "Match drawbridge crush feedback after monster lifesaving",
+      "paths": [
+        "js/dbridge.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/dbridge-lifesaved-crush.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing visibility/entity/death owners; extra feedback after existing second death attempt, no new movement admission.",
+        "testPaths": [
+          "scripts/dbridge-lifesaved-crush.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "513507b6cb96460df2d20d5e42daff581265fd44",
+      "title": "Match monster-thrown cockatrice egg stoning",
+      "paths": [
+        "js/mthrowu.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/mthrowu-egg-stoning.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing monkilled/make_stoned/inventory owners inside throw path; returning weapon skips its extra retreat draw. No migration/species-object delivery.",
+        "testPaths": [
+          "scripts/mthrowu-egg-stoning.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "707255022097adb75759ec0e9d302e64cc8d6713",
+      "title": "Wait for blessed monster detection map display",
+      "paths": [
+        "js/detect.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/detect.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing topline enums/displayPendingTtyMessageWindow. Monster-only scoped tests; object/buried investigation stays parked.",
+        "testPaths": [
+          "scripts/detect.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "69143e5ae57ae4191df2383eb3d385b8b490c64e",
+      "title": "Synchronize secret-door flags on terrain overwrite",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-missing-window-correction-prerequisite",
+      "reason": "Door-mask/overwrite correction belongs to excluded 352dbfee shop-mask chain. No window implementation restored to satisfy it.",
+      "dependencies": [
+        "352dbfee403c177e71e00bf8abd042e2702f8a52"
+      ]
+    },
+    {
+      "sha": "55ffbbde9ea50cb432f67ae132016603a9ffabb3",
+      "title": "Replan after a mounted hero is knocked from the saddle",
+      "paths": [
+        "js/uhitm.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Steed knockback changes planning/live state boundaries. Omitted pending separate focused lifecycle qualification; not assumed independent merely because patch applies.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/steed-knockback-planning.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "496af8bcab5ba54968fc8c418978645a1b9caff6",
+      "title": "Hand off planned pool knockback for live drowning",
+      "paths": [
+        "js/dothrow.js",
+        "js/uhitm.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Pool knockback planning depends on the omitted steed handoff and shared death/relocation path. Transitive omission; no new room or pool fixture executed.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/dungeon.test.mjs",
+        "scripts/knockback-pool-planning.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "da903a3bb561b686986985d176e538fc0a211c1a",
+      "title": "Match acid potion destruction after grease washes off",
+      "paths": [
+        "js/trap_water_damage.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/trap-water-damage.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing acid destruction, inventory flag and ER_DESTROYED. No Water-level/lava timer fixture.",
+        "testPaths": [
+          "scripts/trap-water-damage.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56",
+      "title": "Retry direction prompt after redraw key",
+      "paths": [
+        "js/cmd.js",
+        "js/display.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/display.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "80207a7ec029b4ca1c0b3a689f104bcbfe01f316",
+      "title": "Update direction redraw retry expectation",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "28887f127150a4e5499a41114fbea90692e991c1",
+      "title": "Handle converted hero quest banishment",
+      "paths": [
+        "js/quest.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/quest-leader-banishment.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing pager keys and expulsion(false). Hostile leader strategy/movement is omitted.",
+        "testPaths": [
+          "scripts/quest-leader-banishment.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "69191f258f678e934f44923121d36f493cc34b7d",
+      "title": "Handle objects on the starting square through pickup",
+      "paths": [
+        "js/pickup.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Starting-object pickup admission changes a shared state/preflight boundary; omitted pending scoped independent validation outside the blocked broad pickup regression.",
+      "dependencies": []
+    },
+    {
+      "sha": "4c80e6784d04d6a3c921e1d57e8fd136c7751834",
+      "title": "Complete shop theft pursuit after impact drop",
+      "paths": [
+        "js/dokick.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/dokick.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "4256900f8cd74636b40a8b6773ae7e48d5590e05"
+        }
+      ]
+    },
+    {
+      "sha": "da5864d5ac0f2116b2b0850789562aba6cb11fa2",
+      "title": "Match named repeat queue after declined save",
+      "paths": [
+        "js/cmd.js",
+        "js/save.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "0ceeca526b5b6a72cb963b7bd47aed186cf50b6b",
+      "title": "Honor fixed destinations for defensive monster teleport traps",
+      "paths": [
+        "js/muse.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Defensive fixed-trap teleport adds a previously bypassed movement/trap lifecycle. Conservatively held pending separate cross-loop validation on the old guard.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/muse-fixed-teleport-trap.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "c2522d435cf79e93cb685e10d5d566709422a5d4",
+      "title": "Unlink conjoined pits when removing a trap",
+      "paths": [
+        "js/trap.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/trap.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "50951eb38ccd6b350e5bc58375fb2121d749a907",
+      "title": "Admit occupied fixed teleport destinations",
+      "paths": [
+        "js/trap_effects.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Occupied fixed-teleport admission changes a shared movement preflight. Conservatively held with the teleport/mover family; no new window behavior imported to make it pass.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/cmd.test.mjs",
+        "scripts/hero-teleport-trap.test.mjs",
+        "scripts/seen-trap-admission.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "b1b9709b30d2302b2041227e21483901665096cb",
+      "title": "Generate procedural mazes below Medusa",
+      "paths": [
+        "js/mklev.js",
+        "js/mkmaze.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "55902742b2c99b74db943203d00eaad623eae938",
+      "title": "Include procedural maze in finalization structure test",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "771fe1e57fad14a9fcff27df3737b455a9c56aec",
+      "title": "Let hostile temple priests pursue visible heroes",
+      "paths": [
+        "js/priest.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Hostile priest pursuit admits a previously refused movement path. The shared dochug post-move gameover guard differs in the omitted window; independence is not established by ordinary target tests alone.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/priest-hostile-pursuit.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "a8a6c03dff391bd51e6d659aa1549fa693ecaef3",
+      "title": "Respect hero visibility in angry shopkeeper pursuit",
+      "paths": [
+        "js/shk.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Visibility correction extends the omitted pursuit family; transitive conservative hold, not proof of a direct 18-window dependency.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/shk-invisible-pursuit.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "8fbb4ebc5222a82658c2bd0602d78a9ac5963b9d",
+      "title": "Keep peaceful shopkeepers aimed at guard when hero unseen",
+      "paths": [
+        "js/shk.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Peaceful shopkeeper movement changes approach/avoid state. Conservatively held with pursuit until post-move lifecycle independence is separately established.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/shk-peaceful-invisible-movement.test.mjs"
+      ],
+      "testPatch": "applied-exact-original"
+    },
+    {
+      "sha": "d6f7c4055ea0b603a33be07e65cf3d11a2688909",
+      "title": "Track hole timing in shopkeeper pursuit",
+      "paths": [
+        "js/dig.js",
+        "js/shk.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/dig.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "73993230c21b739b6aa4a70f944672faaf40628c",
+      "title": "Match shopkeeper pickaxe check to doorway position",
+      "paths": [
+        "js/shk.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/shk.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "d6f7c4055ea0b603a33be07e65cf3d11a2688909"
+        }
+      ]
+    },
+    {
+      "sha": "ba1025331d6a2d9caaccf311076de1a140ea9ff7",
+      "title": "Add bounded Lua level-generation discovery adapter",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "7c19576291bbcfc1c5e466f2144fe54abfe16273",
+      "title": "Preserve exact-commit Lua discovery pilot evidence",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "2472925735cd5e6dabf3f5887b6a16f61bf2812b",
+      "title": "Preserve repeat disagreement and separate C-only Lua gate evidence",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "690f86fbb6d44488432c43566f5dcb31a6dd54cc",
+      "title": "Share recorder executable resolution with Lua provenance",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "1541ae9f2d424195802e777d1ebdc007911f75ed",
+      "title": "Retain reviewed Lua adapter exact-commit pilot",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "e17bf0d3b80ad4d8d2dba5203e35f23a88e19ad0",
+      "title": "Record accepted shopkeeper pickaxe receipt",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "06ab34ee3fc162a03dfaa24337543c8e3ac655f3",
+      "title": "Merge branch 'integration/lua-pr3-head' into integration-checkpoint/lua-hub-20261027",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "9dcab54a5122da68536e62bf11e48b1651cbb015",
+      "title": "Integrate Lua discovery into unified evidence hub",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "7d095e6a6cb0823beb8b624075ce0991e2b53922",
+      "title": "Read Lua program identity from adapter summary",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "6056fdcc3c23e9940ae8a453f80ffeb3a5822750",
+      "title": "Keep changed-form Wizard accessible across level changes",
+      "paths": [
+        "js/dog.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/dog.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "4256900f8cd74636b40a8b6773ae7e48d5590e05"
+        }
+      ]
+    },
+    {
+      "sha": "a5293dd49ca9d49af7105080315b466ab2beaded",
+      "title": "Replay vampire expulsion from planned upkeep live",
+      "paths": [
+        "js/allmain.js",
+        "js/mon.js",
+        "js/unported_monster_actions.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/allmain.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        },
+        {
+          "path": "js/mon.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        },
+        {
+          "path": "js/unported_monster_actions.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "55d005248dd22863a0499479769691504c8a263e"
+        }
+      ]
+    },
+    {
+      "sha": "fadaf1bd04e99606ac730a0a55170ba93a627157",
+      "title": "Support mimic monster appearances in special levels",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/themeroom-fill.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing name_to_mon/appearance storage, other shifters still refused. Original appearance test only; no des.room type/C-string follow-on.",
+        "testPaths": [
+          "scripts/themeroom-fill.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+      "title": "Support named special-level chameleon appearances",
+      "paths": [
+        "js/mon.js",
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mon.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "94fcc8aaa07e8ebeb1239b8387ef2a87fe944d03",
+      "title": "Ignore unsupported disguises for ordinary special-level monsters",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+      "title": "Select random special-level mimic appearances",
+      "paths": [
+        "js/mon.js",
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mon.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        },
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "2334ab188dce37c487e62933b30877b24673ffb5",
+      "title": "Select random special-level chameleon forms",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "d169996310d3a746394ec7cee4a4cc5421f9503a",
+      "title": "Apply named special-level vampire forms",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "1293bffbf416873f4fa5d86a73698f1124afbd04",
+      "title": "Accept Vlad special-level appearance descriptors",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "85f53c9b9d445be9ca95f4d81c6153226549f81d",
+      "title": "Select random special-level vampire forms",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+      "title": "Match random doppelganger special-level forms",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "90495956e5ee776d37c0f7f6258ca43a65351070",
+      "title": "Match random sandestin special-level forms",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "3a541bf65a2625c705156e8cc221beed88fe94f9",
+      "title": "Load Rogue quest filler b from its matching source",
+      "paths": [
+        "js/quest_levels.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/quest-levels.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Rog-filb aliases existing equivalent body. Signed-byte narrowing only before existing recursion, limited to pinned C profile.",
+        "testPaths": [
+          "scripts/quest-levels.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "4fed2f4a709129822aeb0d79aedeada47fd89d1e",
+      "title": "Add explicit anonymous public checkpoint reads",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "1e02b4c7f424cd88a2763bb55484d7cc9cda5bf9",
+      "title": "Preserve platform proxy and trust for anonymous checkpoint reads",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "775d1f38979f3ccb441953aecf33c8cac6894e43",
+      "title": "Use explicit public reads for publication receipts",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "9b0603607d8724d1bd5a4c441b7a45ad7940f0e2",
+      "title": "Verify complete public publication run pages",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+      "title": "Preserve returning aklys throw during retreat",
+      "paths": [
+        "js/mthrowu.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/mthrowu.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing monkilled/make_stoned/inventory owners inside throw path; returning weapon skips its extra retreat draw. No migration/species-object delivery.",
+        "testPaths": [
+          "scripts/mthrowu.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "f65996d10b662e3e26ce3f4cdf6e456d3576b07c",
+      "title": "Record first atheism break when turning undead",
+      "paths": [
+        "js/pray.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/pray.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "First-break conduct logging at existing increment; wizard repeat/input-state change omitted.",
+        "testPaths": [
+          "scripts/pray.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+      "title": "Let special movers break boulders",
+      "paths": [
+        "js/monmove.js",
+        "js/priest.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/monmove.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "0b9d6d4706f50ed24054d5bdb80c222e804e4890",
+      "title": "Filter source-proven inactive literal alternatives in discovery",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+      "title": "Complete deferred level change after delayed boot removal",
+      "paths": [
+        "js/allmain.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/allmain.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "cfb72d4699bfe6080b46f21894f929f35b68414f",
+      "title": "Merge explained-negative filters with current repair receipt",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "2df03d803ed259df4bc163393f65868d2700a7ec",
+      "title": "Weigh partly eaten food when stashing in containers",
+      "paths": [
+        "js/pickup.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/partly-eaten-container.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Only eaten_stat hook at existing container reweighting. Capacity/status/count/class/menu/admission changes omitted. Ordinary food controls, no glob fixture.",
+        "testPaths": [
+          "scripts/partly-eaten-container.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "180ab356a5256c920a3e035723ca72a1d4d84ee1",
+      "title": "Preserve literal natural-horn possessive for named monsters",
+      "paths": [
+        "js/muse.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/unicorn-natural-horn.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Literal natural-horn possessive only; teleport admission dropped.",
+        "testPaths": [
+          "scripts/unicorn-natural-horn.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "44def1e0d070baff028830a05e7da5b2125a2cec",
+      "title": "Dispatch repeated prayer through queued command row",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+      "title": "Recalculate deferred vision before text input prompts",
+      "paths": [
+        "js/getline.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/vrock-gas-call-prompt.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing synchronous vision_recalc before existing live flush/prompt; no display representation change.",
+        "testPaths": [
+          "scripts/vrock-gas-call-prompt.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "afc035b41e49d29bcd9e18fcc6befa63504f3233",
+      "title": "Preserve Lua real division in big room pillar filter",
+      "paths": [
+        "js/bigrm.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/bigrm13-division.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Local real division/ties/off-map STONE through existing selection storage; no frame refactor/room constructor.",
+        "testPaths": [
+          "scripts/bigrm13-division.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+      "title": "Parse count input through the full C long range",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "7c9049eff68c4c56990caca777930e836d12f93e",
+      "title": "Match vault guard occupation interruption with C runtime",
+      "paths": [
+        "js/allmain.js",
+        "js/vault.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/allmain.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+      "title": "Dispatch directly bound turn command like C",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "6ed3fc012a64f06c381fca5447c573c99516c91b",
+      "title": "Record scoped negatives and prior gameplay receipt",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "0eb7cbd5a13192b30358bbe2b39a33161169fb0a",
+      "title": "Bind armor, scroll and command negatives to frozen run",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "977d0ba2890f97d0ffd583a2e93f71803de2ce91",
+      "title": "Prepare separately bound PR12 negative decisions pending run",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "b3a61654b68f26ca8d03ce7da08e2d3c9495184e",
+      "title": "Verify PR12 decisions against preserved discovery run",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "50dce0470c0685e479dfdd2d1287582cdbd1edf5",
+      "title": "Deprioritize called macro helper correspondences without suppression",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "876415bbbb02ebd88d45ccf8afbee6647a0248a6",
+      "title": "Rank traced default-import delegations without suppressing warnings",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "ed13e29684199ce53efd0f8bd2a3de0258375986",
+      "title": "Filter missing-call warnings only when all occurrences are inactive",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "1a2d79047eb2e8882f31a836fb98b2de4a98aa40",
+      "title": "Batch scoped queued-negative decisions without new broad rules",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "6818a84ebd79c197556c34f289892a5b9a49535c",
+      "title": "Export and validate complete discovery run projections",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+      "title": "Register frozen review tests in the default suite",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "21d855ad91015a8a985f2f9036f05c3060d48cb2",
+      "title": "Match C extended-command menu group labels",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "1c4be74beb32edbfc897de805f218e180f8c6002",
+      "title": "Honor lit flag in table-form special-level maps",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "5d2da24962561c4e39cceaab1088da680e699bd4",
+      "title": "Create trapped-door mimics during level generation",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "4e235b3a65f6639110647ff395a41122caa42d08",
+      "title": "Extinguish artifact light when force-dropping a weapon",
+      "paths": [
+        "js/wield.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Artifact-light force drop changes async slot/timer ownership; original patch has no scripts regression. Omitted pending separately reconciled permitted evidence rather than infer old caller contract.",
+      "dependencies": [],
+      "testPaths": [],
+      "testPatch": "no-test-path-in-source-commit"
+    },
+    {
+      "sha": "6296b084841485d9a6968a580446dfd077aef0d0",
+      "title": "Weigh selected count before heavy-stack pickup admission",
+      "paths": [
+        "js/pickup.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Capacity selected-count admission; known opaque glob validation blocker. Excluded without rerun.",
+      "dependencies": []
+    },
+    {
+      "sha": "9165c047ac94be5130a7e6a4970633263d563a46",
+      "title": "Admit counted sighted look before command dispatch",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+      "title": "Keep evidence runners outside the default test discovery glob",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "0a7b384bc11c89f5848d9588fb9556054f68f965",
+      "title": "Reject misplaced committed tests during checkpoint preflight",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "ee0be2269c5ed274f6e9a57b93c33ed4bc41a379",
+      "title": "Ask fresh wizard force confirmation on prayer repeat",
+      "paths": [
+        "js/pray.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Wizard prayer-repeat change needs the repeat/input-dispatch contracts of omitted later work reconciled. No scripts regression in source patch; conservatively omitted.",
+      "dependencies": [],
+      "testPaths": [],
+      "testPatch": "no-test-path-in-source-commit"
+    },
+    {
+      "sha": "99a4de1ee181efd4959c7b078a06a5b8ca442344",
+      "title": "Skip redraw handling for queued directions",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "dbe1ebeb9bb03b12aeab364ab068326c7b91598d",
+      "title": "Retain travel mode after selecting the current square",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "title": "Dispatch queued map-symbol lookup by handler identity",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "49626a5673d361969361e57768c75e70dbab1104",
+      "title": "Compare long status highlight thresholds numerically",
+      "paths": [
+        "js/display.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/display.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "21271522df5e16d899498ab515c515eab0a2d753",
+      "title": "Treat explicit none map alignment as absent",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "79baae3a96ec8e17e528a24997f561eaf946a9a5",
+      "title": "Clear wall properties when map cells overwrite terrain",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "05cb34c25a489e162cd8fa8f55b96b9ddbbb7f00",
+      "title": "Record ice origin when special maps paint ice",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "51f5686fac30306411156df215ca83ae910cf6bf",
+      "title": "Avoid adding ice metadata to non-ice map cells",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+      "title": "Validate versioned evidence packages and preserve accepted receipts",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "82925e4fff73c4662dfd4c237acb497012a3ff4b",
+      "title": "Route queued user input through query menu",
+      "paths": [
+        "js/cmd.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+      "title": "Keep verbalized monster fear free of location prefix",
+      "paths": [
+        "js/monmove.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/monmove.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "title": "Keep qualified monster feedback location in accessible messages",
+      "paths": [
+        "js/mhitm.js",
+        "js/uhitm.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/fixtures/passive-cold-accessible/control.session.json",
+        "scripts/fixtures/passive-cold-accessible/target.session.json",
+        "scripts/mhitm-passive-cold-accessible.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing feedback wrapped with existing location formatter; same state/RNG order and accessibility-off controls.",
+        "testPaths": [
+          "scripts/fixtures/passive-cold-accessible/control.session.json",
+          "scripts/fixtures/passive-cold-accessible/target.session.json",
+          "scripts/mhitm-passive-cold-accessible.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "91b65d284dcadcf324cb38573ec228a095db3d78",
+      "title": "Honor effective hallucination resistance in acid engulf message",
+      "paths": [
+        "js/mhitu.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [],
+      "testPatch": "no-test-path-in-source-commit",
+      "dependencyReview": {
+        "reason": "Existing HALLUC/HALLUC_RES selects acid message; gaze formatting only. Acid recorded target/control strictly match; no damage/timing changes.",
+        "testPaths": [],
+        "manualReplay": "acid target/control recorded replay",
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "title": "Match C level message NUL truncation",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "03885c5cff03d34970e3cf8fb02aa50f9fcafa3e",
+      "title": "Preserve location in sleeping grabber release message",
+      "paths": [
+        "js/mhitm.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/mhitm-sleep-release-accessible.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing feedback wrapped with existing location formatter; same state/RNG order and accessibility-off controls.",
+        "testPaths": [
+          "scripts/mhitm-sleep-release-accessible.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "e4cb3d2854aaf4b0d0fa6a4fa74bc050a06cd6ad",
+      "title": "Use pre-movement species for monster weapon attack gate",
+      "paths": [
+        "js/monmove.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/monmove.js",
+          "kind": "excluded-window-owner",
+          "source": "G-to-B gameplay window; same-owner independence not established"
+        }
+      ]
+    },
+    {
+      "sha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+      "title": "Apply terrain follow-up writes to resulting map type",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "0328f0b4b1cce18fd8b10776f8a9e58324b1e976",
+      "title": "Match C line selection tie decisions",
+      "paths": [
+        "js/bigrm.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/bigrm-selection-line-ties.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Local real division/ties/off-map STONE through existing selection storage; no frame refactor/room constructor.",
+        "testPaths": [
+          "scripts/bigrm-selection-line-ties.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "title": "Match C off-map terrain in selection patterns",
+      "paths": [
+        "js/bigrm.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/bigrm-selection-match-boundary.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Local real division/ties/off-map STONE through existing selection storage; no frame refactor/room constructor.",
+        "testPaths": [
+          "scripts/bigrm-selection-match-boundary.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+      "title": "Overwrite intermediate doors during special-level mazewalk",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "8ed6edc9b9e0685980aeb1d19c8bd13bc8511736",
+      "title": "Show observed session workflow and bounded discovery outcomes [skip ci]",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "8de57954a8b5d6f7942c8091a302fd99cd892b72",
+      "title": "Clear wall properties during solid level fill",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+      "title": "Apply C string prefix to level engravings",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+      "title": "Normalize selection frames for composition and negation",
+      "paths": [
+        "js/nhlsel.js",
+        "js/themerooms.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themerooms.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "7371a6716078da59be08d04349aaabec901a0c80",
+      "title": "Record selection-frame publication receipt",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "title": "Integrate evidence-backed dashboard workflow view",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "3f78593df967bfca6e6679002a2cbcaf5c8e8233",
+      "title": "Match C string prefix for special map descriptors",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "92eaeeef7e756e67f4ae59c6a1d4d93080b54d77",
+      "title": "Reset map frame for singleton special-level row array",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "302533c8efd8850056bbdb44ec52f7b9e1542f62",
+      "title": "Refresh dashboard evidence from configured published sources [skip ci]",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "title": "Correct map evidence path in repair register",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "40f6b6f687492a60d204d684006f85d9ec385953",
+      "title": "Preserve accepted map batch receipt",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "5aaf57746ee3aed15a27320710d43d760ac1c62e",
+      "title": "Integrate published dashboard evidence refresh",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "403000cfdcf55bc76813c222a586b109576a02b3",
+      "title": "Record dashboard refresh source status",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd",
+      "title": "Refresh published dashboard evidence and handle shared repair bars",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "868e2465451b7f319f71dc5611cc66184a212457",
+      "title": "Match C map-character string prefixes in special-level APIs",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+      "title": "Retain shared wall flags on drawbridge door terrain",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "f1b91b9793db21b1cff6627604cc92df95be0ab6",
+      "title": "Match Lua option names through the C string prefix",
+      "paths": [
+        "js/nhlua.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/nhlua.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+      "title": "Complete monster missile catches through inventory handoff",
+      "paths": [
+        "js/mthrowu.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/mthrowu-catch.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing monkilled/make_stoned/inventory owners inside throw path; returning weapon skips its extra retreat draw. No migration/species-object delivery.",
+        "testPaths": [
+          "scripts/mthrowu-catch.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "5099d3bb2edb348fd076f3ebc39f28266465b700",
+      "title": "Narrow random-line roughness to the C signed-byte boundary",
+      "paths": [
+        "js/quest_levels.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/quest-levels.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Rog-filb aliases existing equivalent body. Signed-byte narrowing only before existing recursion, limited to pinned C profile.",
+        "testPaths": [
+          "scripts/quest-levels.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "a389ca309a1e45f3f47ea285591933a76f9c7290",
+      "title": "Deprioritize traced direct parameter defaults without suppressing leads",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+      "title": "Report measured default-parameter hint coverage accurately",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+      "title": "Restore hellish temperature after reset_level",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+      "title": "Clear ice provenance during solidfill flag reset",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "title": "Preserve monster name articles in spell fallback",
+      "paths": [
+        "js/mcastu.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/mcastu-default-name.test.mjs",
+        "scripts/mcastu.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing Monnam fallback; injected adapters retained, hallucination test owns display RNG. Ordinary gameplay exposure not inferred.",
+        "testPaths": [
+          "scripts/mcastu-default-name.test.mjs",
+          "scripts/mcastu.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+      "title": "Locate native fire-passive feedback for accessibility",
+      "paths": [
+        "js/mhitm.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/mhitm-passive-fire-accessible.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing feedback wrapped with existing location formatter; same state/RNG order and accessibility-off controls.",
+        "testPaths": [
+          "scripts/mhitm-passive-fire-accessible.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+      "title": "Locate remaining qualified elemental passive feedback",
+      "paths": [
+        "js/mhitm.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/mhitm-passive-elements-accessible.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing feedback wrapped with existing location formatter; same state/RNG order and accessibility-off controls.",
+        "testPaths": [
+          "scripts/mhitm-passive-elements-accessible.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "9205e0859870d4c8967254334152b10742407260",
+      "title": "Locate native stunning gaze announcements",
+      "paths": [
+        "js/mhitu.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/baalzebub-stun-accessible.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing HALLUC/HALLUC_RES selects acid message; gaze formatting only. Acid recorded target/control strictly match; no damage/timing changes.",
+        "testPaths": [
+          "scripts/baalzebub-stun-accessible.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "2579242c67804962299920a58e3052ab3718c187",
+      "title": "Store terrain lighting with C one-bit semantics",
+      "paths": [
+        "js/mkmaze.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mkmaze.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "b1b9709b30d2302b2041227e21483901665096cb"
+        }
+      ]
+    },
+    {
+      "sha": "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
+      "title": "Locate native displacement petrification feedback",
+      "paths": [
+        "js/mhitm.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/displacement-stone-accessible.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing feedback wrapped with existing location formatter; same state/RNG order and accessibility-off controls.",
+        "testPaths": [
+          "scripts/displacement-stone-accessible.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+      "title": "Copy level-region destination names as C strings",
+      "paths": [
+        "js/mklev.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        }
+      ]
+    },
+    {
+      "sha": "71421a2cc835750c412e88e3692b616434d5fd2b",
+      "title": "Locate qualified ineffective and reflected gaze feedback",
+      "paths": [
+        "js/mhitu.js"
+      ],
+      "status": "selected-reconciliation",
+      "reason": "Exact original JS diff applied without three-way fallback. Behavior and transitive runtime dependencies remain subject to validation.",
+      "dependencies": [],
+      "testPaths": [
+        "scripts/hallucinated-gaze-reaction-accessible.test.mjs",
+        "scripts/medusa-cancelled-accessible.test.mjs",
+        "scripts/medusa-reflected-accessible.test.mjs"
+      ],
+      "testPatch": "applied-exact-original",
+      "dependencyReview": {
+        "reason": "Existing HALLUC/HALLUC_RES selects acid message; gaze formatting only. Acid recorded target/control strictly match; no damage/timing changes.",
+        "testPaths": [
+          "scripts/hallucinated-gaze-reaction-accessible.test.mjs",
+          "scripts/medusa-cancelled-accessible.test.mjs",
+          "scripts/medusa-reflected-accessible.test.mjs"
+        ],
+        "manualReplay": null,
+        "scope": "Scoped local call/state review plus controls, not universal equivalence or hidden-score proof."
+      }
+    },
+    {
+      "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+      "title": "Copy optional Lua table strings through the C prefix boundary",
+      "paths": [
+        "js/mklev.js",
+        "js/nhlua.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/mklev.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "0833c1638473e40b5c32ba7b04d676652f9c3681"
+        },
+        {
+          "path": "js/nhlua.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "26e56ce08dd2794bde95d027d9747b9c8e1953f5",
+      "title": "Refresh status on silent encumbrance decreases",
+      "paths": [
+        "js/pickup.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Capacity status extension; known opaque glob validation blocker. Excluded without rerun.",
+      "dependencies": []
+    },
+    {
+      "sha": "ca33ba55222335c5ab644d9249d704c70f72ccdc",
+      "title": "Defer single floor gold rows to live carry-count admission",
+      "paths": [
+        "js/pickup.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Capacity gold-admission extension; conservatively excluded with blocked capacity family.",
+      "dependencies": []
+    },
+    {
+      "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+      "title": "Use C priced naming mode for container menu rows",
+      "paths": [
+        "js/pickup.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Capacity container naming extension; conservatively excluded with blocked capacity family.",
+      "dependencies": []
+    },
+    {
+      "sha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+      "title": "Preserve C one-bit storage in native monster descriptors",
+      "paths": [
+        "js/themeroom_fill.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/themeroom_fill.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "e54788a36ba58c80b94780d3f1226ccef9f9656e"
+        }
+      ]
+    },
+    {
+      "sha": "6437c374e03e9178167572e662f35eb1bc8dbaac",
+      "title": "Coerce optional string callback numbers at the Lua boundary",
+      "paths": [
+        "js/nhlua.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/nhlua.js",
+          "kind": "conservative-safety-shared-owner-hold",
+          "source": "Preserve stopped coordinate/buried/global-newsym/des.room scopes; not a claim every change in this owner is unsafe."
+        }
+      ]
+    },
+    {
+      "sha": "50c9eaf4505615cbb25f522f04199c6f7a89d8c8",
+      "title": "Check changed trial inputs and select focused dashboard preflight tests",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    },
+    {
+      "sha": "8ee8b29fc610c4f5008fbe3827d917c331463f02",
+      "title": "Echo traditional count entry at each TTY input boundary",
+      "paths": [
+        "js/topl.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Capacity traditional count echo; conservatively excluded with blocked capacity family.",
+      "dependencies": []
+    },
+    {
+      "sha": "355b5698c9c02f0ba0ba3f607c6f768fc592d121",
+      "title": "Restore source traditional class-query control flow",
+      "paths": [
+        "js/pickup.js"
+      ],
+      "status": "omitted-reconciliation",
+      "reason": "Capacity traditional query class extension; conservatively excluded with blocked capacity family.",
+      "dependencies": []
+    },
+    {
+      "sha": "1238115c1a1883abf1f4791b04223e5a34ae9316",
+      "title": "Share exact C long-count digit handling with full menus",
+      "paths": [
+        "js/cmd.js",
+        "js/hacklib.js",
+        "js/tty_menu.js"
+      ],
+      "status": "omitted-conservative-dependency-cut",
+      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+      "dependencies": [
+        {
+          "path": "js/cmd.js",
+          "kind": "conservative-transitive-version-lineage-hold",
+          "source": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56"
+        }
+      ]
+    },
+    {
+      "sha": "fa6ac3709a0acf413c83bd459c6772b16476343f",
+      "title": "Pin class-query retry test to the source outer prompt loop",
+      "paths": [],
+      "status": "deferred-non-gameplay",
+      "reason": "Infrastructure/test/history layer is separately audited; no scripts, records or receipts automatically replayed.",
+      "dependencies": []
+    }
+  ],
+  "helperProof": [
+    {
+      "path": "js/command_bindings.js",
+      "G": "48b823c259ce78103949467be66aef75692edf96",
+      "B": "48b823c259ce78103949467be66aef75692edf96",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/tty_message.js",
+      "G": "7248814b2da9e81c71e4a777290bcf1d0008da38",
+      "B": "7248814b2da9e81c71e4a777290bcf1d0008da38",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/pager.js",
+      "G": "da066f5ecad7c197527fa07065eb0ec3ccaa53ea",
+      "B": "da066f5ecad7c197527fa07065eb0ec3ccaa53ea",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/do_name.js",
+      "G": "6557f299efab4a165da3258626213d6b64986ada",
+      "B": "6557f299efab4a165da3258626213d6b64986ada",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/hacklib.js",
+      "G": "dbba8b8be55b6b21875167cb0cbb91ff4472b422",
+      "B": "dbba8b8be55b6b21875167cb0cbb91ff4472b422",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/mondata.js",
+      "G": "9a80f78f115199eb4e2bc3a8b3c2a82cbd88265e",
+      "B": "9a80f78f115199eb4e2bc3a8b3c2a82cbd88265e",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/vision.js",
+      "G": "58dd639518a93252b53ccdecfa88eb9730caa404",
+      "B": "58dd639518a93252b53ccdecfa88eb9730caa404",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/display.js",
+      "G": "eb1d89b7067eb54e16cead60136bef22ba63cfda",
+      "B": "eb1d89b7067eb54e16cead60136bef22ba63cfda",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/objnam.js",
+      "G": "cff691875b79c9f0328e954337567988ddb94d16",
+      "B": "cff691875b79c9f0328e954337567988ddb94d16",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/teleport.js",
+      "G": "54e47e5f2dc96525631b59bbd9209b15cbb13380",
+      "B": "54e47e5f2dc96525631b59bbd9209b15cbb13380",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/potion.js",
+      "G": "1a3f72e6ab080705b3ae580bb36c9c78f1c93f3f",
+      "B": "1a3f72e6ab080705b3ae580bb36c9c78f1c93f3f",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/questpgr.js",
+      "G": "39e1fefe6ab9f10b1386d0ee63f3c8de7aa82272",
+      "B": "39e1fefe6ab9f10b1386d0ee63f3c8de7aa82272",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/themerooms.js",
+      "G": "d5d65c14f423bd507c31da472e4fdc02227fdc39",
+      "B": "d5d65c14f423bd507c31da472e4fdc02227fdc39",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/mklev.js",
+      "G": "94d668e1cbed2ec47eeed3147be11be140ed1fa7",
+      "B": "94d668e1cbed2ec47eeed3147be11be140ed1fa7",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/mon.js",
+      "G": "26c7be6553626c0e83fcba27e84d67aa048f02bd",
+      "B": "26c7be6553626c0e83fcba27e84d67aa048f02bd",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/pline.js",
+      "G": "7f0594c4633b6873f4f74c0a029f263246d296ea",
+      "B": "7f0594c4633b6873f4f74c0a029f263246d296ea",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/eat.js",
+      "G": "af0ffb75a339b74902e33e90b00aba4da0b5db4a",
+      "B": "af0ffb75a339b74902e33e90b00aba4da0b5db4a",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/obj.js",
+      "G": "36a5635045a587442ca67e070d3306492abbceb6",
+      "B": "36a5635045a587442ca67e070d3306492abbceb6",
+      "unchangedAcrossWindow": true
+    },
+    {
+      "path": "js/trap.js",
+      "G": "38752876763ccd179d88b5342837396a94e9bd60",
+      "B": "e25ba8f95ba9a179228a981c73c94ca9bef5833f",
+      "unchangedAcrossWindow": false
+    },
+    {
+      "path": "js/shknam.js",
+      "G": "eb3fa149bd0cd3cc72ec99687eb629f44fa02d93",
+      "B": "464a71d7f79e2ae5ca9d09daf42a87b9c3129d6b",
+      "unchangedAcrossWindow": false
+    }
+  ],
+  "windowExcluded": [
+    "js/allmain.js",
+    "js/explode.js",
+    "js/hack.js",
+    "js/monmove.js",
+    "js/options.js",
+    "js/shknam.js",
+    "js/sounds.js",
+    "js/trap.js",
+    "js/write.js"
+  ],
+  "conservativeScopeHolds": [
+    "js/getpos.js",
+    "js/pager.js",
+    "js/display.js",
+    "js/dig.js",
+    "js/mon.js",
+    "js/themerooms.js",
+    "js/nhlua.js"
+  ],
+  "fixtureProvenance": {
+    "found": [
+      {
+        "path": "recordings/spell.c/trial-cure-blindness-curespell.session.json",
+        "ref": "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+        "size": 134565
+      },
+      {
+        "path": "recordings/dokick.c/trial-samurai-martial-bulky-kick-witness.session.json",
+        "ref": "a417b8757506d80247d65920f56fbd80cfcb802e",
+        "size": 126927
+      },
+      {
+        "path": "recordings/cmd.c/trial-options-simple-boundary-retry.session.json",
+        "ref": "24829e0c969d64aa54602a69e80e336866efef98",
+        "size": 110409
+      },
+      {
+        "path": "recordings/cmd.c/bind-existing-key-live.session.json",
+        "ref": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+        "size": 127203
+      },
+      {
+        "path": "recordings/cmd.c/bind-new-key-live.session.json",
+        "ref": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+        "size": 130004
+      },
+      {
+        "path": "recordings/cmd.c/unbind-key-live.session.json",
+        "ref": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+        "size": 114111
+      },
+      {
+        "path": "recordings/cmd.c/bind-key-menu-cancel.session.json",
+        "ref": "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+        "size": 130554
+      },
+      {
+        "path": "recordings/dbridge.c/portcullis-visible-monster.session.json",
+        "ref": "462b798181c86d27e4b2664619c16287156784f0",
+        "size": 1755670
+      },
+      {
+        "path": "recordings/dbridge.c/portcullis-empty-control.session.json",
+        "ref": "462b798181c86d27e4b2664619c16287156784f0",
+        "size": 770741
+      },
+      {
+        "path": "recordings/do_name.c/trial-exact-name-bump.session.json",
+        "ref": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+        "size": 129618
+      },
+      {
+        "path": "recordings/do_name.c/trial-exact-name-named-control.session.json",
+        "ref": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+        "size": 128392
+      },
+      {
+        "path": "recordings/do_name.c/trial-exact-name-unnamed-control.session.json",
+        "ref": "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+        "size": 123462
+      },
+      {
+        "path": "recordings/cmd.c/trial-getdir-help-retry.session.json",
+        "ref": "31c06a1840696aa879ef4f13f64671231bb18459",
+        "size": 110350
+      },
+      {
+        "path": "recordings/cmd.c/trial-getdir-help-control.session.json",
+        "ref": "31c06a1840696aa879ef4f13f64671231bb18459",
+        "size": 109659
+      },
+      {
+        "path": "recordings/cmd.c/trial-getdir-invalid-control.session.json",
+        "ref": "31c06a1840696aa879ef4f13f64671231bb18459",
+        "size": 109258
+      },
+      {
+        "path": "recordings/cmd.c/trial-lookaround-scorr-witness.session.json",
+        "ref": "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+        "size": 120426
+      },
+      {
+        "path": "recordings/cmd.c/trial-lookaround-room-control.session.json",
+        "ref": "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+        "size": 109643
+      },
+      {
+        "path": "recordings/pickup.c/whole-food-container.session.json",
+        "ref": "2df03d803ed259df4bc163393f65868d2700a7ec",
+        "size": 140227
+      },
+      {
+        "path": "recordings/pickup.c/partly-eaten-container.session.json",
+        "ref": "2df03d803ed259df4bc163393f65868d2700a7ec",
+        "size": 146109
+      },
+      {
+        "path": "recordings/posixregex.c/trial-repeated-greeting.session.json",
+        "ref": "d10c2ca001b6e37c226338c6327fe20140f67af4",
+        "size": 110202
+      },
+      {
+        "path": "recordings/posixregex.c/trial-simple-greeting-control.session.json",
+        "ref": "d10c2ca001b6e37c226338c6327fe20140f67af4",
+        "size": 110195
+      },
+      {
+        "path": "recordings/posixregex.c/trial-greeting-unfiltered-control.session.json",
+        "ref": "d10c2ca001b6e37c226338c6327fe20140f67af4",
+        "size": 110239
+      },
+      {
+        "path": "recordings/potion.c/sleeping-holder-potion-release.session.json",
+        "ref": "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+        "size": 180357
+      },
+      {
+        "path": "recordings/potion.c/sleeping-potion-no-holder-control.session.json",
+        "ref": "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+        "size": 173129
+      },
+      {
+        "path": "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+        "ref": "HEAD",
+        "size": 386069
+      },
+      {
+        "path": "recordings/pray.c/offer-real-amulet-moloch-continuation.session.json",
+        "ref": "HEAD",
+        "size": 391361
+      },
+      {
+        "path": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+        "ref": "HEAD",
+        "size": 141359
+      },
+      {
+        "path": "recordings/dungeon.c/trial-previous-level-annotation.session.json",
+        "ref": "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+        "size": 204760
+      },
+      {
+        "path": "recordings/dungeon.c/trial-current-level-annotation-control.session.json",
+        "ref": "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+        "size": 204771
+      },
+      {
+        "path": "recordings/dungeon.c/trial-first-level-annotation-control.session.json",
+        "ref": "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+        "size": 122821
+      },
+      {
+        "path": "recordings/quest.c/leader-posthanks-repeat.session.json",
+        "ref": "362972c8776200aa1afa01b960c8d82b3f26839a",
+        "size": 207540
+      },
+      {
+        "path": "recordings/quest.c/finish-quest-chat-wizard-neferet-cfirst-20261011.session.json",
+        "ref": "HEAD",
+        "size": 189976
+      },
+      {
+        "path": "recordings/quest.c/leader-next-repeat.session.json",
+        "ref": "31ff0967e40690a429f0565faed1f15b18a378b8",
+        "size": 151898
+      },
+      {
+        "path": "recordings/quest.c/leader-next-first-audience-control.session.json",
+        "ref": "31ff0967e40690a429f0565faed1f15b18a378b8",
+        "size": 149888
+      },
+      {
+        "path": "recordings/quest.c/leader-encourage-repeat.session.json",
+        "ref": "9bedae28a45a79361b5511e550302631d19c93ad",
+        "size": 279075
+      },
+      {
+        "path": "recordings/quest.c/leader-encourage-first-assignment-control.session.json",
+        "ref": "9bedae28a45a79361b5511e550302631d19c93ad",
+        "size": 265854
+      },
+      {
+        "path": "recordings/quest.c/leader-angry-final-speech.session.json",
+        "ref": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+        "size": 296877,
+        "candidateIncluded": false,
+        "reason": "Only needed for omitted hostile-leader test; retained locally outside payload."
+      },
+      {
+        "path": "recordings/quest.c/leader-angry-before-turn-control.session.json",
+        "ref": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+        "size": 263398,
+        "candidateIncluded": false,
+        "reason": "Only needed for omitted hostile-leader test; retained locally outside payload."
+      },
+      {
+        "path": "recordings/cmd.c/trial-reqmenu-named-cancel.session.json",
+        "ref": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+        "size": 114365
+      },
+      {
+        "path": "recordings/cmd.c/trial-reqmenu-key-control.session.json",
+        "ref": "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+        "size": 106519
+      },
+      {
+        "path": "recordings/trap.c/seen-trap-admission-rust.session.json",
+        "ref": "HEAD",
+        "size": 151945
+      },
+      {
+        "path": "recordings/trap.c/seen-trap-admission-dart-hallu.session.json",
+        "ref": "HEAD",
+        "size": 168566
+      },
+      {
+        "path": "recordings/trap.c/seen-trap-admission-before-control.session.json",
+        "ref": "HEAD",
+        "size": 147721
+      },
+      {
+        "path": "recordings/trap.c/seen-trap-admission-ordinary-control.session.json",
+        "ref": "HEAD",
+        "size": 84787
+      },
+      {
+        "path": "recordings/getline.c/vrock-gas-more-control.session.json",
+        "ref": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+        "size": 124750
+      },
+      {
+        "path": "recordings/getline.c/vrock-gas-call-prompt.session.json",
+        "ref": "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+        "size": 126180
+      },
+      {
+        "path": "recordings/spell.c/trial-cure-sickness-curespell-control.session.json",
+        "ref": "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+        "size": 123846
+      },
+      {
+        "path": "recordings/dokick.c/trial-samurai-kick-low-weight-control.session.json",
+        "ref": "a417b8757506d80247d65920f56fbd80cfcb802e",
+        "size": 121456
+      },
+      {
+        "path": "recordings/cmd.c/trial-options-simple-control-retry.session.json",
+        "ref": "24829e0c969d64aa54602a69e80e336866efef98",
+        "size": 101598
+      },
+      {
+        "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/replay.mjs",
+        "ref": "91b65d284dcadcf324cb38573ec228a095db3d78",
+        "size": 988
+      },
+      {
+        "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/target.session.json.gz",
+        "ref": "91b65d284dcadcf324cb38573ec228a095db3d78",
+        "size": 11416
+      },
+      {
+        "path": "diagnostics/divergence-evidence/monsters/engulf-hallucination-resistance/control.session.json.gz",
+        "ref": "91b65d284dcadcf324cb38573ec228a095db3d78",
+        "size": 11157
+      }
+    ],
+    "missing": [],
+    "totalBytes": 9962391
+  },
+  "limitations": [
+    "Helper equality across G/B supports but does not alone prove independence; per-source call/state review and controls accompany it.",
+    "Conservative omissions are distinct from proven prerequisites; omitted behavior is not silently reintroduced.",
+    "Capacity opaque-glob blocker excluded; no rerun or diagnosis.",
+    "18-window diagnostic bundle unreceived/unapplied.",
+    "No full default suite, synthetic98 evaluation, hosted gates or judge result."
+  ],
+  "preservedReceiptFiles": 101
+}

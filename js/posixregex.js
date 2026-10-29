@@ -489,6 +489,7 @@ function parseAsciiExtendedRegexp(pattern) {
         let groups = new Set();
         let containsRepeat = node.type === 'repeat';
         let hasDuplicatedReferencedCapture = false;
+        let duplicatesReferencedCapture = false;
         let dependsOnMatchStart = node.type === 'anchor'
             && node.edge === 'start' && !node.absolute;
         let referenceIndependent = node.type !== 'reference'
@@ -515,16 +516,18 @@ function parseAsciiExtendedRegexp(pattern) {
         node.containsRepeat = containsRepeat;
         // glibc regcomp.c parse_dup_op() reuses one OPEN/CLOSE occurrence for
         // `*`, `?`, {0}, {1}, {0,1}, and {0,}. Every other repeat with a
-        // maximum above one duplicates the subtree. If that subtree owns a
-        // capture consumed by a backreference, matching needs the compiled
-        // occurrence provenance tracked by the named boundary below.
+        // maximum above one duplicates the subtree. The reference-aware
+        // matcher models finite duplicate endpoints; this marker lets the
+        // compiler gate unbounded cases on the endpoint rules it has pinned.
         const duplicatesSubtree = node.type === 'repeat' && node.maximum > 1
             && (node.minimum > 0 || Number.isFinite(node.maximum));
         if (duplicatesSubtree
             && [...groups].some((id) => referencedGroups.has(id))) {
             hasDuplicatedReferencedCapture = true;
+            duplicatesReferencedCapture = true;
         }
         node.hasDuplicatedReferencedCapture = hasDuplicatedReferencedCapture;
+        node.duplicatesReferencedCapture = duplicatesReferencedCapture;
         node.dependsOnMatchStart = dependsOnMatchStart;
         node.referenceIndependent = referenceIndependent;
         if (node.type === 'literal') node.alwaysZeroWidth = node.value === '';
@@ -733,12 +736,6 @@ function evaluateDirectNode(node, input, position, matchStart, memo) {
 }
 
 function selectsFirstNestedCaptureEndpoint(node, evaluator) {
-    // regex_compile() excludes repeats for which glibc duplicates a captured
-    // subtree later consumed by a backreference. The machinery below remains
-    // reachable for `*`, `?`, their single-occurrence brace equivalents,
-    // unrelated finite repeats inside a reference-aware ERE, and unbounded
-    // repeats whose subtree owns no referenced capture. Its capture-selection
-    // comments do not claim the deferred duplicated-occurrence provenance.
     // glibc regexec.c get_subexp() keeps the first viable endpoint for a
     // positive-minimum unbounded repetition of a referenced group whose
     // nonempty body is itself quantified. A zero-minimum outer repetition
@@ -748,6 +745,22 @@ function selectsFirstNestedCaptureEndpoint(node, evaluator) {
         && evaluator.referencedGroups.has(node.child.id)
         && node.child.child.containsRepeat
         && node.child.minimumWidth > 0;
+}
+
+function hasUnsupportedDuplicatedCaptureRepeat(node, evaluator) {
+    // The evaluator tracks finite repeat endpoints, the source-pinned
+    // first-endpoint rule for a directly referenced repeated group, and
+    // zero-width fixed points. Keep other unbounded duplicate-capture shapes
+    // explicitly refused rather than returning an unverified match result.
+    if (node.type === 'repeat' && node.duplicatesReferencedCapture
+        && !Number.isFinite(node.maximum)
+        && !selectsFirstNestedCaptureEndpoint(node, evaluator)
+        && !node.child.alwaysZeroWidth) return true;
+    const children = node.type === 'sequence' || node.type === 'alternative'
+        ? node.nodes : node.child ? [node.child] : [];
+    return children.some((child) => (
+        hasUnsupportedDuplicatedCaptureRepeat(child, evaluator)
+    ));
 }
 
 function isIntermediateFiniteEndpoint(node, count) {
@@ -1180,7 +1193,10 @@ export function regex_compile(pattern, regex) {
         regex.evaluator = parseAsciiExtendedRegexp(text);
         if (!regex.evaluator.referencedGroups.size) {
             regex.kind = 'direct';
-        } else if (regex.evaluator.hasDuplicatedReferencedCapture) {
+        } else if (regex.evaluator.hasDuplicatedReferencedCapture
+            && hasUnsupportedDuplicatedCaptureRepeat(
+                regex.evaluator.root, regex.evaluator,
+            )) {
             regex.kind = 'duplicated-capture-boundary';
         } else {
             regex.kind = 'reference-aware';

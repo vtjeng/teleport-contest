@@ -92,7 +92,7 @@ import { canseemon, canspotmon } from '../js/display.js';
 import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
-import { dmgval, setmnotwielded } from '../js/weapon.js';
+import { dmgval, select_rwep, setmnotwielded } from '../js/weapon.js';
 
 const MTHROWU_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/mthrowu.c', import.meta.url),
@@ -2140,6 +2140,50 @@ test('thrwmu retreat rn2 uses monster-to-target distance, not hero-to-monster',
         });
         // 8 - distmin(ux+5, y, ux+2, y) = 8 - 3 = 5
         assert.equal(rn2Bound, 5, 'rn2 argument is BOLT_LIM minus monster-to-target distance');
+    });
+
+test('thrwmu always tosses an unwelded returning aklys while hero retreats',
+    async () => {
+        // C mthrowu.c:1243-1259 sets always_toss for an unwelded returning
+        // weapon and skips the retreat rn2 before monshoot(). A dagger in
+        // the same position must still take that roll and decline the throw.
+        for (const [otyp, returning] of [[AKLYS, true], [ORCISH_DAGGER, false]]) {
+            const state = await hero();
+            const y = state.u.uy;
+            const subject = attacker(state, state.u.ux + 3, y,
+                state.u.ux, y, state.mons[PM_URUK_HAI]);
+            const weapon = mksobj(otyp, false, false, { state });
+            weapon.cursed = false;
+            weapon.quan = 1;
+            add_to_minv(subject, weapon, { state });
+            subject.mw = weapon;
+            weapon.owornmask = W_WEP;
+            subject.weapon_check = NO_WEAPON_WANTED;
+            clearRow(state, state.u.ux, subject.mx, y);
+            setCouldSee(state, subject.mx, y, true);
+            state.u.ux0 = state.u.ux + 1;
+            state.u.uy0 = y;
+            assert.equal(select_rwep(subject, { state }), weapon);
+            assert.equal(lined_up(subject, { state, random: { rn2: () => 0 } }), true);
+
+            const flight = new Error('reached missile flight');
+            const draws = [];
+            const operation = thrwmu(subject, {
+                state,
+                random: { rn2(bound) { draws.push(bound); return 1; } },
+                canSeeMonster: () => false,
+                endMulti: () => {},
+                throwMissile: () => { throw flight; },
+                message: () => {},
+            });
+            if (returning) {
+                await assert.rejects(operation, error => error === flight);
+                assert.deepEqual(draws, []);
+            } else {
+                assert.equal(await operation, 0);
+                assert.deepEqual(draws, [5]);
+            }
+        }
     });
 
 test('lined_up aims at the believed hero square, not the real one',

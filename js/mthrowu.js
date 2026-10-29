@@ -107,7 +107,7 @@ import {
     breaks,
     hero_breaks,
 } from './dothrow.js';
-import { m_carrying, mondied, seemimic, setmangry, wake_nearto, xkilled } from './mon.js';
+import { m_carrying, monkilled, mondied, seemimic, setmangry, wake_nearto, xkilled } from './mon.js';
 import { m_at } from './monst.js';
 import { minstapetrify } from './trap.js';
 import { down_gate, ship_object } from './dokick.js';
@@ -145,6 +145,7 @@ import {
     AD_ACID,
     AD_BLND,
     AD_DRST,
+    AD_PHYS,
     AD_SLEE,
     AT_SPIT,
     AT_WEAP,
@@ -231,6 +232,7 @@ import {
     mshot_xname,
     obj_is_pname,
     singular,
+    simpleonames,
     the,
     The,
     otense,
@@ -255,7 +257,7 @@ import { mwelded } from './wield.js';
 import { dobuzz, exclam, hit, miss } from './zap.js';
 import { harmless_missile } from './dothrow.js';
 import { observe_object, discover_object } from './o_init.js';
-import { make_blinded, potionhit } from './potion.js';
+import { make_blinded, make_stoned, potionhit } from './potion.js';
 import { munstone } from './muse.js';
 import { dropy, flooreffects } from './do.js';
 import { makeplural } from './fruit.js';
@@ -515,7 +517,7 @@ function maybeHalfPhysical(damage, state) {
 // C ref: mthrowu.c u_catch_thrown_obj() (531-549), through the failed-catch
 // result selected by an ordinary monster missile. A successful catch hands the
 // object to hold_another_object(), which remains a named boundary.
-function u_catch_thrown_obj(obj, env) {
+async function u_catch_thrown_obj(obj, env) {
     const { state, random } = env;
     const role = state.urole?.mnum;
     const catchChance = 100 - acurr(state, A_DEX)
@@ -529,7 +531,22 @@ function u_catch_thrown_obj(obj, env) {
         && freehand(state)
         && calc_capacity(obj.owt, state) <= SLT_ENCUMBER
         && random.rn2(catchChance) === 0) {
-        return refuseRanged(env, 'successful monster missile catch');
+        const name = simpleonames(obj, state);
+        // pickup.c owns encumber_msg; load it at the live handoff to avoid
+        // introducing a static inventory/pickup/throw import cycle.
+        const { encumber_msg } = await import('./pickup.js');
+        await hold_another_object(obj, 'You catch, but drop, the %s.',
+            name, `You catch the ${name}!`, {
+                ...env,
+                hooks: {
+                    ...env.hooks,
+                    message: env.message ?? ttyPline,
+                    encumberMessage: env.hooks?.encumberMessage
+                        ?? env.encumberMessage
+                        ?? (subject => encumber_msg(subject, { message: env.message ?? ttyPline })),
+                },
+            });
+        return true;
     }
     return false;
 }
@@ -1012,7 +1029,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 && await ucatchgem(singleobj, monster, env)) {
                 break;
             }
-            if (!tethered_weapon && u_catch_thrown_obj(singleobj, env)) {
+            if (!tethered_weapon && await u_catch_thrown_obj(singleobj, env)) {
                 break;
             }
             if (singleobj.oclass === POTION_CLASS) {
@@ -1040,7 +1057,8 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 note_unported('mthrowu.c impossible');
                 hitv = 0;
                 damage = 0;
-            } else if (singleobj.otyp === CREAM_PIE
+            } else if (singleobj.otyp === EGG
+                       || singleobj.otyp === CREAM_PIE
                        || singleobj.otyp === BLINDING_VENOM) {
                 // C ref: mthrowu.c:701-702. Spit venom uses thitu(8, 0)
                 // and cream pies use the same special hit path, skipping
@@ -1149,9 +1167,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     && !Stone_resistance(state)
                     && !(poly_when_stoned(state.youmonst.data, state)
                          && await polymon(PM_STONE_GOLEM, state))) {
-                    // make_stoned() has no owner in the current port. Keep the
-                    // source branch explicit while preserving its no-RNG path.
-                    note_unported('trap.c make_stoned');
+                    await make_stoned(5, null, KILLED_BY, '', state);
                 }
             }
             await stopOccupation(state, env);
@@ -1393,7 +1409,8 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                 note_unported('artifact.c artifact_hit');
             magr.mhp -= dmg;
             if (magr.mhp < 1) /* DEADMONSTER */
-                note_unported('mon.c monkilled');
+                await monkilled(magr, canspotmon(magr, state) ? '' : null,
+                    AD_PHYS, state, { ...env, message: env.message ?? ttyPline });
         }
         if (notcaught) {
             await snuff_candle(otmp, env);
@@ -1877,7 +1894,8 @@ export async function thrwmu(monster, rawEnv = {}) {
         monster.mux,
         monster.muy,
     );
-    if (currentDistance > previousDistance
+    // C skips the retreat hesitation for an unwelded returning weapon.
+    if (currentDistance > previousDistance && !always_toss
         && env.random.rn2(BOLT_LIM - targetDistance)) {
         return 0;
     }

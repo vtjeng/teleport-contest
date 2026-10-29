@@ -170,7 +170,10 @@ function selection_do_randline(x1, y1, x2, y2, rough, rec, sel) {
 // two points with given roughness. Recursion depth fixed at 12.
 export function selection_randline(x1, y1, x2, y2, roughness) {
     const sel = new ThemeroomSelection();
-    selection_do_randline(x1, y1, x2, y2, roughness, 12, sel);
+    // nhlsel.c accepts an int, but selvar.c takes a signed schar argument.
+    // The pinned Clang recorder narrows that argument to eight bits here.
+    const cRoughness = new Int8Array([roughness])[0];
+    selection_do_randline(x1, y1, x2, y2, cRoughness, 12, sel);
     return sel;
 }
 
@@ -3464,6 +3467,8 @@ export const QUEST_LEVEL_LOADERS = {
     'Kni-fila': kniFila,
     'Sam-fila': samFila,
     'Rog-fila': rogFila,
+    // dat/Rog-filb.lua has the same executable body as Rog-fila.lua.
+    'Rog-filb': rogFila,
     'Kni-loca': kniLoca,
     'Kni-filb': kniFilb,
     'Ran-loca': ranLoca,

@@ -40,7 +40,12 @@ export function reportingContextNotice(context) {
       || !['baselineCommit', 'baselineSourceCommit', 'baselineTree', 'reportingSourceCommit']
         .every(key => /^[a-f0-9]{40}$/u.test(context[key] ?? '')))
     throw new Error('Invalid dashboard restoration provenance');
-  return `<p class="compact-note" id="reportingContext">Gameplay baseline: ${context.baselineSourceCommit} (tree ${context.baselineTree}), restored by ${context.baselineCommit}. Historical reporting snapshot: ${context.reportingSourceCommit}. Later repair outcomes are historical evidence, not repairs applied to this gameplay baseline. Ordinary writers are held; this evidence snapshot does not refresh.</p>`;
+  const sources = context.reintroducedSources ?? [];
+  if (!Array.isArray(sources) || !sources.every(value => typeof value === 'string' && /^[a-f0-9]{40}$/u.test(value)))
+    throw new Error('Invalid reintroduced source provenance');
+  const applied = sources.length ? `Explicitly reintroduced source changes: ${sources.join(', ')}.`
+    : 'No post-baseline gameplay source changes are recorded in this reporting context.';
+  return `<p class="compact-note" id="reportingContext">Gameplay baseline: ${context.baselineSourceCommit} (tree ${context.baselineTree}), restored by ${context.baselineCommit}. Historical reporting snapshot: ${context.reportingSourceCommit}. Historical outcome records are not an applied-repair inventory. ${applied} Ordinary writers are held; this evidence snapshot does not refresh.</p>`;
 }
 
 export function injectDashboardData(template, data, queueData, commit, trialData = 'null', evidenceData = 'null', context = null) {

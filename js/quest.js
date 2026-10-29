@@ -228,10 +228,9 @@ export function ok_to_quest(state = game) {
         || qs.killed_leader;
 }
 
-// C ref: quest.c expulsion() (185-216). Only `seal` FALSE has a caller here:
-// chat_with_leader()'s badalign verdict. The TRUE arm removes the magic portal
-// and calls remdun_mapseen(), and is reached from finish_quest() and the
-// leader's death, neither of which is ported.
+// C ref: quest.c expulsion() (185-216). All three current C call sites in
+// chat_with_leader() pass FALSE. The TRUE arm would remove the magic portal
+// and call remdun_mapseen(), but has no caller in the pinned source.
 function expulsion(seal, ops) {
     const state = ops.state;
     const u = state.u;
@@ -310,9 +309,9 @@ export async function finish_quest(obj, env = {}) {
     }
 }
 
-// C ref: quest.c chat_with_leader() (281-368). Rules 1 and 3 now wire the
-// complete finish_quest() owner. The posthanks/encourage text and the remaining
-// first-meeting verdicts retain their existing bounded refusals.
+// C ref: quest.c chat_with_leader() (281-368). Rules 1 and 3 wire the
+// complete finish_quest() owner; first-meeting verdicts include converted
+// alignment banishment with its common pager, expulsion, and livelog order.
 async function chat_with_leader(mtmp, ops) {
     const state = ops.state;
     const qs = state.svq.quest_status;
@@ -329,7 +328,7 @@ async function chat_with_leader(mtmp, ops) {
         if (u.uhave.amulet)
             await finish_quest(null, ops);
         else
-            ops.unsupported('returning the quest artifact before the Amulet');
+            await ops.pager('posthanks');
     } else if (u.uhave.questart) {
         /* Rule 3: you've got the artifact and are back to return it. */
         let otmp = state.invent;
@@ -338,7 +337,7 @@ async function chat_with_leader(mtmp, ops) {
         await finish_quest(otmp, ops);
     } else if (qs.got_quest) {
         /* Rule 4: you haven't got the artifact yet. */
-        ops.unsupported('a quest leader encouraging the hero');
+        await ops.pager('encourage');
     } else {
         /* Rule 5: You aren't yet acceptable - or are you? */
         let purity = 0;
@@ -348,7 +347,7 @@ async function chat_with_leader(mtmp, ops) {
             qs.met_leader = true;
             qs.not_ready = 0;
         } else {
-            ops.unsupported('a repeat audience with the quest leader');
+            await ops.pager('leader_next');
         }
 
         /* the quest leader might have passed through the portal into
@@ -361,8 +360,16 @@ async function chat_with_leader(mtmp, ops) {
             await exercise(A_WIS, true, state, ops.random);
             expulsion(false, ops);
         } else if ((purity = await is_pure(true, ops)) < 0) {
-            if (!qs.pissed_off)
-                ops.unsupported('a quest leader banishing the hero');
+            if (!qs.pissed_off) {
+                await ops.commonPager('banished');
+                qs.pissed_off = true;
+                expulsion(false, ops);
+                livelog_printf(
+                    LL_ACHIEVE,
+                    `${noit_mon_nam(mtmp, state, ops)} has expelled you from the quest`,
+                    state,
+                );
+            }
         } else if (purity === 0) {
             await ops.pager('badalign');
             qs.not_ready = 1;

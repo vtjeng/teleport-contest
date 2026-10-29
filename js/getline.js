@@ -21,6 +21,7 @@ import {
 } from './cmd.js';
 import { flush_screen } from './display.js';
 import { game } from './gstate.js';
+import { vision_recalc } from './vision.js';
 import { mungspaces, visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
@@ -113,6 +114,7 @@ async function hooked_tty_getlin(query, hook, state) {
         // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
         // flushes the map first; remember_topl() moves the old line into
         // history before show_topl() repaints.
+        if (state === game && state.vision_full_recalc) vision_recalc(0);
         if (state.u?.ux) await flush_screen(1);
         remember_topl(state);
         show_topl(`${query} `, state);

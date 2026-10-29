@@ -14,7 +14,6 @@ import {
     regex_error_desc,
     regex_init,
     regex_match,
-    UnsupportedPosixDuplicatedCaptureError,
 } from '../js/posixregex.js';
 import {
     loadStartupAutopickupExceptionRecipe,
@@ -252,7 +251,7 @@ test('startup installation retains each parsed node and compiled regex', () => {
     assert.equal(regex_match('wand1', state.ga.apelist.regex), false);
 });
 
-test('startup installation retains the duplicated-capture matcher boundary',
+test('startup installation uses finite duplicated-capture semantics',
     () => {
         const parsed = parseNethackrc(
             String.raw`AUTOPICKUP_EXCEPTION=">(wand){2}\1"` + '\n',
@@ -260,12 +259,9 @@ test('startup installation retains the duplicated-capture matcher boundary',
         const state = {};
         installParsedGa(state, parsed);
         assert.equal(state.ga.apelist, parsed.ga.apelist);
-        assert.equal(state.ga.apelist.regex.kind,
-            'duplicated-capture-boundary');
-        assert.throws(
-            () => regex_match('wandwandwand', state.ga.apelist.regex),
-            UnsupportedPosixDuplicatedCaptureError,
-        );
+        assert.equal(state.ga.apelist.regex.kind, 'reference-aware');
+        assert.equal(regex_match('>wandwandwand', state.ga.apelist.regex), true);
+        assert.equal(regex_match('>wandwand', state.ga.apelist.regex), false);
     });
 
 test('the fresh autopickup-exception matrix carries replay inputs only', () => {
