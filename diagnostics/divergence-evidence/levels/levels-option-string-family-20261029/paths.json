@@ -1,0 +1,276 @@
+{
+  "outputFields": [
+    "accepted",
+    "typ",
+    "doormask",
+    "ladder",
+    "horizontal",
+    "SpLev_Map",
+    "stairCount"
+  ],
+  "paths": [
+    {
+      "path": "door",
+      "keyword": "closed",
+      "forms": [
+        "table",
+        "positional"
+      ],
+      "targetsHex": [
+        "636c6f73656400737566666978",
+        "636c6f73656400"
+      ],
+      "controlsHex": [
+        "636c6f736564",
+        "636c6f73656478",
+        "00636c6f736564"
+      ],
+      "expectedAcceptedOutput": [
+        1,
+        23,
+        4,
+        0,
+        0,
+        1,
+        0
+      ],
+      "observedRejectedOutput": [
+        0,
+        25,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceSymbols": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/sp_lev.c",
+          "symbol": "lspo_door",
+          "start_line": 4671,
+          "end_line": 4734,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/sp_lev.c",
+          "symbol": "sel_set_door",
+          "start_line": 4647,
+          "end_line": 4662,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/nhlua.c",
+          "symbol": "get_table_option",
+          "start_line": 1122,
+          "end_line": 1133,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/mklev.js",
+          "symbol": "lspo_door",
+          "start_line": 3491,
+          "end_line": 3542,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        },
+        {
+          "side": "JS",
+          "path": "js/nhlua.js",
+          "symbol": "get_table_option",
+          "start_line": 328,
+          "end_line": 330,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        },
+        {
+          "side": "JS",
+          "path": "js/nhlua.js",
+          "symbol": "luaL_checkoption",
+          "start_line": 256,
+          "end_line": 263,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        }
+      ]
+    },
+    {
+      "path": "ladder",
+      "keyword": "down",
+      "forms": [
+        "table",
+        "positional"
+      ],
+      "targetsHex": [
+        "646f776e00737566666978",
+        "646f776e00"
+      ],
+      "controlsHex": [
+        "646f776e",
+        "646f776e78",
+        "00646f776e"
+      ],
+      "expectedAcceptedOutput": [
+        1,
+        27,
+        0,
+        2,
+        0,
+        1,
+        1
+      ],
+      "observedRejectedOutput": [
+        0,
+        25,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceSymbols": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/sp_lev.c",
+          "symbol": "lspo_ladder",
+          "start_line": 4232,
+          "end_line": 4235,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/sp_lev.c",
+          "symbol": "l_create_stairway",
+          "start_line": 4147,
+          "end_line": 4213,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/nhlua.c",
+          "symbol": "get_table_option",
+          "start_line": 1122,
+          "end_line": 1133,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/mklev.js",
+          "symbol": "lspo_ladder",
+          "start_line": 3129,
+          "end_line": 3131,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        },
+        {
+          "side": "JS",
+          "path": "js/mklev.js",
+          "symbol": "l_create_stairway",
+          "start_line": 3057,
+          "end_line": 3121,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        },
+        {
+          "side": "JS",
+          "path": "js/nhlua.js",
+          "symbol": "get_table_option",
+          "start_line": 328,
+          "end_line": 330,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        },
+        {
+          "side": "JS",
+          "path": "js/nhlua.js",
+          "symbol": "luaL_checkoption",
+          "start_line": 256,
+          "end_line": 263,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        }
+      ]
+    },
+    {
+      "path": "feature",
+      "keyword": "tree",
+      "forms": [
+        "table",
+        "positional"
+      ],
+      "targetsHex": [
+        "7472656500737566666978",
+        "7472656500"
+      ],
+      "controlsHex": [
+        "74726565",
+        "7472656578",
+        "0074726565"
+      ],
+      "expectedAcceptedOutput": [
+        1,
+        13,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "observedRejectedOutput": [
+        0,
+        25,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceSymbols": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/sp_lev.c",
+          "symbol": "lspo_feature",
+          "start_line": 4844,
+          "end_line": 4923,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/sp_lev.c",
+          "symbol": "sel_set_feature",
+          "start_line": 4633,
+          "end_line": 4644,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/nhlua.c",
+          "symbol": "get_table_option",
+          "start_line": 1122,
+          "end_line": 1133,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "JS",
+          "path": "js/mklev.js",
+          "symbol": "lspo_feature",
+          "start_line": 3633,
+          "end_line": 3710,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        },
+        {
+          "side": "JS",
+          "path": "js/nhlua.js",
+          "symbol": "get_table_option",
+          "start_line": 328,
+          "end_line": 330,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        },
+        {
+          "side": "JS",
+          "path": "js/nhlua.js",
+          "symbol": "luaL_checkoption",
+          "start_line": 256,
+          "end_line": 263,
+          "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+        }
+      ]
+    }
+  ]
+}

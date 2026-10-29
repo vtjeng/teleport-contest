@@ -1,0 +1,5 @@
+{"path":"door","form":"table","hex":"636c6f73656400737566666978","expected":[1,23,4,0,0,1,0],"actual":[0,25,0,0,0,0,0],"equal":false}
+{"path":"door","form":"table","hex":"636c6f73656400","expected":[1,23,4,0,0,1,0],"actual":[0,25,0,0,0,0,0],"equal":false}
+{"path":"door","form":"positional","hex":"636c6f73656400737566666978","expected":[1,23,4,0,0,1,0],"actual":[0,25,0,0,0,0,0],"equal":false}
+{"path":"door","form":"positional","hex":"636c6f73656400","expected":[1,23,4,0,0,1,0],"actual":[0,25,0,0,0,0,0],"equal":false}
+{"mode":"target","only":"door","cases":4,"differences":4}

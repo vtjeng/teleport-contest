@@ -1,0 +1,5 @@
+{"path":"feature","form":"table","hex":"7472656500737566666978","expected":[1,13,0,0,0,0,0],"actual":[0,25,0,0,0,0,0],"equal":false}
+{"path":"feature","form":"table","hex":"7472656500","expected":[1,13,0,0,0,0,0],"actual":[0,25,0,0,0,0,0],"equal":false}
+{"path":"feature","form":"positional","hex":"7472656500737566666978","expected":[1,13,0,0,0,0,0],"actual":[0,25,0,0,0,0,0],"equal":false}
+{"path":"feature","form":"positional","hex":"7472656500","expected":[1,13,0,0,0,0,0],"actual":[0,25,0,0,0,0,0],"equal":false}
+{"mode":"target","only":"feature","cases":4,"differences":4}

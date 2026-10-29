@@ -1,0 +1,7 @@
+{"path":"door","form":"table","hex":"636c6f736564","expected":[1,23,4,0,0,1,0],"actual":[1,23,4,0,0,1,0],"equal":true}
+{"path":"door","form":"table","hex":"636c6f73656478","expected":[0,25,0,0,0,0,0],"actual":[0,25,0,0,0,0,0],"equal":true}
+{"path":"door","form":"table","hex":"00636c6f736564","expected":[0,25,0,0,0,0,0],"actual":[0,25,0,0,0,0,0],"equal":true}
+{"path":"door","form":"positional","hex":"636c6f736564","expected":[1,23,4,0,0,1,0],"actual":[1,23,4,0,0,1,0],"equal":true}
+{"path":"door","form":"positional","hex":"636c6f73656478","expected":[0,25,0,0,0,0,0],"actual":[0,25,0,0,0,0,0],"equal":true}
+{"path":"door","form":"positional","hex":"00636c6f736564","expected":[0,25,0,0,0,0,0],"actual":[0,25,0,0,0,0,0],"equal":true}
+{"mode":"control","only":"door","cases":6,"differences":0}
