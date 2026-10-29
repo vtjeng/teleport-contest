@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-branch-room-attribution-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "discarded-read-only-branch-room-attribution",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "on_level",
+      "start_line": 1439,
+      "end_line": 1443,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room",
+      "start_line": 678,
+      "end_line": 687,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "pos_to_room",
+      "start_line": 1677,
+      "end_line": 1687,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/stairs.c",
+      "symbol": "stairway_add",
+      "start_line": 8,
+      "end_line": 24,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp",
+      "start_line": 77,
+      "end_line": 121,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "place_branch",
+      "start_line": 1691,
+      "end_line": 1747,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "place_branch",
+      "start_line": 7857,
+      "end_line": 7888,
+      "commit_sha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb"
+    }
+  ],
+  "hypothesis": "Omitted C room-attribution call may alter explicit-coordinate branch placement.",
+  "expectedBehavior": "Read-only lookup return is discarded, so branch construction is independent of that room pointer.",
+  "observedBehavior": "144 exact-C/production-JS explicit-coordinate cases: no rooms, regular interior, irregular interior, irregular edge \u00d7ROOM/CORR/AIR \u00d7both endpoints \u00d7BR_STAIR/BR_NO_END1/BR_NO_END2 \u00d7both directions. C lookup returns room in72 cases and null in72. All agree on made_branch, resulting terrain/direction and stair-list position/destination/traversed truth value;96 construct stairs and48 intentionally lack the current endpoint. 288 controls exercise made_branch and null-branch early returns, with no stairs.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "144 exact-C/production-JS explicit-coordinate cases: no rooms, regular interior, irregular interior, irregular edge \u00d7ROOM/CORR/AIR \u00d7both endpoints \u00d7BR_STAIR/BR_NO_END1/BR_NO_END2 \u00d7both directions. C lookup returns room in72 cases and null in72. All agree on made_branch, resulting terrain/direction and stair-list position/destination/traversed truth value;96 construct stairs and48 intentionally lack the current endpoint. 288 controls exercise made_branch and null-branch early returns, with no stairs.",
+    "limitations": [
+      "Explicit coordinates12,8 on three permitted terrain typesROOM/CORR/AIR. Four attribution states:no rooms,regular room interior,irregular room interior andirregular edge. Exact C inside_room distinguishes the last two; missing attribution is not treated as universal room equivalence.",
+      "Both branch endpoints, both end1_up directions andBR_STAIR/BR_NO_END1/BR_NO_END2. 96 targets create stairs and48 intentionally omit the current endpoint. Existing made_branch and null-branch controls return without stairs. All144 targets and288 controls match on semantic stair registration/terrain/direction andmade_branch.",
+      "The returned C pointer is discarded; inside_room andpos_to_room only read room records androomno/edge. Source dependency changes to either helper or the caller require requalification. The JS caller body remains identical to frozen scan base.",
+      "C exact place_branch/stairway_add/on_level/set_levltyp operate on valid typed descriptors, maps and room records; JS uses production exported place_branch andGameMap. No full C/JS dungeon initialization or public Lua binding comparison. Fixtures use explicit coordinates, so find_branch_room aborts if called; portal constructor and runtime side effects also abort.",
+      "No random branch selection,debug_fuzzer/portal behavior,full travel,arbitrary terrain or metadata alias claim. C u_traversed0 is compared to Boolean(JS u_traversed), matching the consuming truth-value contract; raw absent-property representation is not a divergence.",
+      "The potential forced overwrite of existing stairs/ladders is not qualified: normal level-region bad_location rejects those terrain types. This test does not force that invalid caller state. Existing random no-room branch scope/gaps remain unchanged."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "not_applicable",
+    "evidence": [],
+    "reason": "Valid typed engine state and exact functions; no full dungeon startup or public Lua binding attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The explicit-coordinate branch calls pos_to_room only for a discarded return. Its inside_room traversal has no side effects, so omitting this attribution does not change branch construction in the tested domain.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:place_branch:pos_to_room"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/README.md",
+      "sha256": "3b8bdc39a993958af2a733e373f6f35162b97bb92b85a22e1db753c67d7b5f0a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/control-output.txt",
+      "sha256": "771054c8f445f1660aa643765064b88ddaddb77c20f5de0d264981ed6110e05b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/control-receipt.json",
+      "sha256": "283e7a4ef94183162095ac23beda9ea3c0f6e5acade97294dcb89ff45ef2630d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/coverage.json",
+      "sha256": "d13901a328f62d31e0b0dfad1e77c60a0db51a80f18ad26ac943186a2e69682e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/decisions.json",
+      "sha256": "52e2c4a6a8d1b13b4225402b4d8ffb49286050d132797a868c90b15d21d6131d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/oracle.c",
+      "sha256": "f27855eab8ff5ed733c823e4efb7daf4197d7b000000e29164024f02d77b2995",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/probe.mjs",
+      "sha256": "949916efc18120e3df3cf2873d2fa1aed6d62ad840b5f8020fff692e36abf787",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/projection/manifest.json",
+      "sha256": "01bc34626f5d0ae545d0945f51c4b3bd136bc96b1ddf52e657030c06172a86be",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/projection/projection.json",
+      "sha256": "543903e4baffe2cdbff4ad465e33eb5b5b7cf8582f97bffc1c3b9c88fe7fc8ae",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/projection/review-template.json",
+      "sha256": "5682304a0d632f14dce2e5fb0755b52130a77a7065e59da5df342c7bec8bc594",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/source-contract.json",
+      "sha256": "c93be002a17a042318d85267773c877502d22cb1ba133c5b7e1ad68bc38c43b8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/source-fingerprints.json",
+      "sha256": "f12769b75630d8b46b182657268050f6c4161846cd92581d5dbd7d13b1d16c48",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/target-output.txt",
+      "sha256": "5be3dd4e50dc290104912e59ebc0310e6bfaa9fc7ba2e322063ac5dcbb2fec33",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/target-receipt.json",
+      "sha256": "1d837786c800bff4e4b23ea1f10b3c7b8458b42035ebbc5ad000d10418664860",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

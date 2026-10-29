@@ -1,0 +1,25 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:place_branch:pos_to_room",
+    "evidenceKey": "1abbac02c6bc1992fbbb11dc27aa66a3c5523cc668c52a3b3abc1a6f908472d4",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "7273f9c00105a339df0dc1f49671ae40e781868fe94af53b8c31f47619ad60fd",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The explicit-coordinate branch calls pos_to_room only for a discarded return. Its inside_room traversal has no side effects, so omitting this attribution does not change branch construction in the tested domain.",
+      "proof": "144 exact-C/production-JS explicit-coordinate cases: no rooms, regular interior, irregular interior, irregular edge ×ROOM/CORR/AIR ×both endpoints ×BR_STAIR/BR_NO_END1/BR_NO_END2 ×both directions. C lookup returns room in72 cases and null in72. All agree on made_branch, resulting terrain/direction and stair-list position/destination/traversed truth value;96 construct stairs and48 intentionally lack the current endpoint. 288 controls exercise made_branch and null-branch early returns, with no stairs.",
+      "control": "No random coordinate selection, portals/debug_fuzzer, stairs-overwrite, runtime travel, full dungeon initialization or broad metadata alias parity. The C returned room is read only; source dependency changes to place_branch, pos_to_room or inside_room invalidate this proof. Undefined JS u_traversed is compared by its production truth-value semantics, not raw property presence.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:1677",
+        "nethack-c/upstream/src/mklev.c:1691",
+        "nethack-c/upstream/src/mkroom.c:678",
+        "js/mklev.js:7857"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029",
+      "reviewedBase": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "discarded-read-only-branch-room-attribution"
+    }
+  }
+]

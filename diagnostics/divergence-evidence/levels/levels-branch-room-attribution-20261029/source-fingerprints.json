@@ -1,0 +1,51 @@
+{
+  "discoveredAt": "2026-10-29T04:22:34.240270+00:00",
+  "reviewedAt": "2026-10-29T04:22:34.240270+00:00",
+  "toolingSha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+  "functions": [
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "on_level",
+      "sha256": "2dd00be6afbb859ec1a52e030d8ebf80a3128bd7caea68d196be339445745dd1"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room",
+      "sha256": "9cf6febeba14a93d8acfbacaf0ecf84e9f934f6833172f096db4a1bfb3c211de"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "pos_to_room",
+      "sha256": "35a396089c7468bbd3b4ee689a928aa0205bcab1f307e8b3d5560291f89f32ec"
+    },
+    {
+      "path": "nethack-c/upstream/src/stairs.c",
+      "symbol": "stairway_add",
+      "sha256": "0e0cbf036adfa515a328b968c6734bdef02d9ebc16e13226317527f3afb697d3"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp",
+      "sha256": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "place_branch",
+      "sha256": "02686ded0c468729dcdc39255888246abe942d446595adc41c0b7d4f414c6ec0"
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "place_branch",
+      "sha256": "eb922bd6008d3611604e8d3e46ed1a52d2570b7e2c680e1e74c1546fcf11a402",
+      "unchangedSinceScan": true
+    }
+  ],
+  "limitations": [
+    "Explicit coordinates12,8 on three permitted terrain typesROOM/CORR/AIR. Four attribution states:no rooms,regular room interior,irregular room interior andirregular edge. Exact C inside_room distinguishes the last two; missing attribution is not treated as universal room equivalence.",
+    "Both branch endpoints, both end1_up directions andBR_STAIR/BR_NO_END1/BR_NO_END2. 96 targets create stairs and48 intentionally omit the current endpoint. Existing made_branch and null-branch controls return without stairs. All144 targets and288 controls match on semantic stair registration/terrain/direction andmade_branch.",
+    "The returned C pointer is discarded; inside_room andpos_to_room only read room records androomno/edge. Source dependency changes to either helper or the caller require requalification. The JS caller body remains identical to frozen scan base.",
+    "C exact place_branch/stairway_add/on_level/set_levltyp operate on valid typed descriptors, maps and room records; JS uses production exported place_branch andGameMap. No full C/JS dungeon initialization or public Lua binding comparison. Fixtures use explicit coordinates, so find_branch_room aborts if called; portal constructor and runtime side effects also abort.",
+    "No random branch selection,debug_fuzzer/portal behavior,full travel,arbitrary terrain or metadata alias claim. C u_traversed0 is compared to Boolean(JS u_traversed), matching the consuming truth-value contract; raw absent-property representation is not a divergence.",
+    "The potential forced overwrite of existing stairs/ladders is not qualified: normal level-region bad_location rejects those terrain types. This test does not force that invalid caller state. Existing random no-room branch scope/gaps remain unchanged."
+  ]
+}
