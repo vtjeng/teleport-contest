@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-reset-hell-temperature-20261029",
+  "shard": "levels",
+  "status": "candidate",
+  "readiness": "review_ready",
+  "rootCause": "reset-hellish-temperature-default",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_hell",
+      "start_line": 1942,
+      "end_line": 1945,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "clear_level_structures",
+      "start_line": 850,
+      "end_line": 927,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_reset_level",
+      "start_line": 5993,
+      "end_line": 6010,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "clear_level_structures",
+      "start_line": 483,
+      "end_line": 532,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_reset_level",
+      "start_line": 4572,
+      "end_line": 4589,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "sp_level_coder_init",
+      "start_line": 2199,
+      "end_line": 2238,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon.js",
+      "symbol": "In_hell",
+      "start_line": 601,
+      "end_line": 603,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    }
+  ],
+  "hypothesis": "The hardcoded JS clear-level temperature overwrites the branch default after public reset_level coder initialization.",
+  "expectedBehavior": "Reset restores hot1 on hellish branches and temperate0 elsewhere, independent of prior authored temperature flags.",
+  "observedBehavior": "Nine Gehennom targets: C1 versus JS0. Nine Dungeons of Doom controls: C0 and JS0. Three valid floors per branch times three prior temperature values.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Production JS reset API on empty construction levels; exact C reset/clear/In_hell routines with typed non-temperature adapters. Temperature output only.",
+    "limitations": [
+      "Nine targets: actual generated Gehennom dungeon record, valid floors1..3, prior cold/temperate/hot flags. Nine controls use actual Dungeons of Doom floors1..3 and the same prior flags. One reset-temperature cause, not nine independent bugs.",
+      "JS uses newgame_pre_mklev with fixed seed/date/options, supported mklev specialLevelLoader and public des.level_flags/des.reset_level. The empty loader snapshot has no monsters or stairs. LoaderDone intentionally stops after reset observation before finalization; this is not a full shipped game recording or score claim.",
+      "C executes exact registered lspo_reset_level, full clear_level_structures and In_hell. Typed structs supply accessed fields and actual dungeon hellish input. C cleanup/rectangle/coordinate hooks and pre-reset preparation are interfaces for absent resources, and coder creation is a valid allocation adapter. They do not model full reset behavior. The final tested temperature assignment in clear_level_structures overwrites all earlier temperature state; this dominance is why their internals are unnecessary for this flag witness.",
+      "No C Lua VM is added: lspo_reset_level ignores Lua arguments beyond nonnull state. The typed Lua token supplies that valid nonnull branch. Full C flags/terrain/resources are not compared; placeholder rm/glyph fields support the exact clear body only. No save-state export or blocked prerequisites are used.",
+      "Normal loader order runs clear then coder initialization, restoring hot1; reset order initializes coder then clears, exposing temperate0. Shipped callers of reset_level and downstream temperature-sensitive behavior remain unestablished. No general initialization/finalization/runtime equivalence claim.",
+      "Target runner records but does not enforce original JS hashes, allowing the same command to pass after Main repairs the cause. C source identities and exact copied functions are enforced. Deliberate failing target is ordinary .mjs and is not in default CI.",
+      "Cave-cap, bottom-level stair search and three parked gaps remain unresolved. Existing Main-owned repairs and all denied investigations remain separate."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Supported public des.reset_level with actual dungeon configuration; shipped caller exposure and score impact unknown."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Existing frozen clear_level_structures:In_hell edge; exact reviewed caller unchanged from scan base. Demonstrated reset API difference.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:clear_level_structures:In_hell"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/source-contract.json"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/control-receipt.json"
+    },
+    {
+      "id": "post_fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/README.md",
+      "sha256": "edf15fec965fb0aef294963fe7089a7507eb91fdbb496fce75841af6f05858db",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/control-output.txt",
+      "sha256": "0ace88f85371e136e54fb08d33d2eeff057124230edb5f07f2c2abbc9a4e4b54",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/control-receipt.json",
+      "sha256": "7756cae7b5a4a6d69d09742d7078603698b619df8fb2cc12482f6933429ceda5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/decisions.json",
+      "sha256": "ac7c625fd2f052b0774cca85e447b0811df52f7cfc2ca7e403c3162262c2bb6f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/oracle.c",
+      "sha256": "a2df2e134eae6f9496aaace597c9352b3d14ec780245e5e013a543af7253f470",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs",
+      "sha256": "1d2a8bd8fafd6605db871efeff04b00b3f7c8d1faeb83620d35a1a6b50f9fe4a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/projection/manifest.json",
+      "sha256": "ed8528fe66951653868ea02d288c45099aa6250645993347fb0802f91d97d8e2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/projection/projection.json",
+      "sha256": "0aa1d4feb67f5b588c139049c00b5da7c9b7d601b57c932a3e3d6887713e2b06",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/projection/review-template.json",
+      "sha256": "d059900500c6fa50493918a073a05f87bf6750c072055e76bd5ef9a964099382",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/source-contract.json",
+      "sha256": "7e1d5cd21d92acb8e6ff6f7f1ea1aad2f5e2abdbea79d9658c46b3573b97cac9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/source-fingerprints.json",
+      "sha256": "281ddca56c941bdd3425121401b3b428e007539800af98bc06a2cb643dffc7bc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/target-output.txt",
+      "sha256": "0e0eef1bcdbe71cb6e0398b6b7f4c3900cad7973e58a922203b440e4ee1f066d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/target-receipt.json",
+      "sha256": "f1c84e042336d2e9ff13deb1549a948a113ba4d7580b16bd3b350aae9c21a37b",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
