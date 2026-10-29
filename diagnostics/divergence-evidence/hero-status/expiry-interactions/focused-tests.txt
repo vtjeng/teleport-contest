@@ -1,0 +1,26 @@
+✔ expected failing candidate target is ready independently of shipped exposure; post-fix remains planned (7.588677ms)
+✔ unresolved packages remain visible, missing receipts cannot become ready, and legacy is explicit (2.981646ms)
+✔ detects missing artifacts, changed hashes, receipts and contradictory claims (5.359458ms)
+✔ references cannot escape the package root or silently omit runner dependencies (2.127797ms)
+✔ scanner negative uses unchanged discovery guards and preserves the unresolved neighbor (18.506451ms)
+✔ CLI requires a clean committed layout and reports legacy separately without running commands (346.522088ms)
+✔ scanner candidate cannot omit decisions recorded by its export manifest (12.644535ms)
+✔ scanner unresolved cannot omit decisions recorded by its export manifest (2.189429ms)
+✔ scanner manifest requires the referenced file and rejects null or changed hashes (5.984484ms)
+✔ scanner unresolved no-decisions export remains valid and visible (4.261273ms)
+✔ honor a requested timeout handoff property=15 duration=3 (205.038142ms)
+✔ honor a requested timeout handoff property=15 duration=1 (60.625247ms)
+✔ honor a requested timeout handoff property=23 duration=0 (67.26376ms)
+✔ honor a requested timeout handoff property=23 duration=1 (62.652048ms)
+✔ timeout handoff normal matches independent C (1721.050146ms)
+✔ timeout handoff monochrome matches independent C (1533.585106ms)
+✔ timeout handoff before-control matches independent C (1031.054538ms)
+✔ generated property table exactly follows timeout.c and keeps its sentinel (9.161363ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5410.314806

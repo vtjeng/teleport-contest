@@ -1,0 +1,7 @@
+[confusion-expiry 1/1] 1 segments
+[burdened-confusion-expiry 1/1] 1 segments
+[hallucination-expiry 1/1] 1 segments
+[burdened-hallucination-expiry 1/1] 1 segments
+[glib-expiry 1/1] 1 segments
+[displacement-expiry 1/1] 1 segments
+HERO TIMEOUTS: PASS: 6 segments, 15898 PRNG calls, 221 screens, 221 cursors, 0 animation frames
