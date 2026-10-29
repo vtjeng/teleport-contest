@@ -312,10 +312,18 @@ export function get_table_int_opt(table, name, defval) {
 // a function field, or `defval`; null when both are absent.
 export function get_table_str_opt(table, name, defval) {
     let value = table[name];
-    if (typeof value === 'function') value = value();
+    if (typeof value === 'function') {
+        value = value();
+        // C applies luaL_optstring after nhl_pcall_handle. Its numeric result
+        // is string-coercible; a raw numeric table field is still rejected.
+        if (typeof value === 'number') value = luaL_checkstring(value);
+    }
     if (value != null && typeof value !== 'string')
         throw new Error('get_table_str_opt: no string');
-    return value ?? defval ?? null;
+    // Unlike a Lua VM string, this reader's result is an owned C dupstr().
+    // Preserve empty strings (including a leading NUL), defaults and null.
+    const text = value ?? defval ?? null;
+    return text === null ? null : text.split('\0', 1)[0];
 }
 
 // C ref: nhlua.c get_table_str(). A required string field.

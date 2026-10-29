@@ -1,0 +1,105 @@
+{
+  "provenance": {
+    "source": "nethack-c/upstream/src/nhlua.c",
+    "function": "get_table_str_opt",
+    "bodySha256": "47f0f642a4aca101b713f720f4839ce63693f4f03724089e4a7539450ccba844",
+    "sourceSha256": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1",
+    "scope": "Exact function body only; no level constructor or failed-turn artifact.",
+    "compiler": "Debian Clang19.1.7, provisioned toolchain",
+    "library": "/workspace/teleport-contest/nethack-c/recorder/lib/lua-5.4.8/src/liblua.a",
+    "librarySha256": "23f341b73ce5307235fba2f4897df9473b78439e59f99795d1772a4366d09359",
+    "fixtureHashes": {
+      "oracle.c": "6e1975d3eca2676a87fbbb1d4222dc5966c9dbc2b187445beed691fbd1e67231",
+      "oracle.tsv": "0645c1af74c73bc8c6149c855cffaca35fb83ac87003bc4e7046b382d5cdcc44"
+    },
+    "shims": "dupstr implemented by strlen/malloc/memcpy; nhl_pcall_handle invokes lua_pcall and forwards failure; nhl_error forwards to luaL_error. Full NetHack panic/trace/allocator behavior is not tested.",
+    "limits": "Return values and acceptance/rejection only; not complete error text, game construction or independently attested Lua-library build.",
+    "outputFormat": "Explicit angle-bracket string payload and <null> marker; avoids trailing tab empty fields. Original raw capture preserved in local cache."
+  },
+  "cases": [
+    {
+      "id": "plain",
+      "outcome": "string",
+      "value": "a",
+      "cError": null
+    },
+    {
+      "id": "nul",
+      "outcome": "string",
+      "value": "a",
+      "cError": null
+    },
+    {
+      "id": "fn-plain",
+      "outcome": "string",
+      "value": "b",
+      "cError": null
+    },
+    {
+      "id": "fn-nul",
+      "outcome": "string",
+      "value": "b",
+      "cError": null
+    },
+    {
+      "id": "default",
+      "outcome": "string",
+      "value": "dflt",
+      "cError": null
+    },
+    {
+      "id": "default-nul",
+      "outcome": "string",
+      "value": "dflt",
+      "cError": null
+    },
+    {
+      "id": "empty",
+      "outcome": "string",
+      "value": "",
+      "cError": null
+    },
+    {
+      "id": "leading-nul",
+      "outcome": "string",
+      "value": "",
+      "cError": null
+    },
+    {
+      "id": "fn-nil",
+      "outcome": "null",
+      "value": null,
+      "cError": null
+    },
+    {
+      "id": "fn-nil-default",
+      "outcome": "string",
+      "value": "fallback",
+      "cError": null
+    },
+    {
+      "id": "fn-int",
+      "outcome": "string",
+      "value": "3",
+      "cError": null
+    },
+    {
+      "id": "fn-float",
+      "outcome": "string",
+      "value": "3.5",
+      "cError": null
+    },
+    {
+      "id": "raw-number",
+      "outcome": "error",
+      "value": null,
+      "cError": "get_table_str_opt: no string"
+    },
+    {
+      "id": "fn-boolean",
+      "outcome": "error",
+      "value": null,
+      "cError": "bad argument #-1 to '?' (string expected, got boolean)"
+    }
+  ]
+}

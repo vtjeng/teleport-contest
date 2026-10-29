@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+    "6437c374e03e9178167572e662f35eb1bc8dbaac"
+  ],
+  "scope": "Owned optional-string C-prefix copy and numeric callback result coercion; positional trap-name lookup uses the same C-string prefix contract. No constructor execution.",
+  "dependencyReview": "Second source refines optional reader introduced by first. Neither nhlua.js nor mklev.js changed in original18 window. H levregion call already delegates directly to get_table_str_opt, so historical redundant-wrapper removal needs no code change. No des.room type-construction/failed-turn artifacts inspected or executed.",
+  "evidence": {
+    "reader": "Exact pinned nhlua.c get_table_str_opt body compiled with existing Lua5.4.8 liblua.a and disclosed allocator/error/pcall shims. Fourteen executed value/type cases; no exact panic/error-message parity claim.",
+    "lookup": "Seven pure exported trap-name lookup cases from sp_lev.c strcmpi/trap_types, not newly executed C helper, trap construction or shipped gameplay."
+  },
+  "sourceHashes": {
+    "src/nhlua.c": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1",
+    "src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "include/trap.h": "469afec3e29d7aec1aa8efd407ad23d24ef069010820082b5596537b9290eb6b"
+  },
+  "limits": "No level/room/trap construction, portal travel or downstream descriptor outcomes tested. Existing Lua archive identified, not rebuilt/attested. Finite callback numeric value coverage; no general Lua-number representation or hidden-score claim."
+}

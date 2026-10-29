@@ -1,0 +1,14 @@
+plain	string	<a>
+nul	string	<a>
+fn-plain	string	<b>
+fn-nul	string	<b>
+default	string	<dflt>
+default-nul	string	<dflt>
+empty	string	<>
+leading-nul	string	<>
+fn-nil	null	<null>
+fn-nil-default	string	<fallback>
+fn-int	string	<3>
+fn-float	string	<3.5>
+raw-number	error	get_table_str_opt: no string
+fn-boolean	error	bad argument #-1 to '?' (string expected, got boolean)
