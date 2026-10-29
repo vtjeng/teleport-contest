@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "896a34c9e24c5616781df50d6fe917bef726231f42ef705a1332372c8908b24a",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:create_des_coder",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_level_flags:create_des_coder",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_level_init:create_des_coder",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_teleport_region:create_des_coder",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_terrain:create_des_coder",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_wall_property:create_des_coder"
+  ],
+  "decisionsSha256": "c3434269b222f0782dec1a27b231e670c938c37df39ae0c80495cbcbd1e77dd2",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 6,
+    "decisionsChecked": 6,
+    "before": {
+      "active": 6,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 6,
+      "excluded": 0
+    }
+  }
+}

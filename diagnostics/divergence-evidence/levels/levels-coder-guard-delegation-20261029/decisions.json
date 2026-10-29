@@ -1,0 +1,134 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_level_flags:create_des_coder",
+    "evidenceKey": "126034d9397d5d45924bcf550b12fd4c866fd35ef46b7c2266934f325612f6e2",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "e3d8dd22a2f030cebc9834555423fd6fcd4d11d26494f40018d6b690ba161cbb",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "For normal successful special-level loading, C create_des_coder precedes load_lua and each selected API guard is then a no-op. JS creates the coder once before registering the public des API and shares that environment. Six missing direct guard edges are one initialization-delegation cause, not missing initialization.",
+      "proof": "Source hashes/order checks pin C load_special and six guards, plus JS constructor initialization before API registration. Exact C create_des_coder runs6 times with an initialized coder:0 initializer calls and unchanged pointer/marker. Production JS level_flags,level_init,terrain,wall_property,exclusion,teleport_region sequence preserves deliberately set rndmongen0/deathdrops0/temperature-1 after every call.",
+      "control": "C null-coder control invokes an initializer-interface adapter once and retains its pointer on repeat. Two fresh JS loader controls each observe default rndmongen1/deathdrops1/temperature0. Adapter tests guard dispatch, not C allocation or initializer contents. Scope excludes resets, finalization/reentrancy, failed allocation, direct private env injection, other APIs and general metadata equivalence.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:6444",
+        "nethack-c/upstream/src/sp_lev.c:6455",
+        "js/mklev.js:2234",
+        "js/mklev.js:4642"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029",
+      "reviewedBase": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_level_init:create_des_coder",
+    "evidenceKey": "9991bedbfe678a9422c280379a66c8a0ec22f1b6254090dd0a766eb3ba34c62f",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "8009e815a7da25ee6ab281a12873a95f9045a818b069499aef8591623d2d95e3",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "For normal successful special-level loading, C create_des_coder precedes load_lua and each selected API guard is then a no-op. JS creates the coder once before registering the public des API and shares that environment. Six missing direct guard edges are one initialization-delegation cause, not missing initialization.",
+      "proof": "Source hashes/order checks pin C load_special and six guards, plus JS constructor initialization before API registration. Exact C create_des_coder runs6 times with an initialized coder:0 initializer calls and unchanged pointer/marker. Production JS level_flags,level_init,terrain,wall_property,exclusion,teleport_region sequence preserves deliberately set rndmongen0/deathdrops0/temperature-1 after every call.",
+      "control": "C null-coder control invokes an initializer-interface adapter once and retains its pointer on repeat. Two fresh JS loader controls each observe default rndmongen1/deathdrops1/temperature0. Adapter tests guard dispatch, not C allocation or initializer contents. Scope excludes resets, finalization/reentrancy, failed allocation, direct private env injection, other APIs and general metadata equivalence.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:6444",
+        "nethack-c/upstream/src/sp_lev.c:6455",
+        "js/mklev.js:2234",
+        "js/mklev.js:4642"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029",
+      "reviewedBase": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_terrain:create_des_coder",
+    "evidenceKey": "0e768328401e024045d2d3ea90113588b5a059d1e03594ea9734edd9ac7ab6e0",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "4cc53d2223981f5bb0c5ed938e850c8b17bdac5a035cc629605cf5978037cc75",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "For normal successful special-level loading, C create_des_coder precedes load_lua and each selected API guard is then a no-op. JS creates the coder once before registering the public des API and shares that environment. Six missing direct guard edges are one initialization-delegation cause, not missing initialization.",
+      "proof": "Source hashes/order checks pin C load_special and six guards, plus JS constructor initialization before API registration. Exact C create_des_coder runs6 times with an initialized coder:0 initializer calls and unchanged pointer/marker. Production JS level_flags,level_init,terrain,wall_property,exclusion,teleport_region sequence preserves deliberately set rndmongen0/deathdrops0/temperature-1 after every call.",
+      "control": "C null-coder control invokes an initializer-interface adapter once and retains its pointer on repeat. Two fresh JS loader controls each observe default rndmongen1/deathdrops1/temperature0. Adapter tests guard dispatch, not C allocation or initializer contents. Scope excludes resets, finalization/reentrancy, failed allocation, direct private env injection, other APIs and general metadata equivalence.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:6444",
+        "nethack-c/upstream/src/sp_lev.c:6455",
+        "js/mklev.js:2234",
+        "js/mklev.js:4642"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029",
+      "reviewedBase": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_wall_property:create_des_coder",
+    "evidenceKey": "55cfa96aac95b49d48a4976fc3fe9e56cdf38ffbbb5605b1cd52ec468dec3551",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "28a8ca64c6093d938308bdf2a9dc8d8752afca618b6030f22a673b671eee7cab",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "For normal successful special-level loading, C create_des_coder precedes load_lua and each selected API guard is then a no-op. JS creates the coder once before registering the public des API and shares that environment. Six missing direct guard edges are one initialization-delegation cause, not missing initialization.",
+      "proof": "Source hashes/order checks pin C load_special and six guards, plus JS constructor initialization before API registration. Exact C create_des_coder runs6 times with an initialized coder:0 initializer calls and unchanged pointer/marker. Production JS level_flags,level_init,terrain,wall_property,exclusion,teleport_region sequence preserves deliberately set rndmongen0/deathdrops0/temperature-1 after every call.",
+      "control": "C null-coder control invokes an initializer-interface adapter once and retains its pointer on repeat. Two fresh JS loader controls each observe default rndmongen1/deathdrops1/temperature0. Adapter tests guard dispatch, not C allocation or initializer contents. Scope excludes resets, finalization/reentrancy, failed allocation, direct private env injection, other APIs and general metadata equivalence.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:6444",
+        "nethack-c/upstream/src/sp_lev.c:6455",
+        "js/mklev.js:2234",
+        "js/mklev.js:4642"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029",
+      "reviewedBase": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:create_des_coder",
+    "evidenceKey": "147a434c8fbd96b3b5f00cc55e295a4256fcea0cd7948c0be322097ed3022bb6",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "d11a78c30f258f88fe1fb5addfc5dce2112fb9b8445e2b4c0bcf642c224c795f",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "For normal successful special-level loading, C create_des_coder precedes load_lua and each selected API guard is then a no-op. JS creates the coder once before registering the public des API and shares that environment. Six missing direct guard edges are one initialization-delegation cause, not missing initialization.",
+      "proof": "Source hashes/order checks pin C load_special and six guards, plus JS constructor initialization before API registration. Exact C create_des_coder runs6 times with an initialized coder:0 initializer calls and unchanged pointer/marker. Production JS level_flags,level_init,terrain,wall_property,exclusion,teleport_region sequence preserves deliberately set rndmongen0/deathdrops0/temperature-1 after every call.",
+      "control": "C null-coder control invokes an initializer-interface adapter once and retains its pointer on repeat. Two fresh JS loader controls each observe default rndmongen1/deathdrops1/temperature0. Adapter tests guard dispatch, not C allocation or initializer contents. Scope excludes resets, finalization/reentrancy, failed allocation, direct private env injection, other APIs and general metadata equivalence.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:6444",
+        "nethack-c/upstream/src/sp_lev.c:6455",
+        "js/mklev.js:2234",
+        "js/mklev.js:4642"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029",
+      "reviewedBase": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_teleport_region:create_des_coder",
+    "evidenceKey": "bebae3a99d40971f16db6e3b9bfcf3d97142350eae567eab535d0344deca8e71",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "5a48a0e8f5901aa3fdfc1a1ae9bcba246477088ae7cd8a0a1302afc75c628b41",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "For normal successful special-level loading, C create_des_coder precedes load_lua and each selected API guard is then a no-op. JS creates the coder once before registering the public des API and shares that environment. Six missing direct guard edges are one initialization-delegation cause, not missing initialization.",
+      "proof": "Source hashes/order checks pin C load_special and six guards, plus JS constructor initialization before API registration. Exact C create_des_coder runs6 times with an initialized coder:0 initializer calls and unchanged pointer/marker. Production JS level_flags,level_init,terrain,wall_property,exclusion,teleport_region sequence preserves deliberately set rndmongen0/deathdrops0/temperature-1 after every call.",
+      "control": "C null-coder control invokes an initializer-interface adapter once and retains its pointer on repeat. Two fresh JS loader controls each observe default rndmongen1/deathdrops1/temperature0. Adapter tests guard dispatch, not C allocation or initializer contents. Scope excludes resets, finalization/reentrancy, failed allocation, direct private env injection, other APIs and general metadata equivalence.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:6444",
+        "nethack-c/upstream/src/sp_lev.c:6455",
+        "js/mklev.js:2234",
+        "js/mklev.js:4642"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029",
+      "reviewedBase": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

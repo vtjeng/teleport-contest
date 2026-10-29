@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-coder-guard-delegation-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "public-des-coder-initialization-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "create_des_coder",
+      "start_line": 6444,
+      "end_line": 6448,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "load_special",
+      "start_line": 6454,
+      "end_line": 6502,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "sp_level_coder_init",
+      "start_line": 6336,
+      "end_line": 6376,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_level_flags",
+      "start_line": 3759,
+      "end_line": 3831,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_level_init",
+      "start_line": 3837,
+      "end_line": 3875,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_terrain",
+      "start_line": 4978,
+      "end_line": 5038,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_wall_property",
+      "start_line": 5876,
+      "end_line": 5908,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_exclusion",
+      "start_line": 5498,
+      "end_line": 5532,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_teleport_region",
+      "start_line": 5443,
+      "end_line": 5460,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "create_des_coder",
+      "start_line": 2244,
+      "end_line": 2246,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "createSpecialLevelApi",
+      "start_line": 4656,
+      "end_line": 5025,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "sp_level_coder_init",
+      "start_line": 2186,
+      "end_line": 2225,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_level_flags",
+      "start_line": 2679,
+      "end_line": 2718,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_level_init",
+      "start_line": 2722,
+      "end_line": 2756,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_terrain",
+      "start_line": 3760,
+      "end_line": 3815,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_wall_property",
+      "start_line": 4452,
+      "end_line": 4480,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_exclusion",
+      "start_line": 4113,
+      "end_line": 4143,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_teleport_region",
+      "start_line": 4070,
+      "end_line": 4083,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    }
+  ],
+  "hypothesis": "Missing repeated create_des_coder calls may indicate missing or repeated initialization in JS public level-construction methods.",
+  "expectedBehavior": "Under normal successful loader ordering, selected C guards are no-ops after initial creation; JS public calls preserve deliberately changed coder-owned level flags.",
+  "observedBehavior": "Source hashes/order checks pin C load_special and six guards, plus JS constructor initialization before API registration. Exact C create_des_coder runs6 times with an initialized coder:0 initializer calls and unchanged pointer/marker. Production JS level_flags,level_init,terrain,wall_property,exclusion,teleport_region sequence preserves deliberately set rndmongen0/deathdrops0/temperature-1 after every call.",
+  "witness": {
+    "kind": "source",
+    "scope": "Source hashes/order checks pin C load_special and six guards, plus JS constructor initialization before API registration. Exact C create_des_coder runs6 times with an initialized coder:0 initializer calls and unchanged pointer/marker. Production JS level_flags,level_init,terrain,wall_property,exclusion,teleport_region sequence preserves deliberately set rndmongen0/deathdrops0/temperature-1 after every call.",
+    "limitations": [
+      "Normal successful special-level load with an initialized coder, the six listed methods and no reset/finalize/reentrant callback. No blanket suppression of all create_des_coder edges, other loaders or direct private environment injection.",
+      "C oracle executes the exact guard only. Its initializer-interface adapter returns a sentinel and counts calls; this proves conditional dispatch, not C allocator correctness, full coder initialization contents or C execution of each API body. The source loader ordering supplies the initialized-pointer precondition.",
+      "JS executes the production loader/API path. Target observes rndmongen/deathdrops/temperature across six calls; controls observe these defaults in two fresh loaders. No broad state, terrain, region enforcement, RNG, callback or finalization equivalence claim.",
+      "C guard preserves an existing pointer/marker across six calls and invokes the adapter once for null on control. Successful allocation/nonreturning failure contract is assumed; OOM/error-handling parity is excluded.",
+      "Whole-file source hashes deliberately invalidate the runner on changed sources; selected wrapper hashes match the frozen scanner base. The map guard key stays unreviewed because of its separate JS attribution gap. Three parked gaps are untouched."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Production JS six-method sequence and source-backed C loader/guard lifecycle; shipped attribution and full API parity not claimed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "For normal successful special-level loading, C create_des_coder precedes load_lua and each selected API guard is then a no-op. JS creates the coder once before registering the public des API and shares that environment. Six missing direct guard edges are one initialization-delegation cause, not missing initialization.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_level_flags:create_des_coder",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_level_init:create_des_coder",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_terrain:create_des_coder",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_wall_property:create_des_coder",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:create_des_coder",
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_teleport_region:create_des_coder"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/README.md",
+      "sha256": "cbbc1c9c7f51065ace66bc1cbfdddddced9b2007e9e0816e92682c039ca286c8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/control-output.txt",
+      "sha256": "1579977ff509a869887e81820dc5a414a0c5323b9c1cce57ab8408983a21b255",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/control-receipt.json",
+      "sha256": "32489ff758b40e26d5301e9f57fb4b380d9684dfd6b0ad1e70980dcf3064fe14",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/decisions.json",
+      "sha256": "c3434269b222f0782dec1a27b231e670c938c37df39ae0c80495cbcbd1e77dd2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/oracle.c",
+      "sha256": "edfba3cd49fee02c8173b54bd6ddb27c811360c5c619969da3cc66eda7b92dba",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/probe.mjs",
+      "sha256": "33630947a11a7ebf3c6b1f7d45ec8ac0ae7b23b1ecbf2d44e2875b051e9f6996",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/projection/manifest.json",
+      "sha256": "8c1296ba30d1e70e83e28e2ba38b88f2eedee073427dbe2c1fa5696b49d3cf8e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/projection/projection.json",
+      "sha256": "896a34c9e24c5616781df50d6fe917bef726231f42ef705a1332372c8908b24a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/projection/review-template.json",
+      "sha256": "3840a8e03f4394c7f0671fdfab977a8a6664e2e238d0669a1ae759f8836bff07",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/source-contract.json",
+      "sha256": "213aa3daf981439d2cc6df2501a804607782a05b43f93704446c5d13fa2a63e6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/source-fingerprints.json",
+      "sha256": "19106d288b50bc80dbb3609e5f0d6db20a97c4e9106ebe730cf68d1f3a9e8ec6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/target-output.txt",
+      "sha256": "cc684f22156f6d5640d7ed7d82fc31373526fe725f6caecd5b2a4f3a29681b26",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/target-receipt.json",
+      "sha256": "e73ea334ea01a52caa23dc8556f7cc997af09e5bcc61cef8cb410c3724547962",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
