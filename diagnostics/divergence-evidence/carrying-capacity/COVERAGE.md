@@ -25,8 +25,10 @@ absolute. Finite matching probes are not exhaustive certification.
 | Nested plain sack recursive weight and threshold cycle | scoped negative | public-nested-sack;2 fixtures |
 | Ordinary tip to floor or sack, pickup/merge | scoped negative | public-tip-weight;2 fixtures |
 | Floor-sack partial removal versus all-fit | scoped negative | public-floor-sack;2 fixtures |
+| Mixed container menu order, automatic filters and counted split rollback | scoped negative | public-container-order;8 fixtures |
+| Three-level plain nesting with threshold cycle | scoped negative | public-depth-three;2 fixtures |
 
-Current public corpus:33 fixtures,29 strict matches,4 failing fixtures grouped
+Current public corpus:43 fixtures,39 strict matches,4 failing fixtures grouped
 into3 semantic causes. No scanner keys or filter rules. Prior arithmetic row
 counts are not cause counts. Source-bound receipts and exposure limits live in
 each package. #105/#108 remain unchanged.
@@ -56,9 +58,9 @@ each package. #105/#108 remain unchanged.
 
 1. Completed the practical ordinary-weight frontier: flat/mixed chains, public
    count split/merge, all burden boundaries, coin rounding, prompts, carried and
-   nested plain sacks, tip routes and floor-sack partial admission. No further
-   distinct source-backed discrepancy is currently qualified in that frontier.
-   This is not exhaustive input/seed/role certification; higher nesting depths,
+   nested plain sacks, tip routes and floor-sack partial admission. Additional menu-order/filter/count-rollback and depth-three probes match;
+   continue with rejected-row continuation before another admissible row.
+   This is not exhaustive input/seed/role certification; nesting beyond three levels,
    arbitrary menu permutations and other object catalogs remain coverage gaps.
 2. Post-fix validation for all three candidates awaits Main's implementation.
    Fresh public reruns are declared in each candidate package; do not repeat

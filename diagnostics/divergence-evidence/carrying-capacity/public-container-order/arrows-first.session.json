@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 642919,
+      "datetime": "20320612101500",
+      "nethackrc": "OPTIONS=name:StackAudit,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,playmode:debug,wizweight,pickup_burden:l\nOPTIONS=packorder:)$\n",
+      "moves": "i\u001b\u0017empty uncursed sack\n\u001b\u00172000 uncursed +0 arrows\n\u001b\u001bi\u001baesf\u001b\u001bi\u001bde\u001b\u001b\u0017759 uncursed +0 arrows\n\u001bi\u001b#loot\nsg\u001b\u001b\u001749 gold pieces\n\u001b#loot\ns$\u001b\u001b\u00171 gold piece\n\u001bi\u001b#loot\noa\n$a\n\u001b\u001b\u001bi\u001b"
+    }
+  ]
+}
