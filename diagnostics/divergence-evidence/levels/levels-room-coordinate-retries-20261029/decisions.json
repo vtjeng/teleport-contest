@@ -1,0 +1,48 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:get_location:somexy",
+    "evidenceKey": "eec8a9559e17f11fb6dee4dc8cf51a1c421284c852f503febc242471388c3b6e",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "07395d896e5ee158f695a71ef23a1fabd144e6483353c5b7bf1ca45d9c9ce813",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "In the tested normal rectangular-room environment, get_location delegates to the default somexy picker and get_free_room_loc normalizes the same supplied coordinate environment. Missing direct-call/extra-environment-helper edges do not imply a coordinate or retry divergence in this domain. Two keys share one room-coordinate delegation cause.",
+      "proof": "Exact ten C coordinate/eligibility helper bodies versus production JS exports. 204 target comparisons: explicit or random initial location on a dry fountain, then success on each fallback attempt1..101 or101 failures before scheduled success102. C/JS agree on coordinates, failure and draw count. Actual room contains14 floor cells and one fountain; no invalid empty-room premise. Whole room_coordinates.js is unchanged from the frozen scanner base.",
+      "control": "Four direct-floor controls (explicit/random initial position, early/late unused success tape) return10,6 with0/2 draws and no fallback. C panic adapter longjmps to record nonreturning failure; no diagnostic-string/error-runtime parity claim. Shared legal draw tape tests consumption, not independent RNG. Regular5x3 room only, no objects/subrooms/irregularity/water-level/custom picker; no full caller placement/finalization/runtime claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1200",
+        "nethack-c/upstream/src/sp_lev.c:1385",
+        "nethack-c/upstream/src/mkroom.c:694",
+        "js/room_coordinates.js:205",
+        "js/room_coordinates.js:339"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029",
+      "reviewedBase": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:get_free_room_loc:coordinateEnvironment",
+    "evidenceKey": "1543938c28f790f43d51a9cc67bebe3ff83b72c92d4860d79720bea5bf7df0eb",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "f32c2774df8a3de2cac15423398dd938717ac44fc29f3f9ad035b460d98671b7",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "In the tested normal rectangular-room environment, get_location delegates to the default somexy picker and get_free_room_loc normalizes the same supplied coordinate environment. Missing direct-call/extra-environment-helper edges do not imply a coordinate or retry divergence in this domain. Two keys share one room-coordinate delegation cause.",
+      "proof": "Exact ten C coordinate/eligibility helper bodies versus production JS exports. 204 target comparisons: explicit or random initial location on a dry fountain, then success on each fallback attempt1..101 or101 failures before scheduled success102. C/JS agree on coordinates, failure and draw count. Actual room contains14 floor cells and one fountain; no invalid empty-room premise. Whole room_coordinates.js is unchanged from the frozen scanner base.",
+      "control": "Four direct-floor controls (explicit/random initial position, early/late unused success tape) return10,6 with0/2 draws and no fallback. C panic adapter longjmps to record nonreturning failure; no diagnostic-string/error-runtime parity claim. Shared legal draw tape tests consumption, not independent RNG. Regular5x3 room only, no objects/subrooms/irregularity/water-level/custom picker; no full caller placement/finalization/runtime claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1200",
+        "nethack-c/upstream/src/sp_lev.c:1385",
+        "nethack-c/upstream/src/mkroom.c:694",
+        "js/room_coordinates.js:205",
+        "js/room_coordinates.js:339"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029",
+      "reviewedBase": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

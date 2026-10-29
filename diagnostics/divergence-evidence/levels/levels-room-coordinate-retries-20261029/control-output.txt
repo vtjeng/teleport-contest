@@ -1,0 +1,5 @@
+{"mode":"control","count":4,"scope":"Rectangular room, no subrooms/irregularity, DRY, no objects, controlled legal draw tape; helper output and draw consumption only."}
+{"random":0,"success":1,"direct":1,"result":[0,10,6,0]}
+{"random":0,"success":102,"direct":1,"result":[0,10,6,0]}
+{"random":1,"success":1,"direct":1,"result":[0,10,6,2]}
+{"random":1,"success":102,"direct":1,"result":[0,10,6,2]}

@@ -1,0 +1,54 @@
+{
+  "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/mkroom.c": "bef143b8557acd2636512fb3a824314bd36bd599e11ba536c1d45d867a04499c",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/include/sp_lev.h": "a48d5bd2d9a5b20b474b790d52f4f19179678c87ec0b51019e39dc6684d7a6bf",
+    "js/room_coordinates.js": "9621ab8b435e3803438c5b0762793ba2db554a2f57f0f178f443b1663e8c08d9",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somex"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somey"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexy"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "is_ok_location"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_location"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_unpacked_coord"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_location_coord"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_room_loc"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_free_room_loc"
+    }
+  ]
+}

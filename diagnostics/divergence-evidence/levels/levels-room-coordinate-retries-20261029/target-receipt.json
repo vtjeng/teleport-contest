@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T00:35:19.361Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "2f66f782180f660bdcc85ad49f966c789fae7f6975841d79497a81447dc3decb",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/oracle.c": "f293831f5eb364da6c46bf7128bc6386e0f69130dd188f9956842b2eab3fee44",
+    "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/source-contract.json": "44835470626a9a94352d37ca5b53164db061cdd8f185cc31bf349270509df43c"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/target-output.txt"
+  ]
+}
