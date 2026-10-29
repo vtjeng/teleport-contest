@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "xp-overshoot-revisit",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+    "xp-overshoot-revisit",
+    "/tmp/hero-xp-overshoot-revisit-final-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "fdaa960271b2eab9d9e2314d413f80258122b577",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:43:52.762165+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/recipes/xp-overshoot-revisit.json": "35a1e050343c3fe14aa4220c41afd66d965c3b64ef33c62ce7d79fba62875119"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/worker.json"
+  ]
+}

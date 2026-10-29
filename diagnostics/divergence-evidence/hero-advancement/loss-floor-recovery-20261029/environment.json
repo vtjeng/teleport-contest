@@ -1,0 +1,36 @@
+{
+  "node": "v24.19.0",
+  "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+  "runs": {
+    "control": {
+      "binarySha256": "cd09bfa5064283fc9ff07da32f8c8245c8bcd1d388cc60cd2ce19da122f33f28",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "/tmp/hero-threshold-oracle-LsXZNT/oracle.c",
+        "-o",
+        "/tmp/hero-threshold-oracle-LsXZNT/oracle"
+      ],
+      "elapsedSeconds": 0.07200121879577637,
+      "scope": "generated source to saved result; elapsed, not active compute; excludes setup/publication"
+    },
+    "target": {
+      "binarySha256": "ad31cec29799f910d40955ff39e8f01987387af29b259ba76e74acaefdcaf228",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "/tmp/hero-threshold-oracle-6fLLIh/oracle.c",
+        "-o",
+        "/tmp/hero-threshold-oracle-6fLLIh/oracle"
+      ],
+      "elapsedSeconds": 0.14000225067138672,
+      "scope": "generated source to saved result; elapsed, not active compute; excludes setup/publication"
+    }
+  }
+}
