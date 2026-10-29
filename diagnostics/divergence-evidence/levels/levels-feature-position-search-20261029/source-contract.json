@@ -1,0 +1,46 @@
+{
+  "jsSha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/mklev.js": "c2447e3e03bc7b1575dfc7b41bafec0a01a18181f989a14bf33bdd6a1b102398",
+    "js/mktrap.js": "60e4c645ed1fcd2e418d9ebf68466ab4dddf7a4fa65c93d54f2570e5acfcf153",
+    "js/room_coordinates.js": "9621ab8b435e3803438c5b0762793ba2db554a2f57f0f178f443b1663e8c08d9",
+    "js/room_features.js": "67ab8548fafef92566065a4bf43d2e85ef99b0dc10ad375cc84cff256db3b36c",
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4",
+    "nethack-c/upstream/src/mkroom.c": "bef143b8557acd2636512fb3a824314bd36bd599e11ba536c1d45d867a04499c"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somex"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somey"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexy"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexyspace"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "occupied"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "bydoor"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "find_okay_roompos"
+    }
+  ]
+}

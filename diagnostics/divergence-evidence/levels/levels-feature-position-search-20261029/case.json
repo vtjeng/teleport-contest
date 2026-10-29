@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-feature-position-search-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "room-feature-search-hook-delegation",
+  "relatedCases": [
+    "levels-room-coordinate-retries-20261029"
+  ],
+  "provenance": {
+    "jsSha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somex",
+      "start_line": 666,
+      "end_line": 669,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somey",
+      "start_line": 672,
+      "end_line": 675,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room",
+      "start_line": 678,
+      "end_line": 687,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexy",
+      "start_line": 694,
+      "end_line": 740,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexyspace",
+      "start_line": 744,
+      "end_line": 756,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "occupied",
+      "start_line": 1806,
+      "end_line": 1811,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "bydoor",
+      "start_line": 1750,
+      "end_line": 1775,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "find_okay_roompos",
+      "start_line": 2303,
+      "end_line": 2314,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_features.js",
+      "symbol": "find_okay_roompos",
+      "start_line": 45,
+      "end_line": 57,
+      "commit_sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_features.js",
+      "symbol": "roomFeatureEnv",
+      "start_line": 30,
+      "end_line": 36,
+      "commit_sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_features.js",
+      "symbol": "roomHook",
+      "start_line": 38,
+      "end_line": 43,
+      "commit_sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "somexyspace",
+      "start_line": 7609,
+      "end_line": 7623,
+      "commit_sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "bydoor",
+      "start_line": 7296,
+      "end_line": 7304,
+      "commit_sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62"
+    }
+  ],
+  "hypothesis": "JS hook dispatch might omit sampling/door rejection or alter the C retry boundary.",
+  "expectedBehavior": "Sample accessible coordinates and reject door-adjacent positions for at most200 attempts; return early on sampler failure and preserve the last candidate on exhaustion.",
+  "observedBehavior": "Exact C find_okay_roompos, somexyspace, somexy, somex, somey, inside_room, occupied and bydoor match exported JS find_okay_roompos and somexyspace with exact source-extracted private JS bydoor. Forty-eight targets cover four cardinal door positions, ordinary/secret doors and first success at attempts 1, 2, 50, 199, 200 or 201. Eight controls cover no-door immediate acceptance and sampler failure after 101 occupied candidates. Return values, retained coordinates and shared-tape consumption match. JS hook counters confirm the 200-attempt boundary and bydoor short circuit.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Exact C find_okay_roompos, somexyspace, somexy, somex, somey, inside_room, occupied and bydoor match exported JS find_okay_roompos and somexyspace with exact source-extracted private JS bydoor. Forty-eight targets cover four cardinal door positions, ordinary/secret doors and first success at attempts 1, 2, 50, 199, 200 or 201. Eight controls cover no-door immediate acceptance and sampler failure after 101 occupied candidates. Return values, retained coordinates and shared-tape consumption match. JS hook counters confirm the 200-attempt boundary and bydoor short circuit.",
+    "limitations": [
+      "One cause and four scanner keys, not four behavior discoveries. Finite 48-target/8-control domain; six first-success positions, four cardinal doors and two door types. No universal RNG or layout parity claim.",
+      "Exact C sampler/search/predicate bodies run over a 5x5 regular room with no subrooms. JS exported search and sampler run directly; the private bydoor body is extracted verbatim and injected through the production hooks interface with the matched state. This is a component-delegation proof, not full public Lua binding or loader execution.",
+      "Shared deterministic legal rn1/rn2 draw values drive both engines; independent RNG streams and seed reachability are not established. C trap/fluid/invocation adapters represent their absence in these fixtures, not those implementations. No monster/object/runtime behavior executes.",
+      "No-door controls prove immediate acceptance; all-FOUNTAIN controls prove somexyspace failure after 101 rejected draws and short-circuit before bydoor. Such terrain is a valid construction snapshot, not a claim that ordinary room generation emits it. All candidate coordinates are within room bounds.",
+      "Room geometry generation, irregular rooms, subroom exclusion, feature placement/counters, full finalization, malformed hooks, diagnostics, mixed frames and runtime are outside scope. Existing coordinate-retry proofs are not enlarged beyond these composed search paths.",
+      "Three parked gaps and cave-cap remain unresolved. Previously denied work is excluded. Main owns all candidate repairs."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exported component APIs with production hook interface and exact private predicate extraction; no shipped recording or complete Lua loader attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The JS environment and hook calls retain the C search-loop delegation to somexyspace and bydoor. They do not omit the sampler or door predicate in the tested production environment contract.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:find_okay_roompos:bydoor",
+      "source-audit:edge-c-only:src/mklev.c:find_okay_roompos:somexyspace",
+      "source-audit:edge-js-helper:src/mklev.c:find_okay_roompos:roomFeatureEnv",
+      "source-audit:edge-js-helper:src/mklev.c:find_okay_roompos:roomHook"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/README.md",
+      "sha256": "95cf08c9ed93cab7cad0790f1b31e9b9752130c9d6c827267a10046363d32bfe",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/control-output.txt",
+      "sha256": "995d0293b3b2d7f214ccb83c74092c4f0f8d22c9710a14fcedd943f063654dc5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/control-receipt.json",
+      "sha256": "fba1b31d21d49c7ba612042ef73eb00ce4f9b944e6c8447f693b5a7e33919139",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/decisions.json",
+      "sha256": "e2c855c3f5925ea73ad26571099b3a85d45c38bde8c65976a294802db7ae1fef",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/oracle.c",
+      "sha256": "c1128b5d848f7ba39f041a3ad5ebfef7e3952132d315b2016afbc6dd0ee3ec1e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/probe.mjs",
+      "sha256": "5aa11429b9422337a4599c47ca9f448561d24de7b089aabe899c69f14d95b53e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/projection/manifest.json",
+      "sha256": "bad76c58b0e10680b6a792b09bc8346111a8d67ba40e6d2fc6771c79424591d6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/projection/projection.json",
+      "sha256": "cb55fc3e507ca6d1e6f5ae0ac92a4ebe9ea1a2991099fa1e91505d6fe5aa88f9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/projection/review-template.json",
+      "sha256": "2e3d86c2a5b4a71e50ab6fab114438b5e027a5d262e90b016b64517cfc101a52",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/source-contract.json",
+      "sha256": "b36bbce3cfebe88f3a555bed17f866c8872801ee64183967e013fb0c3c990784",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/source-fingerprints.json",
+      "sha256": "a90465fdccb283135ceb69d13d5b99af9b38b8a22429d61e698b3d624cf99496",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/target-output.txt",
+      "sha256": "2b9134c7357c990a71eafe0bd6f2617751be1b41fd3e1d18937cb15c25180bb2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/target-receipt.json",
+      "sha256": "738a218e5cedaa6026aee60e4aa1d410011d40f29a6dbe2e10f6639f6835e20d",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

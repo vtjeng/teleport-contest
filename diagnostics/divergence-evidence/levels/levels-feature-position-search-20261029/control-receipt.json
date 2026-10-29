@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T02:25:11.522Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "5aa11429b9422337a4599c47ca9f448561d24de7b089aabe899c69f14d95b53e",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/oracle.c": "c1128b5d848f7ba39f041a3ad5ebfef7e3952132d315b2016afbc6dd0ee3ec1e",
+    "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/source-contract.json": "b36bbce3cfebe88f3a555bed17f866c8872801ee64183967e013fb0c3c990784"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029/control-output.txt"
+  ]
+}

@@ -1,0 +1,9 @@
+{"side":0,"secret":0,"success":201,"setup":1,"result":[1,10,6,2],"attempts":1,"doorChecks":1,"equal":true}
+{"side":0,"secret":0,"success":201,"setup":2,"result":[0,10,6,202],"attempts":1,"doorChecks":0,"equal":true}
+{"side":1,"secret":0,"success":201,"setup":1,"result":[1,14,10,2],"attempts":1,"doorChecks":1,"equal":true}
+{"side":1,"secret":0,"success":201,"setup":2,"result":[0,14,10,202],"attempts":1,"doorChecks":0,"equal":true}
+{"side":2,"secret":0,"success":201,"setup":1,"result":[1,10,6,2],"attempts":1,"doorChecks":1,"equal":true}
+{"side":2,"secret":0,"success":201,"setup":2,"result":[0,10,6,202],"attempts":1,"doorChecks":0,"equal":true}
+{"side":3,"secret":0,"success":201,"setup":1,"result":[1,14,10,2],"attempts":1,"doorChecks":1,"equal":true}
+{"side":3,"secret":0,"success":201,"setup":2,"result":[0,14,10,202],"attempts":1,"doorChecks":0,"equal":true}
+{"mode":"control","count":8,"equal":true}
