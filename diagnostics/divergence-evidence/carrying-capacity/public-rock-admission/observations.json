@@ -1,0 +1,100 @@
+[
+  {
+    "name": "partial",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2408,
+        "js": 2408
+      },
+      "screens": {
+        "c": 45,
+        "js": 45
+      },
+      "cursors": {
+        "c": 45,
+        "js": 45
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "observations": [
+      {
+        "step": 15,
+        "rocks": 275,
+        "total": 2840
+      },
+      {
+        "step": 21,
+        "rocks": 273,
+        "total": 2820
+      },
+      {
+        "step": 35,
+        "rocks": 273,
+        "total": 2835
+      },
+      {
+        "step": 39,
+        "rocks": 274,
+        "total": 2845
+      },
+      {
+        "step": 43,
+        "rocks": 274,
+        "total": 2845
+      }
+    ]
+  },
+  {
+    "name": "all-fit",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2365,
+        "js": 2365
+      },
+      "screens": {
+        "c": 44,
+        "js": 44
+      },
+      "cursors": {
+        "c": 44,
+        "js": 44
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "observations": [
+      {
+        "step": 15,
+        "rocks": 275,
+        "total": 2840
+      },
+      {
+        "step": 21,
+        "rocks": 273,
+        "total": 2820
+      },
+      {
+        "step": 34,
+        "rocks": 273,
+        "total": 2824
+      },
+      {
+        "step": 38,
+        "rocks": 275,
+        "total": 2844
+      },
+      {
+        "step": 42,
+        "rocks": 275,
+        "total": 2844
+      }
+    ]
+  }
+]

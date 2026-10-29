@@ -1,0 +1,128 @@
+[
+  {
+    "name": "round50",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2292,
+        "js": 2292
+      },
+      "screens": {
+        "c": 47,
+        "js": 47
+      },
+      "cursors": {
+        "c": 47,
+        "js": 47
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "observations": [
+      {
+        "step": 35,
+        "qty": 50,
+        "line": "                      $ - 50 gold pieces (1 aum)",
+        "status": "Dlvl:1 $:50 HP:16(16) Pw:2(2) AC:6 Xp:1 Burdened"
+      },
+      {
+        "step": 41,
+        "qty": 49,
+        "line": "                      $ - 49 gold pieces (1 aum)",
+        "status": "Dlvl:1 $:49 HP:16(16) Pw:2(2) AC:6 Xp:1"
+      },
+      {
+        "step": 45,
+        "qty": 50,
+        "line": "                      $ - 50 gold pieces (1 aum)",
+        "status": "Dlvl:1 $:50 HP:16(16) Pw:2(2) AC:6 Xp:1 Burdened"
+      }
+    ]
+  },
+  {
+    "name": "round150",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2292,
+        "js": 2292
+      },
+      "screens": {
+        "c": 48,
+        "js": 48
+      },
+      "cursors": {
+        "c": 48,
+        "js": 48
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "observations": [
+      {
+        "step": 36,
+        "qty": 150,
+        "line": "                      $ - 150 gold pieces (2 aum)",
+        "status": "Dlvl:1 $:150 HP:16(16) Pw:2(2) AC:6 Xp:1 Burdened"
+      },
+      {
+        "step": 42,
+        "qty": 149,
+        "line": "                      $ - 149 gold pieces (1 aum)",
+        "status": "Dlvl:1 $:149 HP:16(16) Pw:2(2) AC:6 Xp:1"
+      },
+      {
+        "step": 46,
+        "qty": 150,
+        "line": "                      $ - 150 gold pieces (2 aum)",
+        "status": "Dlvl:1 $:150 HP:16(16) Pw:2(2) AC:6 Xp:1 Burdened"
+      }
+    ]
+  },
+  {
+    "name": "control49",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2285,
+        "js": 2285
+      },
+      "screens": {
+        "c": 47,
+        "js": 47
+      },
+      "cursors": {
+        "c": 47,
+        "js": 47
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "observations": [
+      {
+        "step": 35,
+        "qty": 49,
+        "line": "                      $ - 49 gold pieces (1 aum)",
+        "status": "Dlvl:1 $:49 HP:16(16) Pw:2(2) AC:6 Xp:1"
+      },
+      {
+        "step": 41,
+        "qty": 48,
+        "line": "                      $ - 48 gold pieces (1 aum)",
+        "status": "Dlvl:1 $:48 HP:16(16) Pw:2(2) AC:6 Xp:1"
+      },
+      {
+        "step": 45,
+        "qty": 49,
+        "line": "                      $ - 49 gold pieces (1 aum)",
+        "status": "Dlvl:1 $:49 HP:16(16) Pw:2(2) AC:6 Xp:1"
+      }
+    ]
+  }
+]
