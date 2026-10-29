@@ -38,12 +38,15 @@ test('dashboard injection embeds self-contained models and the historical notice
   assert.doesNotMatch(output, /<!--REPORTING_CONTEXT_PLACEHOLDER-->/u);
 });
 
-test('applied-source notice matches only the local selected original patches', () => {
+test('applied-source notice separates frozen54 selection from its recovery chunk', () => {
   const manifest = JSON.parse(readFileSync(new URL('../experiments/restoration/later-source-selection-20261029.json', import.meta.url), 'utf8'));
-  assert.deepEqual(context.reintroducedSources, manifest.includedSources);
+  const local = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-long-count-input-20261029.json', import.meta.url), 'utf8'));
+  assert.equal(context.localFollowonManifest, 'experiments/restoration/recovery-long-count-input-20261029.json');
+  assert.deepEqual(context.reintroducedSources, [...manifest.includedSources, ...local.sources]);
+  assert.equal(createHash('sha256').update(readFileSync(new URL('../experiments/restoration/later-source-selection-20261029.json', import.meta.url))).digest('hex'), '7c2d773a4a571b3fc1ec1bae179950e69da089aa40ed5632bac5ca01c697eaeb');
   assert.equal(new Set(context.reintroducedSources).size, context.reintroducedSources.length);
   for (const decision of manifest.decisions) {
-    assert.equal(context.reintroducedSources.includes(decision.sha),
+    assert.equal(manifest.includedSources.includes(decision.sha),
       decision.status === 'selected-reconciliation', decision.sha);
   }
 });
