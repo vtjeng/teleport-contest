@@ -391,6 +391,29 @@ test('mines finish_map stores source pool and moat ice flags', async () => {
     }
 });
 
+for (const icedpools of [false, true]) {
+    test(`solidfill clears ${icedpools ? 'pool' : 'moat'} ice provenance`, async () => {
+        await runLoader(async des => {
+            des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+            if (icedpools) des.level_flags('icedpools');
+            for (let x = 10; x < 13; x++) for (let y = 6; y < 9; y++)
+                des.terrain({ x: x - 1, y, typ: 'I', lit: 0 });
+            const origin = icedpools ? ICED_POOL : ICED_MOAT;
+            for (let x = 10; x < 13; x++) for (let y = 6; y < 9; y++)
+                assert.equal(game.level.at(x, y).icedpool, origin);
+            // Ordinary terrain redraw retains origin; C lvlfill_solid then
+            // clears the shared flags word even for ICE-to-ICE replacement.
+            des.terrain({ x: 9, y: 6, typ: 'I', lit: 0 });
+            assert.equal(game.level.at(10, 6).icedpool, origin);
+            des.level_init({ style: 'solidfill', fg: 'I', bg: 'I', lit: 0 });
+            for (let x = 10; x < 13; x++) for (let y = 6; y < 9; y++) {
+                assert.equal(game.level.at(x, y).typ, ICE);
+                assert.equal(game.level.at(x, y).icedpool, 0);
+            }
+        });
+    });
+}
+
 test('fixed des.stair forces ROOM before a dungeon-end refusal', async () => {
     const source = readFileSync('nethack-c/upstream/src/mklev.c', 'utf8');
     const stairs = source.slice(source.indexOf('mkstairs(\n'), source.indexOf('/* is room a good one'));

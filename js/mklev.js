@@ -1806,6 +1806,7 @@ function lvlfill_solid(filling, lit, frame, state) {
             loc.flags = 0;
             loc.wall_info = 0;
             loc.doormask = 0;
+            loc.icedpool = 0;
             loc.horizontal = false;
             loc.roomno = 0;
             loc.edge = false;

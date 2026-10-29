@@ -1,0 +1,32 @@
+{
+  "testedJsSha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "discoveredAt": "2026-10-29T00:14:17.251979+00:00",
+  "reviewedAt": "2026-10-29T00:14:17.251979+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:lspo_level_init": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde",
+    "nethack-c/upstream/src/sp_lev.c:splev_initlev": "4bfdf774370460e956830e3a3d825252fef166a623886fd036a7664c0b59eb60",
+    "nethack-c/upstream/src/sp_lev.c:lvlfill_solid": "0eb3809f0e0cc79d09d8992f030ffe512566389d511cabca324f275923bd3d05",
+    "nethack-c/upstream/src/sp_lev.c:lvlfill_maze_grid": "6150e734499db52cda387bf5f274961f1baec1cf79073c579d2f007314292e99",
+    "nethack-c/upstream/src/sp_lev.c:sel_set_ter": "63ad752215977fad6413b49ba0d08c6afcc0a82cbc46a4f2409ef9f049ae451c",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp_lit": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "js/mklev.js:lspo_level_init": "33ac00c2c02d4782bf58c570cbe5d6e1bb056b41e5151aef7ce1c7d0701beadf",
+    "js/mklev.js:splev_initlev": "3e7d69011ecd7e800f1c2a054f42d7a7740cf04403f9d24fa9d8c938ac589021",
+    "js/mklev.js:lvlfill_solid": "bcab58a3c9b1dfdd2f33edcff19a6c9194fe18387c6b1604afcf8dfea9dc8270",
+    "js/mklev.js:lvlfill_maze_grid": "02e6f40df50c9d98b5002d73efb61267022bd40e0359060267243ec868d7b064",
+    "js/mklev.js:sel_set_ter": "65d430c52c8193c976c009a1c9cd2161803c0988af8aebfbdbfb846a39d02f32",
+    "js/mklev.js:lspo_level_flags": "d9e0b4413980ce693e7a8952492e6529a62503973cfc4c091c8ba72c07bc8fb0",
+    "js/terrain.js:set_levltyp": "d6f85b9b1362cf808def430488df96a836410a891e6bede877839001a1c07bf4"
+  },
+  "configuration": "clang -std=c99 -O2 exact C init/terrain functions, rm flags aliases and typed readers; Node24.19.0 special loader,seed0x5eed,datetime20400314015926,Tourist/human/female/neutral,bonesfalse; sentinel before finalization.",
+  "limitations": [
+    "Construction metadata only:two provenance choices8/16 on nine interior ICE cells, rewritten ICE-to-ICE by solidfill. No melting, timer execution, object/monster effects, movement or finalization claim. C runtime-effect adapters abort if reached.",
+    "The setup uses public des.level_flags(icedpools) or default moat mode, level_init floor and des.terrain ICE. C prepares the same fixed coordinates using exact sel_set_ter and the corresponding icedpools configuration, then executes exact lspo_level_init/splev_initlev/lvlfill_solid with typed readers. The before-state is observed and asserted on both sides, not invented.",
+    "C is_ice is restricted to the fixture terrain set and returns typ==ICE. It is used only to identify ICE-to-ICE changes; no ice removal branch is exercised. Maze-grid control writes terrain directly, as production source does.",
+    "The target has the same shared-flags clearing mechanism as the accepted solidfill wall-property repair. This is an additional icedpool alias left out of that repair, not a new independent repair identity. The prior map-ice assignment case remains distinct for deduplication.",
+    "Shipped exposure unknown. The fixture does not establish all metadata aliases, arbitrary fills, lighting semantics or gameplay impact."
+  ]
+}

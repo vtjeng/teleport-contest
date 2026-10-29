@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T02:45:55Z",
+  "asOf": "2026-10-29T03:05:24Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25388,7 +25388,8 @@
         ],
         "witness": [
           "diagnostics/divergence-evidence/levels/levels-map-wall-reset-20261028/case.json",
-          "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/case.json"
+          "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/case.json",
+          "diagnostics/divergence-evidence/levels/levels-solidfill-ice-reset-20261029/case.json"
         ],
         "test": [
           "diagnostics/divergence-evidence/levels/levels-map-wall-reset-20261028/probe.mjs",
@@ -26986,7 +26987,58 @@
           "scripts/mklev-hell-reset.test.mjs"
         ]
       },
-      "candidates": []
+      "candidates": [
+        {
+          "sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+          "committedAt": "2026-10-29T02:51:02Z",
+          "sourceCommit": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+          "sourceCommittedAt": "2026-10-29T02:51:02Z",
+          "runs": [
+            {
+              "id": 40808834048,
+              "name": "Checkpoint",
+              "sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/reset-hell-temperature-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:51:39Z",
+              "completedAt": "2026-10-29T03:02:22Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40808834048"
+            },
+            {
+              "id": 40809962564,
+              "name": "Lint",
+              "sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T03:03:36Z",
+              "completedAt": "2026-10-29T03:04:46Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40809962564"
+            },
+            {
+              "id": 40809962464,
+              "name": "Dashboard",
+              "sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T03:03:35Z",
+              "completedAt": "2026-10-29T03:05:24Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40809962464"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
