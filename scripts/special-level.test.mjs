@@ -12,7 +12,7 @@ import { monst_globals_init } from '../js/monsters.js';
 import { TIN, EGG, APPLE, CORPSE, STATUE, FIGURINE, objects_globals_init } from '../js/objects.js';
 import { PM_CHAMELEON, PM_CAVE_DWELLER, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
-import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, D_LOCKED, HWALL, STONE, TREE } from '../js/const.js';
+import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, D_LOCKED, HWALL, STONE, TREE, MORGUE, TEMPLE, RUST_TRAP, ANTI_MAGIC } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -103,6 +103,43 @@ test('levregion destination names retain the C string prefix', async () => {
         });
     }
 });
+
+test('region types use copied C string prefixes', async () => {
+    for (const [name, type] of [
+        ['morgue\0suffix', MORGUE], ['temple\0suffix', TEMPLE],
+        ['morgue', MORGUE], ['temple', TEMPLE], ['ordinary', null],
+    ]) {
+        await runLoader(des => {
+            des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+            des.region({ x1: 10, y1: 6, x2: 14, y2: 8,
+                type: name, lit: 0, filled: 0 });
+            assert.equal(game.level.nroom, type === null ? 0 : 1);
+            if (type !== null) {
+                const r = game.level.rooms[0];
+                assert.deepEqual([r.rtype, r.lx, r.ly, r.hx, r.hy, r.needfill,
+                    Number(r.needjoining)], [type, 11, 6, 15, 8, 0, 1]);
+            }
+        });
+    }
+});
+
+for (const table of [false, true]) {
+    test(`trap type C string prefixes, table=${table}`, async () => {
+        for (const [name, type] of [
+            ['rust\0suffix', RUST_TRAP], ['anti magic\0suffix', ANTI_MAGIC],
+            ['rust', RUST_TRAP], ['anti magic', ANTI_MAGIC], ['RuSt', RUST_TRAP],
+        ]) {
+            await runLoader(des => {
+                des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+                if (table) des.trap({ type: name, x: 10, y: 6,
+                    spider_on_web: false, victim: false });
+                else des.trap(name, 10, 6);
+                assert.deepEqual(game.level.traps.map(t =>
+                    [t.tx, t.ty, t.ttyp, Number(t.tseen)]), [[11, 6, type, 0]]);
+            });
+        }
+    });
+}
 
 for (const [property, bit] of [['nondiggable', 8], ['nonpasswall', 16]]) {
     for (const style of ['solidfill', 'mazegrid']) {

@@ -3265,8 +3265,10 @@ export function get_trapname_bytype(ttyp) {
 // C ref: sp_lev.c get_traptype_byname(). The trap type of a Lua trap name,
 // compared case-insensitively; NO_TRAP for an unknown name.
 export function get_traptype_byname(trapname) {
+    // C strcmpi() sees the first NUL-terminated positional argument.
+    const prefix = trapname.split('\0', 1)[0];
     for (const [name, type] of trap_types)
-        if (lcase(trapname) === name)
+        if (lcase(prefix) === name)
             return type;
 
     return NO_TRAP;
@@ -4115,8 +4117,7 @@ export function lspo_levregion(args, env) {
                                                       'stair-down',
                                                       regiontypes)];
     tmplregion.padding = get_table_int_opt(table, 'padding', 0);
-    // C get_table_str_opt() returns a dupstr(): retain its C-string prefix.
-    tmplregion.rname = get_table_str_opt(table, 'name', null)?.split('\0', 1)[0] ?? null;
+    tmplregion.rname = get_table_str_opt(table, 'name', null);
 
     levregion_add(tmplregion, env);
 }
