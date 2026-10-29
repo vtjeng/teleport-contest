@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T01:11:32Z",
+  "asOf": "2026-10-29T02:11:23Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25882,17 +25882,22 @@
         "source": [
           "nethack-c/upstream/src/sp_lev.c:lspo_message",
           "js/mklev.js:lspo_message",
-          "nethack-c/upstream/src/sp_lev.c:lspo_engraving"
+          "nethack-c/upstream/src/sp_lev.c:lspo_engraving",
+          "nethack-c/upstream/src/nhlua.c:get_table_option",
+          "nethack-c/upstream/src/sp_lev.c:lspo_door/lspo_ladder/lspo_feature",
+          "js/nhlua.js:luaL_checkoption"
         ],
         "witness": [
           "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
           "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/case.json",
           "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/case.json",
           "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/case.json",
-          "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/case.json"
+          "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/case.json",
+          "diagnostics/divergence-evidence/levels/levels-option-string-family-20261029/case.json"
         ],
         "test": [
-          "scripts/special-level.test.mjs"
+          "scripts/special-level.test.mjs",
+          "scripts/nhlua-table-helpers.test.mjs"
         ]
       },
       "candidates": [
@@ -26043,6 +26048,56 @@
               "completedAt": "2026-10-29T01:11:32Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40798676527"
+            }
+          ]
+        },
+        {
+          "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+          "committedAt": "2026-10-29T01:57:11Z",
+          "sourceCommit": "868e2465451b7f319f71dc5611cc66184a212457",
+          "sourceCommittedAt": "2026-10-29T01:55:52Z",
+          "runs": [
+            {
+              "id": 40803522703,
+              "name": "Checkpoint",
+              "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mapchar-drawbridge-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T01:57:49Z",
+              "completedAt": "2026-10-29T02:08:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40803522703"
+            },
+            {
+              "id": 40804705476,
+              "name": "Lint",
+              "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:09:46Z",
+              "completedAt": "2026-10-29T02:10:49Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40804705476"
+            },
+            {
+              "id": 40804705539,
+              "name": "Dashboard",
+              "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:09:46Z",
+              "completedAt": "2026-10-29T02:11:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40804705539"
             }
           ]
         }
@@ -26582,7 +26637,58 @@
           "scripts/special-level.test.mjs"
         ]
       },
-      "candidates": []
+      "candidates": [
+        {
+          "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+          "committedAt": "2026-10-29T01:57:11Z",
+          "sourceCommit": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+          "sourceCommittedAt": "2026-10-29T01:57:11Z",
+          "runs": [
+            {
+              "id": 40803522703,
+              "name": "Checkpoint",
+              "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mapchar-drawbridge-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T01:57:49Z",
+              "completedAt": "2026-10-29T02:08:58Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40803522703"
+            },
+            {
+              "id": 40804705476,
+              "name": "Lint",
+              "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:09:46Z",
+              "completedAt": "2026-10-29T02:10:49Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40804705476"
+            },
+            {
+              "id": 40804705539,
+              "name": "Dashboard",
+              "sha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:09:46Z",
+              "completedAt": "2026-10-29T02:11:23Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40804705539"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "selection-frame-normalization",
