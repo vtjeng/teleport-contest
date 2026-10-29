@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "skill-spent-control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+    "skill-spent-control",
+    "/tmp/hero-integration-final-skill-spent-control-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:12:59.544552+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/skill-spent-control.json": "8527f43875609b40e40277e6a1544f5b959baf8eb34e9d39b98a45823f625bba"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/skill-spent-control/worker.json"
+  ]
+}

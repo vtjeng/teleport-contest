@@ -1,0 +1,41 @@
+{
+  "node": "v24.19.0",
+  "binaryAndAdjacentSourceHashes": {
+    "nethack-c/recorder/install/games/lib/nethackdir/nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "nethack-c/recorder/src/exper.c": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+    "nethack-c/recorder/src/attrib.c": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+    "nethack-c/recorder/src/weapon.c": "75769f6a3113224ea20414f75fc8b1159b6712bc7154905443e4fc1a4912bc2d",
+    "nethack-c/recorder/src/do.c": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f",
+    "nethack-c/recorder/src/wizcmds.c": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f"
+  },
+  "adjacentSourceMatchesPinned": {
+    "exper": true,
+    "attrib": true,
+    "weapon": true,
+    "do": true,
+    "wizcmds": true
+  },
+  "buildAttestation": null,
+  "runs": {
+    "below": {
+      "elapsedSeconds": 1.1570611000061035,
+      "scope": "recipe capture to saved result, excludes setup and publication"
+    },
+    "equal": {
+      "elapsedSeconds": 1.0847465991973877,
+      "scope": "recipe capture to saved result, excludes setup and publication"
+    },
+    "above": {
+      "elapsedSeconds": 0.9387450218200684,
+      "scope": "recipe capture to saved result, excludes setup and publication"
+    },
+    "skill-spent-control": {
+      "elapsedSeconds": 1.0599734783172607,
+      "scope": "recipe capture to saved result, excludes setup and publication"
+    },
+    "skill-refund": {
+      "elapsedSeconds": 1.266885757446289,
+      "scope": "recipe capture to saved result, excludes setup and publication"
+    }
+  }
+}

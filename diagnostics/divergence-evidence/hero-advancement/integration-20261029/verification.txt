@@ -1,0 +1,6 @@
+below: parity and intended transition assertions pass
+equal: parity and intended transition assertions pass
+above: parity and intended transition assertions pass
+skill-spent-control: parity and intended transition assertions pass
+{"name":"skill-refund","slots":[{"step":52,"line":"Current skills:  (0 slots available)"},{"step":90,"line":"Current skills:  (1 slot available)"},{"step":128,"line":"Current skills:  (2 slots available)"}]}
+skill-refund: parity and intended transition assertions pass
