@@ -30,10 +30,10 @@ others are directories in this PR. JS-only test coverage is not a C oracle.
 | pluslvl: overshoot cap vs no cap | P109 API and X public overshoot/revisit | Matching reached values, not arbitrary XP history proof |
 | pluslvl: fresh ulevelmax vs recovered level | L restricted Welcome back API; wizard public resets ulevelmax | Natural recovery requires a permitted loss history; combat/drain effects excluded |
 | pluslvl: first rank vs no new rank; achievement repeated; peak fallback | A traverses rank boundaries; R observes first/repeat event order in public chronicle | rank-gender now observes male/female ranks14/18 and repeat events; no direct C identifier-memory claim |
-| pluslvl: HP/energy peaks rise vs existing higher peaks | Public full-resource transitions; P109/L restricted fields | Full-runtime peak-preservation histories require permitted depleted/max-reduced setup; no arbitrary state setter established |
+| pluslvl: HP/energy peaks rise vs existing higher peaks | Public full-resource transitions; P109/L restricted fields | Energy peak now has public message observation after loss (energy-peak-observer); exact C peak and HP peak still require a supported observer |
 | losexp: debug nonfatal override; level>1; level1 XP reset | Public wizard loss; L API level1 reset, public command refuses that call | No new ordinary public level1 reset route qualified |
 | losexp: HP min, prevent raising prior max, current below1/above max | P109/L constructed API states including level10/11/12/30 floor | Natural reduced max/current history is setup-blocked, not a negative |
-| losexp: energy max/current floor and upper clamp; positive XP vs zero | P109/L API; public normal full-resource loss | Exact depleted histories remain setup-blocked |
+| losexp: energy max/current floor and upper clamp; positive XP vs zero | P109/L API; public normal full-resource loss | depleted-energy now executes spent-current exact-zero and negative-current clamps; reduced energy maxima and upper clamp remain component-only |
 | losexp: resistance/fatal/polymorph branches | None pursued | Excluded combat/drain, death and polymorph contexts; not candidate setup routes |
 | adjabil: role then race; grants/revokes; empty gain/loss strings | A role/race traversals; E selected racial+role re-entry; silent Ranger views | Finite pairing/message evidence, not all state masks |
 | adjabil: initial level1 FROMOUTSIDE, skill adjustment skipped at oldlevel0 | Public initialized characters; N only numeric init | Masks not directly instrumented in full engine; need supported state observation for stronger claim |
@@ -72,8 +72,9 @@ prediction or passing unrelated screen is insufficient. Reuse no failing setup
 unchanged. If supported parsing/observation cannot establish that prerequisite,
 record the exact missing capability before switching to another branch.
 
-Natural depleted/practice/shared-turn and at-threshold level30 histories remain
-separate setup gaps. Full-recorder build attestation remains unavailable. No
+At this earlier checkpoint, natural depleted/practice/shared-turn and at-threshold
+level30 histories were separate setup gaps, and recorder build attestation was unavailable.
+Later resolutions below supersede the energy and build gaps. No
 additional authority is requested, no action was denied/pending, and no gameplay
 edit is proposed from these matching results. Elapsed time is not active compute.
 
@@ -112,3 +113,26 @@ parsed1% rule selection and exact C totals. Existing activation resolved the
 build-tool prerequisite, and a new isolated supported binary has recorded build
 origin and matching controls. Earlier binary provenance is unchanged. No new
 semantic cause, no natural-history or full-state-observer claim.
+
+## Depleted energy follow-on (source-built recorder)
+
+Five new public recipes match (50 distinct public recipes total). Failed casts establish natural spent energy; wizard gain/loss applies saved increments and reaches exact-zero and below-zero current-energy clamps. See depleted-energy-20261029. This supersedes the earlier blanket spent-energy setup gap, but does not cover depleted HP, reduced maxima, natural skill practice or natural level transitions. C internal peak preservation remains indirectly observed only; a public insufficient-energy message is the next candidate observer. Zero new semantic causes.
+
+### Historical energy capacity observer
+
+Three further public recipes match (53 distinct total): initial full7/7 rejected cast says yet; after level1→2→1 full7/7 says anymore; depleted12/19 has no suffix. This observes retained C peak at least15, not its exact memory value; JS peak19 is separately asserted. See energy-peak-observer-20261029. Full-state C trace, depleted HP, reduced-max histories and natural practice remain unavailable within existing qualified interfaces.
+
+## Current scope decision after public energy observers
+
+The identified energy-history and public peak-message prerequisites are resolved within their stated bounds. No new advancement discrepancy is ready for Main. The remaining inventory is not a reason to add role/race permutations.
+
+| Remaining frontier | Smallest missing prerequisite | Disposition |
+| --- | --- | --- |
+| Depleted HP/current or reduced maximum crossing a loss floor | A qualified nonfatal public setup without combat, object effects or excluded status paths | Setup unqualified; component floor matrix remains the only executed evidence |
+| Natural Welcome back and level recovery | A permitted natural level-loss source preserving ulevelmax | Known drain/object routes excluded; wizard resets history |
+| Natural practiced-skill ordering | A permitted successful practice action with a reachable advancement boundary | Existing debug skill menus qualify refunds only; effects/combat are not substitute setup |
+| Initial intrinsic masks and exact peak/slot internals | Existing supported read-only full-state observation | Not provided by recorder's terminal/RNG interface; no instrumentation authorized |
+| Level30 true XP threshold and MAXULEV effects | Reachable permitted high-XP award or level-cap trigger | Qualified component only; no unbounded grinding or excluded effects |
+| postadjabil map refresh under warning/see-invisible | Supported noncombat visible-state setup and cross-audit scope agreement | Not qualified; monster/level investigations remain with their owners |
+
+This is bounded exhaustion of the currently qualified advancement setup/observer routes, not an assertion that every permitted gameplay path or every source of bugs is exhausted. A new supported prerequisite can reopen these rows. No installs, engine instrumentation, gameplay edits or denied actions occurred in this follow-on.

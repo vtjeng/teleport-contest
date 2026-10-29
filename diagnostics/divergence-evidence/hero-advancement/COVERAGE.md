@@ -117,3 +117,11 @@ not retroactively established. Published below-threshold control and four new
 floor recipes match on the fresh binary. XP level10 5120→5122 now verifies the
 nonzero1% floor with parsed rules, C colors and visible-total companions. No new
 causes. Natural histories and full-game C observation remain separate limits.
+
+## Depleted energy follow-on (source-built recorder)
+
+Five new public recipes match (50 distinct public recipes total). Failed casts establish natural spent energy; wizard gain/loss applies saved increments and reaches exact-zero and below-zero current-energy clamps. See depleted-energy-20261029. This supersedes the earlier blanket spent-energy setup gap, but does not cover depleted HP, reduced maxima, natural skill practice or natural level transitions. C internal peak preservation remains indirectly observed only; a public insufficient-energy message is the next candidate observer. Zero new semantic causes.
+
+### Historical energy capacity observer
+
+Three further public recipes match (53 distinct total): initial full7/7 rejected cast says yet; after level1→2→1 full7/7 says anymore; depleted12/19 has no suffix. This observes retained C peak at least15, not its exact memory value; JS peak19 is separately asserted. See energy-peak-observer-20261029. Full-state C trace, depleted HP, reduced-max histories and natural practice remain unavailable within existing qualified interfaces.
