@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "trap-target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "2579242c67804962299920a58e3052ab3718c187",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:41:38.015Z",
+  "exitCode": 1,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "a11120d1fe60caf0a21268ba4748a8aca891d983c100a3883a88e3bc906acc06",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-oracle.c": "33abfad56faeb22bf3da3ff69af2cc2a57772c03add53c943c0321d325186798",
+    "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-source-contract.json": "09a9497d9ef969f88fd6d584403e6b1a5ff2b58acd8e2defd963b0e54f0c7297"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-target-output.txt"
+  ]
+}

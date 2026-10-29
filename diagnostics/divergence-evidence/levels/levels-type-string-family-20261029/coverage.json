@@ -1,0 +1,38 @@
+{
+  "recordedAt": "2026-10-29T04:42:27.230563+00:00",
+  "scannerBaseline": {
+    "negativeKeys": 109,
+    "negativeCauses": 41,
+    "historicalCandidateKeys": 5,
+    "staleBindings": 8,
+    "unqualifiedKeys": 401
+  },
+  "manualFamily": {
+    "rootCause": "c-string-prefix-at-construction-boundary",
+    "paths": [
+      "des.region.type",
+      "des.trap positional name"
+    ],
+    "targets": 4,
+    "controls": 6,
+    "exposure": "unknown"
+  },
+  "routing": [
+    {
+      "caseId": "levels-solidfill-boolean-light-20261029",
+      "status": "accepted per parent full receipt confirmation",
+      "commit": "2579242c67804962299920a58e3052ab3718c187"
+    },
+    {
+      "caseId": "levels-levregion-name-prefix-20261029",
+      "status": "qualified and queued by Main"
+    }
+  ],
+  "unresolved": [
+    "optional table-form trap type: exact registered path not executed",
+    "des.room type: not executed by this family",
+    "cave cap, bottom-level stairs, orig_rtype/save export, numeric-string region, JS gradient and previous changed-caller/diagnostic gaps remain unresolved"
+  ],
+  "nextFrontier": "Inspect optional table-form trap type supported binding; qualify only with its own executed handler and controls, otherwise choose untouched inventory.",
+  "exhausted": false
+}
