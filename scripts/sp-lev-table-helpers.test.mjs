@@ -145,6 +145,9 @@ test('nhlua.c integer, string, and option readers', () => {
     assert.equal(get_table_str_opt({ s: 'a' }, 's', null), 'a');
     // C: a function field is called for its string.
     assert.equal(get_table_str_opt({ s: () => 'b' }, 's', null), 'b');
+    assert.equal(get_table_str_opt({ s: () => 3 }, 's', null), '3');
+    assert.equal(get_table_str_opt({ s: () => 3.5 }, 's', null), '3.5');
+    assert.throws(() => get_table_str_opt({ s: () => false }, 's', null), /no string/u);
     assert.equal(get_table_str_opt({ s: 'a\0suffix' }, 's', null), 'a');
     assert.equal(get_table_str_opt({ s: () => 'b\0suffix' }, 's', null), 'b');
     assert.equal(get_table_str_opt({}, 's', 'dflt\0suffix'), 'dflt');

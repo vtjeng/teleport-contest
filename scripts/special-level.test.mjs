@@ -104,6 +104,30 @@ test('levregion destination names retain the C string prefix', async () => {
     }
 });
 
+// C get_table_str_opt invokes a function and applies luaL_optstring to its
+// result. Lua 5.4 string conversion accepts numbers. Source-derived proof:
+// https://www.lua.org/manual/5.4/manual.html#lua_tolstring
+// This exercises registration only; no new C execution or portal travel.
+test('optional string callbacks coerce numeric results, not raw numeric fields', async () => {
+    for (const name of [() => 3, () => '3', '3']) {
+        await runLoader(des => {
+            des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+            des.levregion({ region: [1, 1, 4, 4], region_islev: true,
+                type: 'portal', name, padding: 2 });
+            assert.equal(game.lregions.length, 1);
+            assert.equal(game.lregions[0].rname, '3');
+        });
+    }
+    for (const name of [3, () => false]) {
+        await runLoader(des => {
+            des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+            assert.throws(() => des.levregion({ region: [1, 1, 4, 4],
+                region_islev: true, type: 'portal', name, padding: 2 }), /no string/u);
+            assert.equal(game.lregions?.length ?? 0, 0);
+        });
+    }
+});
+
 // Source-derived C expectations: lspo_monster accepts the boolean-string
 // indices, then create_monster directly assigns these unsigned one-bit fields.
 // No new C constructor execution is claimed for these API cases.

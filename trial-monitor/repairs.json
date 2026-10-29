@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T05:25:47Z",
+  "asOf": "2026-10-29T05:40:39Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -27608,6 +27608,56 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40818450174"
             }
           ]
+        },
+        {
+          "sha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+          "committedAt": "2026-10-29T05:27:42Z",
+          "sourceCommit": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+          "sourceCommittedAt": "2026-10-29T05:27:42Z",
+          "runs": [
+            {
+              "id": 40823542320,
+              "name": "Checkpoint",
+              "sha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-onebit-storage-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:27:52Z",
+              "completedAt": "2026-10-29T05:37:19Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40823542320"
+            },
+            {
+              "id": 40824587648,
+              "name": "Lint",
+              "sha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:38:44Z",
+              "completedAt": "2026-10-29T05:39:57Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40824587648"
+            },
+            {
+              "id": 40824587550,
+              "name": "Dashboard",
+              "sha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:38:44Z",
+              "completedAt": "2026-10-29T05:40:39Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40824587550"
+            }
+          ]
         }
       ]
     },
@@ -27835,6 +27885,29 @@
           ]
         }
       ]
+    },
+    {
+      "id": "optional-string-callback-number-coercion",
+      "title": "Coerce numeric optional-string callback results through Lua string semantics",
+      "investigator": "single-agent source-contract review",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/nhlua.c:get_table_str_opt",
+          "js/nhlua.js:get_table_str_opt"
+        ],
+        "witness": [
+          "scripts/special-level.test.mjs"
+        ],
+        "test": [
+          "scripts/special-level.test.mjs",
+          "scripts/sp-lev-table-helpers.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }
