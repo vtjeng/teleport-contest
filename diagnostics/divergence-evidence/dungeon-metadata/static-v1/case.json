@@ -1,0 +1,481 @@
+{
+  "schemaVersion": 1,
+  "caseId": "dungeon-metadata-static-v1",
+  "shard": "dungeon-metadata",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "dat/dungeon.lua",
+      "symbol": "dungeon",
+      "start_line": 6,
+      "end_line": 333,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "sys/unix/Makefile.top",
+      "symbol": "SPEC_LEVS / QUEST_LEVS",
+      "start_line": 96,
+      "end_line": 104,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/dungeon.c",
+      "symbol": "level_map",
+      "start_line": 707,
+      "end_line": 737,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/dungeon.c",
+      "symbol": "flagstrs / flagstrs2i",
+      "start_line": 747,
+      "end_line": 752,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/dungeon.c",
+      "symbol": "dgnaligns / dgnaligns2i",
+      "start_line": 783,
+      "end_line": 789,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/dungeon.c",
+      "symbol": "brtypes / brtypes2i",
+      "start_line": 874,
+      "end_line": 879,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon_data.js",
+      "symbol": "DUNGEON_DATA",
+      "start_line": 4,
+      "end_line": 345,
+      "commit_sha": "de3380e285e5f4abf40375459f9490f92569e7dc"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon.js",
+      "symbol": "metadata constants and LEVEL_MAP",
+      "start_line": 108,
+      "end_line": 184,
+      "commit_sha": "de3380e285e5f4abf40375459f9490f92569e7dc"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "SPECIAL_LEVEL_LOADERS declaration",
+      "start_line": 1984,
+      "end_line": 2033,
+      "commit_sha": "de3380e285e5f4abf40375459f9490f92569e7dc"
+    },
+    {
+      "side": "JS",
+      "path": "js/tutorial_level.js",
+      "symbol": "TUTORIAL_LEVEL_LOADERS",
+      "start_line": 537,
+      "end_line": 564,
+      "commit_sha": "de3380e285e5f4abf40375459f9490f92569e7dc"
+    },
+    {
+      "side": "JS",
+      "path": "js/tutorial_startup.js",
+      "symbol": "loadTutorialLevel import",
+      "start_line": 26,
+      "end_line": 26,
+      "commit_sha": "de3380e285e5f4abf40375459f9490f92569e7dc"
+    }
+  ],
+  "hypothesis": "Authored file mappings or corresponding static dungeon declarations may be incomplete, duplicated, dangling, or inconsistent.",
+  "expectedBehavior": "Compare only fields and filenames actually declared at the pinned revisions; retain documented non-registry and nonliteral-name exceptions.",
+  "observedBehavior": "9 dungeons, 37 level prototypes, 7 branches, 21 constants, 3 vocabulary tables and 26 aliases match. 125 unique registry mappings plus the documented direct tut-1 import cover 126 authored files. No unexplained differences or dangling literal metadata assets.",
+  "witness": {
+    "kind": "source",
+    "scope": "Static declaration and file-identity inventory at the exact source bases; all permitted tables enumerated in README.",
+    "limitations": [
+      "No Lua script, special-level API, game handler, level generation, or C oracle executed.",
+      "No runtime equivalence, reachability, descriptor ordering, level body content, or gameplay claim.",
+      "rogue/dummy markers, x-* quest placeholders, and tower protofile stem have no literal-file equivalence assertion.",
+      "Val-strt wrapper and Rog-filb shared-symbol alias are recorded only as declaration-level exceptions; body semantics untested.",
+      "Build inventory uses the pinned Unix Makefile declarations, not every platform build or runtime loading condition."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "not_applicable",
+    "evidence": [],
+    "reason": "Source inventory only; no observed player-facing defect or production execution claim."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "New bounded static audit; existing generator and inventory checks reconciled in overlap.json. No prior dynamic Levels artifact or lead used.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/dungeon-metadata/static-v1/audit.mjs"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/audit.mjs",
+      "ci": "manual",
+      "inputs": [
+        "nethack-c/upstream/dat/dungeon.lua",
+        "js/dungeon_data.js",
+        "nethack-c/upstream/sys/unix/Makefile.top",
+        "js/mklev.js",
+        "js/bigrm.js",
+        "js/quest_levels.js",
+        "js/sokoban_levels.js",
+        "js/castle_levels.js",
+        "js/mines_levels.js",
+        "js/fire_levels.js",
+        "js/air_levels.js",
+        "js/earth_levels.js",
+        "js/water_levels.js",
+        "js/hell_levels.js",
+        "js/valley_levels.js",
+        "js/medusa_levels.js",
+        "js/sanctum_levels.js",
+        "js/asmodeus_levels.js",
+        "js/baalz_levels.js",
+        "js/juiblex_levels.js",
+        "js/orcus_levels.js",
+        "js/wizard1_levels.js",
+        "js/wizard2_levels.js",
+        "js/fakewiz2_level.js",
+        "js/wizard3_levels.js",
+        "js/fakewiz1_levels.js",
+        "js/knox_levels.js",
+        "js/tutorial_level.js",
+        "js/tutorial_startup.js",
+        "js/dungeon.js",
+        "nethack-c/upstream/src/dungeon.c",
+        "nethack-c/upstream/include/dungeon.h",
+        "nethack-c/upstream/include/dgn_file.h",
+        "nethack-c/upstream/include/global.h",
+        "nethack-c/upstream/include/align.h",
+        "package.json",
+        "package-lock.json",
+        "node_modules/acorn/dist/acorn.js",
+        "node_modules/acorn/package.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/dungeon-metadata/static-v1/audit.mjs",
+        "--controls"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/audit.mjs",
+      "ci": "manual",
+      "inputs": [
+        "nethack-c/upstream/dat/dungeon.lua",
+        "js/dungeon_data.js",
+        "nethack-c/upstream/sys/unix/Makefile.top",
+        "js/mklev.js",
+        "js/bigrm.js",
+        "js/quest_levels.js",
+        "js/sokoban_levels.js",
+        "js/castle_levels.js",
+        "js/mines_levels.js",
+        "js/fire_levels.js",
+        "js/air_levels.js",
+        "js/earth_levels.js",
+        "js/water_levels.js",
+        "js/hell_levels.js",
+        "js/valley_levels.js",
+        "js/medusa_levels.js",
+        "js/sanctum_levels.js",
+        "js/asmodeus_levels.js",
+        "js/baalz_levels.js",
+        "js/juiblex_levels.js",
+        "js/orcus_levels.js",
+        "js/wizard1_levels.js",
+        "js/wizard2_levels.js",
+        "js/fakewiz2_level.js",
+        "js/wizard3_levels.js",
+        "js/fakewiz1_levels.js",
+        "js/knox_levels.js",
+        "js/tutorial_level.js",
+        "js/tutorial_startup.js",
+        "js/dungeon.js",
+        "nethack-c/upstream/src/dungeon.c",
+        "nethack-c/upstream/include/dungeon.h",
+        "nethack-c/upstream/include/dgn_file.h",
+        "nethack-c/upstream/include/global.h",
+        "nethack-c/upstream/include/align.h",
+        "package.json",
+        "package-lock.json",
+        "node_modules/acorn/dist/acorn.js",
+        "node_modules/acorn/package.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/audit.mjs",
+      "sha256": "9bf93c6f6dfa800413dd0de5d5a3650044969045df2831b5eb173a27bbf77507",
+      "role": "static audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/record.mjs",
+      "sha256": "73957955b3f2cc6cee6a9cfebd10a420f88adcf0a7a9c838a4b069c7ffd75425",
+      "role": "static audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/README.md",
+      "sha256": "84568df83869342b53bf94547a40c8d2955c0576d53187d63dff9b5a81f65bb6",
+      "role": "static audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/overlap.json",
+      "sha256": "e7444c5c8184d2cc35a18e57c90877346b81de329c58beb1aad569caaf0ab881",
+      "role": "static audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/target-receipt.json",
+      "sha256": "8bab3cc54d071caed3638b8a5ba238a66da86ef8beb5d443cb756332e0a4306f",
+      "role": "static audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/target-output.json",
+      "sha256": "1037434250a4abef4de169ee478ea05fbbb49ef0fadc3ae9e0026cf4076a1b2e",
+      "role": "static audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/control-receipt.json",
+      "sha256": "e1dcd58b8085644195929e2fc9fc15f0f55b6833cf28629eda25ee65140f6c58",
+      "role": "static audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/dungeon-metadata/static-v1/control-output.json",
+      "sha256": "12e68f50634155be4b7e676d6be5b85e0279ea214469b1b05f179a3a632b34e2",
+      "role": "static audit evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/dat/dungeon.lua",
+      "sha256": "5bbc7d7a1882b6ee0809c40efbdc7b01fd149fcebe574a49e05df4ccb6053830",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/dungeon_data.js",
+      "sha256": "de25792331f13079a3b8a74fd668e9a5a93e9218c67dc78b3f0559cb9a3015c1",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "nethack-c/upstream/sys/unix/Makefile.top",
+      "sha256": "8bc81f25a78457ee87eaef3d5fd7242bd9002e233ae9be627ee2d5e3c58431bf",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/mklev.js",
+      "sha256": "6b6bc7044ddb0bace3f85808d518e4d68e305c8de85f298d4219eea15b3f9120",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/bigrm.js",
+      "sha256": "6714d3fa682c52011b0bacfb3f1b1f8e0d77ed82565db1c5f1c02307d0f02ce4",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/quest_levels.js",
+      "sha256": "f8660c76e226457f29f06be7c6e2528c651ee5544d0b923e21a6d2cf0b333293",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/sokoban_levels.js",
+      "sha256": "65d6e1f06bff107d9028fb7e177d2ad5772a41f2f7ac7c92abfb013d833ac9c8",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/castle_levels.js",
+      "sha256": "5626187a8572da4df122ba6c2bc0b23c94b146f2a2a1a9d36882943e18333110",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/mines_levels.js",
+      "sha256": "b1251dd3cc1164034a2d6920d05a1e7ceb17e83dd53b56bd718bb46d9db28b61",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/fire_levels.js",
+      "sha256": "ac5c4f7114fa718f2f3bee5e8784d5a106959d3c344530d9510227d4d1f3aae1",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/air_levels.js",
+      "sha256": "7582a0202de2fdec83eb6c1f2400460b6eb9c81ac836d2c58bd7babcb1ab9099",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/earth_levels.js",
+      "sha256": "8649faf9870e475269f1881984b4ccca26b14234ead51140ebdced5d2ae50485",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/water_levels.js",
+      "sha256": "e8910f1b1c6b9d5fe01f577da6424d235bc55fbce700e1f06e974dec0826565b",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/hell_levels.js",
+      "sha256": "a59c6c5942927a6f565c301fac15e4f110fae237ade255fa32462e52be0fdab3",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/valley_levels.js",
+      "sha256": "272e7f9f1e2209ab31b41be7cb61025eacbf5175a9ff61678fa9058d07e6e8a6",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/medusa_levels.js",
+      "sha256": "512da6cd146b895dca4d1f7fe99373eb01170a13c3b47cc67ca9acb97fede07b",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/sanctum_levels.js",
+      "sha256": "db5356d8f9409e6e7d9daca083c72c54af272b9e8729e40a3c8aada66b37128c",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/asmodeus_levels.js",
+      "sha256": "90848b594350e38897da1f056add27ea1c3ab0844b62b9892d9fcc5b5e36f4f3",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/baalz_levels.js",
+      "sha256": "fa6d94c3d1ca8099bb8fe79692fa35c6163f0e0367d9b112bf25f21f884a9694",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/juiblex_levels.js",
+      "sha256": "c18033755cc9d739f94da14621a05ccaacc036349bf87433865e9e587a6a5e78",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/orcus_levels.js",
+      "sha256": "ba365b57f5272400a84bfc6a4f7756cb5144cc8a7dff1607a114f8e6dd4be446",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/wizard1_levels.js",
+      "sha256": "f53a29c2205b922b38db569d064cb4fc84c18a4450e16f01e511875feb08ee80",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/wizard2_levels.js",
+      "sha256": "fb3cd1c9bbe779bb309e724c821929d4b8f12a7a6821dfcabbf5749a69bde9b9",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/fakewiz2_level.js",
+      "sha256": "59684c1dee6f35ce5d695d49ee7876266bb23490672346495a57aaf941d19dc0",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/wizard3_levels.js",
+      "sha256": "6db91b19b5c99666c2bbff6cef5ea6cae61f2f029cf60c27dc939d08f410abc2",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/fakewiz1_levels.js",
+      "sha256": "28172e917874131968508bffa48040014d1bc822ef0f0f0f249b85a9bca3d8ff",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/knox_levels.js",
+      "sha256": "67d1d77033e3eea5591b3fd357982c6b16affbf33eded9b6243d6f3a0817aa74",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/tutorial_level.js",
+      "sha256": "aa16bf36b9cfdc10dfc28696ccd4632e41c7bdbe4d5644cd21d924e4580ff71a",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/tutorial_startup.js",
+      "sha256": "7d76ab7f699a7971717f1ffd78fb8fe16c682c63e253c94d56b338694a8668a5",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "js/dungeon.js",
+      "sha256": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "sha256": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "nethack-c/upstream/include/dungeon.h",
+      "sha256": "e48eaafdb22fc82121de702086c40c3245d6aeb9fe5556712ee1e2f18744a308",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "nethack-c/upstream/include/dgn_file.h",
+      "sha256": "ac01f085ac0827ee4720e9071d13a3fb9a274ced57d373e013a04a1f211d5551",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "nethack-c/upstream/include/global.h",
+      "sha256": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "nethack-c/upstream/include/align.h",
+      "sha256": "963176a750f3e58ca29d4b5b13f2eaf51fefdbf66b7a1a681401092dd72f7cb2",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "package.json",
+      "sha256": "32a370c374e37d0c8a8a8e182996f0e2039d8348411ca2f9257081646e26c644",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "666fb7d8a593d86d659bb1ef15c4b8a5788d3b2c689c3b2d5420ce59846dabf0",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "node_modules/acorn/dist/acorn.js",
+      "sha256": "fc3ed7b81e58464715d0291402892f22c3d86ea75302645a330390f85d8015c9",
+      "role": "pinned source or installed parser input"
+    },
+    {
+      "path": "node_modules/acorn/package.json",
+      "sha256": "5c1ed7259579a7899b303f514b0194adcb9fe474fc7d136a84c6a45f10eefc84",
+      "role": "pinned source or installed parser input"
+    }
+  ]
+}

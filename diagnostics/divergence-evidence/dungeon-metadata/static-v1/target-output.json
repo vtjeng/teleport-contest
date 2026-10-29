@@ -1,0 +1,1770 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "jsSha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "counts": {
+    "dungeons": 9,
+    "levels": 37,
+    "branches": 7,
+    "luaFiles": 131,
+    "authoredFiles": 126,
+    "registryEntries": 125,
+    "registryModules": 24
+  },
+  "fields": {
+    "dungeon": [
+      "alignment",
+      "base",
+      "bonetag",
+      "branches",
+      "entry",
+      "flags",
+      "levels",
+      "lvlfill",
+      "name",
+      "protofile",
+      "range",
+      "themerooms"
+    ],
+    "levels": [
+      "alignment",
+      "base",
+      "bonetag",
+      "chainlevel",
+      "chance",
+      "flags",
+      "name",
+      "nlevels",
+      "range"
+    ],
+    "branches": [
+      "base",
+      "branchtype",
+      "chainlevel",
+      "direction",
+      "name",
+      "range"
+    ]
+  },
+  "metadataDifferences": [],
+  "referenceProblems": [],
+  "translatedProblems": [],
+  "scalarComparisons": [
+    {
+      "name": "BR_STAIR",
+      "reference": 0,
+      "translated": 0
+    },
+    {
+      "name": "BR_NO_END1",
+      "reference": 1,
+      "translated": 1
+    },
+    {
+      "name": "BR_NO_END2",
+      "reference": 2,
+      "translated": 2
+    },
+    {
+      "name": "BR_PORTAL",
+      "reference": 3,
+      "translated": 3
+    },
+    {
+      "name": "TBR_STAIR",
+      "reference": 0,
+      "translated": 0
+    },
+    {
+      "name": "TBR_NO_UP",
+      "reference": 1,
+      "translated": 1
+    },
+    {
+      "name": "TBR_NO_DOWN",
+      "reference": 2,
+      "translated": 2
+    },
+    {
+      "name": "TBR_PORTAL",
+      "reference": 3,
+      "translated": 3
+    },
+    {
+      "name": "TOWN",
+      "reference": 1,
+      "translated": 1
+    },
+    {
+      "name": "HELLISH",
+      "reference": 2,
+      "translated": 2
+    },
+    {
+      "name": "MAZELIKE",
+      "reference": 4,
+      "translated": 4
+    },
+    {
+      "name": "ROGUELIKE",
+      "reference": 8,
+      "translated": 8
+    },
+    {
+      "name": "UNCONNECTED",
+      "reference": 16,
+      "translated": 16
+    },
+    {
+      "name": "D_ALIGN_CHAOTIC",
+      "reference": 16,
+      "translated": 16
+    },
+    {
+      "name": "D_ALIGN_NEUTRAL",
+      "reference": 32,
+      "translated": 32
+    },
+    {
+      "name": "D_ALIGN_LAWFUL",
+      "reference": 64,
+      "translated": 64
+    },
+    {
+      "name": "D_ALIGN_MASK",
+      "reference": 112,
+      "translated": 112
+    },
+    {
+      "name": "MAXDUNGEON",
+      "reference": 16,
+      "translated": 16
+    },
+    {
+      "name": "MAXLEVEL",
+      "reference": 32,
+      "translated": 32
+    },
+    {
+      "name": "LEV_LIMIT",
+      "reference": 50,
+      "translated": 50
+    },
+    {
+      "name": "BRANCH_LIMIT",
+      "reference": 32,
+      "translated": 32
+    }
+  ],
+  "vocabulary": [
+    {
+      "name": "FLAG_VALUES",
+      "differences": []
+    },
+    {
+      "name": "ALIGN_VALUES",
+      "differences": []
+    },
+    {
+      "name": "BRANCH_TYPE_VALUES",
+      "differences": []
+    }
+  ],
+  "levelMapDifferences": [],
+  "levelMapEntries": 26,
+  "manifest": {
+    "patterns": {
+      "SPEC_LEVS": [
+        "asmodeus.lua",
+        "baalz.lua",
+        "bigrm-*.lua",
+        "castle.lua",
+        "fakewiz?.lua",
+        "juiblex.lua",
+        "knox.lua",
+        "medusa-?.lua",
+        "minend-?.lua",
+        "minefill.lua",
+        "minetn-?.lua",
+        "oracle.lua",
+        "orcus.lua",
+        "sanctum.lua",
+        "soko?-?.lua",
+        "tower?.lua",
+        "valley.lua",
+        "wizard?.lua",
+        "nhcore.lua",
+        "nhlib.lua",
+        "themerms.lua",
+        "astral.lua",
+        "air.lua",
+        "earth.lua",
+        "fire.lua",
+        "water.lua",
+        "hellfill.lua",
+        "tut-?.lua"
+      ],
+      "QUEST_LEVS": [
+        "???-goal.lua",
+        "???-fil?.lua",
+        "???-loca.lua",
+        "???-strt.lua"
+      ]
+    },
+    "unmatchedPatterns": [],
+    "duplicateFiles": [],
+    "nonLevelLibraries": [
+      "nhcore.lua",
+      "nhlib.lua",
+      "themerms.lua"
+    ],
+    "outsideLevelManifest": [
+      "dungeon.lua",
+      "quest.lua"
+    ]
+  },
+  "fileCoverage": {
+    "missing": [
+      "tut-1.lua"
+    ],
+    "extra": [],
+    "duplicates": []
+  },
+  "effectiveFileCoverage": {
+    "missing": [],
+    "extra": [],
+    "duplicates": []
+  },
+  "directExceptions": [
+    {
+      "file": "tut-1.lua",
+      "path": "js/tutorial_level.js",
+      "symbol": "loadTutorialLevel",
+      "importPath": "js/tutorial_startup.js",
+      "importLine": 26,
+      "evidence": "js/tutorial_level.js documents the direct-startup exception beside TUTORIAL_LEVEL_LOADERS; runtime reachability untested."
+    }
+  ],
+  "modules": [
+    {
+      "path": "js/bigrm.js",
+      "name": "BIGRM_LOADERS",
+      "count": 13
+    },
+    {
+      "path": "js/quest_levels.js",
+      "name": "QUEST_LEVEL_LOADERS",
+      "count": 70
+    },
+    {
+      "path": "js/sokoban_levels.js",
+      "name": "SOKOBAN_LEVEL_LOADERS",
+      "count": 8
+    },
+    {
+      "path": "js/castle_levels.js",
+      "name": "CASTLE_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/mines_levels.js",
+      "name": "MINES_LEVEL_LOADERS",
+      "count": 11
+    },
+    {
+      "path": "js/fire_levels.js",
+      "name": "FIRE_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/air_levels.js",
+      "name": "AIR_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/earth_levels.js",
+      "name": "EARTH_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/water_levels.js",
+      "name": "WATER_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/hell_levels.js",
+      "name": "HELL_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/valley_levels.js",
+      "name": "VALLEY_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/medusa_levels.js",
+      "name": "MEDUSA_LEVEL_LOADERS",
+      "count": 4
+    },
+    {
+      "path": "js/sanctum_levels.js",
+      "name": "SANCTUM_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/asmodeus_levels.js",
+      "name": "ASMODEUS_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/baalz_levels.js",
+      "name": "BAALZ_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/juiblex_levels.js",
+      "name": "JUIBLEX_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/orcus_levels.js",
+      "name": "ORCUS_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/wizard1_levels.js",
+      "name": "WIZARD1_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/wizard2_levels.js",
+      "name": "WIZARD2_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/fakewiz2_level.js",
+      "name": "FAKEWIZ2_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/wizard3_levels.js",
+      "name": "WIZARD3_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/fakewiz1_levels.js",
+      "name": "FAKEWIZ1_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/knox_levels.js",
+      "name": "KNOX_LEVEL_LOADERS",
+      "count": 1
+    },
+    {
+      "path": "js/tutorial_level.js",
+      "name": "TUTORIAL_LEVEL_LOADERS",
+      "count": 1
+    }
+  ],
+  "mappings": [
+    {
+      "name": "bigrm-1",
+      "symbol": "bigrm1",
+      "line": 859,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-2",
+      "symbol": "bigrm2",
+      "line": 860,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-3",
+      "symbol": "bigrm3",
+      "line": 861,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-4",
+      "symbol": "bigrm4",
+      "line": 862,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-5",
+      "symbol": "bigrm5",
+      "line": 863,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-6",
+      "symbol": "bigrm6",
+      "line": 864,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-7",
+      "symbol": "bigrm7",
+      "line": 865,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-8",
+      "symbol": "bigrm8",
+      "line": 866,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-9",
+      "symbol": "bigrm9",
+      "line": 867,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-10",
+      "symbol": "bigrm10",
+      "line": 868,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-11",
+      "symbol": "bigrm11",
+      "line": 869,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-12",
+      "symbol": "bigrm12",
+      "line": 870,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "bigrm-13",
+      "symbol": "bigrm13",
+      "line": 871,
+      "path": "js/bigrm.js",
+      "registry": "BIGRM_LOADERS"
+    },
+    {
+      "name": "Sam-strt",
+      "symbol": "samStrt",
+      "line": 3433,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Sam-loca",
+      "symbol": "samLoca",
+      "line": 3434,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Sam-filb",
+      "symbol": "samFilb",
+      "line": 3435,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Rog-loca",
+      "symbol": "rogLoca",
+      "line": 3436,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Rog-goal",
+      "symbol": "rogGoal",
+      "line": 3437,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Mon-loca",
+      "symbol": "monLoca",
+      "line": 3438,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Mon-strt",
+      "symbol": "monStrt",
+      "line": 3439,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Ran-strt",
+      "symbol": "ranStrt",
+      "line": 3440,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Rog-strt",
+      "symbol": "rogStrt",
+      "line": 3441,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Val-loca",
+      "symbol": "valLoca",
+      "line": 3442,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Val-filb",
+      "symbol": "valFilb",
+      "line": 3443,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Val-fila",
+      "symbol": "valFila",
+      "line": 3444,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Val-strt",
+      "symbol": "valStrt",
+      "line": 3445,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Hea-strt",
+      "symbol": "heaStrt",
+      "line": 3446,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Cav-loca",
+      "symbol": "cavLoca",
+      "line": 3447,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Cav-fila",
+      "symbol": "cavFila",
+      "line": 3448,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Tou-fila",
+      "symbol": "touFila",
+      "line": 3449,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Cav-goal",
+      "symbol": "cavGoal",
+      "line": 3450,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Bar-strt",
+      "symbol": "barStrt",
+      "line": 3451,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Bar-fila",
+      "symbol": "barFila",
+      "line": 3452,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Bar-filb",
+      "symbol": "barFilb",
+      "line": 3453,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Bar-goal",
+      "symbol": "barGoal",
+      "line": 3454,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Bar-loca",
+      "symbol": "barLoca",
+      "line": 3455,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Arc-strt",
+      "symbol": "arcStrt",
+      "line": 3456,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Arc-loca",
+      "symbol": "arcLoca",
+      "line": 3457,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Arc-fila",
+      "symbol": "arcFila",
+      "line": 3458,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Arc-filb",
+      "symbol": "arcFilb",
+      "line": 3459,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Arc-goal",
+      "symbol": "arcGoal",
+      "line": 3460,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Kni-goal",
+      "symbol": "kniGoal",
+      "line": 3461,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Sam-goal",
+      "symbol": "samGoal",
+      "line": 3462,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Tou-strt",
+      "symbol": "touStrt",
+      "line": 3463,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Tou-loca",
+      "symbol": "touLoca",
+      "line": 3464,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Tou-filb",
+      "symbol": "touFilb",
+      "line": 3465,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Tou-goal",
+      "symbol": "touGoal",
+      "line": 3466,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Kni-fila",
+      "symbol": "kniFila",
+      "line": 3467,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Sam-fila",
+      "symbol": "samFila",
+      "line": 3468,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Rog-fila",
+      "symbol": "rogFila",
+      "line": 3469,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Rog-filb",
+      "symbol": "rogFila",
+      "line": 3471,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Kni-loca",
+      "symbol": "kniLoca",
+      "line": 3472,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Kni-filb",
+      "symbol": "kniFilb",
+      "line": 3473,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Ran-loca",
+      "symbol": "ranLoca",
+      "line": 3474,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Ran-fila",
+      "symbol": "ranFila",
+      "line": 3475,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Ran-filb",
+      "symbol": "ranFilb",
+      "line": 3476,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Ran-goal",
+      "symbol": "ranGoal",
+      "line": 3477,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Val-goal",
+      "symbol": "valGoal",
+      "line": 3478,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Hea-goal",
+      "symbol": "heaGoal",
+      "line": 3479,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Cav-strt",
+      "symbol": "cavStrt",
+      "line": 3480,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Hea-loca",
+      "symbol": "heaLoca",
+      "line": 3481,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Hea-fila",
+      "symbol": "heaFila",
+      "line": 3482,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Hea-filb",
+      "symbol": "heaFilb",
+      "line": 3483,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Cav-filb",
+      "symbol": "cavFilb",
+      "line": 3484,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Mon-fila",
+      "symbol": "monFila",
+      "line": 3485,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Mon-filb",
+      "symbol": "monFilb",
+      "line": 3486,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Kni-strt",
+      "symbol": "kniStrt",
+      "line": 3487,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "astral",
+      "symbol": "astral",
+      "line": 3488,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Pri-strt",
+      "symbol": "priStrt",
+      "line": 3489,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Pri-loca",
+      "symbol": "priLoca",
+      "line": 3490,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Pri-goal",
+      "symbol": "priGoal",
+      "line": 3491,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Mon-goal",
+      "symbol": "monGoal",
+      "line": 3492,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Pri-fila",
+      "symbol": "priFila",
+      "line": 3493,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Pri-filb",
+      "symbol": "priFilb",
+      "line": 3494,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Wiz-strt",
+      "symbol": "wizStrt",
+      "line": 3495,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Wiz-loca",
+      "symbol": "wizLoca",
+      "line": 3496,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Wiz-fila",
+      "symbol": "wizFila",
+      "line": 3497,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Wiz-filb",
+      "symbol": "wizFilb",
+      "line": 3498,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "Wiz-goal",
+      "symbol": "wizGoal",
+      "line": 3499,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "oracle",
+      "symbol": "oracle",
+      "line": 3500,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "tower1",
+      "symbol": "tower1",
+      "line": 3501,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "tower2",
+      "symbol": "tower2",
+      "line": 3502,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "tower3",
+      "symbol": "tower3",
+      "line": 3503,
+      "path": "js/quest_levels.js",
+      "registry": "QUEST_LEVEL_LOADERS"
+    },
+    {
+      "name": "soko1-1",
+      "symbol": "soko1_1",
+      "line": 767,
+      "path": "js/sokoban_levels.js",
+      "registry": "SOKOBAN_LEVEL_LOADERS"
+    },
+    {
+      "name": "soko1-2",
+      "symbol": "soko1_2",
+      "line": 768,
+      "path": "js/sokoban_levels.js",
+      "registry": "SOKOBAN_LEVEL_LOADERS"
+    },
+    {
+      "name": "soko2-1",
+      "symbol": "soko2_1",
+      "line": 769,
+      "path": "js/sokoban_levels.js",
+      "registry": "SOKOBAN_LEVEL_LOADERS"
+    },
+    {
+      "name": "soko2-2",
+      "symbol": "soko2_2",
+      "line": 770,
+      "path": "js/sokoban_levels.js",
+      "registry": "SOKOBAN_LEVEL_LOADERS"
+    },
+    {
+      "name": "soko3-1",
+      "symbol": "soko3_1",
+      "line": 771,
+      "path": "js/sokoban_levels.js",
+      "registry": "SOKOBAN_LEVEL_LOADERS"
+    },
+    {
+      "name": "soko3-2",
+      "symbol": "soko3_2",
+      "line": 772,
+      "path": "js/sokoban_levels.js",
+      "registry": "SOKOBAN_LEVEL_LOADERS"
+    },
+    {
+      "name": "soko4-1",
+      "symbol": "soko4_1",
+      "line": 773,
+      "path": "js/sokoban_levels.js",
+      "registry": "SOKOBAN_LEVEL_LOADERS"
+    },
+    {
+      "name": "soko4-2",
+      "symbol": "soko4_2",
+      "line": 774,
+      "path": "js/sokoban_levels.js",
+      "registry": "SOKOBAN_LEVEL_LOADERS"
+    },
+    {
+      "name": "castle",
+      "symbol": "castle",
+      "line": 295,
+      "path": "js/castle_levels.js",
+      "registry": "CASTLE_LEVEL_LOADERS"
+    },
+    {
+      "name": "minefill",
+      "symbol": "minefill",
+      "line": 1716,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minetn-1",
+      "symbol": "minetn1",
+      "line": 1717,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minetn-2",
+      "symbol": "minetn2",
+      "line": 1718,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minetn-3",
+      "symbol": "minetn3",
+      "line": 1719,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minetn-4",
+      "symbol": "minetn4",
+      "line": 1720,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minetn-5",
+      "symbol": "minetn5",
+      "line": 1721,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minetn-6",
+      "symbol": "minetn6",
+      "line": 1722,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minetn-7",
+      "symbol": "minetn7",
+      "line": 1723,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minend-1",
+      "symbol": "minend1",
+      "line": 1724,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minend-2",
+      "symbol": "minend2",
+      "line": 1725,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "minend-3",
+      "symbol": "minend3",
+      "line": 1726,
+      "path": "js/mines_levels.js",
+      "registry": "MINES_LEVEL_LOADERS"
+    },
+    {
+      "name": "fire",
+      "symbol": "fire",
+      "line": 114,
+      "path": "js/fire_levels.js",
+      "registry": "FIRE_LEVEL_LOADERS"
+    },
+    {
+      "name": "air",
+      "symbol": "air",
+      "line": 108,
+      "path": "js/air_levels.js",
+      "registry": "AIR_LEVEL_LOADERS"
+    },
+    {
+      "name": "earth",
+      "symbol": "earth",
+      "line": 47,
+      "path": "js/earth_levels.js",
+      "registry": "EARTH_LEVEL_LOADERS"
+    },
+    {
+      "name": "water",
+      "symbol": "water",
+      "line": 37,
+      "path": "js/water_levels.js",
+      "registry": "WATER_LEVEL_LOADERS"
+    },
+    {
+      "name": "hellfill",
+      "symbol": "hellfill",
+      "line": 490,
+      "path": "js/hell_levels.js",
+      "registry": "HELL_LEVEL_LOADERS"
+    },
+    {
+      "name": "valley",
+      "symbol": "valley",
+      "line": 192,
+      "path": "js/valley_levels.js",
+      "registry": "VALLEY_LEVEL_LOADERS"
+    },
+    {
+      "name": "medusa-1",
+      "symbol": "medusa1",
+      "line": 603,
+      "path": "js/medusa_levels.js",
+      "registry": "MEDUSA_LEVEL_LOADERS"
+    },
+    {
+      "name": "medusa-2",
+      "symbol": "medusa2",
+      "line": 604,
+      "path": "js/medusa_levels.js",
+      "registry": "MEDUSA_LEVEL_LOADERS"
+    },
+    {
+      "name": "medusa-3",
+      "symbol": "medusa3",
+      "line": 605,
+      "path": "js/medusa_levels.js",
+      "registry": "MEDUSA_LEVEL_LOADERS"
+    },
+    {
+      "name": "medusa-4",
+      "symbol": "medusa4",
+      "line": 606,
+      "path": "js/medusa_levels.js",
+      "registry": "MEDUSA_LEVEL_LOADERS"
+    },
+    {
+      "name": "sanctum",
+      "symbol": "sanctum",
+      "line": 132,
+      "path": "js/sanctum_levels.js",
+      "registry": "SANCTUM_LEVEL_LOADERS"
+    },
+    {
+      "name": "asmodeus",
+      "symbol": "asmodeus",
+      "line": 357,
+      "path": "js/asmodeus_levels.js",
+      "registry": "ASMODEUS_LEVEL_LOADERS"
+    },
+    {
+      "name": "baalz",
+      "symbol": "baalz",
+      "line": 76,
+      "path": "js/baalz_levels.js",
+      "registry": "BAALZ_LEVEL_LOADERS"
+    },
+    {
+      "name": "juiblex",
+      "symbol": "juiblex",
+      "line": 177,
+      "path": "js/juiblex_levels.js",
+      "registry": "JUIBLEX_LEVEL_LOADERS"
+    },
+    {
+      "name": "orcus",
+      "symbol": "orcus",
+      "line": 203,
+      "path": "js/orcus_levels.js",
+      "registry": "ORCUS_LEVEL_LOADERS"
+    },
+    {
+      "name": "wizard1",
+      "symbol": "wizard1",
+      "line": 160,
+      "path": "js/wizard1_levels.js",
+      "registry": "WIZARD1_LEVEL_LOADERS"
+    },
+    {
+      "name": "wizard2",
+      "symbol": "wizard2",
+      "line": 135,
+      "path": "js/wizard2_levels.js",
+      "registry": "WIZARD2_LEVEL_LOADERS"
+    },
+    {
+      "name": "fakewiz2",
+      "symbol": "fakewiz2",
+      "line": 88,
+      "path": "js/fakewiz2_level.js",
+      "registry": "FAKEWIZ2_LEVEL_LOADERS"
+    },
+    {
+      "name": "wizard3",
+      "symbol": "wizard3",
+      "line": 119,
+      "path": "js/wizard3_levels.js",
+      "registry": "WIZARD3_LEVEL_LOADERS"
+    },
+    {
+      "name": "fakewiz1",
+      "symbol": "fakewiz1",
+      "line": 70,
+      "path": "js/fakewiz1_levels.js",
+      "registry": "FAKEWIZ1_LEVEL_LOADERS"
+    },
+    {
+      "name": "knox",
+      "symbol": "knox",
+      "line": 127,
+      "path": "js/knox_levels.js",
+      "registry": "KNOX_LEVEL_LOADERS"
+    },
+    {
+      "name": "tut-2",
+      "symbol": "loadTutorialSecondLevel",
+      "line": 563,
+      "path": "js/tutorial_level.js",
+      "registry": "TUTORIAL_LEVEL_LOADERS"
+    }
+  ],
+  "luaFiles": [
+    "Arc-fila.lua",
+    "Arc-filb.lua",
+    "Arc-goal.lua",
+    "Arc-loca.lua",
+    "Arc-strt.lua",
+    "Bar-fila.lua",
+    "Bar-filb.lua",
+    "Bar-goal.lua",
+    "Bar-loca.lua",
+    "Bar-strt.lua",
+    "Cav-fila.lua",
+    "Cav-filb.lua",
+    "Cav-goal.lua",
+    "Cav-loca.lua",
+    "Cav-strt.lua",
+    "Hea-fila.lua",
+    "Hea-filb.lua",
+    "Hea-goal.lua",
+    "Hea-loca.lua",
+    "Hea-strt.lua",
+    "Kni-fila.lua",
+    "Kni-filb.lua",
+    "Kni-goal.lua",
+    "Kni-loca.lua",
+    "Kni-strt.lua",
+    "Mon-fila.lua",
+    "Mon-filb.lua",
+    "Mon-goal.lua",
+    "Mon-loca.lua",
+    "Mon-strt.lua",
+    "Pri-fila.lua",
+    "Pri-filb.lua",
+    "Pri-goal.lua",
+    "Pri-loca.lua",
+    "Pri-strt.lua",
+    "Ran-fila.lua",
+    "Ran-filb.lua",
+    "Ran-goal.lua",
+    "Ran-loca.lua",
+    "Ran-strt.lua",
+    "Rog-fila.lua",
+    "Rog-filb.lua",
+    "Rog-goal.lua",
+    "Rog-loca.lua",
+    "Rog-strt.lua",
+    "Sam-fila.lua",
+    "Sam-filb.lua",
+    "Sam-goal.lua",
+    "Sam-loca.lua",
+    "Sam-strt.lua",
+    "Tou-fila.lua",
+    "Tou-filb.lua",
+    "Tou-goal.lua",
+    "Tou-loca.lua",
+    "Tou-strt.lua",
+    "Val-fila.lua",
+    "Val-filb.lua",
+    "Val-goal.lua",
+    "Val-loca.lua",
+    "Val-strt.lua",
+    "Wiz-fila.lua",
+    "Wiz-filb.lua",
+    "Wiz-goal.lua",
+    "Wiz-loca.lua",
+    "Wiz-strt.lua",
+    "air.lua",
+    "asmodeus.lua",
+    "astral.lua",
+    "baalz.lua",
+    "bigrm-1.lua",
+    "bigrm-10.lua",
+    "bigrm-11.lua",
+    "bigrm-12.lua",
+    "bigrm-13.lua",
+    "bigrm-2.lua",
+    "bigrm-3.lua",
+    "bigrm-4.lua",
+    "bigrm-5.lua",
+    "bigrm-6.lua",
+    "bigrm-7.lua",
+    "bigrm-8.lua",
+    "bigrm-9.lua",
+    "castle.lua",
+    "dungeon.lua",
+    "earth.lua",
+    "fakewiz1.lua",
+    "fakewiz2.lua",
+    "fire.lua",
+    "hellfill.lua",
+    "juiblex.lua",
+    "knox.lua",
+    "medusa-1.lua",
+    "medusa-2.lua",
+    "medusa-3.lua",
+    "medusa-4.lua",
+    "minefill.lua",
+    "minend-1.lua",
+    "minend-2.lua",
+    "minend-3.lua",
+    "minetn-1.lua",
+    "minetn-2.lua",
+    "minetn-3.lua",
+    "minetn-4.lua",
+    "minetn-5.lua",
+    "minetn-6.lua",
+    "minetn-7.lua",
+    "nhcore.lua",
+    "nhlib.lua",
+    "oracle.lua",
+    "orcus.lua",
+    "quest.lua",
+    "sanctum.lua",
+    "soko1-1.lua",
+    "soko1-2.lua",
+    "soko2-1.lua",
+    "soko2-2.lua",
+    "soko3-1.lua",
+    "soko3-2.lua",
+    "soko4-1.lua",
+    "soko4-2.lua",
+    "themerms.lua",
+    "tower1.lua",
+    "tower2.lua",
+    "tower3.lua",
+    "tut-1.lua",
+    "tut-2.lua",
+    "valley.lua",
+    "water.lua",
+    "wizard1.lua",
+    "wizard2.lua",
+    "wizard3.lua"
+  ],
+  "metadataFiles": [
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "themerooms",
+      "file": "themerms.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "oracle.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-1.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-2.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-3.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-4.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-5.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-6.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-7.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-8.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-9.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-10.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-11.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-12.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "bigrm-13.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "medusa-1.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "medusa-2.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "medusa-3.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "medusa-4.lua"
+    },
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name/nlevels",
+      "file": "castle.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "lvlfill",
+      "file": "hellfill.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "valley.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "sanctum.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "juiblex.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "baalz.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "asmodeus.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "wizard1.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "wizard2.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "wizard3.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "orcus.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "fakewiz1.lua"
+    },
+    {
+      "dungeon": "Gehennom",
+      "field": "levels.name/nlevels",
+      "file": "fakewiz2.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "lvlfill",
+      "file": "minefill.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minetn-1.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minetn-2.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minetn-3.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minetn-4.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minetn-5.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minetn-6.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minetn-7.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minend-1.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minend-2.lua"
+    },
+    {
+      "dungeon": "The Gnomish Mines",
+      "field": "levels.name/nlevels",
+      "file": "minend-3.lua"
+    },
+    {
+      "dungeon": "Sokoban",
+      "field": "levels.name/nlevels",
+      "file": "soko1-1.lua"
+    },
+    {
+      "dungeon": "Sokoban",
+      "field": "levels.name/nlevels",
+      "file": "soko1-2.lua"
+    },
+    {
+      "dungeon": "Sokoban",
+      "field": "levels.name/nlevels",
+      "file": "soko2-1.lua"
+    },
+    {
+      "dungeon": "Sokoban",
+      "field": "levels.name/nlevels",
+      "file": "soko2-2.lua"
+    },
+    {
+      "dungeon": "Sokoban",
+      "field": "levels.name/nlevels",
+      "file": "soko3-1.lua"
+    },
+    {
+      "dungeon": "Sokoban",
+      "field": "levels.name/nlevels",
+      "file": "soko3-2.lua"
+    },
+    {
+      "dungeon": "Sokoban",
+      "field": "levels.name/nlevels",
+      "file": "soko4-1.lua"
+    },
+    {
+      "dungeon": "Sokoban",
+      "field": "levels.name/nlevels",
+      "file": "soko4-2.lua"
+    },
+    {
+      "dungeon": "Fort Ludios",
+      "field": "levels.name/nlevels",
+      "file": "knox.lua"
+    },
+    {
+      "dungeon": "Vlad's Tower",
+      "field": "levels.name/nlevels",
+      "file": "tower1.lua"
+    },
+    {
+      "dungeon": "Vlad's Tower",
+      "field": "levels.name/nlevels",
+      "file": "tower2.lua"
+    },
+    {
+      "dungeon": "Vlad's Tower",
+      "field": "levels.name/nlevels",
+      "file": "tower3.lua"
+    },
+    {
+      "dungeon": "The Elemental Planes",
+      "field": "levels.name/nlevels",
+      "file": "astral.lua"
+    },
+    {
+      "dungeon": "The Elemental Planes",
+      "field": "levels.name/nlevels",
+      "file": "water.lua"
+    },
+    {
+      "dungeon": "The Elemental Planes",
+      "field": "levels.name/nlevels",
+      "file": "fire.lua"
+    },
+    {
+      "dungeon": "The Elemental Planes",
+      "field": "levels.name/nlevels",
+      "file": "air.lua"
+    },
+    {
+      "dungeon": "The Elemental Planes",
+      "field": "levels.name/nlevels",
+      "file": "earth.lua"
+    },
+    {
+      "dungeon": "The Tutorial",
+      "field": "levels.name/nlevels",
+      "file": "tut-1.lua"
+    },
+    {
+      "dungeon": "The Tutorial",
+      "field": "levels.name/nlevels",
+      "file": "tut-2.lua"
+    }
+  ],
+  "danglingMetadataFiles": [],
+  "unresolvedAssetForms": [
+    {
+      "dungeon": "The Dungeons of Doom",
+      "field": "levels.name",
+      "value": "rogue",
+      "reason": "No authored Lua file or loader key; marker declaration only. Runtime handling is outside scope."
+    },
+    {
+      "dungeon": "The Quest",
+      "field": "levels.name",
+      "value": "x-strt",
+      "reason": "Quest placeholder; role families inventoried from Makefile QUEST_LEVS, no runtime role substitution asserted."
+    },
+    {
+      "dungeon": "The Quest",
+      "field": "levels.name",
+      "value": "x-loca",
+      "reason": "Quest placeholder; role families inventoried from Makefile QUEST_LEVS, no runtime role substitution asserted."
+    },
+    {
+      "dungeon": "The Quest",
+      "field": "levels.name",
+      "value": "x-goal",
+      "reason": "Quest placeholder; role families inventoried from Makefile QUEST_LEVS, no runtime role substitution asserted."
+    },
+    {
+      "dungeon": "Vlad's Tower",
+      "field": "protofile",
+      "value": "tower",
+      "reason": "Stem, not a literal filename; matching tower1/2/3 declarations are checked separately."
+    },
+    {
+      "dungeon": "The Elemental Planes",
+      "field": "levels.name",
+      "value": "dummy",
+      "reason": "No authored Lua file or loader key; marker declaration only. Runtime handling is outside scope."
+    }
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/dat/dungeon.lua": "5bbc7d7a1882b6ee0809c40efbdc7b01fd149fcebe574a49e05df4ccb6053830",
+    "js/dungeon_data.js": "de25792331f13079a3b8a74fd668e9a5a93e9218c67dc78b3f0559cb9a3015c1",
+    "nethack-c/upstream/sys/unix/Makefile.top": "8bc81f25a78457ee87eaef3d5fd7242bd9002e233ae9be627ee2d5e3c58431bf",
+    "js/mklev.js": "6b6bc7044ddb0bace3f85808d518e4d68e305c8de85f298d4219eea15b3f9120",
+    "js/bigrm.js": "6714d3fa682c52011b0bacfb3f1b1f8e0d77ed82565db1c5f1c02307d0f02ce4",
+    "js/quest_levels.js": "f8660c76e226457f29f06be7c6e2528c651ee5544d0b923e21a6d2cf0b333293",
+    "js/sokoban_levels.js": "65d6e1f06bff107d9028fb7e177d2ad5772a41f2f7ac7c92abfb013d833ac9c8",
+    "js/castle_levels.js": "5626187a8572da4df122ba6c2bc0b23c94b146f2a2a1a9d36882943e18333110",
+    "js/mines_levels.js": "b1251dd3cc1164034a2d6920d05a1e7ceb17e83dd53b56bd718bb46d9db28b61",
+    "js/fire_levels.js": "ac5c4f7114fa718f2f3bee5e8784d5a106959d3c344530d9510227d4d1f3aae1",
+    "js/air_levels.js": "7582a0202de2fdec83eb6c1f2400460b6eb9c81ac836d2c58bd7babcb1ab9099",
+    "js/earth_levels.js": "8649faf9870e475269f1881984b4ccca26b14234ead51140ebdced5d2ae50485",
+    "js/water_levels.js": "e8910f1b1c6b9d5fe01f577da6424d235bc55fbce700e1f06e974dec0826565b",
+    "js/hell_levels.js": "a59c6c5942927a6f565c301fac15e4f110fae237ade255fa32462e52be0fdab3",
+    "js/valley_levels.js": "272e7f9f1e2209ab31b41be7cb61025eacbf5175a9ff61678fa9058d07e6e8a6",
+    "js/medusa_levels.js": "512da6cd146b895dca4d1f7fe99373eb01170a13c3b47cc67ca9acb97fede07b",
+    "js/sanctum_levels.js": "db5356d8f9409e6e7d9daca083c72c54af272b9e8729e40a3c8aada66b37128c",
+    "js/asmodeus_levels.js": "90848b594350e38897da1f056add27ea1c3ab0844b62b9892d9fcc5b5e36f4f3",
+    "js/baalz_levels.js": "fa6d94c3d1ca8099bb8fe79692fa35c6163f0e0367d9b112bf25f21f884a9694",
+    "js/juiblex_levels.js": "c18033755cc9d739f94da14621a05ccaacc036349bf87433865e9e587a6a5e78",
+    "js/orcus_levels.js": "ba365b57f5272400a84bfc6a4f7756cb5144cc8a7dff1607a114f8e6dd4be446",
+    "js/wizard1_levels.js": "f53a29c2205b922b38db569d064cb4fc84c18a4450e16f01e511875feb08ee80",
+    "js/wizard2_levels.js": "fb3cd1c9bbe779bb309e724c821929d4b8f12a7a6821dfcabbf5749a69bde9b9",
+    "js/fakewiz2_level.js": "59684c1dee6f35ce5d695d49ee7876266bb23490672346495a57aaf941d19dc0",
+    "js/wizard3_levels.js": "6db91b19b5c99666c2bbff6cef5ea6cae61f2f029cf60c27dc939d08f410abc2",
+    "js/fakewiz1_levels.js": "28172e917874131968508bffa48040014d1bc822ef0f0f0f249b85a9bca3d8ff",
+    "js/knox_levels.js": "67d1d77033e3eea5591b3fd357982c6b16affbf33eded9b6243d6f3a0817aa74",
+    "js/tutorial_level.js": "aa16bf36b9cfdc10dfc28696ccd4632e41c7bdbe4d5644cd21d924e4580ff71a",
+    "js/tutorial_startup.js": "7d76ab7f699a7971717f1ffd78fb8fe16c682c63e253c94d56b338694a8668a5",
+    "js/dungeon.js": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c",
+    "nethack-c/upstream/src/dungeon.c": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+    "nethack-c/upstream/include/dungeon.h": "e48eaafdb22fc82121de702086c40c3245d6aeb9fe5556712ee1e2f18744a308",
+    "nethack-c/upstream/include/dgn_file.h": "ac01f085ac0827ee4720e9071d13a3fb9a274ced57d373e013a04a1f211d5551",
+    "nethack-c/upstream/include/global.h": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+    "nethack-c/upstream/include/align.h": "963176a750f3e58ca29d4b5b13f2eaf51fefdbf66b7a1a681401092dd72f7cb2"
+  }
+}

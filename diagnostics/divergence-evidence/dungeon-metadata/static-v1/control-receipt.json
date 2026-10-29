@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/dungeon-metadata/static-v1/audit.mjs",
+    "--controls"
+  ],
+  "cwd": ".",
+  "jsSha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:07:31.325Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "acorn": "8.18.0"
+  },
+  "runnerSha256": "9bf93c6f6dfa800413dd0de5d5a3650044969045df2831b5eb173a27bbf77507",
+  "inputHashes": {
+    "nethack-c/upstream/dat/dungeon.lua": "5bbc7d7a1882b6ee0809c40efbdc7b01fd149fcebe574a49e05df4ccb6053830",
+    "js/dungeon_data.js": "de25792331f13079a3b8a74fd668e9a5a93e9218c67dc78b3f0559cb9a3015c1",
+    "nethack-c/upstream/sys/unix/Makefile.top": "8bc81f25a78457ee87eaef3d5fd7242bd9002e233ae9be627ee2d5e3c58431bf",
+    "js/mklev.js": "6b6bc7044ddb0bace3f85808d518e4d68e305c8de85f298d4219eea15b3f9120",
+    "js/bigrm.js": "6714d3fa682c52011b0bacfb3f1b1f8e0d77ed82565db1c5f1c02307d0f02ce4",
+    "js/quest_levels.js": "f8660c76e226457f29f06be7c6e2528c651ee5544d0b923e21a6d2cf0b333293",
+    "js/sokoban_levels.js": "65d6e1f06bff107d9028fb7e177d2ad5772a41f2f7ac7c92abfb013d833ac9c8",
+    "js/castle_levels.js": "5626187a8572da4df122ba6c2bc0b23c94b146f2a2a1a9d36882943e18333110",
+    "js/mines_levels.js": "b1251dd3cc1164034a2d6920d05a1e7ceb17e83dd53b56bd718bb46d9db28b61",
+    "js/fire_levels.js": "ac5c4f7114fa718f2f3bee5e8784d5a106959d3c344530d9510227d4d1f3aae1",
+    "js/air_levels.js": "7582a0202de2fdec83eb6c1f2400460b6eb9c81ac836d2c58bd7babcb1ab9099",
+    "js/earth_levels.js": "8649faf9870e475269f1881984b4ccca26b14234ead51140ebdced5d2ae50485",
+    "js/water_levels.js": "e8910f1b1c6b9d5fe01f577da6424d235bc55fbce700e1f06e974dec0826565b",
+    "js/hell_levels.js": "a59c6c5942927a6f565c301fac15e4f110fae237ade255fa32462e52be0fdab3",
+    "js/valley_levels.js": "272e7f9f1e2209ab31b41be7cb61025eacbf5175a9ff61678fa9058d07e6e8a6",
+    "js/medusa_levels.js": "512da6cd146b895dca4d1f7fe99373eb01170a13c3b47cc67ca9acb97fede07b",
+    "js/sanctum_levels.js": "db5356d8f9409e6e7d9daca083c72c54af272b9e8729e40a3c8aada66b37128c",
+    "js/asmodeus_levels.js": "90848b594350e38897da1f056add27ea1c3ab0844b62b9892d9fcc5b5e36f4f3",
+    "js/baalz_levels.js": "fa6d94c3d1ca8099bb8fe79692fa35c6163f0e0367d9b112bf25f21f884a9694",
+    "js/juiblex_levels.js": "c18033755cc9d739f94da14621a05ccaacc036349bf87433865e9e587a6a5e78",
+    "js/orcus_levels.js": "ba365b57f5272400a84bfc6a4f7756cb5144cc8a7dff1607a114f8e6dd4be446",
+    "js/wizard1_levels.js": "f53a29c2205b922b38db569d064cb4fc84c18a4450e16f01e511875feb08ee80",
+    "js/wizard2_levels.js": "fb3cd1c9bbe779bb309e724c821929d4b8f12a7a6821dfcabbf5749a69bde9b9",
+    "js/fakewiz2_level.js": "59684c1dee6f35ce5d695d49ee7876266bb23490672346495a57aaf941d19dc0",
+    "js/wizard3_levels.js": "6db91b19b5c99666c2bbff6cef5ea6cae61f2f029cf60c27dc939d08f410abc2",
+    "js/fakewiz1_levels.js": "28172e917874131968508bffa48040014d1bc822ef0f0f0f249b85a9bca3d8ff",
+    "js/knox_levels.js": "67d1d77033e3eea5591b3fd357982c6b16affbf33eded9b6243d6f3a0817aa74",
+    "js/tutorial_level.js": "aa16bf36b9cfdc10dfc28696ccd4632e41c7bdbe4d5644cd21d924e4580ff71a",
+    "js/tutorial_startup.js": "7d76ab7f699a7971717f1ffd78fb8fe16c682c63e253c94d56b338694a8668a5",
+    "js/dungeon.js": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c",
+    "nethack-c/upstream/src/dungeon.c": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+    "nethack-c/upstream/include/dungeon.h": "e48eaafdb22fc82121de702086c40c3245d6aeb9fe5556712ee1e2f18744a308",
+    "nethack-c/upstream/include/dgn_file.h": "ac01f085ac0827ee4720e9071d13a3fb9a274ced57d373e013a04a1f211d5551",
+    "nethack-c/upstream/include/global.h": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+    "nethack-c/upstream/include/align.h": "963176a750f3e58ca29d4b5b13f2eaf51fefdbf66b7a1a681401092dd72f7cb2",
+    "package.json": "32a370c374e37d0c8a8a8e182996f0e2039d8348411ca2f9257081646e26c644",
+    "package-lock.json": "666fb7d8a593d86d659bb1ef15c4b8a5788d3b2c689c3b2d5420ce59846dabf0",
+    "node_modules/acorn/dist/acorn.js": "fc3ed7b81e58464715d0291402892f22c3d86ea75302645a330390f85d8015c9",
+    "node_modules/acorn/package.json": "5c1ed7259579a7899b303f514b0194adcb9fe474fc7d136a84c6a45f10eefc84"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/dungeon-metadata/static-v1/control-output.json"
+  ]
+}

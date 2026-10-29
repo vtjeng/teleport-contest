@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "base": "de3380e285e5f4abf40375459f9490f92569e7dc",
+  "existingCoverage": [
+    {
+      "path": "scripts/dungeon.test.mjs",
+      "lines": [896, 935],
+      "scope": "Existing generated dungeon equality and 9/37/7 count check. This audit repeats declaration equality independently; it is not a new defect or new runtime coverage claim. The test module was not executed because it also imports gameplay."
+    },
+    {
+      "path": "scripts/generate-dungeon-data.mjs",
+      "scope": "Existing declarative parser and --check mode. Read for overlap; not imported or executed by the independent audit."
+    },
+    {
+      "path": "scripts/lua-sources.mjs",
+      "scope": "Existing all-dat/*.lua inventory, including libraries. Inventory is explicitly separate from completion evidence. This audit adds Makefile manifest/registry identity comparison without claiming translation completeness."
+    }
+  ],
+  "repositoryHistory": [
+    {"commitPrefix": "e3b6ca8dc", "title": "Port source-derived dungeon topology"},
+    {"commitPrefix": "007e1ea6c", "title": "Prioritize development blockers and require source completion evidence"},
+    {"commitPrefix": "99f62f5c0", "title": "Port tutorial second special level"}
+  ],
+  "pullRequestSearch": {
+    "repository": "vtjeng/teleport-contest",
+    "queries": ["dungeon in:title", "\"dungeon\" \"static\""],
+    "state": "all",
+    "matchingResults": 0,
+    "limitation": "Search results are bounded overlap evidence, not proof that no earlier audit exists. Existing source checks provide the concrete overlap above."
+  },
+  "exclusions": "No dynamic Levels investigation artifact, probe, failed-turn content, or lead was used. Existing evidence-directory names were listed only to locate a static inventory; no dynamic evidence contents were read."
+}
