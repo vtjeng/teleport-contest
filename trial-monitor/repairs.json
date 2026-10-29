@@ -27268,6 +27268,30 @@
           ]
         }
       ]
+    },
+    {
+      "id": "terrain-light-bitfield-storage",
+      "title": "Store terrain lighting with the C unsigned one-bit semantics",
+      "investigator": "levels PR #89",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/nhlua.c:get_table_boolean",
+          "nethack-c/upstream/src/sp_lev.c:lspo_level_init/lvlfill_solid",
+          "nethack-c/upstream/include/rm.h:struct rm.lit",
+          "js/mkmaze.js:set_levltyp_lit"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/case.json"
+        ],
+        "test": [
+          "scripts/special-level.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }

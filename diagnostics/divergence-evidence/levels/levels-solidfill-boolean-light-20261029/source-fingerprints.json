@@ -1,0 +1,95 @@
+{
+  "reviewedAt": "2026-10-29T04:06:10.750674+00:00",
+  "functions": [
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "splev_chr2typ",
+      "sha256": "dc7277c13367d885fc05a5d5533fb6e31ba22068cf04b7030f498f8297b55f8b"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "check_mapchr",
+      "sha256": "c507d3461bc676350460bba8526a6ae74c6f3d3145f8ceeef754e66c17276166"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_option",
+      "sha256": "59379ce04d8702a9949421afede83ba24ab2f1af0474f268440ecfdfcf253c18"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_int_opt",
+      "sha256": "1d53962a72304ba16101381f58d55636cd11a940d92de0d0faaff93e54fe3a07"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_str_opt",
+      "sha256": "7e69edb56631eac57a22ac1e19991922cfffd3725a954e2f425d4edcf3b6a3b2"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_mapchr_opt",
+      "sha256": "283fc41df0cd98196ceba8eb17041d035a0f94c00bfbc8e0d45812d1f54075e4"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_boolean",
+      "sha256": "2c3ec6cabfa0d20089eb754c01d7f17d2502451823dbc35a9a4fbcbc1e9ffd35"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_boolean_opt",
+      "sha256": "8af280f75bad209d97cd460f52e1c78929c6a0d5acd623f8305a54f30b73dcc0"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp",
+      "sha256": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp_lit",
+      "sha256": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lvlfill_solid",
+      "sha256": "0eb3809f0e0cc79d09d8992f030ffe512566389d511cabca324f275923bd3d05"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "splev_initlev",
+      "sha256": "4bfdf774370460e956830e3a3d825252fef166a623886fd036a7664c0b59eb60"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_level_init",
+      "sha256": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde"
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "lspo_level_init",
+      "sha256": "33ac00c2c02d4782bf58c570cbe5d6e1bb056b41e5151aef7ce1c7d0701beadf"
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "splev_initlev",
+      "sha256": "3e7d69011ecd7e800f1c2a054f42d7a7740cf04403f9d24fa9d8c938ac589021"
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "lvlfill_solid",
+      "sha256": "fc47e123a99c65b52b0e842ab32b76522b49ced389802d89fc9d76bf32a623f8"
+    },
+    {
+      "path": "js/nhlua.js",
+      "symbol": "get_table_boolean",
+      "sha256": "5cad83af7ffdb57df60371264e773d418e01c38954f4fd0d36087936279e49cb"
+    },
+    {
+      "path": "js/mkmaze.js",
+      "symbol": "set_levltyp_lit",
+      "sha256": "133df6df7e9d8b66820638b837dadc6003bd5b35e4f89d6b9a678e15b4706584"
+    }
+  ]
+}

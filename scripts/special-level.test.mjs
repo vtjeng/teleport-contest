@@ -68,6 +68,25 @@ async function runLoader(body) {
     );
 }
 
+// Executed C lspo_level_init/solidfill oracle in PR #89 establishes these
+// accepted string option indices and their unsigned one-bit storage result.
+for (const fg of ['.', '#', 'I', 'L']) {
+    test(`solidfill stores boolean-option lighting in one bit: ${fg}`, async () => {
+        for (const [lit, expected] of [
+            ['yes', false], ['true', false], ['false', true], ['no', true],
+            [false, false], [true, true], [0, false], [1, true],
+        ]) {
+            await runLoader(des => {
+                des.level_init({ style: 'solidfill', fg, lit });
+                for (let x = 2; x <= 78; x++)
+                    for (let y = 0; y <= 20; y++)
+                        assert.equal(Boolean(game.level.at(x, y).lit),
+                            fg === 'L' || expected, `${fg}/${String(lit)} at ${x},${y}`);
+            });
+        }
+    });
+}
+
 for (const [property, bit] of [['nondiggable', 8], ['nonpasswall', 16]]) {
     for (const style of ['solidfill', 'mazegrid']) {
         test(`${style} ${property} wall flags after repeated level_init`, async () => {

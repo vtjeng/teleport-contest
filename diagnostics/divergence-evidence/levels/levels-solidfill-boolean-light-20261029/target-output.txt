@@ -1,0 +1,4 @@
+{"fg":".","lit":"yes","parsedC":2,"cells":1617,"expectedC":[25,0],"observedJS":[25,1],"mismatches":1617,"cSanityDiagnostics":1617,"expectedSha256":"af4dc0c75e299a90a0f3a3f88e037d53799d922e3dbe708278c0c4c255fb1fa4","observedSha256":"89bb823b855f86680129e0e2affd1e5c8b4c845e7098edaf845eda5b843ca4f4"}
+{"fg":"#","lit":"yes","parsedC":2,"cells":1617,"expectedC":[24,0],"observedJS":[24,1],"mismatches":1617,"cSanityDiagnostics":1617,"expectedSha256":"f61b6947c79d839520f3319e9cd6e0be138ef54eeaf1158866d1db06674a360b","observedSha256":"3989015cf75037ebb7302bdbfbcab43a9499050207e91a90dbdc8a98ed8dcbdf"}
+{"fg":"I","lit":"yes","parsedC":2,"cells":1617,"expectedC":[33,0],"observedJS":[33,1],"mismatches":1617,"cSanityDiagnostics":1617,"expectedSha256":"1e4bf29384bffdc53f1d4a21ee754c8b611af709934d396226d5acc28cd9a91e","observedSha256":"31dffbeb76adae0644d8103cd2f0737e98bb265ccf7b5c865317b001f380e6cb"}
+{"mode":"target","count":3,"failures":3}
