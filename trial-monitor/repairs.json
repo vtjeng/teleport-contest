@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T04:52:52Z",
+  "asOf": "2026-10-29T05:09:14Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -26053,6 +26053,56 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40820024034"
             }
           ]
+        },
+        {
+          "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+          "committedAt": "2026-10-29T04:56:08Z",
+          "sourceCommit": "71421a2cc835750c412e88e3692b616434d5fd2b",
+          "sourceCommittedAt": "2026-10-29T04:54:27Z",
+          "runs": [
+            {
+              "id": 40820507607,
+              "name": "Checkpoint",
+              "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/gaze-reader-prefix-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:56:16Z",
+              "completedAt": "2026-10-29T05:05:42Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40820507607"
+            },
+            {
+              "id": 40821534601,
+              "name": "Lint",
+              "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:07:11Z",
+              "completedAt": "2026-10-29T05:08:27Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40821534601"
+            },
+            {
+              "id": 40821534682,
+              "name": "Dashboard",
+              "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:07:11Z",
+              "completedAt": "2026-10-29T05:09:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40821534682"
+            }
+          ]
         }
       ]
     },
@@ -26468,6 +26518,56 @@
               "completedAt": "2026-10-29T04:52:52Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40820024034"
+            }
+          ]
+        },
+        {
+          "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+          "committedAt": "2026-10-29T04:56:08Z",
+          "sourceCommit": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+          "sourceCommittedAt": "2026-10-29T04:56:08Z",
+          "runs": [
+            {
+              "id": 40820507607,
+              "name": "Checkpoint",
+              "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/gaze-reader-prefix-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:56:16Z",
+              "completedAt": "2026-10-29T05:05:42Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40820507607"
+            },
+            {
+              "id": 40821534601,
+              "name": "Lint",
+              "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:07:11Z",
+              "completedAt": "2026-10-29T05:08:27Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40821534601"
+            },
+            {
+              "id": 40821534682,
+              "name": "Dashboard",
+              "sha": "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:07:11Z",
+              "completedAt": "2026-10-29T05:09:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40821534682"
             }
           ]
         }
@@ -27507,6 +27607,29 @@
           ]
         }
       ]
+    },
+    {
+      "id": "silent-encumbrance-status-refresh",
+      "title": "Refresh status for silent encumbrance decreases",
+      "investigator": "capacity PR #110",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pickup.c:encumber_msg",
+          "js/pickup.js:encumber_msg"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/110",
+          "scripts/fixtures/capacity-public/silent-status-target.session.json.gz"
+        ],
+        "test": [
+          "scripts/capacity-silent-status.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }

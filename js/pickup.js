@@ -345,6 +345,10 @@ export async function encumber_msg(
 
     if (text) {
         await message(text, state);
+    }
+    // C dirties status for every capacity change, including the silent 5->4
+    // decrease which has no entry in DECREASED_BURDEN_MESSAGES.
+    if (oldCapacity !== newCapacity) {
         state.disp ??= {};
         state.disp.botl = true;
     }
