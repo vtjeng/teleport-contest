@@ -1,0 +1,234 @@
+[
+  {
+    "form": "table",
+    "textHex": "2e2e2e0a2e2e2e0a002e2e",
+    "kind": "target",
+    "expectedC": {
+      "frame": [
+        10,
+        6,
+        3,
+        2
+      ],
+      "points": [
+        [
+          10,
+          6
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          11,
+          6
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          12,
+          6
+        ],
+        [
+          12,
+          7
+        ]
+      ]
+    },
+    "observedJS": {
+      "frame": [
+        10,
+        6,
+        3,
+        3
+      ],
+      "points": [
+        [
+          10,
+          6
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          11,
+          6
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          12,
+          6
+        ],
+        [
+          12,
+          7
+        ],
+        [
+          12,
+          8
+        ]
+      ]
+    },
+    "matched": false
+  },
+  {
+    "form": "string",
+    "textHex": "2e2e2e0a2e2e2e0a002e2e",
+    "kind": "target",
+    "expectedC": {
+      "frame": [
+        39,
+        11,
+        3,
+        2
+      ],
+      "points": [
+        [
+          39,
+          11
+        ],
+        [
+          39,
+          12
+        ],
+        [
+          40,
+          11
+        ],
+        [
+          40,
+          12
+        ],
+        [
+          41,
+          11
+        ],
+        [
+          41,
+          12
+        ]
+      ]
+    },
+    "observedJS": {
+      "frame": [
+        39,
+        9,
+        3,
+        3
+      ],
+      "points": [
+        [
+          39,
+          9
+        ],
+        [
+          39,
+          10
+        ],
+        [
+          40,
+          9
+        ],
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          11
+        ],
+        [
+          41,
+          9
+        ],
+        [
+          41,
+          10
+        ],
+        [
+          41,
+          11
+        ]
+      ]
+    },
+    "matched": false
+  }
+]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: table
++ actual - expected
+... Skipped lines
+
+  {
+    frame: [
+      10,
+      6,
+      3,
++     3
+-     2
+    ],
+    points: [
+      [
+        10,
+        6
+...
+      [
++       11,
++       8
++     ],
++     [
+        12,
+        6
+      ],
+      [
+        12,
+        7
+      ],
++     [
++       12,
++       8
++     ]
+    ]
+  }
+
+    at file:///workspace/levels-clean-base-25/diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/probe.mjs:47:51 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: {
+    frame: [ 10, 6, 3, 3 ],
+    points: [
+      [ 10, 6 ], [ 10, 7 ],
+      [ 11, 6 ], [ 11, 7 ],
+      [ 11, 8 ], [ 12, 6 ],
+      [ 12, 7 ], [ 12, 8 ]
+    ]
+  },
+  expected: {
+    frame: [ 10, 6, 3, 2 ],
+    points: [
+      [ 10, 6 ],
+      [ 10, 7 ],
+      [ 11, 6 ],
+      [ 11, 7 ],
+      [ 12, 6 ],
+      [ 12, 7 ]
+    ]
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

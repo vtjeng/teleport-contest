@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:53:57.026Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "db49c8164e075174719fd6b1da6a02ff074e90a8f7427a6b5a54fa0b0910a97a",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/oracle.c": "1d5ce9755b5633c6d9b6411dd94268271c5f5e44cd8e3c50c79212ae60a2a54a"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/control-output.txt"
+  ]
+}

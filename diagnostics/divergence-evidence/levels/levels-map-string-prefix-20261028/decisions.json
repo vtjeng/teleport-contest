@@ -1,0 +1,36 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:mapfrag_fromstr:dupstr",
+    "evidenceKey": "7c481e7cd6417966e66c5acae15e259027305937e34bddc5c0121683e771f8d2",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "392cd6c8730ca2c419892891f00015bff4fbb211106646937b2293251454e137",
+    "status": "confirmed",
+    "witness": {
+      "setup": "Production special-level loader calls des.map table form at10,6, or its documented centered row-array counterpart to the C string form. Input bytes are ... newline ... newline NUL ... with two dots after NUL (hex2e2e2e0a2e2e2e0a002e2e). Both complete row array and C prefix are rectangular. Exact C lspo_map/mapfrag parser/dupstr execute with typed string/table readers and checked floor-terrain/selection adapters.",
+      "failingCommand": "node diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/probe.mjs target",
+      "observed": "JS writes8 floor cells with dimensions3x3; table frame10,6,3,3; centered frame39,9,3,3.",
+      "expected": "C writes6 floor cells with dimensions3x2; table frame10,6,3,2; centered frame39,11,3,2.",
+      "control": {
+        "command": "node diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/probe.mjs control",
+        "result": "Exit0 for four comparisons:plain3x2 and3x3 maps across table and centered array/string counterparts."
+      },
+      "evidenceBasis": "C-executed",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:227",
+        "nethack-c/upstream/src/sp_lev.c:6075",
+        "nethack-c/upstream/src/alloc.c:238",
+        "js/mklev.js:1098",
+        "js/mklev.js:4706",
+        "js/mklev.js:5029"
+      ]
+    },
+    "claim": {
+      "expected": "Map text follows C-string prefix before dimension calculation and placement.",
+      "suspectedDifference": "JS table parser and row-array map path retain suffix rows after embedded NUL; related to accepted C-string boundary repairs, not a new independent repair identity."
+    },
+    "handoff": {
+      "caseId": "levels-map-string-prefix-20261028",
+      "qualification": "API-scoped with valid rectangular prefix and row-array input, shipped exposure unknown; related accepted message/engraving family."
+    }
+  }
+]

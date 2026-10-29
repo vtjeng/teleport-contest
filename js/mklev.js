@@ -1098,7 +1098,8 @@ export function get_table_mapchr_opt(table, name, defval) {
 export function mapfrag_fromstr(str) {
     const mf = {};
 
-    mf.data = stripdigits(str);
+    // C dupstr() copies only the prefix before the first embedded NUL.
+    mf.data = stripdigits(str.split('\0', 1)[0]);
     mf.wid = str_lines_maxlen(mf.data);
     mf.hei = 0;
     let tmps = 0;
@@ -5027,9 +5028,14 @@ function createSpecialLevelApi(state) {
 // C ref: sp_lev.c lspo_map(), array form. Sets the map frame and paints
 // terrain for the main des.map([...rows]) call in a special level file.
 function mapFromRows(rows, frame, state) {
-    const height = rows.length;
-    const width = rows[0]?.length ?? 0;
-    if (!width || rows.some((row) => row.length !== width))
+    // The array is this port's counterpart of C's map string. C dupstr()
+    // discards the suffix at NUL before measuring rows or centering the map.
+    const prefix = rows.join('\n').split('\0', 1)[0];
+    const sourceRows = (prefix.endsWith('\n') ? prefix.slice(0, -1) : prefix)
+        .split('\n');
+    const height = sourceRows.length;
+    const width = sourceRows[0]?.length ?? 0;
+    if (!width || sourceRows.some((row) => row.length !== width))
         throw new Error('special-level map rows must have equal width');
     frame.xsize = width;
     frame.ysize = height;
@@ -5058,7 +5064,7 @@ function mapFromRows(rows, frame, state) {
         for (let x = 0; x < width; ++x) {
             const ax = frame.xstart + x;
             const ay = frame.ystart + y;
-            const mptyp = splev_chr2typ(rows[y][x]);
+            const mptyp = splev_chr2typ(sourceRows[y][x]);
             if (mptyp === INVALID_TYPE) continue;
             if (mptyp >= MAX_TYPE) continue;
             set_themeroom_map_terrain(ax, ay, mptyp, state);

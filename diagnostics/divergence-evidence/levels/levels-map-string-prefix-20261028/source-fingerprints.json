@@ -1,0 +1,36 @@
+{
+  "testedJsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "discoveredAt": "2026-10-28T23:55:37.367815+00:00",
+  "reviewedAt": "2026-10-28T23:55:37.367815+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:lspo_map": "40a9789ad7612ef20ea53f6616fba3d312ed09ebaabdeb26f8f3247768b2b28a",
+    "nethack-c/upstream/src/sp_lev.c:mapfrag_fromstr": "8fd4283fdd5bf3119923c8cee25e87fe29b09b114409063e04c62a57715f9484",
+    "nethack-c/upstream/src/sp_lev.c:mapfrag_get": "34893e5b1be9c759c274671cb9d0beddb95c6d9c9b8b12aee6c82d11b1857b1c",
+    "nethack-c/upstream/src/sp_lev.c:mapfrag_free": "684ba902b3b832a1a441dcf5305210a31c8de1322ac3f849592310eb1a4d359c",
+    "nethack-c/upstream/src/alloc.c:dupstr": "28efe46c154232019485369ab420b79e2216ea053fdc86d8815bf8eb6d3b65fa",
+    "nethack-c/upstream/src/hacklib.c:stripdigits": "ab6f9c0f40480ab1196214f50098cf954c3c58608803cfd31aa22bedbc085e49",
+    "nethack-c/upstream/src/hacklib.c:str_lines_maxlen": "ec52b00b0f221c9035eabb98cba73eb98f4f7cf225b711bc5a3576120c0be3b2",
+    "js/mklev.js:mapfrag_fromstr": "0453cda2175a3f0fc8db64198749e0b4a5cb871721e22f32637d3c21df36fb25",
+    "js/mklev.js:mapFromRows": "d29955452df28222feb1c73734b6cdc1566f58c3e229e459883e56d23d278713",
+    "js/mklev.js:createSpecialLevelApi": "2c4725d4de6642f2ca934859e51fd381523154681429ea56125d64f78544c6b5",
+    "js/hacklib.js:stripdigits": "92503bc47589572c8ad5a6e53f860cb6a25d35ba6e316f1bb1adecfd4e09efe7",
+    "js/hacklib.js:str_lines_maxlen": "fbe612164ad1a542e50b75a5499922e75f385b3d7c3b0cdd60d709d32214a84e"
+  },
+  "unchangedFromScanBase": {
+    "js/mklev.js:mapfrag_fromstr": true,
+    "js/mklev.js:mapFromRows": true,
+    "js/mklev.js:createSpecialLevelApi": false,
+    "js/hacklib.js:stripdigits": true,
+    "js/hacklib.js:str_lines_maxlen": true
+  },
+  "configuration": "clang -std=c99 -O2; exact C map wrapper/parser/copier plus typed readers and floor/selection adapters; Node24.19.0 production special-level loader. Seed0x5eed, datetime20400314015926, Tourist/human/female/neutral, bonesfalse; loader sentinel stops before finalization.",
+  "limitations": [
+    "API-scoped map construction only. Shipped levels containing embedded NUL are not attributed; no hidden-score or gameplay exposure claim. This is related to the accepted level-message/engraving C-string prefix cause, not a new independent repair identity.",
+    "C executes exact lspo_map, mapfrag_fromstr/get/free, stripdigits, str_lines_maxlen and dupstr. Typed reader adapters supply exact string/table inputs; bytes are hex-decoded without truncation. The source dupstr/strlen execution, not a precomputed expected prefix, causes truncation. No full Lua interpreter is executed.",
+    "Floor terrain conversion/writes and selection storage are checked adapters. They assert only dot terrain, lit0, in-bounds coordinates and selected cells; no metadata, lighting, arbitrary characters, room/themeroom placement, callback, finalization or RNG parity claim.",
+    "JS des.map row-array form is the production documented counterpart of C string form. Plain JS scalar string is not its supported invocation. The final array has equal-width3 rows and the C prefix is a valid3x2 map; no invalid row-length setup supports the claim.",
+    "Only mapfrag_fromstr:dupstr is scanner-bound. The C lspo_map scanner edge maps to a different exported JS helper, so it is left unreviewed; actual public wrapper source is cited separately."
+  ]
+}

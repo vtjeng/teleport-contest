@@ -98,6 +98,28 @@ test('special-level message uses the C string prefix before appending', async ()
     });
 });
 
+test('table map discards bytes after an embedded NUL before measuring rows', async () => {
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: ' ' });
+        const placed = await des.map({ x: 10, y: 6, map: '...\n...\n\0..' });
+        assert.deepEqual([placed.xstart, placed.ystart, placed.xsize, placed.ysize],
+            [10, 6, 3, 2]);
+        assert.equal(placed.selection.numpoints(), 6);
+        assert.equal(game.level.at(10, 8).typ, STONE);
+    });
+});
+
+test('centered row-array map uses the same C string prefix', async () => {
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: ' ' });
+        const placed = await des.map(['...', '...', '\0..']);
+        assert.deepEqual([placed.xstart, placed.ystart, placed.xsize, placed.ysize],
+            [39, 11, 3, 2]);
+        assert.equal(placed.selection.numpoints(), 6);
+    });
+});
+
+
 for (const [operation, combine, expectedWalls] of [
     ['union', l_selection_or, 1], ['subtraction', l_selection_sub, 0],
 ]) {

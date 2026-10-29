@@ -25886,7 +25886,8 @@
         ],
         "witness": [
           "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
-          "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/case.json"
+          "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/case.json,
+          "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/case.json"
         ],
         "test": [
           "scripts/special-level.test.mjs"
