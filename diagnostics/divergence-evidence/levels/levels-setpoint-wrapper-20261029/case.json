@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-setpoint-wrapper-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "explicit-selection-setter-delegation",
+  "relatedCases": [
+    "levels-selection-numeric-operators-20261028"
+  ],
+  "provenance": {
+    "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_setpoint",
+      "start_line": 159,
+      "end_line": 199,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_new",
+      "start_line": 127,
+      "end_line": 131,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_check",
+      "start_line": 58,
+      "end_line": 67,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_new",
+      "start_line": 15,
+      "end_line": 30,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_setpoint",
+      "start_line": 181,
+      "end_line": 208,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlsel.js",
+      "symbol": "l_selection_setpoint",
+      "start_line": 100,
+      "end_line": 147,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/themerooms.js",
+      "symbol": "selection_new",
+      "start_line": 255,
+      "end_line": 257,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    }
+  ],
+  "hypothesis": "Different call decomposition might omit fresh selection allocation or existing numeric point updates in l_selection_setpoint.",
+  "expectedBehavior": "Two-coordinate calls allocate a fresh selection and set1. Existing-selection calls retain the object, default to1 or write the explicit value, translate explicit coordinates by the active map origin, and preserve other points.",
+  "observedBehavior": "Twenty four-argument targets: values0,1,2,7,126 \u00d7 default and translated map origins \u00d7 two interior coordinates; eight two/three-argument controls cover fresh creation and default value1. Exact C l_selection_setpoint with fixed typed stack/coordinate adapters and real selection storage functions matches all1680 bytes and bounds. Existing JS selections retain identity and an unrelated anchor point; fresh results have only the requested point.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Twenty four-argument targets: values0,1,2,7,126 \u00d7 default and translated map origins \u00d7 two interior coordinates; eight two/three-argument controls cover fresh creation and default value1. Exact C l_selection_setpoint with fixed typed stack/coordinate adapters and real selection storage functions matches all1680 bytes and bounds. Existing JS selections retain identity and an unrelated anchor point; fresh results have only the requested point.",
+    "limitations": [
+      "Twenty targets:four-argument existing-selection update, values0,1,2,7,126, two interior coordinates(2,2)/(4,3), two frames(1,0)/(10,6). Eight controls:two-argument fresh creation and three-argument default-value update over the same coordinates/frames. Entire1680-byte maps and calculated bounds compared.",
+      "Exact C l_selection_setpoint and six selvar storage/bounds functions compile unchanged. Fixed typed Lua adapters implement only successful argc2/3/4 paths: selection validation, integer reads, stack pop/new/settop. The allocation adapter invokes real selection_new; full userdata/metatable allocation, Lua VM/parser and invalid-input diagnostics are not executed.",
+      "C coordinate adapter asserts explicit nonnegative inputs, ANY_LOC and null room, then adds the stated frame origin. It is not a general coordinate resolver. JS uses the real coordinate resolver on the production game state and frame established by public level_init/map; the exported production wrapper receives that frame and a null-room coder view.",
+      "This is a wrapper/API-boundary proof, not invocation through the private Lua-global symbol or a shipped loader. Source confirms the production Lua-global set method forwards args/env to this exact wrapper. No arbitrary Lua runtime or internal storage mutation is introduced.",
+      "Only absolute selection objects are supplied. Existing objects retain identity and an unrelated(35,17) anchor; fresh objects have only the new point. No relative-selection, mixed-frame, subroom, random-coordinate, zero/one-argument, out-of-bounds, invalid-input or error parity claim.",
+      "Values plus1 are1..127, representable with either signed or unsigned char. No compiler-dependent narrowing, embedded-NUL selection storage or larger numeric domain is tested. No RNG or runtime behavior claim.",
+      "The four scanner keys describe one delegated selection setter cause. Prior same-frame OR/sub proof, mixed-frame fixes, cave-cap unresolved lead and three parked gaps retain their own boundaries."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exported production selection wrapper invoked on public initializer/map state and frame with null-room environment. Private Lua-global binding and shipped exposure are not executed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The setter wrapper implements selection validation/allocation/storage through different JS primitives. Four source-call edges describe one delegation cause; tested explicit-coordinate creation/update behavior is present. This does not prove all argument forms, invalid-input diagnostics, random-coordinate or mixed-frame behavior.",
+    "keys": [
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_setpoint:l_selection_check",
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_setpoint:l_selection_new",
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_setpoint:selection_setpoint",
+      "source-audit:edge-js-only:src/nhlsel.c:l_selection_setpoint:selection_new"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/README.md",
+      "sha256": "5c3468c704e78910618abaa40a0fbfcce1407a76d1cf73d6b93c055b403d3480",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/control-output.txt",
+      "sha256": "7a2103e27eb508ac13338b7614201799129f078c5cefc1a5f08558e4bf9d7810",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/control-receipt.json",
+      "sha256": "d0d7cce297a23175513c8beb8b2bd079a318e5ef7c1c62860e59f1b135861f95",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/decisions.json",
+      "sha256": "782239bed226e7a0c5152f3ff3731b6eafe1a7db3ba0e6f3cb022208764690ea",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/oracle.c",
+      "sha256": "46d6e6bfdd6de91c90582cd8d17aea3770c1733efae6a4b47c3125c5f454b07a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/probe.mjs",
+      "sha256": "0fdb528557d50830243ad6f60672fd46615ab6f001eb5050231cbc8b6d968c66",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/projection/manifest.json",
+      "sha256": "110728eb4937f7832371aa8a9cdb4d58d8b483782cda7bccc270f98df02b7d50",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/projection/projection.json",
+      "sha256": "56055c15f3bbb8f9c741dc42c6b6d06cf7b4d6bcfadfcdd90a78078c1c18bcc3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/projection/review-template.json",
+      "sha256": "3c37ae2a635f707b453e4772121f8be38f5a59cc0f7f076e85546fa02dbdb5ba",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/source-contract.json",
+      "sha256": "6ab966cf642514dfc4e41f82af33cf9ae6b3d75749825aafc131ed10df4089ce",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/source-fingerprints.json",
+      "sha256": "484673b54c4c0cb7406e2178d3ff7cbe3698029ff933212e800ae619f97018e8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/target-output.txt",
+      "sha256": "dfb1573644bbe61c48b4e27ec9e998980e1c8c52d08156497d89171d73cead83",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/target-receipt.json",
+      "sha256": "c3e01ad06b72841f1f67f02561baecd8e11a6f62cde2dcde9771dd1261eb5b17",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
