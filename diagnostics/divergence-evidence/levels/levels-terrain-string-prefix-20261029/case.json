@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-terrain-string-prefix-20261029",
+  "shard": "levels",
+  "status": "candidate",
+  "readiness": "review_ready",
+  "rootCause": "c-string-prefix-at-construction-boundary",
+  "relatedCases": [
+    "levels-map-string-prefix-20261028",
+    "levels-engraving-string-prefix-20261028",
+    "levels-message-buffer-20261028"
+  ],
+  "provenance": {
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_level_init",
+      "start_line": 3837,
+      "end_line": 3875,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "splev_initlev",
+      "start_line": 2982,
+      "end_line": 3018,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lvlfill_solid",
+      "start_line": 374,
+      "end_line": 388,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "sel_set_ter",
+      "start_line": 4609,
+      "end_line": 4630,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_terrain",
+      "start_line": 4978,
+      "end_line": 5038,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp",
+      "start_line": 77,
+      "end_line": 121,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp_lit",
+      "start_line": 125,
+      "end_line": 145,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_ice",
+      "start_line": 86,
+      "end_line": 97,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_str",
+      "start_line": 1042,
+      "end_line": 1050,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_mapchr",
+      "start_line": 241,
+      "end_line": 253,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "splev_chr2typ",
+      "start_line": 382,
+      "end_line": 390,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "check_mapchr",
+      "start_line": 393,
+      "end_line": 398,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/alloc.c",
+      "symbol": "dupstr",
+      "start_line": 238,
+      "end_line": 247,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_terrain",
+      "start_line": 3760,
+      "end_line": 3815,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "get_table_mapchr",
+      "start_line": 1075,
+      "end_line": 1080,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "check_mapchr",
+      "start_line": 1069,
+      "end_line": 1072,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "splev_chr2typ",
+      "start_line": 1036,
+      "end_line": 1064,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlua.js",
+      "symbol": "luaL_checkstring",
+      "start_line": 248,
+      "end_line": 252,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlua.js",
+      "symbol": "get_table_str",
+      "start_line": 322,
+      "end_line": 324,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    }
+  ],
+  "hypothesis": "Required terrain map-character readers reject full JS strings whose valid C prefix ends at an embedded NUL.",
+  "expectedBehavior": "T followed by NUL accepts and paints TREE for table and positional forms; plain T accepts, TT and leading-NUL controls reject.",
+  "observedBehavior": "C accepts four target calls and paintsTREE13; JS errors and retainsROOM25. Six controls match.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Public JS des.terrain table/positional calls versus exact C wrappers/readers/writers, preserving NUL-bearing bytes in fixed typed adapters; four targets and six controls.",
+    "limitations": [
+      "Two supported des.terrain forms: explicit table and positional x,y,typ. Fixed default frame1,0, relative13,10, initial ROOM from solidfill. Only TREE painting and input acceptance are compared; no tree/monster/object/player runtime effects or finalization.",
+      "C executes exact lspo_level_init/lspo_terrain, terrain writers, get_table_mapchr/get_table_str, dupstr, check_mapchr and splev_chr2typ plus the exact char2typ table. Fixed typed Lua-reader adapters preserve raw string bytes and only emulate these explicit argument forms, integer coordinates and table fields. No Lua library dependency or general coercion/VM claim.",
+      "Hex transport preserves embedded NUL and suffix in the input allocation. Actual C dupstr/strlen determines prefix behavior; the adapter does not pre-truncate. The table path copies the C prefix; the positional path passes the original bytes to exact check_mapchr.",
+      "Coordinate adapter asserts in-bounds explicit values and default frame1,0 with no room/random selection. Unused parser/selection and runtime-effect adapters abort. nhl_error adapter longjmps to capture failure; error text/stack/process behavior is not asserted.",
+      "Four targets cover T-NUL-suffix and T-NUL in both forms. Six controls cover plain T acceptance, TT rejection and leading-NUL rejection. Rejected controls validate parsing boundaries only; they are not invalid-setup negatives.",
+      "This extends the existing C-string-prefix cause (message, engraving, map) to a required map-character reader. No new independent repair identity, broad string equivalence, shipped exposure or score-impact claim."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Supported typed construction API inputs and observed terrain result. No shipped exposure or gameplay impact established."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Manual source-led required map-character composition; no exact immutable scanner binding is asserted. Nearby lspo_terrain error edges remain unreviewed, not mapped to this shared reader merely for counting.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/source-contract.json"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/control-receipt.json"
+    },
+    {
+      "id": "post-fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/README.md",
+      "sha256": "19cb1e4eea3054474e1e7f48f9055c19fcd93d4c20947dae91fb9d89fad6b2bd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/control-output.txt",
+      "sha256": "cc9549f2129dc7fa6ae211bcbb9247f4501e1de9af3c68acd17c5e91f7d52749",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/control-receipt.json",
+      "sha256": "94c512f0b58baa45b6f5ab941055eeeeee281d4b58a74802c5912023eb0155ab",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/oracle.c",
+      "sha256": "788b94692043b84701f9da4525103637998ac47701d8b80a926293ac5c1e3df2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/probe.mjs",
+      "sha256": "c1a6efc1bdf9d78ca269c6274135a140a7037ecfdba0aed4fcaf51d30f8664b2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/source-contract.json",
+      "sha256": "e90d3b30423db769477b87de56c7f409fd6bd6f191024f0c133e261d8b8d4675",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/source-fingerprints.json",
+      "sha256": "5543c6a668b36db89d71238265a7c2667c2849ded85e74a0c58648bc6f71f1d0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/target-output.txt",
+      "sha256": "855bcc4da444a0966763350762619560a4a45c69f7c53da4ca77e844c68f1a49",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/target-receipt.json",
+      "sha256": "b2e4fd8ba519b999ba5bbaab740ed53bb287ca61890b5e4a69bba1602995183a",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

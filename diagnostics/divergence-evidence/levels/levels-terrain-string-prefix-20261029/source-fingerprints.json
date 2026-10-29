@@ -1,0 +1,38 @@
+{
+  "testedJsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "discoveredAt": "2026-10-29T00:50:24.731147+00:00",
+  "reviewedAt": "2026-10-29T00:50:24.731147+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:lspo_level_init": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde",
+    "nethack-c/upstream/src/sp_lev.c:splev_initlev": "4bfdf774370460e956830e3a3d825252fef166a623886fd036a7664c0b59eb60",
+    "nethack-c/upstream/src/sp_lev.c:lvlfill_solid": "0eb3809f0e0cc79d09d8992f030ffe512566389d511cabca324f275923bd3d05",
+    "nethack-c/upstream/src/sp_lev.c:sel_set_ter": "63ad752215977fad6413b49ba0d08c6afcc0a82cbc46a4f2409ef9f049ae451c",
+    "nethack-c/upstream/src/sp_lev.c:lspo_terrain": "bb16b3577666b873d8a0f622984cc239d854037ef23f45982c168824594e8c2e",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp_lit": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d",
+    "nethack-c/upstream/src/dbridge.c:is_ice": "b16fd999dfa7a405f9f7c635b69de0d378ecb933cd7afa397db20adcd2b62422",
+    "nethack-c/upstream/src/nhlua.c:get_table_str": "38ec0d6a6d6f169eb656ee7e04cf7affdadf34ebc5525070888afa4d0948c9d0",
+    "nethack-c/upstream/src/nhlua.c:get_table_mapchr": "d876536c5dca231f352a736cf0ddf8125bd93f7c858e0449734d2e335e3e9acf",
+    "nethack-c/upstream/src/nhlua.c:splev_chr2typ": "dc7277c13367d885fc05a5d5533fb6e31ba22068cf04b7030f498f8297b55f8b",
+    "nethack-c/upstream/src/nhlua.c:check_mapchr": "c507d3461bc676350460bba8526a6ae74c6f3d3145f8ceeef754e66c17276166",
+    "nethack-c/upstream/src/alloc.c:dupstr": "28efe46c154232019485369ab420b79e2216ea053fdc86d8815bf8eb6d3b65fa",
+    "js/mklev.js:lspo_terrain": "2ffaa90a0283a806ca38146856616782332714b50f7c2e8b83078c05a650f763",
+    "js/mklev.js:get_table_mapchr": "eacbbeabf794eb51d5cc334e41d4c552a901ad1c95562f33470755efc4e0cf98",
+    "js/mklev.js:check_mapchr": "eb249abe2d6105c869c4932beef4c216a76588274d278e457b3af3e57f0a90dc",
+    "js/mklev.js:splev_chr2typ": "96504430ac5d3929c4a3aeef5a7ab1e13c0e42f66148716517aa3388e75e839a",
+    "js/nhlua.js:luaL_checkstring": "1dfdf2838a8ee0efbea2356acb46810a9f993c214d7acb15932c37c17875a9dc",
+    "js/nhlua.js:get_table_str": "5fede05add2a1f40589c83f81a808bd9f7e9265a42b431e2ad593f5be905f8dd",
+    "nhlua.c:char2typ": "b5e66615415ba23cf7e10619e2e106afa08b19b3ff45cbd65b546fd905fb4720"
+  },
+  "configuration": "Node24.19.0,Clang19.1.7 -std=c11 -O2,MONITOR_HEAP unset. Production JS special loader,seed0x5eed,datetime20400314015926,Tourist/human/female/neutral,bonesfalse; sentinel before finalization.",
+  "limitations": [
+    "Two supported des.terrain forms: explicit table and positional x,y,typ. Fixed default frame1,0, relative13,10, initial ROOM from solidfill. Only TREE painting and input acceptance are compared; no tree/monster/object/player runtime effects or finalization.",
+    "C executes exact lspo_level_init/lspo_terrain, terrain writers, get_table_mapchr/get_table_str, dupstr, check_mapchr and splev_chr2typ plus the exact char2typ table. Fixed typed Lua-reader adapters preserve raw string bytes and only emulate these explicit argument forms, integer coordinates and table fields. No Lua library dependency or general coercion/VM claim.",
+    "Hex transport preserves embedded NUL and suffix in the input allocation. Actual C dupstr/strlen determines prefix behavior; the adapter does not pre-truncate. The table path copies the C prefix; the positional path passes the original bytes to exact check_mapchr.",
+    "Coordinate adapter asserts in-bounds explicit values and default frame1,0 with no room/random selection. Unused parser/selection and runtime-effect adapters abort. nhl_error adapter longjmps to capture failure; error text/stack/process behavior is not asserted.",
+    "Four targets cover T-NUL-suffix and T-NUL in both forms. Six controls cover plain T acceptance, TT rejection and leading-NUL rejection. Rejected controls validate parsing boundaries only; they are not invalid-setup negatives.",
+    "This extends the existing C-string-prefix cause (message, engraving, map) to a required map-character reader. No new independent repair identity, broad string equivalence, shipped exposure or score-impact claim."
+  ]
+}

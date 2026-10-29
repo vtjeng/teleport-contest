@@ -12,7 +12,7 @@ import { monst_globals_init } from '../js/monsters.js';
 import { TIN, EGG, APPLE, CORPSE, STATUE, FIGURINE, objects_globals_init } from '../js/objects.js';
 import { PM_CHAMELEON, PM_CAVE_DWELLER, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
-import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, HWALL, STONE } from '../js/const.js';
+import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, HWALL, STONE, TREE } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -129,6 +129,26 @@ test('one-cell row-array map resets the frame without painting', async () => {
         assert.equal(game.level.at(39, 11).typ, STONE);
     });
 });
+
+test('special-level map characters use the C string prefix', async () => {
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: 'T\0suffix' });
+        assert.equal(game.level.at(10, 6).typ, TREE);
+    });
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: '.' });
+        await des.terrain({ x: 10, y: 6, typ: 'T\0suffix' });
+        assert.equal(game.level.at(11, 6).typ, TREE);
+    });
+});
+
+test('an empty C string prefix uses the optional level-init default', async () => {
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: '\0suffix' });
+        assert.equal(game.level.at(10, 6).typ, ROOM);
+    });
+});
+
 
 for (const [operation, combine, expectedWalls] of [
     ['union', l_selection_or, 1], ['subtraction', l_selection_sub, 0],

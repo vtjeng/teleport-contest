@@ -1,0 +1,5 @@
+{"form":1,"hex":"5400737566666978","expected":[0,13],"observed":[1,25]}
+{"form":1,"hex":"5400","expected":[0,13],"observed":[1,25]}
+{"form":3,"hex":"5400737566666978","expected":[0,13],"observed":[1,25]}
+{"form":3,"hex":"5400","expected":[0,13],"observed":[1,25]}
+{"mode":"target","differences":4}

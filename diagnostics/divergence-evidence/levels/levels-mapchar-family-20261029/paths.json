@@ -1,0 +1,137 @@
+[
+  {
+    "pathId": "level_init.fg",
+    "commandIds": [
+      "target-fg",
+      "control-fg",
+      "post-fix-fg"
+    ],
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "cFunctionHashes": {
+      "nethack-c/upstream/src/sp_lev.c:lspo_level_init": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde",
+      "nethack-c/upstream/src/nhlua.c:get_table_mapchr_opt": "283fc41df0cd98196ceba8eb17041d035a0f94c00bfbc8e0d45812d1f54075e4",
+      "nethack-c/upstream/src/nhlua.c:get_table_str_opt": "7e69edb56631eac57a22ac1e19991922cfffd3725a954e2f425d4edcf3b6a3b2",
+      "nethack-c/upstream/src/alloc.c:dupstr": "28efe46c154232019485369ab420b79e2216ea053fdc86d8815bf8eb6d3b65fa",
+      "nethack-c/upstream/src/nhlua.c:check_mapchr": "c507d3461bc676350460bba8526a6ae74c6f3d3145f8ceeef754e66c17276166"
+    },
+    "jsFunctionHashes": {
+      "js/mklev.js:lspo_level_init": "33ac00c2c02d4782bf58c570cbe5d6e1bb056b41e5151aef7ce1c7d0701beadf",
+      "js/mklev.js:get_table_mapchr_opt": "403375df36cfaeb17b95d55fe6ce9ce60426c0ce25e474a1a9a7f7d5685abf7f",
+      "js/mklev.js:check_mapchr": "eb249abe2d6105c869c4932beef4c216a76588274d278e457b3af3e57f0a90dc",
+      "js/nhlua.js:get_table_str_opt": "685611fa0d00d4fcd1a827301280f5113b2ea0b85ee2dd4684b8941a01358a0a"
+    },
+    "targetCount": 3,
+    "controlCount": 3,
+    "scope": "solidfill initializer acceptance/probe14,10",
+    "reviewedAt": "2026-10-29T00:57:18.928048+00:00"
+  },
+  {
+    "pathId": "level_init.bg",
+    "commandIds": [
+      "target-bg",
+      "control-bg",
+      "post-fix-bg"
+    ],
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "cFunctionHashes": {
+      "nethack-c/upstream/src/sp_lev.c:lspo_level_init": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde",
+      "nethack-c/upstream/src/nhlua.c:get_table_mapchr_opt": "283fc41df0cd98196ceba8eb17041d035a0f94c00bfbc8e0d45812d1f54075e4",
+      "nethack-c/upstream/src/nhlua.c:get_table_str_opt": "7e69edb56631eac57a22ac1e19991922cfffd3725a954e2f425d4edcf3b6a3b2",
+      "nethack-c/upstream/src/alloc.c:dupstr": "28efe46c154232019485369ab420b79e2216ea053fdc86d8815bf8eb6d3b65fa",
+      "nethack-c/upstream/src/nhlua.c:check_mapchr": "c507d3461bc676350460bba8526a6ae74c6f3d3145f8ceeef754e66c17276166"
+    },
+    "jsFunctionHashes": {
+      "js/mklev.js:lspo_level_init": "33ac00c2c02d4782bf58c570cbe5d6e1bb056b41e5151aef7ce1c7d0701beadf",
+      "js/mklev.js:get_table_mapchr_opt": "403375df36cfaeb17b95d55fe6ce9ce60426c0ce25e474a1a9a7f7d5685abf7f",
+      "js/mklev.js:check_mapchr": "eb249abe2d6105c869c4932beef4c216a76588274d278e457b3af3e57f0a90dc",
+      "js/nhlua.js:get_table_str_opt": "685611fa0d00d4fcd1a827301280f5113b2ea0b85ee2dd4684b8941a01358a0a"
+    },
+    "targetCount": 3,
+    "controlCount": 3,
+    "scope": "mazegrid initializer acceptance/probe14,10",
+    "reviewedAt": "2026-10-29T00:57:18.928048+00:00"
+  },
+  {
+    "pathId": "level_init.filling",
+    "commandIds": [
+      "target-filling",
+      "control-filling",
+      "post-fix-filling"
+    ],
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "cFunctionHashes": {
+      "nethack-c/upstream/src/sp_lev.c:lspo_level_init": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde",
+      "nethack-c/upstream/src/nhlua.c:get_table_mapchr_opt": "283fc41df0cd98196ceba8eb17041d035a0f94c00bfbc8e0d45812d1f54075e4",
+      "nethack-c/upstream/src/nhlua.c:get_table_str_opt": "7e69edb56631eac57a22ac1e19991922cfffd3725a954e2f425d4edcf3b6a3b2",
+      "nethack-c/upstream/src/alloc.c:dupstr": "28efe46c154232019485369ab420b79e2216ea053fdc86d8815bf8eb6d3b65fa",
+      "nethack-c/upstream/src/nhlua.c:check_mapchr": "c507d3461bc676350460bba8526a6ae74c6f3d3145f8ceeef754e66c17276166"
+    },
+    "jsFunctionHashes": {
+      "js/mklev.js:lspo_level_init": "33ac00c2c02d4782bf58c570cbe5d6e1bb056b41e5151aef7ce1c7d0701beadf",
+      "js/mklev.js:get_table_mapchr_opt": "403375df36cfaeb17b95d55fe6ce9ce60426c0ce25e474a1a9a7f7d5685abf7f",
+      "js/mklev.js:check_mapchr": "eb249abe2d6105c869c4932beef4c216a76588274d278e457b3af3e57f0a90dc",
+      "js/nhlua.js:get_table_str_opt": "685611fa0d00d4fcd1a827301280f5113b2ea0b85ee2dd4684b8941a01358a0a"
+    },
+    "targetCount": 3,
+    "controlCount": 3,
+    "scope": "solidfill initializer acceptance/probe14,10",
+    "reviewedAt": "2026-10-29T00:57:18.928048+00:00"
+  },
+  {
+    "pathId": "replace_terrain.fromterrain",
+    "commandIds": [
+      "target-fromterrain",
+      "control-fromterrain",
+      "post-fix-fromterrain"
+    ],
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "cFunctionHashes": {
+      "nethack-c/upstream/src/sp_lev.c:lspo_replace_terrain": "e0cafe478624c4539c191079bf3ce53e52ca94fbf72ec4bf7a9c15bdd9b6c8c4",
+      "nethack-c/upstream/src/nhlua.c:get_table_mapchr_opt": "283fc41df0cd98196ceba8eb17041d035a0f94c00bfbc8e0d45812d1f54075e4",
+      "nethack-c/upstream/src/nhlua.c:get_table_str_opt": "7e69edb56631eac57a22ac1e19991922cfffd3725a954e2f425d4edcf3b6a3b2",
+      "nethack-c/upstream/src/alloc.c:dupstr": "28efe46c154232019485369ab420b79e2216ea053fdc86d8815bf8eb6d3b65fa",
+      "nethack-c/upstream/src/nhlua.c:check_mapchr": "c507d3461bc676350460bba8526a6ae74c6f3d3145f8ceeef754e66c17276166"
+    },
+    "jsFunctionHashes": {
+      "js/mklev.js:lspo_replace_terrain": "b8826f1738d456d6ef3643370f78357f2b4d89c381a6658424060c4ef0d042b2",
+      "js/mklev.js:get_table_mapchr_opt": "403375df36cfaeb17b95d55fe6ce9ce60426c0ce25e474a1a9a7f7d5685abf7f",
+      "js/mklev.js:check_mapchr": "eb249abe2d6105c869c4932beef4c216a76588274d278e457b3af3e57f0a90dc",
+      "js/nhlua.js:get_table_str_opt": "685611fa0d00d4fcd1a827301280f5113b2ea0b85ee2dd4684b8941a01358a0a"
+    },
+    "targetCount": 2,
+    "controlCount": 3,
+    "scope": "single-cell matching/replacement acceptance at chance100",
+    "reviewedAt": "2026-10-29T00:57:18.928048+00:00"
+  },
+  {
+    "pathId": "replace_terrain.toterrain",
+    "commandIds": [
+      "target-toterrain",
+      "control-toterrain",
+      "post-fix-toterrain"
+    ],
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "cFunctionHashes": {
+      "nethack-c/upstream/src/sp_lev.c:lspo_replace_terrain": "e0cafe478624c4539c191079bf3ce53e52ca94fbf72ec4bf7a9c15bdd9b6c8c4",
+      "nethack-c/upstream/src/nhlua.c:get_table_mapchr": "d876536c5dca231f352a736cf0ddf8125bd93f7c858e0449734d2e335e3e9acf",
+      "nethack-c/upstream/src/nhlua.c:get_table_str": "38ec0d6a6d6f169eb656ee7e04cf7affdadf34ebc5525070888afa4d0948c9d0",
+      "nethack-c/upstream/src/alloc.c:dupstr": "28efe46c154232019485369ab420b79e2216ea053fdc86d8815bf8eb6d3b65fa",
+      "nethack-c/upstream/src/nhlua.c:check_mapchr": "c507d3461bc676350460bba8526a6ae74c6f3d3145f8ceeef754e66c17276166"
+    },
+    "jsFunctionHashes": {
+      "js/mklev.js:lspo_replace_terrain": "b8826f1738d456d6ef3643370f78357f2b4d89c381a6658424060c4ef0d042b2",
+      "js/mklev.js:get_table_mapchr": "eacbbeabf794eb51d5cc334e41d4c552a901ad1c95562f33470755efc4e0cf98",
+      "js/mklev.js:check_mapchr": "eb249abe2d6105c869c4932beef4c216a76588274d278e457b3af3e57f0a90dc",
+      "js/nhlua.js:get_table_str": "5fede05add2a1f40589c83f81a808bd9f7e9265a42b431e2ad593f5be905f8dd"
+    },
+    "targetCount": 2,
+    "controlCount": 3,
+    "scope": "single-cell matching/replacement acceptance at chance100",
+    "reviewedAt": "2026-10-29T00:57:18.928048+00:00"
+  }
+]

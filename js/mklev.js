@@ -1067,7 +1067,9 @@ export function splev_chr2typ(char) {
 // string; anything else is INVALID_TYPE. It lives here rather than in
 // nhlua.js because it needs splev_chr2typ() and nhlua.js imports nothing.
 export function check_mapchr(s) {
-    if (s && s.length === 1) return splev_chr2typ(s);
+    // C check_mapchr() measures the NUL-terminated Lua string with strlen().
+    const prefix = s?.split('\0', 1)[0];
+    if (prefix && prefix.length === 1) return splev_chr2typ(prefix);
     return INVALID_TYPE;
 }
 
@@ -1082,7 +1084,9 @@ export function get_table_mapchr(table, name) {
 // C ref: nhlua.c get_table_mapchr_opt(). An absent or empty field yields
 // `defval`; a string that is not a map character is an error.
 export function get_table_mapchr_opt(table, name, defval) {
-    const ter = get_table_str_opt(table, name, '');
+    // get_table_str_opt() copies C's prefix before deciding whether the
+    // optional value is empty and should use its default.
+    const ter = get_table_str_opt(table, name, '').split('\0', 1)[0];
     if (ter) {
         const typ = check_mapchr(ter);
         if (typ === INVALID_TYPE) throw new Error('Erroneous map char');
