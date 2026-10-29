@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "cutoff-roundtrip",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+    "cutoff-roundtrip",
+    "/tmp/hero-advancement-cutoff-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:17:36.315597+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ff4c142012af208074577c76f8119a616359d44d1082cba82bfb78bc6394f0b9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/matrix.json": "df6390db11716df1dbdcf58cb8b322f77b6af8c8658107f5de3fca3b0afc802a"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/worker.json"
+  ]
+}

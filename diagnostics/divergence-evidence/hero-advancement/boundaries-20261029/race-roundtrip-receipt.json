@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "race-roundtrip",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+    "race-roundtrip",
+    "/tmp/hero-advancement-race-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:17:28.299126+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ff4c142012af208074577c76f8119a616359d44d1082cba82bfb78bc6394f0b9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/matrix.json": "df6390db11716df1dbdcf58cb8b322f77b6af8c8658107f5de3fca3b0afc802a"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/worker.json"
+  ]
+}

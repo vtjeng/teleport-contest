@@ -1,0 +1,18 @@
+{
+  "node": "v24.19.0",
+  "platform": "linux",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "binaryAndAdjacentSourceHashes": {
+    "nethack-c/recorder/install/games/lib/nethackdir/nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "nethack-c/recorder/src/exper.c": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+    "nethack-c/recorder/src/attrib.c": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+    "nethack-c/recorder/src/wizcmds.c": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f"
+  },
+  "sourceComparison": {
+    "exper.c": true,
+    "attrib.c": true,
+    "wizcmds.c": true
+  },
+  "buildAttestation": null
+}

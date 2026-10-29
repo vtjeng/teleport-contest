@@ -1,0 +1,46 @@
+{
+  "control": {
+    "version": 5,
+    "segments": [
+      {
+        "seed": 7293101,
+        "datetime": "20310203040506",
+        "nethackrc": "OPTIONS=name:AdvAudit,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,showexp\n",
+        "moves": "#levelchange\n3\n               "
+      }
+    ]
+  },
+  "race-roundtrip": {
+    "version": 5,
+    "segments": [
+      {
+        "seed": 7293102,
+        "datetime": "20310203040506",
+        "nethackrc": "OPTIONS=name:AdvAudit,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,showexp\n",
+        "moves": "#levelchange\n4\n                #levelchange\n3\n               #levelchange\n4\n                "
+      }
+    ]
+  },
+  "cutoff-roundtrip": {
+    "version": 5,
+    "segments": [
+      {
+        "seed": 7293103,
+        "datetime": "20310203040506",
+        "nethackrc": "OPTIONS=name:AdvAudit,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,showexp\n",
+        "moves": "#levelchange\n12\n                        #levelchange\n11\n                       #levelchange\n12\n                        #levelchange\n13\n                         "
+      }
+    ]
+  },
+  "role-roundtrip": {
+    "version": 5,
+    "segments": [
+      {
+        "seed": 7293104,
+        "datetime": "20310203040506",
+        "nethackrc": "OPTIONS=name:AdvAudit,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,showexp\n",
+        "moves": "#levelchange\n7\n                   #levelchange\n6\n                  #levelchange\n7\n                   "
+      }
+    ]
+  }
+}
