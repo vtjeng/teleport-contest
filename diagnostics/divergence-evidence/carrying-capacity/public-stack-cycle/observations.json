@@ -1,0 +1,217 @@
+{
+  "qualified": true,
+  "results": [
+    {
+      "name": "target",
+      "comparison": {
+        "rng": {
+          "c": 2306,
+          "js": 2306
+        },
+        "screens": {
+          "c": 39,
+          "js": 39
+        },
+        "cursors": {
+          "c": 39,
+          "js": 39
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "observations": [
+        {
+          "step": 1,
+          "arrowQuantity": 0,
+          "inventoryWeight": 90,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 16,
+          "arrowQuantity": 861,
+          "inventoryWeight": 951,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": true,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 861 arrows (861 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 22,
+          "arrowQuantity": 860,
+          "inventoryWeight": 950,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 860 arrows (860 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 28,
+          "arrowQuantity": 859,
+          "inventoryWeight": 949,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 859 arrows (859 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 33,
+          "arrowQuantity": 860,
+          "inventoryWeight": 950,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 860 arrows (860 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 37,
+          "arrowQuantity": 861,
+          "inventoryWeight": 951,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": true,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 861 arrows (861 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "control",
+      "comparison": {
+        "rng": {
+          "c": 2299,
+          "js": 2299
+        },
+        "screens": {
+          "c": 39,
+          "js": 39
+        },
+        "cursors": {
+          "c": 39,
+          "js": 39
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "observations": [
+        {
+          "step": 1,
+          "arrowQuantity": 0,
+          "inventoryWeight": 90,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 16,
+          "arrowQuantity": 600,
+          "inventoryWeight": 690,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 600 arrows (600 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 22,
+          "arrowQuantity": 599,
+          "inventoryWeight": 689,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 599 arrows (599 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 28,
+          "arrowQuantity": 598,
+          "inventoryWeight": 688,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 598 arrows (598 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 33,
+          "arrowQuantity": 599,
+          "inventoryWeight": 689,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 599 arrows (599 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        },
+        {
+          "step": 37,
+          "arrowQuantity": 600,
+          "inventoryWeight": 690,
+          "capacityFromDisplayedAttributes": 950,
+          "burdened": false,
+          "itemLines": [
+            "                      a - a +1 spear (weapon in right hand) (30 aum)",
+            "                      b - a +0 dagger (alternate weapon; not wielded) (10 aum)",
+            "                      e - 600 arrows (600 aum)",
+            "                      c - an uncursed +3 small shield (being worn) (30 aum)",
+            "                      d - an uncursed food ration (20 aum)"
+          ]
+        }
+      ]
+    }
+  ]
+}
