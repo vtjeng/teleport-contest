@@ -1,0 +1,1245 @@
+{
+  "schemaVersion": 1,
+  "runId": "ea2181cadbad5793b4be",
+  "baseSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "gameRoot": "/workspace/teleport-contest",
+  "startedAt": "2026-10-28T21:26:22.764Z",
+  "completedAt": "2026-10-28T21:29:59.554Z",
+  "previous": "/tmp/levels-hub-20261028-05/run.json",
+  "exclusionsSha256": null,
+  "toolHashes": {
+    "sourceAudit": "e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+    "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+    "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+    "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+    "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+  },
+  "sourceAuditDependencies": {
+    "scripts/source-audit.mjs": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+    "scripts/c-functions.mjs": "82f781451b67145fc43aa567e7778584b899b39ce243c5f336f549580df60a86",
+    "scripts/delegation-ranking.mjs": "2a997f8db6eb25f4dc8ec7be0466f953b76673183234cd3f42b2b27ec7c4adcd",
+    "scripts/structural-signals.mjs": "8a77836398bc6999e238fdb6d17d501a091a970f5ebdff50b9c19418336a0416",
+    "scripts/check-namespace-members.mjs": "2968af573b134f6fe8023320f599770af19aabfce44940711ae4ef6cce17ad9f",
+    "js/extcmdlist_data.js": "e2005b00771db0c8235c1b4c3e862f6c57d182ce265939682d6241fc87563819",
+    "diagnostics/examples/structural/mappings.json": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3"
+  },
+  "luaDependencies": [
+    [
+      "scripts/lua-discovery.mjs",
+      "2bf90c224300a59e6ab53620e740f2a26bd3ec702cb35b6ced20f07d4bd7f27a"
+    ],
+    [
+      "scripts/diff-fresh.mjs",
+      "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e"
+    ],
+    [
+      "scripts/diff-fresh-worker.mjs",
+      "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc"
+    ],
+    [
+      "scripts/fresh-matrix.mjs",
+      "b999ecce6f88bd7c43a7cd438f76deee3eb7e000698ea7e99c63e0af6b2dc272"
+    ],
+    [
+      "scripts/lua-sources.mjs",
+      "221da5322c784ca2bf37546154c8c72582a25a0859eec82f8f72c6d518b97b7e"
+    ],
+    [
+      "scripts/record-session.mjs",
+      "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61"
+    ]
+  ],
+  "methodConfigHashes": {
+    "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+    "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+    "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+    "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+    "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+  },
+  "inputHashes": {
+    "sourcePrevious": "24e2fbc5ee540a7f387f9a72d4d4c8930eb2db7da3d792cfc742b800d93f04b0",
+    "plan": null,
+    "luaConfig": null
+  },
+  "methods": {
+    "sourceAudit": {
+      "status": "complete",
+      "elapsedMs": 111948,
+      "error": null,
+      "output": "/tmp/levels-hub-20261028-31-ready/source-audit/backlog.json",
+      "sha256": "abe25fd57651bc7982c8f70b9a87a06c8c6f4affaffadd001d69b3d3ba91c781",
+      "stdout": "{\"output\":\"/tmp/levels-hub-20261028-31-ready/source-audit\",\"wallMs\":108869.02864599999,\"totals\":{\"cFunctions\":7834,\"jsFunctions\":7816,\"printCalls\":7461,\"printCallKinds\":{\"literal-arguments\":6927,\"variable-or-centralized-format\":534},\"graphFunctions\":5188,\"callFilters\":{\"version\":\"all-literal-inactive-calls-v1\",\"filtered\":55,\"occurrences\":64},\"rankingHints\":{\"version\":\"called-macro-helper-v1\",\"filtered\":0,\"deprioritized\":164},\"delegationRankingHints\":{\"version\":\"default-import-delegation-v1\",\"filtered\":0,\"deprioritized\":2},\"qualifyingLiteralOccurrences\":5932,\"uniqueLiterals\":5464,\"literalStartsOnPrintLine\":5319,\"literalStartsOnContinuationLine\":613,\"multilineLiterals\":69,\"messageStatus\":{\"absent\":1635,\"decoded-literal-hit\":4142,\"raw-only-hit\":152,\"no-fixed-fragment\":3},\"absentByFileCategory\":{\"non-gameplay\":925,\"gameplay\":710},\"absentByApiCategory\":{\"diagnostic\":1490,\"message\":145},\"rawOnlyByFileCategory\":{\"gameplay\":47,\"non-gameplay\":105},\"rawSourceAbsent\":1745,\"sourceFiltered\":{\"liter",
+      "backlog": "/tmp/levels-hub-20261028-31-ready/source-audit/backlog.json",
+      "report": "/tmp/levels-hub-20261028-31-ready/source-audit/report.json",
+      "coverage": {
+        "eligibleCFiles": 303,
+        "itemKinds": {
+          "message": 1682,
+          "edge-stub": 827,
+          "edge-c-only": 3959,
+          "edge-js-only": 971,
+          "edge-js-helper": 5031
+        },
+        "messageFilters": {
+          "rawCandidates": 1787,
+          "oldLiteralIfZero": 35,
+          "beforeIncrementalRule": 1752,
+          "incrementalLiteralArms": 15,
+          "afterIncrementalRule": 1737
+        },
+        "callFilters": {
+          "version": "all-literal-inactive-calls-v1",
+          "filtered": 55,
+          "occurrences": 64
+        },
+        "rankingHints": {
+          "version": "called-macro-helper-v1",
+          "filtered": 0,
+          "deprioritized": 164
+        },
+        "delegationRankingHints": {
+          "version": "default-import-delegation-v1",
+          "filtered": 0,
+          "deprioritized": 2
+        },
+        "carriedUnobserved": 64
+      },
+      "sourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+      "leadCounts": {
+        "observed": 12470,
+        "new": 9,
+        "duplicate": 12461
+      }
+    },
+    "mismatchQueue": {
+      "status": "empty-input",
+      "selectionStatus": "complete",
+      "selectedInputs": 0,
+      "replayedCases": 0,
+      "elapsedMs": 102116,
+      "error": null,
+      "output": "/tmp/levels-hub-20261028-31-ready/mismatch-queue.json",
+      "sha256": "50851e93d49785b4e37da02fc3229344ebacfeb025587e5a8ad2d10f79f4f851",
+      "coverage": {
+        "status": "blocked",
+        "availability": "blocked",
+        "sessions": 0,
+        "candidates": 0,
+        "excluded": 0,
+        "blockers": 98
+      },
+      "leadCounts": {
+        "observed": 0,
+        "new": 0,
+        "duplicate": 0
+      }
+    },
+    "compiledConstants": {
+      "status": "unavailable",
+      "elapsedMs": 804,
+      "error": null,
+      "output": "/tmp/levels-hub-20261028-31-ready/compiled-constants.json",
+      "sha256": "6d7d0c59e49940db955f760d8f3ca889861ed0642a080f9acbd7fb2031425ad1",
+      "stdout": "constant scan: blocked; 0 candidates, 0 suppressed, 0 re-review; /tmp/levels-hub-20261028-31-ready/compiled-constants.json",
+      "reason": [
+        {
+          "kind": "compiler-scan-failed",
+          "compiler": "clang",
+          "error": "recorder generated headers unavailable; set TELEPORT_RECORDER_INCLUDE",
+          "detail": "The scan stopped without modifying upstream headers or installing generated files."
+        }
+      ],
+      "profileSha256": "15857b756bf53ad38d9795330f692f86c2b32b8420e6a6c051045673aeb2be98",
+      "compilerToolHashes": {
+        "scripts/discover-constants.mjs": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "scripts/check-constants.mjs": "427c1da86b20dbce763f45268e96331e4134f3d0c8ea59f4b4599658db8968d5",
+        "scripts/generate-options.mjs": "30cbe4c87c299b34a00e084e7143a4d4149973120b3f31def69ec560d7fbe277",
+        "scripts/discover-constants.test.mjs": "34b0ccedb68c35e7883d2404268d0c093c108c9e502cdbc1bee6a5f24cc096fc"
+      },
+      "leadCounts": {
+        "observed": 0,
+        "new": 0,
+        "duplicate": 0
+      }
+    },
+    "luaDiscovery": {
+      "status": "unavailable",
+      "reason": "no explicitly selected Lua case config supplied",
+      "leadCounts": {
+        "observed": 0,
+        "new": 0,
+        "duplicate": 0
+      }
+    },
+    "structuralPipeline": {
+      "status": "unavailable",
+      "reason": "no explicitly reviewed scenario plan supplied",
+      "leadCounts": {
+        "observed": 0,
+        "new": 0,
+        "duplicate": 0
+      }
+    }
+  },
+  "leads": [
+    {
+      "key": "source-audit:edge-c-only:src/mklev.c:mineralize:In_hell",
+      "sourceKey": "edge-c-only:src/mklev.c:mineralize:In_hell",
+      "evidenceKey": "6ab16477a36bda1f766c1942a735defd27171ab70709084168a3d679a561e942",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:1473"
+      ],
+      "summary": "src/mklev.c:mineralize -> In_hell",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 16,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> In_hell",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "6ab16477a36bda1f766c1942a735defd27171ab70709084168a3d679a561e942"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mklev.c",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 1473,
+          "end_line": 1473,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-c-only:src/mklev.c:mineralize:In_mines",
+      "sourceKey": "edge-c-only:src/mklev.c:mineralize:In_mines",
+      "evidenceKey": "1656f851cfb0c1d488fcc5d971b1052176580431c772c64ed4edda24de9b933e",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:1476",
+        "nethack-c/upstream/src/mklev.c:1487"
+      ],
+      "summary": "src/mklev.c:mineralize -> In_mines",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 16,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> In_mines",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "1656f851cfb0c1d488fcc5d971b1052176580431c772c64ed4edda24de9b933e"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mklev.c",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 1476,
+          "end_line": 1476,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mklev.c",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 1487,
+          "end_line": 1487,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-c-only:src/mklev.c:mineralize:In_V_tower",
+      "sourceKey": "edge-c-only:src/mklev.c:mineralize:In_V_tower",
+      "evidenceKey": "98164410e7a7a4b8a3175df0f289494912fe7288ecab55743efa05ba4f07492e",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:1473"
+      ],
+      "summary": "src/mklev.c:mineralize -> In_V_tower",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 16,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> In_V_tower",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "98164410e7a7a4b8a3175df0f289494912fe7288ecab55743efa05ba4f07492e"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mklev.c",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 1473,
+          "end_line": 1473,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-c-only:src/mklev.c:mineralize:Is_special",
+      "sourceKey": "edge-c-only:src/mklev.c:mineralize:Is_special",
+      "evidenceKey": "32b689d213047293a5c40f20820fa4d3acb181b625ce9f0b6f0492446a0cc6ab",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:1475"
+      ],
+      "summary": "src/mklev.c:mineralize -> Is_special",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 16,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> Is_special",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "32b689d213047293a5c40f20820fa4d3acb181b625ce9f0b6f0492446a0cc6ab"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mklev.c",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 1475,
+          "end_line": 1475,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-c-only:src/mklev.c:water_has_kelp:rn2",
+      "sourceKey": "edge-c-only:src/mklev.c:water_has_kelp:rn2",
+      "evidenceKey": "2566ff80fa2de3e58b46a929cdf130275084002853569557721b1a14452864ea",
+      "kind": "edge-c-only",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:1436",
+        "nethack-c/upstream/src/mklev.c:1437"
+      ],
+      "summary": "src/mklev.c:water_has_kelp -> rn2",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:water_has_kelp",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": 5,
+      "rankingHint": null,
+      "title": "src/mklev.c:water_has_kelp -> rn2",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "2566ff80fa2de3e58b46a929cdf130275084002853569557721b1a14452864ea"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mklev.c",
+          "symbol": "src/mklev.c:water_has_kelp",
+          "start_line": 1436,
+          "end_line": 1436,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mklev.c",
+          "symbol": "src/mklev.c:water_has_kelp",
+          "start_line": 1437,
+          "end_line": 1437,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mklev.c:mineralize:currentLevel",
+      "sourceKey": "edge-js-helper:src/mklev.c:mineralize:currentLevel",
+      "evidenceKey": "0e5e9636eff58dc3f5f99106b67b2eb55a13683ccacc3a2c9e0a9c994743cc88",
+      "kind": "edge-js-helper",
+      "sourceRefs": [
+        "js/mineralize.js:216"
+      ],
+      "summary": "src/mklev.c:mineralize -> currentLevel",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -14,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> currentLevel",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "0e5e9636eff58dc3f5f99106b67b2eb55a13683ccacc3a2c9e0a9c994743cc88"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/mineralize.js",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 216,
+          "end_line": 216,
+          "commit_sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mklev.c:mineralize:inEndgame",
+      "sourceKey": "edge-js-helper:src/mklev.c:mineralize:inEndgame",
+      "evidenceKey": "fd172778c76b3daf75f7129e69d829db30879e9c9756355a6e8d86786b2c4f4e",
+      "kind": "edge-js-helper",
+      "sourceRefs": [
+        "js/mineralize.js:221"
+      ],
+      "summary": "src/mklev.c:mineralize -> inEndgame",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -24,
+      "rankingHint": {
+        "version": "called-macro-helper-v1",
+        "delta": -10,
+        "reason": "Resolved JS helper corresponds by normalized name to a function-like C macro called by the paired C owner; inspect expansion, arguments and effects before deciding equivalence.",
+        "limitation": "Lexical heuristic only; macro activation, argument semantics and JS behavior are unproved. Candidate remains visible.",
+        "definitions": [
+          {
+            "name": "In_endgame",
+            "path": "include/dungeon.h",
+            "line": 141,
+            "sourceSha256": "e48eaafdb22fc82121de702086c40c3245d6aeb9fe5556712ee1e2f18744a308"
+          }
+        ]
+      },
+      "title": "src/mklev.c:mineralize -> inEndgame",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "fd172778c76b3daf75f7129e69d829db30879e9c9756355a6e8d86786b2c4f4e"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/mineralize.js",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 221,
+          "end_line": 221,
+          "commit_sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mklev.c:mineralize:locationAt",
+      "sourceKey": "edge-js-helper:src/mklev.c:mineralize:locationAt",
+      "evidenceKey": "25e3a56aacb30771abbe7e2083a6143c4c78188a8567389273a17d997b77e797",
+      "kind": "edge-js-helper",
+      "sourceRefs": [
+        "js/mineralize.js:252"
+      ],
+      "summary": "src/mklev.c:mineralize -> locationAt",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -14,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> locationAt",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "25e3a56aacb30771abbe7e2083a6143c4c78188a8567389273a17d997b77e797"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/mineralize.js",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 252,
+          "end_line": 252,
+          "commit_sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mklev.c:mineralize:mineralizeEnv",
+      "sourceKey": "edge-js-helper:src/mklev.c:mineralize:mineralizeEnv",
+      "evidenceKey": "58938cbb8fca771fa81379d84c91c28217068bf38f3d5ce2e4016c0c658633f1",
+      "kind": "edge-js-helper",
+      "sourceRefs": [
+        "js/mineralize.js:214"
+      ],
+      "summary": "src/mklev.c:mineralize -> mineralizeEnv",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -14,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> mineralizeEnv",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "58938cbb8fca771fa81379d84c91c28217068bf38f3d5ce2e4016c0c658633f1"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/mineralize.js",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 214,
+          "end_line": 214,
+          "commit_sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mklev.c:mineralize:preflightLevelContext",
+      "sourceKey": "edge-js-helper:src/mklev.c:mineralize:preflightLevelContext",
+      "evidenceKey": "a1e065ee6a208d30d2c2d9eb540425695fc38720c465b09cc5c57594f65a4543",
+      "kind": "edge-js-helper",
+      "sourceRefs": [
+        "js/mineralize.js:223"
+      ],
+      "summary": "src/mklev.c:mineralize -> preflightLevelContext",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -14,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> preflightLevelContext",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "a1e065ee6a208d30d2c2d9eb540425695fc38720c465b09cc5c57594f65a4543"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/mineralize.js",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 223,
+          "end_line": 223,
+          "commit_sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mklev.c:mineralize:waterHasKelp",
+      "sourceKey": "edge-js-helper:src/mklev.c:mineralize:waterHasKelp",
+      "evidenceKey": "293e99ae92c00a5fed9eafd500d688368b9000ac7a83f53b472463737a75504d",
+      "kind": "edge-js-helper",
+      "sourceRefs": [
+        "js/mineralize.js:226"
+      ],
+      "summary": "src/mklev.c:mineralize -> waterHasKelp",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:mineralize",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -14,
+      "rankingHint": null,
+      "title": "src/mklev.c:mineralize -> waterHasKelp",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "293e99ae92c00a5fed9eafd500d688368b9000ac7a83f53b472463737a75504d"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/mineralize.js",
+          "symbol": "src/mklev.c:mineralize",
+          "start_line": 226,
+          "end_line": 226,
+          "commit_sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mklev.c:water_has_kelp:currentLevel",
+      "sourceKey": "edge-js-helper:src/mklev.c:water_has_kelp:currentLevel",
+      "evidenceKey": "77a3cdce9cb2fd08495e8dca1ec27c459c084f2414a98e20c420e0a8d265621e",
+      "kind": "edge-js-helper",
+      "sourceRefs": [
+        "js/mineralize.js:199"
+      ],
+      "summary": "src/mklev.c:water_has_kelp -> currentLevel",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:water_has_kelp",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -25,
+      "rankingHint": null,
+      "title": "src/mklev.c:water_has_kelp -> currentLevel",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "77a3cdce9cb2fd08495e8dca1ec27c459c084f2414a98e20c420e0a8d265621e"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/mineralize.js",
+          "symbol": "src/mklev.c:water_has_kelp",
+          "start_line": 199,
+          "end_line": 199,
+          "commit_sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mklev.c:water_has_kelp:waterHasKelp",
+      "sourceKey": "edge-js-helper:src/mklev.c:water_has_kelp:waterHasKelp",
+      "evidenceKey": "e473356b06aaefbfa8800e21d93685128d42d63c7e52cab42f2429621c07064c",
+      "kind": "edge-js-helper",
+      "sourceRefs": [
+        "js/mineralize.js:200"
+      ],
+      "summary": "src/mklev.c:water_has_kelp -> waterHasKelp",
+      "method": "sourceAudit",
+      "symbol": "src/mklev.c:water_has_kelp",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -25,
+      "rankingHint": null,
+      "title": "src/mklev.c:water_has_kelp -> waterHasKelp",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T18:04:29.555Z",
+      "lastChecked": "2026-10-28T21:29:58.918Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+        "runId": "ea2181cadbad5793b4be",
+        "sourceAuditSourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+        "methodConfigHashes": {
+          "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+          "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "e473356b06aaefbfa8800e21d93685128d42d63c7e52cab42f2429621c07064c"
+      },
+      "source_locations": [
+        {
+          "side": "JS",
+          "path": "js/mineralize.js",
+          "symbol": "src/mklev.c:water_has_kelp",
+          "start_line": 200,
+          "end_line": 200,
+          "commit_sha": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "needs-review",
+      "methods": [
+        {
+          "kind": "call_graph",
+          "version": "sha256:89b31218e3e79754637e1de49b798008c4904e73dcee86c9fd2c5404bffaf5ca",
+          "run_id": "141a19a089813e75a9ae"
+        },
+        {
+          "kind": "call_graph",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "ea2181cadbad5793b4be"
+        }
+      ]
+    }
+  ]
+}

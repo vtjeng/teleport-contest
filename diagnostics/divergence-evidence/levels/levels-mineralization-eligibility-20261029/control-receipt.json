@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T03:25:44.647Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "268238d521a372daeddd80a98c9c807a004cb0eef9fd0c8f9416e81babc692e8",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/oracle.c": "462c772b54f6ad7f5435bb3e5188303006bf8095378001dde861813d2fe0485f",
+    "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/source-contract.json": "c3402eb21bc53c7bacff2e1e93646d7af9391464ab98aad4c906006b8d91f978",
+    "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/topology.json": "ff3e3214a4ea85a2efa44e9c7be368753402fe9d45ded4a12beeb0f5651443b0",
+    "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/topology.mjs": "696a72bf0a7e47dc1aa9233d08569103155fb88dc9513afe6110f88dbc3fde10"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/control-output.txt"
+  ]
+}

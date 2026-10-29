@@ -1,0 +1,1 @@
+{"mode":"control","selector":666,"gate":924,"eligible":462,"withoutMineralDraws":462,"total":1590,"inputSha256":"846034a51ae567e7356a8d2d94f1d1130e74b262411905f769bc11f1e48e8b29","observationSha256":"7953e0d4976390e210bda83f6c56455f67b3189d9ca6b69c8eccb8ed6b37077a","equal":true}

@@ -1,0 +1,57 @@
+{
+  "jsSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/dungeon.js": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c",
+    "js/game.js": "dd1587ff93820e71524f2f577341b430d942462271141f0026411e27ecfe11b2",
+    "js/mineralize.js": "dc50d240bdb8ab07515238f676261a794f23b942827a7aa0f6ced2bc429c95d7",
+    "js/object_generation.js": "dcf2ea8e76722abdad4ff215d05061187f70cef6c7f289fff8d9589a2cf1576f",
+    "nethack-c/upstream/include/dungeon.h": "e48eaafdb22fc82121de702086c40c3245d6aeb9fe5556712ee1e2f18744a308",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/src/dungeon.c": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "on_level"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "Is_special"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_hell"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_quest"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_mines"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_V_tower"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "depth"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "dunlev"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "water_has_kelp"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mineralize"
+    }
+  ]
+}
