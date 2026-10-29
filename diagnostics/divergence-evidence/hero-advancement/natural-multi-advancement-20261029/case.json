@@ -1,0 +1,772 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-natural-multi-advancement-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-natural-spent-slot-20261029"
+  ],
+  "provenance": {
+    "jsSha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/spell.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/weapon.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/potion.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc"
+    },
+    {
+      "side": "JS",
+      "path": "js/spell.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc"
+    },
+    {
+      "side": "JS",
+      "path": "js/weapon.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc"
+    },
+    {
+      "side": "JS",
+      "path": "js/potion.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/u_init.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/u_init.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc"
+    }
+  ],
+  "hypothesis": "Two naturally earned advancements in one spell skill must be refunded in reverse tier order without erasing practice.",
+  "expectedBehavior": "Basic78/80 is ineligible,81/80 eligible; spending reaches Skilled. At level3 both advancements remain; loss to2 refunds Skilled toBasic, loss to1 refunds Basic toUnskilled, regain3 restores2 free slots.",
+  "observedBehavior": "Eight full C/JS matches. C menu pages directly show Skilled81/180\u2192Basic81/80\u2192Unskilled81/20 and slots0\u21920\u21920\u21922. Exact JS advancement counts2\u21921\u21920 asserted.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Ordinary healthy cure-sickness practice, normal enhance with debug practice bypass declined; supported wizard resource and level histories.",
+    "limitations": [
+      "Two advancements in the same healing skill only; not order between different skills.",
+      "Each tested spell advancement costs one slot; no multi-slot remainder refund claim.",
+      "Level transitions/resource replenishment are wizard-assisted, not natural recovery.",
+      "Separate Priest nutrition prerequisite is JS-only and unresolved; it is not part of the explained-negative C scope."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/result.json"
+    ],
+    "reason": "Ordinary healthy cure-sickness practice, normal enhance with debug practice bypass declined; supported wizard resource and level histories."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "below-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+        "below-control",
+        "/tmp/hero-multi-below-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/below-control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control-receipt.json"
+    },
+    {
+      "id": "eligible-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+        "eligible-control",
+        "/tmp/hero-multi-eligible-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/eligible-control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control-receipt.json"
+    },
+    {
+      "id": "spent-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+        "spent-control",
+        "/tmp/hero-multi-spent-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/spent-control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control-receipt.json"
+    },
+    {
+      "id": "last-refund-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+        "last-refund-target",
+        "/tmp/hero-multi-last-refund-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/last-refund-target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target-receipt.json"
+    },
+    {
+      "id": "all-refund-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+        "all-refund-target",
+        "/tmp/hero-multi-all-refund-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/all-refund-target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target-receipt.json"
+    },
+    {
+      "id": "regain-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+        "regain-target",
+        "/tmp/hero-multi-regain-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/regain-target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target-receipt.json"
+    },
+    {
+      "id": "last-refund-observer",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+        "last-refund-observer",
+        "/tmp/hero-multi-last-refund-observer-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/last-refund-observer.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer-receipt.json"
+    },
+    {
+      "id": "all-refund-observer",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+        "all-refund-observer",
+        "/tmp/hero-multi-all-refund-observer-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/all-refund-observer.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/README.md",
+      "sha256": "dc8e69579061b07d3df0167ea6659a2df5deda9499c610f1cb68c2e2f2500c21",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/js-output.json.gz",
+      "sha256": "843c80b03f2852b257de4be84a99ea708d575d30d820901ddb45c63ab754a240",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/recipe.session.json",
+      "sha256": "3293664d04a3432a563f6d19bc30e12471fa9b41a25805aa34d66b0fa7c8db04",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/recorded.session.json.gz",
+      "sha256": "c9762120ff89156b10fbc3627d6524708396623fceda4e2966bd085db8575d71",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/recorder.json",
+      "sha256": "0c39dc57d313d4f55ec950e04686ce19d8973263633db8f903576c5641de8ea7",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/result.json",
+      "sha256": "ab31eabe9049911b3c21dc2f98b1401139e24b60dfcc17213e28bb123b6b6873",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer/worker.json",
+      "sha256": "0b427ef4e6c64e481a06bf27644b467ba8b4fa51eb4f2d915577b5938061028d",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-observer-receipt.json",
+      "sha256": "9f5bc7f8ea070cd0df2669dcc31069fd10d9f478225ba8e8eba5d2553af09c52",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target/js-output.json.gz",
+      "sha256": "29c01dcb1f2d78867e83e353e28e4e3cbd9e61639c8ffa921741c5e02f4a250b",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target/recipe.session.json",
+      "sha256": "e87fb3253b7a6fd40f77322b2c647211b1e055203b37f548b4339a8a8908dcaa",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target/recorded.session.json.gz",
+      "sha256": "b5cda1fac2da4b486c30df698588aa26b925cd4e3996a43b134b678c5f1f587d",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target/recorder.json",
+      "sha256": "d2fbb645d6299779716041a906bdc90acee698e7b24e2f5fb5d01fc8503bd264",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target/result.json",
+      "sha256": "1c501bc113b8f11348f7005cc1b88b479ab8786aaaa7d62eac762c72ebfa4da1",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target/worker.json",
+      "sha256": "72789ca98c1a6b32eecbdbe85c6d7ab5f6d2c4e5a653fc34d8ad6c2389c949dd",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/all-refund-target-receipt.json",
+      "sha256": "ff6efa24c9276636c6d1c209176fee044cfc137dd1bf37dcf552305d8922cbb1",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control/js-output.json.gz",
+      "sha256": "ed7ccd6ff482fef927f6177e2bc03c2b2aba57c2dc13c15270324b511fd87591",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control/recipe.session.json",
+      "sha256": "991883b1ea562e9d830ecd4dcdf842401a3c034ad9bd7c001fec8a037e2fd02b",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control/recorded.session.json.gz",
+      "sha256": "7dc0e95dae86f0effb5702b6c687ceb1201505c26c343dff5ef833039ced341d",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control/recorder.json",
+      "sha256": "39ce3ab7b8a14c30958ab1acf66167b7ff1bad83dfc32ce2fc582466b288b5ad",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control/result.json",
+      "sha256": "86ade0c6c2ac0c3c3395d42ea1450d9711c15d731b2f0bc2be643bceb9320566",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control/worker.json",
+      "sha256": "7e2af0e47fecbe5aa9595a6192df4b69cce43824afaabb8ab57615d76c67421d",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/below-control-receipt.json",
+      "sha256": "d15a09228bf0011c9b100f0ad23975b7b2ca4f5511f3eeecdfaee01d566014cd",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control/js-output.json.gz",
+      "sha256": "c72e673e13c39d4d88a90bb4aad37ab6f7455f0110b1b7f8594b8bc27df32810",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control/recipe.session.json",
+      "sha256": "b5e08642c927ad3f74b69c7be512589d166166cb286f1fa58480647b3d39db12",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control/recorded.session.json.gz",
+      "sha256": "30fc0a728ef43634b3aae87d5325ebc504a54d1f58d1768217a89b665ddb63d7",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control/recorder.json",
+      "sha256": "914e7da61b2f46fa807bd685cab4d8e3af86394d46055a549354b4b27ee605d0",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control/result.json",
+      "sha256": "8d53f4f9a5a815adc99871d2f75ef60e9f73ba94fbec9caa10a919c7129a8e90",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control/worker.json",
+      "sha256": "2bcf95b11a47dfe6ebe482271dde0b13216409be58ef6c29b96380d92e068f93",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/eligible-control-receipt.json",
+      "sha256": "4e8b69f85775582def38a932f9f7643dbedc9e30c0b5bb2f96772169721b6144",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/js-output.json.gz",
+      "sha256": "9c38d2de6c6091d8e4ff40d5e1ef6f7b38dfe52dc98d24580c07a7eb0f865208",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/recipe.session.json",
+      "sha256": "6fc90a29cd54100ff9172b9ad2c610b6d4d30acf4a0e85fe73a672337a5c1e55",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/recorded.session.json.gz",
+      "sha256": "d580673519042d7190d1d83cc435d2cc2adb7267c695b31212c7e8eacced8c33",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/recorder.json",
+      "sha256": "761489b351483f61e14d3f4b2e49c4677b5c34ded27428c87e0896542d3b479f",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/result.json",
+      "sha256": "ab31eabe9049911b3c21dc2f98b1401139e24b60dfcc17213e28bb123b6b6873",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/worker.json",
+      "sha256": "0b427ef4e6c64e481a06bf27644b467ba8b4fa51eb4f2d915577b5938061028d",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer-receipt.json",
+      "sha256": "2aea21b56f0b19f98ec2b1e030b1ab20f2576082e992906ec2a6cddb3a3cf2be",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target/js-output.json.gz",
+      "sha256": "74fba3e38b4e0df086f5aa742973ebf7eea56ef994d51dbc49d95f0f48461132",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target/recipe.session.json",
+      "sha256": "d73734e41ba2299d768255cc47793aaf595e2a685b65b269dcd48fd8ab9647d3",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target/recorded.session.json.gz",
+      "sha256": "51aed25391aae4f325c9e5d08c300b458f8d5045fda84650202ba363dea8997a",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target/recorder.json",
+      "sha256": "e8e68931d6ea51aa58f95b1b193bd2563a2c8998331601162f846ab8f5234c13",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target/result.json",
+      "sha256": "1c501bc113b8f11348f7005cc1b88b479ab8786aaaa7d62eac762c72ebfa4da1",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target/worker.json",
+      "sha256": "72789ca98c1a6b32eecbdbe85c6d7ab5f6d2c4e5a653fc34d8ad6c2389c949dd",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-target-receipt.json",
+      "sha256": "56fb1e67257d7f40ef46292b1a5633585246d706830d13803a13563843087d38",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/priest-setup-observations.jsonl",
+      "sha256": "9d04e1cea6df928342fc201e395b45dee5976f8172c224fcd8fe5db695442407",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/priest-setup.mjs",
+      "sha256": "007b429a55188445683c40cc462068d0a8e473bc8c38b676d13db33ec4e39c04",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/priest-start.json",
+      "sha256": "d21ae47c967640a7c53ed76c51e08fcd6f2bd9163f9634d63db40d9964f33f9a",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/all-refund-observer.json",
+      "sha256": "4f45c7e8d70456836fb7ce6a68d82c1d329ba3c985f1e1ead82d850181e5deef",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/all-refund-target.json",
+      "sha256": "0214f26e48389a7c5dc7c1fcf9c6665c72b8d3cf1642069aec03b0952842dbee",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/below-control.json",
+      "sha256": "4a066a6161a22c841431a74cada104b47136c6cd56eddd4961dc9fc652b9b459",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/eligible-control.json",
+      "sha256": "2ce8b9559f331d19b06089b3ae3e97f90396e96b0d35473d306acb81fb45f764",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/last-refund-observer.json",
+      "sha256": "18e8a60989b24d376b375762765fe5eff5e52d973a33c53ed5a3185f625a93db",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/last-refund-target.json",
+      "sha256": "3e39e00c77aabf0df921547c2ffebedefbdaa1184825f450a388a1e3a3b299a3",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/regain-target.json",
+      "sha256": "c416399008d6ae38c80925e1108f00ac3dc2fc08e55dbb51b141bf4d81296969",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/spent-control.json",
+      "sha256": "19b77bf495dda362119e6aba864b3420d8b6741cf09acc8188b87f52d3f3b3be",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target/js-output.json.gz",
+      "sha256": "4661a7767830ecfe2222ee2dfe3efb2874cd7e575ae744fc48457f7e7950c330",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target/recipe.session.json",
+      "sha256": "beee09bab53886a537a77a4cede2df40a53a49110d082d387bda0f207f7b17a1",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target/recorded.session.json.gz",
+      "sha256": "055cb79f8994160eb72444c78fa0695204b620b3d200915eaa92f7e4607e4718",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target/recorder.json",
+      "sha256": "d1a543e3db13b8b953171af98150b1ce1a8015c9011f25aabf1403f4a6a0ab41",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target/result.json",
+      "sha256": "336547af3c2ce8e06d8b29bb65fea343dadc864f0bbc95fab74b9ebf63669c03",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target/worker.json",
+      "sha256": "786a1276bc9aac8e8e53e103b86d5b9a2b3307b97c5d483a8c9b127bc5fe6428",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/regain-target-receipt.json",
+      "sha256": "880b948cb468579f927db6a3c093c5e9528cfe17a1cde2cc19b70f514601f828",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/remaining-priest-prerequisite.json",
+      "sha256": "fd12d43c6159d9514c61f8dcd850c828c1a328199161550edd751d21de7c80a2",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control/js-output.json.gz",
+      "sha256": "c01c08f8d2aaabcd642af2d3f6d6e8537480cc5a39a9b3e9ae545a6908eb2248",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control/recipe.session.json",
+      "sha256": "d7716874e064200b299f740afa9d5648509625f6cdea164cfa066432138887df",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control/recorded.session.json.gz",
+      "sha256": "1951733c384a1f91b8964159b6fc57ef529b9ea44875e70b43518b1c1aa7b74d",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control/recorder.json",
+      "sha256": "263640eb4ed665c246fbd85410e341910176f092a99aeb8c18d9bb6f315e182e",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control/result.json",
+      "sha256": "1c501bc113b8f11348f7005cc1b88b479ab8786aaaa7d62eac762c72ebfa4da1",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control/worker.json",
+      "sha256": "72789ca98c1a6b32eecbdbe85c6d7ab5f6d2c4e5a653fc34d8ad6c2389c949dd",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/spent-control-receipt.json",
+      "sha256": "fcdb15434c89709c6c3bc1b17509879a101b5ec754c8d468c982d53a79bea922",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/verification.txt",
+      "sha256": "c828eb3a4fb410f51e93d60d44c9cf680af85bfd495d3af01620990807f7fe1c",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/verify.mjs",
+      "sha256": "278b1195cd793cc5558b4938b683644457ce6388e5068cfa51410f5afc1286bd",
+      "role": "recording, receipt, verifier or explicitly scoped prerequisite artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json",
+      "sha256": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/gstate.js",
+      "sha256": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/jsmain.js",
+      "sha256": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/potion.js",
+      "sha256": "5d1c2083148a552a7261f62f910e03784e6975b72adafa5c77d60571b310c9c6",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/spell.js",
+      "sha256": "32607d2b069ffceaa3e5eaf68bb072e8a6468f9dc0734a557c91a9a18c93ff6a",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/weapon.js",
+      "sha256": "82539139a1110c4040f056a9e530693d9e83c65a39da3fd18f5705e1d155f527",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/potion.c",
+      "sha256": "05176768623072e3e1337fc23b91e1f3991980dbefb4ca2fc44c0fe6d1115aa9",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/spell.c",
+      "sha256": "db3d0148ecfe49c89d56381b028606c02c65a7657489006efdc81f239f38181c",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/weapon.c",
+      "sha256": "75769f6a3113224ea20414f75fc8b1159b6712bc7154905443e4fc1a4912bc2d",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/u_init.c",
+      "sha256": "64a85cf484189ef817da3f3e913e2f9a4c4a6e2f31588632387c43d45ab2ec71",
+      "role": "Priest prerequisite source only"
+    },
+    {
+      "path": "js/u_init.js",
+      "sha256": "02d0b43895ea93f4dce7f834115db4371084231432eeebac9ea9437129a97168",
+      "role": "Priest prerequisite source only"
+    }
+  ]
+}

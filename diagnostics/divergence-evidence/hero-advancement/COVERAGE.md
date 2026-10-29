@@ -137,3 +137,9 @@ Three further public recipes match (60 distinct total). Healthy ordinary cure-si
 ## Naturally spent slot refund and public numeric observation
 
 Four further public recipes match (64 distinct total). Normal enhance menus, with practice bypass declined, expose21 earned points and slots19→18→0→1. Healing advances to Basic, is refunded on loss, and returns as Unskilled21/20 eligible after regain. See natural-spent-slot-20261029. The refund-only first page omits the healing row; later regain observes it, while JS verifies the intermediate state. This closes the previously named naturally earned-and-spent single-slot frontier and strengthens exact C practice observation through supported menus. Multiple-skill refund order remains outside this bounded witness; natural level recovery and altered-max resource histories remain unqualified. No new causes.
+
+## Two earned advancements and remaining refund prerequisite
+
+Eight further public recipes match (72 distinct total). Natural healing practice78/81 brackets80; C menus observe two spent tiers refund Skilled→Basic→Unskilled while retaining81 points, then2 free slots after regain. See natural-multi-advancement-20261029. This qualifies same-skill reverse-tier refund, not cross-skill order or a multi-slot refund remainder.
+
+The next concrete remainder-refund route needs Priest Expert healing. Supported startup supplies cure sickness, but a bounded JS qualification reaches only45 practice with435 nutrition after15 casts. A permitted sufficient-nutrition history is missing; no C Expert comparison or failure-as-negative claim. Known food effects/forced state are not used. Natural level recovery, altered maxima and exact internal-state gaps remain separate. No new causes or denied actions.
