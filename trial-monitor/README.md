@@ -1,4 +1,107 @@
-# Single Standard engineer timeline records
+# Dashboard workflow and discovery evidence
+
+The repository dashboard projects evidence; it does not dispatch work or accept
+repairs. Main is the sole gameplay integrator. The reported session topology and
+batch policy live in `manifest.json` under `operations.workflow`, with an
+observation date and source. They are editable configuration, not fixed lanes.
+Retired Oct 19 worker activity remains historical and hidden by default.
+
+## Data and refresh boundaries
+
+- Scores retain the existing complete `challenges/published.json` cohort and
+  evaluation-hash checks. The repair register retains individual identities,
+  corrections and shared candidate SHAs. Gate success is labelled publication
+  verification; receipt completion is a separate fact.
+- `evidence-sources.json` lists explicit immutable metadata references, including
+  unmerged analyst PRs. `evidence.json` is generated, not a manually maintained
+  ledger. Only listed case/inventory/projection/decision JSON is read; no runner,
+  recording, gameplay file or excluded investigation is executed.
+- Rebuild with `node scripts/dashboard-evidence.mjs`, or verify with `--check`.
+  Both operate offline using `git show <full-sha>:<path>`. Fetch the corresponding
+  public PR refs first if those objects are absent. Update pins and regenerate
+  only with new reviewed evidence at an ordinary publication boundary. Default
+  dashboard builds read the compact checked-in projection without network calls.
+- Page open / Refresh public status retain the existing pinned-Main repair and
+  CI refresh. They do **not** refresh discovery evidence. The UI shows separate
+  scan completion, available review watermark, topology observation, register
+  observation, score receipt and source SHAs. A review watermark is incomplete
+  when newer version-1 cases lack reviewedAt. Register/receipt persistence can
+  lag the latest local completion until the next ordinary publication.
+
+## Observed transitions, without another ledger
+
+When a transition is actually observed, retain it on its existing evidence case
+or repair record in `workflow.events`, each `{type, at, evidence}`. `at` is UTC;
+`evidence` identifies the observed handoff/completion record. Supported types:
+`reported-ready`, `picked-up`, `returned-for-evidence`. On repair records add
+`workflow.rootCause` equal to the evidence case's `rootCause`. Cases may include
+multiple source keys and PRs. Root identity, not PR count, defines queue rows.
+Do not reconstruct timestamps from PR creation, commits or validator exit codes.
+A case's `readiness: review_ready` is only reported readiness, not acceptance.
+Missing timestamps stay unknown even when the current status is recorded.
+
+Complete receipt evidence and exact-SHA publication gates are both required for
+accepted status. The existing verified score receipt can establish completeness
+for its group, but has no receipt-completion timestamp: elapsed acceptance time
+therefore stays unknown. The pinned Levels follow-up independently records one
+fully accepted case; its recordedAt is an observation, not an exact completion.
+Future completion records can supply `completedAt` when actually observed.
+Shared gates/receipt status are displayed once per SHA, never summed per repair.
+
+For explicit consumer waiting, `operations.noActionableHandoffIntervals` accepts
+`{start, end, evidence}` only when both boundaries and the no-actionable condition
+were observed. Ready-to-pickup measures producer backlog delay. Neither gaps nor
+these wall durations establish idle time, active compute, tokens or savings.
+Crashes/interruptions can make elapsed spans ambiguous. Queue coverage is partial:
+only selected pinned packages and linked repair records are projected. Historical
+unknown transitions must not be backfilled en masse.
+
+## Outcome units and interpretation
+
+Scanner inventory keys, reviewed keys, semantic roots, catalog comparisons and
+accepted repairs are different units. Review fingerprints and evidence keys must
+bind to the exact run; stale bindings are not negatives. Unresolved/invalid setup,
+unreachable, missing coverage, duplicates and unknown classifications remain
+separate. Empty unresolved decision files may be represented by a case explicitly
+marked unresolved and bound through its original projection; never as a negative.
+
+The displayed key rate is `explained_negative / (explained_negative + confirmed
++ accepted)`. It excludes duplicates, unresolved and all unreviewed/stale keys.
+These are selected analyst reviews, not a representative sample or a population
+FPR. Both raw denominator and exclusion counts remain visible. Cause rates use
+named roots on both sides and are withheld when reviewed keys lack a root.
+Repeated technique/version records remain distinct; source-audit key kinds map
+message keys to missing_message and other edges to call_graph under the same
+pinned tool/config/run. Do not pool different runs or versions as one estimator.
+Exact bound negative decisions may exclude only their matched keys; heuristic
+ranking hints only deprioritize, never resolve a lead. Static source comparisons
+stay outside scanner/repair rates and make no runtime correctness claim.
+
+## Validation and rollout
+
+Focused tests: `node --test scripts/dashboard-workflow.test.mjs
+scripts/dashboard-workflow-view.test.mjs scripts/trial-monitor.test.mjs scripts/single-worker-activity.test.mjs
+scripts/dashboard-data.test.mjs`. Run focused ESLint and, after committing,
+`node scripts/checkpoint-preflight.mjs`. The dashboard build embeds the tested
+reducer and renderer; preview at phone and desktop widths, exercise inventory
+selection and disclosures, and check page errors/overflow. No hosting, access,
+security or workflow changes are needed. Main integrates the draft tooling PR,
+performs its normal gates and verifies publication. No CI dispatch is needed
+from this tooling session. Use a `[skip ci]` commit for the draft tooling push.
+
+Rendered QA limitation for this candidate: Chromium navigation to the local
+preview `file:///tmp/dashboard-preview.html` was rejected with
+`ERR_BLOCKED_BY_ADMINISTRATOR`. The operation stopped without alternate routing.
+Desktop and Android screenshots/visual inspection remain required at rollout.
+The optional `scripts/dashboard-workflow.browser.mjs` checks inventory switching,
+disclosures, page errors and overflow on a permitted preview URL; it blocks
+external HTTP requests and never runs gameplay.
+
+## Historical recording format (single-engineer period)
+
+The following describes retained historical fields and refresh behavior. Its
+single-engineer topology is retired; use the observed topology above.
+
 
 The existing `manifest.json` and `repairs.json` feed the worker timeline. Their
 paths are retained for compatibility; the parallel trial is shelved, with its

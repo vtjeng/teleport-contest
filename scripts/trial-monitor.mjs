@@ -27,8 +27,8 @@ export function createTrialMonitor(initial, options = {}) {
         || !Number.isFinite(trial.plannedHours) || trial.plannedHours <= 0)
       throw new Error('Invalid trial clock');
     const handoffs = data.manifest.operations?.waitingHandoffs;
-    if (handoffs !== null && (!Array.isArray(handoffs) || handoffs.length > 1))
-      throw new Error('Waiting handoff cap is one');
+    if (handoffs !== null && !Array.isArray(handoffs))
+      throw new Error('Waiting handoffs must be an array or null');
     const ids = new Set();
     for (const repair of data.register.repairs) {
       if (!repair.id || ids.has(repair.id) || !Array.isArray(repair.candidates))
@@ -242,7 +242,7 @@ export function createTrialMonitor(initial, options = {}) {
       investigators: manifest.operations?.investigators ?? null,
       waitingHandoffs: manifest.operations?.waitingHandoffs ?? null,
       buildAt: current.builtAt, buildSha: current.buildSha,
-      manifestAsOf: manifest.asOf, registerAsOf: current.register.asOf,
+      operations: manifest.operations, manifestAsOf: manifest.asOf, registerAsOf: current.register.asOf,
       sourceSha: current.sourceSha ?? current.buildSha,
       api, pageDeployment: current.pageDeployment ?? 'unknown',
       results,

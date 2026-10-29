@@ -13,6 +13,8 @@ import { createDashboardTime } from './dashboard-local-time.mjs';
 import { createChartTimeRange } from './dashboard-time-range.mjs';
 import { singleWorkerActivity } from './single-worker-activity.mjs';
 import { syntheticPublicationStatus } from './published-synthetic.mjs';
+import { workflowSummary } from './dashboard-workflow.mjs';
+import { renderWorkflow } from './dashboard-workflow-view.mjs';
 import { createTrialMonitor } from './trial-monitor.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -31,7 +33,7 @@ export function escapeJsonForScript(json) {
     .replaceAll('\u2029', '\\u2029');
 }
 
-export function injectDashboardData(template, data, queueData, commit, trialData = 'null') {
+export function injectDashboardData(template, data, queueData, commit, trialData = 'null', evidenceData = 'null') {
   const reservations = JSON.parse(data)?.workerReservations, queue = JSON.parse(queueData);
   if (reservations && queue) {
     queue.workerWork = workerWork(reservations, queue);
@@ -42,6 +44,9 @@ export function injectDashboardData(template, data, queueData, commit, trialData
   const html = template
     .replace('/*DATA_PLACEHOLDER*/null', () => escapeJsonForScript(data))
     .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData))
+    .replace('/*WORKFLOW_DATA_PLACEHOLDER*/null', () => escapeJsonForScript(evidenceData))
+    .replace('/*WORKFLOW_MODEL_PLACEHOLDER*/null', () => workflowSummary.toString())
+    .replace('/*WORKFLOW_VIEW_PLACEHOLDER*/null', () => renderWorkflow.toString())
     .replace('/*TRIAL_PLACEHOLDER*/null', () => escapeJsonForScript(trialData))
     .replace('/*SYNTHETIC_STATUS_PLACEHOLDER*/null', () => syntheticPublicationStatus.toString())
     .replace('/*TRIAL_MODEL_PLACEHOLDER*/null', () => createTrialMonitor.toString())
@@ -88,7 +93,8 @@ async function main() {
     manifest: JSON.parse(readFileSync(join(__dirname, '../trial-monitor/manifest.json'), 'utf8')),
     register: JSON.parse(readFileSync(join(__dirname, '../trial-monitor/repairs.json'), 'utf8')),
   });
-  const html = injectDashboardData(template, data, queueData.trim(), commit, trialData);
+  const html = injectDashboardData(template, data, queueData.trim(), commit, trialData,
+    readFileSync(join(__dirname, '../trial-monitor/evidence.json'), 'utf8'));
 
   const outPath = process.argv[2] || 'dashboard.html';
   writeFileSync(outPath, html);

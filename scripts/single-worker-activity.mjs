@@ -1,6 +1,6 @@
 // Pure adapter into the existing timeline schema; also embedded in the page.
 export function singleWorkerActivity(view) {
-  const lane = 'Standard engineer';
+  const lane = 'Main integration';
   const valid = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
   const iso = value => new Date(value).toISOString();
   const root = 'https://github.com/vtjeng/teleport-contest';
@@ -17,7 +17,7 @@ export function singleWorkerActivity(view) {
   }
   for (const result of view?.results ?? []) {
     const repair = result.repair;
-    // Both tags belong to the continuing Standard engineer lane. Keep the
+    // Both tags belong to the continuing Main integration lane. Keep the
     // frozen baseline and unused trial outside this partial current register.
     if (!['single-worker', 'post-trial'].includes(repair.window)) continue;
     const latest = result.candidates.at(-1);

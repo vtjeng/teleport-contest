@@ -86,7 +86,7 @@ try {
   await page.locator('#activityRangeSummary').click();
   await page.locator('#activityWindow').selectOption('24');
   await page.locator('#activityRangeSummary').click();
-  assert.deepEqual(await page.locator('.activity-label').allTextContents(), ['Standard engineer']);
+  assert.deepEqual(await page.locator('.activity-label').allTextContents(), ['Main integration']);
   await page.locator('.activity-help > summary').click();
   await page.locator('#activityHistorical').check();
   await page.locator('#activityHistorical').uncheck();

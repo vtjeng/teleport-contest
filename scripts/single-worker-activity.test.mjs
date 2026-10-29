@@ -24,7 +24,7 @@ test('two accepted repairs group the correction and retain exact commit and atte
   assert.equal(activity.tasks.length, 2);
   assert.equal(activity.acceptedCount, 2);
   assert.equal(activity.segments.length, 6);
-  assert(activity.segments.every(row => row.lane === 'Standard engineer'));
+  assert(activity.segments.every(row => row.lane === 'Main integration'));
   const silent = activity.tasks.find(row => row.id === 'vault-silent-guard');
   assert.match(silent.status, /latest correction passed/);
   assert.equal(activity.segments.filter(row => row.task === silent.id).length, 4);
@@ -102,7 +102,7 @@ test('post-trial repairs share the current lane without admitting baseline or do
   assert.equal(activity.tasks.find(task => task.id === pending.id).publishedAt, undefined);
   assert.equal(activity.tasks.find(task => task.id === data.register.repairs[1].id).publishedAt, undefined);
   assert.ok(activity.segments.some(segment => segment.task === corrected.id));
-  assert.ok(activity.tasks.every(task => task.worker === 'Standard engineer'));
+  assert.ok(activity.tasks.every(task => task.worker === 'Main integration'));
   assert.ok(!activity.tasks.some(task => task.id === baseline.id));
   assert.ok(!activity.segments.some(segment => segment.task === baseline.id));
 });
