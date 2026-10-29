@@ -12,7 +12,8 @@ test('simple_look follows C single-object and multi-object display branches', ()
 
 test('query_classes resumes its prompt after C look and inventory commands', () => {
     assert.match(c, /else if \(sym == ':'\) \{\s*simple_look\(objs, here\);[\s\S]*?goto ask_again;[\s\S]*?else if \(sym == 'i'\) \{\s*\(void\) display_inventory\(\(char \*\) 0, TRUE\);\s*goto ask_again;/u);
-    assert.match(js, /else if \(sym === ':'\) \{\s*await simple_look\(objs, here, state\);[\s\S]*?objs\?\.where === OBJ_CONTAINED[\s\S]*?continue;\s*\} else if \(sym === 'i'\) \{[\s\S]*?await display_inventory\(null, true, state\);\s*continue;/u);
+    assert.match(js, /askAgain: for \(;;\) \{/u);
+    assert.match(js, /else if \(sym === ':'\) \{\s*await simple_look\(objs, here, state\);[\s\S]*?objs\?\.where === OBJ_CONTAINED[\s\S]*?continue askAgain;\s*\} else if \(sym === 'i'\) \{[\s\S]*?await display_inventory\(null, true, state\);\s*continue askAgain;/u);
     assert.doesNotMatch(js, /query_classes: (?:simple_look|display_inventory)/u);
 });
 
