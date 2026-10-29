@@ -1,0 +1,68 @@
+[
+  {
+    "name": "remove-cycle",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2426,
+        "js": 2426
+      },
+      "screens": {
+        "c": 86,
+        "js": 86
+      },
+      "cursors": {
+        "c": 86,
+        "js": 86
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    }
+  },
+  {
+    "name": "gold-roundtrip-49",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2295,
+        "js": 2295
+      },
+      "screens": {
+        "c": 74,
+        "js": 74
+      },
+      "cursors": {
+        "c": 74,
+        "js": 74
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    }
+  },
+  {
+    "name": "gold-roundtrip-50",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2295,
+        "js": 2295
+      },
+      "screens": {
+        "c": 74,
+        "js": 74
+      },
+      "cursors": {
+        "c": 74,
+        "js": 74
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    }
+  }
+]

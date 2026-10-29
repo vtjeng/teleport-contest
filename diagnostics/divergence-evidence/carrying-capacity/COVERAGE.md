@@ -16,15 +16,17 @@ absolute. Finite matching probes are not exhaustive certification.
 | Public non-unit partial pickup / all-fit control | scoped negative | public-rock-admission;2 fixtures |
 | Gold capacity preflight blocks C's live count decision | confirmed candidate cause2 | public-gold-limit;2 failing variants+1 passing control |
 
-Current public corpus:22 fixtures,19 strict matches,3 failing fixtures grouped
-into2 semantic causes. No scanner keys or filter rules. Prior arithmetic row
-counts are not cause counts. Source-bound receipts and exposure limits live in
-each package. #105/#108 remain unchanged.
-
 | Public burden prompt decline then accept | scoped negative | public-burden-prompt;2 fixtures |
 | Public odd-capacity half threshold | scoped negative | public-odd-capacity;2 fixtures |
 | Public multi-selection count ordering | scoped negative | public-multi-pickup;2 fixtures |
 | Decline one row versus quit whole selection | scoped negative | public-prompt-selection;2 fixtures |
+| Plain sack arrow and coin weight round trips | scoped negative | public-sack;3 fixtures |
+| Container menu wizard-weight naming mode | confirmed candidate cause3 | public-sack-menu;1 failure+1 control |
+
+Current public corpus:27 fixtures,23 strict matches,4 failing fixtures grouped
+into3 semantic causes. No scanner keys or filter rules. Prior arithmetic row
+counts are not cause counts. Source-bound receipts and exposure limits live in
+each package. #105/#108 remain unchanged.
 
 ## Reconciled / invalid / unresolved
 
@@ -41,16 +43,16 @@ each package. #105/#108 remain unchanged.
 - No unresolved attempted case remains in the qualified packages. The inherited
   recorder has no independent build attestation; binary and relevant matching
   source hashes are retained. This provenance limit is explicit.
-- Latest Main checked:2cb9a55c12a2bbee4403ca48ed22f46522076eeb; pickup.js unchanged
-  from measured gameplay base for both confirmed causes.
+- Latest Main checked:2579242c67804962299920a58e3052ab3718c187; pickup.js unchanged
+  from measured gameplay base for the confirmed causes.
 
 ## Practical next paths
 
-1. Plain nonmagical sack weight propagation through ordinary public put-in,
-   take-out and pickup/drop paths. This is untested, not covered by the flat
-   inventory totals. Establish a supported public setup before classifying it.
-2. Post-fix validation for the two candidates waits on Main's implementation;
-   do not repeatedly probe unchanged gold-guard or status-dirty failures.
+1. Nested plain sacks: recursive weight propagation and partial removal from a
+   contained ordinary sack remain untested in public play. This is the next
+   supported setup to establish; flat sack results do not establish it.
+2. Post-fix validation for the three candidates waits on Main's implementation;
+   do not repeatedly probe unchanged failures.
 3. Shops, inventory-slot limits, magical containers and special object/form
    effects remain outside the current ordinary weight-path investigation.
 
