@@ -94,3 +94,13 @@ Neither has been established here. Do not infer the internal branch from final
 color alone, or add competing gameplay/tooling changes. Natural histories,
 provenance and excluded contexts retain their earlier dispositions. This is a
 qualification boundary for the identified paths, not global exhaustion.
+
+
+Further dependency qualification succeeded: highlight-gate-20261029 now compiles
+all six unchanged functions needed by the numerical XP selection/redraw path,
+using actual C status headers.112 target states+4 controls match. This resolves
+the component-oracle prerequisite named above for the declared numeric presets;
+full-game C call-site observation remains uninstrumented. No source-only
+suspicions or new causes. The selected branch inventory now has executed public
+or qualified component evidence for these fronts; natural history/lifecycle and
+full-binary provenance limits remain, without claiming global exhaustion.
