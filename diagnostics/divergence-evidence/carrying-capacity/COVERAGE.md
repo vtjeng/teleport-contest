@@ -16,10 +16,15 @@ absolute. Finite matching probes are not exhaustive certification.
 | Public non-unit partial pickup / all-fit control | scoped negative | public-rock-admission;2 fixtures |
 | Gold capacity preflight blocks C's live count decision | confirmed candidate cause2 | public-gold-limit;2 failing variants+1 passing control |
 
-Current public corpus:14 fixtures,11 strict matches,3 failing fixtures grouped
+Current public corpus:22 fixtures,19 strict matches,3 failing fixtures grouped
 into2 semantic causes. No scanner keys or filter rules. Prior arithmetic row
 counts are not cause counts. Source-bound receipts and exposure limits live in
 each package. #105/#108 remain unchanged.
+
+| Public burden prompt decline then accept | scoped negative | public-burden-prompt;2 fixtures |
+| Public odd-capacity half threshold | scoped negative | public-odd-capacity;2 fixtures |
+| Public multi-selection count ordering | scoped negative | public-multi-pickup;2 fixtures |
+| Decline one row versus quit whole selection | scoped negative | public-prompt-selection;2 fixtures |
 
 ## Reconciled / invalid / unresolved
 
@@ -29,6 +34,10 @@ each package. #105/#108 remain unchanged.
 - Seed642918 cycle had incidental combat and a More prompt consuming an
   inventory command. It is invalid setup, not a negative; not retried unchanged.
   Seed642919 qualified the subsequent public cases without combat.
+- Ranger odd-capacity calibration was even (800), so it did not meet the
+  target. Tourist capacity725 qualified. A menu calibration guessed slot e
+  after a rejected wish; actual darts slot f was observed and corrected.
+  Neither setup-only result is a negative finding.
 - No unresolved attempted case remains in the qualified packages. The inherited
   recorder has no independent build attestation; binary and relevant matching
   source hashes are retained. This provenance limit is explicit.
@@ -37,12 +46,12 @@ each package. #105/#108 remain unchanged.
 
 ## Practical next paths
 
-1. Public pickup-burden confirmation decline/accept (source lift_object): verify
-   declining leaves counts/weight unchanged and accepting merges only afterward.
-2. A public odd-capacity half-threshold witness, if a short ordinary safe setup
-   can be established without equipment/attribute-effect investigation.
-3. Reassess remaining ordinary source branches after those outcomes. Containers,
-   shops, slot limits and special object effects are not silently counted as
-   covered or broadened into this arithmetic/burden assignment.
+1. Plain nonmagical sack weight propagation through ordinary public put-in,
+   take-out and pickup/drop paths. This is untested, not covered by the flat
+   inventory totals. Establish a supported public setup before classifying it.
+2. Post-fix validation for the two candidates waits on Main's implementation;
+   do not repeatedly probe unchanged gold-guard or status-dirty failures.
+3. Shops, inventory-slot limits, magical containers and special object/form
+   effects remain outside the current ordinary weight-path investigation.
 
 No gameplay repairs, CI dispatches, formal approvals or merges are performed.

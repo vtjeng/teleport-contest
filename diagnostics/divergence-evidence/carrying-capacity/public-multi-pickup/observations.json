@@ -1,0 +1,56 @@
+[
+  {
+    "name": "partial-menu",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2457,
+        "js": 2457
+      },
+      "screens": {
+        "c": 55,
+        "js": 55
+      },
+      "cursors": {
+        "c": 55,
+        "js": 55
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "finalStep": 53,
+    "rocks": 274,
+    "arrows": 4,
+    "darts": 15,
+    "total": 2849
+  },
+  {
+    "name": "all-fit-menu",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2456,
+        "js": 2456
+      },
+      "screens": {
+        "c": 54,
+        "js": 54
+      },
+      "cursors": {
+        "c": 54,
+        "js": 54
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "finalStep": 52,
+    "rocks": 275,
+    "arrows": 4,
+    "darts": 4,
+    "total": 2848
+  }
+]

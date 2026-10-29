@@ -1,0 +1,50 @@
+[
+  {
+    "name": "decline-accept",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2289,
+        "js": 2289
+      },
+      "screens": {
+        "c": 28,
+        "js": 28
+      },
+      "cursors": {
+        "c": 28,
+        "js": 28
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "afterDeclineWeight": 90,
+    "acceptedWeight": 951
+  },
+  {
+    "name": "accept-control",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2282,
+        "js": 2282
+      },
+      "screens": {
+        "c": 23,
+        "js": 23
+      },
+      "cursors": {
+        "c": 23,
+        "js": 23
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "afterDeclineWeight": null,
+    "acceptedWeight": 951
+  }
+]

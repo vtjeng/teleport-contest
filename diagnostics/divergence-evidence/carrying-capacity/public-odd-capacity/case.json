@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "caseId": "carrying-capacity-public-odd-capacity",
+  "shard": "carrying-capacity",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "ordinary-public-odd-capacity-threshold-parity",
+  "relatedCases": [
+    "carrying-capacity-inventory-totals"
+  ],
+  "provenance": {
+    "jsSha": "79106c9dfcf91a634825e279859cf5a342d7201d",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "weight_cap",
+      "start_line": 4295,
+      "end_line": 4346,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "inv_weight",
+      "start_line": 4351,
+      "end_line": 4365,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "near_capacity",
+      "start_line": 4385,
+      "end_line": 4388,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/mkobj.c",
+      "symbol": "splitobj",
+      "start_line": 457,
+      "end_line": 503,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/mkobj.c",
+      "symbol": "weight",
+      "start_line": 1888,
+      "end_line": 1976,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/invent.c",
+      "symbol": "getobj",
+      "start_line": 1752,
+      "end_line": 2089,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/invent.c",
+      "symbol": "merged",
+      "start_line": 814,
+      "end_line": 948,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/invent.c",
+      "symbol": "stackobj",
+      "start_line": 4366,
+      "end_line": 4375,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/invent.c",
+      "symbol": "addinv",
+      "start_line": 1152,
+      "end_line": 1155,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/do.c",
+      "symbol": "dodrop",
+      "start_line": 29,
+      "end_line": 43,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/do.c",
+      "symbol": "dropx",
+      "start_line": 786,
+      "end_line": 796,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/do.c",
+      "symbol": "dropz",
+      "start_line": 807,
+      "end_line": 843,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/pickup.c",
+      "symbol": "pickup_object",
+      "start_line": 1803,
+      "end_line": 1888,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/pickup.c",
+      "symbol": "pick_obj",
+      "start_line": 1897,
+      "end_line": 1942,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/hack.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "79106c9dfcf91a634825e279859cf5a342d7201d"
+    },
+    {
+      "side": "JS",
+      "path": "js/obj.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "79106c9dfcf91a634825e279859cf5a342d7201d"
+    },
+    {
+      "side": "JS",
+      "path": "js/invent.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "79106c9dfcf91a634825e279859cf5a342d7201d"
+    },
+    {
+      "side": "JS",
+      "path": "js/do.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "79106c9dfcf91a634825e279859cf5a342d7201d"
+    },
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "79106c9dfcf91a634825e279859cf5a342d7201d"
+    },
+    {
+      "side": "JS",
+      "path": "js/objnam.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "79106c9dfcf91a634825e279859cf5a342d7201d"
+    }
+  ],
+  "hypothesis": "Public capacity725 half-threshold1088 and low-load control match C.",
+  "expectedBehavior": "Production JS must follow the executed C ordinary count, weight and admission path for these public inputs.",
+  "observedBehavior": "Public capacity725 half-threshold1088 and low-load control match C.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Public capacity725 half-threshold1088 and low-load control match C. Source-backed public input through the standard recorder and official-overlay JS.",
+    "limitations": [
+      "Single seed/character, supported debug wish setup with wizweight observations; no natural acquisition claim.",
+      "Only declared ordinary items/counts; no containers, equipment changes, combat, consumption, timers or other excluded mechanisms.",
+      "Existing recorder binary is hashed and relevant source tree matches the pinned gitlink; no independent build attestation.",
+      "Source trace plus public outputs, not C internal-state instrumentation."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "not_applicable",
+    "evidence": [
+      "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/observations.json",
+      "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target/recorded.session.json",
+      "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target/js-output.json"
+    ],
+    "reason": "Public capacity725 half-threshold1088 and low-load control match C."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Ongoing explicitly authorized ordinary public inventory/burden audit; no scanner keys.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "odd-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target.session.json",
+        "/tmp/capacity-odd-target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "js/hack.js",
+        "js/obj.js",
+        "js/invent.js",
+        "js/pickup.js",
+        "js/do.js",
+        "js/objnam.js",
+        "scripts/diff-fresh.mjs",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/include/objects.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target-receipt.json"
+    },
+    {
+      "id": "odd-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control.session.json",
+        "/tmp/capacity-odd-control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "js/hack.js",
+        "js/obj.js",
+        "js/invent.js",
+        "js/pickup.js",
+        "js/do.js",
+        "js/objnam.js",
+        "scripts/diff-fresh.mjs",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/include/objects.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/README.md",
+      "sha256": "bbf45da8fc84894f6a44166f6ac041096be4df190db482baad17f8107797587e",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/observations.json",
+      "sha256": "a9004a5fa7890824b87fef221dbe425a657473b1c81c261dc57c8756213588ea",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/observe.mjs",
+      "sha256": "c01b3b9cbd0d353433ec0a93e22e0e9701e1d2ed7cef8f89b46029265a18002e",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control/comparison.json",
+      "sha256": "135c3ea6054d9f3254154ce385a742858d3a2e8110be2038713bd05e7388643d",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control/js-output.json",
+      "sha256": "7653587f2a3b3de6b713be11151b7b543114067411377bf34e4942943a16dfa0",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control/recipe.session.json",
+      "sha256": "8028945995f3980c137156c9dc6b12dd948ccfdc79fb549310692fa60627649f",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control/recorded.session.json",
+      "sha256": "c6b20651489cc8452446ca5eb8604b3d17bdd65c3747e4bf2f536040ce0085e1",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control/recorder.json",
+      "sha256": "7ff249ccd27ec153dd86dc0b81d863bb65bfc18815c9f05f8f7f7f2a47b9a6c5",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control/worker.json",
+      "sha256": "db68cec74bbb697ac6bfa882bde0b16cc138108b3f0287dc2d6a70a606ce10b1",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control-receipt.json",
+      "sha256": "7f7515cbd2d418bc8823d350758520a2491424fbe05f7f159f4c5e5ddd6dba77",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-control.session.json",
+      "sha256": "09a34af38aa0dbb643412adf056ac7578d9a6a825cb3aaa9350b6f8a5773da96",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target/comparison.json",
+      "sha256": "badb317d960c1e8d6c6de3c44339d8948392372673e0b7b235b14507c805cf93",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target/js-output.json",
+      "sha256": "c418302931ef3d0d61f800c94f61857ed840aacdb632129a76390a6329f89b93",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target/recipe.session.json",
+      "sha256": "b6d2ae18a791697bea891f33f03b53899c11ef8e3aee29a47f24094dcd8b29d7",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target/recorded.session.json",
+      "sha256": "dd85410f4ff109de9bfa2b3e5d1bd04cd77ecf9989f0b3231f08d3a1957ae380",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target/recorder.json",
+      "sha256": "ccd0a1691f869e07d9fefc8ac3a05a068771182cef52b0136f2eba1c5b4ae687",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target/worker.json",
+      "sha256": "07b22f2f43bb6639d2102e1cb24527116346a3b7fb1c2e7148a19c1bbcb92289",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target-receipt.json",
+      "sha256": "b165f8ad70778114df1ecd61c724826850f48b286b011fea2d6dc7e21dac2b4d",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-odd-capacity/odd-target.session.json",
+      "sha256": "1b4011da2c496ed1b947fb879bb27727ba92649378cdddb059df848b4da42bf3",
+      "role": "public evidence or diagnostic runner"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "js/hack.js",
+      "sha256": "767f9ecb11191fb25eae5d71b36c1fb1442a913237a81964cc48ee571abec6a8",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "js/obj.js",
+      "sha256": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "js/invent.js",
+      "sha256": "ed6e7464bd7ebb5449597a3ffb7f3f4783030965f0f7047aac29f0ac0e1f912e",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "js/pickup.js",
+      "sha256": "2ddf4e126f0d05ef795dbd8d880c9df62ff53d5cc6d5b6f089e884733e05665e",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "js/do.js",
+      "sha256": "7e87c976d9b1dfa1f92c784ab8cb9be64334a06cac7b311831ba30893ab40c0a",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "js/objnam.js",
+      "sha256": "bc6caee201e5afa469fcce9fd49bea825ff7e6288d279fd52fb04944b14fb143",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "scripts/diff-fresh-worker.mjs",
+      "sha256": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "scripts/record-session.mjs",
+      "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "scripts/scoring-workspace.mjs",
+      "sha256": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "nethack-c/upstream/src/hack.c",
+      "sha256": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkobj.c",
+      "sha256": "49c2de3bcf1125be55f11c17ffc4f614956f5288a5edfb56b2248b7fcaa3b488",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "nethack-c/upstream/src/invent.c",
+      "sha256": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "nethack-c/upstream/src/pickup.c",
+      "sha256": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "nethack-c/upstream/src/do.c",
+      "sha256": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "nethack-c/upstream/include/objects.h",
+      "sha256": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "sha256": "18c2b27f70fdcf50bf24418f74295a696e63b1b6e284a77736a5fd829770ddd9",
+      "role": "pinned source or sibling runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+      "sha256": "6cc731d45628fa2f55c82c04a40ad98619229ff0978299686eb3f9dbd076840d",
+      "role": "pinned source or sibling runner"
+    }
+  ]
+}
