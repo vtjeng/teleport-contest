@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-authored-corridor-carving-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "authored-corridor-inactive-object-environment",
+  "relatedCases": [
+    "levels-corridor-door-order-20261028"
+  ],
+  "provenance": {
+    "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "create_corridor",
+      "start_line": 2671,
+      "end_line": 2725,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "dig_corridor",
+      "start_line": 2549,
+      "end_line": 2663,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "search_door",
+      "start_line": 2492,
+      "end_line": 2540,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "maybe_sdoor",
+      "start_line": 1793,
+      "end_line": 1796,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "create_corridor",
+      "start_line": 1693,
+      "end_line": 1746,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "dig_corridor",
+      "start_line": 7137,
+      "end_line": 7210,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_corridor",
+      "start_line": 3382,
+      "end_line": 3405,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    }
+  ],
+  "hypothesis": "The extra JS object-environment helper might alter authored corridor generation.",
+  "expectedBehavior": "Explicit room-door corridors pass nxcor=false, omit optional object-environment construction, and carve the same tested terrain using identical turn-choice draws.",
+  "observedBehavior": "Eight offset-room targets and eight straight-room controls: four source directions and two seeds at D:1, two valid authored five-by-five rooms with one facing door each. Actual public JS des.corridor and exact C create_corridor/search_door/dig_corridor/maybe_sdoor compare all1680 terrain cells and consume the same bounded RNG tape. Targets carve18/19 cells, controls3/13. C unexpected random-corridor/object/diagnostic paths assert if reached.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Eight offset-room targets and eight straight-room controls: four source directions and two seeds at D:1, two valid authored five-by-five rooms with one facing door each. Actual public JS des.corridor and exact C create_corridor/search_door/dig_corridor/maybe_sdoor compare all1680 terrain cells and consume the same bounded RNG tape. Targets carve18/19 cells, controls3/13. C unexpected random-corridor/object/diagnostic paths assert if reached.",
+    "limitations": [
+      "Caller-scoped inactive-helper proof only: explicit des.corridor with two valid five-by-five authored rooms, first facing door on each, four source directions, D:1, seeds24301/24302. Eight offset targets and eight aligned controls compare all1680 terrain cells.",
+      "Both create_corridor bodies pass nxcor=false. The extra JS levelObjectEnv call is guarded by nxcor and therefore not evaluated in this path. nxcor=true remains unreviewed, not globally dead or equivalent; do not generalize this key decision beyond the pinned caller condition.",
+      "C executes exact create_corridor, search_door, dig_corridor and maybe_sdoor. The C initial room bounds/terrain come from asserted public JS setup, not an independently executed C room/region pipeline. Known dimensions and valid doors are checked before carving. No Lua parsing or room/door registration equivalence claim.",
+      "RNG replay checks every bound/value and total consumption against the JS-generated tape, including EOF. It is a coupled deterministic comparison, not an independent RNG implementation proof. Depth adapter is fixed1, so deeper-level secret-corridor RNG is outside scope.",
+      "Unexpected C random-corridor generation, object creation, panic and impossible calls assert. No object construction/runtime is investigated or executed. No arbitrary internal JS mutation: setup uses level_init, terrain and region; operation uses public des.corridor.",
+      "Only terrain types are compared. Other metadata, all seeds/layouts, full corridor reachability/geometry, level finalization, runtime traversal, random rooms/walls, invalid-input diagnostics and nxcor=true are not established.",
+      "Existing search-door order proof is related but remains separate. Cave cap-exit and three parked gaps remain unresolved; no new divergence or Main-owned repair is duplicated."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Public authored corridor construction with valid room/door setup. No shipped recording attribution, full C setup or runtime traversal claim."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The extra JS environment helper is behind nxcor && !rn2(50). The tested explicit des.corridor\u2192create_corridor path passes nxcor=false in both C/JS, so this helper is inactive in this caller domain. This is not a global dead-call or nxcor=true parity proof; keep that branch active for investigation.",
+    "keys": [
+      "source-audit:edge-js-helper:src/sp_lev.c:dig_corridor:levelObjectEnv"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/README.md",
+      "sha256": "718678c183130610cca87f01e66c2cdc404b0533d5cbce551de54f493d822f39",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/control-output.txt",
+      "sha256": "e8c0b6aefe0cf0650aed8d7e3ac4ec124982df2cd35b322e9af3e5cbe06b537a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/control-receipt.json",
+      "sha256": "559b4e09f65bbb89f7b837cf355fa9d3fb3ab6bb772ff51d2f2d7b33eab2198a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/decisions.json",
+      "sha256": "76661d7bb485753805a684e1491f24d36f388db1485a75aec4b0728dce2ae0bf",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/oracle.c",
+      "sha256": "a8e8e7fcf971ed1308618870127bb7c1d8fa914d374a54b8875352b5d04c50ee",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/probe.mjs",
+      "sha256": "6ae6ee8d5056d515a4c7a5f398e1b0914839058537f773cf7a74ed89add78f4b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/projection/manifest.json",
+      "sha256": "7f27b0a65f4964cf287723c4339eaffd235c051fc8ef715763ef8364af1a02dd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/projection/projection.json",
+      "sha256": "7f94da7ebb3207260b10141a21c3c44a0bfa34b6d9d46604c98c06492449c0a1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/projection/review-template.json",
+      "sha256": "c7e39f18f4324ecce8647b3daa8e6236dd57f88414dba8fa8babd11709cf7d92",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/source-contract.json",
+      "sha256": "52a1b4069214f8f6a63dbf44a92b4dc6807b587111267f5ea640a5400cfc5288",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/source-fingerprints.json",
+      "sha256": "8fe9ffc6973a552ac219a121f1e72efba20bda1d1dc5d5b0fac3376d2cd18ded",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/target-output.txt",
+      "sha256": "19901a4b9531c3cb8ef2383f5635ccf4a3885e85b6f454aacca67ae43b765904",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/target-receipt.json",
+      "sha256": "305262430235a7f321dcb8fc67f2e3842692779aa07f4e40f94774a7d7f963fb",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

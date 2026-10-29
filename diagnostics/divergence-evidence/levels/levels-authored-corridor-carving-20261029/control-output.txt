@@ -1,0 +1,9 @@
+{"vertical":false,"reverse":false,"offset":0,"seed":24301,"rooms":[[11,15,5,9],[31,35,5,9]],"changed":13,"rng":[],"mapSha256":"d11c708694704d56cd556d47bdf01e9d9c087dcfa1c5ea479d07fed2ee4cbd52","equal":true}
+{"vertical":false,"reverse":false,"offset":0,"seed":24302,"rooms":[[11,15,5,9],[31,35,5,9]],"changed":13,"rng":[],"mapSha256":"d11c708694704d56cd556d47bdf01e9d9c087dcfa1c5ea479d07fed2ee4cbd52","equal":true}
+{"vertical":false,"reverse":true,"offset":0,"seed":24301,"rooms":[[11,15,5,9],[31,35,5,9]],"changed":13,"rng":[],"mapSha256":"d11c708694704d56cd556d47bdf01e9d9c087dcfa1c5ea479d07fed2ee4cbd52","equal":true}
+{"vertical":false,"reverse":true,"offset":0,"seed":24302,"rooms":[[11,15,5,9],[31,35,5,9]],"changed":13,"rng":[],"mapSha256":"d11c708694704d56cd556d47bdf01e9d9c087dcfa1c5ea479d07fed2ee4cbd52","equal":true}
+{"vertical":true,"reverse":false,"offset":0,"seed":24301,"rooms":[[21,25,12,16],[21,25,2,6]],"changed":3,"rng":[],"mapSha256":"7ccb52291e3fc6101fe31a98b75cc498a575fb32a69c8a856f1616ede52406f4","equal":true}
+{"vertical":true,"reverse":false,"offset":0,"seed":24302,"rooms":[[21,25,12,16],[21,25,2,6]],"changed":3,"rng":[],"mapSha256":"7ccb52291e3fc6101fe31a98b75cc498a575fb32a69c8a856f1616ede52406f4","equal":true}
+{"vertical":true,"reverse":true,"offset":0,"seed":24301,"rooms":[[21,25,12,16],[21,25,2,6]],"changed":3,"rng":[],"mapSha256":"7ccb52291e3fc6101fe31a98b75cc498a575fb32a69c8a856f1616ede52406f4","equal":true}
+{"vertical":true,"reverse":true,"offset":0,"seed":24302,"rooms":[[21,25,12,16],[21,25,2,6]],"changed":3,"rng":[],"mapSha256":"7ccb52291e3fc6101fe31a98b75cc498a575fb32a69c8a856f1616ede52406f4","equal":true}
+{"mode":"control","cases":8,"equal":true}

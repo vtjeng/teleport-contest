@@ -1,0 +1,25 @@
+[
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:dig_corridor:levelObjectEnv",
+    "evidenceKey": "e264f675a8f31775c817cec95b10535af44dfaeb91fc213c736894de39fa6ca7",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "0425cdeeee898b20f625314c4b9362bef4dd0369f4c65cbcaef7bacdcdd8f788",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "The extra JS environment helper is behind nxcor && !rn2(50). The tested explicit des.corridor→create_corridor path passes nxcor=false in both C/JS, so this helper is inactive in this caller domain. This is not a global dead-call or nxcor=true parity proof; keep that branch active for investigation.",
+      "proof": "Eight offset-room targets and eight straight-room controls: four source directions and two seeds at D:1, two valid authored five-by-five rooms with one facing door each. Actual public JS des.corridor and exact C create_corridor/search_door/dig_corridor/maybe_sdoor compare all1680 terrain cells and consume the same bounded RNG tape. Targets carve18/19 cells, controls3/13. C unexpected random-corridor/object/diagnostic paths assert if reached.",
+      "control": "Straight aligned room endpoints exercise cardinal carving without turn-choice RNG. Offset endpoints require turns and RNG. C begins from asserted public JS room bounds/terrain, not an independently executed C room-building pipeline. Full metadata, room/door registration, independent RNG, secret corridors at deeper levels, random walls/rooms, nxcor=true, object creation and runtime remain outside scope.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:2549",
+        "nethack-c/upstream/src/sp_lev.c:2671",
+        "nethack-c/upstream/src/mklev.c:1793",
+        "js/mklev.js:1693",
+        "js/mklev.js:7137"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029",
+      "reviewedBase": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

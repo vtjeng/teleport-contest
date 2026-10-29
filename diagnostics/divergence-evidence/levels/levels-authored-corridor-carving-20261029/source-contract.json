@@ -1,0 +1,10 @@
+{
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4",
+    "js/mklev.js": "4838e277db8451a66d6c0217cb5eeee9b627efd06115015ad29f9c5740f3e1b8",
+    "nethack-c/upstream/include/sp_lev.h": "a48d5bd2d9a5b20b474b790d52f4f19179678c87ec0b51019e39dc6684d7a6bf"
+  }
+}
