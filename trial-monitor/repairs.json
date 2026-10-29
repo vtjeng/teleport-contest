@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T03:44:27Z",
+  "asOf": "2026-10-29T04:04:30Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25792,7 +25792,8 @@
           "scripts/mhitm-passive-cold-accessible.test.mjs",
           "diagnostics/divergence-evidence/monsters/pestilence-touch-location/proof.mjs",
           "diagnostics/divergence-evidence/monsters/monster-message-location-family-map/proof.mjs",
-          "scripts/mhitm-passive-fire-accessible.test.mjs"
+          "scripts/mhitm-passive-fire-accessible.test.mjs",
+          "scripts/mhitm-passive-elements-accessible.test.mjs"
         ]
       },
       "candidates": [
@@ -25843,6 +25844,56 @@
               "completedAt": "2026-10-28T22:07:15Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40777210085"
+            }
+          ]
+        },
+        {
+          "sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+          "committedAt": "2026-10-29T03:52:52Z",
+          "sourceCommit": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+          "sourceCommittedAt": "2026-10-29T03:52:52Z",
+          "runs": [
+            {
+              "id": 40814621638,
+              "name": "Checkpoint",
+              "sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/passive-fire-location-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T03:53:01Z",
+              "completedAt": "2026-10-29T04:01:37Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40814621638"
+            },
+            {
+              "id": 40815487681,
+              "name": "Lint",
+              "sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:02:35Z",
+              "completedAt": "2026-10-29T04:03:46Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40815487681"
+            },
+            {
+              "id": 40815487684,
+              "name": "Dashboard",
+              "sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:02:35Z",
+              "completedAt": "2026-10-29T04:04:30Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40815487684"
             }
           ]
         }

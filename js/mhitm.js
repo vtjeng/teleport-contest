@@ -1890,9 +1890,9 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
                 magr.mstun = 1;
                 if (canseemon(magr, state)) {
                     await message(
-                        `${Monnam(magr, state, env)} `
+                        messageAt(`${Monnam(magr, state, env)} `
                             + `${makeplural(stagger(magr.data, 'stagger'))}...`,
-                        state,
+                        magr.mx, magr.my, state), state,
                     );
                 }
             }
@@ -1902,7 +1902,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             if (Resists_Elem(magr, FIRE_RES, state)) {
                 if (canseemon(magr, state)) {
                     await message(
-                        `${Monnam(magr, state, env)} is mildly warmed.`, state,
+                        messageAt(`${Monnam(magr, state, env)} is mildly warmed.`,
+                            magr.mx, magr.my, state), state,
                     );
                     await golemeffects(magr, AD_FIRE, tmp, { ...env, state });
                 }
@@ -1920,7 +1921,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             if (Resists_Elem(magr, SHOCK_RES, state)) {
                 if (canseemon(magr, state)) {
                     await message(
-                        `${Monnam(magr, state, env)} is mildly tingled.`, state,
+                        messageAt(`${Monnam(magr, state, env)} is mildly tingled.`,
+                            magr.mx, magr.my, state), state,
                     );
                     await golemeffects(magr, AD_ELEC, tmp, { ...env, state });
                 }
@@ -1929,8 +1931,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             }
             if (canseemon(magr, state)) {
                 await message(
-                    `${Monnam(magr, state, env)} is jolted with electricity!`,
-                    state,
+                    messageAt(`${Monnam(magr, state, env)} is jolted with electricity!`,
+                        magr.mx, magr.my, state), state,
                 );
             }
             break;
