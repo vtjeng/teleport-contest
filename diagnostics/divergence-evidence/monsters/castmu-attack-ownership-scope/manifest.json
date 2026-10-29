@@ -4,23 +4,25 @@
   "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
   "originalRunSha256": "4e7ab2870a6c57b5c1d586b651917cfabf28056c485f9f92ebc0e202cfcc1b93",
   "originalLeadCount": 12472,
-  "projectionSha256": "7c36641d1be9c089a1c6c37df39a4fc3831306c0988b49645820ce69e3f9f74f",
+  "projectionSha256": "0a178312f121e09a73ece9381c53fedde82479cba979d9703ad9a0ecf2c64cf8",
   "runId": "2bfc89cdcbaa6139046f",
   "selectedKeys": [
-    "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot"
+    "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot",
+    "source-audit:message:src/mcastu.c:mcast_clone_wiz:00a83c749503f442",
+    "source-audit:message:src/mcastu.c:mcast_disappear:e8d896909a1fe088"
   ],
   "decisionsSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
   "validation": {
     "originalComparison": "verified",
-    "selected": 1,
+    "selected": 3,
     "decisionsChecked": 0,
     "before": {
-      "active": 1,
+      "active": 3,
       "filtered": 0,
       "excluded": 0
     },
     "after": {
-      "active": 1,
+      "active": 3,
       "filtered": 0,
       "excluded": 0
     }

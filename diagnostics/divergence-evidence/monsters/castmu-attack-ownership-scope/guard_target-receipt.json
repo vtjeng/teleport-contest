@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "guard_target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard-proof.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:19:18.531596+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "b1bb1ef156100ca647ef562ba214278416cb24d83a64768d36156de62edaa2ba",
+  "inputHashes": {
+    "js/mcastu.js": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+    "nethack-c/upstream/src/mcastu.c": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard_target-output.txt"
+  ]
+}

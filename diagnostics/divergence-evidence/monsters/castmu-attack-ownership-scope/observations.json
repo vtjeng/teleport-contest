@@ -20,5 +20,17 @@
     69,
     70
   ],
-  "result": "normal-path parity only; general warning unresolved"
+  "result": "normal-path parity only; general warning unresolved",
+  "selectorSupplement": {
+    "reviewedAt": "2026-10-29T01:19:18.368439+00:00",
+    "currentMain": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "relevantSourcesUnchangedFromWitnessBase": true,
+    "cloneRows": 6,
+    "disappearRows": 16,
+    "missingProofs": [
+      "live Wizard implies positive context count",
+      "selector-to-effect state stability"
+    ],
+    "disposition": "all three scanner keys unresolved; zero decisions"
+  }
 }

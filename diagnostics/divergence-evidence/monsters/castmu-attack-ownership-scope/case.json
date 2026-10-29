@@ -52,11 +52,27 @@
       "start_line": 129,
       "end_line": 305,
       "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mcastu.c",
+      "symbol": "spell_would_be_useless",
+      "start_line": 908,
+      "end_line": 985,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mcastu.js",
+      "symbol": "spell_would_be_useless",
+      "start_line": 341,
+      "end_line": 395,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
     }
   ],
-  "hypothesis": "A variable attack-type argument after awaited callbacks may reach the floor helper unsupported-type marker.",
+  "hypothesis": "A variable attack-type argument after awaited callbacks may reach the floor helper unsupported-type marker. Related clone/disappear diagnostic warnings require selector-to-effect invariant proofs.",
   "expectedBehavior": "Normal Angel missile spells preserve their damage type across message delivery; resistance changes damage but does not change attack type.",
-  "observedBehavior": "Both native missile witnesses match. Normal getmattk returns mutable shared catalog attacks; callback ownership for the general contract remains unqualified.",
+  "observedBehavior": "Both native missile witnesses match. Normal getmattk returns mutable shared catalog attacks; callback ownership for the general contract remains unqualified. Source-selected clone and disappear guard arms agree over six and sixteen predicate rows respectively; neither diagnostic warning is discharged.",
   "witness": {
     "kind": "public_recording",
     "scope": "Normal Angel missile damage and Antimagic paths, with read-only production attack-ownership observations.",
@@ -64,7 +80,9 @@
       "No whole-castmu or full callback contract proof.",
       "AD_COLD not witnessed here.",
       "No invented callback mutation or attack override used.",
-      "Frozen templates are not frozen game attack records."
+      "Frozen templates are not frozen game attack records.",
+      "Clone/disappear supplements compile selected C predicate arms and evaluate extracted JS arms only; they do not replay those spells.",
+      "Wizard-count positivity and selector-to-effect state stability remain unproved; source domains are not claims of reachable game setups."
     ]
   },
   "exposure": {
@@ -79,7 +97,9 @@
   "origin": {
     "kind": "scanner",
     "keys": [
-      "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot"
+      "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot",
+      "source-audit:message:src/mcastu.c:mcast_clone_wiz:00a83c749503f442",
+      "source-audit:message:src/mcastu.c:mcast_disappear:e8d896909a1fe088"
     ],
     "projection": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/projection.json",
     "manifest": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/manifest.json",
@@ -133,12 +153,48 @@
       ],
       "expectedExit": 0,
       "receipt": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/control-receipt.json"
+    },
+    {
+      "id": "guard_target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard-proof.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard-proof.mjs",
+      "ci": "manual",
+      "inputs": [
+        "js/mcastu.js",
+        "nethack-c/upstream/src/mcastu.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard_target-receipt.json"
+    },
+    {
+      "id": "guard_control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard-proof.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard-proof.mjs",
+      "ci": "manual",
+      "inputs": [
+        "js/mcastu.js",
+        "nethack-c/upstream/src/mcastu.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard_control-receipt.json"
     }
   ],
   "artifacts": [
     {
       "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/README.md",
-      "sha256": "df981de8f6369e304e1537b6172b56b521e3925c93862a28b09f46a8f07206a8",
+      "sha256": "1e1fd41a469ad734910e696f0fc3bfb94b7c16d3dd668b20a9358c75d6185717",
       "role": "evidence"
     },
     {
@@ -167,13 +223,38 @@
       "role": "evidence"
     },
     {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard-proof.mjs",
+      "sha256": "b1bb1ef156100ca647ef562ba214278416cb24d83a64768d36156de62edaa2ba",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard_control-output.txt",
+      "sha256": "161c9746f1b1a4c92e2bb7f6eeeb88cec4f053b1aeea0f4ee628f657bb41da6f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard_control-receipt.json",
+      "sha256": "e5124e42191bd84fa0ccd72ff65074a8ea56d6d40f5e8d6db05953a21c80b6e6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard_target-output.txt",
+      "sha256": "1feace17e7a215534729375870e82838e4fdb39d0b5739d1305cd8f49ee2abcf",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/guard_target-receipt.json",
+      "sha256": "79289322b7a1ca4613d7b29eb88a23e142dc3cf3433c2b14d66c72bd19bf7e99",
+      "role": "evidence"
+    },
+    {
       "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/manifest.json",
-      "sha256": "b9403cb5b9d9c74b4698c336ddb3ae6cec3e7dd8eb0627728e63bf9e1060340c",
+      "sha256": "732147b1e7d5ed3e06995f3d894c87c1f1c81ffebfadd000019caaa225c573be",
       "role": "evidence"
     },
     {
       "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/observations.json",
-      "sha256": "cda5cd2682e70a8d2ca28cc9451e512321e4b7e17da8eeb9a6b14cf7c1736deb",
+      "sha256": "51bc0a917139c112abf35f753a919040081c91308ff76442fb2b4f6c1ab21c87",
       "role": "evidence"
     },
     {
@@ -183,7 +264,7 @@
     },
     {
       "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/projection.json",
-      "sha256": "7c36641d1be9c089a1c6c37df39a4fc3831306c0988b49645820ce69e3f9f74f",
+      "sha256": "0a178312f121e09a73ece9381c53fedde82479cba979d9703ad9a0ecf2c64cf8",
       "role": "evidence"
     },
     {

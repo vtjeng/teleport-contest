@@ -274,6 +274,154 @@
           "run_id": "2bfc89cdcbaa6139046f"
         }
       ]
+    },
+    {
+      "key": "source-audit:message:src/mcastu.c:mcast_clone_wiz:00a83c749503f442",
+      "sourceKey": "message:src/mcastu.c:mcast_clone_wiz:00a83c749503f442",
+      "evidenceKey": "5ea2f7912894b55bf7afbac4fa36a946c5b144f590a26d6ea6a87eb8dca4b0ce",
+      "kind": "message",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mcastu.c:417"
+      ],
+      "summary": "bad wizard cloning?",
+      "method": "sourceAudit",
+      "symbol": "src/mcastu.c:mcast_clone_wiz",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -21,
+      "rankingHint": null,
+      "title": "bad wizard cloning?",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T22:15:17.571Z",
+      "lastChecked": "2026-10-28T22:15:17.571Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+        "runId": "2bfc89cdcbaa6139046f",
+        "sourceAuditSourceHash": "89763c4b095d7bba4a6b31c8e49f27fa027f52a9c335436406da46bf26f6c552",
+        "methodConfigHashes": {
+          "sourceAudit": "0a5717e39fe6b62c715c52ec618bfdd83995cb094b8ce807226c6ee218d17228",
+          "mismatchQueue": "8da4b59c8407be58c3e9e6da1c759f794825e6e96c1b60185aff2ff450435a15",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "5ea2f7912894b55bf7afbac4fa36a946c5b144f590a26d6ea6a87eb8dca4b0ce"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mcastu.c",
+          "symbol": "src/mcastu.c:mcast_clone_wiz",
+          "start_line": 417,
+          "end_line": 417,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "missing_message",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "2bfc89cdcbaa6139046f"
+        }
+      ]
+    },
+    {
+      "key": "source-audit:message:src/mcastu.c:mcast_disappear:e8d896909a1fe088",
+      "sourceKey": "message:src/mcastu.c:mcast_disappear:e8d896909a1fe088",
+      "evidenceKey": "a2992b9540539ca7c3d5ab2980412a15c8b5fb3a4b2ac63e11957138658e12ea",
+      "kind": "message",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mcastu.c:500"
+      ],
+      "summary": "no reason for monster to cast disappear spell?",
+      "method": "sourceAudit",
+      "symbol": "src/mcastu.c:mcast_disappear",
+      "sourceAuditReviews": [],
+      "sourceAuditClassification": "needs-investigation",
+      "rank": -21,
+      "rankingHint": null,
+      "title": "no reason for monster to cast disappear spell?",
+      "discoveredBy": [
+        "sourceAudit"
+      ],
+      "status": "unreviewed",
+      "history": [],
+      "firstSeen": "2026-10-28T22:15:17.571Z",
+      "lastChecked": "2026-10-28T22:15:17.571Z",
+      "observed": true,
+      "provenance": {
+        "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+        "runId": "2bfc89cdcbaa6139046f",
+        "sourceAuditSourceHash": "89763c4b095d7bba4a6b31c8e49f27fa027f52a9c335436406da46bf26f6c552",
+        "methodConfigHashes": {
+          "sourceAudit": "0a5717e39fe6b62c715c52ec618bfdd83995cb094b8ce807226c6ee218d17228",
+          "mismatchQueue": "8da4b59c8407be58c3e9e6da1c759f794825e6e96c1b60185aff2ff450435a15",
+          "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+          "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+          "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+        },
+        "methodVersions": {
+          "sourceAudit": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "mismatchQueue": "sha256:20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+          "compiledConstants": "sha256:9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+          "luaDiscovery": "sha256:624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+          "structuralPipeline": "sha256:6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+        },
+        "sourceAuditToolSha256": "5ecfa323c3430109697435a7bd136e95bbac067093e105c506392dff2347f6cd",
+        "constantsToolSha256": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "mappingSha256": "60caed2ac5b314724e39b31ea3cb5f52e85a90c742710c9f12bf8600b106a8a3",
+        "evidenceKey": "a2992b9540539ca7c3d5ab2980412a15c8b5fb3a4b2ac63e11957138658e12ea"
+      },
+      "source_locations": [
+        {
+          "side": "C",
+          "path": "nethack-c/upstream/src/mcastu.c",
+          "symbol": "src/mcastu.c:mcast_disappear",
+          "start_line": 500,
+          "end_line": 500,
+          "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "claim": null,
+      "priority": null,
+      "attempts": [],
+      "validation": null,
+      "resolution": null,
+      "nextStep": null,
+      "handoff": null,
+      "reviewFreshness": "new",
+      "methods": [
+        {
+          "kind": "missing_message",
+          "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+          "run_id": "2bfc89cdcbaa6139046f"
+        }
+      ]
     }
   ]
 }

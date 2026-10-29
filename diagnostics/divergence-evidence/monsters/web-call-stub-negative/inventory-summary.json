@@ -21,11 +21,11 @@
     "edge-stub": 55,
     "message": 19
   },
-  "reviewedKeys": 8,
+  "reviewedKeys": 10,
   "resolvedKeys": 6,
-  "reviewedUnresolvedKeys": 2,
-  "withoutRecordedReview": 681,
-  "reviewedAt": "2026-10-28T23:54:34.774936+00:00",
+  "reviewedUnresolvedKeys": 4,
+  "withoutRecordedReview": 679,
+  "reviewedAt": "2026-10-29T01:19:18.697693+00:00",
   "inventoryKeysSha256": "9111e7977db1b5b5ecc90bdf55db81b2f4e71778586b9d75af402768597a011c",
   "reviews": [
     {
@@ -67,6 +67,16 @@
       "key": "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot",
       "status": "unresolved",
       "record": "sibling castmu-attack-ownership-scope package"
+    },
+    {
+      "key": "source-audit:message:src/mcastu.c:mcast_clone_wiz:00a83c749503f442",
+      "status": "unresolved",
+      "record": "selector supplement in sibling castmu-attack-ownership-scope package"
+    },
+    {
+      "key": "source-audit:message:src/mcastu.c:mcast_disappear:e8d896909a1fe088",
+      "status": "unresolved",
+      "record": "selector supplement in sibling castmu-attack-ownership-scope package"
     }
   ]
 }
