@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/replay.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:07:53.155882+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "882ef991054c27eeaa57d29cc977a887677fc02e51966ea7fe6c88c6278a3ab9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target.session.json.gz": "608a405f0ae838331ba877dd623b63065c2fb4e82e9f78a985f6f98ed95cfaf3",
+    "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/source-proof.mjs": "df7369d19ee89b528e34e3371749248fd846c200b01ff16b4fa4076e9287075b",
+    "js/zap.js": "40461f4e4b875a28c9df1368a6f5fc9caf77e1520a730a803cf8f6c13bad4698",
+    "js/mcastu.js": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+    "js/monsters.js": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+    "nethack-c/upstream/src/zap.c": "8ee02bd7aa29b026d6b5a2e0017ddf402fcfc6fc81037e35ceda2d86467547cb",
+    "nethack-c/upstream/src/mcastu.c": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285",
+    "nethack-c/upstream/include/monattk.h": "00c2283c2687f2dd5fa8a3088623cd621822289018c0072db9cad5a2a94883ba"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target-output.txt"
+  ]
+}

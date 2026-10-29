@@ -1,0 +1,36 @@
+{
+  "discoveredAt": "2026-10-28T23:54:29.463135+00:00",
+  "reviewedAt": "2026-10-28T23:54:29.463184+00:00",
+  "captureCheckout": "903302ef530204b49a6061f1b425e9f067fa56ca",
+  "gameBase": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "nativeBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "targetRecipe": "recipes/mcastu.c/admagm-angel-tourist-independent.session.json",
+  "controlRecipe": "recipes/mcastu.c/admagm-angel-wizard-antimagic-variation.session.json",
+  "targetMessageSteps": [
+    92,
+    93,
+    94,
+    125,
+    126,
+    127
+  ],
+  "controlBounceSteps": [
+    68,
+    69,
+    70
+  ],
+  "result": "normal-path parity only; general warning unresolved",
+  "selectorSupplement": {
+    "reviewedAt": "2026-10-29T01:19:18.368439+00:00",
+    "currentMain": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "relevantSourcesUnchangedFromWitnessBase": true,
+    "cloneRows": 6,
+    "disappearRows": 16,
+    "missingProofs": [
+      "live Wizard implies positive context count",
+      "selector-to-effect state stability"
+    ],
+    "disposition": "all three scanner keys unresolved; zero decisions"
+  }
+}

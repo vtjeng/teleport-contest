@@ -1,0 +1,29 @@
+{"ownership":[{"name":"Angel","index":3,"adtyp":1,"sharedMutableRecord":true},{"name":"Yeenoghu","index":3,"adtyp":1,"sharedMutableRecord":true},{"name":"Asmodeus","index":1,"adtyp":3,"sharedMutableRecord":true}],"scope":"ordinary initialized attack selection only; no claim that callbacks mutate attacks"}
+{
+  "mode": "control",
+  "passed": true,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 2390,
+      "js": 2390
+    },
+    "screens": {
+      "c": 131,
+      "js": 131
+    },
+    "cursors": {
+      "c": 131,
+      "js": 131
+    },
+    "animFrames": {
+      "c": 22,
+      "js": 22
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": null,
+  "cursorMismatch": null,
+  "animMismatch": null,
+  "segmentMismatch": null
+}

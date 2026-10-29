@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "4e7ab2870a6c57b5c1d586b651917cfabf28056c485f9f92ebc0e202cfcc1b93",
+  "originalLeadCount": 12472,
+  "projectionSha256": "73fd31befc0b90b529d946bf68a57f37a60693f00e8057eded12a83245a495f3",
+  "runId": "2bfc89cdcbaa6139046f",
+  "selectedKeys": [
+    "source-audit:edge-stub:src/mhitm.c:mdisplacem:which_armor",
+    "source-audit:edge-stub:src/mhitu.c:gazemu:polymon",
+    "source-audit:edge-stub:src/mhitu.c:mattacku:which_armor"
+  ],
+  "decisionsSha256": "b1fffe16ceed6bf61e021c1d5de006a42672092debabef5472fcf3ef599cae2c",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 3,
+    "decisionsChecked": 2,
+    "before": {
+      "active": 3,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 1,
+      "filtered": 2,
+      "excluded": 0
+    }
+  }
+}

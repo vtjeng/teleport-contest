@@ -1,0 +1,36 @@
+[
+  {
+    "key": "source-audit:edge-stub:src/mhitu.c:mattacku:which_armor",
+    "evidenceKey": "97786605d566eb77e1281155e6169e0ab9c6be0d316fab3a2ef0cb44c9f64b79",
+    "runId": "2bfc89cdcbaa6139046f",
+    "reviewFingerprint": "c90d4fc304239cb84826111bce39c559b58463ffe0c57306d60e39cbabdbdde9",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "The only which_armor marker is the invalid hero armor-slot diagnostic. This exact caller supplies a fixed valid helmet/glove slot, so the marker is unreachable even if the hero branch were selected.",
+      "proof": "Complete helper pin, exact single caller argument, frozen slot table membership and C/JS mask values are checked by proof.mjs. Compiled complete C helper and actual JS helper agree for present/missing helmet and gloves. Pure lookup input records do not certify equipment or combat transitions.",
+      "sourceRefs": [
+        "js/worn.js:476",
+        "nethack-c/upstream/src/worn.c:1005",
+        "js/mhitu.js:1732"
+      ]
+    }
+  },
+  {
+    "key": "source-audit:edge-stub:src/mhitm.c:mdisplacem:which_armor",
+    "evidenceKey": "4d5f80d46fbbfc8797d6a81bad3342fe3946d598578354afc7339b20269cf471",
+    "runId": "2bfc89cdcbaa6139046f",
+    "reviewFingerprint": "04035be77490a3830069f32b4b18d343b91adc288ac0cb56ea0fe01bb1476210",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "The only which_armor marker is the invalid hero armor-slot diagnostic. This exact caller supplies a fixed valid helmet/glove slot, so the marker is unreachable even if the hero branch were selected.",
+      "proof": "Complete helper pin, exact single caller argument, frozen slot table membership and C/JS mask values are checked by proof.mjs. Compiled complete C helper and actual JS helper agree for present/missing helmet and gloves. Pure lookup input records do not certify equipment or combat transitions.",
+      "sourceRefs": [
+        "js/worn.js:476",
+        "nethack-c/upstream/src/worn.c:1005",
+        "js/mhitm.js:654"
+      ]
+    }
+  }
+]

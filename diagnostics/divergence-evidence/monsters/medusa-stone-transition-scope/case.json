@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "caseId": "medusa-stone-transition-scope",
+  "shard": "monsters",
+  "status": "unresolved",
+  "readiness": "incomplete",
+  "rootCause": null,
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mhitu.c",
+      "symbol": "gazemu",
+      "start_line": 1747,
+      "end_line": 1758,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mhitu.js",
+      "symbol": "gazemu",
+      "start_line": 3084,
+      "end_line": 3107,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    },
+    {
+      "side": "JS",
+      "path": "js/polyself.js",
+      "symbol": "polymon",
+      "start_line": 989,
+      "end_line": 1010,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    }
+  ],
+  "hypothesis": "gazemu to polymon may encounter a conditional stub inside polymon.",
+  "expectedBehavior": "An unresisting flesh-golem hero meeting Medusa's gaze transforms into a stone golem. An already stone-golem hero resists without another transformation.",
+  "observedBehavior": "Both supported native recordings match completely: target 4624 RNG/57 screens/cursors, control 4625 RNG/57 screens/cursors. The ordinary transition works, but conditional callee paths are not fully qualified and the scanner edge stays active.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Reached ordinary Medusa flesh-to-stone transition and already-stone control, not all polymon continuations.",
+    "limitations": [
+      "No full discharge of conditional stub paths inside polymon.",
+      "No equipment, trap-release, mounted or other exceptional-state coverage.",
+      "No whole-gazemu or whole-polymon equivalence claim.",
+      "Exploratory default wizard creation selected a doppelganger; final fixtures explicitly answer yes to force Medusa."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target.session.json.gz",
+      "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/control.session.json.gz"
+    ],
+    "reason": "Unmodified game with supported public wizard creation/form commands and ordinary monster turns; discriminating native messages are asserted before replay comparison."
+  },
+  "origin": {
+    "kind": "scanner",
+    "keys": [
+      "source-audit:edge-stub:src/mhitu.c:gazemu:polymon"
+    ],
+    "projection": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/projection.json",
+    "manifest": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/replay.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/replay.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/control.session.json.gz"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/README.md",
+      "sha256": "2f3805571a85b1db3c883769be99a59da6b5b4a13a9764f6dfa85e9937c1d93f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/control-output.txt",
+      "sha256": "b9e008aa297365fe08213a47a3cfb86b6dee207b4e44ba4981db71aa14058b79",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/control-receipt.json",
+      "sha256": "033a1fd9931685860cf830ea066bdaa6d2e7f3ed36690f604958a16be015bacd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/control.recipe.json",
+      "sha256": "1a8bdf83cd5d129975bbfc0a665ca919b9572d0f58d348dd29c701ff94c53991",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/control.session.json.gz",
+      "sha256": "d1c40c9ff62d44968f119a3a89f42b876a756c0c667359e7184b7ffb5e9875e3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/decisions.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/manifest.json",
+      "sha256": "e50fdbdf946129f293455c502680852a6365c36d5e8224585bc72e2960b0a65d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/observations.json",
+      "sha256": "6d5b26ea826891c824c931d45c3696d0a25c4de1f2b04af3e3e1e385aaaa76f2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/projection.json",
+      "sha256": "9202f65ec2bde911dce88b8437646da11c58f5b1acbd948396361703270cfd82",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/replay.mjs",
+      "sha256": "db7e31a02321bcf258848eb47ef68b8893854a05e68960c599f4a6df57b2e7c3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target-output.txt",
+      "sha256": "cdc500b2b99683eccf0646a05fd4d0f8f7aa74ce695eee232d7706a92a401114",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target-receipt.json",
+      "sha256": "fb73609b6f922b49f9af4a445c4cb4ae1476fd43a6fdfa29b47886079151de49",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target.recipe.json",
+      "sha256": "ee68b70559c2f76530fa9b705a9ed71e65b1fa174851dfb1722f7334908e58b9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target.session.json.gz",
+      "sha256": "9c905dee6d60ded3539bff0c4644dd094a6453ea6b3883f77e469472eb8ec1af",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

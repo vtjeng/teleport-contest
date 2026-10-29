@@ -1,0 +1,19 @@
+{
+  "discoveredAt": "2026-10-28T22:58:13.624190+00:00",
+  "reviewedAt": "2026-10-28T22:58:13.624201+00:00",
+  "recorderSha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "variants": [
+    {
+      "mode": "target",
+      "rawRecordingSha256": "2d0cda3dc6d80d07716e61bedf9881af5341bd5f3027d4545b3ca6bbb2aa86ca",
+      "jsBase": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "mode": "control",
+      "rawRecordingSha256": "0749d573ce1e24e13bae35f3f49c043d6b0aa6332fd78b2b9bfc202705d979b0",
+      "jsBase": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+    }
+  ]
+}

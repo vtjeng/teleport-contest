@@ -1,0 +1,29 @@
+{"scope":"two literal cleric arguments cannot reach unsupported-type marker","constants":{"AD_PHYS":0,"AD_MAGM":1,"AD_FIRE":2,"AD_ELEC":6,"AD_ACID":8},"outOfRangeControl":"AD_PHYS; discriminator only, not a gameplay fixture"}
+{
+  "mode": "target",
+  "passed": true,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 2835,
+      "js": 2835
+    },
+    "screens": {
+      "c": 90,
+      "js": 90
+    },
+    "cursors": {
+      "c": 90,
+      "js": 90
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": null,
+  "cursorMismatch": null,
+  "animMismatch": null,
+  "segmentMismatch": null
+}

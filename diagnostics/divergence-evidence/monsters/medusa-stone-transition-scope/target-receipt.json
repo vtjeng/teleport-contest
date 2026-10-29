@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/replay.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:59:49.350856+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "db7e31a02321bcf258848eb47ef68b8893854a05e68960c599f4a6df57b2e7c3",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target.session.json.gz": "9c905dee6d60ded3539bff0c4644dd094a6453ea6b3883f77e469472eb8ec1af"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/target-output.txt"
+  ]
+}

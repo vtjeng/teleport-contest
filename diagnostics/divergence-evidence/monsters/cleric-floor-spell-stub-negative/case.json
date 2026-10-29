@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "caseId": "cleric-floor-spell-stub-negative",
+  "shard": "monsters",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "constant-argument-excludes-callee-diagnostic",
+  "relatedCases": [
+    "web-call-stub-negative"
+  ],
+  "provenance": {
+    "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mcastu.c",
+      "symbol": "mcast_fire_pillar",
+      "start_line": 540,
+      "end_line": 564,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mcastu.c",
+      "symbol": "mcast_lightning",
+      "start_line": 567,
+      "end_line": 598,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/zap.c",
+      "symbol": "mon_spell_hits_spot",
+      "start_line": 5500,
+      "end_line": 5532,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mcastu.js",
+      "symbol": "mcast_fire_pillar",
+      "start_line": 769,
+      "end_line": 801,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    },
+    {
+      "side": "JS",
+      "path": "js/mcastu.js",
+      "symbol": "mcast_lightning",
+      "start_line": 804,
+      "end_line": 844,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    },
+    {
+      "side": "JS",
+      "path": "js/zap.js",
+      "symbol": "mon_spell_hits_spot",
+      "start_line": 5621,
+      "end_line": 5651,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    }
+  ],
+  "hypothesis": "The two cleric spell callers may enter the unsupported damage-type marker in mon_spell_hits_spot.",
+  "expectedBehavior": "AD_FIRE and AD_ELEC select the supported AD_MAGM..AD_ACID arm, never the complementary diagnostic.",
+  "observedBehavior": "Source proof establishes literal argument/range exclusion for both exact keys. Native fire-pillar target and lightning control reach their effects and match all C/JS streams: 2835 RNG/90 screens/cursors and 2564 RNG/99 screens/cursors respectively.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Two exact literal-argument call-site negatives, backed by complete source guard proof and native Grand Master spell recordings.",
+    "limitations": [
+      "Not global spell, floor, inventory or callee equivalence.",
+      "The variable-argument castmu edge and polymon edge remain active.",
+      "AD_PHYS is only a discriminator control; no invalid gameplay setup is classified.",
+      "Native captures reuse existing source-selected recipes; no new spell behavior is claimed."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target.session.json.gz",
+      "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/control.session.json.gz"
+    ],
+    "reason": "Existing native Grand Master wizard recipes reach fire pillar and non-reflected lightning, finishing after effect feedback; no RNG injection or attack overrides."
+  },
+  "origin": {
+    "kind": "scanner",
+    "keys": [
+      "source-audit:edge-stub:src/mcastu.c:mcast_fire_pillar:mon_spell_hits_spot",
+      "source-audit:edge-stub:src/mcastu.c:mcast_lightning:mon_spell_hits_spot"
+    ],
+    "projection": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/projection.json",
+    "manifest": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/replay.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target.session.json.gz",
+        "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/source-proof.mjs",
+        "js/zap.js",
+        "js/mcastu.js",
+        "js/monsters.js",
+        "nethack-c/upstream/src/zap.c",
+        "nethack-c/upstream/src/mcastu.c",
+        "nethack-c/upstream/include/monattk.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/replay.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/control.session.json.gz",
+        "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/source-proof.mjs",
+        "js/zap.js",
+        "js/mcastu.js",
+        "js/monsters.js",
+        "nethack-c/upstream/src/zap.c",
+        "nethack-c/upstream/src/mcastu.c",
+        "nethack-c/upstream/include/monattk.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/README.md",
+      "sha256": "0d0b19f8dba9b5ede8ac5de691d320bceb390948c6f4c855a3d8fe2cd09d02ca",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/control-output.txt",
+      "sha256": "5d2e8ece0a4341570175401aa961b52c05698132956ac3ce578b792080cbf93e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/control-receipt.json",
+      "sha256": "fa831d7ea4c6fbdae20d257b288aca94c48f9f02257f8efd18d04a5c70dc60f6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/control.recipe.json",
+      "sha256": "37cbb5390bf8adbc5ab890a446801dd1f276b680522e15ccfe23605f37cf96a8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/control.session.json.gz",
+      "sha256": "6f90b084a7f2324eec66b4e976af1908c71ce24eebefc14b112dcf2d682d8e13",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/decisions.json",
+      "sha256": "db1f39fec14a33e3e3fd86c55ed7d84144443264b5785cec365202ffba265bfc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/manifest.json",
+      "sha256": "d881023415972ba4d7a692d38fbfb83516cf4f3a983e9eb5615f2b165cc05308",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/observations.json",
+      "sha256": "e7d96ea02e95e6bf99f0fecc513bfa419a336d1927dbea5356e3b5928923db9e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/projection.json",
+      "sha256": "664e9980617b15fa83efaa6fb6a6adb8761407d05a07444d53dcbc53999431b8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/replay.mjs",
+      "sha256": "882ef991054c27eeaa57d29cc977a887677fc02e51966ea7fe6c88c6278a3ab9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/source-proof.mjs",
+      "sha256": "df7369d19ee89b528e34e3371749248fd846c200b01ff16b4fa4076e9287075b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target-output.txt",
+      "sha256": "243492fba6639aa300d33b25db53dfdd2b8273dbb480c1b031c3f2644cdeada3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target-receipt.json",
+      "sha256": "38cc53fefed32f30a6b9991992f978412042f4114224ad7a318ef6bd8925cbe7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target.recipe.json",
+      "sha256": "65eb38bee9b831b810325cd5b42c09f3c33dc946f5be1cbe6b077fa0016b892c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/target.session.json.gz",
+      "sha256": "608a405f0ae838331ba877dd623b63065c2fb4e82e9f78a985f6f98ed95cfaf3",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "js/zap.js",
+      "sha256": "40461f4e4b875a28c9df1368a6f5fc9caf77e1520a730a803cf8f6c13bad4698",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/mcastu.js",
+      "sha256": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/monsters.js",
+      "sha256": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/zap.c",
+      "sha256": "8ee02bd7aa29b026d6b5a2e0017ddf402fcfc6fc81037e35ceda2d86467547cb",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/mcastu.c",
+      "sha256": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/include/monattk.h",
+      "sha256": "00c2283c2687f2dd5fa8a3088623cd621822289018c0072db9cad5a2a94883ba",
+      "role": "pinned source input"
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "caseId": "web-call-stub-negative",
+  "shard": "monsters",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/monmove.c",
+      "symbol": "maybe_spin_web",
+      "start_line": 1269,
+      "end_line": 1293,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/monmove.js",
+      "symbol": "maybe_spin_web",
+      "start_line": 3199,
+      "end_line": 3245,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    },
+    {
+      "side": "JS",
+      "path": "js/trap.js",
+      "symbol": "maketrap",
+      "start_line": 987,
+      "end_line": 1079,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    }
+  ],
+  "hypothesis": "The maybe_spin_web to maketrap edge may reach the callee stub marker.",
+  "expectedBehavior": "WEB creation never selects maketrap's TELEP_TRAP-only diagnostic marker; native giant spiders may create webs.",
+  "observedBehavior": "The sole marker is confined to TELEP_TRAP, the caller passes constant WEB, and typ is never reassigned. Native spider target reaches web creation and matches 2969 RNG/70 screens/cursors; ant control matches 3027 RNG/67 screens/cursors without a web message.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Exact constant-WEB caller-to-stub reachability proof, with reached native spider web creation and ant control.",
+    "limitations": [
+      "No claim that maketrap is globally stub-free or that every trap effect is equivalent.",
+      "Native recordings cover one fixed seed/date, not universal spider AI equivalence.",
+      "Only the exact scanner edge is classified; neighboring gaze keys stay active."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/monsters/web-call-stub-negative/target.session.json.gz",
+      "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control.session.json.gz"
+    ],
+    "reason": "Unmodified game with supported public wizard creation/form commands and ordinary monster turns; discriminating native messages are asserted before replay comparison."
+  },
+  "origin": {
+    "kind": "scanner",
+    "keys": [
+      "source-audit:edge-stub:src/monmove.c:maybe_spin_web:maketrap"
+    ],
+    "projection": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/projection.json",
+    "manifest": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/web-call-stub-negative/replay.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/web-call-stub-negative/target.session.json.gz",
+        "diagnostics/divergence-evidence/monsters/web-call-stub-negative/source-proof.mjs",
+        "js/trap.js",
+        "js/monmove.js",
+        "js/const.js",
+        "nethack-c/upstream/src/monmove.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/monsters/web-call-stub-negative/replay.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control.session.json.gz",
+        "diagnostics/divergence-evidence/monsters/web-call-stub-negative/source-proof.mjs",
+        "js/trap.js",
+        "js/monmove.js",
+        "js/const.js",
+        "nethack-c/upstream/src/monmove.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/README.md",
+      "sha256": "f6fec1194963cb3d0b18db5324ab75eea5fc2cbf0b887680b505f652732d8fea",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control-output.txt",
+      "sha256": "ae567dddb2eb3489336f0f8e2098195e94aec4eb634768db3148a2d4b27c382e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control-receipt.json",
+      "sha256": "5fafeca51c19f51f34342c9d776417c412d5b9187a7c0387509bc4b7cef70e67",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control.recipe.json",
+      "sha256": "0dd9cd67670424e387deed7e56dc4a2333ba2c1bb5bc2915f6f4042321786b22",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/control.session.json.gz",
+      "sha256": "4b29d4437b17e1dd8793ec522afca1ba95401a066b8c56da47159fd5062319e5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/decisions.json",
+      "sha256": "b5feec4b98c9bce0f5ea7448d8ad41241c96b659a5853bf8ba4d66caf00ee9ec",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-keys.json",
+      "sha256": "9111e7977db1b5b5ecc90bdf55db81b2f4e71778586b9d75af402768597a011c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-summary.json",
+      "sha256": "b81fd84513279434c24956ce82a963be0c28d7702b73d93ef80ec6eca5d840b8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/manifest.json",
+      "sha256": "96acda206cf812542654160903d34faf2b344fb32eca8a445c171b06e860f2eb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/observations.json",
+      "sha256": "5bd3ca46e2700b59ff274a1e5b1737e44bce900ff3abd3e751b861e06108b008",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/projection.json",
+      "sha256": "8c4185d5aa3de74752f79eeffbf36522e0f66abcd31210ecf25681355ce65807",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/replay.mjs",
+      "sha256": "5d58cad33cf45f781afada0ab4d22bab0ec62dc81e92e9ad7310e4fc46836ac1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/source-proof.mjs",
+      "sha256": "5ee2aed6f8cb79d80d69b6102c22807910b066ccca858d123c9a1563a313188a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/target-output.txt",
+      "sha256": "cd9dd565e6f0e242f5a34de32c29e1156f8c0f1d718434455407366722422fcd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/target-receipt.json",
+      "sha256": "651c518918f1f9c5cc3176eafaf6eeccb02a957ae7d94e273d329b62c345f7ec",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/target.recipe.json",
+      "sha256": "fe14f55886bb4461c8fa15cb0466dbb0550627c1f2b4e6ee36ce870eb37fb174",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/target.session.json.gz",
+      "sha256": "e73209fabe41066a28c490a1b191f5b6dab4c787237faec90a022a97dc9c1ae0",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "js/trap.js",
+      "sha256": "e951161317245450bc0e3a3bf6594c2e580705b7e2ef133dd90079d7998b1afe",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/monmove.js",
+      "sha256": "b6980f5a2bd1006fd75a39880d786c547f1a46f79df5618176d14236801a3658",
+      "role": "pinned source input"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "pinned source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/monmove.c",
+      "sha256": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+      "role": "pinned source input"
+    }
+  ]
+}

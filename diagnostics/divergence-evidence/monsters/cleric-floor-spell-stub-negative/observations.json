@@ -1,0 +1,20 @@
+{
+  "discoveredAt": "2026-10-28T23:07:01.941844+00:00",
+  "reviewedAt": "2026-10-28T23:07:01.941856+00:00",
+  "captureAndInitialReplaySha": "4472bdbaa7255c3b8b4208e43986597133cb2b40",
+  "cleanReplayBase": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "sourceEquivalence": "git diff --quiet base capture -- js nethack-c passed; intervening commit contains evidence only.",
+  "recorderSha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "variants": [
+    {
+      "mode": "target",
+      "rawRecordingSha256": "4b88da4456461d1a1992279633ca5eed08ceb875aea3f49377f4b6a8094a7fb9",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "mode": "control",
+      "rawRecordingSha256": "cfb723b990274f500d2c912a1815c704fef98f40df33daa965616d927c5b6912",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+    }
+  ]
+}

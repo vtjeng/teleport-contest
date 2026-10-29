@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/replay.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:54:32.440465+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "763f0a14811f7b6305a22f49ccd69853460ac79993ebe604d78cf59f5e4f3c65",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target.session.json.gz": "1cf7620e4d5008c37cf61a2b7f95f474750fb184b6ebd69d00e000e132002b9e",
+    "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/ownership.mjs": "aa035e40b7bd2b0f051703b2701d788f77feb26f7fba2f7132a747bd0f33ebfb",
+    "js/mcastu.js": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+    "js/monsters.js": "361203a0b8ea0477e84553a1ac10c3300f7665b24e6f82a0875c83fa6f9c966e",
+    "js/mhitu.js": "a4928cfdfde64021a4f6c8fe40082dd03f4f300dee846b2cdb4cced28fba9214",
+    "js/unported_monster_actions.js": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902",
+    "js/tty_message.js": "3385845c3ae01e5a5420a13a1cdf535e46082c6b66d95c7728b3fd21c20fee44",
+    "nethack-c/upstream/src/mcastu.c": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/target-output.txt"
+  ]
+}
