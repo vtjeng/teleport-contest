@@ -3152,8 +3152,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 monster.mspec_used = (monster.mspec_used ?? 0)
                     + stun + draw('rn2', 6);
                 await message(
-                    `${Monnam(monster, state, env)} stares piercingly at you!`,
-                    state,
+                    messageAt(`${Monnam(monster, state, env)} stares piercingly at you!`,
+                        monster.mx, monster.my, state), state,
                     env,
                 );
                 const property = state.u?.uprops?.[STUNNED];

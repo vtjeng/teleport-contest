@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T04:04:30Z",
+  "asOf": "2026-10-29T04:19:06Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25781,7 +25781,9 @@
           "nethack-c/upstream/src/mhitm.c:passivemm",
           "nethack-c/upstream/src/uhitm.c:mhitm_ad_pest",
           "js/mhitm.js:passivemm",
-          "js/uhitm.js:mhitm_ad_pest"
+          "js/uhitm.js:mhitm_ad_pest",
+          "nethack-c/upstream/src/mhitu.c:gazemu",
+          "js/mhitu.js:gazemu"
         ],
         "witness": [
           "https://github.com/vtjeng/teleport-contest/pull/65",
@@ -25793,7 +25795,8 @@
           "diagnostics/divergence-evidence/monsters/pestilence-touch-location/proof.mjs",
           "diagnostics/divergence-evidence/monsters/monster-message-location-family-map/proof.mjs",
           "scripts/mhitm-passive-fire-accessible.test.mjs",
-          "scripts/mhitm-passive-elements-accessible.test.mjs"
+          "scripts/mhitm-passive-elements-accessible.test.mjs",
+          "scripts/baalzebub-stun-accessible.test.mjs"
         ]
       },
       "candidates": [
@@ -25894,6 +25897,56 @@
               "completedAt": "2026-10-29T04:04:30Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40815487684"
+            }
+          ]
+        },
+        {
+          "sha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+          "committedAt": "2026-10-29T04:06:21Z",
+          "sourceCommit": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+          "sourceCommittedAt": "2026-10-29T04:06:21Z",
+          "runs": [
+            {
+              "id": 40815862742,
+              "name": "Checkpoint",
+              "sha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/passive-elements-location-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:06:29Z",
+              "completedAt": "2026-10-29T04:16:12Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40815862742"
+            },
+            {
+              "id": 40816918655,
+              "name": "Lint",
+              "sha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:17:33Z",
+              "completedAt": "2026-10-29T04:18:45Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40816918655"
+            },
+            {
+              "id": 40816918435,
+              "name": "Dashboard",
+              "sha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:17:33Z",
+              "completedAt": "2026-10-29T04:19:06Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40816918435"
             }
           ]
         }
