@@ -1,0 +1,13 @@
+{
+  "mode": "target",
+  "rows": 1108,
+  "coverage": {
+    "single stack": 208,
+    "stack plus coins": 156,
+    "two distinct stacks": 144,
+    "mixed threshold": 300,
+    "reverse mixed threshold": 300
+  },
+  "mismatches": 0,
+  "firstFailures": []
+}

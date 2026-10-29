@@ -1,0 +1,13 @@
+{
+  "mode": "control",
+  "rows": 5,
+  "coverage": {
+    "empty": 1,
+    "at capacity": 1,
+    "mixed first burden": 1,
+    "low coin quantity": 1,
+    "coin rounding threshold": 1
+  },
+  "mismatches": 0,
+  "firstFailures": []
+}
