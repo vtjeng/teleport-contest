@@ -26,7 +26,7 @@ Additional qualified outcomes (all matching; zero new semantic causes):
 | Loss floor, XP reset, historical maximum | loss-floor-recovery-20261029: 16 targets + 1 control | Restricted PR #109 adapter; API-only nonfatal level-one call; natural history unqualified |
 | XP overshoot, revisit, max-level award | xp-integration-20261029: 3 full recordings | Debug-assisted transport; level-30 award is below 110000000 threshold, so not an isolated MAXULEV guard test |
 
-PR #111 now contains 30 matching public recordings and the three new component
+PR #111 now contains 32 matching public recordings and the three new component
 matrices above. Counts are fixtures, not independent causes. Earlier PR #109's
 60+4 states remain separate. Existing XP repair 8585e9745 is preserved, not new.
 One pre-existing exploratory Wizard level-generation RNG mismatch remains
@@ -43,3 +43,19 @@ No approval is pending and no action in this advancement batch was denied.
 Do not reconstruct excluded routes, including the newly stopped des.room
 construction investigation, or consume its failed-turn artifacts. Main retains
 all gameplay changes. Timings are elapsed only; active compute is not measured.
+
+## Follow-on scope decision
+
+- Reachable and now executed: elf Ranger 3→4→7→3→7 plus level-three control,
+  with racial sleep resistance and experience-stealth attribution assertions.
+  Both match; see elf-ranger-reentry-20261029. Wizard transitions are distinct
+  from natural-play threshold/recovery witnesses.
+- Oracle-only: actual level-30 XP threshold and exact constructed reduced-resource
+  boundaries remain the restricted PR #109/new component evidence.
+- Setup-blocked (not denied): natural depleted/practice/shared-turn histories and
+  full-recorder build attestation. No newly supported permitted setup was found.
+  No failed-turn artifacts or excluded setup routes were used.
+- Further legal role/race permutations remain possible coverage expansion, but
+  do not resolve those prerequisites or expose a newly identified semantic branch.
+  Next meaningful integration work requires a permitted state-construction route;
+  do not grind XP or repeat unchanged setup failures to inflate activity.

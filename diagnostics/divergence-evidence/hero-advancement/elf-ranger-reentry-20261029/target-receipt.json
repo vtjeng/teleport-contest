@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/run.mjs",
+    "target",
+    "/tmp/hero-elf-ranger-target-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "fff7d038a5ffc028e44390c504960ae90a02077a",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:02:45.305889+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/recipes/target.json": "a9bf68408034e175b448a63d3e3294805dea40bcdc3cba56db514778fa7e2b5b"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/worker.json"
+  ]
+}
