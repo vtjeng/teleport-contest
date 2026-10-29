@@ -32,9 +32,10 @@ absolute. Finite matching probes are not exhaustive certification.
 | Count editing, cancellation, clamping and gold prediction | scoped negative | public-count-edit;4 fixtures |
 | Traditional numeric prompt omits live echo | confirmed candidate cause4 | public-traditional-count;3 failures+1 control |
 | Traditional filtered menu request loses class restriction | confirmed candidate cause5 | public-menu-request;2 failures+1 control |
+| Look-inside fails to restart traditional class query | confirmed candidate cause6 | public-look-restart;1 failure+1 control |
 
-Current public corpus:59 fixtures,50 strict matches,9 failing fixtures grouped
-into5 semantic causes. No scanner keys or filter rules. Prior arithmetic row
+Historical public corpus:61 fixtures,51 strict matches,10 failing fixtures grouped
+into6 semantic causes at their pinned pre-fix sources. No scanner keys or filter rules. Prior arithmetic row
 counts are not cause counts. Source-bound receipts and exposure limits live in
 each package. #105/#108 remain unchanged.
 
@@ -56,8 +57,9 @@ each package. #105/#108 remain unchanged.
 - No unresolved attempted case remains in the qualified packages. The inherited
   recorder has no independent build attestation; binary and relevant matching
   source hashes are retained. This provenance limit is explicit.
-- Latest Main checked:94e6d4a7d307a2435eb3563dbdb2d8675dceb19d; pickup.js/topl.js unchanged
-  from measured gameplay base for the confirmed causes.
+- Main1e786f87d927b72bd07122fc3eead0ecb5d8203c contains repairs for causes1-3;
+  historical failures remain intact. Saved-C/isolated-Main replay verification
+  is next. Causes4-6 source paths remain unchanged at that Main SHA.
 
 ## Practical next paths
 
@@ -66,11 +68,11 @@ each package. #105/#108 remain unchanged.
    nested plain sacks, tip routes and floor-sack partial admission. Additional menu-order/filter/count-rollback and depth-three probes match;
    counted-row stop/continue, edit/cancel/clamp paths are now qualified.
    Traditional askchain exposed cause4; filtered menu handoff exposed cause5.
-   Next: source-guided query_classes look-inside restart behavior, avoiding
-   unchanged numeric echo and category-filter failures.
+   Look-inside restart exposed cause6. Next: verify Main repairs for causes1-3
+   using saved executed C and official-overlay JS at the exact Main SHA.
    This is not exhaustive input/seed/role certification; nesting beyond three levels,
    arbitrary menu permutations and other object catalogs remain coverage gaps.
-2. Post-fix validation for all five candidates awaits Main's implementation.
+2. Post-fix validation for causes4-6 awaits Main's implementation.
    Fresh public reruns are declared in each candidate package; do not repeat
    unchanged failures. If a new ordinary-weight source change or concrete lead
    appears, reopen that path with a new executed C comparison.
