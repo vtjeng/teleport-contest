@@ -1,0 +1,228 @@
+{
+  "fg": {
+    "target": [
+      {
+        "hex": "5400737566666978",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "5400",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "0054",
+        "expectedC": [
+          0,
+          25
+        ]
+      }
+    ],
+    "control": [
+      {
+        "hex": "54",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "",
+        "expectedC": [
+          0,
+          25
+        ]
+      },
+      {
+        "hex": "5454",
+        "expectedC": [
+          1,
+          25
+        ]
+      }
+    ]
+  },
+  "bg": {
+    "target": [
+      {
+        "hex": "5400737566666978",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "5400",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "0054",
+        "expectedC": [
+          0,
+          0
+        ]
+      }
+    ],
+    "control": [
+      {
+        "hex": "54",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "",
+        "expectedC": [
+          0,
+          0
+        ]
+      },
+      {
+        "hex": "5454",
+        "expectedC": [
+          1,
+          25
+        ]
+      }
+    ]
+  },
+  "filling": {
+    "target": [
+      {
+        "hex": "5400737566666978",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "5400",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "0054",
+        "expectedC": [
+          0,
+          25
+        ]
+      }
+    ],
+    "control": [
+      {
+        "hex": "54",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "",
+        "expectedC": [
+          0,
+          25
+        ]
+      },
+      {
+        "hex": "5454",
+        "expectedC": [
+          1,
+          25
+        ]
+      }
+    ]
+  },
+  "fromterrain": {
+    "target": [
+      {
+        "hex": "2e00737566666978",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "2e00",
+        "expectedC": [
+          0,
+          13
+        ]
+      }
+    ],
+    "control": [
+      {
+        "hex": "2e",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "2e2e",
+        "expectedC": [
+          1,
+          25
+        ]
+      },
+      {
+        "hex": "54",
+        "expectedC": [
+          0,
+          25
+        ]
+      }
+    ]
+  },
+  "toterrain": {
+    "target": [
+      {
+        "hex": "5400737566666978",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "5400",
+        "expectedC": [
+          0,
+          13
+        ]
+      }
+    ],
+    "control": [
+      {
+        "hex": "54",
+        "expectedC": [
+          0,
+          13
+        ]
+      },
+      {
+        "hex": "5454",
+        "expectedC": [
+          1,
+          25
+        ]
+      },
+      {
+        "hex": "0054",
+        "expectedC": [
+          1,
+          25
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target-bg",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/probe.mjs",
+    "target",
+    "bg"
+  ],
+  "cwd": ".",
+  "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T00:55:33.239Z",
+  "exitCode": 1,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "495c391147f888f2ca5485237d48fa5f87c2ccb7a582345a44531a6601058538",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/oracle.c": "483a439ee64a674956f1a0da93db2e9982fa8402bc86d5d43283499fd8463705",
+    "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/source-contract.json": "7ff5b63dbccb2b5fc60d8b8eda361b91961e2d282d65afa35e6821d9f2b2c782",
+    "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/fixtures.json": "61a4bcb9e02b41168dfb60dad84dfdc947a3aa06768056e2210af8df3872f33c"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/target-bg-output.txt"
+  ]
+}
