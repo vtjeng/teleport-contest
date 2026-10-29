@@ -1911,7 +1911,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             }
             if (canseemon(magr, state)) {
                 await message(
-                    `${Monnam(magr, state, env)} is suddenly very hot!`, state,
+                    messageAt(`${Monnam(magr, state, env)} is suddenly very hot!`,
+                        magr.mx, magr.my, state), state,
                 );
             }
             break;
