@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-stair-room-selection-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "stair-room-candidate-array-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room",
+      "start_line": 678,
+      "end_line": 687,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "has_dnstairs",
+      "start_line": 640,
+      "end_line": 650,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "has_upstairs",
+      "start_line": 653,
+      "end_line": 663,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "generate_stairs_room_good",
+      "start_line": 2201,
+      "end_line": 2215,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "generate_stairs_find_room",
+      "start_line": 2219,
+      "end_line": 2245,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "generate_stairs_find_room",
+      "start_line": 7641,
+      "end_line": 7655,
+      "commit_sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "generate_stairs_room_good",
+      "start_line": 7629,
+      "end_line": 7639,
+      "commit_sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkroom.js",
+      "symbol": "has_dnstairs",
+      "start_line": 301,
+      "end_line": 306,
+      "commit_sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkroom.js",
+      "symbol": "has_upstairs",
+      "start_line": 309,
+      "end_line": 314,
+      "commit_sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97"
+    }
+  ],
+  "hypothesis": "The absent explicit C temporary candidate allocation might change phase ordering, candidate membership or RNG bounds in JS.",
+  "expectedBehavior": "Choose from strict ordinary rooms, then themed rooms, then occupied eligible rooms; if all phases fail choose from all rooms. Empty input returns null with no draw.",
+  "observedBehavior": "Thirteen target choices across six regular-room configurations plus four controls compare exact C selector/eligibility/stair-membership functions to exact private JS selector extraction and actual exported eligibility with real dependencies. Strict ordinary-room, relaxed themed-room, occupied-room and fallback choices match selected index, random-call count and bound. Empty-room control returns null with no allocation or random call.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Thirteen target choices across six regular-room configurations plus four controls compare exact C selector/eligibility/stair-membership functions to exact private JS selector extraction and actual exported eligibility with real dependencies. Strict ordinary-room, relaxed themed-room, occupied-room and fallback choices match selected index, random-call count and bound. Empty-room control returns null with no allocation or random call.",
+    "limitations": [
+      "Thirteen target choices across six configurations and four controls, all regular rooms; one candidate-array allocation key/cause. No universal room-selector parity claim.",
+      "C five exact functions execute with successful allocation. JS private selector body is extracted verbatim and bound to actual exported generate_stairs_room_good and its real stair-membership dependencies. This is a component proof, not a public Lua or full generation witness.",
+      "One shared legal random choice per nonempty setup, no random choice for empty rooms. Independent RNG and seed exposure are unproved. Fixtures cover ordinary/themed/other room types, joined/unjoined rooms and existing up/down stair records; not irregular/subroom membership, malformed records or OOM.",
+      "No stair construction, placement, topology/finalization or runtime claims. In particular generate_stairs:Is_botlevel remains unresolved; the candidate-list proof does not resolve that separate control-flow difference.",
+      "Cave-cap and the three parked gaps remain unresolved. No denied work, install, gameplay edit or Main-owned repair is revisited."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exact private selector extraction plus actual exported eligibility and real stair membership; component-level proof only, no full generation or shipped attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The C temporary candidate-index allocation is represented by a JS array. The tested selector retains phase ordering, candidate indices and random-choice bounds; absence of alloc is not a missing selector operation.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:generate_stairs_find_room:alloc"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/fixtures.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/fixtures.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/README.md",
+      "sha256": "6b6c0b51f208aaf71b9340d41d935ec4ce1b85e8d1747e5fcfb1bfff8e837da4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/control-output.txt",
+      "sha256": "c9968a93b6df67cb780e8819e5b9e7bb00c74cb6ebcc8cadc3d4280954246267",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/control-receipt.json",
+      "sha256": "88f351b083ae2ef8177d4495ff0e243b4db32d241b485a9b7265c49c9d3b4972",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/decisions.json",
+      "sha256": "c39e0a4e88072915acb11bcba184759a05eb4fca783db7a45820a531782921c4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/fixtures.json",
+      "sha256": "f2e1a6cff6a5b10901bb1fcc852277d0cc23aaf5961b942cae0102055b8a591d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/oracle.c",
+      "sha256": "52af03bb722dc4b19db69e2e8abd18b6b4069f727252ada7990b4872cb1d7147",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/probe.mjs",
+      "sha256": "4cace5a0b2bd68966921d5707c43a0fee5382a951a01d4b66e322f627fddb11f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/projection/manifest.json",
+      "sha256": "e350ae92482cdc09dd4e93d937e9c63b83cf207d15a830621e5561fbeb49b2d4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/projection/projection.json",
+      "sha256": "c25107c30d28864b7f4b0fe624fcea8120db2d57a35e22ae331c82034dfc1617",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/projection/review-template.json",
+      "sha256": "5455fc65b568dd8c66ae214dc5a5ca417b8d9eec87d6b1713b1f74677176e54f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/source-contract.json",
+      "sha256": "22b72a61b2e9c5eccf175f7633a45113776728d5a36701dfb299667a44b19f30",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/source-fingerprints.json",
+      "sha256": "1abf2fe01fb7db952de22d720d050180fdca65789ef0b260ba3d70b31cf388d3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/target-output.txt",
+      "sha256": "8a220e9213b4e7570fd8860e7e3c38a3f7751eec4da9bf02fafdd35008e20fcc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/target-receipt.json",
+      "sha256": "709f2999b567f22b763549ee72ee638ef07e2b440da3a0b3eab73d6a59f09ff3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/unresolved-followup.json",
+      "sha256": "2aea167db6bedc03d56bcc6ee456eafc403bb4fc1767ab2725b81f2c1b90c014",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
