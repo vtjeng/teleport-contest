@@ -24269,7 +24269,7 @@
     {
       "id": "long-count-input",
       "kind": "parity-repair",
-      "title": "Parse count input through the full C long range",
+      "title": "Preserve C long-range counts in command and menu input",
       "window": "post-trial",
       "origin": "single-agent",
       "investigator": "commands PR #15",
@@ -24278,14 +24278,19 @@
         "source": [
           "nethack-c/upstream/include/integer.h:AppendLongDigit",
           "nethack-c/upstream/src/cmd.c:get_count",
-          "js/cmd.js:get_count"
+          "js/cmd.js:get_count",
+          "nethack-c/upstream/win/tty/wintty.c:process_menu_window",
+          "js/tty_menu.js:selectAnyTtyMenu",
+          "js/hacklib.js:appendLongDigit"
         ],
         "witness": [
           "recordings/cmd.c/long-count-split.session.json",
-          "recordings/cmd.c/safe-count-split.session.json"
+          "recordings/cmd.c/safe-count-split.session.json",
+          "scripts/fixtures/capacity-menu/large-menu-count-unsafe-prefix.session.json.gz"
         ],
         "test": [
-          "scripts/count-long-input.test.mjs"
+          "scripts/count-long-input.test.mjs",
+          "scripts/menu-long-count.test.mjs"
         ]
       },
       "candidates": [

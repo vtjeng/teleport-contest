@@ -251,6 +251,7 @@ import {
     strstri,
     strsubst,
     truncateByteString,
+    appendLongDigit,
     upstart,
     visctrl,
 } from './hacklib.js';
@@ -1738,11 +1739,6 @@ export async function get_count(
             ? Number(value) : value;
         if (countOut && typeof countOut === 'object') countOut.value = committedCount;
     };
-    const appendLongDigit = (value, digitValue) => {
-        const appended = value * 10n + BigInt(digitValue);
-        return appended > 9223372036854775807n ? -1n : appended;
-    };
-
     for (;;) {
         if (inkey) {
             key = inkey;
