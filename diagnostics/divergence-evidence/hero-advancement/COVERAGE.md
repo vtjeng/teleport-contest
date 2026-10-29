@@ -26,7 +26,7 @@ Additional qualified outcomes (all matching; zero new semantic causes):
 | Loss floor, XP reset, historical maximum | loss-floor-recovery-20261029: 16 targets + 1 control | Restricted PR #109 adapter; API-only nonfatal level-one call; natural history unqualified |
 | XP overshoot, revisit, max-level award | xp-integration-20261029: 3 full recordings | Debug-assisted transport; level-30 award is below 110000000 threshold, so not an isolated MAXULEV guard test |
 
-PR #111 now contains 41 matching public recordings and the three new component
+PR #111 now contains 45 distinct matching public recipes and the three new component
 matrices above. Counts are fixtures, not independent causes. Earlier PR #109's
 60+4 states remain separate. Existing XP repair 8585e9745 is preserved, not new.
 One pre-existing exploratory Wizard level-generation RNG mismatch remains
@@ -106,3 +106,14 @@ unchanged. The supported public tooling exposes RNG/terminal outputs, not an
 existing full-state observer. Next reachable distinct branch is the nonzero XP
 percentage floor at level10 (5120→5122), using parsed1% highlight rules; recipe
 plan is documented, execution still pending. No global exhaustion claim.
+
+
+Verified activation correction: existing /workspace/.setup/activate.sh exposes
+all required tools. The earlier unactivated-shell failure is retained with an
+availability update. A supported unchanged isolated build now succeeds; fresh
+binary cb8a2a847d3c4f1c52213757abdbedd2e74c872339691cd5bef5489c64b891ad has recorded
+inputs, source/tool/binary hashes and smoke receipt. The old binary's origin is
+not retroactively established. Published below-threshold control and four new
+floor recipes match on the fresh binary. XP level10 5120→5122 now verifies the
+nonzero1% floor with parsed rules, C colors and visible-total companions. No new
+causes. Natural histories and full-game C observation remain separate limits.

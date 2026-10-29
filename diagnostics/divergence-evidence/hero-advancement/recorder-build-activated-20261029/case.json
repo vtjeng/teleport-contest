@@ -1,0 +1,351 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-recorder-build-activated-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-recorder-build-gap-20261029"
+  ],
+  "provenance": {
+    "jsSha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2"
+    }
+  ],
+  "hypothesis": "Existing activated tools may permit an unchanged isolated recorder build and agreement with a published control.",
+  "expectedBehavior": "Build and smoke succeed with exact inputs retained; previously published control matches C/JS.",
+  "observedBehavior": "Activated tools work; isolated unchanged build exits0 and smoke reports2870 core draws; published below control matches11144 RNG calls/13 screens. Fresh binary hash retained.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Recorded isolated supported build plus previously published below-threshold control, no gameplay instrumentation.",
+    "limitations": [
+      "One build, not an independent bit-for-bit rebuild.",
+      "Cached Lua source inputs are hashed and archived; no independent official archive attestation added.",
+      "Old preinstalled binary origin remains unknown; older package provenance is not retroactively strengthened."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-result.json",
+      "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control/result.json"
+    ],
+    "reason": "Recorded isolated supported build plus previously published below-threshold control, no gameplay instrumentation."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "build",
+      "role": "target",
+      "argv": [
+        "bash",
+        "nethack-c/build-recorder.sh"
+      ],
+      "cwd": ".",
+      "runner": "nethack-c/build-recorder.sh",
+      "ci": "manual",
+      "inputs": [
+        "nethack-c/build-recorder.sh",
+        "nethack-c/upstream/sys/unix/hints/linux-minimal",
+        "scripts/smoke-recorder.mjs",
+        "nethack-c/patches/001-deterministic-runtime.patch",
+        "nethack-c/patches/002-deterministic-qsort.patch",
+        "nethack-c/patches/003-rng-log-core.patch",
+        "nethack-c/patches/004-rng-log-lua-context.patch",
+        "nethack-c/patches/005-rng-display-logging.patch",
+        "nethack-c/patches/006-nomux-capture.patch",
+        "nethack-c/patches/007-stable-pointer-format.patch",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/activate.sh.txt",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/cached-lua-source.tar.gz",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/activated-tools.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-receipt.json"
+    },
+    {
+      "id": "published-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+        "below",
+        "/tmp/hero-fresh-existing-below-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/below.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/README.md",
+      "sha256": "a565059c71e40f11ce95667a2b042d165d4a320bfb2f8035636735c18b2fe2f3",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/activate.sh.txt",
+      "sha256": "9c017d9f25ffa832ef13d84e5f336a841a9371c98e02549d08b7a1835b9636c6",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/activated-tools.json",
+      "sha256": "713342d483b63144db3e73f322f0b28bb8d44c1f5b3a97d68cd49a66b3ef77a4",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json",
+      "sha256": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-receipt.json",
+      "sha256": "4a1947edaae3aa336f22797ff62e3a15af07af0624498d761baa0de76f31d796",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-result.json",
+      "sha256": "b7619c81af90fc9817440a25e3e866d13abc7162ae387722ce3e5b5ebd9cada5",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build.log",
+      "sha256": "d840186b343d5b06f96aa6dba945dfa13b302a68f717eb6983a41104043220ba",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/built-source-hashes.json",
+      "sha256": "8ad8fb648dab988660ed2d61d7b618e5b286f4f0eb615331f7faafb2ffc339f0",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/cached-lua-source.tar.gz",
+      "sha256": "7f9ae5bdc2b3f7cf151bded17e00cb26294bb699d9d5e52267de34fd8971c4c3",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/installed-file-hashes.json",
+      "sha256": "99b4535495ecc10ec8dae283f27f730262c71f78a29c70505bdfb438bb72e966",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/lua-inputs.json",
+      "sha256": "62a76a9fb6b6c6e37acfe651e98848379ab949d527980a571ad6007ef391737a",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/nethack-binary.gz",
+      "sha256": "27f0bb45a314af9ea99d65e00bcf1f381d8d80be1ec7083352dc1067d05df0ba",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control/js-output.json.gz",
+      "sha256": "64a31fdac84f617c9f74112b8dcacb22a5fe9d4c2058c06efeed95fa970c0b2e",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control/recipe.session.json",
+      "sha256": "3c0bc0c3c6e750a274e74c95612893be5b9b0ab531298eb49fd6140311db3b2c",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control/recorded.session.json.gz",
+      "sha256": "df86008c154a4d15f2301fec630c199d36321e4c1c2707ddcb23f9b179cd6422",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control/recorder.json",
+      "sha256": "2c3d8898749e6ae1ea8a63e563f2d57da6f8ba07beb09679799f03c0baa9c150",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control/result.json",
+      "sha256": "a5902ef1c623f565714cbce541e769d8b7f2d509849fefbe4f6fa08bf9370c66",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control/worker.json",
+      "sha256": "b348ffcf247b44888628b79a260b78ebaeebcdcd5625721868ae3f042be3258e",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/published-control-receipt.json",
+      "sha256": "ec8ab42ef7e2c3599418524ec65a6579936ddfd885050cf521ecca0b9330fff1",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/verification.txt",
+      "sha256": "5c8a9ad17a8628b0901592bf96ac7fe6adcfdddedebdd283cfad43b66530d9ae",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/verify.mjs",
+      "sha256": "bd299ae12a38669ccc31410ebb0e185324324c0d3797226872f2ae2109435ffc",
+      "role": "audit or build artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/below.json",
+      "sha256": "70fea33fa5f96bcecaad2db5a772bf74c715be0637e1580575a7c5cdc98fbc49",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/build-recorder.sh",
+      "sha256": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/patches/001-deterministic-runtime.patch",
+      "sha256": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/patches/002-deterministic-qsort.patch",
+      "sha256": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/patches/003-rng-log-core.patch",
+      "sha256": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/patches/004-rng-log-lua-context.patch",
+      "sha256": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/patches/005-rng-display-logging.patch",
+      "sha256": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/patches/006-nomux-capture.patch",
+      "sha256": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/patches/007-stable-pointer-format.patch",
+      "sha256": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/upstream/sys/unix/hints/linux-minimal",
+      "sha256": "ba958b4e6f4e7f2dceb0d4911d1ca52e3b253405f2a3053036ea242a9dbe0a5a",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/smoke-recorder.mjs",
+      "sha256": "97488f3d2f61478495e4b5a2936885433b5728dede3ef9deab6149102b370b10",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/below/recorded.session.json.gz",
+      "sha256": "df86008c154a4d15f2301fec630c199d36321e4c1c2707ddcb23f9b179cd6422",
+      "role": "published unchanged control recording"
+    }
+  ]
+}

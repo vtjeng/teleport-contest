@@ -104,3 +104,11 @@ full-game C call-site observation remains uninstrumented. No source-only
 suspicions or new causes. The selected branch inventory now has executed public
 or qualified component evidence for these fronts; natural history/lifecycle and
 full-binary provenance limits remain, without claiming global exhaustion.
+
+
+The high-level nonzero percentage floor now has public evidence in
+xp-percent-floor-20261029: level10 5120→5122, four hidden/visible companions,
+parsed1% rule selection and exact C totals. Existing activation resolved the
+build-tool prerequisite, and a new isolated supported binary has recorded build
+origin and matching controls. Earlier binary provenance is unchanged. No new
+semantic cause, no natural-history or full-state-observer claim.

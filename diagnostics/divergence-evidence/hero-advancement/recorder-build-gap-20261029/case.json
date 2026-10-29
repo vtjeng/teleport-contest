@@ -24,7 +24,7 @@
   ],
   "hypothesis": "An unchanged isolated supported recorder build might establish stronger binary provenance.",
   "expectedBehavior": "With required tools available, the supported build produces a fresh binary and smoke-checks it before advancement controls.",
-  "observedBehavior": "Isolated unchanged script exits1 at missing clang before creating recorder directory; bison/flex/rsync also absent. No fresh binary or control replay.",
+  "observedBehavior": "Isolated unchanged script exits1 at missing clang before creating recorder directory; bison/flex/rsync also absent. No fresh binary or control replay. Subsequent existing activation verified all four tools; see ACTIVATION-UPDATE.md and the separate successful build package. Historical attempt remains unchanged.",
   "witness": {
     "kind": "source",
     "scope": "Supported build-path inspection and actual isolated prerequisite failure; not C/JS gameplay evidence.",
@@ -53,19 +53,29 @@
   "commands": [],
   "artifacts": [
     {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/ACTIVATION-UPDATE.md",
+      "sha256": "70c8c9fc04b6947c2613ba24501e991f70e770b5c103545fa11b56afc85d7b61",
+      "role": "audit or build artifact"
+    },
+    {
       "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/README.md",
       "sha256": "f0642b415b969b5d33c50b77e41cd3844e4451ced3864cf306897c8bbdc6d076",
-      "role": "qualification gap evidence"
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/activated-availability.json",
+      "sha256": "713342d483b63144db3e73f322f0b28bb8d44c1f5b3a97d68cd49a66b3ef77a4",
+      "role": "audit or build artifact"
     },
     {
       "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/build-result.json",
       "sha256": "cecd7b6e9695b5621f60324d8aecada74d8c322a4907cdc3a208998ca25b4962",
-      "role": "qualification gap evidence"
+      "role": "audit or build artifact"
     },
     {
       "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-gap-20261029/input-inventory.json",
       "sha256": "512ce4ccdf4d6593454c2753be73073985d66f4bad20fe7bc78a40966e922206",
-      "role": "qualification gap evidence"
+      "role": "audit or build artifact"
     }
   ],
   "dependencies": [
