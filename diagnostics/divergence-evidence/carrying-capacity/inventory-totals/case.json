@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "caseId": "carrying-capacity-inventory-totals",
+  "shard": "carrying-capacity",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "ordinary-stack-weight-chain-parity",
+  "relatedCases": [
+    "carrying-capacity-arithmetic"
+  ],
+  "provenance": {
+    "jsSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "weight_cap",
+      "start_line": 4295,
+      "end_line": 4346,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "inv_weight",
+      "start_line": 4351,
+      "end_line": 4365,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "calc_capacity",
+      "start_line": 4372,
+      "end_line": 4382,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "near_capacity",
+      "start_line": 4385,
+      "end_line": 4388,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/attrib.c",
+      "symbol": "acurrstr",
+      "start_line": 1245,
+      "end_line": 1262,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/hack.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": "acurrstr",
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "C",
+      "path": "src/mkobj.c",
+      "symbol": "weight",
+      "start_line": 1888,
+      "end_line": 1976,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/objects.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/obj.js",
+      "symbol": "weight",
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    }
+  ],
+  "hypothesis": "Real catalog stack weights and mixed ordinary object chains may produce different inventory totals or burden transitions in C and JS.",
+  "expectedBehavior": "C and JS independently derive each owt from the real catalog and return equal inventory excess, capacity cache and burden for the declared matrix.",
+  "observedBehavior": "1108 target rows and 5 explicit controls matched; one scoped negative, zero confirmed divergence causes.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Executed verbatim C weight and capacity functions using real struct obj/catalog; production JS newObject, weight and capacity APIs on constructed ordinary inventory chains.",
+    "limitations": [
+      "Harness links chains directly; C/JS mksobj, splitobj, merged, addinv and pickup/drop callers are not executed.",
+      "No gameplay recording, UI observation or public-input reachability proof.",
+      "Only arrows, darts, rocks and gold with declared positive quantities, four ordinary attribute pairs and at most four objects per chain. No zero-weight catalog types or overflow.",
+      "C ACURR supplies final valid attributes. No equipment, polymorph, consumption, containers, timers, migration, combat or other excluded state branches.",
+      "Full C and JS dependency trees are pinned by source SHAs; hashed inputs cover direct compilation and arithmetic dependencies."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "not_applicable",
+    "evidence": [
+      "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/target-output.txt",
+      "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/control-output.txt"
+    ],
+    "reason": "API comparison of real stack weights and constructed mixed chains. No divergence to attribute; ordinary gameplay insertion/mutation reachability remains unestablished."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Explicit follow-on carrying-capacity audit of the ordinary inventory construction gap; preserves prior arithmetic negative.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/adapter.h",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/include/weight.h",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/objects.c",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/include/obj.h",
+        "nethack-c/upstream/include/objclass.h",
+        "js/obj.js",
+        "js/hack.js",
+        "js/attrib.js",
+        "js/gstate.js",
+        "js/const.js",
+        "js/objects.js"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/adapter.h",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/include/weight.h",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/objects.c",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/include/obj.h",
+        "nethack-c/upstream/include/objclass.h",
+        "js/obj.js",
+        "js/hack.js",
+        "js/attrib.js",
+        "js/gstate.js",
+        "js/const.js",
+        "js/objects.js"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/adapter.h",
+      "sha256": "bdd045ce3d1efbfc9cca8ff9dc4f0ff4e2c827cd05ece9273fb1968b8a635080",
+      "role": "adapter"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/control-output.txt",
+      "sha256": "a7a10a960ceced288dbf7c41f8f677cb2097eb1f300f5f8f71122b3f42c00321",
+      "role": "execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/control-receipt.json",
+      "sha256": "2f3eee294bfa502dba2b580b9a4329b67c811d1d5a2758198a2e32e1ed944e0a",
+      "role": "execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/probe.mjs",
+      "sha256": "492ef3f8bc50f444d6bae45d08a78685134f446243b1eb1aa29c2d756259a27f",
+      "role": "runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/target-output.txt",
+      "sha256": "c2f613edca781e423ac44d11698c6a52a5ef17a773568b5ad5e7bffe142e52a1",
+      "role": "execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/target-receipt.json",
+      "sha256": "4d7e94b5bc5a0ded5ac9ce5e594c0cff237717308d3676c6d08b28416f3ba583",
+      "role": "execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/README.md",
+      "sha256": "5f3a7f9ff4afc2de5326bb850ed72e4b25d4cd5dcb17556b1eb6c656af2bd22a",
+      "role": "scope and overlap report"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/hack.c",
+      "sha256": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/include/weight.h",
+      "sha256": "ac168750ddcde6c592ccbeaaf44c59921cc1f73ed36d269f20364b0e08b91cd1",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkobj.c",
+      "sha256": "49c2de3bcf1125be55f11c17ffc4f614956f5288a5edfb56b2248b7fcaa3b488",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/objects.c",
+      "sha256": "1f1cc8de922d1f41f688da28b8d88d80eca2884619283b60f38418e7b965b340",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/include/objects.h",
+      "sha256": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/include/obj.h",
+      "sha256": "a4d1b994c5acd6fe04d411485d84491553d6df02dfbd7480181a15a7a05456e2",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/include/objclass.h",
+      "sha256": "101f92e0024e4404033845fb15171f8ed4b79374907a6a172b4eb7b026e1eb52",
+      "role": "source input"
+    },
+    {
+      "path": "js/obj.js",
+      "sha256": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+      "role": "source input"
+    },
+    {
+      "path": "js/hack.js",
+      "sha256": "767f9ecb11191fb25eae5d71b36c1fb1442a913237a81964cc48ee571abec6a8",
+      "role": "source input"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "source input"
+    },
+    {
+      "path": "js/gstate.js",
+      "sha256": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+      "role": "source input"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "source input"
+    },
+    {
+      "path": "js/objects.js",
+      "sha256": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+      "role": "source input"
+    }
+  ]
+}

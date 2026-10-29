@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T03:57:53.059756+00:00",
+  "exitCode": 0,
+  "elapsedSeconds": 0.9101730610000232,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "492ef3f8bc50f444d6bae45d08a78685134f446243b1eb1aa29c2d756259a27f",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/adapter.h": "bdd045ce3d1efbfc9cca8ff9dc4f0ff4e2c827cd05ece9273fb1968b8a635080",
+    "nethack-c/upstream/src/hack.c": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+    "nethack-c/upstream/src/attrib.c": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+    "nethack-c/upstream/include/weight.h": "ac168750ddcde6c592ccbeaaf44c59921cc1f73ed36d269f20364b0e08b91cd1",
+    "nethack-c/upstream/src/mkobj.c": "49c2de3bcf1125be55f11c17ffc4f614956f5288a5edfb56b2248b7fcaa3b488",
+    "nethack-c/upstream/src/objects.c": "1f1cc8de922d1f41f688da28b8d88d80eca2884619283b60f38418e7b965b340",
+    "nethack-c/upstream/include/objects.h": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+    "nethack-c/upstream/include/obj.h": "a4d1b994c5acd6fe04d411485d84491553d6df02dfbd7480181a15a7a05456e2",
+    "nethack-c/upstream/include/objclass.h": "101f92e0024e4404033845fb15171f8ed4b79374907a6a172b4eb7b026e1eb52",
+    "js/obj.js": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+    "js/hack.js": "767f9ecb11191fb25eae5d71b36c1fb1442a913237a81964cc48ee571abec6a8",
+    "js/attrib.js": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+    "js/gstate.js": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/carrying-capacity/inventory-totals/control-output.txt"
+  ]
+}
