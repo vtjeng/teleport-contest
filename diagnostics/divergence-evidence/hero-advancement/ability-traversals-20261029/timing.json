@@ -1,0 +1,90 @@
+{
+  "archeologist": {
+    "elapsedSeconds": 1.551140546798706,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "barbarian": {
+    "elapsedSeconds": 1.5730071067810059,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "caveman": {
+    "elapsedSeconds": 1.0504121780395508,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "control": {
+    "elapsedSeconds": 0.7345216274261475,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "dwarf-archeologist": {
+    "elapsedSeconds": 1.1649067401885986,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "elf-wizard": {
+    "elapsedSeconds": 1.1241140365600586,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "gnome-wizard": {
+    "elapsedSeconds": 0.9303104877471924,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "healer": {
+    "elapsedSeconds": 1.089240312576294,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "knight": {
+    "elapsedSeconds": 0.9311554431915283,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "martial-control": {
+    "elapsedSeconds": 1.1748290061950684,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "martial-refund": {
+    "elapsedSeconds": 1.4155864715576172,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "monk": {
+    "elapsedSeconds": 1.3718180656433105,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "orc-barbarian": {
+    "elapsedSeconds": 0.9836463928222656,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "priest": {
+    "elapsedSeconds": 0.9470205307006836,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "ranger": {
+    "elapsedSeconds": 1.0167157649993896,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "rogue": {
+    "elapsedSeconds": 1.1340315341949463,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "samurai": {
+    "elapsedSeconds": 1.2244315147399902,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "silent-control": {
+    "elapsedSeconds": 1.1909129619598389,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "silent-roundtrip": {
+    "elapsedSeconds": 1.3478703498840332,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "tourist": {
+    "elapsedSeconds": 1.0420238971710205,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "valkyrie": {
+    "elapsedSeconds": 1.0286462306976318,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  },
+  "wizard": {
+    "elapsedSeconds": 1.1560370922088623,
+    "scope": "recipe capture to saved result; excludes setup/reconciliation/publication"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "monk",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+    "monk",
+    "/tmp/hero-ability-monk-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:17:15.408885+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/monk.json": "0598ad5fa7f1273b1ddf48bb5df76685d6e3a622473bb3fc2b431d075da5f3a0"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/monk/worker.json"
+  ]
+}
