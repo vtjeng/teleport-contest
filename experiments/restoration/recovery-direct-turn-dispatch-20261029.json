@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "8eec78d622b3ef9cb22a54d1699aaf335e9342e9"
+  ],
+  "scope": "Admit direct key-bound turn and route it through existing doturn handler with source ECMD result/time handling. No change to the turn implementation or key-binding parser.",
+  "dependencies": "Existing H doturn, ADMITTED_COMMANDS, rhack and key bindings. cmd.js unchanged in original18 G-to-B. Narrowly separate from queued-command and coordinate-output paths; does not import those repairs.",
+  "cSource": {
+    "gitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "files": {
+      "src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+      "src/pray.c": "6d9729fb4c9e7fbed44f355f85a241ccc527e73d53913ca4efb904e23f999f03"
+    }
+  },
+  "recordings": {
+    "named-control": {
+      "origin": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+      "files": {
+        "recipes/cmd.c/turn-named-control.session.json": "c1c7a27eda47bc8858b38f63296626eacb006a7a9d23f1a96f00d9cf90ad0053",
+        "recordings/cmd.c/turn-named-control.session.json": "cd1fd756d24401bbe112275dfc56f727b00b0b8e15dae5abff52390f070a94f4"
+      }
+    },
+    "direct-bound": {
+      "origin": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+      "files": {
+        "recipes/cmd.c/turn-direct-bound.session.json": "4626725a09f205fa2895ac20e70e555e610ab4c4692a9710f4811bdfe1bce4b4",
+        "recordings/cmd.c/turn-direct-bound.session.json": "8e74c4b28e6098cfef3891097158403a073ab9e62efcb89ac612601c469c2306"
+      }
+    },
+    "altmeta": {
+      "origin": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+      "files": {
+        "recipes/cmd.c/turn-altmeta.session.json": "9b81c3fa0b1e0288ab054aeb5750aca9ba12daf24cee9bda73dcf21f414c934c",
+        "recordings/cmd.c/turn-altmeta.session.json": "674ff1dbae3a6e3165c7dc381b92d22060ef43c3e3010384c5d5b278c1f52e77"
+      }
+    },
+    "priest-bound": {
+      "origin": "fresh existing C recorder",
+      "files": {
+        "recipes/cmd.c/turn-priest-bound.session.json": "cb33b297e9beb64fd55dd946e70ad1d15f609eb9f4dfd973a72aacc924909a58",
+        "recordings/cmd.c/turn-priest-bound.session.json": "237fc7aa341826e9b3a87400686eba5c4024ed4199bc6fe588ffd04f825a0f86"
+      }
+    },
+    "priest-control": {
+      "origin": "fresh existing C recorder",
+      "files": {
+        "recipes/cmd.c/turn-priest-control.session.json": "23aa6cb88df5c080569bd951e4119e5685ead05130d81b93d95736bf8d397e1a",
+        "recordings/cmd.c/turn-priest-control.session.json": "dc754a8419dcf3d4f93ce39a624f5826c1ec4007f3ce9d2cd7e6985c4bd0ed14"
+      }
+    }
+  },
+  "freshCRecorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "limits": "Three historical native C recordings plus two fresh ordinary Priest target/control recordings. Existing binary identified, no new build attestation; no hidden-score claim."
+}
