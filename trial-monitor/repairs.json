@@ -27654,6 +27654,31 @@
         ]
       },
       "candidates": []
+    },
+    {
+      "id": "container-menu-priced-naming",
+      "title": "Use C priced naming mode for container menu rows",
+      "investigator": "capacity PR #110",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pickup.c:query_objlist",
+          "nethack-c/upstream/src/objnam.c:doname_base",
+          "js/pickup.js:query_objlist",
+          "js/objnam.js:doname_with_price"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/110",
+          "scripts/fixtures/capacity-public/container-menu-target.session.json.gz"
+        ],
+        "test": [
+          "scripts/container-menu-wizweight.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }

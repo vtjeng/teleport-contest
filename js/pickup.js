@@ -753,18 +753,9 @@ export async function query_objlist(
                     ? curr.invlet
                     : (first && curr.oclass === COIN_CLASS ? '$' : undefined),
                 groupSelector,
-                // C uses doname_with_price(). Outside a shop (or for coins
-                // and punishment objects), get_cost_of_shop_item returns 0
-                // with nochrg=-1, so the ordinary name/remembered quote is
-                // identical. Keep the existing priced-name callee boundary
-                // for live shop stock, including its unsupported variants.
-                label: state.u.ushops?.[0] && curr.oclass !== COIN_CLASS
-                    && curr !== state.uball && curr !== state.uchain
-                    && curr.where === OBJ_FLOOR
-                    && in_rooms(curr.ox, curr.oy, SHOPBASE, state)[0]
-                        === state.u.ushops[0]
-                    ? doname_with_price(curr, state, { currencyName: currency })
-                    : donameFresh(curr, state),
+                // C always uses this naming mode, even without a shop quote.
+                // It also controls joining wizard weight into parentheses.
+                label: doname_with_price(curr, state, { currencyName: currency }),
                 value: curr,
                 glyphInfo,
             });

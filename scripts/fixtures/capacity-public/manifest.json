@@ -47,5 +47,7 @@
       "source": "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/no-weight-control/recorded.session.json",
       "sha256": "8225854a0a69810f4a4a77dac6e8a9d28361ef10b4a4de05837be259d28c53e7"
     }
-  ]
+  ],
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recorderProvenance": "recorder-provenance.json"
 }
