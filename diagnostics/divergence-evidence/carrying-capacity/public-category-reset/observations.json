@@ -1,0 +1,64 @@
+[
+  {
+    "name": "after-empty",
+    "finalArrows": 860,
+    "finalGold": 49,
+    "derivedWeight": 950,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2300,
+        "js": 2300
+      },
+      "screens": {
+        "c": 64,
+        "js": 64
+      },
+      "cursors": {
+        "c": 64,
+        "js": 64
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "fresh-control",
+    "finalArrows": 860,
+    "finalGold": 49,
+    "derivedWeight": 950,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2300,
+        "js": 2300
+      },
+      "screens": {
+        "c": 54,
+        "js": 54
+      },
+      "cursors": {
+        "c": 54,
+        "js": 54
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]
