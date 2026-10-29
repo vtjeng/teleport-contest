@@ -1,0 +1,79 @@
+{
+  "jsSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/game.js": "dd1587ff93820e71524f2f577341b430d942462271141f0026411e27ecfe11b2",
+    "js/mklev.js": "eda77ef62939bca00cf2008bb03c04debf4faa0528d026c07dafcccf8a35d54b",
+    "js/mktrap.js": "60e4c645ed1fcd2e418d9ebf68466ab4dddf7a4fa65c93d54f2570e5acfcf153",
+    "js/object_generation.js": "dcf2ea8e76722abdad4ff215d05061187f70cef6c7f289fff8d9589a2cf1576f",
+    "js/room_coordinates.js": "9621ab8b435e3803438c5b0762793ba2db554a2f57f0f178f443b1663e8c08d9",
+    "js/room_features.js": "67ab8548fafef92566065a4bf43d2e85ef99b0dc10ad375cc84cff256db3b36c",
+    "js/terrain.js": "69ab84e2467bc01abfa4b22ee4b4847775ed48e22f5bc52bd5ea3b28a79eec6c",
+    "nethack-c/upstream/include/align.h": "963176a750f3e58ca29d4b5b13f2eaf51fefdbf66b7a1a681401092dd72f7cb2",
+    "nethack-c/upstream/include/mkroom.h": "7baf848feb30c94c196e6bee2ee7f0a83822ad92042dd855b74d212fde514f5a",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4",
+    "nethack-c/upstream/src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0",
+    "nethack-c/upstream/src/mkroom.c": "bef143b8557acd2636512fb3a824314bd36bd599e11ba536c1d45d867a04499c",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somex"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somey"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexy"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexyspace"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "occupied"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "bydoor"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "find_okay_roompos"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "count_level_features"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mkfount"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mksink"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mkaltar"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "fill_special_room"
+    }
+  ]
+}

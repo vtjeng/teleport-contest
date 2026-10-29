@@ -1,0 +1,177 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:mkfount:rn2",
+    "evidenceKey": "2e01a57328be843bb2fd02398f6c82114005eb5fda297fb174226e71c760d526",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "dfddc5e5ae18f49eb99149f3402b5449a97fe85c447e0ff8653cfd88eb11066f",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2285",
+        "nethack-c/upstream/src/mklev.c:2317",
+        "nethack-c/upstream/src/mklev.c:2332",
+        "nethack-c/upstream/src/sp_lev.c:2731",
+        "js/room_features.js:59",
+        "js/mklev.js:545"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029",
+      "reviewedBase": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "ordinary-feature-environment-rng-delegation",
+      "explanation": "The explicit JS environment and RNG parameters preserve the tested fountain/sink/altar initializer behavior. This qualifies five call-delegation keys only in the finite regular-room domain.",
+      "proof": "132 successful-domain targets and132 no-free-position controls: fountain draws0..6,sink without a feature draw,altar draws0..2 ×OROOM/THEMEROOM ×three sample positions ×initial horizontalbit0/1. Exact C constructors, search/sampling, terrain setter and feature recount match actual exported JS constructors and sampler on terrain,horizontal/altar mask,feature counters,coordinate draw count and feature RNG bound/count. Fountain/sink retain C double-count quirk after recount.",
+      "control": "The control room is entirely FOUNTAIN, so samplers fail after101 attempts; no feature mutation/draw follows. THEMERoom altar returns before sampling. Empty regular5×5room targets have no doors,traps,fluids,subrooms or invocation square, with one existing fountain/sink elsewhere. Private JS bydoor is extracted verbatim only for its required production hook. This is not all search geometry, invalid setter inputs, independent RNG or feature runtime."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:mkaltar:rn2",
+    "evidenceKey": "2c7ac585c2c704ad02778bef84ab58ab795f00e84d0f10c96038f4c2ef3f5431",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "b52853b1823481a2600363f50d8eaee55b178ead29b68fdaeb28e4f6e029e0b3",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2285",
+        "nethack-c/upstream/src/mklev.c:2317",
+        "nethack-c/upstream/src/mklev.c:2332",
+        "nethack-c/upstream/src/sp_lev.c:2731",
+        "js/room_features.js:59",
+        "js/mklev.js:545"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029",
+      "reviewedBase": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "ordinary-feature-environment-rng-delegation",
+      "explanation": "The explicit JS environment and RNG parameters preserve the tested fountain/sink/altar initializer behavior. This qualifies five call-delegation keys only in the finite regular-room domain.",
+      "proof": "132 successful-domain targets and132 no-free-position controls: fountain draws0..6,sink without a feature draw,altar draws0..2 ×OROOM/THEMEROOM ×three sample positions ×initial horizontalbit0/1. Exact C constructors, search/sampling, terrain setter and feature recount match actual exported JS constructors and sampler on terrain,horizontal/altar mask,feature counters,coordinate draw count and feature RNG bound/count. Fountain/sink retain C double-count quirk after recount.",
+      "control": "The control room is entirely FOUNTAIN, so samplers fail after101 attempts; no feature mutation/draw follows. THEMERoom altar returns before sampling. Empty regular5×5room targets have no doors,traps,fluids,subrooms or invocation square, with one existing fountain/sink elsewhere. Private JS bydoor is extracted verbatim only for its required production hook. This is not all search geometry, invalid setter inputs, independent RNG or feature runtime."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mklev.c:mkfount:roomFeatureEnv",
+    "evidenceKey": "0bec4a63627564857013028e0ededa0f7fd052586143929ea5ae0c38f378fbb8",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "d5c8d81d117978aa6243d7aee11eed43ed597dde2f920eb5209da5b5050b5a43",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2285",
+        "nethack-c/upstream/src/mklev.c:2317",
+        "nethack-c/upstream/src/mklev.c:2332",
+        "nethack-c/upstream/src/sp_lev.c:2731",
+        "js/room_features.js:59",
+        "js/mklev.js:545"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029",
+      "reviewedBase": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "ordinary-feature-environment-rng-delegation",
+      "explanation": "The explicit JS environment and RNG parameters preserve the tested fountain/sink/altar initializer behavior. This qualifies five call-delegation keys only in the finite regular-room domain.",
+      "proof": "132 successful-domain targets and132 no-free-position controls: fountain draws0..6,sink without a feature draw,altar draws0..2 ×OROOM/THEMEROOM ×three sample positions ×initial horizontalbit0/1. Exact C constructors, search/sampling, terrain setter and feature recount match actual exported JS constructors and sampler on terrain,horizontal/altar mask,feature counters,coordinate draw count and feature RNG bound/count. Fountain/sink retain C double-count quirk after recount.",
+      "control": "The control room is entirely FOUNTAIN, so samplers fail after101 attempts; no feature mutation/draw follows. THEMERoom altar returns before sampling. Empty regular5×5room targets have no doors,traps,fluids,subrooms or invocation square, with one existing fountain/sink elsewhere. Private JS bydoor is extracted verbatim only for its required production hook. This is not all search geometry, invalid setter inputs, independent RNG or feature runtime."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mklev.c:mksink:roomFeatureEnv",
+    "evidenceKey": "0db0c99c309d4cf685ca81475597048f2212b9c636233cfa60d11c0862981886",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "ecb00914489587f024d6a09ed941904fb813002ea8f743f18898b09aa28dca06",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2285",
+        "nethack-c/upstream/src/mklev.c:2317",
+        "nethack-c/upstream/src/mklev.c:2332",
+        "nethack-c/upstream/src/sp_lev.c:2731",
+        "js/room_features.js:59",
+        "js/mklev.js:545"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029",
+      "reviewedBase": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "ordinary-feature-environment-rng-delegation",
+      "explanation": "The explicit JS environment and RNG parameters preserve the tested fountain/sink/altar initializer behavior. This qualifies five call-delegation keys only in the finite regular-room domain.",
+      "proof": "132 successful-domain targets and132 no-free-position controls: fountain draws0..6,sink without a feature draw,altar draws0..2 ×OROOM/THEMEROOM ×three sample positions ×initial horizontalbit0/1. Exact C constructors, search/sampling, terrain setter and feature recount match actual exported JS constructors and sampler on terrain,horizontal/altar mask,feature counters,coordinate draw count and feature RNG bound/count. Fountain/sink retain C double-count quirk after recount.",
+      "control": "The control room is entirely FOUNTAIN, so samplers fail after101 attempts; no feature mutation/draw follows. THEMERoom altar returns before sampling. Empty regular5×5room targets have no doors,traps,fluids,subrooms or invocation square, with one existing fountain/sink elsewhere. Private JS bydoor is extracted verbatim only for its required production hook. This is not all search geometry, invalid setter inputs, independent RNG or feature runtime."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mklev.c:mkaltar:roomFeatureEnv",
+    "evidenceKey": "2820e38e6f4fe4aa22f2ccbbe43818ff426bf5b8a736df145a5fccb057a4cd79",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "4bd6dc1a89c5630121911cc5c701997c56c768c41a037071554aa0f0b29285d7",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2285",
+        "nethack-c/upstream/src/mklev.c:2317",
+        "nethack-c/upstream/src/mklev.c:2332",
+        "nethack-c/upstream/src/sp_lev.c:2731",
+        "js/room_features.js:59",
+        "js/mklev.js:545"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029",
+      "reviewedBase": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "ordinary-feature-environment-rng-delegation",
+      "explanation": "The explicit JS environment and RNG parameters preserve the tested fountain/sink/altar initializer behavior. This qualifies five call-delegation keys only in the finite regular-room domain.",
+      "proof": "132 successful-domain targets and132 no-free-position controls: fountain draws0..6,sink without a feature draw,altar draws0..2 ×OROOM/THEMEROOM ×three sample positions ×initial horizontalbit0/1. Exact C constructors, search/sampling, terrain setter and feature recount match actual exported JS constructors and sampler on terrain,horizontal/altar mask,feature counters,coordinate draw count and feature RNG bound/count. Fountain/sink retain C double-count quirk after recount.",
+      "control": "The control room is entirely FOUNTAIN, so samplers fail after101 attempts; no feature mutation/draw follows. THEMERoom altar returns before sampling. Empty regular5×5room targets have no doors,traps,fluids,subrooms or invocation square, with one existing fountain/sink elsewhere. Private JS bydoor is extracted verbatim only for its required production hook. This is not all search geometry, invalid setter inputs, independent RNG or feature runtime."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:fill_special_room:stock_room",
+    "evidenceKey": "12eb14607e3246e0cacc601669119c61a5e0a3b82cfca4ef4dee42792adcb805",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "958a6abdb3c18fa9cc587e66ba272927277f95bb7683aabf6968d250c96625e4",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2285",
+        "nethack-c/upstream/src/mklev.c:2317",
+        "nethack-c/upstream/src/mklev.c:2332",
+        "nethack-c/upstream/src/sp_lev.c:2731",
+        "js/room_features.js:59",
+        "js/mklev.js:545"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029",
+      "reviewedBase": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "special-room-postorder-stock-dispatch",
+      "explanation": "JS visitSubrooms is the explicit continuation of C recursive postorder traversal. Its local stockRoom callable delegates to env.stockRoom or the imported stock_room; the test qualifies call dispatch and flags only, not stock_room implementation.",
+      "proof": "138 target comparisons and66 all-unfilled controls:11 room types,allowed no-fill/flag-only modes (ordinary/theme use normal instead of flag-only),one normal-shop configuration,three legal rectangular tree shapes up to depth2,and synchronous/Promise-resolved JS shop hooks. Exact C fill_special_room with a stock-call capture boundary matches exported JS on final9-bit level flags and ordered shop room/type/flag-before-call triples. Unfilled outer ordinary rooms still recurse into special children.",
+      "control": "All-unfilled controls produce no flags or stock calls. C non-shop population helpers abort if reached; only flag-only special rooms and captured normal-shop dispatch execute. JS async callback controls verify the caller awaits child completion before continuing. No shop inventory,actors,actual stock_room contents,room-construction/storage,orig_rtype,global finalization or runtime behavior is compared."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:fill_special_room:visitSubrooms",
+    "evidenceKey": "038d9d5c555c9b6bbb46868fa5f252c0f3d00fe6dd30f233ecf9c6afe873f153",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "5d67301583c8cc3ffe8539c19245edc002ea354e2550ca81b9294f8740dad215",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2285",
+        "nethack-c/upstream/src/mklev.c:2317",
+        "nethack-c/upstream/src/mklev.c:2332",
+        "nethack-c/upstream/src/sp_lev.c:2731",
+        "js/room_features.js:59",
+        "js/mklev.js:545"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029",
+      "reviewedBase": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "special-room-postorder-stock-dispatch",
+      "explanation": "JS visitSubrooms is the explicit continuation of C recursive postorder traversal. Its local stockRoom callable delegates to env.stockRoom or the imported stock_room; the test qualifies call dispatch and flags only, not stock_room implementation.",
+      "proof": "138 target comparisons and66 all-unfilled controls:11 room types,allowed no-fill/flag-only modes (ordinary/theme use normal instead of flag-only),one normal-shop configuration,three legal rectangular tree shapes up to depth2,and synchronous/Promise-resolved JS shop hooks. Exact C fill_special_room with a stock-call capture boundary matches exported JS on final9-bit level flags and ordered shop room/type/flag-before-call triples. Unfilled outer ordinary rooms still recurse into special children.",
+      "control": "All-unfilled controls produce no flags or stock calls. C non-shop population helpers abort if reached; only flag-only special rooms and captured normal-shop dispatch execute. JS async callback controls verify the caller awaits child completion before continuing. No shop inventory,actors,actual stock_room contents,room-construction/storage,orig_rtype,global finalization or runtime behavior is compared."
+    }
+  }
+]

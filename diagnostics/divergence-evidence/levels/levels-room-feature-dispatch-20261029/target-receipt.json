@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T03:36:30.689Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "d4c8b0d8fb1154549a8e2a900cbfe803f5e95e0cdcd18ba327e8b641f3491077",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/oracle.c": "2c57e6c688d91756b777c20e9664b182525c373e757840db58942969888c68bc",
+    "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/source-contract.json": "5d2bccc1417dcae617fb4ac9e60c0ba4a2ff63f6c5c5f875a0f27fa9c45d7ce9"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/target-output.txt"
+  ]
+}

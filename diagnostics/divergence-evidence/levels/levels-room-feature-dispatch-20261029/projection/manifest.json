@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "b44fe7f998fdcc986d88822a1e673f2fd0a9c6ba3b04738cbb4a7ebfa891ee94",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/mklev.c:mkaltar:rn2",
+    "source-audit:edge-c-only:src/mklev.c:mkfount:rn2",
+    "source-audit:edge-c-only:src/sp_lev.c:fill_special_room:stock_room",
+    "source-audit:edge-js-helper:src/mklev.c:mkaltar:roomFeatureEnv",
+    "source-audit:edge-js-helper:src/mklev.c:mkfount:roomFeatureEnv",
+    "source-audit:edge-js-helper:src/mklev.c:mksink:roomFeatureEnv",
+    "source-audit:edge-js-helper:src/sp_lev.c:fill_special_room:visitSubrooms"
+  ],
+  "decisionsSha256": "aa140f1e1d68494727a85ec515b7a47d8d157ca7fc17eee51584aa023557478a",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 7,
+    "decisionsChecked": 7,
+    "before": {
+      "active": 7,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 7,
+      "excluded": 0
+    }
+  }
+}
