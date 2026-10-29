@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-10-29T17:52:25.865Z",
-  "base": "9d0de92cfd2a5fe3dadf1edf8f7e8ff84392f110",
+  "base": "bcf6d50b858f1637b5b0db29e4bcefb652ada283",
   "originalDraft": "d485894ba370b37e87a1b1967af3ad770728cb94",
   "scope": "LOCAL preparation; no publication/full-gate acceptance.",
   "includedSources": [
@@ -3816,5 +3816,8 @@
     "18-window diagnostic bundle unreceived/unapplied.",
     "No full default suite, synthetic98 evaluation, hosted gates or judge result."
   ],
-  "preservedReceiptFiles": 101
+  "preservedReceiptFiles": 101,
+  "previousPreparationBase": "9d0de92cfd2a5fe3dadf1edf8f7e8ff84392f110",
+  "previousPreparedCandidate": "b5e27609060a7b27271c5dc91cf7060fb3cdd5ad",
+  "rebaseNote": "Unchanged 54-source gameplay patch replayed onto published anonymous tooling; gameplay, package, C and frozen trees match the previously validated local bulk candidate."
 }
