@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:04:19.688Z",
+  "exitCode": 1,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "5ff958d22fd2408b58cfecc230020307cefb0dfe46c3185318518199dac0fab4",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/oracle.c": "cfd85ec2d46ea08a7c453ff8524c3942c44e9906ccda548a12dbc0f03c2bc937",
+    "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/source-contract.json": "96fb98d9013b608017a25e46f0d3f5cd889b5ac53eed9f0f0d9e1e8084905363"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/target-output.txt"
+  ]
+}

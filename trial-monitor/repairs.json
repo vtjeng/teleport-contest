@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T02:11:23Z",
+  "asOf": "2026-10-29T02:29:35Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -26100,6 +26100,56 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40804705539"
             }
           ]
+        },
+        {
+          "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+          "committedAt": "2026-10-29T02:16:05Z",
+          "sourceCommit": "f1b91b9793db21b1cff6627604cc92df95be0ab6",
+          "sourceCommittedAt": "2026-10-29T02:15:44Z",
+          "runs": [
+            {
+              "id": 40805414459,
+              "name": "Checkpoint",
+              "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/option-catch-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:16:55Z",
+              "completedAt": "2026-10-29T02:26:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40805414459"
+            },
+            {
+              "id": 40806422827,
+              "name": "Lint",
+              "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:27:08Z",
+              "completedAt": "2026-10-29T02:28:27Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40806422827"
+            },
+            {
+              "id": 40806422768,
+              "name": "Dashboard",
+              "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:27:08Z",
+              "completedAt": "2026-10-29T02:29:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40806422768"
+            }
+          ]
         }
       ]
     },
@@ -26786,6 +26836,80 @@
         ],
         "test": [
           "scripts/mthrowu-catch.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+          "committedAt": "2026-10-29T02:16:05Z",
+          "sourceCommit": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+          "sourceCommittedAt": "2026-10-29T02:16:05Z",
+          "runs": [
+            {
+              "id": 40805414459,
+              "name": "Checkpoint",
+              "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/option-catch-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:16:55Z",
+              "completedAt": "2026-10-29T02:26:14Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40805414459"
+            },
+            {
+              "id": 40806422827,
+              "name": "Lint",
+              "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:27:08Z",
+              "completedAt": "2026-10-29T02:28:27Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40806422827"
+            },
+            {
+              "id": 40806422768,
+              "name": "Dashboard",
+              "sha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:27:08Z",
+              "completedAt": "2026-10-29T02:29:35Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40806422768"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "randline-signed-byte-roughness",
+      "title": "Narrow random-line roughness to the pinned C signed-byte parameter",
+      "investigator": "levels PR #89",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/nhlsel.c:l_selection_randline",
+          "nethack-c/upstream/src/selvar.c:selection_do_randline",
+          "js/quest_levels.js:selection_randline"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/case.json"
+        ],
+        "test": [
+          "scripts/quest-levels.test.mjs"
         ]
       },
       "candidates": []

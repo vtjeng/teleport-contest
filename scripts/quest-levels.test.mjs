@@ -2,7 +2,16 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { PM_BUGBEAR, PM_HILL_GIANT, S_HUMANOID } from '../js/monsters.js';
-import { QUEST_LEVEL_LOADERS } from '../js/quest_levels.js';
+import { QUEST_LEVEL_LOADERS, selection_randline } from '../js/quest_levels.js';
+
+test('randline narrows the public roughness integer at the C schar boundary', () => {
+    // Pinned C nhlsel.c passes an int to selvar.c's signed schar parameter.
+    // These values become -128, -1 and 0, so no RNG is needed.
+    const baseline = selection_randline(20, 8, 30, 12, 0).points;
+    assert.equal(baseline.filter(value => value > 1).length, 11);
+    for (const roughness of [128, 255, 256])
+        assert.deepEqual(selection_randline(20, 8, 30, 12, roughness).points, baseline);
+});
 
 test('Rogue quest filler b loads the same rooms as filler a', async () => {
     // dat/Rog-fila.lua and dat/Rog-filb.lua have identical executable bodies.

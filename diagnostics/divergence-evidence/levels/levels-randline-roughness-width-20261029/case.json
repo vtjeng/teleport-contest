@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-randline-roughness-width-20261029",
+  "shard": "levels",
+  "status": "candidate",
+  "readiness": "review_ready",
+  "rootCause": "randline-roughness-signed-byte-conversion",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_new",
+      "start_line": 15,
+      "end_line": 30,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_clone",
+      "start_line": 65,
+      "end_line": 73,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_free",
+      "start_line": 33,
+      "end_line": 44,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getpoint",
+      "start_line": 168,
+      "end_line": 178,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_setpoint",
+      "start_line": 181,
+      "end_line": 208,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_do_randline",
+      "start_line": 683,
+      "end_line": 723,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_randline",
+      "start_line": 591,
+      "end_line": 626,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/alloc.c",
+      "symbol": "dupstr",
+      "start_line": 238,
+      "end_line": 247,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/quest_levels.js",
+      "symbol": "selection_do_randline",
+      "start_line": 136,
+      "end_line": 167,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/quest_levels.js",
+      "symbol": "selection_randline",
+      "start_line": 171,
+      "end_line": 175,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_terrain",
+      "start_line": 3760,
+      "end_line": 3815,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    }
+  ],
+  "hypothesis": "The production JS random-line implementation omits C signed-byte roughness conversion at the public wrapper-to-recursion boundary.",
+  "expectedBehavior": "Pinned C narrows integer128/255/256 to-128/-1/0, yields the same11-cell deterministic selection with0 draws.",
+  "observedBehavior": "JS yields15 painted cells and14 RNG draws for each target. Four controls0/1/7/127 match C cells and draw consumption.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Exact C five-number selection.randline wrapper versus exported production JS selection_randline\u2192public des.terrain, fixed valid integer inputs/default frame, three targets/four controls.",
+    "limitations": [
+      "Supported API scope: five-number C selection.randline wrapper versus exported JS selection_randline consumed by public des.terrain, the same production composition used by Bar-strt. Fixed relative endpoints20,8\u219230,12 and default frame1,0; C returns absolute selection cells while JS relative selection is translated by the real terrain API. No arbitrary private helper export or new Lua runtime.",
+      "C wrapper accepts positive integer roughness without an explicit range check, then its actual call converts int to schar. Config is non-AZTEC signed char,8-bit bytes,Clang19.1.7; runtime asserts CHAR_BIT8/SCHAR_MIN-128/SCHAR_MAX127. Out-of-range signed narrowing is compiler/configuration-sensitive; no universal C-implementation claim.",
+      "Three targets rough128/255/256 narrow to-128/-1/0; all yield11 C cells with0 rn2 calls. JS keeps the full integer, clamps to endpoint distance10, and produces15 cells/14 calls for the fixed seed. Controls0/1/7/127 match points and draw consumption. Do not infer arbitrary roughness/seed/frame/topology equivalence.",
+      "C executes exact l_selection_randline, recursive randline and selection allocation/copy/get/set/free bodies. Typed Lua-stack adapters accept the five integer arguments and delegate new/clone to exact C helpers. Explicit coordinate adapter asserts endpoints and frame1,0. No parser/coercion, six-argument selection-in-place form or room-coordinate claim.",
+      "Control C rn2 validates and consumes the actual JS legal draw tape. Target C consumes no RNG regardless of that tape; trailing unused input is drained only after evaluation to avoid an early-exit stdin race. This proves consumption/geometry difference, not independent RNG implementation parity.",
+      "C output is the API-returned selection set, not a complete C terrain pipeline replay. JS public terrain painting exposes those selected map cells on a STONE level; all cells are valid interior coordinates and ordinary ROOM targets, with no runtime effects or finalization.",
+      "Inspected shipped Bar-strt caller passes roughness7. Large-value shipped exposure and hidden-score relevance are unknown; this is a supported integer-API contract difference. Earlier small-roughness matching cases remain valid in their finite scopes. Three parked gaps and Main-owned candidates unchanged."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Production export/composition with valid integer arguments; shipped caller inspected uses7, so large-value exposure and score impact unknown."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Manual source-led signed-byte parameter conversion. Frozen selection_do_randline getpoint/setpoint edge leads describe accessor naming, not this narrowing cause, and remain unreviewed; no forced scanner binding.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/source-contract.json"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/control-receipt.json"
+    },
+    {
+      "id": "post-fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/README.md",
+      "sha256": "8a6f68e6c0c329e64aa9b2a59a8a2c31fcbe09558e5bf2847b71f4ec182ee817",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/control-output.txt",
+      "sha256": "a3711c15d8e8017298ab39a8263237dcfd3d460128cb9fe5e6b302805bf5e188",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/control-receipt.json",
+      "sha256": "e701ccd3769c7fcbec710d5e8d25d1d5d61d7fec9b86c8eccc21ade733e36a86",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/oracle.c",
+      "sha256": "cfd85ec2d46ea08a7c453ff8524c3942c44e9906ccda548a12dbc0f03c2bc937",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/probe.mjs",
+      "sha256": "5ff958d22fd2408b58cfecc230020307cefb0dfe46c3185318518199dac0fab4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/source-contract.json",
+      "sha256": "96fb98d9013b608017a25e46f0d3f5cd889b5ac53eed9f0f0d9e1e8084905363",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/source-fingerprints.json",
+      "sha256": "738dacc94e0ac02a6832f92d79db0bd239427a4f3c4b8426482c38eb8feb0a88",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/target-output.txt",
+      "sha256": "f8b16e6072da2c4d447307f5161076c3b5632986528ea6b630b37c3929a4d4f6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/target-receipt.json",
+      "sha256": "ed661c34d7704138a4ad865adbabb03746a16c061b1f39ba9348761ef329dcf8",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}
