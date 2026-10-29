@@ -1,0 +1,4 @@
+{"dense":0,"secret":0,"sequence":[0,1,2,3,0,2,1,3],"index":0,"allocations":0,"stages":8,"stateSha256":"48cc9362d01b6be8795a1a177886c3de55e0d22ac12a6f09a47bda7c1e65d6b8","equal":true}
+{"dense":0,"secret":0,"sequence":[2,1,3,0,2,0,3,1],"index":0,"allocations":0,"stages":8,"stateSha256":"48cc9362d01b6be8795a1a177886c3de55e0d22ac12a6f09a47bda7c1e65d6b8","equal":true}
+{"dense":0,"secret":0,"sequence":[3,2,0,1,0,1,2,3],"index":0,"allocations":0,"stages":8,"stateSha256":"48cc9362d01b6be8795a1a177886c3de55e0d22ac12a6f09a47bda7c1e65d6b8","equal":true}
+{"mode":"control","count":3,"stages":24,"equal":true}
