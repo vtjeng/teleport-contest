@@ -27,9 +27,13 @@ absolute. Finite matching probes are not exhaustive certification.
 | Floor-sack partial removal versus all-fit | scoped negative | public-floor-sack;2 fixtures |
 | Mixed container menu order, automatic filters and counted split rollback | scoped negative | public-container-order;8 fixtures |
 | Three-level plain nesting with threshold cycle | scoped negative | public-depth-three;2 fixtures |
+| Counted middle-row capacity refusal stops later rows | scoped negative | public-row-continuation;2 fixtures |
+| Counted burden decline/quit/accept rollback | scoped negative | public-counted-decline;3 fixtures |
+| Count editing, cancellation, clamping and gold prediction | scoped negative | public-count-edit;4 fixtures |
+| Traditional numeric prompt omits live echo | confirmed candidate cause4 | public-traditional-count;3 failures+1 control |
 
-Current public corpus:43 fixtures,39 strict matches,4 failing fixtures grouped
-into3 semantic causes. No scanner keys or filter rules. Prior arithmetic row
+Current public corpus:56 fixtures,49 strict matches,7 failing fixtures grouped
+into4 semantic causes. No scanner keys or filter rules. Prior arithmetic row
 counts are not cause counts. Source-bound receipts and exposure limits live in
 each package. #105/#108 remain unchanged.
 
@@ -51,7 +55,7 @@ each package. #105/#108 remain unchanged.
 - No unresolved attempted case remains in the qualified packages. The inherited
   recorder has no independent build attestation; binary and relevant matching
   source hashes are retained. This provenance limit is explicit.
-- Latest Main checked:2579242c67804962299920a58e3052ab3718c187; pickup.js unchanged
+- Latest Main checked:94e6d4a7d307a2435eb3563dbdb2d8675dceb19d; pickup.js/topl.js unchanged
   from measured gameplay base for the confirmed causes.
 
 ## Practical next paths
@@ -59,10 +63,12 @@ each package. #105/#108 remain unchanged.
 1. Completed the practical ordinary-weight frontier: flat/mixed chains, public
    count split/merge, all burden boundaries, coin rounding, prompts, carried and
    nested plain sacks, tip routes and floor-sack partial admission. Additional menu-order/filter/count-rollback and depth-three probes match;
-   continue with rejected-row continuation before another admissible row.
+   counted-row stop/continue, edit/cancel/clamp paths are now qualified.
+   Traditional askchain exposed cause4. Next: traditional query_classes menu
+   request handoff, avoiding unchanged numeric-echo failures.
    This is not exhaustive input/seed/role certification; nesting beyond three levels,
    arbitrary menu permutations and other object catalogs remain coverage gaps.
-2. Post-fix validation for all three candidates awaits Main's implementation.
+2. Post-fix validation for all four candidates awaits Main's implementation.
    Fresh public reruns are declared in each candidate package; do not repeat
    unchanged failures. If a new ordinary-weight source change or concrete lead
    appears, reopen that path with a new executed C comparison.
