@@ -26,7 +26,7 @@ Additional qualified outcomes (all matching; zero new semantic causes):
 | Loss floor, XP reset, historical maximum | loss-floor-recovery-20261029: 16 targets + 1 control | Restricted PR #109 adapter; API-only nonfatal level-one call; natural history unqualified |
 | XP overshoot, revisit, max-level award | xp-integration-20261029: 3 full recordings | Debug-assisted transport; level-30 award is below 110000000 threshold, so not an isolated MAXULEV guard test |
 
-PR #111 now contains 32 matching public recordings and the three new component
+PR #111 now contains 34 matching public recordings and the three new component
 matrices above. Counts are fixtures, not independent causes. Earlier PR #109's
 60+4 states remain separate. Existing XP repair 8585e9745 is preserved, not new.
 One pre-existing exploratory Wizard level-generation RNG mismatch remains
@@ -59,3 +59,12 @@ all gameplay changes. Timings are elapsed only; active compute is not measured.
   do not resolve those prerequisites or expose a newly identified semantic branch.
   Next meaningful integration work requires a permitted state-construction route;
   do not grind XP or repeat unchanged setup failures to inflate activity.
+
+
+Source-guided follow-on: see BRANCH-COVERAGE.md for the ordinary exper/attrib
+branch map and evidence limits. score-gates adds 96 matching API targets + 2
+controls (score-only beginner and redraw independence). rank-chronicle adds two
+matching public first/repeated-rank records with exact event assertions. Zero new
+causes. This supersedes any implication that every remaining route is blocked:
+highlighted XP and female/later-rank chronicle paths have plausible public setups
+but are not yet qualified. Highlight rule selection is the next concrete frontier.
