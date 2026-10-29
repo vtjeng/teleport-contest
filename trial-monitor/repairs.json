@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T04:19:06Z",
+  "asOf": "2026-10-29T04:35:26Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -25796,7 +25796,8 @@
           "diagnostics/divergence-evidence/monsters/monster-message-location-family-map/proof.mjs",
           "scripts/mhitm-passive-fire-accessible.test.mjs",
           "scripts/mhitm-passive-elements-accessible.test.mjs",
-          "scripts/baalzebub-stun-accessible.test.mjs"
+          "scripts/baalzebub-stun-accessible.test.mjs",
+          "scripts/displacement-stone-accessible.test.mjs"
         ]
       },
       "candidates": [
@@ -25947,6 +25948,56 @@
               "completedAt": "2026-10-29T04:19:06Z",
               "completedAtSource": "final-job",
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40816918435"
+            }
+          ]
+        },
+        {
+          "sha": "2579242c67804962299920a58e3052ab3718c187",
+          "committedAt": "2026-10-29T04:21:08Z",
+          "sourceCommit": "9205e0859870d4c8967254334152b10742407260",
+          "sourceCommittedAt": "2026-10-29T04:20:22Z",
+          "runs": [
+            {
+              "id": 40817274549,
+              "name": "Checkpoint",
+              "sha": "2579242c67804962299920a58e3052ab3718c187",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/stun-gaze-light-storage-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:21:18Z",
+              "completedAt": "2026-10-29T04:32:29Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40817274549"
+            },
+            {
+              "id": 40818449951,
+              "name": "Lint",
+              "sha": "2579242c67804962299920a58e3052ab3718c187",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:33:53Z",
+              "completedAt": "2026-10-29T04:35:04Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40818449951"
+            },
+            {
+              "id": 40818450174,
+              "name": "Dashboard",
+              "sha": "2579242c67804962299920a58e3052ab3718c187",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:33:53Z",
+              "completedAt": "2026-10-29T04:35:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40818450174"
             }
           ]
         }
@@ -27291,7 +27342,58 @@
           "scripts/special-level.test.mjs"
         ]
       },
-      "candidates": []
+      "candidates": [
+        {
+          "sha": "2579242c67804962299920a58e3052ab3718c187",
+          "committedAt": "2026-10-29T04:21:08Z",
+          "sourceCommit": "2579242c67804962299920a58e3052ab3718c187",
+          "sourceCommittedAt": "2026-10-29T04:21:08Z",
+          "runs": [
+            {
+              "id": 40817274549,
+              "name": "Checkpoint",
+              "sha": "2579242c67804962299920a58e3052ab3718c187",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/stun-gaze-light-storage-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:21:18Z",
+              "completedAt": "2026-10-29T04:32:29Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40817274549"
+            },
+            {
+              "id": 40818449951,
+              "name": "Lint",
+              "sha": "2579242c67804962299920a58e3052ab3718c187",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:33:53Z",
+              "completedAt": "2026-10-29T04:35:04Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40818449951"
+            },
+            {
+              "id": 40818450174,
+              "name": "Dashboard",
+              "sha": "2579242c67804962299920a58e3052ab3718c187",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T04:33:53Z",
+              "completedAt": "2026-10-29T04:35:26Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40818450174"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

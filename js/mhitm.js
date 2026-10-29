@@ -673,8 +673,8 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
                 );
             }
             await message(
-                `${Monnam(magr, state, nameEnv)} turns to stone!`,
-                state,
+                messageAt(`${Monnam(magr, state, nameEnv)} turns to stone!`,
+                    magr.mx, magr.my, state), state,
                 rawEnv,
             );
         }
