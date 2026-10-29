@@ -1,0 +1,73 @@
+{
+  "testedJsSha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+  "discoveredAt": "2026-10-29T03:16:35.794667+00:00",
+  "reviewedAt": "2026-10-29T03:16:35.794667+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/dungeon.c:on_level": "2dd00be6afbb859ec1a52e030d8ebf80a3128bd7caea68d196be339445745dd1",
+    "nethack-c/upstream/src/dbridge.c:is_moat": "9f7aa554c83a0d50606c1fabd4cb020e74f62a28ae91720a579a61864793fb6b",
+    "nethack-c/upstream/src/dbridge.c:is_pool": "555d4b7b1105f25c113a4c2140fb5b0bb184ec2a110614d5dba15139a0466698",
+    "nethack-c/upstream/src/dbridge.c:is_lava": "69e5757d7d96c3999bdbc7ab96154caa76c6125ddc489b5a8a5edd0b8407f959",
+    "nethack-c/upstream/src/sp_lev.c:is_ok_location": "68fce11f40e4e0a303f0aad67f0fb28b51c60a0c407abc8fe7b7d609fc18d9ea",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp_lit": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d",
+    "js/room_coordinates.js:coordinateEnvironment": "0bbf9d74aa14f2e9432ad4abcc90109b6170b700994c408f297b35bf25179ce5",
+    "js/room_coordinates.js:is_ok_location": "7aa3dce1e847992dc15d60833323247918c57318e7e61a0a844a574182184873",
+    "js/mkmaze.js:set_levltyp_lit": "133df6df7e9d8b66820638b837dadc6003bd5b35e4f89d6b9a678e15b4706584",
+    "js/terrain.js:set_levltyp": "d6f85b9b1362cf808def430488df96a836410a891e6bede877839001a1c07bf4",
+    "js/terrain.js:count_level_features": "97981cb095f8756ac084b7acc6c125f49f4ce163e3c0b84690bd13bf961a5d05",
+    "js/dungeon.js:on_level": "d573c73f5c7b69c9e01e1c68530523deb9703bd23705abc66fd992c7aa2fe8bb"
+  },
+  "bindingChecks": [
+    {
+      "path": "js/room_coordinates.js",
+      "symbol": "coordinateEnvironment",
+      "scanAndCurrentBodySha256": "0bbf9d74aa14f2e9432ad4abcc90109b6170b700994c408f297b35bf25179ce5",
+      "unchanged": true
+    },
+    {
+      "path": "js/room_coordinates.js",
+      "symbol": "is_ok_location",
+      "scanAndCurrentBodySha256": "7aa3dce1e847992dc15d60833323247918c57318e7e61a0a844a574182184873",
+      "unchanged": true
+    },
+    {
+      "path": "js/mkmaze.js",
+      "symbol": "set_levltyp_lit",
+      "scanAndCurrentBodySha256": "133df6df7e9d8b66820638b837dadc6003bd5b35e4f89d6b9a678e15b4706584",
+      "unchanged": true
+    },
+    {
+      "path": "js/terrain.js",
+      "symbol": "set_levltyp",
+      "scanAndCurrentBodySha256": "d6f85b9b1362cf808def430488df96a836410a891e6bede877839001a1c07bf4",
+      "unchanged": true
+    },
+    {
+      "path": "js/terrain.js",
+      "symbol": "count_level_features",
+      "scanAndCurrentBodySha256": "97981cb095f8756ac084b7acc6c125f49f4ce163e3c0b84690bd13bf961a5d05",
+      "unchanged": true
+    },
+    {
+      "path": "js/dungeon.js",
+      "symbol": "on_level",
+      "scanAndCurrentBodySha256": "d573c73f5c7b69c9e01e1c68530523deb9703bd23705abc66fd992c7aa2fe8bb",
+      "unchanged": true
+    }
+  ],
+  "configuration": "Node24.19.0; Clang19.1.7 (3+b1), -std=c11 -O2; EXTRA_SANITY_CHECKS enabled in oracle; shared deterministic draw0/1; no independent RNG claim.",
+  "semanticCauses": [
+    "location-environment-water-macro-delegation",
+    "terrain-light-rng-parameter-delegation"
+  ],
+  "limitations": [
+    "Three reviewed scanner keys form TWO semantic causes: location environment/Water macro delegation (two keys), and light RNG parameter delegation (one key). No independent repair or candidate is claimed.",
+    "Eligibility is tested on one valid empty construction coordinate (10,6), all37 terrain constants,all128 humidity masks, assigned Water(2,1), current(0,1)/(2,2)/(2,1), and no callback/false/true callback. Call counts establish shortcut precedence. There are no boulders, drawbridgemask is0, Juiblex is not current. No placement, random search, invalid coordinate, unassigned-level, mixed-frame or full generation claim.",
+    "Lighting covers six old terrains STONE/SDOOR/STAIRS/LADDER/FOUNTAIN/SINK,all37 new types,light -2/-1/0/1,prior0/1,shared draw0/1. Underlying C set_levltyp and JS production setter run. Old ice and raised bridge are excluded; C ice/timer hooks abort if reached. No object runtime, timer, independent RNG, debug overwrite or invalid-input claim.",
+    "C exact source bodies compile in a typed standalone fixture with successful allocation and no Lua runtime. C terrain enumeration is copied from pinned rm.h; relevant macros match source. C empty sobj_at adapter returns NULL, feature recount adapter counts the single non-STONE square, and EXTRA_SANITY_CHECKS is deliberately enabled so non-firing diagnostics are observable. Those adapters do not prove full runtime behavior.",
+    "Four missing-diagnostic scanner keys remain unresolved in unresolved-diagnostics.json: valid-input success cannot establish missing error-path equivalence or supported reachability. These keys are not in the negative projection. Earlier ten selection-caller bindings remain unresolved and were not re-run.",
+    "The comparison checkout was safely moved from89b8 to fetched Main a9a6a2e65, and both modes executed there. Main temperature repair publication is observed, but no full acceptance receipt is inferred. Cave-cap, bottomstairs and three parked prerequisites remain unresolved; all exclusions remain."
+  ]
+}

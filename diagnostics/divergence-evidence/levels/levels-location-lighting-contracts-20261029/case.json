@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-location-lighting-contracts-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "levels-liquid-placement-predicates-20261028"
+  ],
+  "provenance": {
+    "jsSha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "on_level",
+      "start_line": 1439,
+      "end_line": 1443,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_moat",
+      "start_line": 100,
+      "end_line": 113,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_pool",
+      "start_line": 46,
+      "end_line": 59,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_lava",
+      "start_line": 62,
+      "end_line": 74,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "is_ok_location",
+      "start_line": 1280,
+      "end_line": 1308,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp",
+      "start_line": 77,
+      "end_line": 121,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp_lit",
+      "start_line": 125,
+      "end_line": 145,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "coordinateEnvironment",
+      "start_line": 43,
+      "end_line": 51,
+      "commit_sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "is_ok_location",
+      "start_line": 156,
+      "end_line": 190,
+      "commit_sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "set_levltyp_lit",
+      "start_line": 195,
+      "end_line": 209,
+      "commit_sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7"
+    },
+    {
+      "side": "JS",
+      "path": "js/terrain.js",
+      "symbol": "set_levltyp",
+      "start_line": 42,
+      "end_line": 79,
+      "commit_sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7"
+    },
+    {
+      "side": "JS",
+      "path": "js/terrain.js",
+      "symbol": "count_level_features",
+      "start_line": 26,
+      "end_line": 40,
+      "commit_sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon.js",
+      "symbol": "on_level",
+      "start_line": 1411,
+      "end_line": 1415,
+      "commit_sha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7"
+    }
+  ],
+  "hypothesis": "Explicit environment/level-equality calls and injected light RNG may alter construction predicate precedence or terrain-light draw consumption.",
+  "expectedBehavior": "Water accepts before custom predicate; ordinary callback precedes humidity checks; setter refusal and lava bypass random lighting, while random non-lava lighting draws once.",
+  "observedBehavior": "31,080 targets (28,416 eligibility and2,664 lighting) and15,096 controls (14,208 Water and888 no-change-light) match exact compiled C routines against exported production JS functions. Results include eligibility/callback count and setter return,type,lit,candig,RNG count,diagnostic count and feature counts.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "31,080 targets (28,416 eligibility and2,664 lighting) and15,096 controls (14,208 Water and888 no-change-light) match exact compiled C routines against exported production JS functions. Results include eligibility/callback count and setter return,type,lit,candig,RNG count,diagnostic count and feature counts.",
+    "limitations": [
+      "Three reviewed scanner keys form TWO semantic causes: location environment/Water macro delegation (two keys), and light RNG parameter delegation (one key). No independent repair or candidate is claimed.",
+      "Eligibility is tested on one valid empty construction coordinate (10,6), all37 terrain constants,all128 humidity masks, assigned Water(2,1), current(0,1)/(2,2)/(2,1), and no callback/false/true callback. Call counts establish shortcut precedence. There are no boulders, drawbridgemask is0, Juiblex is not current. No placement, random search, invalid coordinate, unassigned-level, mixed-frame or full generation claim.",
+      "Lighting covers six old terrains STONE/SDOOR/STAIRS/LADDER/FOUNTAIN/SINK,all37 new types,light -2/-1/0/1,prior0/1,shared draw0/1. Underlying C set_levltyp and JS production setter run. Old ice and raised bridge are excluded; C ice/timer hooks abort if reached. No object runtime, timer, independent RNG, debug overwrite or invalid-input claim.",
+      "C exact source bodies compile in a typed standalone fixture with successful allocation and no Lua runtime. C terrain enumeration is copied from pinned rm.h; relevant macros match source. C empty sobj_at adapter returns NULL, feature recount adapter counts the single non-STONE square, and EXTRA_SANITY_CHECKS is deliberately enabled so non-firing diagnostics are observable. Those adapters do not prove full runtime behavior.",
+      "Four missing-diagnostic scanner keys remain unresolved in unresolved-diagnostics.json: valid-input success cannot establish missing error-path equivalence or supported reachability. These keys are not in the negative projection. Earlier ten selection-caller bindings remain unresolved and were not re-run.",
+      "The comparison checkout was safely moved from89b8 to fetched Main a9a6a2e65, and both modes executed there. Main temperature repair publication is observed, but no full acceptance receipt is inferred. Cave-cap, bottomstairs and three parked prerequisites remain unresolved; all exclusions remain."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exported production component APIs over valid typed construction fixtures. No full Lua binding or shipped level attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Two bounded semantic causes with valid original scanner identities; four diagnostics explicitly left unresolved.",
+    "keys": [
+      "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:coordinateEnvironment",
+      "source-audit:edge-js-only:src/sp_lev.c:is_ok_location:on_level",
+      "source-audit:edge-c-only:src/mkmaze.c:set_levltyp_lit:rn2"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/README.md",
+      "sha256": "a8d8fd8cfb13bb23faa45cd78806dbea8cc1a5a29bc160369ac911f2d86cf332",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/control-output.txt",
+      "sha256": "76f55f6298bbadc6ba1524c5d689db2c9fcba263e133e62c3b2081360c3fb00e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/control-receipt.json",
+      "sha256": "49f624324db26b1676a8abc5bffe79260518a1a1ab50af98e6b7af386a77b4e1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/decisions.json",
+      "sha256": "00e36e80348dab3824c6201195ada3b192b068b8023770c719691b2245c2daea",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/oracle.c",
+      "sha256": "1f79f91870309d770213732da2944fbf948efd8bec337339ffd4e2ae49e9066c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/probe.mjs",
+      "sha256": "8200765117760496492fb1b9d4690cc5184e4b99dbe070fee9e760653a0588c8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/projection/manifest.json",
+      "sha256": "06271699cfa520771834d769a6657cfc766ec7b588bf00495baab47d52220220",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/projection/projection.json",
+      "sha256": "c120013957fc263339799fb7b7c25a005b663b499ee343dbc3a057781fe2e2d3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/projection/review-template.json",
+      "sha256": "261c890b746ea9c60ecb38a66c24fb0b0db03374320806e2255826df4eb2334f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/source-contract.json",
+      "sha256": "704c9811453a67a9a6468fc14ac80b814d838e6164ce17cc3dcba155936dc7af",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/source-fingerprints.json",
+      "sha256": "3eba9cb1724177b735e44d12c8dabf4f3c8c90034d205a1878e9a09efa1b8ec5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/target-output.txt",
+      "sha256": "95c9d3154dc548ff84a425418ce2cd75e7246d1ad798184b29f8899b48a9a3bc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/target-receipt.json",
+      "sha256": "a38bc2d561bb672323a2724bc04d30c4b2e587e33daeb960965de9217d5c4670",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/unresolved-diagnostics.json",
+      "sha256": "3719e4bbf4f2ceb84a68ba456ea81f65d00df125799d669397e8de06662a5a04",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

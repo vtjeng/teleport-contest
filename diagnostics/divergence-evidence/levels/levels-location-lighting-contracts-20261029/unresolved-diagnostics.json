@@ -1,0 +1,42 @@
+{
+  "reviewedBase": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+  "records": [
+    {
+      "key": "source-audit:edge-c-only:src/mkmaze.c:set_levltyp:impossible",
+      "evidenceKey": "d17b7d40f281563ba45af509306261adee51fdd3e4ca15fed9b23bc1e5246394",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "095564ad296daf697aa93ba225fc953eb3dd298122af670a69be10ca79035758",
+      "status": "unresolved",
+      "reason": "The valid-domain oracle never enters this diagnostic; it does not requalify the missing error path.",
+      "missingEvidence": "Supported production caller passing out-of-map coordinates or terrain outside [STONE,MAX_TYPE), and executed C/JS diagnostic comparison under configured EXTRA_SANITY_CHECKS."
+    },
+    {
+      "key": "source-audit:message:src/mkmaze.c:set_levltyp:90b31679d50374d5",
+      "evidenceKey": "9101afb9de2d0957841316c8b8c2a8e41d71495e86de81809935461505a2f9fb",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "7327b8360d007d6ccf468f027dd71eab9da0f29dbead73e16acec168b18743b5",
+      "status": "unresolved",
+      "reason": "The valid-domain oracle never enters this diagnostic; it does not requalify the missing error path.",
+      "missingEvidence": "Supported production caller passing out-of-map coordinates or terrain outside [STONE,MAX_TYPE), and executed C/JS diagnostic comparison under configured EXTRA_SANITY_CHECKS."
+    },
+    {
+      "key": "source-audit:edge-c-only:src/mkmaze.c:set_levltyp_lit:impossible",
+      "evidenceKey": "6455f8660699e4a8bec2d6a2d9f9f91310b14912e8cb98e04b37bcce9d2ead16",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "46eb9189ccef1ce6dc5f6bbca03598f7592113ae00e8f05571d8fa415f413ea8",
+      "status": "unresolved",
+      "reason": "The valid-domain oracle never enters this diagnostic; it does not requalify the missing error path.",
+      "missingEvidence": "Supported production caller passing lit outside [-2,1] and executed C/JS diagnostic comparison under configured EXTRA_SANITY_CHECKS."
+    },
+    {
+      "key": "source-audit:message:src/mkmaze.c:set_levltyp_lit:1aa766166ea577aa",
+      "evidenceKey": "a20c82ca32b4d825a062cec0f936d4f99b448dd6f1974510563fe5339f61218a",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "7a2360bfa1d6db885df3419676f0e38200301f45831fa8b9ab768fc0bfe564a0",
+      "status": "unresolved",
+      "reason": "The valid-domain oracle never enters this diagnostic; it does not requalify the missing error path.",
+      "missingEvidence": "Supported production caller passing lit outside [-2,1] and executed C/JS diagnostic comparison under configured EXTRA_SANITY_CHECKS."
+    }
+  ],
+  "scope": "These four remain active in the frozen inventory. Invalid helper injection is not a supported divergence. No new negative or candidate count."
+}

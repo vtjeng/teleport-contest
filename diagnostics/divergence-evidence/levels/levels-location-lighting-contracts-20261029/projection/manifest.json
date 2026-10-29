@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "c120013957fc263339799fb7b7c25a005b663b499ee343dbc3a057781fe2e2d3",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/mkmaze.c:set_levltyp_lit:rn2",
+    "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:coordinateEnvironment",
+    "source-audit:edge-js-only:src/sp_lev.c:is_ok_location:on_level"
+  ],
+  "decisionsSha256": "00e36e80348dab3824c6201195ada3b192b068b8023770c719691b2245c2daea",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 3,
+    "decisionsChecked": 3,
+    "before": {
+      "active": 3,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 3,
+      "excluded": 0
+    }
+  }
+}

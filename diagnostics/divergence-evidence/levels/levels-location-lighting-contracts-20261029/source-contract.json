@@ -1,0 +1,48 @@
+{
+  "jsSha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/dungeon.js": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c",
+    "js/mkmaze.js": "e0722923b9f99824b30b2089f0869c055ff56eb9a24dfda832f52b60c29fd4db",
+    "js/room_coordinates.js": "9621ab8b435e3803438c5b0762793ba2db554a2f57f0f178f443b1663e8c08d9",
+    "js/terrain.js": "69ab84e2467bc01abfa4b22ee4b4847775ed48e22f5bc52bd5ea3b28a79eec6c",
+    "nethack-c/upstream/include/dungeon.h": "e48eaafdb22fc82121de702086c40c3245d6aeb9fe5556712ee1e2f18744a308",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/include/sp_lev.h": "a48d5bd2d9a5b20b474b790d52f4f19179678c87ec0b51019e39dc6684d7a6bf",
+    "nethack-c/upstream/src/dbridge.c": "b1dbdca4e2fc9e5a2a17ed5d0c80d79f900ea5997dd0b2c4a3171977bee0260f",
+    "nethack-c/upstream/src/dungeon.c": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+    "nethack-c/upstream/src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "on_level"
+    },
+    {
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_moat"
+    },
+    {
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_pool"
+    },
+    {
+      "path": "nethack-c/upstream/src/dbridge.c",
+      "symbol": "is_lava"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "is_ok_location"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp_lit"
+    }
+  ]
+}
