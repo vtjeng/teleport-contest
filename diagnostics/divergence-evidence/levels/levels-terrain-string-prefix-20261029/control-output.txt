@@ -1,0 +1,7 @@
+{"form":1,"hex":"54","expected":[0,13],"observed":[0,13]}
+{"form":1,"hex":"5454","expected":[1,25],"observed":[1,25]}
+{"form":1,"hex":"0054","expected":[1,25],"observed":[1,25]}
+{"form":3,"hex":"54","expected":[0,13],"observed":[0,13]}
+{"form":3,"hex":"5454","expected":[1,25],"observed":[1,25]}
+{"form":3,"hex":"0054","expected":[1,25],"observed":[1,25]}
+{"mode":"control","differences":0}
