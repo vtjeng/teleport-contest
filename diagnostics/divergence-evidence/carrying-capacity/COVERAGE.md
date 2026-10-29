@@ -9,6 +9,7 @@ absolute. Finite matching probes are not exhaustive certification.
 | --- | --- | --- |
 | Ordinary arithmetic, encoded strength, burden thresholds, rounddiv | scoped negative | PR105;27708 rows+6 controls |
 | Real catalog stack weights, mixed constructed chains | scoped negative | PR108;1108 rows+5 controls |
+| Counted multi-drop cancellation and weapons filter | scoped negative | public-drop-cancel;2 fixtures |
 | Public multi-drop full/combination menu boundaries | scoped negative | public-multi-drop;3 fixtures |
 | Public first burden threshold with split/drop/pickup/merge | scoped negative | public-stack-cycle;2 fixtures |
 | Higher message-bearing burden transitions | scoped negative | public-upper-boundaries;3 fixtures |
@@ -37,7 +38,7 @@ absolute. Finite matching probes are not exhaustive certification.
 | Empty/absent class lacks one-by-one fallback | confirmed candidate cause7 | public-class-fallback;2 failures+1 control |
 | Full-menu long count resets to trailing digits | confirmed candidate cause8 | public-large-menu-count;1 failure+1 control |
 
-Historical public corpus:66 fixtures,56 strict matches,13 failing fixtures grouped
+Historical public corpus:71 fixtures,58 strict matches,13 failing fixtures grouped
 into8 semantic causes at their pinned pre-fix sources. The8 behavior causes span6 source repair families: causes5-7 share query_classes.
 No scanner keys or filter rules. Prior arithmetic row
 counts are not cause counts. Source-bound receipts and exposure limits live in
@@ -75,8 +76,10 @@ each package. #105/#108 remain unchanged.
    Look-inside restart exposed cause6. Exact-Main replay verifies causes1-3 on7 existing fixtures (not new cases).
    Empty/absent-class fallback exposed cause7; full-menu safe-integer boundary
    exposed cause8. Ordinary multiple-drop full/combination boundaries now match in 3 fixtures.
-   Next: reconcile current Main repairs, then ordinary multi-drop filtered/count
-   cancellation branches where not already covered by generic menu witnesses.
+   Count cancellation and weapons-only drop now match in 2 further fixtures.
+   Main398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b has no further changes to
+   pending topl.js/pickup.js/tty_menu.js paths. Next frontier: category selection
+   interactions beyond the tested weapons-only and all-category drop paths.
    This is not exhaustive input/seed/role certification; nesting beyond three levels,
    arbitrary menu permutations and other object catalogs remain coverage gaps.
 2. Post-fix validation for causes4-8 awaits Main's implementation.
