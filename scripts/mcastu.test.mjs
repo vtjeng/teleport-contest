@@ -432,7 +432,7 @@ test('castmu: a cancelled caster calls cursetxt and misses', async () => {
     );
     assert.equal(result, M_ATTK_MISS);
     assert.deepEqual(random.draws, ['rn2(7)']);
-    assert.deepEqual(messages, ['Kobold shaman points at you, then curses.']);
+    assert.deepEqual(messages, ['The kobold shaman points at you, then curses.']);
 });
 
 test('castmu: mspec_used on cooldown misses without casting', async () => {
@@ -578,7 +578,7 @@ test('MCAST_AGGRAVATION uses the C You_feel prefix before waking monsters',
             assert.equal(result, M_ATTK_HIT);
             assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)']);
             assert.deepEqual(messages, [
-                'Kobold shaman casts a spell!',
+                'The kobold shaman casts a spell!',
                 `${unaware ? 'You dream that you feel ' : 'You feel '}`
                     + 'that monsters are aware of your presence.',
             ]);
@@ -641,7 +641,7 @@ test('mcast_spell dispatches the summon branch and its production message',
         assert.equal(result, M_ATTK_HIT);
         assert.deepEqual(random.draws, ['rn2(16)', 'rn2(160)']);
         assert.deepEqual(messages, [
-            'Kobold shaman casts a spell!',
+            'The kobold shaman casts a spell!',
             'A monster appears from nowhere!',
         ]);
         assert.deepEqual(gaps, []);
@@ -769,7 +769,7 @@ test('cursetxt: a hero mimicking a strange object gets the general-direction lin
             message: (m) => messages.push(m),
         });
         assert.deepEqual(messages,
-            ['Kobold shaman points and curses in your general direction.']);
+            ['The kobold shaman points and curses in your general direction.']);
     });
 
 // The unseen arm: with IN_SIGHT clear at (5,5) canseemon() is false, and
@@ -853,7 +853,7 @@ test('castmu awaits the spell announcement before damage work', async () => {
     assert.deepEqual(events, [
         'rn2(7)',
         'rn2(70)',
-        'message-start:Kobold shaman casts a spell!',
+        'message-start:The kobold shaman casts a spell!',
     ]);
     assert.deepEqual(draws, ['rn2(7)', 'rn2(70)']);
 
@@ -862,7 +862,7 @@ test('castmu awaits the spell announcement before damage work', async () => {
     assert.deepEqual(events.slice(0, 5), [
         'rn2(7)',
         'rn2(70)',
-        'message-start:Kobold shaman casts a spell!',
+        'message-start:The kobold shaman casts a spell!',
         'message-end',
         'd(4,6)',
     ]);
@@ -919,7 +919,7 @@ test('castmu awaits a result-valued effect message before mdamageu', async () =>
     assert.deepEqual(events, [
         'rn2(7)',
         'rn2(70)',
-        'message-start:Kobold shaman casts a spell at you!',
+        'message-start:The kobold shaman casts a spell at you!',
     ]);
 
     releaseAnnouncement();
@@ -929,7 +929,7 @@ test('castmu awaits a result-valued effect message before mdamageu', async () =>
     assert.deepEqual(events.slice(0, 6), [
         'rn2(7)',
         'rn2(70)',
-        'message-start:Kobold shaman casts a spell at you!',
+        'message-start:The kobold shaman casts a spell at you!',
         'message-end',
         'd(4,6)',
         'message-start:Your head suddenly aches very painfully!',
@@ -1210,6 +1210,7 @@ test('MCAST_CONFUSE_YOU uses raw Hallucination and resistance properties',
                 }),
                 random: scriptedRandom([2, 50]),
                 unsupported: refuse,
+                monsterName: () => 'The kobold shaman',
                 message: async (text) => hallucinatedMessages.push(text),
             },
         );
@@ -1669,7 +1670,7 @@ test('haste_self: speeds the caster without damage or extra RNG', async () => {
     assert.equal(mtmp.mspeed, MFAST,
         'active speed follows the permanent fast speed');
     assert.deepEqual(messages, [
-        'Kobold shaman casts a spell!',
+        'The kobold shaman casts a spell!',
         'The kobold shaman is suddenly moving faster.',
     ]);
     assert.equal(damageCalled, false,
