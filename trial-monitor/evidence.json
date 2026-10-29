@@ -665,16 +665,16 @@
   "cohorts": [
     {
       "refresh": {
-        "state": "unchanged",
-        "attemptedAt": "2026-10-29T00:42:37.111Z",
+        "state": "not-applied",
+        "attemptedAt": "2026-10-29T01:13:30.647Z",
         "lastSuccessAt": "2026-10-29T00:42:38.612Z",
         "resolved": [
           {
             "pr": 89,
             "branch": "analysis/levels/20261028-maze-deadends-31",
-            "head": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+            "head": "08bf60e0d6cd4b54160db41d6e10b188cda43cdb",
             "base": "51f5686fac30306411156df215ca83ae910cf6bf",
-            "sourceCommittedAt": "2026-10-29T00:35:20Z",
+            "sourceCommittedAt": "2026-10-29T01:06:46Z",
             "allowedDirectory": "diagnostics/divergence-evidence/levels/",
             "excludedPathFragments": [
               "long-worm-shopkeeper",
@@ -687,7 +687,8 @@
               "migrating-object"
             ]
           }
-        ]
+        ],
+        "error": "Another configured source failed; previous snapshot retained"
       },
       "unboundCases": [
         {
@@ -2446,47 +2447,11 @@
     },
     {
       "refresh": {
-        "state": "unchanged",
-        "attemptedAt": "2026-10-29T00:42:37.111Z",
+        "state": "last-known",
+        "attemptedAt": "2026-10-29T01:13:30.647Z",
         "lastSuccessAt": "2026-10-29T00:42:39.966Z",
-        "resolved": [
-          {
-            "pr": 102,
-            "branch": "analysis/monsters/20261028-af",
-            "head": "462a52f28782449e8afc22e02da7fc48bd972e42",
-            "base": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
-            "sourceCommittedAt": "2026-10-28T23:20:13Z",
-            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
-            "excludedPathFragments": [
-              "long-worm-shopkeeper",
-              "shopkeeper-departure",
-              "buried-state",
-              "figurine",
-              "unpaid-glob",
-              "ring-invisibility",
-              "whatis",
-              "migrating-object"
-            ]
-          },
-          {
-            "pr": 96,
-            "branch": "analysis/monsters/20261028-ac",
-            "head": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
-            "base": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
-            "sourceCommittedAt": "2026-10-28T22:19:43Z",
-            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
-            "excludedPathFragments": [
-              "long-worm-shopkeeper",
-              "shopkeeper-departure",
-              "buried-state",
-              "figurine",
-              "unpaid-glob",
-              "ring-invisibility",
-              "whatis",
-              "migrating-object"
-            ]
-          }
-        ]
+        "resolved": [],
+        "error": "Invalid or excluded published source head"
       },
       "unboundCases": [],
       "skippedMetadata": [],
