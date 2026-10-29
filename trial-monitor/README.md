@@ -6,20 +6,70 @@ batch policy live in `manifest.json` under `operations.workflow`, with an
 observation date and source. They are editable configuration, not fixed lanes.
 Retired Oct 19 worker activity remains historical and hidden by default.
 
+## Ordinary source refresh (Main or delegated tooling)
+
+Before an ordinary dashboard publication, run once from the repository root:
+
+```sh
+node --use-env-proxy scripts/refresh-dashboard-evidence.mjs
+node scripts/dashboard-evidence.mjs --check
+```
+
+The first command uses the installed Node 24 environment's proxy support for
+public HTTPS reads (no credential/token argument). On a machine with direct
+public access, `node scripts/refresh-dashboard-evidence.mjs` is equivalent.
+It does not execute discovery, recipes, replays or evidence runners. Commit the
+resulting `evidence-sources.json` and `evidence.json` with the ordinary work;
+Main then follows the existing integration gates, dashboard build and deployment.
+The build still embeds the generated snapshot; it does not initiate network
+refreshes. No CI/workflow settings or background service are required.
+
+Stable `inventories[].refresh.sources` configuration names only approved PRs
+(currently Levels #89 and Monsters #102/#96) or an explicitly named branch with
+an immutable comparison `base`, plus allowed directories and exclusions. The
+command resolves public heads once, checks repository identity, fetches those
+exact commits and comparison bases, and enumerates changed metadata with Git.
+It never uses an unpublished local analyst head. It discovers added version-1
+`case.json` packages, rechecks existing configured cases, advances their pins,
+and discovers explicit `completion*.json`, `*final-receipt*.json` and
+`accepted-routing.json` notices in the allowed scope. Other new formats are
+reported as unsupported rather than guessed. Adding a new producer PR or scope
+still requires an explicit configuration decision, not automatic repo-wide search.
+
+Runs remain frozen: reviews must bind through exact evidence keys/fingerprints;
+manual or other-run cases are displayed outside the selected scanner denominator.
+A malformed source, invalid binding, excluded dependency or unavailable public
+source fails the entire refresh transaction. Exit 1 retains previous counts and
+pins, records last-known/not-applied status and the attempt error, and preserves
+the prior successful refresh time. It never stamps a failed attempt fresh or
+replaces unavailable counts with zero. Inspect that failure before publication;
+the UI prominently labels retained data. `--check` reconstructs the selected
+pinned snapshot offline; missing local Git objects are a verification failure,
+not permission to declare old data fresh. A crash between the two output renames
+also makes `--check` detect inconsistent files.
+
+A successful refresh records source-check time separately from scan completion
+and available review timestamps. Missing version-1 review timestamps stay
+unknown/incomplete; a commit or PR-update time is never substituted. Multiple
+explicit completion notices can establish acceptance for named cases only when
+an exact SHA, authority and all required gate/archive/receipt assertions exist.
+Incomplete notices are counted separately; absent machine-readable acceptance
+remains unknown. Their recordedAt timestamps establish observation only, so
+receipt-completion latency stays unknown. This is not a new acceptance gate.
+
 ## Data and refresh boundaries
 
 - Scores retain the existing complete `challenges/published.json` cohort and
   evaluation-hash checks. The repair register retains individual identities,
   corrections and shared candidate SHAs. Gate success is labelled publication
   verification; receipt completion is a separate fact.
-- `evidence-sources.json` lists explicit immutable metadata references, including
+- `evidence-sources.json` retains generated immutable metadata references, including
   unmerged analyst PRs. `evidence.json` is generated, not a manually maintained
   ledger. Only listed case/inventory/projection/decision JSON is read; no runner,
   recording, gameplay file or excluded investigation is executed.
 - Rebuild with `node scripts/dashboard-evidence.mjs`, or verify with `--check`.
-  Both operate offline using `git show <full-sha>:<path>`. Fetch the corresponding
-  public PR refs first if those objects are absent. Update pins and regenerate
-  only with new reviewed evidence at an ordinary publication boundary. Default
+  Both operate offline using `git show <full-sha>:<path>`. The ordinary refresh command fetches the corresponding public commits and
+  advances pins/case lists automatically before this offline reconstruction. Default
   dashboard builds read the compact checked-in projection without network calls.
 - Page open / Refresh public status retain the existing pinned-Main repair and
   CI refresh. They do **not** refresh discovery evidence. The UI shows separate

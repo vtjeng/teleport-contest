@@ -26,6 +26,10 @@ export function renderWorkflow(document, evidence, view, summarize, publication)
     add(lane, 'p', session.role); add(lane, 'small', session.status);
   }
   if (!evidence || evidence.version !== 1) { add(target, 'p', 'Evidence projection unavailable. Queue and review coverage unknown.'); return; }
+  for (const cohort of evidence.cohorts) {
+    if (['last-known', 'not-applied'].includes(cohort.refresh?.state))
+      add(target, 'p', `${cohort.id}: LAST-KNOWN review data. Refresh attempt ${stamp(cohort.refresh.attemptedAt)} failed or was not applied; last successful source refresh ${stamp(cohort.refresh.lastSuccessAt)}. ${cohort.refresh.error}`, 'workflow-rate');
+  }
   const flow = summarize({ cases: evidence.cases, results: view.results,
     operations: { ...view.operations, transitionCoverage: policy?.transitionCoverage },
     receipt: publication ? { sha: publication.sha, verified: true, completedAt: null } : null });
@@ -60,6 +64,11 @@ export function renderWorkflow(document, evidence, view, summarize, publication)
   function renderCohort() {
     cohortNode.replaceChildren(); const cohort = evidence.cohorts[Number(select.value)]; if (!cohort) return;
     const s = cohort.summary, c = s.counts;
+    const refresh = cohort.refresh;
+    add(cohortNode, 'p', refresh
+      ? `Published-source refresh: ${refresh.state} · attempted ${stamp(refresh.attemptedAt)} · last success ${stamp(refresh.lastSuccessAt)}. This checks source heads, not discovery execution or review times.`
+      : 'Published-source refresh has not been recorded; showing the configured pinned snapshot.', 'compact-note');
+    for (const source of refresh?.resolved ?? []) add(cohortNode, 'p', `Observed source ${source.pr ? 'PR #' + source.pr : source.branch}: ${short(source.head)} · applied only when refresh is updated or unchanged.`, 'compact-note');
     const tiles = add(cohortNode, 'div', null, 'workflow-lanes');
     for (const [label, value] of [['Scanner keys in scope', s.total], ['Reviewed keys', s.reviewed], ['Conclusive keys', s.resolved], ['No current review', s.withoutCurrentReview]]) {
       const tile = add(tiles, 'div', null, 'workflow-card'); add(tile, 'strong', String(value), 'workflow-number'); add(tile, 'span', label);
@@ -74,6 +83,11 @@ export function renderWorkflow(document, evidence, view, summarize, publication)
     add(cohortNode, 'p', `Negative share of conclusively reviewed keys: ${s.negativeShare == null ? 'unknown' : (100 * s.negativeShare).toFixed(1) + '%'} = ${c.explained_negative} explained negatives ÷ (${c.explained_negative} negatives + ${c.confirmed} confirmed + ${c.accepted} accepted). Excludes unresolved, duplicate, setup failures, stale and unreviewed keys. Selected reviews are biased; this is not a population false-positive rate.`, 'workflow-rate');
     add(cohortNode, 'p', `Semantic causes: ${s.classifiedCauses} explicitly named roots; ${s.missingCauseIdentity} reviewed keys lack a root identity. Cause-level negative share: ${s.causeNegativeShare == null ? 'unknown (incomplete root classification)' : (100 * s.causeNegativeShare).toFixed(1) + '% (negative roots / negative + confirmed + accepted roots)'}. Keys are never divided by cause counts.`, 'compact-note');
     const strata = details(cohortNode, 'Technique versions, filters & coverage');
+    const completion = cohort.completionCoverage;
+    if (completion) add(strata, 'p', `${completion.verified} verified explicit completion references of ${completion.references} configured; ${completion.unsupported} unsupported/incomplete notices. Cases without matching machine-readable completion evidence retain unknown acceptance. Observation times are not receipt-completion times.`);
+    add(strata, 'p', `${cohort.unboundCases?.length ?? 0} manual/differently bound cases and ${cohort.skippedMetadata?.length ?? 0} unsupported metadata records remain outside this scanner denominator.`);
+    for (const item of cohort.unboundCases ?? []) { const row = add(strata, 'p'); link(row, item.id, item.url); row.append(` · ${item.outcome} · ${item.reason}`); }
+    for (const item of cohort.skippedMetadata ?? []) add(strata, 'p', `${item.path}: ${item.reason}`);
     add(strata, 'p', `${s.filters.exactBoundDecisions} exact bound negative decisions; ${s.filters.heuristicPriorityHints} priority-only hints retained in this inventory. Hint coverage is partial; absence of a hint is not an exclusion or a negative.`);
     add(strata, 'p', 'Strata remain within one pinned run/source/configuration. Repeated method versions are not merged. Exact bound decisions exclude only their proven keys; heuristic hints only lower priority. No review here establishes correctness on current Main.');
     for (const stratum of cohort.strata) add(strata, 'p', `${stratum.method.kind} · ${stratum.method.version} · ${stratum.total} keys / ${stratum.reviewed} reviewed / ${stratum.resolved} conclusive / ${stratum.counts.explained_negative} negatives / ${stratum.counts.unresolved} unresolved.`);
