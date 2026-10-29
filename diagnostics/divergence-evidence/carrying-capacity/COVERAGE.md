@@ -59,7 +59,7 @@ each package. #105/#108 remain unchanged.
   source hashes are retained. This provenance limit is explicit.
 - Main1e786f87d927b72bd07122fc3eead0ecb5d8203c contains repairs for causes1-3;
   historical failures remain intact. Saved-C/isolated-Main replay verification
-  is next. Causes4-6 source paths remain unchanged at that Main SHA.
+  passed all4 former targets and3 controls; see main-replay-1e786f87. Causes4-6 source paths remain unchanged at that Main SHA.
 
 ## Practical next paths
 
@@ -68,8 +68,8 @@ each package. #105/#108 remain unchanged.
    nested plain sacks, tip routes and floor-sack partial admission. Additional menu-order/filter/count-rollback and depth-three probes match;
    counted-row stop/continue, edit/cancel/clamp paths are now qualified.
    Traditional askchain exposed cause4; filtered menu handoff exposed cause5.
-   Look-inside restart exposed cause6. Next: verify Main repairs for causes1-3
-   using saved executed C and official-overlay JS at the exact Main SHA.
+   Look-inside restart exposed cause6. Exact-Main replay verifies causes1-3 on7 existing fixtures (not new cases).
+   Next: query_classes empty/absent-class fallback versus explicit one-by-one.
    This is not exhaustive input/seed/role certification; nesting beyond three levels,
    arbitrary menu permutations and other object catalogs remain coverage gaps.
 2. Post-fix validation for causes4-6 awaits Main's implementation.

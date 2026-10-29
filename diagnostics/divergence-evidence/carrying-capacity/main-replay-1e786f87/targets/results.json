@@ -1,0 +1,122 @@
+[
+  {
+    "id": "public-upper-boundaries--admission-limit",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-upper-boundaries/admission-limit/recorded.session.json",
+    "recordingSha256": "a86401e7a06183ecf6faabec98e25fe086b3e069a93c8d10d6ca7106f0362321",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2446,
+        "js": 2446
+      },
+      "screens": {
+        "c": 40,
+        "js": 40
+      },
+      "cursors": {
+        "c": 40,
+        "js": 40
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-gold-limit--partial-gold",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/partial-gold/recorded.session.json",
+    "recordingSha256": "a382d5f5fa7178ee5d6544248e685cdda7fe1da8a50ea755f50e0bf23f238594",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2449,
+        "js": 2449
+      },
+      "screens": {
+        "c": 68,
+        "js": 68
+      },
+      "cursors": {
+        "c": 68,
+        "js": 68
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-gold-limit--all-gold",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/all-gold/recorded.session.json",
+    "recordingSha256": "4748d09ea76414fc1ee9f643a13465030f8a82469e6a208be6ca2a8b028d7e5d",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2396,
+        "js": 2396
+      },
+      "screens": {
+        "c": 68,
+        "js": 68
+      },
+      "cursors": {
+        "c": 68,
+        "js": 68
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-sack-menu--insert",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/insert/recorded.session.json",
+    "recordingSha256": "c03301d9b3c9861fecb11d7fe30dea5beac8247e45d10614b0f1aa478a166923",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2318,
+        "js": 2318
+      },
+      "screens": {
+        "c": 52,
+        "js": 52
+      },
+      "cursors": {
+        "c": 52,
+        "js": 52
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]

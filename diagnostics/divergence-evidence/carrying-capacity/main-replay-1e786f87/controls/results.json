@@ -1,0 +1,92 @@
+[
+  {
+    "id": "public-upper-boundaries--overtaxed",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-upper-boundaries/overtaxed/recorded.session.json",
+    "recordingSha256": "76e4093fcfdc9543e99839f7f071ab916a18dbe3f1a4bc716fe901f7a57ad647",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2432,
+        "js": 2432
+      },
+      "screens": {
+        "c": 40,
+        "js": 40
+      },
+      "cursors": {
+        "c": 40,
+        "js": 40
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-gold-limit--room-control",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/room-control/recorded.session.json",
+    "recordingSha256": "811ba1ff3af35ae5d988b8ec70f22e040b5c56192bfc73ba8b1aab1f64624628",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2396,
+        "js": 2396
+      },
+      "screens": {
+        "c": 68,
+        "js": 68
+      },
+      "cursors": {
+        "c": 68,
+        "js": 68
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-sack-menu--no-weight-control",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/no-weight-control/recorded.session.json",
+    "recordingSha256": "8225854a0a69810f4a4a77dac6e8a9d28361ef10b4a4de05837be259d28c53e7",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2318,
+        "js": 2318
+      },
+      "screens": {
+        "c": 52,
+        "js": 52
+      },
+      "cursors": {
+        "c": 52,
+        "js": 52
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]

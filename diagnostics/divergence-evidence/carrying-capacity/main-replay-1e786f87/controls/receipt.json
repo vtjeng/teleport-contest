@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "commandId": "controls",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+    "/tmp/capacity-main-1e786f87",
+    "controls",
+    "/tmp/capacity-main-1e786f87-controls"
+  ],
+  "cwd": ".",
+  "jsSha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:30:12.688Z",
+  "exitCode": 0,
+  "elapsedSeconds": 2.769,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "oracle": "retained executed C recordings; no new C run"
+  },
+  "runnerSha256": "321ed2e5766e22164e9b7cd8d99d8ba8e3130ccdb347ecef9c687841d51c9cc0",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs": "321ed2e5766e22164e9b7cd8d99d8ba8e3130ccdb347ecef9c687841d51c9cc0",
+    "diagnostics/divergence-evidence/carrying-capacity/public-upper-boundaries/overtaxed/recorded.session.json": "76e4093fcfdc9543e99839f7f071ab916a18dbe3f1a4bc716fe901f7a57ad647",
+    "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/room-control/recorded.session.json": "811ba1ff3af35ae5d988b8ec70f22e040b5c56192bfc73ba8b1aab1f64624628",
+    "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/no-weight-control/recorded.session.json": "8225854a0a69810f4a4a77dac6e8a9d28361ef10b4a4de05837be259d28c53e7"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/source.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/results.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-upper-boundaries--overtaxed-js.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-upper-boundaries--overtaxed-comparison.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-gold-limit--room-control-js.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-gold-limit--room-control-comparison.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-sack-menu--no-weight-control-js.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-sack-menu--no-weight-control-comparison.json"
+  ],
+  "source": {
+    "mainSha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "jsTree": "d2c66290d9cf4ecccb9b33cb25d69197579346b2",
+    "frozenTree": "f94db314c0834c9ce4eb9c471f6e13753ea89348",
+    "scripts": {
+      "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc"
+    }
+  },
+  "conversion": "Copied completed Main JS replay artifacts unchanged; outputs normalized to repository paths. Original actual-receipt.json preserves temporary paths and executed argv. No new C recording."
+}
