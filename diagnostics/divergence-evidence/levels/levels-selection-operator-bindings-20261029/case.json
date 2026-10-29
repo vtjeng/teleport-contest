@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-selection-operator-bindings-20261029",
+  "shard": "levels",
+  "status": "unresolved",
+  "readiness": "incomplete",
+  "rootCause": null,
+  "relatedCases": [
+    "levels-selection-numeric-operators-20261028"
+  ],
+  "provenance": {
+    "jsSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_or",
+      "start_line": 306,
+      "end_line": 328,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_sub",
+      "start_line": 361,
+      "end_line": 385,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_new",
+      "start_line": 15,
+      "end_line": 30,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_free",
+      "start_line": 33,
+      "end_line": 44,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getbounds",
+      "start_line": 77,
+      "end_line": 95,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_recalc_bounds",
+      "start_line": 99,
+      "end_line": 165,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getpoint",
+      "start_line": 168,
+      "end_line": 178,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_setpoint",
+      "start_line": 181,
+      "end_line": 208,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/rect.c",
+      "symbol": "rect_bounds",
+      "start_line": 134,
+      "end_line": 140,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlsel.js",
+      "symbol": "l_selection_or",
+      "start_line": 57,
+      "end_line": 72,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlsel.js",
+      "symbol": "l_selection_sub",
+      "start_line": 76,
+      "end_line": 93,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlsel.js",
+      "symbol": "selectionBounds",
+      "start_line": 27,
+      "end_line": 42,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlsel.js",
+      "symbol": "rectBounds",
+      "start_line": 45,
+      "end_line": 52,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    }
+  ],
+  "hypothesis": "Ten unreviewed allocation/bounds/write edges might be explained by the prior numeric-selection proof, but caller changes require a current-source qualification.",
+  "expectedBehavior": "Within the reused finite same-absolute-frame domain, preserve full point maps, computed bounds, fresh result and immutable inputs.",
+  "observedBehavior": "All128 targets and8 controls match. Current caller body hashes differ from frozen scan because of mixed-frame conversion; those paths and current binding remain unqualified. Ten selected keys stay active/unresolved, with no suppression.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Revalidation of the existing finite same-frame proof plus explicit ten-key source-binding audit.",
+    "limitations": [
+      "This is a ten-key qualification audit, not ten new semantic findings. The prior selection-numeric-operators oracle is reused byte-for-byte with its exact finite fixtures and no domain expansion. No new independent cause or current negative count is asserted.",
+      "Both JS operands are absolute. Targets exhaust values0..7 at overlapping(3,4), controls use disjoint boolean points(3,4)/(7,2). All1680 map bytes and computed bounds match; result identity is fresh and both inputs unchanged. No relative/mixed frames, arbitrary layouts, signed overflow, invalid operands or OOM claim.",
+      "Current l_selection_or/sub add accepted selection_map_frame conversion when absolute markers differ. Frozen scan caller bodies differ. Those branches are outside the reused proof, so this package does not manufacture a new current review fingerprint or suppress any of the ten old-run leads.",
+      "C exact operator/selection storage/bounds functions execute with fixed valid two-selection Lua-stack adapters. l_selection_push_new adapter creates real selection_new storage but does not implement Lua userdata/metatable registration. No complete Lua parser/binding claim.",
+      "The selected keys cover fresh-result allocation, rect union, point writes and JS bounds helpers. Validation/type-check keys and cached bounds-dirty state are not included. All ten remain active/unresolved in the exported projection, awaiting a justified current-source binding and scoped qualification.",
+      "Eight previously stale reviewed bindings elsewhere remain untouched. Prior historical evidence remains immutable; its finite proof is revalidated here without retroactively promoting old identities. Main-owned mixed-frame fixes are not duplicated.",
+      "Cave-cap, bottom-level stairs and three parked gaps remain unresolved; all safety/access exclusions remain. No broad rescan, dependency install or gameplay change."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Actual exported operators on valid same-frame selections; no new mixed-frame or shipped attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Ten existing immutable-run keys retained; current callers changed, so no current reviewed-negative identity is invented.",
+    "keys": [
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:l_selection_push_new",
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:rect_bounds",
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_setpoint",
+      "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:rectBounds",
+      "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionBounds",
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:l_selection_push_new",
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:rect_bounds",
+      "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_setpoint",
+      "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:rectBounds",
+      "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionBounds"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/README.md",
+      "sha256": "233c2922c328a7f7c1d76c5625e186d8d5aef737dc24608aca598355771565d4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/binding-audit.json",
+      "sha256": "7db3741326f2ebe9919e6ac279a512993e206a2f171e272cb546eecebe2fab71",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/control-output.txt",
+      "sha256": "aa8350c5517ebcbf1e8af2e87227c6458041ecf2308bed4346ace1fdbbff2648",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/control-receipt.json",
+      "sha256": "a6a2912b14d72f6f2b8bff5c2c8ee1fade7bc36a5686f7263fcb052160604b4b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/decisions.json",
+      "sha256": "c4a1fb013bc6ff3f04a7367555b1a0c6498493f015a61780a8357d31182afc1b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/oracle.c",
+      "sha256": "7c6f5f819ad42418afaeca285023b580942f0335a76453e0e9306c4dbde16e76",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/probe.mjs",
+      "sha256": "d7ffaed1804d343749f9d90184e9b02845704d8410a3647b56ec16d0ef9bc71e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/projection/manifest.json",
+      "sha256": "7943dfceb388cf0de1a15e5d6bf672f3b00ffc85ada03b7f0c2aa21bc58728c6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/projection/projection.json",
+      "sha256": "69e50e72e492c7ef01016d93c6f6126d80e38adf4c77d61c4c322b6104a35f41",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/projection/review-template.json",
+      "sha256": "605395562418d73cb046b0d8ae1c62b83326e7bd65aa21f9e0bd1e44115900e4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/source-contract.json",
+      "sha256": "123ebb96c2ae42fee3695896400c86fbe66b531d7c34231d088b3bc565ffe572",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/source-fingerprints.json",
+      "sha256": "6317393b9b869b212d7ebd339ec37d3944930902f7a8768fcf69d18e2bed6b2a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/target-output.txt",
+      "sha256": "6daaa9f0470c6bd860cae9b36e40f08df89299079aa39d132a23d10d7705ff87",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/target-receipt.json",
+      "sha256": "1cc2f0e6b815fe00bd450938eae3c69a0b92986d12bce5b34a67d5255424b460",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "69e50e72e492c7ef01016d93c6f6126d80e38adf4c77d61c4c322b6104a35f41",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:l_selection_push_new",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:rect_bounds",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_setpoint",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:l_selection_push_new",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:rect_bounds",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_setpoint",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:rectBounds",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionBounds",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:rectBounds",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionBounds"
+  ],
+  "decisionsSha256": "c4a1fb013bc6ff3f04a7367555b1a0c6498493f015a61780a8357d31182afc1b",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 10,
+    "decisionsChecked": 10,
+    "before": {
+      "active": 10,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 10,
+      "filtered": 0,
+      "excluded": 0
+    }
+  }
+}

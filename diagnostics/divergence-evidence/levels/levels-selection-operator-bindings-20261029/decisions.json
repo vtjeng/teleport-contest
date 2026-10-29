@@ -1,0 +1,232 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:l_selection_push_new",
+    "evidenceKey": "ca7ecf5acda03db5508ff780f239a6e3ed3c4d314c93ced27e4ea0504dfbe2df",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "b9d479ef5263fbdfb20015a7b1e50ee195012df9b52960e2719e60b6712d2894",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:rect_bounds",
+    "evidenceKey": "5d5269e9addb2772cca5d1e8066185262d2dbf2dc843f2152858afcc8b2f9731",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "0d13de55bbabbd00a4f192ea1573d6eab62c004f5d5707e2a41daf0bf98acf3d",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_setpoint",
+    "evidenceKey": "5a614ee2bafa45300184b01c67be02d049a4c6dae3ac659c05d6ef78b663ad3f",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "02ff09a7545911dd2f9c2cf75cdc7088587a3478240604c3940b55fa3ab45fe9",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:rectBounds",
+    "evidenceKey": "e97346f1d0700ea1f06a39ce61f466d061e63237b2628158525166a5558c35a7",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "5a7e8ac5f123a0c4901deb1bf71139a551791172b21213b332da80d94c2e33a6",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionBounds",
+    "evidenceKey": "871a19c7404b8b4790ab63232fb74347e2c223e6ef43b5ef6abdadd7de808741",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "751827676dd126ec25f9f74ac8c3e50baa457e9309477ca6db18fd79a0b593f1",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:l_selection_push_new",
+    "evidenceKey": "81c81aef74a5aade5a721c32a37f0977843faa9a7903f21c46a6ef33907dcc23",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "91faaf60539a38c2a62f858c8d153efb6271cd8a800d672d912414e4a9f78372",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:rect_bounds",
+    "evidenceKey": "65ca6c894de00337bdab40b5b036119ba7291f40be9adfa530c994529b3878ca",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "4b897cf1c97e64acd7e384b1d8f1cd7f3aaf64c3782928128df9497299391765",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_setpoint",
+    "evidenceKey": "53f0c348b80ffbb57d0c2d893f5e6c012db484d3a5c1353402c212aa5493aba4",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "90375e915a17d19b44694bfb760c667acac2c78318bdee168f4f81eb3570026c",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:rectBounds",
+    "evidenceKey": "fde5f89c2432373e98d5a9ccc18ebe73bee64b27b5a84f88414c80fd932b7b9d",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "0aee7d5437ebd1cf80b0e6098f478fd9ea6ba23915ae796cbb49ab60bf671f94",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionBounds",
+    "evidenceKey": "3667502da0f97dc91c820d76d6a6a249ea131bb64aa1385064e8dc1ed091fe5b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "6dcad1f4b41ad956c882bfcbc640f6e24d78d9a711424b612936d47c4cb4e8f5",
+    "status": "unresolved",
+    "plausibleDifference": "This allocation/bounds/write edge is covered only by a finite same-absolute-frame comparison; the current caller has an added mixed-frame conversion branch, so the frozen caller identity cannot be presented as a current qualified negative.",
+    "attempts": [
+      {
+        "setup": "Reuse the prior exact C oracle without changing its fixtures:128 overlapping value0..7 comparisons and8 disjoint boolean controls. Execute current production JS OR/subtraction at89b8b37ad.",
+        "outcome": "All pass; whole1680-byte results, computed bounds, fresh outputs and unchanged inputs agree. This proves only the already bounded same-frame domain."
+      },
+      {
+        "setup": "Compare frozen scan-base32578f23 caller bodies to current JS l_selection_or/sub.",
+        "outcome": "Both now convert operands through selection_map_frame when absolute markers differ. That branch is not exercised by the reused proof. Source binding is changed; do not carry the old reviewFingerprint as a current negative."
+      }
+    ],
+    "nextExperiment": "At the next justified scoped inventory refresh, obtain current caller/evidence fingerprints and assess each edge against the bounded same-frame proof. Keep mixed/relative-frame claims separate from this proof and Main-owned frame repairs; do not rescan solely to manufacture a binding.",
+    "handoff": {
+      "caseId": "levels-selection-operator-bindings-20261029",
+      "qualification": "Unresolved current binding; no negative suppression or new semantic cause. Original frozen identity retained without alteration."
+    }
+  }
+]

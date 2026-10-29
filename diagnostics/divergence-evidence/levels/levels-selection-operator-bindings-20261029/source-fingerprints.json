@@ -1,0 +1,33 @@
+{
+  "testedJsSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+  "discoveredAt": "2026-10-29T03:00:10.224782+00:00",
+  "reviewedAt": "2026-10-29T03:00:10.224782+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/nhlsel.c:l_selection_or": "1da13770e3f43540b80927af6bc77331dd6d9ae97f6bc87484a4eec2a7a4b3aa",
+    "nethack-c/upstream/src/nhlsel.c:l_selection_sub": "d6d7711d211283a8c4802449b88061cda572c8130021cd1cf4d3d14c6df6f5fa",
+    "nethack-c/upstream/src/selvar.c:selection_new": "6d913b8ca4caa82997ce67c6d04573d4dd4b4fffd0f4761de641dd7ed437429e",
+    "nethack-c/upstream/src/selvar.c:selection_free": "95bcd7908c68fb26631fc9e13829e699855a85e2ff15eb762efa0cd85513c6a2",
+    "nethack-c/upstream/src/selvar.c:selection_getbounds": "0ba39ab523a09a5882bc1e81c2cedc7b9f48ddc8f76a1f69fb846fcea3b7e28b",
+    "nethack-c/upstream/src/selvar.c:selection_recalc_bounds": "3b99f83da4317c35816190f7dfb383f6cc11cb6849be544ddaccd4450b9d675c",
+    "nethack-c/upstream/src/selvar.c:selection_getpoint": "47402ee879031e62fe0b0a5bf77092254de0470a5412a84bdaa261e4e3f88e41",
+    "nethack-c/upstream/src/selvar.c:selection_setpoint": "d9987187051df698ab2ac8a161e0d80665e930e56823477d5c1dfb359c889a1f",
+    "nethack-c/upstream/src/rect.c:rect_bounds": "a25b31f2abe0a641574f58ab800ec849f4cc643ef49d9c0ef32abe6425b0f1f0",
+    "js/nhlsel.js:l_selection_or": "350c26070b99d9268460d0020d8e146af46b7255faea1d905fc5e07e54fdb564",
+    "js/nhlsel.js:l_selection_sub": "82a1546482204220cbe6723418b7e32a657aee5cb981f0f32b92b916f47c4c5e",
+    "js/nhlsel.js:selectionBounds": "834bbcd71cf05c83b22be2b37e38ff43f49b2c5687b95a0e30e850921598476e",
+    "js/nhlsel.js:rectBounds": "1524c46fec485f75800b81b4dce5310ae02d5c8305fed64092b753de1552d5e8"
+  },
+  "jsCallerBodiesChangedFromScanBase": true,
+  "configuration": "Node24.19.0;Clang19.1.7 (3+b1) -std=c99 -O2; original oracle unchanged; same absolute-frame value0..7 domain.",
+  "limitations": [
+    "This is a ten-key qualification audit, not ten new semantic findings. The prior selection-numeric-operators oracle is reused byte-for-byte with its exact finite fixtures and no domain expansion. No new independent cause or current negative count is asserted.",
+    "Both JS operands are absolute. Targets exhaust values0..7 at overlapping(3,4), controls use disjoint boolean points(3,4)/(7,2). All1680 map bytes and computed bounds match; result identity is fresh and both inputs unchanged. No relative/mixed frames, arbitrary layouts, signed overflow, invalid operands or OOM claim.",
+    "Current l_selection_or/sub add accepted selection_map_frame conversion when absolute markers differ. Frozen scan caller bodies differ. Those branches are outside the reused proof, so this package does not manufacture a new current review fingerprint or suppress any of the ten old-run leads.",
+    "C exact operator/selection storage/bounds functions execute with fixed valid two-selection Lua-stack adapters. l_selection_push_new adapter creates real selection_new storage but does not implement Lua userdata/metatable registration. No complete Lua parser/binding claim.",
+    "The selected keys cover fresh-result allocation, rect union, point writes and JS bounds helpers. Validation/type-check keys and cached bounds-dirty state are not included. All ten remain active/unresolved in the exported projection, awaiting a justified current-source binding and scoped qualification.",
+    "Eight previously stale reviewed bindings elsewhere remain untouched. Prior historical evidence remains immutable; its finite proof is revalidated here without retroactively promoting old identities. Main-owned mixed-frame fixes are not duplicated.",
+    "Cave-cap, bottom-level stairs and three parked gaps remain unresolved; all safety/access exclusions remain. No broad rescan, dependency install or gameplay change."
+  ]
+}
