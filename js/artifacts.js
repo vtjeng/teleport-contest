@@ -1730,11 +1730,11 @@ export function undiscovered_artifact(m, state = game) {
 }
 
 // C ref: artifact.c dump_artifact_info() (1177-1213). Display a list of
-// artifacts and their status flags in the caller's text window.
-export async function dump_artifact_info(state = game, putstr = null) {
+// artifacts and their status flags in a text window. Uses putstr, which the
+// JS port represents as ttyPline.
+export async function dump_artifact_info(state = game) {
     artifactTables(state);
-    const output = putstr ?? ((text) => ttyPline(text, state));
-    await output('Artifacts', true);
+    await ttyPline('Artifacts', state);
     for (let m = 1; m <= NROFARTIFACTS; ++m) {
         const e = state.artiexist[m];
         const flags = `[${e.exists ? 'exists;' : ''}${e.found ? ' hero knows;' : ''
@@ -1745,7 +1745,7 @@ export async function dump_artifact_info(state = game, putstr = null) {
         const name = artiname(m, state);
         /* "The Platinum Yendorian Express Card" is 35 characters */
         const padded = (name + ' '.repeat(36)).slice(0, 36);
-        await output(`  ${padded}${flags}`, false);
+        await ttyPline(`  ${padded}${flags}`, state);
     }
 }
 

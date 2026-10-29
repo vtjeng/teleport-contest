@@ -257,11 +257,8 @@ export function luaL_checkoption(value, defval, opts) {
     const name = value == null ? defval : value;
     if (typeof name !== 'string')
         throw new Error(`string expected, got ${luaL_typename(value)}`);
-    // Lua's option matcher compares C strings, so bytes after NUL do not
-    // participate in strcmp (or its invalid-option diagnostic).
-    const cName = name.split('\0', 1)[0];
-    const index = opts.indexOf(cName);
-    if (index < 0) throw new Error(`invalid option '${cName}'`);
+    const index = opts.indexOf(name);
+    if (index < 0) throw new Error(`invalid option '${name}'`);
     return index;
 }
 
@@ -315,18 +312,10 @@ export function get_table_int_opt(table, name, defval) {
 // a function field, or `defval`; null when both are absent.
 export function get_table_str_opt(table, name, defval) {
     let value = table[name];
-    if (typeof value === 'function') {
-        value = value();
-        // C applies luaL_optstring after nhl_pcall_handle. Its numeric result
-        // is string-coercible; a raw numeric table field is still rejected.
-        if (typeof value === 'number') value = luaL_checkstring(value);
-    }
+    if (typeof value === 'function') value = value();
     if (value != null && typeof value !== 'string')
         throw new Error('get_table_str_opt: no string');
-    // Unlike a Lua VM string, this reader's result is an owned C dupstr().
-    // Preserve empty strings (including a leading NUL), defaults and null.
-    const text = value ?? defval ?? null;
-    return text === null ? null : text.split('\0', 1)[0];
+    return value ?? defval ?? null;
 }
 
 // C ref: nhlua.c get_table_str(). A required string field.

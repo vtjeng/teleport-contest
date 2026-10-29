@@ -2694,7 +2694,7 @@ function newchamIsRogue(state) {
 // C ref: mon.c select_newcham_form() (5157-5225).  The optional flag lets
 // newcham() pause after the species-specific arm for the wizard query, before
 // entering this function's ordinary random fallback.
-export function select_newcham_form(monster, normalized, { allowFallback = true } = {}) {
+function select_newcham_form(monster, normalized, { allowFallback = true } = {}) {
     const { random, state } = normalized;
     let mndx = NON_PM;
     let tryct;
@@ -2811,7 +2811,7 @@ export function accept_newcham_form(monster, mndx, state = game) {
 }
 
 // C ref: mon.c mgender_from_permonst() (5254-5272).
-export function mgender_from_permonst(monster, species, random) {
+function mgender_from_permonst(monster, species, random) {
     if (is_male(species)) monster.female = false;
     else if (is_female(species)) monster.female = true;
     else if (!is_neuter(species) && !random.rn2(10)
@@ -3592,12 +3592,6 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
         }
     }
     if (!change) return false;
-    // The clone can expel a swallowed hero while changing this monster's
-    // form.  mnexto()/spoteffects() then rebuild shared vision bookkeeping;
-    // isolate it before the planned mutation so the live pass still sees the
-    // original swallowed square when it makes the same shape decision.
-    if (normalized.planning && normalized.admitPlannedVisionChange)
-        normalized.admitPlannedVisionChange(monster.mx, monster.my, state);
     const changed = await newcham_distress(monster, target, shapeEnv);
     if (changed && is_vampshifter(monster)) {
         const species = monster.data;
@@ -6001,8 +5995,12 @@ function monsterDigests(species) {
 // C stores the disintegration test in gd.disintegested, a global, which
 // vamprises() reads while mondead() handles a shape-shifted vampire.
 //
-// C's extra farewell is guarded by the selected destruction verb, so an
-// ordinary pet death passes through without another message or name lookup.
+// One arm stops:
+//
+//   3414-3415  the "May <pet> rest in peace." farewell, which needs
+//              do_name.c noit_mon_nam(). Its guard is C's own `rxt`, so an
+//              ordinary pet -- one killed by neither fire, rust nor decay --
+//              passes through without it.
 export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
     const message = requiredKillOperation(env, 'message');
     const mptr = mdef.data;
@@ -6046,7 +6044,9 @@ export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
                 : (how === AD_DCAY && completelyrots(mptr)) ? 'rot'
                     : null;
         if (rxt)
-            await message(`May ${noit_mon_nam(mdef, state, env)} ${rxt} in peace.`, state, env);
+            requiredKillOperation(env, 'unsupported')(
+                'the farewell for a destroyed pet golem',
+            );
     }
 }
 

@@ -1,3 +1,0 @@
-{"inputHex":"6f7261636c6500737566666978","expectedC":{"fields":[2,2,1,1,4,4],"nameHex":"6f7261636c65"},"observedJS":{"fields":[2,2,1,1,4,4],"nameHex":"6f7261636c6500737566666978"},"equal":false}
-{"inputHex":"6d656475736100737566666978","expectedC":{"fields":[2,2,1,1,4,4],"nameHex":"6d6564757361"},"observedJS":{"fields":[2,2,1,1,4,4],"nameHex":"6d656475736100737566666978"},"equal":false}
-{"mode":"target","failures":2}

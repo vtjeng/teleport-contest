@@ -1098,6 +1098,12 @@ export function create_gas_cloud_selection(selection, damage = 0, rawEnv = {}) {
     damage = Math.trunc(damage);
     if (damage < 0)
         throw new RangeError(`invalid gas-cloud damage ${damage}`);
+    if (damage > 0) {
+        throw new UnsupportedRegionCallbackError(
+            INSIDE_GAS_CLOUD,
+            ' with positive damage',
+        );
+    }
     const state = rawEnv.state ?? game;
     if (!state.in_mklev) {
         throw new UnsupportedRegionOperationError(

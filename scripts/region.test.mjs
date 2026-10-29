@@ -231,31 +231,26 @@ test('add_region requires runtime visual ownership unless explicitly deferred', 
     assert.deepEqual(state.level.regions, [cloud]);
 });
 
-test('gas-cloud selections retain damage and poison-cloud glyph', () => {
-    // C region.c:1313-1335 passes any damage to make_gas_cloud();
-    // sp_lev.c:lspo_gas_cloud exposes this from a level selection.
-    // Source-derived expectation with the zero-damage selection as control.
-    const harmfulState = regionState({ in_mklev: true });
+test('gas-cloud selections reject harmful upkeep before reading points', () => {
+    const state = regionState({ in_mklev: true });
+    let reads = 0;
     const selection = {
-        bounds: () => ({ lx: 1, ly: 1, hx: 1, hy: 1 }),
-        get: () => true,
+        bounds() {
+            ++reads;
+            return { lx: 1, ly: 1, hx: 1, hy: 1 };
+        },
+        get() {
+            ++reads;
+            return true;
+        },
     };
-    const harmful = create_gas_cloud_selection(selection, 1, {
-        state: harmfulState,
-    });
-    assert.deepEqual(harmfulState.level.regions, [harmful]);
-    assert.deepEqual(harmful.rects, [{ lx: 1, ly: 1, hx: 1, hy: 1 }]);
-    assert.equal(harmful.arg, 1);
-    assert.equal(harmful.glyph_cmap, S_poisoncloud);
-    assert.equal(harmful.heros_fault, false);
 
-    const harmlessState = regionState({ in_mklev: true });
-    const harmless = create_gas_cloud_selection(selection, 0, {
-        state: harmlessState,
-    });
-    assert.deepEqual(harmlessState.level.regions, [harmless]);
-    assert.equal(harmless.arg, 0);
-    assert.equal(harmless.glyph_cmap, S_cloud);
+    assert.throws(
+        () => create_gas_cloud_selection(selection, 1, { state }),
+        (error) => error instanceof UnsupportedRegionCallbackError,
+    );
+    assert.equal(reads, 0);
+    assert.deepEqual(state.level.regions, []);
 });
 
 test('create_gas_cloud preflights runtime activation before drawing or mutation', async () => {

@@ -1,5 +1,0 @@
-{"dir":0,"kind":0,"expected":{"before":[12,8,1],"after":[23,8,1]},"observed":{"before":[12,8,1],"after":[23,0,1]}}
-{"dir":1,"kind":0,"expected":{"before":[12,8,1],"after":[23,8,1]},"observed":{"before":[12,8,1],"after":[23,0,1]}}
-{"dir":2,"kind":0,"expected":{"before":[12,8,0],"after":[23,8,1]},"observed":{"before":[12,8,0],"after":[23,0,1]}}
-{"dir":3,"kind":0,"expected":{"before":[12,8,0],"after":[23,8,0]},"observed":{"before":[12,8,0],"after":[23,0,0]}}
-{"mode":"target","differences":4}

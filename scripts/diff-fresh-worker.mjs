@@ -3,7 +3,7 @@
 // Isolated JS replay worker for diff-fresh.mjs. Keeping contestant imports in
 // this process lets the parent enforce the same timeout boundary as the judge.
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import {createHash} from 'node:crypto';
 import {verifyComparisonWorkspace} from './prep-comparison.mjs';
 
@@ -15,7 +15,7 @@ import {
 const RESULT_MARKER = '__FRESH_DIFF_RESULT__';
 
 async function main() {
-    const [recordingPath, scoringRoot, comparisonCommit, evidenceDir] = process.argv.slice(2);
+    const [recordingPath, scoringRoot, comparisonCommit] = process.argv.slice(2);
     if (!recordingPath || !scoringRoot) {
         throw new Error('worker requires a recording path and scoring workspace');
     }
@@ -23,7 +23,6 @@ async function main() {
     const recording = JSON.parse(bytes);
     const commit = comparisonCommit && verifyComparisonWorkspace(process.cwd(), scoringRoot, comparisonCommit);
     const jsOutput = await runJsSession(recording, scoringRoot);
-    if (evidenceDir) writeFileSync(`${evidenceDir}/js-output.json`, JSON.stringify(jsOutput));
     const result = compareSessionOutputs(recording, jsOutput);
     if (commit) {
         verifyComparisonWorkspace(process.cwd(), scoringRoot, commit);

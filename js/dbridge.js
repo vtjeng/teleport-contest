@@ -13,7 +13,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { canseemon, canspotmon, newsym } from './display.js';
+import { canseemon, newsym } from './display.js';
 import { hliquid, Monnam, mon_nam } from './do_name.js';
 import { flooreffects } from './do.js';
 import { done } from './end.js';
@@ -23,7 +23,7 @@ import { dist2 } from './hacklib.js';
 import { delallobj, obj_extract_self, sobj_at } from './invent.js';
 import {
     amphibious, breathless, is_flyer, is_floater, is_swimmer, likes_lava,
-    noncorporeal, passes_walls, mhe,
+    noncorporeal, passes_walls,
 } from './mondata.js';
 import { AD_DGST, AD_PHYS, PM_LONG_WORM_TAIL } from './monsters.js';
 import { heroUnaware as plineHeroUnaware, youHear } from './pline.js';
@@ -555,19 +555,10 @@ async function e_died(entity, xkillFlags, how, state, env) {
         (xkillFlags & XKILL_NOMSG) ? null : '', corpseHow, state, env);
     else await xkilled(entity.emon, xkillFlags, state, env);
     if ((entity.emon?.mhp ?? 0) > 0) {
-        const seeit = canspotmon(entity.emon, state);
         const retriedFlags = xkillFlags | XKILL_NOMSG | XKILL_NOCONDUCT;
         if (state.context?.mon_moving)
             await monkilled(entity.emon, '', corpseHow, state, env);
         else await xkilled(entity.emon, retriedFlags, state, env);
-        if ((entity.emon?.mhp ?? 0) < 1 && seeit) {
-            await (env.message ?? ttyPline)(
-                `Unfortunately for ${mon_nam(entity.emon, state, env)}, `
-                + `${mhe(entity.emon, { ...env, state,
-                    canSpotMonster: mon => canspotmon(mon, state) })} is still crushed.`,
-                state,
-            );
-        }
     }
     entity.edata = null;
     for (const other of occupants(state)) {
@@ -762,18 +753,6 @@ async function do_entity(entity, state, env = {}) {
         inview = entityCanSee(entity, state);
     }
     if (is_db_wall(entity.ex, entity.ey, state)) {
-        // C dbridge.c:do_entity() reports a visible occupant's arrival
-        // before checking whether the portcullis chamber kills it.
-        if (inview) {
-            if (is_u(entity, state)) {
-                await message('You tumble towards the closed portcullis!', state);
-                await message(automiss(entity, state)
-                    ? 'You pass through it!'
-                    : 'The drawbridge closes in...', state);
-            } else {
-                await message(`${E_phrase(entity, 'disappear', state)} behind the drawbridge.`, state);
-            }
-        }
         if (!e_survives_at(entity, entity.ex, entity.ey, state)) {
             state.killer ??= {};
             state.killer.format = KILLED_BY_AN;
@@ -794,17 +773,8 @@ async function do_entity(entity, state, env = {}) {
     }
     const pool = is_pool(entity.ex, entity.ey, state);
     const lava = is_lava(entity.ex, entity.ey, state);
-    if ((pool || lava) && inview && !is_u(entity, state)) {
-        // C dbridge.c:743-753 uses a different visible-monster line while
-        // hallucinating; its liquid name is literal in that arm.
-        if (heroHallucinating(state)) {
-            await message(`${E_phrase(entity, 'drink', state)} the `
-                + `${lava ? 'lava' : 'moat'} and disappears.`, state);
-        } else {
-            await message(`${E_phrase(entity, 'fall', state)} into the `
-                + `${lava ? 'lava' : 'moat'}.`, state);
-        }
-    }
+    if ((pool || lava) && inview && !is_u(entity, state))
+        await message(`${E_phrase(entity, pool ? 'fall' : 'fall', state)} into the ${pool ? 'moat' : 'lava'}.`, state);
     state.killer ??= {};
     state.killer.format = NO_KILLER_PREFIX;
     state.killer.name = 'fell from a drawbridge';

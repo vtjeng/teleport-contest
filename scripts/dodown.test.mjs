@@ -1097,7 +1097,7 @@ test('goto_level falls down burdened stairs before the arrival tail',
 test('goto_level calls selftouch at both source fall sites', () => {
     const cStart = C_SOURCE.indexOf('\ngoto_level(\n');
     const jsStart = JS_SOURCE.indexOf('export async function goto_level');
-    const jsEnd = JS_SOURCE.indexOf('\nexport async function u_collide_m', jsStart);
+    const jsEnd = JS_SOURCE.indexOf('\nasync function u_collide_m', jsStart);
     assert.ok(cStart >= 0 && jsStart >= 0 && jsEnd > jsStart);
     const cBody = C_SOURCE.slice(cStart, C_SOURCE.indexOf('\n}\n', cStart));
     const jsBody = JS_SOURCE.slice(jsStart, jsEnd);

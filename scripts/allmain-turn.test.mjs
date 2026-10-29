@@ -3050,9 +3050,6 @@ test('a planned blocking mimic birth restores live vision on every exit',
             game.head_engr = null;
             game.u.ulevel = 15;
             game.u.uevent.udemigod = true;
-            // wizdeadorgone() always starts a 50..299 turn countdown. Keep
-            // this vision fixture away from the intervention expiry turn.
-            game.u.udg_cnt = 200;
             game.u.uhave.amulet = true;
             game.context.seer_turn = 100000;
             game.context.next_attrib_check = 100000;

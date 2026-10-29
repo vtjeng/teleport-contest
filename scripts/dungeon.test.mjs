@@ -1360,7 +1360,7 @@ test('u_on_newpos keeps its live redraw default and lets planned recoil stay sil
     assert.ok(jsOrder.every((position) => position >= 0));
     assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
     assert.match(jsHurtle,
-        /if \(planning\) \{[\s\S]*?arg\.requestPlanningInput\('trap\.c drown via hurtle'\);[\s\S]*?throw new Error\('planned hurtle into pool needs a live handoff'\);\s*\} else \{\s*await drown\(state\);\s*\}\s*return false;/u);
+        /if \(planning\) \{\s*\/\/ C discards drown\(\)'s boolean[\s\S]*?note_unported\('trap\.c drown planning'\);\s*\} else \{\s*await drown\(state\);\s*\}\s*return false;/u);
 
     const live = resetGame();
     live.u = {

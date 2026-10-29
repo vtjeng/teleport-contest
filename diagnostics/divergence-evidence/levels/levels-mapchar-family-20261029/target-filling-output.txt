@@ -1,4 +1,0 @@
-{"field":"filling","hex":"5400737566666978","expected":[0,13],"observed":[1,25]}
-{"field":"filling","hex":"5400","expected":[0,13],"observed":[1,25]}
-{"field":"filling","hex":"0054","expected":[0,25],"observed":[1,25]}
-{"mode":"target","field":"filling","differences":3}

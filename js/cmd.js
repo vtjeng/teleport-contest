@@ -143,7 +143,6 @@ import {
     dodrop, doddrop,
     dowipe,
     doup,
-    u_collide_m,
     UnsupportedDropError,
     UnsupportedLevelChangeError,
 } from './do.js';
@@ -251,7 +250,6 @@ import {
     strstri,
     strsubst,
     truncateByteString,
-    appendLongDigit,
     upstart,
     visctrl,
 } from './hacklib.js';
@@ -309,7 +307,6 @@ import {
     dohistory,
     doidtrap,
     dowhatdoes,
-    dowhatdoes_core,
     doquickwhatis,
     do_screen_description,
     dowhatis,
@@ -402,7 +399,7 @@ import {
     selection_new,
     set_selection_floodfillchk,
 } from './themerooms.js';
-import { collectLookaroundMessages, heroIsBlind, messageAt } from './startup_a11y.js';
+import { collectLookaroundMessages, messageAt } from './startup_a11y.js';
 import { cansee, vision_reset } from './vision.js';
 import { m_at } from './monst.js';
 import { linedup } from './mthrowu.js';
@@ -854,15 +851,14 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
         cmdq_clear(CQ_CANNED, state);
         res = ESC;
         fromQueue = true;
-    }
-    if (!fromQueue && res === undefined) {
-        // A queued CMDQ_USER_INPUT asks for a fresh answer through the same
-        // menu-capable path as an ordinary prompt, after its marker is popped.
+    } else {
         const menuResult = await yn_function_menu(query, resp, def, state);
         res = menuResult === null
             ? await tty_yn_function(query, resp, def, state)
             : menuResult;
     }
+    if (!fromQueue && res === undefined)
+        res = await tty_yn_function(query, resp, def, state);
     if (addcmdq && !fromQueue) cmdq_add_key(CQ_REPEAT, res, state);
     // "in case we're called via getdir() which sets input_state".
     state.program_state.input_state = 'other';
@@ -1472,6 +1468,9 @@ export async function doextlist(state = game) {
 // getdir() at cmd.c:4101.
 //
 // The #if 0 block (lines 4195-4227) is dead code in the C source; skipped.
+// The dowhatdoes_core() ctrl-key suggestion branch (lines 4243-4261) is
+// unreachable when sym == '\0' because letter('\0') is false; left as a
+// deferred stub.
 // The help_requested retry path (goto retry at cmd.c:4106) is not exercised
 // by any witness session; deferred.
 async function help_dir(sym, spkey, msg, state = game) {
@@ -1488,24 +1487,15 @@ async function help_dir(sym, spkey, msg, state = game) {
         lines.push({ text: '' });
     }
 
+    // The dowhatdoes_core() ctrl-key suggestion is unreachable when sym is
+    // '\0' (null byte) because C's letter() returns false for it. Both witness
+    // sessions pass sym='\0'. Stub the branch.
     if (!prefixhandling && sym !== 0
         && ((sym >= 0x41 && sym <= 0x5A)     // A-Z
             || (sym >= 0x61 && sym <= 0x7A)  // a-z
             || sym === 0x40                  // @
             || sym === 0x5B)) {              // [
-        const upper = sym >= 0x61 && sym <= 0x7A ? sym - 0x20 : sym;
-        const letter = String.fromCharCode(upper);
-        const explanation = dowhatdoes_core(upper - 0x40, state);
-        const wizardOnly = 'EFGIVW'.includes(letter);
-        if (explanation && (!wizardOnly || state.wizard)) {
-            lines.push({ text: `Are you trying to use ^${letter}${wizardOnly ? '' : ' as specified in the Guidebook'}?` });
-            lines.push({ text: '' });
-            lines.push({ text: explanation });
-            lines.push({ text: '' });
-            lines.push({ text: 'To use that command, hold down the <Ctrl> key as a shift' });
-            lines.push({ text: `and press the <${letter}> key.` });
-            lines.push({ text: '' });
-        }
+        // dowhatdoes_core() suggestion -- deferred.
     }
 
     const nodiag = NODIAG(state.u.umonnum);
@@ -1563,10 +1553,11 @@ export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
 // C ref: cmd.c getdir() (3958-4098). Returns 1 when u.dx/u.dy/u.dz name a
 // direction and 0 otherwise, exactly as C does.
 //
-// The simulated-mouse key needs getpos(); confdir() stops for an impaired
-// hero. help_dir() is ported and displays the direction-key window
-// when cmdassist is set (the default). A requested help page retries the
-// direction prompt as cmd.c does at its retry label.
+// Three inputs stop here. The simulated-mouse key needs getpos(); '^R' needs
+// docrt_flags() and the retry loop above got_dirsym; and confdir() stops for
+// an impaired hero. help_dir() is ported and displays the direction-key window
+// when cmdassist is set (the default). The help_requested retry path
+// (cmd.c:4106 goto retry) is deferred.
 export async function getdir(s, state = game) {
     const u = state.u;
     state.program_state ??= {};
@@ -1587,120 +1578,116 @@ export async function getdir(s, state = game) {
         cmdq_clear(CQ_CANNED, state);
         dirsym = 0;
     }
-    const spkeys = commandBindings(state).specialKeys;
-    // C's retry label is reached after the help page is dismissed.  Each
-    // prompted answer is added to CQ_REPEAT before direction interpretation;
-    // a key consumed from cmdq jumps to got_dirsym and is not recorded here.
-    let needsPrompt = dirsym === undefined;
-    while (true) {
-        let fromPrompt = false;
-        if (needsPrompt) {
-            state.program_state.input_state = 'getdir';
-            if (state.in_doagain || state.readchar_queue)
-                dirsym = await readchar(state);
-            else
-                dirsym = await yn_function(
-                    (s && s[0] !== '^') ? s : 'In what direction?',
-                    null,
-                    '\0',
-                    false,
-                    state,
-                );
-            // "remove the prompt string so caller won't have to"
-            clearTtyMessageWindow(state);
-            fromPrompt = true;
-        }
-        needsPrompt = true;
-
-        if (fromPrompt && redraw_cmd(dirsym, state)) {
-            // cmd.c:4013-4015: refresh the current glyph buffer, then retry
-            // the prompt without adding the redraw key to CQ_REPEAT. A queued
-            // direction jumps past this check to got_dirsym in C.
-            // Planning clones have no terminal; the live replay owns the
-            // source redraw, while both paths retry the same input prompt.
-            if (state === game) await docrt({ refreshOnly: true });
-            continue;
-        }
-        if (fromPrompt && !state.in_doagain)
-            cmdq_add_key(CQ_REPEAT, dirsym, state);
-
-        // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
-        // only in the final `else if`, so the self arm writes <0,0,0> and returns
-        // it without movecmd() ever running.
-        if (dirsym === spkeys['getdir.self']
-            || dirsym === spkeys['getdir.self2']) {
-            u.dx = 0;
-            u.dy = 0;
-            u.dz = 0;
-        } else if (dirsym === spkeys['getdir.mouse']) {
-            const pickKeys = commandBindings(state).specialKeys;
-            const cc = { x: u.ux, y: u.uy };
-            const pos = await getpos(
-                cc,
-                true,
-                `desired location, then type '${visctrl(pickKeys['getpos.pick.quick'])}' for left click, `
-                    + `'${visctrl(pickKeys['getpos.pick'])}' for right`,
+    // retry: -- only the '^R' arm jumps back here, and it is refused below.
+    if (dirsym === undefined) {
+        state.program_state.input_state = 'getdir';
+        if (state.in_doagain || state.readchar_queue)
+            dirsym = await readchar(state);
+        else
+            dirsym = await yn_function(
+                (s && s[0] !== '^') ? s : 'In what direction?',
+                null,
+                '\0',
+                false,
                 state,
             );
-            let mod = 0;
-            if (pos < 0) {
-                // C cmd.c:getdir() turns Escape/rejection into a zero direction.
-                u.dx = u.dy = u.dz = 0;
-            } else {
-                u.dx = cc.x - u.ux;
-                u.dy = cc.y - u.uy;
-                if (!state.iflags.getdir_click) {
-                    u.dx = sgn(u.dx);
-                    u.dy = sgn(u.dy);
-                }
-                u.dz = 0;
+        // "remove the prompt string so caller won't have to"
+        clearTtyMessageWindow(state);
+    }
 
-                if (pos === LOOK_QUICK || pos === LOOK_ONCE) {
-                    mod = CLICK_1;
-                } else if (pos === LOOK_TRADITIONAL || pos === LOOK_VERBOSE) {
-                    mod = CLICK_2;
-                } else {
-                    // getpos() only returns these four PICK_ONE results. Keep
-                    // C's defensive failure result if that contract changes.
-                    mod = 0;
-                }
-            }
-            if (state.iflags.getdir_click)
-                state.iflags.getdir_click = mod;
-            return pos >= 0 && pos <= LOOK_VERBOSE;
+    if (redraw_cmd(dirsym, state)) {
+        throw new UnsupportedDirectionBoundaryError(
+            "'^R' repaints the screen and reissues the direction prompt",
+        );
+    }
+    // C jumps straight to got_dirsym for every queued node, so only a
+    // direction read from the prompt is recorded for a later do-again.
+    if (!queued && !state.in_doagain)
+        cmdq_add_key(CQ_REPEAT, dirsym, state);
+
+    const spkeys = commandBindings(state).specialKeys;
+    // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
+    // only in the final `else if`, so the self arm writes <0,0,0> and returns
+    // it without movecmd() ever running.
+    if (dirsym === spkeys['getdir.self']
+        || dirsym === spkeys['getdir.self2']) {
+        u.dx = 0;
+        u.dy = 0;
+        u.dz = 0;
+    } else if (dirsym === spkeys['getdir.mouse']) {
+        const pickKeys = commandBindings(state).specialKeys;
+        const cc = { x: u.ux, y: u.uy };
+        const pos = await getpos(
+            cc,
+            true,
+            `desired location, then type '${visctrl(pickKeys['getpos.pick.quick'])}' for left click, `
+                + `'${visctrl(pickKeys['getpos.pick'])}' for right`,
+            state,
+        );
+        let mod = 0;
+        if (pos < 0) {
+            // C cmd.c:getdir() turns Escape/rejection into a zero direction.
+            u.dx = u.dy = u.dz = 0;
         } else {
-            const is_mov = movecmd(dirsym, MV_ANY, state);
-            if (!is_mov && !u.dz) {
-                let did_help = false;
-                if (!quitchars.includes(String.fromCharCode(dirsym))) {
-                    const help_requested = dirsym === spkeys['getdir.help'];
-                    if (help_requested || state.iflags.cmdassist) {
-                        // help_dir()'s `!viawindow` early return is inside an
-                        // `#if 0` block, so with cmdassist set it always opens a
-                        // window and always answers TRUE.
-                        did_help = await help_dir(
-                            (s && s[0] === '^') ? dirsym : 0,
-                            spkeys.escape,
-                            help_requested ? null : 'Invalid direction key!',
-                            state,
-                        );
-                        if (help_requested) continue;
-                    }
-                    if (!did_help) {
-                        await ttyPline('What a strange direction!', state);
-                    }
-                }
-                return 0;
+            u.dx = cc.x - u.ux;
+            u.dy = cc.y - u.uy;
+            if (!state.iflags.getdir_click) {
+                u.dx = sgn(u.dx);
+                u.dy = sgn(u.dy);
             }
-            if (is_mov && !dxdy_moveok(state)) {
-                await ttyPline(
-                    "You can't orient yourself that direction.",
-                    state,
-                );
-                return 0;
+            u.dz = 0;
+
+            if (pos === LOOK_QUICK || pos === LOOK_ONCE) {
+                mod = CLICK_1;
+            } else if (pos === LOOK_TRADITIONAL || pos === LOOK_VERBOSE) {
+                mod = CLICK_2;
+            } else {
+                // getpos() only returns these four PICK_ONE results. Keep
+                // C's defensive failure result if that contract changes.
+                mod = 0;
             }
         }
-        break;
+        if (state.iflags.getdir_click)
+            state.iflags.getdir_click = mod;
+        return pos >= 0 && pos <= LOOK_VERBOSE;
+    } else {
+        const is_mov = movecmd(dirsym, MV_ANY, state);
+        if (!is_mov && !u.dz) {
+            let did_help = false;
+            if (!quitchars.includes(String.fromCharCode(dirsym))) {
+                const help_requested = dirsym === spkeys['getdir.help'];
+                if (help_requested || state.iflags.cmdassist) {
+                    // help_dir()'s `!viawindow` early return is inside an
+                    // `#if 0` block, so with cmdassist set it always opens a
+                    // window and always answers TRUE.
+                    did_help = await help_dir(
+                        (s && s[0] === '^') ? dirsym : 0,
+                        spkeys.escape,
+                        help_requested ? null : 'Invalid direction key!',
+                        state,
+                    );
+                    if (help_requested) {
+                        // The C source jumps to `retry:` (cmd.c:4106),
+                        // re-prompting for a direction. Not exercised by any
+                        // witness session; deferred.
+                        throw new UnsupportedDirectionBoundaryError(
+                            'help_requested retry path re-prompts for direction',
+                        );
+                    }
+                }
+                if (!did_help) {
+                    await ttyPline('What a strange direction!', state);
+                }
+            }
+            return 0;
+        }
+        if (is_mov && !dxdy_moveok(state)) {
+            await ttyPline(
+                "You can't orient yourself that direction.",
+                state,
+            );
+            return 0;
+        }
     }
     if (!u.dz) confdir(false, state);
     return 1;
@@ -1721,10 +1708,7 @@ export async function get_count(
     state.program_state ??= {};
     const savedInputState = state.program_state.input_state;
     let key = inkey;
-    // C uses a signed long here. Keep the decimal input exact through the
-    // LONG_MAX check and TTY echo; callers still receive Numbers for ordinary
-    // counts that JavaScript can represent exactly.
-    let count = 0n;
+    let count = 0;
     let committedCount = 0;
     let first = inkey ? inkey - 0x30 : 0;
     let backspaced = false;
@@ -1735,10 +1719,14 @@ export async function get_count(
     const escape = commandBindings(state).specialKeys.escape ?? ESC;
 
     const storeCount = (value) => {
-        committedCount = value <= BigInt(Number.MAX_SAFE_INTEGER)
-            ? Number(value) : value;
-        if (countOut && typeof countOut === 'object') countOut.value = committedCount;
+        committedCount = value;
+        if (countOut && typeof countOut === 'object') countOut.value = value;
     };
+    const appendLongDigit = (value, digitValue) => {
+        const appended = value * 10 + digitValue;
+        return appended > Number.MAX_SAFE_INTEGER ? -1 : appended;
+    };
+
     for (;;) {
         if (inkey) {
             key = inkey;
@@ -1751,14 +1739,13 @@ export async function get_count(
         if (isDigit(key)) {
             const dgt = key - 0x30;
             count = appendLongDigit(count, dgt);
-            if (count < 0n) count = 0n;
-            else if (maxcount > 0 && count > BigInt(maxcount))
-                count = BigInt(maxcount);
+            if (count < 0) count = 0;
+            else if (maxcount > 0 && count > maxcount) count = maxcount;
             showzero = key === 0x30;
         } else if (key === BACKSPACE || key === DELETE) {
             if (!count && !echoalways) break;
             showzero = false;
-            count /= 10n;
+            count = Math.trunc(count / 10);
             backspaced = true;
         } else if (key === escape) {
             break;
@@ -1767,7 +1754,7 @@ export async function get_count(
             break;
         }
 
-        if (count > 9n || backspaced || echoalways) {
+        if (count > 9 || backspaced || echoalways) {
             clearTtyMessageWindow(state);
             let countMessage;
             if (backspaced && !count && !showzero) {
@@ -1915,7 +1902,7 @@ export function end_of_input(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'prevmsg', 'versionshort',
-    'call', 'name', 'turn',
+    'call', 'name',
     'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'droptype', 'pickup', 'pay',
     'takeoff', 'takeoffall', 'remove', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
@@ -2345,46 +2332,18 @@ export async function extcmd_via_menu(state = game) {
         }
         if (choices.length === 1) return extcmdlist.indexOf(choices[0]);
 
-        const onePerLine = choices.length < ROWNO - 3;
-        const items = [];
-        let previousAccelerator = null;
-        let previousName = '';
-        let prompt = '';
-        let count = 0;
-        let wasTooLong = false;
-        const flush = () => {
-            if (count) items.push({
-                selector: previousAccelerator,
-                value: previousAccelerator,
-                label: prompt,
-            });
-            count = 0;
-        };
+        const groups = new Map();
         for (const entry of choices) {
             const accelerator = entry.ef_txt[matchLevel];
             if (!accelerator) continue;
-            const newAccelerator = accelerator !== previousAccelerator;
-            if (newAccelerator || onePerLine) wasTooLong = false;
-            const wrapped = count >= 2
-                && prompt.length + 4 + entry.ef_txt.length
-                    >= Math.min(QBUFSZ, COLNO - 6);
-            if (newAccelerator || onePerLine || wrapped) {
-                flush();
-                if (wrapped && !newAccelerator && !onePerLine)
-                    wasTooLong = true;
-            }
-            previousAccelerator = accelerator;
-            if (!count || onePerLine) {
-                prompt = `${wasTooLong ? 'or ' : ''}${entry.ef_txt} [${entry.ef_desc}]`;
-            } else if (count === 1) {
-                prompt = `${wasTooLong ? 'or ' : ''}${previousName} or ${entry.ef_txt}`;
-            } else {
-                prompt += ` or ${entry.ef_txt}`;
-            }
-            previousName = entry.ef_txt;
-            count++;
+            if (!groups.has(accelerator)) groups.set(accelerator, []);
+            groups.get(accelerator).push(entry);
         }
-        flush();
+        const items = [...groups].map(([accelerator, rows]) => ({
+            selector: accelerator,
+            value: accelerator,
+            label: rows.map((row) => `${row.ef_txt} [${row.ef_desc}]`).join(' or '),
+        }));
         const selected = await select_menu(state, {
             items,
             how: PICK_ONE,
@@ -2609,7 +2568,7 @@ export async function dolookaround(state = game) {
                 if (isok(x, y) && (state.level?.at(x, y)?.typ ?? -1) >= ROOM)
                     await lookaround_known_room(x, y, state);
             }
-        } else {
+        } else if (here !== SCORR) {
             await lookaround_known_room(ux, uy, state);
         }
         // The room/area description above is emitted by this cmd.c function;
@@ -2689,8 +2648,8 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     );
     await losedogs({ state });
     await kill_genocided_monsters(state);
-    const arrivalOccupant = m_at(state.u.ux, state.u.uy, state);
-    if (arrivalOccupant) await u_collide_m(arrivalOccupant, state);
+    if (m_at(state.u.ux, state.u.uy, state))
+        note_unported('do.c u_collide_m');
     initrack(state);
     if (Punished(state)) {
         unplacebc(state);
@@ -2792,8 +2751,7 @@ async function dotravel_target(state = game) {
         await ttyPline('You are already here.', state);
         state.iflags.travelcc.x = 0;
         state.iflags.travelcc.y = 0;
-        // C returns here before clearing getloc_travelmode. Its later
-        // location menu still carries the travel-destination title.
+        state.iflags.getloc_travelmode = false;
         return ECMD_OK;
     }
 
@@ -2817,17 +2775,6 @@ async function dotravel_target(state = game) {
 // wrapper below needs to keep the keystroke retryable.
 async function executeMovement(command, key, firstTime, state) {
     const [dx, dy, run] = MOVEMENT_INTENTS[command];
-
-    // C rhack():3779-3783 checks dxdy_moveok() after set_move_cmd() and
-    // before domove(). A grid bug's diagonal command is refused without
-    // entering destination admission or consuming a turn.
-    if (dx && dy && NODIAG(state.u.umonnum)) {
-        set_move_cmd(xytodir(dx, dy), run, state);
-        dxdy_moveok(state);
-        await ttyPline("You can't get there from here...", state);
-        resetCommandVars(state);
-        return;
-    }
 
     // moveloop_core() optimistically sets context.move before rhack(), as C
     // does. This port's temporary hack.c admission seam must run before
@@ -4035,11 +3982,7 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
         await ttyPline('Key binding failed?!', state);
         return;
     }
-    // cmdbind_add() overwrites an existing C Cmd_bind in place. `prevcmd`
-    // therefore sees the new command after bind_key() and the changed-key
-    // message is suppressed for a successful rebind. Unbinding removes that
-    // node and follows the separate `nothing` message arm below.
-    if (previous && !command) {
+    if (previous && (!command || previous.cmd !== command)) {
         await ttyPline(
             "Changed key '" + key2txt(key) + "' from \""
             + previous.cmd.ef_txt + "\" to \"" + commandText + '".',
@@ -5098,8 +5041,6 @@ async function doextcmd(key, state, onSelectedEntry = null) {
             return doextcmd(key, state, onSelectedEntry);
         case 'do_fight':
             return await do_fight(state);
-        case 'do_reqmenu':
-            return await do_reqmenu(state);
         case 'doclose':
             return await doclose(state);
         case 'dofire':
@@ -5247,11 +5188,6 @@ async function doextcmd(key, state, onSelectedEntry = null) {
             return await dowhatdoes(state);
         case 'doset':
             return await runOptionsCommand(key, state, doset);
-        case 'doset_simple':
-            // C ref: options.c doset_simple(), the #options handler. The
-            // shared wrapper supplies the same menu and option seams used
-            // by the bound O command and #optionsfull.
-            return await runOptionsCommand(key, state, doset_simple);
         case 'dowhatis':
             return await runWhatisCommand(key, state);
         case 'doidtrap':
@@ -5713,9 +5649,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // rhack() reset gm.multi after one display instead of asking
             // moveloop_core() to repeat this no-time command.
             && command !== 'inventory'
-            // A sighted dolook() returns ECMD_OK; rhack() clears its count
-            // after the single look instead of entering moveloop repetition.
-            && !(command === 'look' && !heroIsBlind(state))
             && !Object.hasOwn(MOVEMENT_INTENTS, command)
             // These commands clear a count with their no-time result.
             && command !== 'wizsmell' && command !== 'wizkill'
@@ -5807,16 +5740,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
-        // C ref: cmd.c do_repeat() requeues the selected #pray row; rhack()
-        // invokes its function pointer just as doextcmd() does.
-        if (queuedExtcmdEntry?.ef_funct === 'dopray') {
-            const res = await dopray(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
-            return;
-        }
         // C ref: pickup.c:2144 queues lock.c:doforce() as a function
         // pointer. rhack() dispatches that row directly before reading a key.
         if (queuedExtcmdEntry?.ef_funct === 'doforce') {
@@ -5884,13 +5807,8 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
-        // Queued rows carry their display name in `command`; C dispatches
-        // the row's function pointer, so use ef_funct for this internal arm.
-        const queuedClickHandler = queuedExtcmdEntry?.ef_funct;
-        if (command === 'doclicklook' || command === 'domouseaction'
-            || queuedClickHandler === 'doclicklook'
-            || queuedClickHandler === 'domouseaction') {
-            const result = (queuedClickHandler ?? command) === 'doclicklook'
+        if (command === 'doclicklook' || command === 'domouseaction') {
+            const result = command === 'doclicklook'
                 ? await doclicklook(state) : await domouseaction(state);
             if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((result & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
@@ -5925,10 +5843,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // returns from the command the player named. ECMD_TIME skips
             // reset_cmd_vars() and puts context.move back to TRUE; ECMD_OK,
             // ECMD_CANCEL and ECMD_FAIL all reset.
-            // cmd.c:3738-3741 clears the previous repeat queue before
-            // dispatching '#'; doextcmd() may publish its selected command
-            // and its prompt answers afterward.
-            cmdq_clear(CQ_REPEAT, state);
             let selectedEntry = null;
             const res = await failClosedCommand(
                 key, state,
@@ -6500,16 +6414,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // and GENERALCMD and no movement flag.
             await dotogglepickup(state);
             resetCommandVars(state, state.multi < 0);
-            return;
-        }
-        if (command === 'turn') {
-            // C cmd.c rhack() dispatches a directly bound extcmd row through
-            // its handler, with the same ECMD result accounting as #turn.
-            const res = await doturn(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'wizwish') {

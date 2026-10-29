@@ -20,47 +20,9 @@ explicitly changes the mode:
 - Keep the existing source-tracing, test, validation, acceptance, scoring, and
   publication requirements. Single-agent mode changes who performs the steps,
   not the evidence or correctness gates.
-- For each investigated discovery lead, retain a stable source identity, check
-  time, source/tool provenance, and the evidence for its disposition. A failed
-  or invalid setup remains unresolved. Group recurring explained negatives for
-  the separate tooling work; filter them only when a source-backed rule and
-  positive controls preserve genuine differences. Recheck a disposition when
-  its relevant source, configuration, or detector changes, and measure a new
-  filter on fixed inputs before relying on it.
-- A proven general rule may exclude its matched leads with recorded evidence.
-  A heuristic may only lower priority: keep those leads visible with the reason
-  and provenance so a reviewer can still investigate them.
-- Four separately authorized analysis-only sessions may submit evidence PRs
-  under `diagnostics/divergence-evidence/<shard>/<case-id>/`, scoped to level
-  generation, player commands/conduct, monster movement/combat, and
-  object/inventory mechanics. Their confirmed cases and explained negatives
-  are candidate handoffs, not accepted repairs. This session remains the sole
-  gameplay integrator and Main writer; excluded or denied investigations stay
-  excluded, and evidence PRs do not waive gameplay validation.
 - On restart, resume in this single-agent mode and consult the current
   continuation state before acting. Keep this mode until Vincent explicitly
   changes it.
-
-### Default source-repair batching (approved 2026-10-26)
-
-- Prepare up to four independent C-backed parity fixes per candidate. A fix is
-  locally ready only after its own witness and control recordings, regression
-  tests, affected existing tests, and focused lint pass. Keep a separate commit
-  and register identity for each fix, including corrections under their
-  original repair.
-- Start a ten-minute fill clock when the oldest fix becomes locally ready.
-  Freeze earlier if no other qualified lead is progressing; publish a smaller
-  batch rather than waiting past the clock or inventing a fix to fill it.
-  Prepare the next batch from private source evidence during hosted waits, but
-  do not change the frozen candidate or run overlapping full Checkpoints.
-- Run one full hosted Checkpoint on the final combined SHA, import its exact
-  archive and compare every fixed and admitted synthetic case with accepted
-  Main. Publish no intermediate commit alone. Require exact-SHA Main Lint and
-  Dashboard success before counting any member accepted, then verify the
-  complete receipt and carry it into the next ordinary repair commit.
-- Record batch membership, local-ready and freeze times, shared CI identity,
-  publication and receipt times, and any failure or isolation work for the
-  next-day assessment. Do not raise the four-fix cap without a new decision.
 
 ## Goal and authoritative sources
 

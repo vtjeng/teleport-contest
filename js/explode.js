@@ -431,7 +431,6 @@ export async function explode(
     const shopdamage = { value: false };
     let generic = false;
     let doHallu = false;
-    let halluDescription = false;
     let insideEngulfer;
     let grabbed = false;
     let grabbing = false;
@@ -604,10 +603,7 @@ export async function explode(
                 const monster = targetAt(xx, yy, state);
                 if (!monster) continue;
 
-                if (doHallu) {
-                    str = hallucinatoryExplosion(state, env);
-                    halluDescription = true;
-                }
+                if (doHallu) str = hallucinatoryExplosion(state, env);
                 if (engulfing_u(monster, state)) {
                     await engulfer_explosion_msg(adtyp, olet, state, env);
                 } else if (cansee(xx, yy, state)) {
@@ -682,10 +678,7 @@ export async function explode(
 
     if (uhurt) {
         if (state.flags?.verbose && (type < 0 || olet !== SCROLL_CLASS)) {
-            if (doHallu) {
-                str = hallucinatoryExplosion(state, env);
-                halluDescription = true;
-            }
+            if (doHallu) str = hallucinatoryExplosion(state, env);
             await messageLine(`You are caught in the ${str}!`, state, env);
             state.iflags ??= {};
             state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
@@ -719,29 +712,23 @@ export async function explode(
             if (Upolyd(state.u)) await rehumanize(state, env);
             else {
                 state.killer ??= { name: '', format: KILLED_BY };
-                if (olet === MON_EXPLODE) {
-                    // C explode.c:643-650 preserves the real monster killer
-                    // when an unseen blast uses "explosion" or hallucination
-                    // has replaced the description used for messages.
-                    if (!generic && !halluDescription)
-                        state.killer.name = str;
-                    state.killer.format = KILLED_BY_AN;
-                } else if (olet === TRAP_EXPLODE) {
+                if (olet === TRAP_EXPLODE) {
                     // C explode.c:651-655 attributes a magical trap's fatal
                     // blast to the hero without a prefixed "killed by".
                     state.killer.name = `caught ${uhim(state)}self in a ${str}`;
                     state.killer.format = NO_KILLER_PREFIX;
-                } else if (type >= 0 && olet !== SCROLL_CLASS) {
+                } else if (olet === WAND_CLASS && type >= 0) {
                     // C explode.c:656-660 attributes a fatal self-inflicted
-                    // blast, including burning oil and wands, to the hero
-                    // without a prefixed "killed by" on the tombstone.
+                    // wand blast to the original hero gender, without a
+                    // prefixed "killed by" on the tombstone.
                     state.killer.name = `caught ${uhim(state)}self in ${state.flags?.female ? 'her' : 'his'} own ${str}`;
                     state.killer.format = NO_KILLER_PREFIX;
                 } else {
-                    state.killer.name = str;
+                    state.killer.name = generic ? 'explosion' : str;
                     // C explode.c:662-667 uses an article for a fireball or
                     // tower of flame, even when the source is a scroll.
-                    state.killer.format = ['tower of flame', 'fireball'].includes(str.toLowerCase())
+                    state.killer.format = olet === MON_EXPLODE
+                        || ['tower of flame', 'fireball'].includes(str.toLowerCase())
                         ? KILLED_BY_AN : KILLED_BY;
                 }
                 // explode.c:668-673 checks the last pline after item effects:

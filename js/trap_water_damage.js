@@ -606,10 +606,8 @@ export async function water_damage(obj, description, force, env = {}) {
                 await updateInventory(env);
             }
             // C ref: trap.c:4744-4748. Ungreased potion of acid is destroyed.
-            if (obj.otyp === objects.POT_ACID) {
-                await pot_acid_damage(obj, in_invent, in_invent, env);
-                return ER_DESTROYED;
-            }
+            if (obj.otyp === objects.POT_ACID)
+                await pot_acid_damage(obj, in_invent, true, env);
         }
         return ER_GREASED;
     }

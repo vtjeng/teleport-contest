@@ -6,8 +6,6 @@ import * as options from '../js/options.js';
 import { allopt } from '../js/optlist_data.js';
 import { game } from '../js/gstate.js';
 import { initUnported } from '../js/unported.js';
-import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
-import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
 // options.c's local enum numbers: init, set, handler, value, config value.
 const [DO_INIT, DO_SET, DO_HANDLER, GET_VAL, GET_CNF_VAL] = [1, 2, 3, 4, 5];
@@ -53,7 +51,7 @@ test('live scores parsing retains token order, suffixes and signed counts', () =
     }
 });
 
-test('scores startup errors pin source returns, writes, and config diagnostics', () => {
+test('scores errors pin source returns and writes while naming live output gap', () => {
     for (const [statement, expected, result] of [
         // Empty mandatory values return optn_err before resetting prior fields.
         ['scores', [7, 4, true], 0],
@@ -63,35 +61,11 @@ test('scores startup errors pin source returns, writes, and config diagnostics',
         ['scores:4around/zqxj', [0, 4, false], -1],
         ['scores:own//top', [0, 0, true], -1],
     ]) {
-        const s = options.parseNethackrc('');
-        Object.assign(s.flags, { end_top: 7, end_around: 4, end_own: true });
+        const s = state();
         initUnported();
         assert.equal(handler(s, scores, DO_SET, false, statement, ''), result, statement);
         assert.deepEqual(fields(s), expected, statement);
-        assert.equal(s.configErrorFrame.num_errors, 1, statement);
-        assert.equal(game.unported.has('cfgfiles.c config_erradd'), false);
-    }
-});
-
-test('live scores errors display C diagnostics and preserve valid controls', async () => {
-    for (const name of [
-        'scores-live-negative-blocked',
-        'scores-live-missing-blocked',
-        'scores-live-unknown',
-        'scores-live-counts',
-        'scores-live-none',
-        'scores-live-letter-suffix',
-    ]) {
-        const recording = JSON.parse(readFileSync(
-            new URL(`../recordings/options.c/${name}.session.json`, import.meta.url), 'utf8',
-        ));
-        const root = createScoringWorkspace(process.cwd(), []);
-        try {
-            const result = compareSessionOutputs(recording, await runJsSession(recording, root));
-            assert.equal(result.passed, true, `${name}: ${formatReport(result)}`);
-        } finally {
-            removeScoringWorkspace(root);
-        }
+        assert.deepEqual([...game.unported], ['cfgfiles.c config_erradd']);
     }
 });
 

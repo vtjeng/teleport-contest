@@ -20,45 +20,14 @@
     "interruptions": null
   },
   "operations": {
+    "currentCandidate": {
+      "repairId": "monster-potion-occupant-lifecycle",
+      "sha": "b4843ccf9e8b4b1d19d79bbc1b66237cb167da7b",
+      "origin": "sole-standard-engineer",
+      "investigator": null
+    },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-23T18:33:09.368393+00:00",
-    "workflow": {
-      "version": 1,
-      "asOf": "2026-10-28T23:17:21.497987+00:00",
-      "source": "User-directed multi-session dashboard handoff, 2026-10-28; session activity is reported, not inferred from silence.",
-      "sessions": [
-        {
-          "name": "Main",
-          "role": "Sole gameplay writer and integrator",
-          "status": "ongoing"
-        },
-        {
-          "name": "Levels",
-          "role": "Evidence analyst",
-          "status": "ongoing"
-        },
-        {
-          "name": "Monsters",
-          "role": "Evidence analyst",
-          "status": "ongoing"
-        },
-        {
-          "name": "Negative filters",
-          "role": "Tooling",
-          "status": "ongoing"
-        },
-        {
-          "name": "Static catalogs",
-          "role": "Finite source declaration audits",
-          "status": "completed"
-        }
-      ],
-      "batchPolicy": {
-        "maxRepairs": 4,
-        "oldestReadyFlushMinutes": 10
-      },
-      "transitionCoverage": "Partial. Historical readiness, pickup, returns and completion times were not consistently recorded."
-    }
+    "asOf": "2026-10-23T18:33:09.368393+00:00"
   }
 }

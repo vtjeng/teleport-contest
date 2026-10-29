@@ -1,5 +1,0 @@
-{"path":"ladder","form":"table","hex":"646f776e00737566666978","expected":[1,27,0,2,0,1,1],"actual":[0,25,0,0,0,0,0],"equal":false}
-{"path":"ladder","form":"table","hex":"646f776e00","expected":[1,27,0,2,0,1,1],"actual":[0,25,0,0,0,0,0],"equal":false}
-{"path":"ladder","form":"positional","hex":"646f776e00737566666978","expected":[1,27,0,2,0,1,1],"actual":[0,25,0,0,0,0,0],"equal":false}
-{"path":"ladder","form":"positional","hex":"646f776e00","expected":[1,27,0,2,0,1,1],"actual":[0,25,0,0,0,0,0],"equal":false}
-{"mode":"target","only":"ladder","cases":4,"differences":4}

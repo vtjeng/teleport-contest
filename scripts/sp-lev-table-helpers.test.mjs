@@ -58,7 +58,6 @@ import {
     get_table_str,
     get_table_str_opt,
     lcheck_param_table,
-    luaL_checkstring,
     lua_tointeger,
 } from '../js/nhlua.js';
 import {
@@ -145,17 +144,6 @@ test('nhlua.c integer, string, and option readers', () => {
     assert.equal(get_table_str_opt({ s: 'a' }, 's', null), 'a');
     // C: a function field is called for its string.
     assert.equal(get_table_str_opt({ s: () => 'b' }, 's', null), 'b');
-    assert.equal(get_table_str_opt({ s: () => 3 }, 's', null), '3');
-    assert.equal(get_table_str_opt({ s: () => 3.5 }, 's', null), '3.5');
-    assert.throws(() => get_table_str_opt({ s: () => false }, 's', null), /no string/u);
-    assert.equal(get_table_str_opt({ s: 'a\0suffix' }, 's', null), 'a');
-    assert.equal(get_table_str_opt({ s: () => 'b\0suffix' }, 's', null), 'b');
-    assert.equal(get_table_str_opt({}, 's', 'dflt\0suffix'), 'dflt');
-    assert.equal(get_table_str_opt({ s: '' }, 's', 'fallback'), '');
-    assert.equal(get_table_str_opt({ s: '\0suffix' }, 's', 'fallback'), '');
-    assert.equal(get_table_str_opt({ s: () => null }, 's', null), null);
-    assert.equal(get_table_str_opt({ s: () => null }, 's', 'fallback'), 'fallback');
-    assert.equal(luaL_checkstring('a\0suffix'), 'a\0suffix');
     assert.throws(() => get_table_str_opt({ s: 3 }, 's', null), /no string/u);
 
     assert.equal(get_table_str({ s: 'a' }, 's'), 'a');

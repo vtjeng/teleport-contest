@@ -334,7 +334,7 @@ test('getpos automatic descriptions include configured compass coordinates', asy
     const descriptions = [];
     game._preNhgetchHook = async () => {
         if (game.gg.getposx === target.x && game.gg.getposy === target.y)
-            descriptions.push(game._pending_message);
+            descriptions.push(game._ttyToplines);
     };
     queueKeys('l'.charCodeAt(0), 0x1B);
     try {

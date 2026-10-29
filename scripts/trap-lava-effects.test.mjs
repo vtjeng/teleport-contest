@@ -31,7 +31,7 @@ import { initRng } from '../js/rng.js';
 import { timeout_globals_init } from '../js/timeout.js';
 import { HeadlessTerminal } from '../js/terminal.js';
 import { Boots_off } from '../js/do_wear.js';
-import { lava_effects, sink_into_lava } from '../js/trap.js';
+import { lava_effects } from '../js/trap.js';
 import { statusConditionActive } from '../js/display.js';
 
 function stateWithLava() {
@@ -145,57 +145,6 @@ test('fire resistance starts a lava trap and takes one point', async () => {
     assert.equal(state.u.utraptype, TT_LAVA);
     assert.ok(state.u.utrap > 0);
     assert.equal(state.u.uhp, hp - 1);
-});
-
-test('stationary lava sinking and attempted movement have different random budgets',
-    async () => {
-    const stationary = stateWithLava();
-    stationary.u.uprops[FIRE_RES].intrinsic = 1;
-    stationary.u.utrap = 3 * 256 + 4;
-    stationary.u.utraptype = TT_LAVA;
-    stationary.u.umoved = false;
-    await sink_into_lava(stationary);
-    assert.match(stationary._ttyToplines, /You sink deeper into the lava\./u);
-    assert.ok(stationary.u.utrap >= 2 * 256 + 5);
-    assert.ok(stationary.u.utrap <= 2 * 256 + 8);
-
-    const moving = stateWithLava();
-    moving.u.uprops[FIRE_RES].intrinsic = 1;
-    moving.u.utrap = 3 * 256 + 4;
-    moving.u.utraptype = TT_LAVA;
-    moving.u.umoved = true;
-    await sink_into_lava(moving);
-    assert.equal(moving.u.utrap, 2 * 256 + 4);
-    assert.doesNotMatch(moving._ttyToplines, /sink deeper/u);
-});
-
-test('invulnerability suspends lava sinking and stale lava holds are released',
-    async () => {
-    const protectedHero = stateWithLava();
-    protectedHero.u.utrap = 3 * 256 + 4;
-    protectedHero.u.utraptype = TT_LAVA;
-    protectedHero.u.uinvulnerable = true;
-    await sink_into_lava(protectedHero);
-    assert.equal(protectedHero.u.utrap, 3 * 256 + 4);
-
-    const stale = stateWithLava();
-    stale.level.at(10, 5).typ = 0;
-    stale.u.utrap = 3 * 256 + 4;
-    stale.u.utraptype = TT_LAVA;
-    await sink_into_lava(stale);
-    assert.equal(stale.u.utrap, 0);
-    assert.equal(stale.u.utraptype, TT_NONE);
-});
-
-test('fire-vulnerable lava sinking scales hit points before the escape check',
-    async () => {
-    const state = stateWithLava();
-    state.u.utrap = 3 * 256 + 4;
-    state.u.utraptype = TT_LAVA;
-    state.u.umoved = true;
-    await sink_into_lava(state);
-    assert.equal(state.u.uhp, 7);
-    assert.equal(state.u.utrap, 2 * 256 + 4);
 });
 
 test('lava trap sets the source InLava status condition', async () => {

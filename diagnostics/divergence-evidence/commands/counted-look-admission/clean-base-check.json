@@ -1,7 +1,0 @@
-{
-  "base": "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
-  "sourceVerifiedBeforeAndAfter": true,
-  "status": 1,
-  "stdout": "\u2714 control: counted look parity (976.807482ms)\n\u2716 target: counted look parity (833.773904ms)\n\u2139 tests 2\n\u2139 suites 0\n\u2139 pass 1\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 1955.415836\n\n\u2716 failing tests:\n\ntest at diagnostics/divergence-evidence/commands/counted-look-admission/evidence.test.mjs:7:40\n\u2716 target: counted look parity (833.773904ms)\n  AssertionError [ERR_ASSERTION]: PRNG length: C=2549, JS=2549\n  PRNG values: match\n  Screen length mismatch: C=4, JS=2\n  First screen mismatch at boundary 3 (segment 1, step 3, key \":\"):\n    C: screen present\n    JS: <missing>\n  Cursor length mismatch: C=4, JS=2\n  First cursor mismatch at boundary 3 (segment 1, step 3, key \":\"):\n    C: [44,8,1]\n    JS: <missing>\n  Animation frame length: C=0, JS=0\n  Animation frames: match\n  RESULT: FAIL\n  \n  \n  false !== true\n  \n      at TestContext.<anonymous> (file://<clean-checkout>/diagnostics/divergence-evidence/commands/counted-look-admission/evidence.test.mjs:10:95)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
-  "stderr": ""
-}

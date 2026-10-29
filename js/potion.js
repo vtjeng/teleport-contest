@@ -2737,9 +2737,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
         case POT_SLEEPING:
             if (await sleep_monst(mon, random.rnd(12), POTION_CLASS, env)) {
                 await message(`${Monnam(mon, state, env)} falls asleep.`, state);
-                // C releases a sleeping grabber, including its cooldown RNG,
-                // before potionhit() proceeds to the next message or input.
-                await slept_monst(mon, env);
+                slept_monst(mon);
             }
             break;
         case POT_PARALYSIS:

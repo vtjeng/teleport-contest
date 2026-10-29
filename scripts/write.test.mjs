@@ -60,7 +60,7 @@ const C_INVENT_SOURCE = readFileSync(
     'utf8',
 );
 
-test('dowrite provides hold_another_object inventory callbacks', () => {
+test('dowrite provides the C hold_another_object encumbrance callback', () => {
     const cStart = C_INVENT_SOURCE.indexOf('hold_another_object(');
     const cEnd = C_INVENT_SOURCE.indexOf('\nRESTORE_WARNING_FORMAT_NONLITERAL', cStart);
     assert.ok(cStart >= 0 && cEnd > cStart, 'invent.c hold_another_object range');
@@ -71,7 +71,7 @@ test('dowrite provides hold_another_object inventory callbacks', () => {
     const jsEnd = WRITE_SOURCE.indexOf('\n}', jsStart) + 2;
     assert.ok(jsStart >= 0 && jsEnd > jsStart, 'js/write.js writeEnv range');
     assert.match(WRITE_SOURCE.slice(jsStart, jsEnd),
-        /encumberMessage: encumber_msg,[\s\S]*?inventoryComparisonDiscovered: \(\) => ttyPline\([\s\S]*?You learn more about your items by comparing them/u);
+        /return \{ state, hooks: \{ encumberMessage: encumber_msg \} \};/u);
     assert.match(WRITE_SOURCE,
         /await hold_another_object\([\s\S]*?writeEnv\(state\),\s*\);/u);
 });

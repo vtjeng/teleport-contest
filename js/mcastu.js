@@ -460,7 +460,7 @@ async function cursetxt(mtmp, undirected, env = {}) {
         if (message) {
             await message(messageAt(
                 `${env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env)
+                    ?? capitalizedMonsterNameFallback(mtmp, state)
                 } points ${point_msg}.`,
                 mtmp.mx, mtmp.my, state,
             ), state);
@@ -474,8 +474,16 @@ async function cursetxt(mtmp, undirected, env = {}) {
     }
 }
 
-// C mcastu.c uses Monnam() for caster announcements.  Callers may provide
-// monsterName, but the optional fallback must preserve its article semantics.
+// Minimal name formatter when the caller does not supply one.
+function capitalizedMonsterNameFallback(mtmp, state) {
+    // Use the same function mhitu.js uses, but avoid importing do_name.js
+    // at module scope to reduce the chance of import cycles.  The caller
+    // typically injects monsterName through env.
+    const name = mtmp.data?.pmnames?.[2]
+        ?? mtmp.data?.pmnames?.[0]
+        ?? 'something';
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+}
 
 // C ref: mondata.c cvt_adtyp_to_mseenres() -- already exported from
 // js/mondata.js, but we also need m_seenres() which is a simple macro.
@@ -541,7 +549,7 @@ export async function castmu(
         if (message) {
             const casterName = canseemon(mtmp, state)
                 ? (env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env))
+                    ?? capitalizedMonsterNameFallback(mtmp, state))
                 : 'Something';
             await message(messageAt(`${casterName} casts a spell at thin air!`,
                 mtmp.mx, mtmp.my, state), state);
@@ -568,7 +576,7 @@ export async function castmu(
         if (message) {
             const casterName = canspotmon(mtmp, state)
                 ? (env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env))
+                    ?? capitalizedMonsterNameFallback(mtmp, state))
                 : 'Something';
             let target;
             if (is_undirected_spell(spellnum)) {
@@ -733,7 +741,7 @@ async function m_cure_self(mtmp, dmg, env = {}) {
         if (canseemon(mtmp, state) && message) {
             await message(messageAt(
                 `${env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env)
+                    ?? capitalizedMonsterNameFallback(mtmp, state)
                 } looks better.`,
                 mtmp.mx, mtmp.my, state,
             ), state);
@@ -1355,7 +1363,7 @@ export async function buzzmu(mtmp, mattk, rawEnv = {}) {
         if (canseemon(mtmp, state) && message) {
             await message(messageAt(
                 `${env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env)
+                    ?? capitalizedMonsterNameFallback(mtmp, state)
                 } zaps you with a ${
                     flash_str(BZ_OFS_AD(mattk.adtyp), false, state)
                 }!`,

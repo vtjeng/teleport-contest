@@ -12,19 +12,7 @@ import {
     nhl_add_table_entry_region,
     nhl_add_table_entry_str,
     nhl_get_timertype,
-    luaL_checkoption,
 } from '../js/nhlua.js';
-
-test('Lua option matching uses the C string prefix', () => {
-    const options = ['closed', 'open'];
-    assert.equal(luaL_checkoption('closed\0suffix', null, options), 0);
-    assert.equal(luaL_checkoption('closed\0', null, options), 0);
-    assert.equal(luaL_checkoption(null, 'open', options), 1);
-    assert.throws(() => luaL_checkoption('closedx\0suffix', null, options),
-        /invalid option 'closedx'/u);
-    assert.throws(() => luaL_checkoption('\0closed', null, options),
-        /invalid option ''/u);
-});
 
 test('nhlua.c nhl_get_timertype keeps Lua option order and stack indexing', () => {
     // timeout.h orders the timer enum from ROT_ORGANIC (0) through

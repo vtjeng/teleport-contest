@@ -21,7 +21,6 @@ import {
     CROSSWALL,
     DELPHI,
     DOOR,
-    DF_NONE,
     FODDERSHOP,
     G_GENOD,
     GP_AVOID_MONPOS,
@@ -130,7 +129,7 @@ import {
     on_level,
 } from './dungeon.js';
 import { game } from './gstate.js';
-import { deliver_obj_to_mon } from './dokick.js';
+import { note_unported } from './unported.js';
 import { upstart } from './hacklib.js';
 import {
     add_to_container,
@@ -1340,15 +1339,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOWAIT;
-    // wizard.c:resurrect() makes the first returning Wizard through this
-    // same explicit runtime shape. Keep its caller identity separate from
-    // clonewiz() so neither marker admits unrelated Wizard creation.
-    const resurrectWizardCall = !state.in_mklev
-        && normalized._resurrectWizard === true
-        && ptr?.pmidx === PM_WIZARD_OF_YENDOR
-        && x === state.u?.ux
-        && y === state.u?.uy
-        && mmflags === MM_NOWAIT;
     // mkroom.c mkundead() uses explicit-coordinate placement with
     // NO_MINVENT. pickup.c observe_quantum_cat() adds MM_ADJACENTOK and
     // MM_NOMSG for its housecat. Both C call shapes suppress inventory;
@@ -1553,7 +1543,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || explicitInventorylessHeroCall
         || hatchEggCall || explicitCoordinateRuntimeCall
-        || cloneWizardCall || resurrectWizardCall || furiesCall || cloneuCall || minionSummonCall
+        || cloneWizardCall || furiesCall || cloneuCall || minionSummonCall
         || familiarCall || wereSummonCall || roamerCall
         // sp_lev.c finalizes topology before filling special rooms.  Those
         // explicit-coordinate calls still belong to level generation and
@@ -1680,7 +1670,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
-            && !cloneWizardCall && !resurrectWizardCall && !furiesCall
+            && !cloneWizardCall && !furiesCall
             // C msummon() and summon_minion() both use this complete
             // lifecycle without an initial-level species reservoir gate.
             && !minionSummonCall
@@ -3008,8 +2998,12 @@ function finishMonsterInventoryAndStrategy(
         if (ptr.mflags3 & (M3_WAITFORU | M3_CLOSE | M3_COVETOUS))
             monster.mstrategy |= STRAT_APPEARMSG;
     }
-    if (allowMinvent && state.gm?.migrating_objs)
-        deliver_obj_to_mon(monster, 1, DF_NONE, normalized);
+    // C makemon.c calls dokick.c deliver_obj_to_mon() here when inventory is
+    // allowed. Its result is discarded; keep that separate source gap visible
+    // while allowing supported level generation to continue.
+    if (allowMinvent && state.gm?.migrating_objs) {
+        note_unported('dokick.c deliver_obj_to_mon');
+    }
 }
 
 async function finishRuntimeCreationTail(monster, mmflags, normalized) {

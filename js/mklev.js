@@ -13,7 +13,6 @@ import {
     Can_fall_thru,
     In_hell,
     In_W_tower,
-    Invocation_lev,
     Is_special,
     at_dgn_entrance,
     depth,
@@ -53,7 +52,7 @@ import {
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { MAXMCLASSES } from './symbols.js';
 import { add_to_container, obj_extract_self, obfree, sobj_at } from './invent.js';
-import { UnsupportedMonsterCreationError, makemon, dmonsfree, set_mimic_sym } from './makemon_create.js';
+import { UnsupportedMonsterCreationError, makemon, dmonsfree } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
 import { mineralize } from './mineralize.js';
 import { make_grave } from './grave.js';
@@ -80,8 +79,6 @@ import {
 } from './nhlua.js';
 import {
     create_maze,
-    mazexy,
-    populate_maze,
     check_ransacked,
     fixup_special,
     bound_digging,
@@ -227,11 +224,7 @@ import {
     PM_GIANT_ZOMBIE,
     PM_ETTIN_ZOMBIE,
     PM_VAMPIRE_LEADER,
-    PM_SMALL_MIMIC,
-    PM_LARGE_MIMIC,
-    PM_GIANT_MIMIC,
     S_HUMAN,
-    S_MIMIC,
     S_LICH,
     S_MUMMY,
     S_VAMPIRE,
@@ -517,7 +510,7 @@ function clear_level_structures() {
     lf.has_town = false;
     lf.wizard_bones = false;
     lf.corrmaze = false;
-    lf.temperature = In_hell(g.u.uz, g) ? 1 : 0;
+    lf.temperature = 0;
     lf.rndmongen = true;
     lf.deathdrops = true;
     lf.noautosearch = false;
@@ -794,9 +787,7 @@ async function makelevel(specialLevelLoader = null) {
     const medusa = g.medusa_level;
     if (rn2(5) && g.u?.uz?.dnum === medusa?.dnum
         && (g.u?.uz?.dlevel ?? 1) > (medusa?.dlevel ?? 999)) {
-        await makemaz('', null, g);
-        await finishLevelGeneration();
-        return;
+        // Would generate maze — not applicable for contest level 1
     }
 
     // Regular level generation
@@ -1067,9 +1058,7 @@ export function splev_chr2typ(char) {
 // string; anything else is INVALID_TYPE. It lives here rather than in
 // nhlua.js because it needs splev_chr2typ() and nhlua.js imports nothing.
 export function check_mapchr(s) {
-    // C check_mapchr() measures the NUL-terminated Lua string with strlen().
-    const prefix = s?.split('\0', 1)[0];
-    if (prefix && prefix.length === 1) return splev_chr2typ(prefix);
+    if (s && s.length === 1) return splev_chr2typ(s);
     return INVALID_TYPE;
 }
 
@@ -1084,9 +1073,7 @@ export function get_table_mapchr(table, name) {
 // C ref: nhlua.c get_table_mapchr_opt(). An absent or empty field yields
 // `defval`; a string that is not a map character is an error.
 export function get_table_mapchr_opt(table, name, defval) {
-    // get_table_str_opt() copies C's prefix before deciding whether the
-    // optional value is empty and should use its default.
-    const ter = get_table_str_opt(table, name, '').split('\0', 1)[0];
+    const ter = get_table_str_opt(table, name, '');
     if (ter) {
         const typ = check_mapchr(ter);
         if (typ === INVALID_TYPE) throw new Error('Erroneous map char');
@@ -1102,8 +1089,7 @@ export function get_table_mapchr_opt(table, name, defval) {
 export function mapfrag_fromstr(str) {
     const mf = {};
 
-    // C dupstr() copies only the prefix before the first embedded NUL.
-    mf.data = stripdigits(str.split('\0', 1)[0]);
+    mf.data = stripdigits(str);
     mf.wid = str_lines_maxlen(mf.data);
     mf.hei = 0;
     let tmps = 0;
@@ -1216,18 +1202,15 @@ function themeroom_map_fits(definition, xstart, ystart, state) {
 // the location metadata before setting terrain. The map's default lit=false
 // still leaves lava lit, and door orientation depends on the already-loaded
 // cell immediately to its left.
-function set_themeroom_map_terrain(x, y, typ, state, lit = false, frame = null) {
+function set_themeroom_map_terrain(x, y, typ, state) {
     const loc = state.level.at(x, y);
     loc.flags = 0;
     loc.doormask = 0;
-    // C's wall_info aliases the rm.flags that sel_set_ter() clears before a
-    // nontransparent map cell is painted.  The JS location stores it apart.
-    loc.wall_info = 0;
     loc.horizontal = false;
     loc.roomno = 0;
     loc.edge = false;
     if (!set_levltyp(x, y, typ, { state })) return;
-    loc.lit = IS_LAVA(typ) || Boolean(lit);
+    loc.lit = IS_LAVA(typ);
 
     if (typ === SDOOR || IS_DOOR(typ)) {
         if (typ === SDOOR) loc.doormask = D_CLOSED;
@@ -1236,8 +1219,6 @@ function set_themeroom_map_terrain(x, y, typ, state, lit = false, frame = null) 
             loc.horizontal = true;
     } else if (typ === HWALL || typ === IRONBARS) {
         loc.horizontal = true;
-    } else if (frame?.splev_init_present && typ === ICE) {
-        loc.icedpool = frame.icedpools ? ICED_POOL : ICED_MOAT;
     } else if (typ === CLOUD) {
         del_engr_at(x, y, state);
     }
@@ -1444,35 +1425,18 @@ export function mkinvk_check_wall(x, y, state = game) {
 // records the coder's icedpools choice only while a special level is being
 // initialized. The cloud arm clears engravings after the terrain write.
 function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
-    const previous = state.level.at(x, y);
-    const wallFlags = previous && IS_WALL(previous.typ) ? previous.wall_info : null;
     if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
-    // set_levltyp_lit can retain the prior type (for example, a secret door
-    // when AIR is requested). C dispatches these follow-up writes on that
-    // resulting map type rather than the requested one.
-    const actualType = location.typ;
-    if (actualType === SDOOR || IS_DOOR(actualType)) {
-        if (actualType === DOOR && wallFlags !== null) {
-            // C's rm.flags word becomes the door mask when terrain() paints
-            // an ordinary door over a wall (including a drawbridge wall).
-            location.flags = wallFlags;
-            location.doormask = wallFlags;
-        }
-        if (actualType === SDOOR) {
-            // C's doormask aliases rm.flags. A terrain() paint can overwrite
-            // a locked coordinate door before stock_room() reads its mask.
-            location.flags = D_CLOSED;
-            location.doormask = D_CLOSED;
-        }
+    if (typ === SDOOR || IS_DOOR(typ)) {
+        if (typ === SDOOR) location.doormask = D_CLOSED;
         const left = x > 0 ? state.level.at(x - 1, y) : null;
         if (left && (IS_WALL(left.typ) || left.horizontal))
             location.horizontal = true;
-    } else if (actualType === HWALL || actualType === IRONBARS) {
+    } else if (typ === HWALL || typ === IRONBARS) {
         location.horizontal = true;
-    } else if (frame?.splev_init_present && actualType === ICE) {
+    } else if (frame?.splev_init_present && typ === ICE) {
         location.icedpool = frame.icedpools ? ICED_POOL : ICED_MOAT;
-    } else if (actualType === CLOUD) {
+    } else if (typ === CLOUD) {
         del_engr_at(x, y, state);
     }
     return true;
@@ -1804,9 +1768,7 @@ function lvlfill_solid(filling, lit, frame, state) {
                 continue;
             const loc = state.level.at(x, y);
             loc.flags = 0;
-            loc.wall_info = 0;
             loc.doormask = 0;
-            loc.icedpool = 0;
             loc.horizontal = false;
             loc.roomno = 0;
             loc.edge = false;
@@ -2000,9 +1962,7 @@ async function ensureSpecialLevelLoaders() {
     const { ORCUS_LEVEL_LOADERS } = await import('./orcus_levels.js');
     const { WIZARD1_LEVEL_LOADERS } = await import('./wizard1_levels.js');
     const { WIZARD2_LEVEL_LOADERS } = await import('./wizard2_levels.js');
-    const { FAKEWIZ2_LEVEL_LOADERS } = await import('./fakewiz2_level.js');
     const { WIZARD3_LEVEL_LOADERS } = await import('./wizard3_levels.js');
-    const { FAKEWIZ1_LEVEL_LOADERS } = await import('./fakewiz1_levels.js');
     const { KNOX_LEVEL_LOADERS } = await import('./knox_levels.js');
     const { TUTORIAL_LEVEL_LOADERS } = await import('./tutorial_level.js');
     SPECIAL_LEVEL_LOADERS = {
@@ -2025,9 +1985,7 @@ async function ensureSpecialLevelLoaders() {
         ...ORCUS_LEVEL_LOADERS,
         ...WIZARD1_LEVEL_LOADERS,
         ...WIZARD2_LEVEL_LOADERS,
-        ...FAKEWIZ2_LEVEL_LOADERS,
         ...WIZARD3_LEVEL_LOADERS,
-        ...FAKEWIZ1_LEVEL_LOADERS,
         ...KNOX_LEVEL_LOADERS,
         ...TUTORIAL_LEVEL_LOADERS,
     };
@@ -2109,32 +2067,9 @@ async function makemaz(proto, slev, state) {
         );
     }
 
-    // C ref: mkmaze.c:1197-1223. Procedural generation for unnamed mazes.
-    const frame = {
-        xMazeMax: (COLNO - 1) & ~1,
-        yMazeMax: (ROWNO - 1) & ~1,
-    };
-    state.level.flags.is_maze_lev = true;
-    state.level.flags.corrmaze = !rn2(3);
-    const invocation = Invocation_lev(state.u.uz, state);
-    if (!invocation && rn2(2))
-        create_maze(-1, -1, !rn2(5), frame, state);
-    else
-        create_maze(1, 1, false, frame, state);
-    if (!state.level.flags.corrmaze)
-        wallification(2, 2, frame.xMazeMax, frame.yMazeMax, state);
-    let point = mazexy(null, frame, state);
-    mkstairs(point.x, point.y, true, null);
-    if (!invocation) {
-        point = mazexy(null, frame, state);
-        mkstairs(point.x, point.y, false, null);
-    } else {
-        state.inv_pos = pick_vibrasquare_location(frame, state);
-        maketrap(state.inv_pos.x, state.inv_pos.y, VIBRATING_SQUARE,
-            { state });
-    }
-    place_branch(is_branchlev());
-    populate_maze(frame, state);
+    // C ref: mkmaze.c:1197-1223. Procedural maze generation when no
+    // protofile is found. Not yet reached by any development session.
+    throw new UnsupportedLevelChangeError('makemaz: procedural maze generation not ported');
 }
 
 // C ref: sp_lev.c lspo_map() halign/valign positioning. Translates
@@ -2268,10 +2203,7 @@ function create_des_coder(state, frame) {
 export function lspo_message(args, env) {
     const { state } = env;
     if (args.length < 1) throw new Error('Wrong parameters');
-    // C appends with strlen(), so bytes after the first NUL are not retained.
-    const text = luaL_checkstring(args[0]);
-    const nul = text.indexOf('\0');
-    const msg = nul < 0 ? text : text.slice(0, nul);
+    const msg = luaL_checkstring(args[0]);
     state.gl ??= {};
     const old = state.gl.lev_message;
     state.gl.lev_message = old != null ? `${old}\n${msg}` : msg;
@@ -2811,8 +2743,7 @@ export function lspo_engraving(args, env) {
 
     const c = { x, y };
     get_location_coord(c, DRY, coder.croom, ecoord, env);
-    // C dupstr/make_engr_at see the first NUL-terminated string prefix.
-    make_engr_at(c.x, c.y, txt?.split('\0', 1)[0] ?? null, null, 0, etyp, env);
+    make_engr_at(c.x, c.y, txt, null, 0, etyp, env);
     const ep = engr_at(c.x, c.y, state);
     if (ep) {
         ep.guardobjects = Boolean(guardobjs);
@@ -3265,10 +3196,8 @@ export function get_trapname_bytype(ttyp) {
 // C ref: sp_lev.c get_traptype_byname(). The trap type of a Lua trap name,
 // compared case-insensitively; NO_TRAP for an unknown name.
 export function get_traptype_byname(trapname) {
-    // C strcmpi() sees the first NUL-terminated positional argument.
-    const prefix = trapname.split('\0', 1)[0];
     for (const [name, type] of trap_types)
-        if (lcase(prefix) === name)
+        if (lcase(trapname) === name)
             return type;
 
     return NO_TRAP;
@@ -3491,9 +3420,6 @@ function sel_set_door(dx, dy, typ, frame, state = game) {
             typ = D_CLOSED;
     }
     set_door_orientation(x, y, state); /* set/clear levl[x][y].horizontal */
-    // C's doormask aliases rm.flags. Coordinate doors can overwrite a
-    // room-wall door, so clear its prior flags when replacing the mask.
-    loc.flags = typ;
     loc.doormask = typ;
     frame.splevMap[x][y] = 1;
 }
@@ -4739,12 +4665,8 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c lspo_map() l_or_r2i[]/t_or_b2i[]: an absent
             // alignment is "none" (-1), which leaves that axis's start as it
             // was; only both absent makes the call a placement at x,y.
-            // Lua's explicit "none" is the same -1 alignment sentinel as an
-            // omitted option in C's l_or_r2i[] and t_or_b2i[] tables.
-            const lr = spec.halign == null || spec.halign === 'none'
-                ? -1 : spec.halign;
-            const tb = spec.valign == null || spec.valign === 'none'
-                ? -1 : spec.valign;
+            const lr = spec.halign ?? -1;
+            const tb = spec.valign ?? -1;
             frame.xsize = mf.wid;
             frame.ysize = mf.hei;
             if (lr === -1 && tb === -1) {
@@ -4804,8 +4726,7 @@ function createSpecialLevelApi(state) {
                                                   y - frame.ystart);
                         if (mptyp === INVALID_TYPE) continue;
                         if (mptyp >= MAX_TYPE) continue;
-                        set_themeroom_map_terrain(x, y, mptyp, state, spec.lit,
-                                                 frame);
+                        set_themeroom_map_terrain(x, y, mptyp, state);
                         frame.splevMap[x][y] = 1;
                         selection.set(x, y);
                     }
@@ -5043,21 +4964,12 @@ function createSpecialLevelApi(state) {
 // C ref: sp_lev.c lspo_map(), array form. Sets the map frame and paints
 // terrain for the main des.map([...rows]) call in a special level file.
 function mapFromRows(rows, frame, state) {
-    // The array is this port's counterpart of C's map string. C dupstr()
-    // discards the suffix at NUL before measuring rows or centering the map.
-    const prefix = rows.join('\n').split('\0', 1)[0];
-    const sourceRows = (prefix.endsWith('\n') ? prefix.slice(0, -1) : prefix)
-        .split('\n');
-    const height = sourceRows.length;
-    const width = sourceRows[0]?.length ?? 0;
-    if (!width || sourceRows.some((row) => row.length !== width))
+    const height = rows.length;
+    const width = rows[0]?.length ?? 0;
+    if (!width || rows.some((row) => row.length !== width))
         throw new Error('special-level map rows must have equal width');
     frame.xsize = width;
     frame.ysize = height;
-    if (width <= 1 && height <= 1) {
-        reset_xystart_size(frame, state);
-        return { ...frame, selection: new ThemeroomSelection(null, true) };
-    }
     frame.xstart = 2 + Math.trunc(
         (frame.xMazeMax - 2 - width) / 2,
     );
@@ -5083,7 +4995,7 @@ function mapFromRows(rows, frame, state) {
         for (let x = 0; x < width; ++x) {
             const ax = frame.xstart + x;
             const ay = frame.ystart + y;
-            const mptyp = splev_chr2typ(sourceRows[y][x]);
+            const mptyp = splev_chr2typ(rows[y][x]);
             if (mptyp === INVALID_TYPE) continue;
             if (mptyp >= MAX_TYPE) continue;
             set_themeroom_map_terrain(ax, ay, mptyp, state);
@@ -5543,9 +5455,10 @@ function walkfrom(x, y, typ, state, bounds) {
         // mz_move step 1: advance to intermediate cell and set it.
         x += dx[dir];
         y += dy[dir];
-        // C overwrites this square even when it was an authored door; only
-        // the start/destination cell has the door-preserving guard above.
-        state.level.at(x, y).typ = typ;
+        if (!IS_DOOR(state.level.at(x, y).typ)) {
+            state.level.at(x, y).typ = typ;
+            state.level.at(x, y).flags = 0;
+        }
         // mz_move step 2: advance to destination cell.
         x += dx[dir];
         y += dy[dir];
@@ -7248,12 +7161,8 @@ function dosdoor(x, y, aroom, type) {
         if (Is_rogue_level(game.u?.uz))
             loc.flags = D_NODOOR;
         if (loc.flags & D_TRAPPED) {
-            if (level_difficulty() >= 9 && !rn2(5)
-                && !([PM_SMALL_MIMIC, PM_LARGE_MIMIC, PM_GIANT_MIMIC]
-                    .every(pm => game.mvitals[pm].mvflags & G_GONE))) {
+            if (level_difficulty() >= 9 && !rn2(5)) {
                 loc.flags = D_NODOOR;
-                const mimic = makemon(mkclass(S_MIMIC, 0), x, y, NO_MM_FLAGS);
-                if (mimic) set_mimic_sym(mimic, { state: game });
             }
         }
     } else {

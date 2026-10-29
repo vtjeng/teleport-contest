@@ -65,7 +65,7 @@ import {
 import { LL_NONE, NHW_MESSAGE, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
 import { SAVE_FILE_PATH } from './save.js';
-import { welcomeBackMessage, welcomeHallucinationMessage } from './role_init.js';
+import { welcomeBackMessage } from './role_init.js';
 import { udeadinside, ugenocided } from './polyself.js';
 import {
     cls,
@@ -555,13 +555,7 @@ export class NethackGame {
             // C ref: dorecover():948 welcome(FALSE). allmain.c:863-867
             // skips "welcome back" for a restored hero whose own species
             // was genocided while polymorphed; that death is pending.
-            const doomedRestore = Upolyd(g.u) && ugenocided(g);
-            if (!doomedRestore) {
-                const hallucinationWelcome = welcomeHallucinationMessage(g);
-                if (hallucinationWelcome)
-                    await ttyPline(hallucinationWelcome, g);
-            }
-            if (doomedRestore)
+            if (Upolyd(g.u) && ugenocided(g))
                 await ttyPline(
                     `You're back, but you still feel ${udeadinside(g)} inside.`,
                     g,

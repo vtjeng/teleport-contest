@@ -46,40 +46,12 @@ function fixture(t) {
   const run = { id: 123, run_attempt: 1, head_sha: sha, status: 'completed', conclusion: 'success',
     repository: { full_name: 'vtjeng/teleport-contest' }, head_repository: { full_name: 'vtjeng/teleport-contest' },
     path: '.github/workflows/checkpoint-trial.yml', html_url: 'https://github.com/vtjeng/teleport-contest/actions/runs/123' };
-  const gh = args => JSON.stringify(args[1].includes('/jobs?') ? { total_count: 1, jobs: [{ status: 'completed', conclusion: 'success', completed_at:
-    args[1].includes('/runs/123/') ? '2026-10-22T07:01:00Z' : '2026-10-22T07:03:00Z' }] } : run);
+  const gh = args => JSON.stringify(args[1].includes('/jobs?') ? { total_count: 1, jobs: [{ status: 'completed', conclusion: 'success', completed_at: '2026-10-22T07:01:00Z' }] } : run);
   const options = { git: args => args[0] === 'ls-remote' ? sha + '\trefs/heads/main' : '', checkpoint: (_, commit) => summaries[commit] };
   const record = () => recordPublishedSynthetic(root, sha, base, publication, gh, options);
   const view = { batches: batches.map(batch => ({ ...batch, freshness: { expected: challengeInputSnapshot(root, batch).sha256 } })), status: 'incomplete', totals: null };
-  return { root, record, view, summaries, publication, run, options };
+  return { root, record, view, summaries, publication, run };
 }
-test('one-shot published receipt records a named single-repair group without another commit', t => {
-  const f = fixture(t);
-  mkdirSync(join(f.root, 'trial-monitor'));
-  const path = join(f.root, 'trial-monitor/repairs.json');
-  writeFileSync(path, JSON.stringify({ version: 1, asOf: '2026-10-22T06:00:00Z',
-    repairs: [{ id: 'single-fix', kind: 'parity-repair', window: 'single-worker',
-      candidates: [] }] }, null, 2) + '\n');
-  Object.assign(f.run, { event: 'push', head_branch: 'integration-checkpoint/single-fix',
-    created_at: '2026-10-22T06:50:00Z', updated_at: '2026-10-22T07:01:00Z' });
-  const published = (id, path) => ({ id, head_sha: sha, run_attempt: 1,
-    event: 'push', head_branch: 'main', status: 'completed', conclusion: 'success',
-    created_at: '2026-10-22T07:02:00Z', updated_at: '2026-10-22T07:04:00Z',
-    html_url: `https://github.com/vtjeng/teleport-contest/actions/runs/${id}`,
-    path: `.github/workflows/${path}` });
-  f.options.repairMembers = [{ id: 'single-fix', sourceCommit: sha }];
-  f.options.publicationRuns = [published(124, 'lint.yml'), published(125, 'dashboard.yml')];
-  f.options.git = args => args[0] === 'ls-remote' ? sha + '\trefs/heads/main'
-    : args[0] === 'show' ? '2026-10-22T06:45:00Z' : '';
-  f.publication.workflows = f.options.publicationRuns.map(run => ({
-    workflow: run.path, id: run.id, status: run.status, conclusion: run.conclusion }));
-  assert.deepEqual(f.record().repairs, { changed: true, members: 1 });
-  const first = readFileSync(path, 'utf8');
-  assert.deepEqual(f.record().repairs, { changed: false, members: 1 });
-  assert.equal(readFileSync(path, 'utf8'), first);
-  assert.deepEqual(JSON.parse(first).repairs[0].candidates[0].runs.map(run => run.name),
-    ['Checkpoint', 'Lint', 'Dashboard']);
-});
 test('complete accepted evidence records once, preserves actual timestamps, and survives a newer partial/failed row', t => {
   const f = fixture(t);
   assert.equal(f.record().changed, true);

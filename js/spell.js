@@ -36,8 +36,6 @@ import {
     KILLED_BY_AN,
     LL_CONDUCT,
     MAX_SPELL_STUDY,
-    MENU_TRADITIONAL,
-    Never_mind,
     NO_KILLER_PREFIX,
     NO_SPELL,
     NO_MINVENT,
@@ -56,7 +54,6 @@ import {
     PICK_NONE,
     PICK_ONE,
     POISON_RES,
-    quitchars,
     SLEEP_RES,
     SICK,
     SLIMED,
@@ -67,7 +64,7 @@ import {
 } from './const.js';
 import { acurr, exercise, poison_strdmg } from './attrib.js';
 import { jump } from './apply.js';
-import { cmdq_pop, getdir, set_occupation, yn_function } from './cmd.js';
+import { cmdq_pop, getdir, set_occupation } from './cmd.js';
 import { morehungry } from './eat.js';
 import { trycall } from './do.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -1508,6 +1505,8 @@ async function rejectcasting(state, { message }) {
 
 // C ref: spell.c getspell() (715-783). Selects a spell from the hero's known
 // spells. Returns { ok, spell_no }; ok is true when a spell was chosen.
+// The MENU_TRADITIONAL yn_function branch is not ported (the default menu
+// style is MENU_FULL, which goes through dospellmenu()).
 async function getspell(state, { message, menu }) {
     const nspells = num_spells(state);
     if (!nspells) {
@@ -1529,31 +1528,7 @@ async function getspell(state, { message, menu }) {
         return { ok: false, spell_no: -1 };
     }
 
-    if (state.flags.menu_style === MENU_TRADITIONAL) {
-        const lets = nspells === 1 ? 'a'
-            : nspells < 27 ? `a-${String.fromCharCode(96 + nspells)}`
-                : nspells === 27 ? 'a-zA'
-                    : `a-zA-${String.fromCharCode(64 + nspells - 26)}`;
-        const prompt = `Cast which spell? [${lets} *?]`;
-        for (let retry = 0; ; ++retry) {
-            if (retry === 10) {
-                await message("That's enough tries.", state);
-                return { ok: false, spell_no: -1 };
-            }
-            const answer = await yn_function(prompt, null, '\0', true, state);
-            const key = typeof answer === 'number'
-                ? String.fromCharCode(answer) : answer;
-            if (key === '*' || key === '?') break;
-            if (quitchars.includes(key)) {
-                await message(Never_mind, state);
-                return { ok: false, spell_no: -1 };
-            }
-            const idx = spell_let_to_idx(key);
-            if (idx >= 0 && idx < nspells)
-                return { ok: true, spell_no: idx };
-            await message("You don't know that spell.", state);
-        }
-    }
+    // Non-traditional menu: the menu style is MENU_FULL by default.
     return dospellmenu('Choose which spell to cast', SPELLMENU_CAST,
         state, menu);
 }
@@ -1785,11 +1760,6 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     const role_skill = P_SKILL(skill, state);
 
     switch (otyp) {
-    // C spell.c:1549; potion.c healup(0, 0, FALSE, TRUE) clears blindness,
-    // cream, and deafness through the shared source-owned condition helpers.
-    case SPE_CURE_BLINDNESS:
-        await healup(0, 0, false, true, state, env);
-        break;
     case SPE_CURE_SICKNESS: {
         const wasSick = Boolean(state.u.uprops[SICK].intrinsic);
         const wasSlimed = Boolean(state.u.uprops[SLIMED].intrinsic);

@@ -6,8 +6,6 @@ import * as options from '../js/options.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { COIN_CLASS, FOOD_CLASS, RING_CLASS, WEAPON_CLASS } from '../js/objects.js';
-import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
-import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
 // options.c's local optreq enum; these values pin every no-input request.
 const DO_INIT = 1, DO_SET = 2, GET_VAL = 4, GET_CNF_VAL = 5;
@@ -22,11 +20,11 @@ test('pickup requests share startup state and synchronous value results', () => 
         assert.equal(options.optfn_pickup_types(state, request), '%=)');
     // The source final return accepts requests outside the declared enum.
     assert.equal(options.optfn_pickup_types(state, 99), OPTN_OK);
-    // Source retains accepted types even when a later duplicate fails.
+    // Runtime explicit input parses in source order, retaining accepted types
+    // even when a later duplicate fails; interactive error output is a gap.
+    state.go.opt_initial = false;
     assert.equal(options.optfn_pickup_types(state, DO_SET, false, 'pickup_types:$%%'), OPTN_ERR);
     assert.deepEqual(state.flags.pickup_types, [COIN_CLASS, FOOD_CLASS]);
-    assert.equal(state.configErrorFrame.num_errors, 1);
-    state.go.opt_initial = false;
     for (const all of ['a', 'A']) {
         assert.equal(options.optfn_pickup_types(state, DO_SET, false, `pickup_types:${all}Z`), OPTN_OK);
         assert.deepEqual(state.flags.pickup_types, []);
@@ -53,24 +51,5 @@ for (const [name, expected] of CASES) {
         await runSegment(recipe.segments[0], { onBoundary: e => { boundary = e; } });
         assert.equal(boundary, undefined);
         assert.deepEqual(game.flags.pickup_types, expected);
-    });
-}
-
-for (const name of [
-    'pickup-types-invalid-response-blocked',
-    'pickup-types-invalid-Z',
-    'pickup-types-traditional-full',
-    'pickup-types-traditional-simple-restore',
-]) {
-    test(`live pickup_types C replay: ${name}`, async () => {
-        const recording = JSON.parse(readFileSync(new URL(
-            `../recordings/options.c/${name}.session.json`, import.meta.url), 'utf8'));
-        const root = createScoringWorkspace(process.cwd(), []);
-        try {
-            const result = compareSessionOutputs(recording, await runJsSession(recording, root));
-            assert.equal(result.passed, true, formatReport(result));
-        } finally {
-            removeScoringWorkspace(root);
-        }
     });
 }

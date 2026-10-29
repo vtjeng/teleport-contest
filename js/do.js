@@ -260,7 +260,7 @@ import {
 } from './invent.js';
 import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
-import { makemon_runtime } from './makemon_create.js';
+import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
     healmon, kill_genocided_monsters, m_in_air, m_into_limbo, mnexto, mondied, newcham, pm_to_cham, set_ustuck,
@@ -383,7 +383,6 @@ import { enexto, rloc, safe_teleds } from './teleport.js';
 import { burn_away_slime, obj_has_timer, obj_stop_timers, preflight_end_burn, rider_revival_time, run_timers, start_timer } from './timeout.js';
 import {
     climb_pit,
-    deltrap,
     fill_pit,
     maketrap,
     Flying,
@@ -785,7 +784,7 @@ export function schedule_goto(
 
 // C ref: do.c deferred_goto() (2074-2102). This is async only because the
 // port's messages and goto_level() are async; their order is C's order.
-export async function deferred_goto(state = game, rawEnv = {}) {
+export async function deferred_goto(state = game) {
     const u = state.u;
     state.gd ??= {};
     if (!on_level(u.uz, u.utolev)) {
@@ -795,7 +794,7 @@ export async function deferred_goto(state = game, rawEnv = {}) {
 
         if (state.gd.dfr_pre_msg)
             await ttyPline(state.gd.dfr_pre_msg, state);
-        await (rawEnv.gotoLevel ?? goto_level)(
+        await goto_level(
             dest,
             Boolean(typmask & UTOTYPE_ATSTAIRS),
             Boolean(typmask & UTOTYPE_FALLING),
@@ -807,13 +806,11 @@ export async function deferred_goto(state = game, rawEnv = {}) {
         // be captured; do not resume this deferred transition's tail.
         if (state.program_state?.gameover) return;
         if (typmask & UTOTYPE_RMPORTAL) {
-            // C do.c:2088-2094 removes whatever trap occupies the arrival
-            // square after goto_level(), leaving other destination traps.
-            const trap = t_at(u.ux, u.uy, state);
-            if (trap) {
-                deltrap(trap, state);
-                (rawEnv.newsym ?? newsym)(u.ux, u.uy, state);
-            }
+            // trap.c deltrap() is not ported. No level-teleport transition
+            // carries this flag; portal ejection owns the first live use.
+            throw new UnsupportedLevelChangeError(
+                'deferred_goto() removing a destination portal',
+            );
         }
         if (state.gd.dfr_post_msg) {
             if (!on_level(u.uz, oldlev))
@@ -3220,7 +3217,7 @@ export async function goto_level(
             // C resurrect() returns no value and is already the canonical
             // caller for this arm.
             await resurrect(state, {
-                makemon: makemon_runtime,
+                makemon,
                 redraw: newsym,
                 monArrive: (monster) => mon_arrive(monster, 'Wiz_arrive', {
                     state,
@@ -3341,7 +3338,7 @@ export async function goto_level(
 // C ref: do.c u_collide_m() (1410-1445). The hero has arrived on a square a
 // monster already holds -- one that came down with her, or one mklev() put on
 // the up staircase -- and one of the two has to move.
-export async function u_collide_m(mtmp, state = game) {
+async function u_collide_m(mtmp, state = game) {
     if (!mtmp || mtmp === state.u.usteed
         || mtmp !== m_at(state.u.ux, state.u.uy, state)) {
         // C's impossible() returns without moving anybody.

@@ -8,7 +8,7 @@ import { l_selection_or } from './nhlsel.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
     COLNO, ROWNO, IS_STWALL,
-    MAX_TYPE, MATCH_WALL, STONE,
+    MAX_TYPE, MATCH_WALL,
 } from './const.js';
 import { splev_chr2typ } from './mklev.js';
 
@@ -33,31 +33,18 @@ function mathRandom(a, b) {
 // (x2,y2) on the selection grid.
 export function selection_line(x1, y1, x2, y2) {
     const sel = new ThemeroomSelection();
-    const dx = Math.abs(x2 - x1);
-    const dy = Math.abs(y2 - y1);
-    const xi = x1 < x2 ? 1 : -1;
-    const yi = y1 < y2 ? 1 : -1;
-    sel.set(x1, y1);
-    if (dx > dy) {
-        const ai = (dy - dx) * 2;
-        const bi = dy * 2;
-        let d0 = bi - dx;
-        while (x1 !== x2) {
-            if (d0 >= 0) { y1 += yi; d0 += ai; }
-            else d0 += bi;
-            x1 += xi;
-            sel.set(x1, y1);
-        }
-    } else if (dy > 0) {
-        const ai = (dx - dy) * 2;
-        const bi = dx * 2;
-        let d0 = bi - dy;
-        while (y1 !== y2) {
-            if (d0 >= 0) { x1 += xi; d0 += ai; }
-            else d0 += bi;
-            y1 += yi;
-            sel.set(x1, y1);
-        }
+    let dx = Math.abs(x2 - x1);
+    let dy = Math.abs(y2 - y1);
+    const sx = x1 < x2 ? 1 : -1;
+    const sy = y1 < y2 ? 1 : -1;
+    let err = dx - dy;
+    let x = x1, y = y1;
+    for (;;) {
+        sel.set(x, y);
+        if (x === x2 && y === y2) break;
+        const e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x += sx; }
+        if (e2 < dx) { err += dx; y += sy; }
     }
     return sel;
 }
@@ -111,18 +98,19 @@ export function selection_match(pattern, state) {
                     const ch = lines[py][px];
                     const tx = x + px - cx;
                     const ty = y + py - cy;
-                    // C mapfrag_match treats an off-map footprint cell as
-                    // STONE; the center itself remains a valid map cell.
-                    const terrain = tx < 0 || tx >= COLNO || ty < 0
-                        || ty >= ROWNO ? STONE : state.level.at(tx, ty).typ;
+                    if (tx < 0 || tx >= COLNO || ty < 0 || ty >= ROWNO) {
+                        match = false;
+                        continue;
+                    }
+                    const loc = state.level.at(tx, ty);
                     const expected = splev_chr2typ(ch);
                     if (expected === MAX_TYPE) {
                         continue;
                     } else if (expected === MATCH_WALL) {
                         // Match any wall type.
-                        if (!IS_STWALL(terrain)) match = false;
+                        if (!IS_STWALL(loc.typ)) match = false;
                     } else {
-                        if (terrain !== expected) match = false;
+                        if (loc.typ !== expected) match = false;
                     }
                 }
             }
@@ -822,7 +810,7 @@ async function bigrm13(des, state) {
         // 6: random 50%
         () => (mathRandom(0, 1) === 0),
         // 7: corners and center
-        (x, y) => ((x / 3) % 2 === y % 2),
+        (x, y) => (Math.trunc(x / 3) % 2 === y % 2),
         // 8: slanted
         (x, y) => (Math.trunc((x + 1) / 3) === y),
     ];

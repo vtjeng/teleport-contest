@@ -1,4 +1,0 @@
-{"inputHex":"6f7261636c65","expectedC":{"fields":[2,2,1,1,4,4],"nameHex":"6f7261636c65"},"observedJS":{"fields":[2,2,1,1,4,4],"nameHex":"6f7261636c65"},"equal":true}
-{"inputHex":"6d6564757361","expectedC":{"fields":[2,2,1,1,4,4],"nameHex":"6d6564757361"},"observedJS":{"fields":[2,2,1,1,4,4],"nameHex":"6d6564757361"},"equal":true}
-{"inputHex":"33","expectedC":{"fields":[2,2,1,1,4,4],"nameHex":"33"},"observedJS":{"fields":[2,2,1,1,4,4],"nameHex":"33"},"equal":true}
-{"mode":"control","failures":0}

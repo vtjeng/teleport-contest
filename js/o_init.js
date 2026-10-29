@@ -1,7 +1,7 @@
 // Object initialization and unidentified-description shuffling.
 // C ref: src/o_init.c setgemprobs through oinit.
 
-import { disp_artifact_discoveries, dump_artifact_info, NROFARTIFACTS } from './artifacts.js';
+import { disp_artifact_discoveries, NROFARTIFACTS } from './artifacts.js';
 import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
 import {
@@ -756,7 +756,9 @@ export async function doclassdisco(state = game, {
         if (state.wizard && await yesNo(
             'Dump information about all artifacts?', 'yn', 'n', true, state,
         ) === 'y') {
-            await dump_artifact_info(state, putstr);
+            // The C dump helper has a void return; doclassdisco only tests a
+            // local nonzero count after it returns.
+            note_unported('artifact.c dump_artifact_info');
             count = NROFARTIFACTS;
             break;
         }

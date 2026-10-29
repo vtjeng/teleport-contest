@@ -1058,24 +1058,6 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
   .recent-repairs li { grid-template-columns:minmax(0,1fr); gap:2px; }
   .trial-tiles,.trial-details { grid-template-columns:minmax(0,1fr); }
 }
-
-/* Evidence cards stack on phones; long pins and source keys never widen the page. */
-#workflowEvidence { overflow-wrap:anywhere; }
-.workflow-lanes,.workflow-queue { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr)); gap:10px; margin:14px 0; }
-.workflow-card { border:1px solid var(--border); border-radius:8px; padding:14px; min-width:0; }
-.workflow-card p { margin:6px 0; font-size:13px; }
-.workflow-card small { color:var(--ink-secondary); }
-.workflow-status { color:var(--integration-blue); text-transform:capitalize; }
-.workflow-number { display:block; font-size:25px; font-variant-numeric:tabular-nums; }
-.workflow-heading { margin-top:30px; }
-#workflowEvidence details { margin:14px 0; font-size:13px; }
-#workflowEvidence summary { cursor:pointer; padding:8px 0; min-height:36px; }
-#workflowEvidence a { color:var(--score-link); text-decoration:underline; }
-.workflow-controls select { font:inherit; background:var(--surface-card); color:var(--ink-primary); padding:10px; border:1px solid var(--border); border-radius:5px; }
-.workflow-outcomes { width:100%; border-collapse:collapse; font-size:13px; }
-.workflow-outcomes th,.workflow-outcomes td { text-align:right; padding:8px 4px; border-bottom:1px solid var(--border); }
-.workflow-outcomes th:first-child { text-align:left; font-weight:400; }
-.workflow-rate { border-left:3px solid var(--integration-blue); padding:10px 14px; font-size:13px; line-height:1.6; }
 </style>
 
 <div class="header">
@@ -1096,12 +1078,10 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
   <div class="stats" id="stats"></div>
   <p class="compact-note">Last complete cohort stays visible during validation. Source-backed repairs can leave these scores unchanged.</p>
 </section>
-<section class="section" id="workflowEvidence" aria-label="Sessions, handoffs and discovery outcomes"></section>
 <section class="section" aria-labelledby="recentRepairsTitle">
-  <div class="section-toolbar"><h2 class="section-title" id="recentRepairsTitle">Recent publication-verified repairs</h2><span class="compact-note" id="repairCount"></span></div>
+  <div class="section-toolbar"><h2 class="section-title" id="recentRepairsTitle">Recent accepted repairs</h2><span class="compact-note" id="repairCount"></span></div>
   <ol class="recent-repairs" id="recentRepairs"></ol>
-  <p class="compact-note" id="recentRepairRate"></p>
-  <p class="compact-note">Distinct repairs; corrections stay with their original repair. Register coverage is partial. Wall-time throughput is observational across changing roles and case mix, not isolated causal evidence of a workflow benefit.</p>
+  <p class="compact-note">Distinct repairs; corrections stay with their original repair. Register coverage is partial.</p>
 </section>
 
 <section class="section" aria-labelledby="workerActivityTitle">
@@ -1126,7 +1106,7 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
     <div id="activityMetrics" aria-label="Recorded worker utilization for visible lanes in the selected time window"></div>
 
     <details class="activity-help"><summary>Stage key and definitions</summary><label><input id="activityHistorical" type="checkbox"> Show retired worker history</label><div class="legend" id="timelineLegend"></div><p>Bars show recorded investigation and CI/publication elapsed spans, including queue time. They do not measure active work, idle time or compute. Missing investigation timestamps stay unknown. Retired roles appear only when selected. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
-    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Recorded integration and optional retired worker activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
+    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Single Standard engineer and optional retired worker activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <canvas id="activityMinimap" tabindex="0" aria-label="Recorded activity across the full history. Drag the range or its edges; plus and minus zoom, arrow keys pan, Home and End jump to the earliest and latest dates."></canvas>
     <details class="activity-details"><summary>Selected stage details</summary>
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
@@ -1236,9 +1216,6 @@ const createDashboardTime = /*LOCAL_TIME_PLACEHOLDER*/null;
 const localTime = createDashboardTime();
 document.getElementById('displayTimezone').textContent = 'Times in ' + localTime.zone;
 const DATA = /*DATA_PLACEHOLDER*/null;
-const WORKFLOW_DATA = /*WORKFLOW_DATA_PLACEHOLDER*/null;
-const workflowSummary = /*WORKFLOW_MODEL_PLACEHOLDER*/null;
-const renderWorkflow = /*WORKFLOW_VIEW_PLACEHOLDER*/null;
 const TRIAL_DATA = /*TRIAL_PLACEHOLDER*/null;
 const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
 const singleWorkerActivity = /*SINGLE_WORKER_PLACEHOLDER*/null;
@@ -1269,7 +1246,7 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
   }
   const stamp = localTime.stamp;
   const rate = value => value == null ? 'unknown'
-    : value.toFixed(2) + ' publication-verified repairs/hour';
+    : value.toFixed(2) + ' accepted repairs/hour';
   const text = (id, value) => { node(id).textContent = value; };
   const link = (run, label) => {
     const a = document.createElement('a');
@@ -1289,18 +1266,10 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       + rate(baseline.withoutCarryInRate) + ' excluding carry-in. Observational.');
     syntheticMonitorView = view;
     singleWorkerSnapshot = singleWorkerActivity(view);
-    text('trialHeadline', 'Evidence analysts submit problems and explained negatives; Main owns gameplay integration and publication.');
-    renderWorkflow(document, WORKFLOW_DATA, view, workflowSummary, DATA.challenges?.publication);
+    text('trialHeadline', 'Single Standard engineer · investigation may overlap CI; edits and publication stay sequential.');
     const accepted = singleWorkerSnapshot.tasks.filter(task => task.publishedAt)
       .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
     text('repairCount', accepted.length + ' registered · latest ' + Math.min(5, accepted.length) + ' shown');
-    const progress = view.recentProgress;
-    text('recentRepairRate', progress?.rate == null
-      ? 'Recent rate unknown: no complete dated validation group is recorded.'
-      : 'Latest ' + progress.groupCount + ' complete validation groups · '
-        + progress.repairCount + ' registered repairs in '
-        + Math.round(progress.elapsedHours * 60) + ' minutes wall time · '
-        + rate(progress.rate) + '. Earliest recorded repair/candidate time to last exact-SHA gate; shared CI counted once.');
     const recent = node('recentRepairs');
     recent.replaceChildren();
     if (!accepted.length) {
@@ -1310,15 +1279,12 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       const item = document.createElement('li');
       const title = document.createElement('a'); title.textContent = task.label;
       const result = view.results.find(result => result.repair.id === task.id);
-      title.href = 'https://github.com/vtjeng/teleport-contest/commit/'
-        + (result.accepted.candidate.sourceCommit || result.accepted.candidate.sha);
+      title.href = 'https://github.com/vtjeng/teleport-contest/commit/' + result.accepted.candidate.sha;
       const time = document.createElement('time'); time.dateTime = task.publishedAt;
       time.textContent = stamp(task.publishedAt);
       const detail = document.createElement('span'); detail.className = 'repair-detail';
-      detail.textContent = [task.status.includes('correction')
-        ? task.status.split(' · ')[1] : '', task.validationGroupSize > 1
-          ? 'Shared validation with ' + task.validationGroupSize + ' repairs · '
-            + task.validationSha.slice(0, 12) : ''].filter(Boolean).join(' · ');
+      detail.textContent = task.status.includes('correction')
+        ? task.status.split(' · ')[1] : '';
       item.append(title, time, detail); recent.append(item);
     }
     window.dispatchEvent(new Event('single-worker-status'));
@@ -1329,10 +1295,8 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       text('trialCandidate', 'Unknown — no uniquely dated candidate in the repair register');
       gates.textContent = 'Checkpoint · Lint · Dashboard: unknown';
     } else {
-      text('trialCandidate', (candidate.groupSize > 1
-        ? candidate.groupSize + ' repairs · shared validation'
-        : view.results.find(result => result.repair.id === candidate.repairId)?.repair.title
-          ?? candidate.repairId ?? 'Unregistered candidate') + ' · ' + candidate.sha.slice(0, 12));
+      text('trialCandidate', (view.results.find(result => result.repair.id === candidate.repairId)?.repair.title
+        ?? candidate.repairId ?? 'Unregistered candidate') + ' · ' + candidate.sha.slice(0, 12));
       for (const name of ['Checkpoint', 'Lint', 'Dashboard']) {
         const gate = candidate.gates[name];
         const span = document.createElement('span');
@@ -1351,11 +1315,8 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       : 'Candidate evidence: unknown')
       + warning
       + (selection?.unrecordedCount ? ' · ' + selection.unrecordedCount + (selection.unrecordedCount === 1 ? ' repair has no candidate recorded' : ' repairs have no candidate recorded') : '')
-      + (selection?.unrecordedNewerCount ? ' · ' + selection.unrecordedNewerCount
-        + (selection.unrecordedNewerCount === 1 ? ' newer repair awaits candidate evidence' : ' newer repairs await candidate evidence') : '')
       + (selection?.legacyPointerMismatch ? ' · saved status differs; using dated candidate evidence' : '')
-      + (view.api.status === 'fresh' ? ' · CI checked ' + stamp(view.api.checkedAt) : ' · CI: last-known snapshot')
-      + ' · accepted repair membership is recorded with the next Main commit');
+      + (view.api.status === 'fresh' ? ' · CI checked ' + stamp(view.api.checkedAt) : ' · CI: last-known snapshot'));
 
   }
   // Compare evidence, not the successful check's timestamp or elapsed clock.
@@ -2186,7 +2147,7 @@ window.addEventListener('single-worker-status', () => {
   const windowLabel = document.getElementById('activityWindowLabel');
   const historicalToggle = document.getElementById('activityHistorical');
   try { sessionStorage.removeItem('activityWindow'); } catch { /* Storage is optional. */ }
-  const isHistorical = lane => lane !== 'Main integration';
+  const isHistorical = lane => lane !== 'Standard engineer';
   const laneVisible = lane => historicalToggle.checked || !isHistorical(lane);
   const activity = DATA.activity || { segments: [], tasks: [] };
   const history = [...(activity.segments || []), ...(singleWorkerSnapshot?.segments || [])];
@@ -2210,7 +2171,7 @@ window.addEventListener('single-worker-status', () => {
     waiting: 'Waiting (reported)', blocked: 'Blocked', idle: 'Idle (worker report)', unrecorded: 'Unrecorded time' };
   const phaseName=phase=>phaseNames[phase]||(phase?'Recorded stage: '+phase:'Unrecorded stage');
   const legendGroups = [
-    ['Main integration · recorded elapsed spans', ['investigation', 'validation', 'publication']],
+    ['Standard engineer · elapsed spans', ['investigation', 'validation', 'publication']],
     ['Retired workers', ['working', 'rework', 'parked']],
     ['Retired Work lead', ['review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']],
     ['Availability', ['waiting', 'blocked', 'idle', 'unrecorded']],
@@ -2257,10 +2218,10 @@ window.addEventListener('single-worker-status', () => {
   const a2Start = Math.min(...segments.filter(row => row.lane === 'A2').map(row => Date.parse(row.start)));
   const displayLane = lane => lane === 'A2' && aEnd <= a2Start ? 'A'
     : agentName(lane.replace(/^Prep-([1-6])$/u, 'P$1'));
-  const lanes = [...new Set(['Main integration', ...history.map(segment => segment.lane).filter(lane => lane !== 'Main')]
+  const lanes = [...new Set(['Standard engineer', ...history.map(segment => segment.lane).filter(lane => lane !== 'Main')]
     .sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(displayLane))];
   lanes.push('Work lead');
-  const historicalLabels = new Set(lanes.filter(lane => lane !== 'Main integration'));
+  const historicalLabels = new Set(lanes.filter(lane => lane !== 'Standard engineer'));
   const minSpan = Math.min(20 * 60000, latest - first || hourMs);
   let domainEnd = Math.max(latest, first + minSpan);
   let hours = Math.min(6, (domainEnd - first) / hourMs);
@@ -2575,7 +2536,7 @@ window.addEventListener('single-worker-status', () => {
     const stageColors = {investigation: '--stage-working', validation: '--stage-integrating', review: '--stage-review', integrating: '--stage-integrating', acceptance: '--stage-acceptance',
       publication: '--stage-publication', admission: '--stage-admission', baseline: '--stage-baseline', blocked: '--stage-waiting'};
     for (const stage of segments) {
-      if (!laneVisible(stage.lane) || !['Main', 'Main integration'].includes(stage.lane) || stage.phase === 'unrecorded') continue;
+      if (!laneVisible(stage.lane) || !['Main', 'Standard engineer'].includes(stage.lane) || stage.phase === 'unrecorded') continue;
       ctx.fillStyle = stageStyle.getPropertyValue(stageColors[stage.phase] || '--ink-muted').trim();
       ctx.fillRect(x(Date.parse(stage.start)), 12, Math.max(1, x(Date.parse(stage.end)) - x(Date.parse(stage.start))), 18);
     }
@@ -2659,7 +2620,7 @@ window.addEventListener('single-worker-status', () => {
       for (let i = rows.length - 1; i >= 0; i--) if (!isHistorical(rows[i].lane)) rows.splice(i, 1);
       rows.push(...(singleWorkerSnapshot?.segments || []));
     }
-    for (const [id, task] of taskById) if (task.worker === 'Main integration') taskById.delete(id);
+    for (const [id, task] of taskById) if (task.worker === 'Standard engineer') taskById.delete(id);
     for (const task of singleWorkerSnapshot?.tasks || []) taskById.set(task.id, task);
     captured = Math.max(Date.parse(activity.capturedAt) || 0, Date.parse(singleWorkerSnapshot?.capturedAt) || 0);
     first = Math.min(...history.map(row => Date.parse(row.start)));

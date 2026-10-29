@@ -15,7 +15,6 @@ import {
     BUFSZ,
     CLR_MAX,
     COLNO,
-    ROWNO,
     DISCLOSE_PROMPT_DEFAULT_NO,
     DISCLOSE_PROMPT_DEFAULT_YES,
     DISCLOSE_PROMPT_DEFAULT_SPECIAL,
@@ -206,7 +205,7 @@ import {
 } from './display.js';
 import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
-import { STATUS_CONDITIONS, STATUS_FIELDS } from './status_field_data.js';
+import { STATUS_FIELDS } from './status_field_data.js';
 import { tty_preference_update } from './wintty.js';
 import { vision_recalc } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
@@ -242,7 +241,6 @@ import { check_enhanced_colors, wc_color_name } from './coloratt.js';
 import {
     get_current_feature_ver,
     get_feature_notice_ver,
-    NETHACK_VERSION,
     status_version,
     VI_BRANCH,
     VI_NAME,
@@ -277,7 +275,6 @@ import {
     assign_graphics,
     known_handling,
     finish_boulder_symbol,
-    get_othersym,
     do_symset,
     MAXMCLASSES,
     switch_symbols,
@@ -290,7 +287,7 @@ import {
     reset_customcolors,
 } from './glyphs.js';
 import { reset_customsymbols } from './utf8map.js';
-import { add_menu_heading, choose_classes_menu, getlin, select_menu } from './windows.js';
+import { choose_classes_menu, getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow, menuTitleStyle } from './tty_menu.js';
 import { note_unported } from './unported.js';
 import { choose_disco_sort } from './o_init.js';
@@ -4263,174 +4260,6 @@ async function handler_menustyle(state, helpers) {
     return optn_ok;
 }
 
-// C ref: options.c handler_runmode() (6124-6153).  The menu uses one-based
-// a_int values, while flags.runmode stores the zero-based runmodes index.
-async function handler_runmode(state, helpers) {
-    const selected = await optionMenuSelect(state, {
-        items: runmodes.map((name, index) => ({
-            text: name,
-            value: index + 1,
-            selector: name[0],
-        })),
-        how: PICK_ONE,
-        title: 'Select run/travel display mode:',
-        cancelValue: null,
-    }, helpers);
-    const values = menuSelectionValues(selected);
-    if (values.length) state.flags.runmode = values[0] - 1;
-    return optn_ok;
-}
-
-// C ref: options.c handler_sortloot() (6166-6206).  The current mode is
-// preselected; selecting another row can return both it and the new choice.
-async function handler_sortloot(state, helpers) {
-    const old = state.flags.sortloot;
-    const selected = await optionMenuSelect(state, {
-        items: sortltype.map((name) => ({
-            text: name,
-            value: name[0],
-            selector: name[0],
-            selected: name[0] === old,
-        })),
-        how: PICK_ONE,
-        title: 'Select loot sorting type:',
-        cancelValue: null,
-    }, helpers);
-    const values = menuSelectionValues(selected);
-    if (values.length) {
-        const choice = values.length > 1 && values[0] === old
-            ? values[1] : values[0];
-        state.flags.sortloot = choice;
-        if (state.iflags.perm_invent) update_inventory({ state });
-    }
-    return optn_ok;
-}
-
-// C ref: options.c optfn_sortvanquished() do_handler arm (3997-4009).
-// insight.c owns the ordering menu; import it when invoked because insight.js
-// imports this module for its options value formatting.
-async function handler_sortvanquished(state, helpers) {
-    const old = state.flags.vanq_sortmode;
-    const { set_vanq_order } = await import('./insight.js');
-    await set_vanq_order(true, state, {
-        menu: (menuState, spec) => optionMenuSelect(menuState, spec, helpers),
-    });
-    const [name, description] = vanqorders[state.flags.vanq_sortmode];
-    await ttyPline(
-        `'sortvanquished' ${state.flags.vanq_sortmode === old
-            ? 'not changed, still' : 'changed to'} "${name}: ${description}".`,
-        state,
-    );
-    return optn_ok;
-}
-
-// C ref: options.c handler_whatis_filter() (6279-6314).  The menu returns
-// one-based a_char values, while iflags.getloc_filter stores a zero-based
-// GFILTER value.  PICK_ONE can include both the old preselection and new row.
-async function handler_whatis_filter(state, helpers) {
-    const old = state.iflags.getloc_filter;
-    const choices = [
-        [GFILTER_NONE, 'n', 'no filtering'],
-        [GFILTER_VIEW, 'v', 'in view only'],
-        [GFILTER_AREA, 'a', 'in same area'],
-    ];
-    const selected = await optionMenuSelect(state, {
-        items: choices.map(([value, selector, text]) => ({
-            value: value + 1,
-            selector,
-            text,
-            selected: value === old,
-        })),
-        how: PICK_ONE,
-        title: 'Select location filtering when going for next/previous map position:',
-        cancelValue: null,
-    }, helpers);
-    const values = menuSelectionValues(selected);
-    if (values.length) {
-        state.iflags.getloc_filter = values.length > 1 && values[0] - 1 === old
-            ? values[1] - 1 : values[0] - 1;
-    }
-    return optn_ok;
-}
-
-// C ref: options.c handler_whatis_coord() (6206-6277).  The five selectable
-// rows are followed by the tty coordinate examples; PICK_ONE may return the
-// preselected old row before the newly selected row.
-async function handler_whatis_coord(state, helpers) {
-    const old = state.iflags.getpos_coords;
-    const choices = [
-        [GPCOORDS_COMPASS, "compass ('east' or '3s' or '2n,4w')"],
-        [GPCOORDS_COMFULL, "full compass ('east' or '3south' or '2north,4west')"],
-        [GPCOORDS_MAP, 'map <x,y>'],
-        [GPCOORDS_SCREEN, 'screen [row,column]'],
-        [GPCOORDS_NONE, 'none (no coordinates displayed)'],
-    ];
-    const verbose = state.flags.verbose;
-    const items = choices.map(([value, text]) => ({
-        value,
-        selector: value,
-        text,
-        selected: value === old,
-    }));
-    items.push(
-        { text: '' },
-        { text: `map: upper-left: <1,0>, lower-right: <${COLNO - 1},${ROWNO - 1}>`
-            + (verbose ? '; column 0 unused, off left edge' : '') },
-        { text: `screen: upper-left: [02,01], lower-right: [${ROWNO - 1 + 2},${COLNO - 1}]`
-            + (COLNO === 80 && verbose ? '; column 80 is not used' : '') },
-        { text: '' },
-    );
-    const selected = await optionMenuSelect(state, {
-        items,
-        how: PICK_ONE,
-        title: 'Select coordinate display when auto-describing a map position:',
-        cancelValue: null,
-    }, helpers);
-    const values = menuSelectionValues(selected);
-    if (values.length) {
-        state.iflags.getpos_coords = values.length > 1 && values[0] === old
-            ? values[1] : values[0];
-    }
-    return optn_ok;
-}
-
-// C ref: options.c handler_versinfo() (6573-6620) and its optfn do_handler
-// arm.  The release build has no development-branch label, but keeps the
-// branch bit selectable in the PICK_ANY menu.
-async function handler_versinfo(state, helpers) {
-    const old = state.flags.versinfo;
-    const selected = await optionMenuSelect(state, {
-        items: [
-            [1, 'n', 'version number'],
-            [2, 'g', 'game name'],
-            [4, 'b', '(not applicable)'],
-        ].map(([value, selector, text]) => ({
-            value,
-            selector,
-            text,
-            selected: Boolean(old & value),
-        })),
-        how: PICK_ANY,
-        title: 'Select version information flags:',
-        cancelValue: null,
-    }, helpers);
-    const values = menuSelectionValues(selected);
-    if (values.length) {
-        const bits = values.reduce((acc, value) => acc | value, 0) & 7;
-        if (bits) state.flags.versinfo = bits;
-    }
-    await ttyPline(
-        `'versinfo' ${state.flags.versinfo === old
-            ? 'not changed, still' : 'changed to'} ${state.flags.versinfo}.`,
-        state,
-    );
-    if (state.flags.versinfo !== old) {
-        state.go ??= {};
-        state.go.opt_need_redraw = true;
-    }
-    return optn_ok;
-}
-
 // C ref: options.c handler_align_misc() (5586-5623).  The item values are
 // the alignment constants themselves, so the selected value can update the
 // corresponding field without another enum conversion.
@@ -4649,26 +4478,21 @@ export function optfn_scores(result, optidx, req, negated, opts, op) {
     if (req === DO_SET) {
         const reportError = message => {
             if (result.go?.opt_initial === false) {
-                // cfgfiles.c:1554-1562 prints a live option error and then
-                // synchronizes the TTY, without touching the startup frame.
-                const punct = '.!?'.includes(message.at(-1)) ? '' : '.';
-                return (async () => {
-                    await ttyPline(`${message}${punct}`, result);
-                    const { tty_wait_synch } = await import('./tty_rawprint.js');
-                    await tty_wait_synch(result);
-                })();
+                // cfgfiles.c:1554-1562 has a live pline()/wait_synch() arm.
+                // Its result is discarded; the existing frame-only owner
+                // cannot supply that output, so preserve the named gap.
+                note_unported('cfgfiles.c config_erradd');
             } else {
                 configErrorAdd(result, message);
             }
-            return null;
         };
         // string_for_opt(opts,FALSE) reports a missing value through the same
         // discarded diagnostic owner. Read its value with TRUE and route that
         // diagnostic here so a live call does not mutate a startup frame.
         op = string_for_opt(opts, true);
         if (op === '') {
-            const reported = reportError(`Missing parameter for '${opts}'`);
-            return reported ? reported.then(() => optn_err) : optn_err;
+            reportError(`Missing parameter for '${opts}'`);
+            return optn_err;
         }
         result.flags.end_top = 0;
         result.flags.end_around = 0;
@@ -4700,16 +4524,14 @@ export function optfn_scores(result, optidx, req, negated, opts, op) {
                 result.flags.end_own = false;
             } else if (initial === '-'
                        && /^[0-9]$/u.test(op[index + 1] ?? '')) {
-                const reported = reportError(
+                reportError(
                     `Values for ${allopt[optidx].name}:top and`
                     + ` ${allopt[optidx].name}:around must not be negative`,
                 );
-                return reported ? reported.then(() => optn_silenterr) : optn_silenterr;
+                return optn_silenterr;
             } else {
-                const reported = reportError(
-                    `Unknown ${allopt[optidx].name} parameter '${op.slice(index)}'`,
-                );
-                return reported ? reported.then(() => optn_silenterr) : optn_silenterr;
+                reportError(`Unknown ${allopt[optidx].name} parameter '${op.slice(index)}'`);
+                return optn_silenterr;
             }
             while (letter(op[index] ?? '')) ++index;
             while (op[index] === ' ') ++index;
@@ -5690,7 +5512,7 @@ function pickupTypesFromSymbols(symbols) {
 // each bad, disallowed, or non-final repeated symbol, but still installs the
 // good classes.  Gold leads only when omitted; every other omitted class
 // follows in the order that was active before this statement.
-export function change_inv_order(result, op, reportError = configErrorAdd) {
+export function change_inv_order(result, op) {
     const symbols = encodeUtf8ByteString(op);
     const previous = result.flags.inv_order;
     const reordered = [];
@@ -5706,13 +5528,13 @@ export function change_inv_order(result, op, reportError = configErrorAdd) {
         let rejected = false;
 
         if (objectClass === MAXOCLASSES) {
-            reportError(result, `Not an object class '${symbol}'`);
+            configErrorAdd(result, `Not an object class '${symbol}'`);
             rejected = true;
         } else if (!previous.includes(objectClass)) {
-            reportError(result, `Object class '${symbol}' not allowed`);
+            configErrorAdd(result, `Object class '${symbol}' not allowed`);
             rejected = true;
         } else if (symbols.includes(byte, index + 1)) {
-            reportError(result, `Duplicate object class '${symbol}'`);
+            configErrorAdd(result, `Duplicate object class '${symbol}'`);
             rejected = true;
         }
         if (rejected) accepted = false;
@@ -8349,19 +8171,10 @@ export function optfn_pickup_types(
         state.flags.pickup_types = parsed.types;
         if (parsed.badopt) {
             // C advances op to its terminating NUL before reporting it.
-            const message = `Unknown ${allopt[optidx].name} parameter ''`;
-            if (initial) {
-                configErrorAdd(state, message);
-            } else {
-                // cfgfiles.c:config_erradd() prints the live error and then
-                // synchronizes the TTY without changing the startup frame.
-                return (async () => {
-                    await ttyPline(`${message}.`, state);
-                    const { tty_wait_synch } = await import('./tty_rawprint.js');
-                    await tty_wait_synch(state);
-                    return optn_err;
-                })();
-            }
+            if (initial) configErrorAdd(
+                state, `Unknown ${allopt[optidx].name} parameter ''`,
+            );
+            else note_unported('cfgfiles.c config_error_add');
             return optn_err;
         }
         return optn_ok;
@@ -8430,89 +8243,6 @@ const MENU_OPTION_SET_HANDLERS = Object.freeze(Object.fromEntries([
 // name, as OPTION_VALUE_HANDLERS' keys are.
 const OPTION_SET_HANDLERS = Object.freeze({
     boolean: optfn_boolean,
-    // options.c optfn_crash_urlmax(do_set) also accepts a live value.  C's
-    // config_error_add() reports these errors to the TTY.
-    crash_urlmax: async (state, _optidx, _negated, opts) => {
-        const value = string_for_opt(opts, true);
-        let message;
-        if (value === '') {
-            message = `Missing parameter for '${opts}'.`;
-        } else {
-            const limit = atoi(value);
-            if (limit < 75)
-                message = `Invalid value ${limit} for crash_urlmax.  Minimum value is 75.`;
-            else state.gc.crash_urlmax = limit;
-        }
-        if (message) {
-            await ttyPline(message, state);
-            const { tty_wait_synch } = await import('./tty_rawprint.js');
-            await tty_wait_synch(state);
-            return optn_err;
-        }
-        return optn_ok;
-    },
-    // options.c optfn_boulder(do_set) is also reached from a running game's
-    // generic compound-option editor, after initialization has finished.
-    boulder: async (state, _optidx, _negated, opts) => {
-        const value = string_for_opt(opts, true);
-        const { tty_wait_synch } = await import('./tty_rawprint.js');
-        if (value === '') {
-            await ttyPline(`Missing parameter for '${opts}'.`, state);
-            await tty_wait_synch(state);
-            return optn_err;
-        }
-        const byte = escapes(value)[0] ?? 0;
-        const monsterClass = def_char_to_monclass(byte);
-        const clash = monsterClass !== MAXMCLASSES && byte !== 0
-            ? 'monster'
-            : byte >= 0x31 && byte < 0x30 + WARNCOUNT ? 'warning' : null;
-        const signedByte = byte >= 0x80 ? byte - 0x100 : byte;
-        if (signedByte < 0x20) {
-            await ttyPline('boulder symbol cannot be a control character.', state);
-            await tty_wait_synch(state);
-        } else if (clash) {
-            await ttyPline(
-                `Badoption - boulder symbol '${visctrl(byte)}' would conflict`
-                + ` with a ${clash} symbol.`, state,
-            );
-            await tty_wait_synch(state);
-        } else {
-            const index = SYM_OFF_X + SYM_BOULDER;
-            state.go.ov_primary_syms[index] = byte;
-            state.go.ov_rogue_syms[index] = byte;
-            const symbol = get_othersym(
-                SYM_BOULDER, Is_rogue_level(state.u.uz) ? ROGUESET : PRIMARYSET,
-                state,
-            );
-            if (symbol) state.gs.showsyms[index] = symbol;
-            state.go.opt_need_redraw = true;
-        }
-        return optn_ok;
-    },
-    // options.c optfn_crash_email(do_set) stores the running-game prompt value.
-    crash_email: async (state, _optidx, _negated, opts) => {
-        const value = string_for_opt(opts, true);
-        if (value === '') {
-            await ttyPline(`Missing parameter for '${opts}'.`, state);
-            const { tty_wait_synch } = await import('./tty_rawprint.js');
-            await tty_wait_synch(state);
-            return optn_err;
-        }
-        state.gc.crash_email = value;
-        return optn_ok;
-    },
-    // options.c optfn_crash_name(do_set) stores the running-game prompt value.
-    crash_name: async (state, _optidx, _negated, opts) => {
-        const value = string_for_opt(opts, true);
-        if (value === '') {
-            await ttyPline(`Missing parameter for '${opts}'.`, state);
-            const { tty_wait_synch } = await import('./tty_rawprint.js');
-            await tty_wait_synch(state);
-            return optn_err;
-        }
-        state.gc.crash_name = value;
-        return optn_ok;
-    },
     petattr: (state, _optidx, negated, opts, helpers) => optfn_petattr(state, DO_SET, negated, opts, helpers),
     o_status_hilites: () => optn_ok,
     o_menu_colors: () => optn_ok,
@@ -8531,20 +8261,6 @@ const OPTION_SET_HANDLERS = Object.freeze({
     name: (state, optidx, negated, opts) => optfn_name(
         state, optidx, DO_SET, negated, opts,
     ),
-    // options.c optfn_menuinvertmode(do_set) also serves the live editor.
-    menuinvertmode: async (state, _optidx, _negated, opts) => {
-        const value = string_for_opt(opts, true);
-        if (value === '') return optn_ok;
-        const mode = atoi(value);
-        if (mode < 0 || mode > 2) {
-            await ttyPline(`Illegal menuinvertmode parameter '${value}'.`, state);
-            const { tty_wait_synch } = await import('./tty_rawprint.js');
-            await tty_wait_synch(state);
-            return optn_err;
-        }
-        state.iflags.menuinvertmode = mode;
-        return optn_ok;
-    },
     number_pad: (state, optidx, negated, opts, helpers) => optfn_number_pad(
         state, optidx, DO_SET, negated, opts, undefined, helpers,
     ),
@@ -8557,79 +8273,6 @@ const OPTION_SET_HANDLERS = Object.freeze({
     scores: (state, optidx, negated, opts) => optfn_scores(
         state, optidx, DO_SET, negated, opts, undefined,
     ),
-    // options.c optfn_statuslines(do_set) is also reached by the live editor.
-    statuslines: async (state, _optidx, _negated, opts) => {
-        const value = string_for_opt(opts, true);
-        const { tty_wait_synch } = await import('./tty_rawprint.js');
-        if (value === '') {
-            await ttyPline(`Missing parameter for '${opts}'.`, state);
-            await tty_wait_synch(state);
-        }
-        const lines = value === '' ? 0 : atoi(value);
-        if (lines < 2 || lines > 3) {
-            await ttyPline(`'statuslines:${value}' is invalid; must be 2 or 3.`, state);
-            await tty_wait_synch(state);
-            return optn_silenterr;
-        }
-        state.iflags.wc2_statuslines = lines;
-        state.go.opt_need_redraw = true;
-        return optn_ok;
-    },
-    // options.c optfn_suppress_alert(do_set) uses feature_alert_opts() for
-    // live edits too, with pline() feedback instead of config-file errors.
-    suppress_alert: async (state, _optidx, _negated, opts) => {
-        const value = string_for_opt(opts, true);
-        if (value === '') return optn_ok;
-        const version = get_feature_notice_ver(value);
-        if (version === 0n) return optn_ok;
-        if (version > get_current_feature_ver()) {
-            await ttyPline(
-                "You can't disable new feature alerts for future versions.", state,
-            );
-            return optn_ok;
-        }
-        state.flags.suppress_alert = Number(version);
-        await ttyPline(
-            `Feature change alerts disabled for NetHack ${NETHACK_VERSION}`
-            + ' features and prior.', state,
-        );
-        return optn_ok;
-    },
-    // options.c optfn_pile_limit()'s do_set arm is also reached when doset()
-    // prompts for a new value and passes the statement to parseoptions().
-    pile_limit: async (state, _optidx, negated, opts) => {
-        // cfgfiles.c config_erradd() uses pline() and wait_synch() when a
-        // live prompt submits an empty value, before optfn_pile_limit()
-        // restores its default. The startup parser has its own error frame.
-        if (!negated && string_for_opt(opts, true) === '') {
-            await ttyPline(`Missing parameter for '${opts}'.`, state);
-            const { tty_wait_synch } = await import('./tty_rawprint.js');
-            await tty_wait_synch(state);
-            state.flags.pile_limit = PILE_LIMIT_DFLT;
-            return optn_ok;
-        }
-        setPileLimit(state, opts, negated);
-        return optn_ok;
-    },
-    // options.c optfn_packorder() uses the same change_inv_order() as startup,
-    // but cfgfiles.c prints each live diagnostic and synchronizes the TTY.
-    packorder: async (state, _optidx, _negated, opts) => {
-        const value = string_for_opt(opts, true);
-        if (value === '') return optn_err;
-        const errors = [];
-        const accepted = change_inv_order(
-            state, value, (_result, message) => errors.push(message),
-        );
-        if (errors.length) {
-            const { tty_wait_synch } = await import('./tty_rawprint.js');
-            for (const message of errors) {
-                const punct = '.!?'.includes(message.at(-1)) ? '' : '.';
-                await ttyPline(`${message}${punct}`, state);
-                await tty_wait_synch(state);
-            }
-        }
-        return accepted ? optn_ok : optn_err;
-    },
     pickup_types: (state, optidx, negated, opts, helpers) => optfn_pickup_types(
         state, DO_SET, negated, opts, optidx, helpers,
     ),
@@ -8774,19 +8417,10 @@ const OPTION_HANDLERS = Object.freeze({
     pickup_types: (state, helpers) => optfn_pickup_types(
         state, DO_HANDLER, false, '', undefined, helpers,
     ),
-    runmode: handler_runmode,
-    sortloot: handler_sortloot,
-    sortvanquished: handler_sortvanquished,
-    whatis_filter: handler_whatis_filter,
-    whatis_coord: handler_whatis_coord,
-    versinfo: handler_versinfo,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
     o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
     petattr: handler_petattr,
     o_menu_colors: (state, helpers) => optfn_o_menu_colors(state, DO_HANDLER, '', helpers),
-    o_message_types: handler_msgtype,
-    o_autopickup_exceptions: handler_autopickup_exception,
-    o_status_cond: handler_status_conditions,
 });
 
 // C ref: options.c reset_needed_visuals() (8977-9010), which doset() runs once
@@ -9284,154 +8918,4 @@ export function optfn_o_menu_colors(state, request, opts = '', helpers) {
     if (request === GET_VAL || request === GET_CNF_VAL) return opts == null ? optn_err : n_currently_set(count_menucolors(state));
     if (request === DO_HANDLER) return handler_menu_colors(state, helpers);
     return optn_ok;
-}
-
-// C ref: options.c handler_msgtype(), query_msgtype(), free_one_msgtype().
-// The live editor shares its list with startup MSGTYPE declarations.
-export async function handler_msgtype(state, helpers) {
-    for (;;) {
-        const action = await handle_add_list_remove(state, 'message type', msgtype_count(state), helpers);
-        if (action === 3) return optn_ok;
-        if (action === 0) {
-            const pattern = helpers?.getlin ? await helpers.getlin('What new message pattern?') : await getlin('What new message pattern?', state);
-            if (pattern?.[0] === '\x1b') return optn_ok;
-            if (pattern && test_regex_pattern(state, pattern, 'MSGTYPE regex')) {
-                const choices = MSGTYPE_NAMES.filter(({ name }) => !['noshow', 'more'].includes(name));
-                const descriptions = ['Show message normally', 'Hide message',
-                    'Prompt for more after the message', 'Do not repeat the message'];
-                const selected = await optionMenuSelect(state, {
-                    items: choices.map(({ msgtype }, i) => ({ text: descriptions[i], value: msgtype + 1 })),
-                    title: 'How to show the message', how: PICK_ONE,
-                }, helpers);
-                const picks = menuSelectionValues(selected);
-                if (picks.length && !msgtype_add(state, picks[0] - 1, pattern)) {
-                    await ttyPline('Error adding the message type.', state);
-                    note_unported('windows.c wait_synch');
-                }
-            }
-            continue;
-        }
-        const items = [];
-        for (let rule = state.gp?.plinemsg_types; rule; rule = rule.next) {
-            const name = MSGTYPE_NAMES.find(({ msgtype, name }) =>
-                msgtype === rule.msgtype && !['noshow', 'more'].includes(name))?.name ?? '(null)';
-            const prefix = `${name.padEnd(5)} "`;
-            const available = BUFSZ - prefix.length - 2;
-            const pattern = encodeUtf8ByteString(rule.pattern).length > available
-                ? `${truncateByteString(rule.pattern, available - 3)}...` : rule.pattern;
-            items.push({ text: `${prefix}${pattern}"`, value: items.length + 1 });
-        }
-        const selected = await optionMenuSelect(state, {
-            items, title: `${action === 1 ? 'List of' : 'Remove which'} message types`,
-            how: action === 1 ? PICK_NONE : PICK_ANY, emptyValue: [],
-        }, helpers);
-        const picks = menuSelectionValues(selected);
-        for (let i = 0; i < picks.length; ++i) {
-            const index = picks[i] - 1 - i;
-            let previous = null;
-            let node = state.gp?.plinemsg_types;
-            for (let n = 0; node && n < index; ++n) { previous = node; node = node.next; }
-            if (node) {
-                if (previous) previous.next = node.next;
-                else state.gp.plinemsg_types = node.next;
-            }
-        }
-        if (selected == null) return optn_ok;
-    }
-}
-
-// C ref: options.c handler_autopickup_exception(). The startup parser and
-// live editor share ga.apelist, with the newest exception at its head.
-export async function handler_autopickup_exception(state, helpers) {
-    for (;;) {
-        const action = await handle_add_list_remove(
-            state, 'autopickup exception', count_apes(state), helpers,
-        );
-        if (action === 3) return optn_ok;
-        if (action === 0) {
-            const answer = helpers?.getlin
-                ? await helpers.getlin('What new autopickup exception pattern?')
-                : await getlin('What new autopickup exception pattern?', state);
-            const pattern = mungspaces(answer ?? '');
-            if (pattern[0] === '\x1b') return optn_ok;
-            if (pattern) add_autopickup_exception(state, `"${pattern}"`);
-            continue;
-        }
-        const exceptions = [];
-        for (let ape = state.ga?.apelist; ape; ape = ape.next) exceptions.push(ape);
-        const items = [add_menu_heading("Always pickup '<'; never pickup '>'", state),
-            ...exceptions.map((ape, i) => ({
-                text: `"${ape.grab ? '<' : '>'}${ape.pattern}"`,
-                ...(action === 2 ? { value: i + 1 } : {}),
-            }))];
-        const selected = await optionMenuSelect(state, {
-            items, title: `${action === 1 ? 'List of' : 'Remove which'} autopickup exceptions`,
-            how: action === 1 ? PICK_NONE : PICK_ANY, emptyValue: [],
-        }, helpers);
-        const picks = new Set(menuSelectionValues(selected).map((value) => exceptions[value - 1]));
-        if (picks.size) {
-            let previous = null;
-            let ape = state.ga?.apelist;
-            while (ape) {
-                if (picks.has(ape)) {
-                    if (previous) previous.next = ape.next;
-                    else state.ga.apelist = ape.next;
-                } else previous = ape;
-                ape = ape.next;
-            }
-        }
-        if (selected == null) return optn_ok;
-    }
-}
-
-// C refs: options.c optfn_o_status_cond() and botl.c cond_menu(). The
-// condition table in status_field_data.js retains condtests[]'s source order.
-const CONDITION_RANKS = Object.freeze([
-    20, 10, 20, 10, 10, 15, 10, 6, 20, 2,
-    10, 20, 20, 8, 10, 20, 10, 20, 6, 20,
-    6, 4, 10, 15, 6, 20, 20, 20, 20, 20,
-]);
-
-export async function handler_status_conditions(state, helpers) {
-    const conditions = state.iflags.status_conditions;
-    for (;;) {
-        const rankSort = Boolean(state.gc?.condmenu_sortorder);
-        const names = STATUS_CONDITIONS.map(({ option }, index) => ({ option, index }));
-        names.sort((a, b) => (rankSort ? CONDITION_RANKS[a.index] - CONDITION_RANKS[b.index] : 0)
-            || a.option.toLowerCase().localeCompare(b.option.toLowerCase(), 'en'));
-        const title = rankSort ? 'by ranking' : 'alphabetically';
-        const other = rankSort ? 'alphabetically' : 'by ranking';
-        const items = [{
-            text: `change sort order from "${title}" to "${other}"`,
-            value: 1, selector: 'S', skipinvert: true,
-        }, add_menu_heading(`sorted ${title}`, state),
-        ...names.map(({ option, index }) => ({
-            text: `cond_${(option === 'foodpois' ? 'foodPois'
-                : option === 'termill' ? 'termIll' : option).padEnd(14)}`,
-            value: index + 2,
-            selected: Boolean(conditions[option]),
-        }))];
-        const selected = await optionMenuSelect(state, {
-            items, title: 'Choose status conditions to toggle', how: PICK_ANY,
-            emptyValue: [],
-        }, helpers);
-        if (selected == null) return optn_ok;
-        const picks = menuSelectionValues(selected);
-        if (picks.includes(1)) {
-            (state.gc ??= {}).condmenu_sortorder = rankSort ? 0 : 1;
-            continue;
-        }
-        const chosen = new Set(picks);
-        let changed = false;
-        for (let i = 0; i < STATUS_CONDITIONS.length; ++i) {
-            const option = STATUS_CONDITIONS[i].option;
-            const enabled = chosen.has(i + 2);
-            if (Boolean(conditions[option]) !== enabled) {
-                condopt(state, option, !enabled);
-                changed = true;
-            }
-        }
-        if (changed) (state.disp ??= {}).botl = true;
-        return optn_ok;
-    }
 }

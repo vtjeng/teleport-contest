@@ -135,36 +135,3 @@ test('fetch imports the exact candidate with dirty closure reports and rechecks 
     assert.throws(() => fetchHostedCheckpoint('123', { root, runGh }), /outside regular reports/);
     assert.equal(readCheckpointResult(root, commit).artifacts, join(saved, '..'));
 });
-
-test('explicit public mode imports through anonymous reads only and rejects private, changed or failed metadata', t => {
-    const root = mkdtempSync(join(tmpdir(), 'public-hosted-fetch-'));
-    t.after(() => rmSync(root, {recursive: true, force: true}));
-    const git = args => execFileSync('git', ['-C', root, '-c', 'core.hooksPath=/dev/null', ...args], {encoding: 'utf8'}).trim();
-    git(['init', '--quiet']);
-    writeFileSync(join(root, '.gitignore'), '.cache/\n');
-    git(['add', '.gitignore']);
-    git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '--quiet', '-m', 'Candidate']);
-    const commit = git(['rev-parse', 'HEAD']);
-    const repository = 'vtjeng/teleport-contest';
-    const run = {status: 'completed', conclusion: 'success', head_sha: commit,
-        repository: {full_name: repository, private: false}, head_repository: {full_name: repository, private: false},
-        path: '.github/workflows/checkpoint-trial.yml', id: 123, run_attempt: 1, check_suite_id: 500};
-    const files = Object.fromEntries([
-        ['summary.json', JSON.stringify({commit, executionCommit: commit, allPassed: true, hostedRun: verifyHostedRun(run, repository, commit)})],
-        ...['development-standing.json', 'session-results.json', 'scan-cache.json'].map(name => [name, '{}']),
-    ]);
-    const options = {root, transport: 'public-checks', runGh: () => assert.fail('public mode must not invoke gh')};
-    const api = evidenceApi(run, files);
-    const saved = fetchHostedCheckpoint('123', {...options, runPublic: api});
-    assert.equal(JSON.parse(readFileSync(saved)).commit, commit);
-    for (const change of [{repository: {...run.repository, private: true}},
-        {head_repository: {...run.head_repository, private: true}}, {head_sha: 'b'.repeat(40)}, {conclusion: 'failure'}])
-        assert.throws(() => fetchHostedCheckpoint('123', {...options, runPublic: evidenceApi({...run, ...change}, files)}));
-    let calls = 0;
-    assert.throws(() => fetchHostedCheckpoint('123', {...options, runPublic: p => {
-        if (p.endsWith('/actions/runs/123') && ++calls === 2) return JSON.stringify({...run, run_attempt: 2});
-        return api(p);
-    }}), /attempt changed/u);
-    assert.throws(() => fetchHostedCheckpoint('123', {...options, runPublic: () => {throw new Error('HTTP 401');}}), /HTTP 401/u);
-    assert.equal(readCheckpointResult(root, commit).artifacts, join(saved, '..'));
-});

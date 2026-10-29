@@ -1,9 +1,0 @@
-[
-  {
-    "key": "source-audit:edge-c-only:src/sp_lev.c:mapfrag_fromstr:dupstr",
-    "evidenceKey": "7c481e7cd6417966e66c5acae15e259027305937e34bddc5c0121683e771f8d2",
-    "runId": "ea2181cadbad5793b4be",
-    "reviewFingerprint": "392cd6c8730ca2c419892891f00015bff4fbb211106646937b2293251454e137",
-    "status": null
-  }
-]

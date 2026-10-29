@@ -790,7 +790,7 @@ test('worker activity hides historical lanes and their utilization until request
     assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">(?:A|P1)</u);
     assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">Worker 1</u);
     assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">Work lead</u);
-    assert.match(rendered.get('timeline').innerHTML, /activity-label">Main integration</u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">Standard engineer</u);
     assert.doesNotMatch(rendered.get('activityMetrics').innerHTML, /A\/B\/C|Prep lanes/u);
     assert.equal(rendered.get('activityMetrics').hidden, true);
     const toggle = rendered.get('activityHistorical');
@@ -1566,7 +1566,7 @@ test('full startup renders scores, charts, recent repairs and final history with
     assert.match(rendered.get('stats').innerHTML, /Development set/);
     assert.match(rendered.get('progressReadout').textContent, /44\/44/);
     assert.ok(rendered.get('developmentChart').ops.some(([operation]) => operation === 'stroke'));
-    assert.match(rendered.get('timeline').innerHTML, /Main integration/);
+    assert.match(rendered.get('timeline').innerHTML, /Standard engineer/);
     for (const id of ['updated', 'activitySnapshotTime', 'workerEvidence'])
         assert.equal(rendered.has(id), false, 'removed disclosure is not required during startup');
     const accepted = singleWorkerActivity(createTrialMonitor(snapshot).summarize()).tasks
@@ -1744,31 +1744,7 @@ test('recent accepted repairs and timeline include newer post-trial work in firs
     // newer investigations remain unaccepted; inspect the complete timeline.
     rendered.get('activityWindow').value = 'all';
     rendered.get('activityWindow').listeners.change[0]();
-    assert.ok(newest.some(result => rendered.get('timeline').innerHTML.includes(result.repair.title)),
-        'actual post-trial CI bars are rendered, including shared batches');
+    assert.ok(rendered.get('timeline').innerHTML.includes(newest[0].repair.title), 'actual post-trial CI bars are rendered');
     assert.equal(createTrialMonitor(snapshot).summarize().baseline.acceptedCount, 13, 'frozen baseline unchanged');
     assert.ok(rendered.get('goalTable').innerHTML, 'strict DOM startup reaches the final section');
-});
-
-test('recent repair panel shows individual pilot members and shared validation wall rate', () => {
-    const load = file => JSON.parse(readFileSync(join(PROJECT_ROOT, 'trial-monitor', file), 'utf8'));
-    const ids = new Set(['versinfo-choice-handler', 'message-types-choice-handler',
-        'autopickup-exceptions-choice-handler', 'status-condition-choice-handler',
-        'pile-limit-live-choice-handler', 'packorder-live-choice-handler',
-        'menuinvertmode-live-choice-handler']);
-    const register = load('repairs.json');
-    register.repairs = register.repairs.filter(repair => ids.has(repair.id));
-    const rendered = renderDashboard(sourceDashboardData(), null, { singleWorkerData: {
-        manifest: load('manifest.json'), register, buildSha: 'f'.repeat(40),
-        builtAt: '2026-10-26T02:38:00Z',
-    }});
-    assert.match(rendered.get('repairCount').textContent, /^7 registered/u);
-    assert.match(rendered.get('recentRepairRate').textContent,
-        /3 complete validation groups · 7 registered repairs.*5\.66 publication-verified repairs\/hour.*shared CI counted once/u);
-    assert.match(rendered.get('trialCandidate').textContent, /^3 repairs · shared validation/u);
-    assert.equal(rendered.get('recentRepairs').children.length, 5);
-    assert.match(rendered.get('recentRepairs').children[0].children[2].textContent,
-        /Shared validation with 3 repairs/u);
-    assert.match(rendered.get('recentRepairs').children[0].children[0].href,
-        /\/commit\/04476af09075f3142326db6be3674ce1869dc0e7$/u);
 });

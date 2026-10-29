@@ -538,11 +538,7 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
 
         const firstDoor = state.level.doors[sroom.fdoor];
         const doorLoc = state.level.at(firstDoor.x, firstDoor.y);
-        // C's rm.doormask and rm.flags are the same bitfield. Ordinary level
-        // generation populates flags, while some constructed levels populate
-        // doormask, so read the effective mask before deciding it is a doorway.
-        const doorMask = () => doorLoc.flags || doorLoc.doormask || D_NODOOR;
-        if (doorMask() === D_NODOOR) {
+        if (doorLoc.doormask === D_NODOOR) {
             doorLoc.doormask = D_ISOPEN;
             doorLoc.flags = D_ISOPEN;
             redrawDoor(firstDoor.x, firstDoor.y, normalized);
@@ -551,12 +547,12 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
             doorLoc.typ = DOOR;
             redrawDoor(firstDoor.x, firstDoor.y, normalized);
         }
-        if (doorMask() & D_TRAPPED) {
+        if (doorLoc.doormask & D_TRAPPED) {
             doorLoc.doormask = D_LOCKED;
             doorLoc.flags = D_LOCKED;
         }
 
-        if (doorMask() === D_LOCKED) {
+        if (doorLoc.doormask === D_LOCKED) {
             let x = firstDoor.x;
             let y = firstDoor.y;
             if (insideShop(sroom, x + 1, y)) --x;

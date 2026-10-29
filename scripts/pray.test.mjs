@@ -2275,25 +2275,6 @@ test('doturn() chants, exercises Wisdom, and installs negative multi', async () 
         'Calling upon Tyr, you chant an arcane formula.');
 });
 
-test('doturn() records only the first break of atheism conduct', async () => {
-    // C pray.c:2426-2428 logs before the can_chant gate. An ordinary
-    // initialized Knight exercises both first-use and repeated-use paths.
-    await startedGame();
-    game.urole.mnum = PM_KNIGHT;
-    game.u.uconduct.gnostic = 0;
-    const before = game.gamelog?.length ?? 0;
-    await doturn(game);
-    assert.deepEqual(game.gamelog.slice(before).map(row => row.text),
-        ['rejected atheism by turning undead']);
-
-    game.multi = 0;
-    for (let i = 0; i < 8; i++) game.nhDisplay.pushKey(32);
-    await doturn(game);
-    assert.deepEqual(game.gamelog.slice(before).map(row => row.text),
-        ['rejected atheism by turning undead']);
-    assert.equal(game.u.uconduct.gnostic, 2);
-});
-
 // pray.c doturn():2431-2447 checks the current form, anger timer and dungeon
 // before the chant. Each row keeps a lawful Knight's conduct at its first
 // turn, so the source's ECMD_TIME reply can be distinguished from the normal

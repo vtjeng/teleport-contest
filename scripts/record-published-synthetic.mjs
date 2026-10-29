@@ -13,13 +13,10 @@ import { currentFromResults, compareToBaseline } from './score-baseline.mjs';
 import { readRows } from './score-log.mjs';
 import { recordEvaluations } from './score-challenges.mjs';
 import { completeCohort } from './published-synthetic.mjs';
-import { preparePublishedRepairs } from './record-published-repairs.mjs';
 
 export function recordPublishedSynthetic(root, commit, baseline, publication, gh, {
   git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim(),
   checkpoint = readCheckpointResult,
-  repairMembers = null,
-  publicationRuns = null,
 } = {}) {
   if (!/^[a-f0-9]{40}$/.test(baseline ?? '') || !publication.passed || publication.commit !== commit)
     throw new Error('Synthetic publication requires an accepted baseline and successful publication gates');
@@ -71,10 +68,6 @@ export function recordPublishedSynthetic(root, commit, baseline, publication, gh
   const receipt = { version: 1, sha: commit, baseline, ...cohort, checkpointCompletedAt,
     checkpoint: { id: run.id, attempt: run.run_attempt, url: run.html_url },
     publication: publication.workflows, entries };
-  const recordRepairs = repairMembers && preparePublishedRepairs(root, {
-    commit, baseline, members: repairMembers, publication, publicationRuns,
-    checkpointRun: run, checkpointCompletedAt, gh, git,
-  });
   const pointer = join(root, 'challenges/published.json');
   if (existsSync(pointer)) {
     const old = JSON.parse(readFileSync(pointer));
@@ -94,13 +87,8 @@ export function recordPublishedSynthetic(root, commit, baseline, publication, gh
       assert.equal(row[key], String(value), 'Recorded row differs from immutable evidence');
   recordEvaluations(root, entries.filter(entry => !recorded.has(entry.path)).map(entry => entry.path));
   const bytes = JSON.stringify(receipt, null, 2) + '\n';
-  const changed = !existsSync(pointer) || readFileSync(pointer, 'utf8') !== bytes;
-  if (changed) {
-    writeFileSync(pointer + '.tmp', bytes);
-    renameSync(pointer + '.tmp', pointer);
-  }
-  const repairs = recordRepairs?.();
-  return { changed, sha: commit, ...(changed
-    ? { measuredThrough: cohort.measuredThrough, totals: cohort.totals } : {}),
-    ...(repairs ? { repairs } : {}) };
+  if (existsSync(pointer) && readFileSync(pointer, 'utf8') === bytes) return { changed: false, sha: commit };
+  writeFileSync(pointer + '.tmp', bytes);
+  renameSync(pointer + '.tmp', pointer);
+  return { changed: true, sha: commit, measuredThrough: cohort.measuredThrough, totals: cohort.totals };
 }

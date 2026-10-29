@@ -4160,15 +4160,6 @@ export async function doredraw() {
     return ECMD_OK;
 }
 
-// C ref: display.c redraw_map() (1778-1810).  docrtRefresh resends the
-// transient glyph buffer without reconstructing the remembered map or
-// consuming display RNG to regenerate monster glyphs.
-async function redraw_map(cursorOnHero = false) {
-    if (!game.u?.ux || suppressMapOutput()
-        || !on_level(game.u.uz0, game.u.uz)) return;
-    await flush_screen(cursorOnHero ? 1 : 0);
-}
-
 // C ref: display.c docrt()/docrt_flags() (1703-1775). Swallowed and underwater
 // displays take precedence over the ordinary remembered-map redraw. cls()
 // flushes pending messages before clearing the transient frame. Ordinary
@@ -4180,14 +4171,10 @@ export async function docrt(options = {}) {
     game.program_state ??= {};
     game.program_state.in_docrt = true;
     try {
-        if (options.refreshOnly) {
-            // C docrt_flags(docrtRefresh) takes this arm before the swallowed,
-            // underwater, and ordinary vision-redraw paths.
-            await redraw_map(false);
-        } else if (game.u?.uswallow) {
-            // C ref: display.c docrt_flags() (1727-1731). A swallowed hero
-            // gets the complete stomach redraw here; newsym()'s swallowed
-            // guard cannot replace this arm.
+        // C ref: display.c docrt_flags() (1727-1731). A swallowed hero gets
+        // the complete stomach redraw here; newsym()'s swallowed guard only
+        // protects the existing transient frame and cannot replace this arm.
+        if (game.u?.uswallow) {
             await swallowed(true);
         } else if (game.u.uinwater && !Is_waterlevel(game.u.uz)) {
             await under_water(1);
@@ -5632,9 +5619,7 @@ function _statusLine2Fields(capacityValue) {
             ),
         );
     }
-    if (capacityPadding) {
-        fields.push({ kind: 'capacity-padding', text: capacityPadding });
-    }
+    if (capacityPadding) fields.push(_statusField(capacityPadding));
     fields.push(_conditionStatusField(
         _statusConditionEntries(u, conditionLevel),
         false,
@@ -5969,24 +5954,13 @@ function _noneOfTheAbove(value) {
         || compact === 'noneoftheabovepolymorphed';
 }
 
-// options.js preserves long thresholds beyond Number.MAX_SAFE_INTEGER as
-// decimal strings.  Relational operators on two such strings compare their
-// spelling, not their numeric value; C compares the underlying long values.
-function _statusNumericOrder(left, right) {
-    const numeric = value => typeof value === 'string' && /^-?\d+$/u.test(value)
-        ? BigInt(value) : value;
-    const a = numeric(left), b = numeric(right);
-    return a < b ? -1 : a > b ? 1 : 0;
-}
-
 function _statusRelationMatches(actual, relation, threshold) {
-    const order = _statusNumericOrder(actual, threshold);
     switch (relation) {
-    case '<': return order < 0;
-    case '<=': return order <= 0;
-    case '>': return order > 0;
-    case '>=': return order >= 0;
-    default: return order === 0;
+    case '<': return actual < threshold;
+    case '<=': return actual <= threshold;
+    case '>': return actual > threshold;
+    case '>=': return actual >= threshold;
+    default: return actual === threshold;
     }
 }
 
@@ -6335,8 +6309,7 @@ function _selectStatusHilite(field, data, change = 0, state = game) {
                    || rule.behavior === 'absolute') {
             const actual = rule.behavior === 'percentage'
                 ? data.percent ?? 0 : data.value ?? 0;
-            if (rule.relation === '='
-                && _statusNumericOrder(actual, rule.value) === 0) {
+            if (rule.relation === '=' && actual === rule.value) {
                 selected = rule;
                 exact = persistent = true;
                 minimum[rule.behavior] = rule.value;
@@ -6346,16 +6319,12 @@ function _selectStatusHilite(field, data, change = 0, state = game) {
                            actual, rule.relation, rule.value,
                        )) {
                 if ((rule.relation === '<' || rule.relation === '<=')
-                    && _statusNumericOrder(
-                        rule.value, minimum[rule.behavior],
-                    ) <= 0) {
+                    && rule.value <= minimum[rule.behavior]) {
                     selected = rule;
                     minimum[rule.behavior] = rule.value;
                     persistent = true;
                 } else if ((rule.relation === '>' || rule.relation === '>=')
-                           && _statusNumericOrder(
-                               rule.value, maximum[rule.behavior],
-                           ) >= 0) {
+                           && rule.value >= maximum[rule.behavior]) {
                     selected = rule;
                     maximum[rule.behavior] = rule.value;
                     persistent = true;
@@ -6985,83 +6954,73 @@ function _stat_update_time() {
     // moveloop_preamble() sets disp.botlx, so a full pass always precedes the
     // first turn that can set disp.time_botl, and C's blstats[] is likewise
     // unpopulated until then.
-    let layouts;
-    if (!rendered) {
-        layouts = statusLayouts();
-    } else {
-        // wintty.c make_things_fit() restarts its shrink ladder at every
-        // BL_FLUSH, including the one stat_update_time() requests. Re-layout
-        // the time-bearing row from the last core capacity snapshot; the
-        // other row(s) have no field update and keep their cached values.
-        layouts = [...rendered];
-        const timeRow = layouts.length - 1;
-        let refreshed;
-        if (layouts.length === 2) {
-            const capacity = game._statusCapacitySnapshot ?? near_capacity(game);
-            refreshed = _statusLine2Layout(capacity);
-        } else if (layouts.length === 3) {
-            refreshed = _statusLine3DetailsLayout({
-                initialTtyRefresh: false,
-            });
-        }
-        if (refreshed?.fields && layouts[timeRow]?.fields) {
-            const freshByOwner = new Map();
-            for (const field of refreshed.fields) {
-                const key = field.kind === 'condition' ? 'condition'
-                    : field.kind === 'capacity-padding' ? 'capacity-padding'
-                        : field.owner?.field;
-                if (key) freshByOwner.set(key, field);
-            }
-            const cachedFields = layouts[timeRow].fields;
-            const timeField = freshByOwner.get('time');
-            let fields = cachedFields.map((field) => {
-                const key = field.kind === 'condition' ? 'condition'
-                    : field.kind === 'capacity-padding' ? 'capacity-padding'
-                        : field.owner?.field;
-                // stat_update_time() updates only BL_TIME. Keep the rest of
-                // the last supplied status values unless the wider counter
-                // makes this row overflow and invokes make_things_fit().
-                return key === 'time' ? (timeField ?? field) : field;
-            });
-            const nominalWidth = (list) => list.reduce(
-                (width, field) => width + (field.text?.length ?? 0), 0,
-            );
-            if (nominalWidth(fields) > TTY_STATUS_WIDTH) {
-                // C restarts its shrink ladder at BL_FLUSH. Reuse only the
-                // fields that ladder can shorten; keep core status values
-                // from the previous update, even when the world changed
-                // during an animation frame.
-                fields = fields.map((field) => {
-                    const key = field.kind === 'condition' ? 'condition'
-                        : field.kind === 'capacity-padding'
-                            ? 'capacity-padding' : field.owner?.field;
-                    return ['condition', 'capacity-padding',
-                        'carrying-capacity', 'dungeon-level'].includes(key)
-                        ? (freshByOwner.get(key) ?? field)
-                        : field;
-                });
-                const padding = freshByOwner.get('capacity-padding');
-                const conditionIndex = fields.findIndex(
-                    (field) => field.kind === 'condition',
-                );
-                if (padding && conditionIndex >= 0
-                    && !cachedFields.some(
-                        (field) => field.kind === 'capacity-padding',
-                    )) {
-                    fields.splice(conditionIndex, 0, padding);
-                }
-            }
-            const hungerX = layouts[timeRow].hungerX ?? null;
-            const { row } = _renderStatusFields(fields, hungerX);
-            layouts[timeRow] = { ...row.finish(), fields, hungerX };
-        }
-    }
+    const layouts = rendered
+        ? rendered.map((layout) => _refreshTimeField(layout))
+        : statusLayouts();
     game._renderedStatusLayouts = layouts;
     _collectStatusHilites(layouts, 'time');
     const styles = game.iflags?.status_updates === false
         ? layouts.map(() => []) : _statusStyleRows(layouts);
     game._renderedStatusStyles = styles;
     writeStatusRows(game?.nhDisplay, layouts, styles);
+}
+
+export class UnsupportedStatusRefreshError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedStatusRefreshError';
+    }
+}
+
+// C ref: wintty.c make_things_fit() (4583-4636), which runs on every BL_FLUSH,
+// stat_update_time()'s included, and restarts its shrink ladder from the
+// unshrunk strings the core last sent.
+//
+// A turn-counter refresh moves only BL_TIME's length, and the counter only
+// grows, so a row that still fits keeps the rung the full status pass chose: a
+// shorter rung did not fit the narrower counter and cannot fit the wider one.
+// A row that no longer fits needs a rung this port cannot reach from the
+// rendered strings, because shrinking the condition words, the encumbrance
+// word and Dlvl each read the value the core sent rather than the text on the
+// row. C's fit test is rowsz[condrow] - 1 <= cw->cols - 1, which is the sum of
+// the row's field lengths against TTY_STATUS_WIDTH.
+// The test is relative, comparing the row before and after the counter is
+// replaced. An absolute test would throw on every later refresh once a row
+// stood over the limit, including refreshes that change no width at all, such
+// as T:10 to T:11. Only a refresh that carries the row across the limit needs
+// a rung the last full pass did not already choose.
+function _rowWidth(fields) {
+    return fields.reduce((total, { text }) => total + text.length, 0);
+}
+
+function _refuseUnfittableStatusRow(cached, refreshed) {
+    if (_rowWidth(refreshed) > TTY_STATUS_WIDTH
+        && _rowWidth(cached) <= TTY_STATUS_WIDTH) {
+        throw new UnsupportedStatusRefreshError(
+            'make_things_fit() shrinking a row on a turn-counter refresh',
+        );
+    }
+}
+
+function _isTimeField({ owner }) {
+    return owner?.kind === 'field' && owner.field === 'time';
+}
+
+// One status row laid out again with BL_TIME's cached string replaced by the
+// current turn counter. A row that holds no BL_TIME comes back untouched,
+// which is every row when the 'time' option is off and every row but the last
+// when it is on.
+function _refreshTimeField(layout) {
+    const cached = layout.fields?.find(_isTimeField);
+    if (!cached) return layout;
+    const refreshed = _statusField(_statusTimeText(), _fieldOwner('time'));
+    const fields = layout.fields.map(
+        (field) => (field === cached ? refreshed : field),
+    );
+    _refuseUnfittableStatusRow(layout.fields, fields);
+    const hungerX = layout.hungerX ?? null;
+    const { row } = _renderStatusFields(fields, hungerX);
+    return { ...row.finish(), fields, hungerX };
 }
 
 // Bounded display.c reset_glyphmap field access for wizcmds.c diagnostics.

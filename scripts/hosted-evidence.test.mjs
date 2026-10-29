@@ -121,15 +121,3 @@ test('publisher appends at most 50 bounded annotations and seals manifest only a
     materializeEvidence(target, files);
     assert.deepEqual(readFileSync(join(target, 'synthetic/ci-v1.json')), readFileSync(join(output, 'synthetic/ci-v1.json')));
 });
-
-test('declared job and annotation totals detect truncated successful API pages', () => {
-    const good = evidenceApi(run, {'summary.json': '{}'});
-    for (const target of ['jobs', 'annotations']) {
-        assert.throws(() => readHostedEvidence({run, repository, kind: 'checkpoint', github: path => {
-            const value = JSON.parse(good(path));
-            if (target === 'jobs' && path.includes('/jobs')) value.total_count = 2;
-            if (target === 'annotations' && path.endsWith('/check-runs/800')) value.output.annotations_count = 2;
-            return JSON.stringify(value);
-        }}), /incomplete .*pages/u);
-    }
-});

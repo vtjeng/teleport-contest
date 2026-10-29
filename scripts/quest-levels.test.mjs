@@ -2,29 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { PM_BUGBEAR, PM_HILL_GIANT, S_HUMANOID } from '../js/monsters.js';
-import { QUEST_LEVEL_LOADERS, selection_randline } from '../js/quest_levels.js';
-
-test('randline narrows the public roughness integer at the C schar boundary', () => {
-    // Pinned C nhlsel.c passes an int to selvar.c's signed schar parameter.
-    // These values become -128, -1 and 0, so no RNG is needed.
-    const baseline = selection_randline(20, 8, 30, 12, 0).points;
-    assert.equal(baseline.filter(value => value > 1).length, 11);
-    for (const roughness of [128, 255, 256])
-        assert.deepEqual(selection_randline(20, 8, 30, 12, roughness).points, baseline);
-});
-
-test('Rogue quest filler b loads the same rooms as filler a', async () => {
-    // dat/Rog-fila.lua and dat/Rog-filb.lua have identical executable bodies.
-    // mklev.c selects -filb for unnamed quest levels at or below Rog-loca.
-    const target = [];
-    const control = [];
-    assert.equal(typeof QUEST_LEVEL_LOADERS['Rog-filb'], 'function');
-    await QUEST_LEVEL_LOADERS['Rog-filb'](delayedDescriptor(target));
-    await QUEST_LEVEL_LOADERS['Rog-fila'](delayedDescriptor(control));
-    assert.deepEqual(target, control);
-    assert.equal(target.filter(event => event === 'room:start').length, 6);
-    assert.equal(target.filter(event => event === 'random_corridors:start').length, 1);
-});
+import { QUEST_LEVEL_LOADERS } from '../js/quest_levels.js';
 
 function delayedDescriptor(events) {
     const tick = () => Promise.resolve().then(() => {});

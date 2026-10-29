@@ -274,11 +274,14 @@ test('an invalid direction key opens the help_dir() text window while '
 
     // '?' is gc.Cmd.spkeys[NHKF_GETDIR_HELP], and `help_requested ||
     // iflags.cmdassist` reaches help_dir() through either operand, so turning
-    // cmdassist off leaves '?' asking for the window anyway. Dismissing it
-    // retries the prompt, where h supplies the direction.
+    // cmdassist off leaves '?' asking for the window anyway. The retry path
+    // (goto retry at cmd.c:4106) is deferred, so the boundary fires after the
+    // text window's --More-- is dismissed.
     const noAssist = segmentFor(`${RIDE_COMMAND}${STRANGE_KEY}.`);
-    const asked = await rideWith(noAssist, '? h');
-    assert.equal(asked.boundary, null);
+    // Provide a space to dismiss the --More-- prompt so the retry path runs.
+    const asked = await rideWith(noAssist, '? ');
+    assert.equal(asked.boundary?.name, 'UnsupportedHeroCommandBoundaryError');
+    assert.match(asked.boundary.message, /help_requested retry path/u);
 });
 
 test('without cmdassist an invalid direction key prints the strange-direction '
@@ -343,10 +346,12 @@ test('getdir mouse targeting maps picked positions and Escape to directions',
     assert.deepEqual([game.u.dx, game.u.dy, game.u.dz], [1, 0, 0]);
     assert.equal(game.iflags.getdir_click, 0);
 
-    // redraw_cmd() repaints the current map and retries the same direction
-    // prompt. The following 'h' answers that prompt without a boundary.
-    const { boundary } = await rideWith(promptSegment(), '\x12h');
-    assert.equal(boundary, null);
+    // redraw_cmd() still reaches the separate unported docrt_flags retry.
+    const { boundary } = await rideWith(promptSegment(), '\x12');
+    assert.equal(
+        boundary?.name, 'UnsupportedHeroCommandBoundaryError',
+    );
+    assert.match(boundary.message, /repaints the screen/u);
 });
 
 test('moving a gc.Cmd.spkeys[] getdir key moves the arm that reads it',
@@ -370,9 +375,9 @@ test('moving a gc.Cmd.spkeys[] getdir key moves the arm that reads it',
 
         // And the key the bind moved the arm onto takes it instead. The self
         // keys and simulated click reach their implemented paths. When
-        // getdir.help is rebound onto 'a', dismiss the help window and give
-        // the retry prompt a valid h direction.
-        const answer = spkey === 'getdir.help' ? 'a h'
+        // getdir.help is rebound onto 'a', help_dir() displays a text window
+        // needing a key to dismiss --More-- before its deferred retry.
+        const answer = spkey === 'getdir.help' ? 'a '
             : spkey === 'getdir.mouse' ? 'a.' : 'a';
         const { boundary } = await rideWith(
             spkey === 'getdir.mouse' ? withoutTips(segment) : segment,
@@ -382,10 +387,18 @@ test('moving a gc.Cmd.spkeys[] getdir key moves the arm that reads it',
             || spkey === 'getdir.mouse') {
             assert.equal(boundary, null, spkey);
             assert.equal(topLine(), 'I see nobody there.', spkey);
-        } else if (spkey === 'getdir.help') {
-            assert.equal(boundary, null, spkey);
         } else {
-            assert.fail(`unexpected special key ${spkey}`);
+            assert.equal(
+                boundary?.name, 'UnsupportedHeroCommandBoundaryError', spkey,
+            );
+            assert.match(
+                boundary.message,
+                // With getdir.help rebound onto 'a', pressing 'a' triggers
+                // help_requested. help_dir() runs but the retry path is
+                // deferred, so the boundary fires there.
+                /help_requested retry path/u,
+                spkey,
+            );
         }
     }
 });

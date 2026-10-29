@@ -11,6 +11,7 @@ import {
     PLINE_NOREPEAT,
     PLINE_SPEECH,
     PLINE_VERBALIZE,
+    SUPPRESS_HISTORY,
     URGENT_MESSAGE,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -272,33 +273,27 @@ test('backreferences explore same-start paths and retain participating groups',
         }
     });
 
-test('duplicated captures use the compiled repeat semantics when supported',
+test('duplicated repeated captures stop at the named glibc provenance boundary',
     () => {
-        for (const [pattern, expected] of [
-            [String.raw`^((a)|b){0,2}\2$`, true],
-            [String.raw`^(()|a){3}\2$`, false],
-            [String.raw`^((a?)?){2}\2$`, true],
-            [String.raw`^(a){2,3}\1$`, true],
-            [String.raw`^(()){2}\2$`, false],
-            [String.raw`^(()){2,}\2$`, false],
-            [String.raw`^(a+)+\1$`, false],
+        for (const pattern of [
+            String.raw`^((a)|b){0,2}\2$`,
+            String.raw`^(()|a){3}\2$`,
+            String.raw`^((a?)?){2}\2$`,
+            String.raw`^(a){2,3}\1$`,
+            String.raw`^(()){2}\2$`,
+            String.raw`^(()){2,}\2$`,
+            String.raw`^(a+)+\1$`,
+            String.raw`^((a?)?){1,}\2$`,
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex.kind, 'reference-aware', pattern);
-            assert.equal(regex_match('aaa', regex), expected, pattern);
+            assert.equal(regex.kind, 'duplicated-capture-boundary', pattern);
+            assert.throws(
+                () => regex_match('aaa', regex),
+                UnsupportedPosixDuplicatedCaptureError,
+                pattern,
+            );
         }
-
-        // This nullable nested unbounded capture has a distinct glibc
-        // endpoint choice which the current evaluator does not yet model.
-        const nullableUnbounded = regex_init();
-        const unsupported = String.raw`^((a?)?){1,}\2$`;
-        assert.equal(regex_compile(unsupported, nullableUnbounded), true);
-        assert.equal(nullableUnbounded.kind, 'duplicated-capture-boundary');
-        assert.throws(
-            () => regex_match('a', nullableUnbounded),
-            UnsupportedPosixDuplicatedCaptureError,
-        );
 
         for (const [pattern, text, expected] of [
             [String.raw`^(a){0}\1$`, '', false],
@@ -331,10 +326,13 @@ test('duplicated captures use the compiled repeat semantics when supported',
             String.raw`MSGTYPE=hide "^((a)|b){0,2}\2$"` + '\n',
         );
         assert.equal(configured.configErrorFrame.num_errors, 0);
-        assert.equal(msgtype_type('aba', false, configured), MSGTYP_NOSHOW);
+        assert.throws(
+            () => msgtype_type('aba', false, configured),
+            UnsupportedPosixDuplicatedCaptureError,
+        );
     });
 
-test('a finite duplicated-capture MSGTYPE reaches startup',
+test('a duplicated-capture MSGTYPE ends runSegment at the startup boundary',
     async () => {
         let boundary = null;
         await runSegment({
@@ -349,7 +347,7 @@ test('a finite duplicated-capture MSGTYPE reaches startup',
             ].join('\n'),
             moves: 's',
         }, { onBoundary: (error) => { boundary = error; } });
-        assert.equal(boundary, null);
+        assert.ok(boundary instanceof UnsupportedPosixDuplicatedCaptureError);
         assert.equal(game.gp.plinemsg_types.pattern,
             String.raw`^He(()|l){1,2}\2lo`);
     });
@@ -426,7 +424,7 @@ test('compiled regex states use one explicit representation discriminant', () =>
     assert.equal(regex_compile(String.raw`(a)\1`, regex), true);
     assert.equal(regex.kind, 'reference-aware');
     assert.equal(regex_compile(String.raw`(a){2}\1`, regex), true);
-    assert.equal(regex.kind, 'reference-aware');
+    assert.equal(regex.kind, 'duplicated-capture-boundary');
     regex.kind = 'unknown';
     assert.throws(
         () => regex_match('aa', regex),
@@ -931,7 +929,8 @@ test('custompline refuses every unsupported flag before effects', async () => {
         URGENT_MESSAGE,
         PLINE_VERBALIZE,
         PLINE_SPEECH,
-        NO_CURS_ON_U | 0x80,
+        NO_CURS_ON_U,
+        OVERRIDE_MSGTYPE | SUPPRESS_HISTORY,
         0x80,
     ]) {
         const state = messageState('', 'X');

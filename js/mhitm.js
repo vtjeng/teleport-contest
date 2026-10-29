@@ -330,8 +330,7 @@ export async function slept_monst(mtmp, env = {}) {
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     const name = Monnam(mtmp, state);
-    await pline_mon(mtmp, `${s_suffix(name)} grip relaxes.`, state,
-        { ...env, message });
+    await message(`${s_suffix(name)} grip relaxes.`, state, env);
     await unstuck(mtmp, state, env);
 }
 
@@ -673,8 +672,8 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
                 );
             }
             await message(
-                messageAt(`${Monnam(magr, state, nameEnv)} turns to stone!`,
-                    magr.mx, magr.my, state), state,
+                `${Monnam(magr, state, nameEnv)} turns to stone!`,
+                state,
                 rawEnv,
             );
         }
@@ -1867,8 +1866,7 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             if (Resists_Elem(magr, COLD_RES, state)) {
                 if (canseemon(magr, state)) {
                     await message(
-                        messageAt(`${Monnam(magr, state, env)} is mildly chilly.`,
-                            magr.mx, magr.my, state), state,
+                        `${Monnam(magr, state, env)} is mildly chilly.`, state,
                     );
                     await golemeffects(magr, AD_COLD, tmp, { ...env, state });
                 }
@@ -1877,8 +1875,7 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             }
             if (canseemon(magr, state)) {
                 await message(
-                    messageAt(`${Monnam(magr, state, env)} is suddenly very cold!`,
-                        magr.mx, magr.my, state), state,
+                    `${Monnam(magr, state, env)} is suddenly very cold!`, state,
                 );
             }
             healmon(mdef, Math.trunc(tmp / 2), Math.trunc(tmp / 2));
@@ -1890,9 +1887,9 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
                 magr.mstun = 1;
                 if (canseemon(magr, state)) {
                     await message(
-                        messageAt(`${Monnam(magr, state, env)} `
+                        `${Monnam(magr, state, env)} `
                             + `${makeplural(stagger(magr.data, 'stagger'))}...`,
-                        magr.mx, magr.my, state), state,
+                        state,
                     );
                 }
             }
@@ -1902,8 +1899,7 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             if (Resists_Elem(magr, FIRE_RES, state)) {
                 if (canseemon(magr, state)) {
                     await message(
-                        messageAt(`${Monnam(magr, state, env)} is mildly warmed.`,
-                            magr.mx, magr.my, state), state,
+                        `${Monnam(magr, state, env)} is mildly warmed.`, state,
                     );
                     await golemeffects(magr, AD_FIRE, tmp, { ...env, state });
                 }
@@ -1912,8 +1908,7 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             }
             if (canseemon(magr, state)) {
                 await message(
-                    messageAt(`${Monnam(magr, state, env)} is suddenly very hot!`,
-                        magr.mx, magr.my, state), state,
+                    `${Monnam(magr, state, env)} is suddenly very hot!`, state,
                 );
             }
             break;
@@ -1921,8 +1916,7 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             if (Resists_Elem(magr, SHOCK_RES, state)) {
                 if (canseemon(magr, state)) {
                     await message(
-                        messageAt(`${Monnam(magr, state, env)} is mildly tingled.`,
-                            magr.mx, magr.my, state), state,
+                        `${Monnam(magr, state, env)} is mildly tingled.`, state,
                     );
                     await golemeffects(magr, AD_ELEC, tmp, { ...env, state });
                 }
@@ -1931,8 +1925,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
             }
             if (canseemon(magr, state)) {
                 await message(
-                    messageAt(`${Monnam(magr, state, env)} is jolted with electricity!`,
-                        magr.mx, magr.my, state), state,
+                    `${Monnam(magr, state, env)} is jolted with electricity!`,
+                    state,
                 );
             }
             break;

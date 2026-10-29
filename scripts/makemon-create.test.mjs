@@ -7587,7 +7587,7 @@ test('NO_MINVENT leaves migrating object queues untouched', () => {
     }
 });
 
-test('inventory-enabled creation leaves unrelated migrating objects queued', () => {
+test('inventory-enabled creation continues past the discarded object-delivery call', () => {
     const state = initialLevelState();
     const tail = { nobj: null };
     const migrating = { nobj: tail };
@@ -7597,23 +7597,31 @@ test('inventory-enabled creation leaves unrelated migrating objects queued', () 
         ...basicCreationSteps(),
         ...ordinaryInventoryTail(),
     ]);
-    const monster = makemon(
-        state.mons[PM_NEWT],
-        MON_X,
-        MON_Y,
-        0,
-        { state, random: random.random },
-    );
+    const previousUnported = game.unported;
+    game.unported = new Set();
 
-    random.assertExhausted();
-    assert.ok(monster);
-    assert.equal(state.level.monlist, monster);
-    assert.equal(state.level.monsters[MON_X][MON_Y], monster);
-    assert.equal(state.mvitals[PM_NEWT].born, 1);
-    assert.equal(state.context.ident, 3);
-    assert.equal(state.gm.migrating_objs, migrating);
-    assert.equal(migrating.nobj, tail);
-    assert.equal(tail.nobj, null);
+    try {
+        const monster = makemon(
+            state.mons[PM_NEWT],
+            MON_X,
+            MON_Y,
+            0,
+            { state, random: random.random },
+        );
+
+        random.assertExhausted();
+        assert.ok(monster);
+        assert.equal(state.level.monlist, monster);
+        assert.equal(state.level.monsters[MON_X][MON_Y], monster);
+        assert.equal(state.mvitals[PM_NEWT].born, 1);
+        assert.equal(state.context.ident, 3);
+        assert.equal(state.gm.migrating_objs, migrating);
+        assert.equal(migrating.nobj, tail);
+        assert.equal(tail.nobj, null);
+        assert.ok(game.unported.has('dokick.c deliver_obj_to_mon'));
+    } finally {
+        game.unported = previousUnported;
+    }
 });
 
 test('unsupported creation modes fail before consuming RNG or state', () => {

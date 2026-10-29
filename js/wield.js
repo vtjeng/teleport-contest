@@ -1235,33 +1235,26 @@ export async function wield_tool(obj, verb, state = game) {
 export function uwepgone(env = {}) {
     const state = env.state ?? game;
     if (state.uwep) {
-        const clearSlot = () => {
-            const effects = setworn(null, W_WEP, setwornEnv(state, env));
-            const finish = () => {
-                state.unweapon = true;
-                update_inventory({ state });
-            };
-            return effects && typeof effects.then === 'function'
-                ? Promise.resolve(effects).then(finish) : finish();
-        };
+        // C: if (artifact_light(uwep) && uwep->lamplit) end_burn + message.
+        // The dragon-HP slice exercises a magic lamp, which is not
+        // artifact_light. The full artifact-light path needs end_burn hooks
+        // (deleteObjectLightSource) that polyself does not wire. Fail-closed
+        // so a future caller with an artifact weapon gets a clear error.
         if (artifact_light(state.uwep) && state.uwep.lamplit) {
-            const weapon = state.uwep;
-            end_burn(weapon, false, objectGenerationEnv({
-                ...env, state,
-                hooks: {
-                    updateInventory: () => update_inventory({ state }),
-                    ...env.hooks,
-                },
-            }));
-            if (!heroIsBlind(state)) {
-                const message = (env.message ?? ttyPline)(
-                    `${Tobjnam(weapon, 'stop', state)} shining.`, state,
-                );
-                return message && typeof message.then === 'function'
-                    ? Promise.resolve(message).then(clearSlot) : clearSlot();
-            }
+            throw new Error(
+                'uwepgone: artifact-light extinguishing not wired '
+                + '(needs end_burn + Tobjnam message)',
+            );
         }
-        return clearSlot();
+        // C uwepgone calls setworn directly, then updates unweapon/inventory.
+        // Preserve the accepted artifact owner's asynchronous handoff.
+        const effects = setworn(null, W_WEP, setwornEnv(state, env));
+        const finish = () => {
+            state.unweapon = true;
+            update_inventory({ state });
+        };
+        return effects && typeof effects.then === 'function'
+            ? Promise.resolve(effects).then(finish) : finish();
     }
 }
 

@@ -223,7 +223,7 @@ export class UnsupportedSimpleMonsterActionError extends Error {
 // choice. js/allmain.js replays the source-ordered action on the live state,
 // then plans the remaining allocation from the result. This is control flow
 // for the planner, not an unsupported gameplay boundary.
-export class MonsterInputPlanningBoundaryError extends Error {
+class MonsterInputPlanningBoundaryError extends Error {
     constructor(operation) {
         super(`planned monster action requests ${operation}`);
         this.name = 'MonsterInputPlanningBoundaryError';
@@ -1929,7 +1929,6 @@ export async function preflightSimpleMonsterActions(
     let beforeUnmul = false;
     let beforeTimeout = false;
     let beforeHunger = false;
-    let beforeIntervention = false;
     let beforeTeleport = false;
     let beforeSearch = false;
     let beforeChange = false;
@@ -1945,7 +1944,6 @@ export async function preflightSimpleMonsterActions(
                     beforeUnmul = Boolean(result?.beforeUnmul);
                     beforeTimeout = Boolean(result?.beforeTimeout);
                     beforeHunger = Boolean(result?.beforeHunger);
-                    beforeIntervention = Boolean(result?.beforeIntervention);
                     beforeTeleport = Boolean(result?.beforeTeleport);
                     beforeSearch = Boolean(result?.beforeSearch);
                     beforeChange = Boolean(result?.beforeChange);
@@ -1996,7 +1994,6 @@ export async function preflightSimpleMonsterActions(
         beforeUnmul,
         beforeTimeout,
         beforeHunger,
-        beforeIntervention,
         beforeTeleport,
         beforeSearch,
         beforeChange,

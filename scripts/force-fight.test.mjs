@@ -254,8 +254,10 @@ test('a force-fight off the edge ends a multi-turn action', async () => {
 
 test('mention_walls cannot reach a force-fight off the edge', async () => {
     // hack.c:2589-2590 returns before the flags.mention_walls block at
-    // 2592-2606, so the option cannot change this line. The ordinary
-    // direction feedback is pinned in closed-door-autoopen.test.mjs.
+    // 2592-2606, so the option cannot change this line and the unported
+    // cmd.c directionname() inside that block is not a prerequisite for the
+    // arm. An ordinary step off the edge with the option on still refuses,
+    // which scripts/closed-door-autoopen.test.mjs pins.
     const state = await heroAtTheWestEdge();
     state.flags.mention_walls = true;
     await forceFightWest(state);

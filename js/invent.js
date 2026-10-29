@@ -88,7 +88,6 @@ import {
     SORTLOOT_LOOT,
     SORTLOOT_PACK,
     SORTLOOT_PETRIFY,
-    SHOPBASE,
     is_pit,
     Is_airlevel,
     Is_waterlevel,
@@ -212,7 +211,7 @@ import {
 } from './symbols.js';
 import { hides_under, poly_when_stoned, touch_petrifies } from './mondata.js';
 import { hideunder, maybe_unhide_at } from './mon.js';
-import { newsym, obj_to_glyph, mon_to_glyph } from './display.js';
+import { newsym, obj_to_glyph } from './display.js';
 import { livelog_printf } from './pline.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { visible_region_at } from './region.js';
@@ -234,8 +233,7 @@ import { hidden_gold } from './vault.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
-import { ice_descr, self_lookat } from './pager.js';
-import { digests } from './dothrow.js';
+import { ice_descr } from './pager.js';
 import { can_reach_floor } from './engrave.js';
 import { add_valid_menu_class, allow_all, allow_category, force_decor, query_objlist, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
@@ -5822,6 +5820,11 @@ export async function display_minventory(
     if (!(doAll ? haveAny : (mon?.misc_worn_check || mon?.mw)))
         return invdisp_nothing(title || heading, '(none)', state, hooks);
 
+    // C's swallowed-hero row is a fake object owned by query_objlist(). The
+    // current callers only use this branch with PICK_NONE; retain the source
+    // dependency marker while preserving all actual monster rows.
+    if (includeHero) note_unported('pickup.c query_objlist swallowed hero');
+
     const oldData = state.youmonst?.data;
     const oldSuppressPrice = state.iflags?.suppress_price;
     if (state.youmonst) state.youmonst.data = mon.data;
@@ -5883,28 +5886,6 @@ export async function display_minventory(
                 selector: undefined,
                 label,
                 value: obj,
-                glyphInfo,
-            });
-        }
-        if (includeHero) {
-            // pickup.c query_objlist():1151-1171 adds this after every monster
-            // object, even when an engulfer's inventory is empty.  The menu
-            // row uses a fake object and the temporarily substituted monster
-            // species, while self_lookat() still names the hero.
-            if (sorted.some((entry) => allow(entry.obj))) {
-                items.push(add_menu_heading(
-                    `${digests(state.u.ustuck.data)
-                        ? 'Swallowed' : 'Engulfed'} Creatures`, state,
-                ));
-            }
-            const glyphInfo = mon_to_glyph(
-                state.youmonst, state, rn2_on_display_rng,
-            );
-            const label = an(self_lookat(state));
-            items.push({
-                selector: CONTAINED_SYM,
-                label,
-                value: { quan: 1 },
                 glyphInfo,
             });
         }
@@ -6119,43 +6100,35 @@ export async function doprgold(state = game) {
 // C ref: shk.c shopper_financial_report(). Reports shop credit and debt.
 async function shopper_financial_report(state) {
     const { inside_shop, shop_keeper } = await import('./shk.js');
-    const { shkname } = await import('./shknam.js');
-    const { SHTYPES } = await import('./shtypes_data.js');
     const thisShkp = shop_keeper(inside_shop(state.u.ux, state.u.uy, state), state);
-    let current = thisShkp;
-    if (current && !current.mextra?.eshk?.credit
-        && !shop_debt(current.mextra.eshk)) {
+    if (thisShkp && !thisShkp.mextra?.eshk?.credit
+        && !shop_debt(thisShkp.mextra.eshk)) {
         await ttyPline('You have no credit or debt in here.', state);
-        current = null;
+        return;
     }
-    // C shk.c reports the current shop first, then every other shopkeeper.
-    for (let pass = current ? 0 : 1; pass <= 1; pass++) {
+    if (!thisShkp) {
         for (let mtmp = state.level?.monlist ?? state.fmon;
             mtmp;
             mtmp = mtmp.nmon) {
             if ((mtmp.mhp ?? 0) < 1 || !mtmp.isshk) continue;
-            if ((mtmp !== current) !== Boolean(pass)) continue;
             const eshk = mtmp.mextra?.eshk;
             if (!eshk) continue;
             if (eshk.credit) {
-                const name = s_suffix(shkname(mtmp, state));
-                const shop = SHTYPES[eshk.shoptype - SHOPBASE]?.name ?? 'shop';
                 await ttyPline(
                     `You have ${eshk.credit} ${currency(eshk.credit, state)} `
-                    + `credit at ${name} ${shop}.`,
+                    + `credit at ${mtmp.mname || 'the shopkeeper'}'s `
+                    + `${eshk.shopName || 'shop'}.`,
                     state,
                 );
-            } else if (mtmp === current)
-                await ttyPline('You have no credit in here.', state);
+            }
             const debt = shop_debt(eshk);
             if (debt) {
                 await ttyPline(
-                    `You owe ${shkname(mtmp, state)} `
+                    `You owe ${mtmp.mname || 'the shopkeeper'} `
                     + `${debt} ${currency(debt, state)}.`,
                     state,
                 );
-            } else if (mtmp === current)
-                await ttyPline("You don't owe any gold here.", state);
+            }
         }
     }
 }

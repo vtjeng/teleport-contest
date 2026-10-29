@@ -17,6 +17,7 @@ import {
     dosetSimpleMenuItems,
     longest_option_name,
     parseoptions,
+    UnsupportedOptionMenuError,
 } from '../js/options.js';
 import { ECMD_OK, PICK_ANY, PICK_ONE } from '../js/const.js';
 import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
@@ -433,21 +434,22 @@ test('escaping a handler-less compound prompt leaves its value unchanged',
         assert.equal(state.gb.bot_disabled, false);
     });
 
-// C refs: options.c doset_simple_menu() and optfn_statuslines(do_set).
-// The generic compound prompt sends the typed value through parseoptions().
-test('a generic prompt sets the live status line count', async () => {
+// C ref: options.c doset_simple_menu()'s generic arm delegates the typed
+// statement to parseoptions(); an option whose do_set handler is still absent
+// therefore reports that later refusal only after getlin() has completed.
+test('a generic prompt reaches the remaining option parser refusal', async () => {
     const state = await startSimpleGame(STOCK);
     const items = dosetSimpleMenuItems(state, menuHelpers());
     const statuslinesRow = rowFor(items, 'statuslines');
     clearTopline(state);
-    queueLine(state, '3');
-    assert.equal(
-        await doset_simple_menu(state, menuHelpers({
+    queueLine(state, '3'); // statuslines has no interactive do_set handler
+    await assert.rejects(
+        doset_simple_menu(state, menuHelpers({
             menu: () => statuslinesRow.value,
         })),
-        1,
+        (error) => error instanceof UnsupportedOptionMenuError
+            && error.what === "optfn_statuslines()'s do_set request",
     );
-    assert.equal(state.iflags.wc2_statuslines, 3);
 });
 
 // C ref: options.c doset_simple(). select_menu() answers 0 for a commit that

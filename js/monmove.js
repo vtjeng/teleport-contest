@@ -214,7 +214,7 @@ import {
     healmon, m_in_air, mnearto, mongone, newcham,
 } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
-import { m_next2u, ranged_attk_available } from './mhitu.js';
+import { ranged_attk_available } from './mhitu.js';
 import {
     heroDeaf,
     heroUnaware,
@@ -1088,7 +1088,7 @@ export function m_can_break_boulder(monster) {
 // Riders skip the incantation; others spend mspec_used and print a message.
 // fracture_rock() is owned by zap.c; this source caller preserves the shared
 // rock conversion and map updates after monster-only messaging and billing.
-export async function m_break_boulder(mtmp, x, y, env = {}) {
+async function m_break_boulder(mtmp, x, y, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn1 };
     const message = env.message ?? ttyPline;
@@ -2055,10 +2055,7 @@ export async function monfleeMessage(monster, detail, env = {}) {
         text = `${Monnam(monster, state)} turns to flee.`;
         break;
     }
-    // This arm is C's verbalize(), which has no monster-location argument.
-    // The others are pline_mon() messages and retain accessibility location.
-    return message(detail.kind === 'bright-light'
-        ? text : messageAt(text, monster.mx, monster.my, state), state, env);
+    return message(messageAt(text, monster.mx, monster.my, state), state, env);
 }
 
 export async function monflee(
@@ -2418,8 +2415,6 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 export async function dochug(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
-    // C captures mdat before movement; a trap may polymorph this monster.
-    const preMoveSpecies = monster.data;
     const preflight = requireDochugOperation(rawEnv, 'preflight');
     const usePreMoveItems = requireDochugOperation(rawEnv, 'usePreMoveItems');
     const moveMonster = requireDochugOperation(rawEnv, 'moveMonster');
@@ -2546,10 +2541,6 @@ export async function dochug(monster, rawEnv = {}) {
     // C ref: monmove.c:753-755. Respond after the optional flee teleport for
     // every monster; a Medusa gaze can kill it, so test death before recovery.
     await m_respond(monster, env);
-    // A fatal Medusa gaze calls C's nonreturning done() from m_respond().
-    // JavaScript returns after painting the final screen; stop this monster's
-    // turn before any further movement or attack can consume random draws.
-    if (state.program_state?.gameover) return 1;
     if (monster.mhp < 1) return 1;
 
     // C ref: monmove.c:758-760. Only fleeing monsters might regain courage.
@@ -2736,19 +2727,15 @@ export async function dochug(monster, rawEnv = {}) {
         }
         if (status === MMOVE_DIED) return 1;
         if (status === MMOVE_MOVED) {
-            // C ref: monmove.c:934-936. A confused holder can wander beyond
-            // adjacency; release it immediately, before helpless/ranged gates.
-            // unstuck() receives this caller's RNG and state, which preserves
-            // cooldown draws in live play and mutates only the planning clone.
-            if (monster === state.u.ustuck && !m_next2u(monster, state))
-                await unstuck(monster, state, env);
+            // C also releases a confused grabber and disturbs buried zombies
+            // for a grounded mover; neither is reachable here.
             /* Maybe it stepped on a trap and fell asleep... */
             if (helpless(monster)) return 0;
             /* Monsters can move and then shoot on same turn;
                our hero can't.  Is that fair? */
             const shootsAfterMoving = !range.nearby
                 && (ranged_attk_available(monster, env)
-                    || attacktype(preMoveSpecies, AT_WEAP)
+                    || attacktype(monster.data, AT_WEAP)
                     || find_offensive(monster, env));
             if (!shootsAfterMoving) {
                 // monmove.c:953-954 returns mattacku() when this mover still

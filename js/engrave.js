@@ -69,7 +69,7 @@ import {
 import { more_experienced } from './exper.js';
 import {
     hold_another_object, obj_extract_self, prinv, update_inventory, useup, } from './invent.js';
-import { donameFresh, otense, The, Tobjnam, xnameFresh, Yname2, Yobjnam2, yname } from './objnam.js';
+import { donameFresh, otense, Tobjnam, xnameFresh, Yname2, Yobjnam2, yname } from './objnam.js';
 import { body_part } from './polyself.js';
 import { make_blinded } from './potion.js';
 import { note_unported } from './unported.js';
@@ -976,7 +976,7 @@ export async function doengrave(state = game, env = {}) {
         de.ptext = false;
     }
     if (de.zapwand && de.otmp.spe < 0) {
-        await say(`${The(xnameFresh(de.otmp, state), state)} ${heroBlind(state) ? '' : 'glows violently, then '}turns to dust.`);
+        await say(`${Tobjnam(de.otmp, 'turns', state)}, then ${otense(de.otmp, 'fade', state)}.`);
         if (!IS_GRAVE(currentTyp))
             await say(`You are not going to get anywhere trying to write in the ${de.frosted ? 'frost' : 'dust'} with your dust.`);
         await useup(de.otmp, { state, hooks: env.inventoryHooks ?? {} });

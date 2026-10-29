@@ -88,11 +88,6 @@ import {
     MIGR_NOBREAK,
     MIGR_NOSCATTER,
     MIGR_TO_SPECIES,
-    DF_ALL,
-    DF_RANDOM,
-    ONAME,
-    has_mgivenname,
-    has_oname,
     P_MARTIAL_ARTS,
     PL_NSIZ,
     P_NONE,
@@ -126,7 +121,7 @@ import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level, surface } from './du
 import { breaktest, breaks, hero_breaks, impact_disturbs_zombies, thitmonst, hurtle, digests } from './dothrow.js';
 import { game } from './gstate.js';
 import { sgn, upstart } from './hacklib.js';
-import { add_to_minv, currency, delobj, money_cnt, obj_extract_self, obfree, stackobj, useup, sobj_at } from './invent.js';
+import { currency, delobj, money_cnt, obj_extract_self, obfree, stackobj, useup, sobj_at } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
@@ -149,8 +144,6 @@ import {
     PM_KILLER_BEE, PM_BLACK_PUDDING, PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST, PM_SAMURAI,
     AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
-    M2_DEMON, M2_DWARF, M2_ELF, M2_GIANT, M2_GNOME, M2_HUMAN,
-    M2_ORC, M2_UNDEAD, M2_WERE, NON_PM,
 } from './monsters.js';
 import {
     isBox, place_object, splitobj,
@@ -181,7 +174,7 @@ import {
     add_damage,
     addtobill, costly_adjacent, costly_gold, contained_gold, donate_gold, find_objowner, subfrombill,
     costly_spot, inside_shop, is_unpaid, pay_for_damage, picked_container, shop_keeper,
-    stolen_value, make_angry_shk, hot_pursuit,
+    stolen_value, make_angry_shk,
 } from './shk.js';
 import { make_happy_shk } from './shk.js';
 import { shkname, Shknam } from './shknam.js';
@@ -213,7 +206,7 @@ import {
     attack_checks, check_caitiff, damageum, find_roll_to_hit,
     missum, mon_maybe_unparalyze, passive,
 } from './uhitm.js';
-import { a_monnam, christen_orc, free_oname, hcolor, hliquid, Monnam, mon_nam } from './do_name.js';
+import { a_monnam, hcolor, hliquid, Monnam, mon_nam } from './do_name.js';
 import { enexto, noteleport_level, goodpos, rloco } from './teleport.js';
 import { canseemon, canspotmon } from './display.js';
 import { stop_occupation } from './allmain.js';
@@ -233,48 +226,6 @@ import { breakchestlock } from './lock.js';
 import { is_art, ART_MJOLLNIR } from './artifacts.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
-
-// C ref: dokick.c deliver_obj_to_mon() (1854-1904). Shared by monster
-// creation and the arrival of an orc leader collecting leftover loot.
-const DELIVER_PM = M2_UNDEAD | M2_WERE | M2_HUMAN | M2_ELF | M2_DWARF
-    | M2_GNOME | M2_ORC | M2_DEMON | M2_GIANT;
-
-export function deliver_obj_to_mon(monster, count, flags, env = {}) {
-    const state = env.state ?? game;
-    const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
-    const operations = { ...env, state, random };
-    const atCrimeScene = state.u.uz.dnum === state.mines_dnum;
-    const maxobj = (flags & DF_RANDOM) && count > 1
-        ? random.rnd(count) : (flags & DF_ALL) ? 0 : 1;
-    let delivered = 0;
-
-    for (let object = state.gm?.migrating_objs ?? null; object;) {
-        const next = object.nobj;
-        const where = object.owornmask & 0x7fff;
-        if ((where & MIGR_TO_SPECIES)
-            && object.migr_species !== NON_PM
-            && (monster.data.mflags2 & DELIVER_PM) === object.migr_species) {
-            obj_extract_self(object, operations);
-            object.owornmask = 0;
-            object.ox = object.oy = 0;
-            if ((object.corpsenm & M2_ORC) && has_oname(object)) {
-                if (!has_mgivenname(monster)
-                    && (atCrimeScene || !random.rn2(2))) {
-                    monster = christen_orc(monster,
-                        atCrimeScene ? ONAME(object) : null,
-                        ' the Fence', operations);
-                }
-                free_oname(object);
-            }
-            object.migr_species = NON_PM;
-            object.omigr_from_dnum = 0;
-            object.omigr_from_dlevel = 0;
-            add_to_minv(monster, object, operations);
-            if (++delivered >= maxobj && maxobj) break;
-        }
-        object = next;
-    }
-}
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
 // C files write it directly: dokick.c:1325 sets it, and hack.c domove():2708
@@ -546,14 +497,11 @@ export async function kick_monster(mon, x, y, state = game) {
 
     const i = -inv_weight(state);
     const j = weight_cap(state);
-    let bypassClumsiness = false;
     if (i < Math.trunc((j * 3) / 10)) {
         if (!rn2(i < Math.trunc(j / 10) ? 2
             : i < Math.trunc(j / 5) ? 3 : 4)) {
             if (martialKick) {
-                // dokick.c:238 jumps to `doit`, skipping both the Fumbling
-                // and bulky-armor clumsiness checks below.
-                bypassClumsiness = true;
+                clumsy = false;
             } else {
                 await ttyPline('Your clumsy kick does no damage.', state);
                 await passive(mon, state.uarmf, false, true, AT_KICK, false,
@@ -567,11 +515,9 @@ export async function kick_monster(mon, x, y, state = game) {
         }
     }
 
-    if (!bypassClumsiness) {
-        if (Fumbling(state)) clumsy = true;
-        else if (state.uarm && state.objects?.[state.uarm.otyp]?.oc_bulky
-                 && acurr(state, A_DEX) < rnd(25)) clumsy = true;
-    }
+    if (Fumbling(state)) clumsy = true;
+    else if (state.uarm && state.objects?.[state.uarm.otyp]?.oc_bulky
+             && acurr(state, A_DEX) < rnd(25)) clumsy = true;
 
     await ttyPline(`You kick ${mon_nam(mon, state)}.`, state);
     if (!rn2(clumsy ? 3 : 4) && (clumsy || !bigmonst(mon.data))
@@ -1745,7 +1691,8 @@ export async function impact_drop(missile, x, y, dlev, rawEnv = {}) {
                 const heard = youHear('a scream, "Thief!"', state);
                 if (heard) await message(heard, state, rawEnv);
             }
-            hot_pursuit(keeper, state);
+            // C discards this void helper; its pursuit state remains unported.
+            note_unported('shk.c hot_pursuit');
             await angry_guards(false, env);
             return;
         }

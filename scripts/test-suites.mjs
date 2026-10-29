@@ -68,18 +68,6 @@ export function discoverDefaultTests() {
 // recorded sessions (data rather than test modules).
 const STRAY_SCAN_SKIPS = new Set(['node_modules', 'nethack-c', 'sessions']);
 
-// Shared by the filesystem scan and committed-candidate preflight. Paths use
-// repository separators; directory skips must agree with the scan below.
-export function strayTestPaths(paths, discoveredRoots = ['scripts']) {
-    return paths.filter(path => {
-        const parts = path.split('/');
-        const directories = parts.slice(0, -1);
-        return path.endsWith('.test.mjs')
-            && !directories.some(part => part.startsWith('.') || STRAY_SCAN_SKIPS.has(part))
-            && !discoveredRoots.some(root => path.startsWith(`${root}/`));
-    }).sort();
-}
-
 // Every *.test.mjs file outside the discovered roots, relative to the
 // project root. A test in any other directory runs under no suite, so it
 // passes `npm test` by never running; this scan is what makes that a failure.
@@ -96,7 +84,7 @@ export function strayTestFiles(root = PROJECT_ROOT, discoveredRoots = ['scripts'
                     || STRAY_SCAN_SKIPS.has(entry.name)
                     || discoveredRoots.includes(path)) continue;
                 walk(path);
-            } else if (entry.isFile() && strayTestPaths([path], discoveredRoots).length) {
+            } else if (entry.isFile() && entry.name.endsWith('.test.mjs')) {
                 stray.push(path);
             }
         }

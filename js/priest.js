@@ -88,7 +88,7 @@ import {
     passes_walls,
     resist_conflict,
 } from './mondata.js';
-import { m_break_boulder, mfndpos, monnear } from './monmove.js';
+import { mfndpos, monnear } from './monmove.js';
 import {
     AD_ELEC,
     PM_ALIGNED_CLERIC,
@@ -117,7 +117,6 @@ import { ttyPline } from './tty_message.js';
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
 import { canseemon } from './display.js';
-import { m_canseeu } from './vision.js';
 import { buzz } from './zap.js';
 
 // C ref: priest.c local constants.
@@ -655,10 +654,9 @@ export async function move_special(
 
     if (nix !== omx || niy !== omy) {
         if (ninfo & ALLOW_ROCK) {
-            // C priest.c:99-107 uses the same monmove.c helper as ordinary
-            // m_move(). Its messages, cooldown and fracture must finish
-            // before the special mover returns the spent action.
-            await m_break_boulder(mtmp, nix, niy, env);
+            if (typeof env.breakBoulder !== 'function')
+                throw new Error('move_special: boulder breaking requires breakBoulder');
+            env.breakBoulder(mtmp, nix, niy, env);
             return 1;
         }
         if (ninfo & ALLOW_M) {
@@ -726,16 +724,8 @@ export async function pri_move(priest, env = {}) {
             await (env.attackHero ?? mattacku)(priest, { ...env, state });
             return 0;
         }
-        // C priest.c:204-211: a hostile priest pursues the hero only while
-        // the hero remains in this temple; outside it, the priest continues
-        // milling around the altar. Either way it no longer avoids the hero.
-        if (state.u.urooms?.includes(temple)) {
-            if (priest.mcansee && m_canseeu(priest, state)) {
-                ggx = state.u.ux;
-                ggy = state.u.uy;
-            }
-            avoid = false;
-        }
+        // The separate hostile pursuit arm remains outside this caller seam.
+        throw new Error('pri_move: hostile priest pursuit unported');
     } else {
         const invisProp = state.u.uprops?.[INVIS];
         if ((invisProp?.intrinsic || invisProp?.extrinsic) && !invisProp?.blocked)

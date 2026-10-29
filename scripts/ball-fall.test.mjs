@@ -58,7 +58,7 @@ test('ballfall callers stop where C final death does not return',()=>{
     assert.match(jsAttrib,
         /await done\([\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*\}\s*await encumberMessage\(state\)/u);
     assert.match(jsDo,
-        /await \(rawEnv\.gotoLevel \?\? goto_level\)\([\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*if \(typmask & UTOTYPE_RMPORTAL\)/u);
+        /await goto_level\([\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*if \(typmask & UTOTYPE_RMPORTAL\)/u);
     assert.match(jsHack,
         /await dotrap\(trap, trapflag, state\);[\s\S]*?finally[\s\S]*?staticState\.traptyp = NO_TRAP_FLAGS;[\s\S]*?if \(state\.program_state\?\.gameover\) return;[\s\S]*?if \(pick && pit\)/u);
 });

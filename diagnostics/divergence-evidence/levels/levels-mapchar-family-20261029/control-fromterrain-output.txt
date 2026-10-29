@@ -1,4 +1,0 @@
-{"field":"fromterrain","hex":"2e","expected":[0,13],"observed":[0,13]}
-{"field":"fromterrain","hex":"2e2e","expected":[1,25],"observed":[1,25]}
-{"field":"fromterrain","hex":"54","expected":[0,25],"observed":[0,25]}
-{"mode":"control","field":"fromterrain","differences":0}

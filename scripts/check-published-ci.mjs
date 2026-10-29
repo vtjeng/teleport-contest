@@ -6,8 +6,6 @@ import { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync,
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { recordPublishedSynthetic } from './record-published-synthetic.mjs';
-import { parseRepairMembers } from './record-published-repairs.mjs';
-import { publicGithubCliRead } from './public-github-read.mjs';
 
 // These are the workflows triggered by a publication to main, not the separate
 // pre-acceptance Checkpoint workflow. Missing runs must remain pending discovery.
@@ -15,25 +13,18 @@ export const PUBLICATION_WORKFLOWS = ['lint.yml', 'dashboard.yml']
     .map(name => `.github/workflows/${name}`);
 const SHA = /^[a-f0-9]{40}$/;
 const succeeded = run => run.status === 'completed' && run.conclusion === 'success';
-const USAGE = `Usage: node scripts/check-published-ci.mjs [--public] [--commit <full-sha>] [--task <label>] [--file <pending-json>] [--synthetic-baseline <accepted-sha>] [--repair-members <id:source-sha,...>]
+const USAGE = `Usage: node scripts/check-published-ci.mjs [--commit <full-sha>] [--task <label>] [--file <pending-json>] [--synthetic-baseline <accepted-sha>]
 
 Register a just-published commit (optional), then check all pending commits once.
 Defaults to .cache/loop-ci-pending.json. Run from the repository checkout.
 Uses gh authentication; performs read-only GitHub requests and updates only the
 local pending cache. Keeps missing, queued, failed and cancelled runs pending.
---public explicitly uses anonymous reads of the public repository's workflow
-metadata for the same exact-SHA gates and receipts; it never falls back to gh.
 Exit 0: no known failures (pending may remain); 1: failed/cancelled run;
 2: invalid input or API/cache error; repeat the same invocation after recovery
 because failed checks do not register new commits.
 With --commit and --synthetic-baseline, record complete archived synthetic evidence
 after publication passes. Commit the report files with the next ordinary work
 change; this option never evaluates, commits, pushes, or deploys. Does not watch or rerun jobs.
-With --repair-members, record the named members of this exact-SHA validation
-group in the dashboard repair register after the same complete receipt check.
-The register reaches the public dashboard with the next ordinary Main commit.
-Pending receipt options are kept in the local pending cache, so a later check
-can finish them without repeating arguments. Check before Main advances.
 On interruption, inspect and remove the cache's .lock file only after confirming
 the original checker has exited.`;
 
@@ -58,17 +49,11 @@ export function publicationStatus(commit, runs, repository) {
         failed: workflows.some(run => run.status === 'completed' && run.conclusion !== 'success'), workflows };
 }
 
-export function checkPublishedCI({ file, commit, task, syntheticBaseline, repairMembers, publicRead = false }, { gh = args =>
-    execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }),
-    readPublic = publicGithubCliRead, recordSynthetic = recordPublishedSynthetic } = {}) {
-    if (typeof publicRead !== 'boolean') throw new Error('Invalid public-read option');
-    const read = publicRead ? readPublic : gh;
+export function checkPublishedCI({ file, commit, task, syntheticBaseline }, { gh = args =>
+    execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }) } = {}) {
     if (commit !== undefined && !SHA.test(commit)) throw new Error('Expected a full published commit SHA');
     if (syntheticBaseline && (!commit || !SHA.test(syntheticBaseline)))
         throw new Error('--synthetic-baseline requires --commit and a full accepted SHA');
-    if (repairMembers !== undefined && !syntheticBaseline)
-        throw new Error('--repair-members requires --commit and --synthetic-baseline');
-    if (repairMembers !== undefined) parseRepairMembers(repairMembers);
     if (task && !commit) throw new Error('--task requires --commit');
     file = resolve(file ?? '.cache/loop-ci-pending.json');
     mkdirSync(dirname(file), { recursive: true });
@@ -77,66 +62,31 @@ export function checkPublishedCI({ file, commit, task, syntheticBaseline, repair
     try {
         const original = existsSync(file) ? readFileSync(file, 'utf8') : null;
         const state = original === null ? { commits: [] } : JSON.parse(original);
-        if (!Array.isArray(state.commits) || state.commits.some(entry => !SHA.test(entry.commit)
-            || (entry.syntheticBaseline !== undefined && !SHA.test(entry.syntheticBaseline))
-            || (entry.repairMembers !== undefined && (!entry.syntheticBaseline
-                || !parseRepairMembers(entry.repairMembers))))
+        if (!Array.isArray(state.commits) || state.commits.some(entry => !SHA.test(entry.commit))
             || new Set(state.commits.map(entry => entry.commit)).size !== state.commits.length)
             throw new Error('Invalid pending commit list');
-        let selectedEntry = state.commits.find(entry => entry.commit === commit);
-        if (commit && !selectedEntry) {
-            selectedEntry = { commit, ...(task ? { task } : {}), runs: [] };
-            state.commits.push(selectedEntry);
-        }
-        if (selectedEntry) {
-            if (syntheticBaseline && selectedEntry.syntheticBaseline
-                && syntheticBaseline !== selectedEntry.syntheticBaseline)
-                throw new Error('Pending receipt baseline differs');
-            if (repairMembers !== undefined && selectedEntry.repairMembers
-                && repairMembers !== selectedEntry.repairMembers)
-                throw new Error('Pending repair membership differs');
-            if (syntheticBaseline) selectedEntry.syntheticBaseline = syntheticBaseline;
-            if (repairMembers !== undefined) selectedEntry.repairMembers = repairMembers;
-        }
+        if (commit && !state.commits.some(entry => entry.commit === commit))
+            state.commits.push({ commit, ...(task ? { task } : {}), runs: [] });
         const repository = state.commits.length
-            ? read(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim() : null;
-        const reports = [], runsByCommit = new Map();
+            ? gh(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim() : null;
+        const reports = [];
         for (const entry of state.commits) {
             const runs = [];
-            let total;
             for (let page = 1; ; page++) {
                 if (page > 1000) throw new Error('Workflow pagination limit exceeded');
-                const response = JSON.parse(read(['api',
+                const response = JSON.parse(gh(['api',
                     `repos/${repository}/actions/runs?head_sha=${entry.commit}&branch=main&event=push&per_page=100&page=${page}`]));
                 if (!response || !Array.isArray(response.workflow_runs) || response.workflow_runs.length > 100)
                     throw new Error('Invalid workflow run response');
-                if (response.total_count !== undefined) {
-                    if (!Number.isSafeInteger(response.total_count) || response.total_count < 0
-                        || total !== undefined && total !== response.total_count)
-                        throw new Error('Invalid workflow run total');
-                    total = response.total_count;
-                }
                 runs.push(...response.workflow_runs);
-                if (response.workflow_runs.length < 100) {
-                    if (total !== undefined && runs.length !== total)
-                        throw new Error('Incomplete workflow run pages');
-                    break;
-                }
+                if (response.workflow_runs.length < 100) break;
             }
             reports.push({ ...publicationStatus(entry.commit, runs, repository),
                 ...(entry.task ? { task: entry.task } : {}) });
-            if (entry.syntheticBaseline) runsByCommit.set(entry.commit, runs);
         }
-        const receipts = [];
-        for (const report of reports.filter(row => row.passed)) {
-            const entry = state.commits.find(row => row.commit === report.commit);
-            if (!entry.syntheticBaseline) continue;
-            const repairMembers = entry.repairMembers ? parseRepairMembers(entry.repairMembers) : null;
-            receipts.push({ commit: report.commit, result: recordSynthetic(process.cwd(),
-                report.commit, entry.syntheticBaseline, report, read,
-                { repairMembers, publicationRuns: runsByCommit.get(report.commit) }) });
-        }
-        const synthetic = receipts.find(row => row.commit === commit)?.result ?? null;
+        const selected = reports.find(row => row.commit === commit);
+        const synthetic = syntheticBaseline && selected?.passed
+            ? recordPublishedSynthetic(process.cwd(), commit, syntheticBaseline, selected, gh) : null;
         // Preserve the old file in full on any API failure, and reject concurrent
         // manual edits rather than overwrite them. Cooperative invocations lock.
         if ((existsSync(file) ? readFileSync(file, 'utf8') : null) !== original)
@@ -145,8 +95,7 @@ export function checkPublishedCI({ file, commit, task, syntheticBaseline, repair
             : [{ ...entry, runs: reports[index].workflows.filter(run => run.id !== null && !succeeded(run)).map(run => run.id) }]);
         writeFileSync(temporary, JSON.stringify({ ...state, commits: remaining }, null, 2) + '\n');
         renameSync(temporary, file);
-        return { ...(synthetic ? { synthetic } : {}), ...(receipts.length ? { receipts } : {}),
-            checked: reports.length, completed: reports.filter(row => row.passed).map(row => row.commit),
+        return { ...(synthetic ? { synthetic } : {}), checked: reports.length, completed: reports.filter(row => row.passed).map(row => row.commit),
             pending: reports.filter(row => !row.passed).map(row => ({ ...row,
                 workflows: row.workflows.filter(run => !succeeded(run)) })),
             failed: reports.some(row => row.failed) };
@@ -163,23 +112,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (args.length === 1 && args[0] === '--help') console.log(USAGE);
         else {
             const options = {};
-            for (let index = 0; index < args.length;) {
-                if (args[index] === '--public') {
-                    if (options.publicRead) throw new Error(USAGE);
-                    options.publicRead = true;
-                    index++;
-                    continue;
-                }
+            for (let index = 0; index < args.length; index += 2) {
                 const key = args[index]?.slice(2);
-                if (!['commit', 'task', 'file', 'synthetic-baseline', 'repair-members'].includes(key) || args[index] !== `--${key}`
+                if (!['commit', 'task', 'file', 'synthetic-baseline'].includes(key) || args[index] !== `--${key}`
                     || !args[index + 1] || options[key] !== undefined) throw new Error(USAGE);
                 options[key] = args[index + 1];
-                index += 2;
             }
             options.syntheticBaseline = options['synthetic-baseline'];
             delete options['synthetic-baseline'];
-            options.repairMembers = options['repair-members'];
-            delete options['repair-members'];
             const report = checkPublishedCI(options);
             console.log(JSON.stringify(report, null, 2));
             process.exitCode = report.failed ? 1 : 0;

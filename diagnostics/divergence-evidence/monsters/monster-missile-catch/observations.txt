@@ -1,5 +1,0 @@
-handoff=You catch the orcish dagger!
-roll=0 result=1 handed=1 draws=1
-roll=1 result=0 handed=0 draws=1
-{"catchRoll":0,"catchBound":90,"hpBefore":16,"hpAfter":16,"hero":[18,15],"monster":[21,15],"error":"simple monster action requires successful monster missile catch","draws":[["rn2",5],["rn2",5],["rn2",5],["rn2",5],["rn2",90]],"lines":[],"topline":"Velkommen CatchProbe, welcome to NetHack!  You are a neutral human Valkyrie.","daggerWhere":0}
-{"catchRoll":1,"catchBound":90,"hpBefore":16,"hpAfter":15,"hero":[18,15],"monster":[21,15],"status":0,"draws":[["rn2",5],["rn2",5],["rn2",5],["rn2",5],["rn2",90],["rnd",3],["rnd",20],["rn2",2]],"lines":[],"topline":"You are hit by an orcish dagger.","daggerWhere":1}

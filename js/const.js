@@ -333,7 +333,7 @@ export const SUPPRESS_MAPPEARANCE = 0x10;
 export const SUPPRESS_NAME = 0x20;
 export const AUGMENT_IT = 0x40;
 export const EXACT_NAME = (SUPPRESS_IT | SUPPRESS_INVISIBLE
-    | SUPPRESS_HALLUCINATION | SUPPRESS_SADDLE | SUPPRESS_MAPPEARANCE);
+    | SUPPRESS_HALLUCINATION | SUPPRESS_NAME);
 
 // Game end type constants (include/hack.h enum game_end_types; src/end.c)
 // Runtime fields:

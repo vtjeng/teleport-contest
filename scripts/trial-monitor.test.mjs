@@ -92,109 +92,6 @@ test('stable ID counts one correction, preserves retries and uses last required 
   assert.equal(view.results[0].candidates[0].gates.Checkpoint.runs.length, 2);
 });
 
-test('one exact-SHA group counts each repair and its elapsed wall rate once', () => {
-  const groupSha = sha('a');
-  const runs = ['Checkpoint', 'Lint', 'Dashboard'].map((name, index) =>
-    run(name, groupSha, `2026-10-22T00:${20 + index * 5}:00Z`, { id: 500 + index }));
-  const repairs = ['first', 'second', 'third'].map((id, index) => {
-    const row = repair(id, groupSha, copy(runs), { window: 'post-trial' });
-    row.candidates[0].committedAt = '2026-10-22T00:10:00Z';
-    row.candidates[0].sourceCommit = sha(String(index + 1));
-    row.candidates[0].sourceCommittedAt = `2026-10-22T00:0${index}:00Z`;
-    return row;
-  });
-  const view = createTrialMonitor(running(repairs)).summarize('2026-10-22T01:00:00Z');
-  assert.equal(view.currentCandidate.sha, groupSha);
-  assert.equal(view.currentCandidate.groupSize, 3);
-  assert.equal(view.currentCandidate.state, 'completed');
-  assert.equal(view.selection.status, 'selected');
-  assert.equal(view.recentProgress.groupCount, 1);
-  assert.equal(view.recentProgress.repairCount, 3);
-  assert.equal(view.recentProgress.start, '2026-10-22T00:00:00.000Z');
-  assert.equal(view.recentProgress.end, '2026-10-22T00:30:00.000Z');
-  assert.equal(view.recentProgress.rate, 6);
-  assert.equal(view.results.filter(result => result.accepted).length, 3);
-
-  repairs.push({ id: 'newer-unrecorded', kind: 'parity-repair', window: 'post-trial',
-    title: 'Newer repair', evidence: { source: ['js/example.js'], witness: ['example'],
-      test: ['scripts/example.test.mjs'] }, candidates: [],
-    investigations: [{ start: '2026-10-22T00:41:00Z', end: '2026-10-22T00:42:00Z' }] });
-  const newer = createTrialMonitor(running(repairs)).summarize('2026-10-22T01:00:00Z');
-  assert.equal(newer.selection.unrecordedNewerCount, 1);
-  repairs.pop();
-
-  repairs[1].candidates[0].runs.find(item => item.name === 'Dashboard').conclusion = 'failure';
-  const failed = createTrialMonitor(running(repairs)).summarize('2026-10-22T01:00:00Z');
-  assert.equal(failed.currentCandidate.state, 'pending');
-  assert.equal(failed.results.filter(result => result.accepted).length, 0,
-    'partial group evidence cannot accept the other members');
-  assert.equal(failed.recentProgress.groupCount, 0);
-});
-
-test('a revalidated correction shares CI without becoming another accepted repair', () => {
-  const oldSha = sha('a'), groupSha = sha('b');
-  const runs = candidateSha => ['Checkpoint', 'Lint', 'Dashboard'].map((name, index) =>
-    run(name, candidateSha, (candidateSha === oldSha
-      ? ['2026-10-22T00:10:00Z', '2026-10-22T00:15:00Z', '2026-10-22T00:20:00Z']
-      : ['2026-10-22T00:50:00Z', '2026-10-22T00:55:00Z', '2026-10-22T01:00:00Z'])[index],
-    { id: (candidateSha === oldSha ? 600 : 610) + index }));
-  const corrected = repair('already-accepted', oldSha, runs(oldSha), { window: 'post-trial' });
-  corrected.candidates.push({ sha: groupSha, committedAt: '2026-10-22T00:40:00Z',
-    runs: runs(groupSha) });
-  const newRepair = repair('new-repair', groupSha, runs(groupSha), { window: 'post-trial' });
-  newRepair.candidates[0].committedAt = '2026-10-22T00:40:00Z';
-  const view = createTrialMonitor(running([corrected, newRepair])).summarize();
-  assert.equal(view.results.filter(result => result.accepted).length, 2);
-  assert.equal(view.recentProgress.groupCount, 2);
-  assert.equal(view.recentProgress.repairCount, 2, 'the correction is not a third acceptance');
-});
-
-test('an incomplete earlier shared group does not hide a later complete group', () => {
-  const firstSha = sha('a'), laterSha = sha('b');
-  const full = candidateSha => ['Checkpoint', 'Lint', 'Dashboard'].map((name, index) =>
-    run(name, candidateSha, `2026-10-22T00:${20 + index * 5}:00Z`,
-      { id: (candidateSha === firstSha ? 700 : 710) + index }));
-  const first = repair('first', firstSha, full(firstSha), { window: 'post-trial' });
-  const second = repair('second', firstSha, full(firstSha).slice(0, 2), { window: 'post-trial' });
-  for (const row of [first, second]) row.candidates.push({ sha: laterSha,
-    committedAt: '2026-10-22T00:40:00Z', runs: full(laterSha).map(item => ({
-      ...item, createdAt: '2026-10-22T00:45:00Z', completedAt: '2026-10-22T00:50:00Z',
-    })) });
-  const view = createTrialMonitor(running([first, second])).summarize('2026-10-22T01:00:00Z');
-  assert.equal(view.results.filter(result => result.accepted).length, 2);
-  assert.ok(view.results.every(result => result.accepted.candidate.sha === laterSha));
-  assert.equal(view.recentProgress.groupCount, 1);
-  assert.equal(view.recentProgress.repairCount, 2);
-});
-
-test('different passing run identities in one group do not publish partial acceptance', () => {
-  const groupSha = sha('a');
-  const runs = ['Checkpoint', 'Lint', 'Dashboard'].map((name, index) =>
-    run(name, groupSha, `2026-10-22T00:${20 + index * 5}:00Z`, { id: 800 + index }));
-  const first = repair('first', groupSha, copy(runs), { window: 'post-trial' });
-  const second = repair('second', groupSha, copy(runs), { window: 'post-trial' });
-  second.candidates[0].runs[2].id = 999;
-  const view = createTrialMonitor(running([first, second])).summarize();
-  assert.equal(view.results.filter(result => result.accepted).length, 0);
-  assert.equal(view.recentProgress.groupCount, 0);
-});
-
-test('shared group requires every member witness and includes members with different timestamps', () => {
-  const groupSha = sha('a');
-  const runs = ['Checkpoint', 'Lint', 'Dashboard'].map((name, index) =>
-    run(name, groupSha, `2026-10-22T00:${20 + index * 5}:00Z`, { id: 900 + index }));
-  const first = repair('first', groupSha, copy(runs), { window: 'post-trial' });
-  const second = repair('second', groupSha, copy(runs), { window: 'post-trial' });
-  first.candidates[0].committedAt = '2026-10-22T00:08:00Z';
-  second.candidates[0].committedAt = '2026-10-22T00:09:00Z';
-  second.evidence.test = [];
-  const view = createTrialMonitor(running([first, second])).summarize();
-  assert.equal(view.results.filter(result => result.accepted).length, 0);
-  assert.equal(view.currentCandidate.groupSize, 2);
-  assert.equal(view.currentCandidate.state, 'pending');
-  assert.equal(view.recentProgress.groupCount, 0);
-});
-
 test('non-repairs, wrong SHA, manual Dashboard, and missing gates never count', () => {
   const validSha = sha('a');
   const passed = ['Checkpoint', 'Lint', 'Dashboard'].map(name =>
@@ -328,11 +225,10 @@ test('completed trial uses the four-hour cutoff for numerator and denominator', 
   assert.equal(view.trial.rate, 0);
 });
 
-test('multiple reported handoffs remain visible', () => {
-  const view = createTrialMonitor(running([], {
+test('handoff cap rejects two waiting items instead of hiding the excess', () => {
+  assert.throws(() => createTrialMonitor(running([], {
     waitingHandoffs: [{ repairId: 'one' }, { repairId: 'two' }],
-  })).summarize();
-  assert.equal(view.waitingHandoffs.length, 2);
+  })), /cap is one/u);
 });
 
 test('dashboard template preserves compact single-column mobile layout', () => {

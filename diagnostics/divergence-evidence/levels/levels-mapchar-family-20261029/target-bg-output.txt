@@ -1,4 +1,0 @@
-{"field":"bg","hex":"5400737566666978","expected":[0,13],"observed":[1,25]}
-{"field":"bg","hex":"5400","expected":[0,13],"observed":[1,25]}
-{"field":"bg","hex":"0054","expected":[0,0],"observed":[1,25]}
-{"mode":"target","field":"bg","differences":3}

@@ -121,17 +121,13 @@ jobs:
           - group: score
             name: Fixed development score — 44 sessions
           - group: recordings-1
-            name: Regression recordings — batch 1 of 6
+            name: Regression recordings — batch 1 of 4
           - group: recordings-2
-            name: Regression recordings — batch 2 of 6
+            name: Regression recordings — batch 2 of 4
           - group: recordings-3
-            name: Regression recordings — batch 3 of 6
+            name: Regression recordings — batch 3 of 4
           - group: recordings-4
-            name: Regression recordings — batch 4 of 6
-          - group: recordings-5
-            name: Regression recordings — batch 5 of 6
-          - group: recordings-6
-            name: Regression recordings — batch 6 of 6
+            name: Regression recordings — batch 4 of 4
           - group: scan
             name: Mismatch scan and input-boundary checks
     runs-on: ubuntu-latest

@@ -1005,9 +1005,7 @@ async function gd_move_proceed(
     if (newspot && g_at(nx, ny, state)) {
         // Gold here (likely from mineralize()); pick it up now so the guard
         // doesn't later think the hero dropped it.
-        mpickgold(grd, { ...env, state });
-        if (canspotmon(grd, state))
-            await env.message(`${Monnam(grd, state)} picks up some gold.`, state, env);
+        mpickgold(grd, gdEnv);
     } else {
         newsym(grd.mx, grd.my);
     }
@@ -1148,12 +1146,7 @@ export async function invault(state, env = {}) {
 
     guard = await makeMonRuntime(
         state.mons[PM_GUARD], x, y, MM_EGD | MM_NOMSG,
-        { state, random, message,
-            hooks: typeof env.stopOccupation === 'function'
-                ? { stopOccupation: (_monster, hookEnv) =>
-                    env.stopOccupation(hookEnv) }
-                : {},
-        },
+        { state, random, message },
     );
     if (!guard) return;
     guard.isgd = 1;
@@ -1239,7 +1232,7 @@ export async function invault(state, env = {}) {
         return;
     }
 
-    await env.stopOccupation?.({ state, message });
+    await env.stopOccupation?.();
     if (state.multi > 0) {
         nomul(0, state);
     }

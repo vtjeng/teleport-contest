@@ -9,7 +9,6 @@ import {
     MSGTYP_NORMAL,
     MSGTYP_NOSHOW,
     MSGTYP_STOP,
-    NO_CURS_ON_U,
     OVERRIDE_MSGTYPE,
     PICK_NONE,
     PICK_ONE,
@@ -418,8 +417,7 @@ async function ttyPlineCore(
     // C ref: pline.c vpline(). Once the hero is on the map, every message
     // flushes pending map and bottom-line changes before update_topl() can
     // wrap into a blocking More prompt.
-    if (state === game && state.u?.ux)
-        await flush_screen(pflags & NO_CURS_ON_U ? 0 : 1);
+    if (state === game && state.u?.ux) await flush_screen(1);
     // C wintty.c handles ATR_URGENT after vpline() has flushed the map but
     // before tty_putstr() invokes update_topl(): its clear_nhwindow(WIN_MESSAGE)
     // removes the stale physical line and clears WIN_STOP. Do the same at
@@ -530,8 +528,7 @@ export class UnsupportedCustomPlineFlagsError extends Error {
 
 // C ref: pline.c custompline().
 export async function ttyCustomPline(message, pflags, state = game) {
-    const supportedFlags = SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U;
-    if (!pflags || (pflags & ~supportedFlags))
+    if (![SUPPRESS_HISTORY, OVERRIDE_MSGTYPE].includes(pflags))
         throw new UnsupportedCustomPlineFlagsError(pflags);
     return ttyPlineCore(message, state, pflags);
 }

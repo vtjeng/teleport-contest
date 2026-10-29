@@ -1,9 +1,0 @@
-[
-  {
-    "key": "source-audit:edge-c-only:src/mklev.c:clear_level_structures:In_hell",
-    "evidenceKey": "ce00e44400411e83d93db2df4999dcd62807888041d52257e9856959b4ed7560",
-    "runId": "ea2181cadbad5793b4be",
-    "reviewFingerprint": "d90e5ef37adbdd559eb1295e802880b79249d8340dd48baddff08c1e14e9a4af",
-    "status": null
-  }
-]

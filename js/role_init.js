@@ -2,8 +2,7 @@
 // C ref: src/role.c selection helpers, rigid_role_checks(), role_init(),
 // Hello(), and Goodbye(); src/allmain.c welcome().
 
-import { A_CURRENT, A_ORIGINAL, HALLUC, HALLUC_RES, P_CLERIC_SPELL,
-    Upolyd } from './const.js';
+import { A_CURRENT, A_ORIGINAL, P_CLERIC_SPELL, Upolyd } from './const.js';
 import {
     M2_FEMALE,
     M2_HOSTILE,
@@ -590,18 +589,6 @@ export function welcomeIdentity(state) {
 export function welcomeMessage(state) {
     return `${Hello(state)} ${state.plname}, welcome to NetHack!  `
         + `You are a ${welcomeIdentity(state)}.`;
-}
-
-// C ref: allmain.c welcome() (863-875), for both new games and restores.
-// Hallucination is the intrinsic effect unless either form of resistance
-// suppresses it. This line precedes the ordinary welcome message.
-export function welcomeHallucinationMessage(state) {
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return hallucination?.intrinsic
-        && !(resistance?.intrinsic || resistance?.extrinsic)
-        ? 'NetHack is filmed in front of an undead studio audience.'
-        : null;
 }
 
 // C ref: allmain.c welcome(FALSE). For a restored game, the identity string

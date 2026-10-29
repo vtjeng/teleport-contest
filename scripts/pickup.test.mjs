@@ -654,9 +654,8 @@ test('initial pickup keeps terrain admission mutation-free',
         const objectInventory = objectState.invent;
         objectInventory.pickup_prev = true;
         objectUnderHero(objectState);
-        // pickup(1) now owns object admission, so the early decor check
-        // leaves an object on the starting square untouched.
-        assert.doesNotThrow(() => preflight_initial_pickup(objectState));
+        assert.throws(() => preflight_initial_pickup(objectState),
+            /initial floor object/u);
         assert.equal(objectState.invent, objectInventory);
 
         for (const [label, alter, expectedDecor] of [

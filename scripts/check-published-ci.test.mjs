@@ -4,7 +4,6 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkPublishedCI, publicationStatus, PUBLICATION_WORKFLOWS } from './check-published-ci.mjs';
-import { PUBLIC_REPOSITORY, publicGithubCliRead } from './public-github-read.mjs';
 
 // Two different commits and monotonically increasing IDs model publications and
 // retries, with one run for each automatic publication workflow.
@@ -89,69 +88,6 @@ test('API failures preserve cache bytes, release locks, and allow retry', t => {
     assert.equal(checkPublishedCI({ file }, { gh: client(passing(commit)) }).completed.length, 1);
 });
 
-test('explicit public mode uses anonymous reads for publication and receipt without gh fallback', t => {
-    const file = fixture(t);
-    const calls = [];
-    const publicRuns = passing(commit).map(run => ({...run,
-        repository: {full_name: PUBLIC_REPOSITORY}, head_repository: {full_name: PUBLIC_REPOSITORY}}));
-    const readPublic = args => publicGithubCliRead(args, path => {
-        calls.push(path);
-        if (path.includes('/jobs?')) return path;
-        assert.match(path, /actions\/runs\?head_sha=/u);
-        return JSON.stringify({workflow_runs: publicRuns});
-    });
-    const result = checkPublishedCI({file, commit, publicRead: true,
-        syntheticBaseline: other, repairMembers: `repair-one:${other}`}, {
-        gh: () => assert.fail('authenticated gh must not run in public mode'),
-        readPublic, recordSynthetic: (_root, _commit, _baseline, _report, read) => {
-            assert.equal(read, readPublic);
-            assert.equal(read(['api', `repos/${PUBLIC_REPOSITORY}/actions/runs/1/attempts/1/jobs?per_page=100`]),
-                `repos/${PUBLIC_REPOSITORY}/actions/runs/1/attempts/1/jobs?per_page=100&page=1`);
-            return {changed: true};
-        },
-    });
-    assert.deepEqual(result.completed, [commit]);
-    assert.equal(calls.length, 2);
-    assert.deepEqual(JSON.parse(readFileSync(file)).commits, []);
-});
-
-test('repair members require receipt validation; pending and failed gates do no register work', t => {
-    const file = fixture(t);
-    const members = `repair-one:${other}`;
-    assert.throws(() => checkPublishedCI({ file, commit, repairMembers: members }),
-        /requires --commit and --synthetic-baseline/);
-    assert.throws(() => checkPublishedCI({ file, commit, syntheticBaseline: other,
-        repairMembers: '' }), /Expected repair members/);
-    const pending = checkPublishedCI({ file, commit, syntheticBaseline: other,
-        repairMembers: members }, { gh: client([]) });
-    assert.equal(pending.pending.length, 1);
-    assert.equal(pending.synthetic, undefined);
-    assert.deepEqual(JSON.parse(readFileSync(file)).commits[0].syntheticBaseline, other);
-    assert.deepEqual(JSON.parse(readFileSync(file)).commits[0].repairMembers, members);
-    const failed = passing(commit);
-    failed[0].conclusion = 'failure';
-    assert.equal(checkPublishedCI({ file, commit, syntheticBaseline: other,
-        repairMembers: members }, { gh: client(failed) }).failed, true);
-    assert.equal(JSON.parse(readFileSync(file)).commits[0].repairMembers, members);
-    assert.throws(() => checkPublishedCI({ file, commit, syntheticBaseline: 'c'.repeat(40),
-        repairMembers: members }, { gh: client([]) }), /baseline differs/);
-    assert.throws(() => checkPublishedCI({ file, commit, syntheticBaseline: other,
-        repairMembers: `different:${other}` }, { gh: client([]) }), /membership differs/);
-    assert.throws(() => checkPublishedCI({ file }, { gh: client(passing(commit)),
-        recordSynthetic: () => { throw new Error('receipt unavailable'); } }), /receipt unavailable/);
-    assert.equal(JSON.parse(readFileSync(file)).commits[0].repairMembers, members,
-        'a failed receipt must stay pending for the next check');
-    const calls = [];
-    const complete = checkPublishedCI({ file }, { gh: client(passing(commit)),
-        recordSynthetic: (...args) => { calls.push(args); return { changed: true }; } });
-    assert.equal(calls.length, 1);
-    assert.equal(calls[0][1], commit);
-    assert.equal(calls[0][2], other);
-    assert.deepEqual(calls[0][5].repairMembers, [{ id: 'repair-one', sourceCommit: other }]);
-    assert.deepEqual(complete.receipts, [{ commit, result: { changed: true } }]);
-    assert.deepEqual(JSON.parse(readFileSync(file)).commits, []);
-});
-
 test('rejects concurrent changes, competing checkers and malformed API responses', t => {
     const file = fixture(t);
     writeFileSync(file, JSON.stringify({ commits: [{ commit, runs: [] }] }));
@@ -184,19 +120,6 @@ test('a malformed or failed later page preserves the full pending cache and rele
         assert.equal(readFileSync(file, 'utf8'), original);
         assert.equal(existsSync(`${file}.lock`), false);
     }
-});
-
-test('declared public workflow-run totals cannot hide a newer gate', t => {
-    const file = fixture(t);
-    const original = JSON.stringify({commits: [{commit, runs: []}]});
-    writeFileSync(file, original);
-    assert.throws(() => checkPublishedCI({file, publicRead: true}, {
-        gh: () => assert.fail('no authenticated fallback'),
-        readPublic: args => args[0] === 'repo' ? 'owner/project'
-            : JSON.stringify({total_count: 3, workflow_runs: passing(commit)}),
-    }), /Incomplete workflow run pages/u);
-    assert.equal(readFileSync(file, 'utf8'), original);
-    assert.equal(existsSync(`${file}.lock`), false);
 });
 
 test('pagination is bounded and excessive page results are refused without cache changes', t => {

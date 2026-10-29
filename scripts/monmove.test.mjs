@@ -3350,8 +3350,6 @@ test('dochug reattacks a swallowed hero only after the ranged exception', async 
         hasWeaponAttack = false,
     } = {}) {
         const { state } = makeState();
-        state.u.ux = 10;
-        state.u.uy = 10;
         const baseData = state.mons[PM_GIANT_RAT];
         const data = hasWeaponAttack
             ? {
@@ -3374,8 +3372,6 @@ test('dochug reattacks a swallowed hero only after the ranged exception', async 
             mpeaceful: false,
             mhp: 5,
             mhpmax: 5,
-            mx: 9,
-            my: 10,
         });
         state.u.uswallow = swallowed;
         state.u.ustuck = isHolder ? monster : ordinaryMonster(state);

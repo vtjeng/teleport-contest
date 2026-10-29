@@ -13,7 +13,6 @@ import {
     isLocalHoldoutPath,
     parseArgs,
     runDifferential,
-    recorderInputPaths,
     validateCleanRecipe,
 } from './diff-fresh.mjs';
 
@@ -383,19 +382,4 @@ setInterval(() => {}, 1000);
     assert.match(report, /Screen length/u);
     assert.match(report, /Cursor length/u);
     assert.match(report, /RESULT: FAIL/u);
-});
-
-// NETHACK_INSTALL alone changes data location, not the executable. Provenance
-// and recorder staging must consume this same resolution, including relative paths.
-test('custom install retains default binary unless explicitly overridden', () => {
-    const defaults = recorderInputPaths({});
-    const custom = recorderInputPaths({ NETHACK_INSTALL: '/tmp/custom-recorder-data' });
-    assert.equal(custom.install, '/tmp/custom-recorder-data');
-    assert.equal(custom.binary, defaults.binary);
-    assert.notEqual(custom.binary, path.join(custom.install, 'nethack'));
-    assert.deepEqual(recorderInputPaths({ NETHACK_INSTALL: custom.install, NETHACK_BINARY: '/tmp/custom-recorder-bin' }),
-        { install: custom.install, binary: '/tmp/custom-recorder-bin' });
-    const relative = recorderInputPaths({ NETHACK_INSTALL: 'custom-data', NETHACK_BINARY: 'custom-bin' });
-    assert.equal(relative.install, path.resolve('custom-data'));
-    assert.equal(relative.binary, path.resolve('custom-bin'));
 });

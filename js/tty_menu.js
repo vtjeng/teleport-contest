@@ -14,7 +14,6 @@ import { tty_getlin } from './getline.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
-    appendLongDigit,
 } from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
@@ -1499,9 +1498,10 @@ async function selectAnyTtyMenu(state, spec) {
                 continue;
             }
             const digit = ch.charCodeAt(0) - '0'.charCodeAt(0);
-            const next = appendLongDigit(BigInt(pendingCount ?? 0), digit);
-            pendingCount = next > 0n
-                ? (next <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(next) : next)
+            const previous = pendingCount ?? 0;
+            const next = previous * 10 + digit;
+            pendingCount = Number.isSafeInteger(next) && next > 0
+                ? next
                 : null;
             continue;
         }

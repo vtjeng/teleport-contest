@@ -3,7 +3,7 @@
 // C ref: trap.c -- t_at(), hole_destination(), maketrap(), deltrap(),
 // conjoined_pits(), clear_conjoined_pits(), adj_nonconjoined_pit(),
 // choose_trapnote(), set_utrap(), reset_utrap(), fill_pit(), float_down(),
-// climb_pit(), lava_effects(), sink_into_lava(), sokoban_guilt(),
+// climb_pit(), lava_effects(), sokoban_guilt(),
 // trapname(), dountrap(), could_untrap(), untrap_prob(), cnv_trap_obj(),
 // into_vs_onto(), move_into_trap(), try_disarm(), reward_untrap(),
 // disarm_holdingtrap(), disarm_landmine(), unsqueak_ok(),
@@ -128,7 +128,6 @@ import {
     SHOCK_RES,
     SHOPBASE,
     SHOP_HOLE_COST,
-    SLIMED,
     SLEEP_RES,
     SLT_ENCUMBER,
     SLP_GAS_TRAP,
@@ -247,6 +246,7 @@ import {
     nomul, unmul, losehp, You_can_move_again,
     u_locomotion,
     movobj,
+    UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { goodpos } from './teleport.js';
 import { ordin, sgn, upstart } from './hacklib.js';
@@ -1083,7 +1083,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
 //
 // dealloc_trap() has no counterpart: C frees the record, JavaScript lets it go.
 export function deltrap(trap, state = game) {
-    clear_conjoined_pits(trap, state);
+    clear_conjoined_pits(trap);
     const traps = state.level.traps;
     const index = traps.indexOf(trap);
     if (index < 0) throw new Error('deltrap: no preceding trap!');
@@ -1161,20 +1161,17 @@ export function conjoined_pits(trap2, trap1, u_entering_trap2, state = game) {
     return false;
 }
 
-// C ref: trap.c clear_conjoined_pits() (6578-6603). Digging can join two
-// existing pits; unlink both ends before deltrap removes either pit.
-function clear_conjoined_pits(trap, state) {
-    if (!trap || !is_pit(trap.ttyp)) return;
-    for (let diridx = 0; diridx < N_DIRS; ++diridx) {
-        if (!(trap.conjoined & (1 << diridx))) continue;
-        const x = trap.tx + xdir[diridx];
-        const y = trap.ty + ydir[diridx];
-        if (isok(x, y)) {
-            const neighbor = t_at(x, y, state);
-            if (neighbor && is_pit(neighbor.ttyp))
-                neighbor.conjoined &= ~(1 << DIR_180(diridx));
-        }
-        trap.conjoined &= ~(1 << diridx);
+// C ref: trap.c clear_conjoined_pits() (6578-6603). Every trap this port
+// creates has `conjoined` set to 0 -- maketrap() clears it for PIT and
+// SPIKED_PIT and resetTrap() clears it for every other type -- and the
+// mklev.c conjoined-pit generation is not ported (js/mklev.js:2899-2901), so
+// the mask is always empty and the neighbour loop has nothing to walk. It
+// refuses rather than silently skipping the unlink if that ever changes.
+function clear_conjoined_pits(trap) {
+    if (trap && is_pit(trap.ttyp) && trap.conjoined) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'unlinking a conjoined pit',
+        );
     }
 }
 
@@ -1596,49 +1593,6 @@ export async function drown(state = game) {
     // remembered-terrain writes before returning from the water effect.
     await rescued_from_terrain(DROWNING, state);
     return true;
-}
-
-// C ref: trap.c sink_into_lava() (6990-7034). The elapsed hero-turn caller in
-// allmain.c runs this even after an attempted move failed inside lava. The
-// low eight bits of utrap represent the escape counter; each elapsed turn
-// removes 256, then a stationary hero sinks a little farther with rnd(4).
-export async function sink_into_lava(state = game) {
-    const { u } = state;
-    if (!u.utrap || u.utraptype !== TT_LAVA) return;
-    if (!is_lava(u.ux, u.uy, state)) {
-        await reset_utrap(false, state);
-        return;
-    }
-    if (u.uinvulnerable) return;
-
-    if (!heroLavaProperty(state, FIRE_RES))
-        u.uhp = Math.trunc((u.uhp + 2) / 3);
-    u.utrap -= 1 << 8;
-    if (u.utrap < (1 << 8)) {
-        state.killer ??= {};
-        state.killer.format = KILLED_BY;
-        state.killer.name = 'molten lava';
-        await ttyUrgentPline('You sink below the surface and die.', state);
-        await burn_away_slime(state);
-        await done(DISSOLVED, state);
-        // C's done() does not return after final death. A lifesaving or debug
-        // refusal resumes here and must leave the lava before the next turn.
-        if (state.program_state?.gameover) return;
-        await reset_utrap(true, state);
-        if (!Levitation(state) && !Flying(state)) {
-            const { safe_teleds } = await import('./teleport.js');
-            await safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT, state);
-        }
-    } else if (!u.umoved) {
-        const slimed = u.uprops?.[SLIMED]?.intrinsic ?? 0;
-        if (slimed && rnd(9) >= (slimed & TIMEOUT)) {
-            await ttyPline('You sink deeper into the lava.', state);
-            await burn_away_slime(state);
-        } else {
-            await ttyNorep('You sink deeper into the lava.', state);
-        }
-        u.utrap += rnd(4);
-    }
 }
 
 // C ref: trap.c lava_effects() (6794-6987), the second boolean dependency of

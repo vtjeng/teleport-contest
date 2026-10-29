@@ -13,7 +13,6 @@ import {
     AGGRAVATE_MONSTER,
     BLINDED,
     CONFLICT,
-    DF_ALL,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
@@ -142,6 +141,7 @@ import {
     PM_RANGER,
     PM_SAMURAI,
     PM_SHOCKING_SPHERE,
+    PM_WIZARD_OF_YENDOR,
     S_LIGHT,
     S_DOG,
 } from './monsters.js';
@@ -170,7 +170,6 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
-import { deliver_obj_to_mon } from './dokick.js';
 import { del_light_source } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { finish_meating } from './dogmove.js';
@@ -1012,9 +1011,8 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             const trackAvailable = Array.isArray(mtmp.mtrack)
                 && mtmp.mtrack.length >= 3
                 && mtmp.mtrack.slice(0, 3).every(Boolean);
-            // dog.c:keep_mon_accessible keys the Wizard branch on iswiz,
-            // which newcham() retains even after changing the species.
-            const ordinaryAccessible = (mtmp.iswiz === true
+            const ordinaryAccessible = ((mtmp.iswiz === true
+                && mtmp.data === state.mons?.[PM_WIZARD_OF_YENDOR])
                 || mtmp.isshk || mtmp.ispriest || mtmp.isgd)
                 && !mtmp.wormno
                 && (appearance === M_AP_NOTHING
@@ -1288,7 +1286,7 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
     }
 
     if ((monster.migflags & MIGR_LEFTOVERS) && state.gm.migrating_objs)
-        deliver_obj_to_mon(monster, 0, DF_ALL, env);
+        note_unported('dokick.c deliver_obj_to_mon');
 
     if (xlocale && wander) {
         const roomNumbers = in_rooms(xlocale, ylocale, 0, state);

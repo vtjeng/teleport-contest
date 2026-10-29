@@ -1,8 +1,0 @@
-{
-  "base": "1c4be74beb32edbfc897de805f218e180f8c6002",
-  "verifiedAt": "2026-10-28T20:34:21.050815+00:00",
-  "command": "node --test scripts/test-suites.test.mjs",
-  "exit": 0,
-  "stdout": "\u2714 the default suite admits ordinary tests and excludes registered suites (1.860433ms)\n\u2714 long-running tests start the default suite and the rest stay alphabetical (1.499067ms)\n\u2714 suite registration rejects missing and duplicate dedicated files (0.545037ms)\n\u2714 the repository registry lists all discovered tests with no dedicated suites (18.441935ms)\n\u2714 the stray-test scan reports test files outside the discovered roots (0.934019ms)\n\u2714 the repository has no test file outside the discovered roots (191.010034ms)\n\u2139 tests 6\n\u2139 suites 0\n\u2139 pass 6\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 303.690713\n",
-  "stderr": ""
-}

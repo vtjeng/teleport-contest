@@ -1,9 +1,0 @@
-[
-  {
-    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_message:alloc",
-    "evidenceKey": "04e30f777f3195f60f0a59ba157f0ca47c86690bf8e398e2253a268e9a0c8b4e",
-    "runId": "ea2181cadbad5793b4be",
-    "reviewFingerprint": "fb65aab1388cf7e6b1af149e847e3e2eb56a35d66f1254f34f8b64ed4937109c",
-    "status": null
-  }
-]
