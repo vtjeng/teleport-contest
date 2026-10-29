@@ -1,0 +1,39 @@
+{
+  "node": "v24.19.0",
+  "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+  "platform": "linux",
+  "runs": {
+    "control": {
+      "generatedSourceAt": "2026-10-29T04:01:56.891770+00:00",
+      "resultsSavedAt": "2026-10-29T04:01:56.991773+00:00",
+      "elapsedSecondsFromGeneratedSourceToSavedResults": 0.10000324249267578,
+      "binarySha256": "664f640d37a6d29d872af9bccef72d478306c320dfceb6766d28a25b8edc593a",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "/tmp/hero-threshold-oracle-HKqJD4/oracle.c",
+        "-o",
+        "/tmp/hero-threshold-oracle-HKqJD4/oracle"
+      ]
+    },
+    "target": {
+      "generatedSourceAt": "2026-10-29T04:01:57.691796+00:00",
+      "resultsSavedAt": "2026-10-29T04:01:57.899803+00:00",
+      "elapsedSecondsFromGeneratedSourceToSavedResults": 0.2080068588256836,
+      "binarySha256": "ef9e9f0cd7f088ccfa7ef5a7b84dd700cb1568953308149f8312b2083d30180a",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "/tmp/hero-threshold-oracle-RSRGqj/oracle.c",
+        "-o",
+        "/tmp/hero-threshold-oracle-RSRGqj/oracle"
+      ]
+    }
+  }
+}

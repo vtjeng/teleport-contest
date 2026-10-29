@@ -1,0 +1,357 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-threshold-clamps-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-boundaries-20261029"
+  ],
+  "provenance": {
+    "jsSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/role.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/roles.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    }
+  ],
+  "hypothesis": "Matching debug-command roundtrips do not settle incremental XP thresholds or depleted-resource clamp arithmetic.",
+  "expectedBehavior": "Under the documented restricted adapter, production JS resource/XP/message/RNG projections match unchanged executed C bodies for all explicit fixtures.",
+  "observedBehavior": "60 target rows and four numeric positive controls match. No divergent semantic cause found; exact public-input state construction remains unqualified.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Human Wizard, CON=WIS=10, ordinary nonfatal direct API transitions; nine unchanged C function bodies with a disclosed resource-only adapter.",
+    "limitations": [
+      "C adjabil, rank/achievement/logging and notification dependencies are stubs; hidden-state and timer parity are not established.",
+      "Exact XP/depleted/reduced-maximum states are constructed, not reached by public input.",
+      "No upgrade to preinstalled recorder binary provenance; GCC compilation attests only this generated projection."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/control/results.json",
+      "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/target/results.json"
+    ],
+    "reason": "Production JS APIs execute constructed states; extracted C transition functions execute corresponding fields. Public-input reachability remains unestablished."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Authorized follow-up to PR #106, reconciled against earlier XP repair and parked shared-engine trial.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/run.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/matrix.json",
+        "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/driver.c",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/src/role.c",
+        "nethack-c/upstream/include/global.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/run.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/matrix.json",
+        "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/shim.h",
+        "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/driver.c",
+        "nethack-c/upstream/src/exper.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/src/role.c",
+        "nethack-c/upstream/include/global.h"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/README.md",
+      "sha256": "9c23cd4dfc7db9a7bcca54e81137f4b7ccfc009bcc4eee90d8d7ab15d40a5699",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/control/compiler.json",
+      "sha256": "498cb7c1016153ed3ca49e0301270b01d83ac50735444be097bf125a26bd1ecb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/control/oracle.c",
+      "sha256": "d66c61a11586a3c43a33971b45547ac83889fbe981cb0e4053a8a6c20d1048fb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/control/results.json",
+      "sha256": "209a14b96c84d389f4a2bcae5256f1588ad55a2e03d9d57c998b0333f19e3648",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/control/source-bindings.json",
+      "sha256": "4908305c421264a922447f787edfb7337ab9575167091cd77182c0b6a2a83847",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/control-receipt.json",
+      "sha256": "8ae3a4550e6c3844b9f894d86ff39e32f5cc699be6503a468ccaa545ce6189a4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/driver.c",
+      "sha256": "f465f5c7f0d1de03adf411546b07e37c89f914f9869e5fdc3aa845411d3bc4e4",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/environment.json",
+      "sha256": "b3f119f2396f77ec79b02e59c09a180de297911091ba9170c7b5a99cabf49ba5",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/focused-tests.txt",
+      "sha256": "28ee9eb5c8007142f08b7e1e3dc08d65c6a56964057e0eefa528bc6f595e7442",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/matrix.json",
+      "sha256": "70883b249862ddf8248365362fd349f96f0c5744bcc7c83129ef8050757b856a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/run.mjs",
+      "sha256": "312353d3382660182d43723a2b4605d9ed97b1f0aa3732b9d7a995c7da3d5e30",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/shim.h",
+      "sha256": "6ffe738049ec230ebb8c4db7e6b308a1d360d7eb533e67413bc0102c3f4fd0f8",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/target/compiler.json",
+      "sha256": "498cb7c1016153ed3ca49e0301270b01d83ac50735444be097bf125a26bd1ecb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/target/oracle.c",
+      "sha256": "d66c61a11586a3c43a33971b45547ac83889fbe981cb0e4053a8a6c20d1048fb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/target/results.json",
+      "sha256": "b64dc8bf24a33c56f89a1b1f7f6c30dbbed9baff1b945fe58d2bbe6f07b3ff03",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/target/source-bindings.json",
+      "sha256": "4908305c421264a922447f787edfb7337ab9575167091cd77182c0b6a2a83847",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/threshold-clamps-20261029/target-receipt.json",
+      "sha256": "4e028e952a2320c08ebb86ba37f3bd985c2448663c5388baeb7b777af24c2b8e",
+      "role": "audit artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/role.c",
+      "sha256": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "sha256": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "sha256": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "js/roles.js",
+      "sha256": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "nethack-c/upstream/include/global.h",
+      "sha256": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "nethack-c/upstream/include/you.h",
+      "sha256": "d19cfa0233582f1ad550b9dfc788f26166f3ff21225e3d8a0cd43b6de2094289",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/insight.c",
+      "sha256": "190e28746d8e11d297df8bccce183c588833c97434627660cda0b903d9cebc50",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "nethack-c/upstream/src/weapon.c",
+      "sha256": "75769f6a3113224ea20414f75fc8b1159b6712bc7154905443e4fc1a4912bc2d",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "js/weapon.js",
+      "sha256": "82539139a1110c4040f056a9e530693d9e83c65a39da3fd18f5705e1d155f527",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "js/insight.js",
+      "sha256": "c39130119f72f5df928926a45d22ac60983fae4866568a411f8077b9dcae5510",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "scripts/hero-attributes.test.mjs",
+      "sha256": "fc2f10d55cc6bbb710852891f82f9cb5db65e6f275abbe91d0eca269a1d08594",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "scripts/attrib-innate.test.mjs",
+      "sha256": "b54f6a2784a924f4361d7fe92e43782812018486f5a45c31a89e8869d5cd3e3a",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "scripts/level-change.test.mjs",
+      "sha256": "d109251b95e7bdff9554cccea4da6451fab060fed99a556ebc312501e5db7a42",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source or package tooling"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source or package tooling"
+    }
+  ]
+}
