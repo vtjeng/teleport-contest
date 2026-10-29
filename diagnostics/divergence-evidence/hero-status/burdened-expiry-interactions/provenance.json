@@ -1,0 +1,23 @@
+{
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "node": "v24.19.0",
+  "recordedAt": "2026-10-29T01:43:06.898Z",
+  "binaryBuild": "Preinstalled recorder; not rebuilt; compiler provenance unavailable",
+  "bindings": {
+    "nethack-c/recorder/install/games/lib/nethackdir/nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "nethack-c/recorder/src/timeout.c": "779540f647749e0da11109f18a90e11c9e7bc36af44ed6455440b40fc6910596",
+    "nethack-c/recorder/src/wizcmds.c": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f",
+    "nethack-c/upstream/src/timeout.c": "779540f647749e0da11109f18a90e11c9e7bc36af44ed6455440b40fc6910596",
+    "nethack-c/upstream/src/wizcmds.c": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f",
+    "nethack-c/patches/001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+    "nethack-c/patches/002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+    "nethack-c/patches/003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+    "nethack-c/patches/004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+    "nethack-c/patches/005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+    "nethack-c/patches/006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+    "nethack-c/patches/007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+    "nethack-c/patches/README.md": "6c29d9620b818ca61da4e133a16625ffe0be1973e19cf61dd77942017834d26c"
+  },
+  "toolingCommit": "176bb0e38117602afab165ee6d4e363c11943fdb"
+}

@@ -1,0 +1,188 @@
+[
+  {
+    "label": "confusion-expiry",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2931,
+          "js": 2931
+        },
+        "screens": {
+          "c": 21,
+          "js": 21
+        },
+        "cursors": {
+          "c": 21,
+          "js": 21
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": []
+  },
+  {
+    "label": "burdened-confusion-expiry",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2606,
+          "js": 2606
+        },
+        "screens": {
+          "c": 66,
+          "js": 66
+        },
+        "cursors": {
+          "c": 66,
+          "js": 66
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": []
+  },
+  {
+    "label": "hallucination-expiry",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2581,
+          "js": 2581
+        },
+        "screens": {
+          "c": 22,
+          "js": 22
+        },
+        "cursors": {
+          "c": 22,
+          "js": 22
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": []
+  },
+  {
+    "label": "burdened-hallucination-expiry",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2606,
+          "js": 2606
+        },
+        "screens": {
+          "c": 66,
+          "js": 66
+        },
+        "cursors": {
+          "c": 66,
+          "js": 66
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": []
+  },
+  {
+    "label": "glib-expiry",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2589,
+          "js": 2589
+        },
+        "screens": {
+          "c": 24,
+          "js": 24
+        },
+        "cursors": {
+          "c": 24,
+          "js": 24
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": []
+  },
+  {
+    "label": "displacement-expiry",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2585,
+          "js": 2585
+        },
+        "screens": {
+          "c": 22,
+          "js": 22
+        },
+        "cursors": {
+          "c": 22,
+          "js": 22
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": []
+  }
+]

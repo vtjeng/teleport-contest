@@ -1,0 +1,867 @@
+{
+  "schemaVersion": 1,
+  "caseId": "burdened-hero-status-expiry-interactions",
+  "shard": "hero-status",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "ordinary-paired-status-expiry-under-burden",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/timeout.c",
+      "symbol": "nh_timeout",
+      "start_line": 588,
+      "end_line": 948,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/wizcmds.c",
+      "symbol": "wiz_intrinsic",
+      "start_line": 949,
+      "end_line": 1098,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/allmain.c",
+      "symbol": "moveloop_core",
+      "start_line": 205,
+      "end_line": 400,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/timeout.js",
+      "symbol": "decrement_property_timeouts",
+      "start_line": 1500,
+      "end_line": 1763,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/timeout.js",
+      "symbol": "nh_timeout",
+      "start_line": 1768,
+      "end_line": 1849,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/wizcmds.js",
+      "symbol": "wiz_intrinsic",
+      "start_line": 557,
+      "end_line": 630,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/allmain.js",
+      "symbol": null,
+      "start_line": 930,
+      "end_line": 1005,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    }
+  ],
+  "hypothesis": "Positive encumbrance could change simultaneous or adjacent ordinary property expiry ordering and movement allocation.",
+  "expectedBehavior": "Public C and JS traces match for all six pairs at (1,1), (1,2), (2,1), with timeout bits decaying through elapsed turns.",
+  "observedBehavior": "18 burdened targets match 47064 RNG calls and 1575 screens/cursors; six unchanged controls match 15898 RNG calls and 221 screens/cursors. JS-only snapshots verify timeout bits and movement ration. No C internal-state equality is claimed.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "18 debug public-input burdened paired ordinary clock expiry recipes and six unchanged controls",
+    "limitations": [
+      "Internal C property bits and movement balance are not captured; state assertions are JS only.",
+      "One seed/role and positive encumbrance setup; waits only, no occupations.",
+      "Debug setup proves reachable upkeep but not ordinary acquisition.",
+      "Preinstalled C binary was not rebuilt; compiler provenance unavailable."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "not_applicable",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/results.json"
+    ],
+    "reason": "Public debug command setup and live elapsed-turn upkeep; negative scope, no shipped defect attribution."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "User-requested independent status audit, narrowed to burdened gap after overlap check of PR #107; no scanner keys.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/run.mjs",
+        "target",
+        "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "recipes/timeout.c/displacement-expiry.session.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/run.mjs",
+        "control",
+        "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "recipes/timeout.c/confusion-expiry.session.json",
+        "recipes/timeout.c/burdened-confusion-expiry.session.json",
+        "recipes/timeout.c/hallucination-expiry.session.json",
+        "recipes/timeout.c/burdened-hallucination-expiry.session.json",
+        "recipes/timeout.c/glib-expiry.session.json",
+        "recipes/timeout.c/displacement-expiry.session.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/README.md",
+      "sha256": "a365a6f75ded512d552097bcf57f2d0959513b6628008341e6eb1fb76b2a0bfa",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-confusion-expiry/js-output.json.gz",
+      "sha256": "20380ce8d7d207c4c09b8bbd70bf6bf039c0e1e446c3e75a86300c074df09fc5",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-confusion-expiry/recipe.session.json.gz",
+      "sha256": "3004dfd07f6b10f04029b3da34416ecbc548922378123757178f2d0c53e54a9a",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-confusion-expiry/recorded.session.json.gz",
+      "sha256": "da6f64daf260ed44fb1d59c597dddd66642babd65cd3715d978a1aa6e984368e",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-confusion-expiry/recorder.json.gz",
+      "sha256": "08ef054ad5b6fcfc04bf91f395cfcbe6ba2c7d24293d5453eba8c4f0170797e9",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-confusion-expiry/worker.json.gz",
+      "sha256": "dd9c401bda80e22737f723c59f9bd1ccda3a3f3b2cc9ad37e0532e1314f75eae",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-hallucination-expiry/js-output.json.gz",
+      "sha256": "840d1959e3afa7bcd0fe588fbbb2ed588b59265b6f6644340b444cd0cc9da2ac",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-hallucination-expiry/recipe.session.json.gz",
+      "sha256": "200088f64add797d6ef7afb2e68fb5069d4bb3972673c2d63d59441ecaf668c0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-hallucination-expiry/recorded.session.json.gz",
+      "sha256": "212cbe2974b6d6004c0580832b1fbe4865a6003759dd06476fd8cf40b2a3bb74",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-hallucination-expiry/recorder.json.gz",
+      "sha256": "4211046e24f4295ad15c81c4baa6fdefcbf78f95328081a0cca44502e4e18275",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/burdened-hallucination-expiry/worker.json.gz",
+      "sha256": "dd9c401bda80e22737f723c59f9bd1ccda3a3f3b2cc9ad37e0532e1314f75eae",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/confusion-expiry/js-output.json.gz",
+      "sha256": "60066b0119c4a23d9a6148560229eb0ef4cc720375f90677dc94a65bd02964ee",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/confusion-expiry/recipe.session.json.gz",
+      "sha256": "221cf1111d05f29b3de3f477d216b6593466e2311358ec53664bc3139991d79f",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/confusion-expiry/recorded.session.json.gz",
+      "sha256": "273e3fa810b44baeaef7ee1435b53321f72fbae9beb205e196bd6929cfd43b3e",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/confusion-expiry/recorder.json.gz",
+      "sha256": "a22c540d8976d4d192495f3d7e548ba2089632659f0a42c66044c1cb5a97e23e",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/confusion-expiry/worker.json.gz",
+      "sha256": "b751b2acdf904efd00970f95ad96e7c18e85416ab0fb85b10c80d4e5951ab90d",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/displacement-expiry/js-output.json.gz",
+      "sha256": "2f70615d69777c3dae53e9d4ea40c9e1f9c40d7f95aaca3e5b259c17d05421ce",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/displacement-expiry/recipe.session.json.gz",
+      "sha256": "a6833c3c4248a8457328b0c382b2bad614e82e7bdc43c394b7032c52a53a67c0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/displacement-expiry/recorded.session.json.gz",
+      "sha256": "91bf4e2eafa298c1690bddedde163428e5fe108aaa8a6c9e019f242bd8b2fba7",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/displacement-expiry/recorder.json.gz",
+      "sha256": "3921b9e58642f3c33ab8fbb8cd6785890ca487c1fdd17f53a456b7face16ab77",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/displacement-expiry/worker.json.gz",
+      "sha256": "9b2bcd3d97e014af7610c4981869a890c21d9aaa5c548ccdc00537853bb392eb",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/glib-expiry/js-output.json.gz",
+      "sha256": "c86cb68fb1c45574df27ef60066121e571b79f1626919a5cc16824098bda68f5",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/glib-expiry/recipe.session.json.gz",
+      "sha256": "a71773902c55fb6166a0cc66f7224913333090821872d0c8bfe81061f9683622",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/glib-expiry/recorded.session.json.gz",
+      "sha256": "8a580dc48d6a7be706544264e9bbb47290a5fc1193c7918ffbe9eface5f79e83",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/glib-expiry/recorder.json.gz",
+      "sha256": "0ead299ea4a4f2a1b234cc6f13c164a9d42685e6228cdb4a274f7d2b89b8a79d",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/glib-expiry/worker.json.gz",
+      "sha256": "4f68f93ffead42fefaa342563fd27dbb2840f4789a559de3efe74b86ca382051",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/hallucination-expiry/js-output.json.gz",
+      "sha256": "43102f5815e1254a93c901c6125bd14b56ea0c7c903f841ef736071741e151f9",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/hallucination-expiry/recipe.session.json.gz",
+      "sha256": "d1f40d3078d386797a5ea18609b16d402d6f5885a86f241e7c5f0d52ee40c442",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/hallucination-expiry/recorded.session.json.gz",
+      "sha256": "7e29fb56c827dd3a8f00fa530d00cb375dab99726d46f162deb6c05431080075",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/hallucination-expiry/recorder.json.gz",
+      "sha256": "0045f56b71c65d12aa1d37fea4f3055d0a606a67c414fd688e434b103b24adae",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/hallucination-expiry/worker.json.gz",
+      "sha256": "8406a7155607a4c99df5133d0069dc06b8d9221d36d07e8b5ae360a491cb0cb8",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control/results.json",
+      "sha256": "e12f1d9107c2f1658be787e30e4a9d88c900d08ce260e884a99a1bf1e25d8f15",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/control-receipt.json",
+      "sha256": "6196ee2bd6dae9a39f0dff7e4e4ce5f2b7cfbcdf87e4068c8b13d19a36d10cdb",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/provenance.json",
+      "sha256": "2311eee072759f97c900c1956b7a12b2d539b1c0eafd5e39d5b28ff141e84361",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/run.mjs",
+      "sha256": "65076e780e7e6ce04558db6ece67a53d6c4ca3e6c3cd4a7ed5a1ddb0f7ebc403",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-1/js-output.json.gz",
+      "sha256": "5ce55af1a10c7604d71332d360d68c2419d207d1dcff0ea17c3378201e78df42",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-1/recipe.session.json.gz",
+      "sha256": "0305e9914ac3d43d110614f5794090bff698204453f8a56de0a7f410d601bf0b",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-1/recorded.session.json.gz",
+      "sha256": "7dc346476747c8455893d470a08e4117b58afda34c2ce751b0a4f019a6b5a790",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-1/recorder.json.gz",
+      "sha256": "4cb66b95220f7dfb84768c8c0c8a4c8fdeb69b0491b793185747b5f1a31b5834",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-1/worker.json.gz",
+      "sha256": "5e6f1750c9fa85f4aa9a6448c084640ab9b7419c02934b058bee50950303ad86",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-2/js-output.json.gz",
+      "sha256": "43e18ac31b9984bf00d17033904713240cbbc73df406573e84fbb7e375a81045",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-2/recipe.session.json.gz",
+      "sha256": "3e6d1ef614a51fe8751e454a43691c27735f73c3be53288d35ca1a357c4119df",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-2/recorded.session.json.gz",
+      "sha256": "76e92b794fed2e9dccc2f0bd3c98bc1e5f4abad5ce5d6f54c81d91a0a5ac7e07",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-2/recorder.json.gz",
+      "sha256": "1b2a9dec8388f155145dd88963cdced4e6bb685dd6955dbccdc43bcaa31c920f",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-1-2/worker.json.gz",
+      "sha256": "4b18843ab8864c5e09552249876354d06fbfc8fb8dfddbb8a7e0d523cd56f1fb",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-2-1/js-output.json.gz",
+      "sha256": "dc3fd9a65112b6e182a46f68bee3caed5de793b09bf5be9c41f692110c2b2e03",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-2-1/recipe.session.json.gz",
+      "sha256": "0b026ea3260d1e089032eedb68e6d8cde17cff23ac29ec171e2aace73d84d174",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-2-1/recorded.session.json.gz",
+      "sha256": "76061fc2851284abbdbc23d6bb96dbcc625df1b0eb750b546c7aaff6d996d01e",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-2-1/recorder.json.gz",
+      "sha256": "a7136ce102baf7f0ae749ed8ceb9eace2550e4d4277d37e3b5e0cd1f2bc6b0e4",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-deafness-2-1/worker.json.gz",
+      "sha256": "5e6f1750c9fa85f4aa9a6448c084640ab9b7419c02934b058bee50950303ad86",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-1/js-output.json.gz",
+      "sha256": "67974dfb8894cee03bb5cfd55236c7d9250a0b78363329e7aac31734d03f097e",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-1/recipe.session.json.gz",
+      "sha256": "c98c0d8bac87a6d8a15d8df3c9301d3d49d90eb6883d56aa65a5c1d8fb5a24ce",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-1/recorded.session.json.gz",
+      "sha256": "0e3c26aaabd01619e318dd9b37023118a74d3204bb4ee6e862931959c836f8b6",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-1/recorder.json.gz",
+      "sha256": "a2071b777b04c9223ed6176cb5af0b9ec5748279da62686ca3e45f16def105d1",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-1/worker.json.gz",
+      "sha256": "49091dac8b254308920a01629899a6501cab47dcd34a3a25c0a237328abbc2d0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-2/js-output.json.gz",
+      "sha256": "83fcc634ed1f275265add2cc490073aac8af8bd4ac4edd48be50945a02adcec2",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-2/recipe.session.json.gz",
+      "sha256": "4163f263ec224d6866d90e1a1562f5890c164d1de65e040a6d7bc6e7bc154bc2",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-2/recorded.session.json.gz",
+      "sha256": "f3f12e6182af2876bd7a1881aeddbf79f23f592dd38eda500c9f268d3764d46d",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-2/recorder.json.gz",
+      "sha256": "dcfa2a63fd94f68a34ef69dd5f1698b6e59f136842bad652dbe4d4faee55991e",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-1-2/worker.json.gz",
+      "sha256": "49091dac8b254308920a01629899a6501cab47dcd34a3a25c0a237328abbc2d0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-2-1/js-output.json.gz",
+      "sha256": "fef856e29ab2e39828bb51965f2ec06d94bcd558447505131de8d116d3481055",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-2-1/recipe.session.json.gz",
+      "sha256": "ce004b9cdd9cc892706880497216466d0a91972d58079ccf7dd2140503c22632",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-2-1/recorded.session.json.gz",
+      "sha256": "1fdaf3246d580b699ecc4d21c0f5a42edf4dd7852c5f6e5acde2177a379d8ea5",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-2-1/recorder.json.gz",
+      "sha256": "662c56abd308711d4efb3a6eb23c1d1280358522dc18e14d0ca2ee7c8d3991d4",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-blindness-displacement-2-1/worker.json.gz",
+      "sha256": "49091dac8b254308920a01629899a6501cab47dcd34a3a25c0a237328abbc2d0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-1/js-output.json.gz",
+      "sha256": "0d8ffa78ffde827d62001b406dc5893c3495dfdb37aedeca617e9fb850c23ab1",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-1/recipe.session.json.gz",
+      "sha256": "cb12bf18e5b230e4095ad25ecee33293f80cd8511bb1df2faaea0508af29fe23",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-1/recorded.session.json.gz",
+      "sha256": "642161d098568d3b228e7b6987aa7d6f87e8ef0462fe006bc3ce13253f7c6f37",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-1/recorder.json.gz",
+      "sha256": "377bef70e71f622a1e5969754da0d3e7765d63a7ea6e66dc4cd7056a095b2683",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-1/worker.json.gz",
+      "sha256": "5e6f1750c9fa85f4aa9a6448c084640ab9b7419c02934b058bee50950303ad86",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-2/js-output.json.gz",
+      "sha256": "2d5adb18604dd4cc9aaa6924eacf3f4365cdfba09d259ad56dd0670847737d06",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-2/recipe.session.json.gz",
+      "sha256": "702e7087e0ff65e88cac79fe293f4dc28715c6ad79bb4d3877f340786d8207f2",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-2/recorded.session.json.gz",
+      "sha256": "bdee558836b821c9daf8ac985ceeb517f9d854368a983dfc9bb96ec723153f2d",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-2/recorder.json.gz",
+      "sha256": "074f54551757cd1fd84c4e20e45414dfde2b5849a40caf668538ae8bbab62e44",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-1-2/worker.json.gz",
+      "sha256": "5e6f1750c9fa85f4aa9a6448c084640ab9b7419c02934b058bee50950303ad86",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-2-1/js-output.json.gz",
+      "sha256": "1c0cf13dabe6c8cbabed367f88b22eae205812cbfa223e5f0b2e2eae4aeef681",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-2-1/recipe.session.json.gz",
+      "sha256": "3459d3cfd2e1caf1c76c3e873751eec00a7ead320503d68fdd8eaff6ae8bc820",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-2-1/recorded.session.json.gz",
+      "sha256": "ad6c03a06c893fd361a0752bf7b90981934ba92f35e411bc315e850657af27ea",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-2-1/recorder.json.gz",
+      "sha256": "a2f458a84c91417edc672d4f92a30472395f0dddfa87bf0763ee539d175c051f",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-blindness-2-1/worker.json.gz",
+      "sha256": "5e6f1750c9fa85f4aa9a6448c084640ab9b7419c02934b058bee50950303ad86",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-1/js-output.json.gz",
+      "sha256": "c429e0a6f3992936475884a96b82c42f6b47925247d307b5553bd5e601b2577c",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-1/recipe.session.json.gz",
+      "sha256": "6db340d49001f78cf85932cfe68d6e82d6483c2f310b31f798b3513352550116",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-1/recorded.session.json.gz",
+      "sha256": "a66f95f6010a5af413cd103cc1748a2f3b0dc61610e02275cd4c8dd30968cfda",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-1/recorder.json.gz",
+      "sha256": "ec2dff53b6d54c135fdd411f8b3e67de4cc22ff0b7bc9ad41bbb0d09701101f6",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-1/worker.json.gz",
+      "sha256": "5e6f1750c9fa85f4aa9a6448c084640ab9b7419c02934b058bee50950303ad86",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-2/js-output.json.gz",
+      "sha256": "4cef9c0862d0b1473bd45378530826d866706e2e87d18b8ba7b320bc55ca9574",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-2/recipe.session.json.gz",
+      "sha256": "305f5d12a16dcbb2e61d7b3ed4aa46b4f692bf4b3e1a4834ddf681df9604823a",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-2/recorded.session.json.gz",
+      "sha256": "48be724a3751e0cad721b0afc80caa3e53e744e8a5767a6049c2afd11819a2c8",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-2/recorder.json.gz",
+      "sha256": "70989ec3c7745a38fccdf2b27ef3e552b697ad1ac283a0a32f1595ca646dfca3",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-1-2/worker.json.gz",
+      "sha256": "4b18843ab8864c5e09552249876354d06fbfc8fb8dfddbb8a7e0d523cd56f1fb",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-2-1/js-output.json.gz",
+      "sha256": "dc2cb50081a3d82dc9425c90f6f7adc210488636a9663f50261eb9da10b077e1",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-2-1/recipe.session.json.gz",
+      "sha256": "8294980f5d37e9c49039d26ac88637cd6e9b433e15ea21a481e87065ee986e85",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-2-1/recorded.session.json.gz",
+      "sha256": "e755590bf093af93743405c2f229a851b008b7cbe259b70b6b92f844b5e9a85e",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-2-1/recorder.json.gz",
+      "sha256": "560f77c6768cae5f4b0e4a71afde6f3aa2eb03cb86c366068415dd9605e7f196",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-deafness-2-1/worker.json.gz",
+      "sha256": "5e6f1750c9fa85f4aa9a6448c084640ab9b7419c02934b058bee50950303ad86",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-1/js-output.json.gz",
+      "sha256": "e791c647415639d7106eaa6a5cd8a8820d4b5dd01a9d5d1a0f0a20db3ffd630b",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-1/recipe.session.json.gz",
+      "sha256": "1035de18b2d1089a21f8dedffe1f7c8228346e56aa12052bd29187f8fa152e60",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-1/recorded.session.json.gz",
+      "sha256": "38c10081c6ab1804008b218d3e11910b02352be1a00800f279eb15a75c720680",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-1/recorder.json.gz",
+      "sha256": "32e0a3f6c157717f752e343b6ab296987c553e4449b05997c8250c6b56a83035",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-1/worker.json.gz",
+      "sha256": "49091dac8b254308920a01629899a6501cab47dcd34a3a25c0a237328abbc2d0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-2/js-output.json.gz",
+      "sha256": "1bff7cc847936278d0e29c9662b13ccace305b2221cdee7e19b994f86971f69c",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-2/recipe.session.json.gz",
+      "sha256": "4d55b856e7242b46c17a217be2bd03c074cb25caf5ec3645cebe3c46f9da405a",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-2/recorded.session.json.gz",
+      "sha256": "360778ddf96c5e7eac9b3d5b426a2b0f7b0467b42de55d056290f0b6f651762d",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-2/recorder.json.gz",
+      "sha256": "7b50704436bfeebf069d7489577c1546f24cd0b89f2757865b2c60525d913dd9",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-1-2/worker.json.gz",
+      "sha256": "49091dac8b254308920a01629899a6501cab47dcd34a3a25c0a237328abbc2d0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-2-1/js-output.json.gz",
+      "sha256": "dcd1b1655b00effe955709a205e419606880c5202bb6e4e54d84a0e217af73d3",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-2-1/recipe.session.json.gz",
+      "sha256": "ac97cd789fe9a5eab98a93a1db4301ebd98396019559614a968274de5696a05d",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-2-1/recorded.session.json.gz",
+      "sha256": "c7720a75119e2a2006671a4e68a948d0f86385615d6844f5f65851479806a9f0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-2-1/recorder.json.gz",
+      "sha256": "91c4924063609c891845e016c67d4952180a0a99c04d8a435b23509bee75eb31",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-confusion-displacement-2-1/worker.json.gz",
+      "sha256": "49091dac8b254308920a01629899a6501cab47dcd34a3a25c0a237328abbc2d0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-1/js-output.json.gz",
+      "sha256": "7ea65c679674a1419e941f1d9b8e12f5c14b12fdc5fba94166d4a7a855f59ff4",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-1/recipe.session.json.gz",
+      "sha256": "42e20773e33949115987212a10275b69c5ad0c19a4e1174f67f9cef186706859",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-1/recorded.session.json.gz",
+      "sha256": "10a40ff0e992ba012bc2c693e89813c529acb452ec347e0876d0adcb7986ccaf",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-1/recorder.json.gz",
+      "sha256": "59425107c3cdb07968398cc0d6e53f7a01fdc4f760cd12048cd22dd97f5fa249",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-1/worker.json.gz",
+      "sha256": "49091dac8b254308920a01629899a6501cab47dcd34a3a25c0a237328abbc2d0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-2/js-output.json.gz",
+      "sha256": "39672d6ea37300a7b8e451135217872e333bba2d0c962bc31511313229192439",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-2/recipe.session.json.gz",
+      "sha256": "d543f825cc199e872f4b91e6eac12025832f26bd835523bd780c8c97a26f25d3",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-2/recorded.session.json.gz",
+      "sha256": "62b284aae51a12a4d5f27dd71e672c206b4823ea3a75b4b125c8ac0fc573a32e",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-2/recorder.json.gz",
+      "sha256": "cbad0dd13eb92d50cf094d4a56921320d64e6b886f6abf8bc11823ccc10e68de",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-1-2/worker.json.gz",
+      "sha256": "49091dac8b254308920a01629899a6501cab47dcd34a3a25c0a237328abbc2d0",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-2-1/js-output.json.gz",
+      "sha256": "fa905756539d833b1e2b1608de915356a9cac315eec650424898b933a6b6bad7",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-2-1/recipe.session.json.gz",
+      "sha256": "96e084113c64e586c00abd7901f8769a327c6782cf57a5f1949a427387d12e69",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-2-1/recorded.session.json.gz",
+      "sha256": "7c24c138cbda0c29951bb4a1bb642687a94f2c07d274f4454e3c4d378bf2bcca",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-2-1/recorder.json.gz",
+      "sha256": "bb847c338c917efa807aa9cc694c366860a8c3ca375199a1a448135b77f5c12a",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/burdened-deafness-displacement-2-1/worker.json.gz",
+      "sha256": "2d8f37216ed323cde3e4ada312dfd4f7fddcf4507e4d8eaa305d601218dcf503",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target/results.json",
+      "sha256": "f691bb625acc5c12521a7da9a92ffd35e71701563421e689e5c565411600da80",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/burdened-expiry-interactions/target-receipt.json",
+      "sha256": "ec1b867fc5c60559da40005ec090997c13b643fc33b9c23a9f01eb70d1721791",
+      "role": "runner, receipt, documentation or raw C/JS execution evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "scripts/run-hero-timeouts.mjs",
+      "sha256": "4ebbc7ff3184f4f0226195d514bc19e4fb8312a5ba1d30348ccea629263032ea",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "scripts/fresh-matrix.mjs",
+      "sha256": "b999ecce6f88bd7c43a7cd438f76deee3eb7e000698ea7e99c63e0af6b2dc272",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "scripts/record-session.mjs",
+      "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "scripts/test-suites.mjs",
+      "sha256": "110962e7988009bc9ff4de42fb2ca150c6cf1c08bd65a4624780a864ccb94a20",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "js/timeout.js",
+      "sha256": "6b24f86cea548629eff8659cafb3e9c0da239dc7595ef230fb2733277f84b9d0",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "js/wizcmds.js",
+      "sha256": "1ae1874ae26e7c588057c0862345b33b035ddd0a25ee443296c4cf503fb5c5b2",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "js/allmain.js",
+      "sha256": "cb69f2ca68a242b0f92ba69c274f25218623e8bc396cafa67534856157f929a2",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "recipes/timeout.c/confusion-expiry.session.json",
+      "sha256": "d22551a79f43bc94f885c64a8300d94928e1c6daa37090212137ed12ff70689c",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "recipes/timeout.c/burdened-confusion-expiry.session.json",
+      "sha256": "338fbb72d5464a94922f885ea0fa023d73735155552db3612b56206c490580c7",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "recipes/timeout.c/hallucination-expiry.session.json",
+      "sha256": "48455096b8a7cd12a0c32656c7b8a60bef2bd62ecd2a1119c5ee0ae6a0d9bf29",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "recipes/timeout.c/burdened-hallucination-expiry.session.json",
+      "sha256": "7331ab9e798b3fd87b8d717d68bcbc402392875543c2043edb78d9a1e0a25b8c",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "recipes/timeout.c/glib-expiry.session.json",
+      "sha256": "4f6daffaba83640b794b7a954e901fb251ae4a529c4f16162d3b4d69b903fd4a",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    },
+    {
+      "path": "recipes/timeout.c/displacement-expiry.session.json",
+      "sha256": "bcaea9326d289caa3cd331e146ab69155c55df27c105286f0e16e35ae8302cff",
+      "role": "source, supported tooling or unchanged recipe dependency"
+    }
+  ]
+}

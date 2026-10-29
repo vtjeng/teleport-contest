@@ -1,0 +1,1118 @@
+[
+  {
+    "label": "burdened-confusion-blindness-1-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "A cloud of darkness falls upon you."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-confusion-blindness-1-2",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          2
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "A cloud of darkness falls upon you."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          1
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-confusion-blindness-2-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          2,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "A cloud of darkness falls upon you."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          1,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-confusion-deafness-1-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "You are unable to hear anything."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-confusion-deafness-1-2",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2613,
+          "js": 2613
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          2
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "You are unable to hear anything."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          1
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-confusion-deafness-2-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          2,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "You are unable to hear anything."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          1,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-confusion-displacement-1-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 1."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": "You feel that monsters no longer have difficulty pinpointing your location."
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-confusion-displacement-1-2",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          2
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 2."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          1
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-confusion-displacement-2-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          2,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 1."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          1,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-blindness-deafness-1-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "You are unable to hear anything."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-blindness-deafness-1-2",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2613,
+          "js": 2613
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          2
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "You are unable to hear anything."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          1
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-blindness-deafness-2-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 87,
+          "js": 87
+        },
+        "cursors": {
+          "c": 87,
+          "js": 87
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          2,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "You are unable to hear anything."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          1,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-blindness-displacement-1-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 1."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": "You feel that monsters no longer have difficulty pinpointing your location."
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-blindness-displacement-1-2",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          2
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 2."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          1
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-blindness-displacement-2-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          2,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 1."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          1,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-deafness-displacement-1-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 1."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": "You feel that monsters no longer have difficulty pinpointing your location."
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-deafness-displacement-1-2",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2615,
+          "js": 2615
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          1,
+          2
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 2."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          0,
+          1
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  },
+  {
+    "label": "burdened-deafness-displacement-2-1",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2613,
+          "js": 2613
+        },
+        "screens": {
+          "c": 88,
+          "js": 88
+        },
+        "cursors": {
+          "c": 88,
+          "js": 88
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "snapshots": [
+      {
+        "elapsed": 0,
+        "values": [
+          2,
+          1
+        ],
+        "movement": 18,
+        "capacity": 1,
+        "message": "Timeout for displaced set to 1."
+      },
+      {
+        "elapsed": 1,
+        "values": [
+          1,
+          0
+        ],
+        "movement": 15,
+        "capacity": 1,
+        "message": ""
+      },
+      {
+        "elapsed": 2,
+        "values": [
+          0,
+          0
+        ],
+        "movement": 12,
+        "capacity": 1,
+        "message": ""
+      }
+    ]
+  }
+]
