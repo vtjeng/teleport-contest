@@ -1,0 +1,595 @@
+{
+  "schemaVersion": 1,
+  "caseId": "carrying-capacity-public-justpicked-merge",
+  "shard": "carrying-capacity",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "ordinary-justpicked-merged-filter-parity",
+  "relatedCases": [
+    "carrying-capacity-arithmetic",
+    "carrying-capacity-inventory-totals"
+  ],
+  "provenance": {
+    "jsSha": "c74690be3e731e5f2ede057e781d7ceb2d79039a",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/do.c",
+      "symbol": "menu_drop",
+      "start_line": 981,
+      "end_line": 1107,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/do.js",
+      "symbol": "menu_drop",
+      "start_line": 1838,
+      "end_line": 1923,
+      "commit_sha": "c74690be3e731e5f2ede057e781d7ceb2d79039a"
+    },
+    {
+      "side": "C",
+      "path": "src/pickup.c",
+      "symbol": "allow_category",
+      "start_line": 523,
+      "end_line": 595,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": "allow_category",
+      "start_line": 2655,
+      "end_line": 2688,
+      "commit_sha": "c74690be3e731e5f2ede057e781d7ceb2d79039a"
+    },
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": "query_category",
+      "start_line": 822,
+      "end_line": 942,
+      "commit_sha": "c74690be3e731e5f2ede057e781d7ceb2d79039a"
+    }
+  ],
+  "hypothesis": "Just-picked merged-stack counts, multi-stack menus and automatic category filters match C, including the explicit coin-class override.",
+  "expectedBehavior": "Match source C public screens, cursors, RNG and ordinary inventory weight transitions.",
+  "observedBehavior": "Just-picked merged-stack counts, multi-stack menus and automatic category filters match C, including the explicit coin-class override.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Just-picked merged-stack counts, multi-stack menus and automatic category filters match C, including the explicit coin-class override.",
+    "limitations": [
+      "One seed/role and supported debug wishes; not natural acquisition coverage.",
+      "Only ordinary arrow/coin stacks are dropped. Food-class empty intersection selects no objects; no equipment changes. No equipment effects, consumption, rings, timers, migration or combat.",
+      "Recorder binary hash and source correspondence retained in sibling provenance; independent build attestation unavailable.",
+      "Observed public outputs and source trace, not C internal-state instrumentation."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "not_applicable",
+    "evidence": [
+      "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/observations.json",
+      "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged/recorded.session.json",
+      "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged/js-output.json"
+    ],
+    "reason": "Just-picked merged-stack counts, multi-stack menus and automatic category filters match C, including the explicit coin-class override."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Authorized ordinary pickup-history and category-selection audit; source exception reconciled.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "single-merged",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged.session.json",
+        "/tmp/capacity-justpicked-single-merged"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "js/hack.js",
+        "js/obj.js",
+        "js/invent.js",
+        "js/pickup.js",
+        "js/do.js",
+        "js/objnam.js",
+        "scripts/diff-fresh.mjs",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "js/do.js",
+        "frozen/screen-decode.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged-receipt.json"
+    },
+    {
+      "id": "multiple-merged",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged.session.json",
+        "/tmp/capacity-justpicked-multiple-merged"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "js/hack.js",
+        "js/obj.js",
+        "js/invent.js",
+        "js/pickup.js",
+        "js/do.js",
+        "js/objnam.js",
+        "scripts/diff-fresh.mjs",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "js/do.js",
+        "frozen/screen-decode.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged-receipt.json"
+    },
+    {
+      "id": "auto-empty-intersection",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection.session.json",
+        "/tmp/capacity-justpicked-auto-empty-intersection"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "js/hack.js",
+        "js/obj.js",
+        "js/invent.js",
+        "js/pickup.js",
+        "js/do.js",
+        "js/objnam.js",
+        "scripts/diff-fresh.mjs",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "js/do.js",
+        "frozen/screen-decode.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection-receipt.json"
+    },
+    {
+      "id": "auto-food-intersection",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection.session.json",
+        "/tmp/capacity-justpicked-auto-food-intersection"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "js/hack.js",
+        "js/obj.js",
+        "js/invent.js",
+        "js/pickup.js",
+        "js/do.js",
+        "js/objnam.js",
+        "scripts/diff-fresh.mjs",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "js/do.js",
+        "frozen/screen-decode.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection-receipt.json"
+    },
+    {
+      "id": "auto-picked-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control.session.json",
+        "/tmp/capacity-justpicked-auto-picked-control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "js/hack.js",
+        "js/obj.js",
+        "js/invent.js",
+        "js/pickup.js",
+        "js/do.js",
+        "js/objnam.js",
+        "scripts/diff-fresh.mjs",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "js/do.js",
+        "frozen/screen-decode.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/README.md",
+      "sha256": "c6322cf9ec700c5e110bebd04563e673a63f09552d4e3f89effe05a70b9c220d",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection/comparison.json",
+      "sha256": "36eefe97aea3256be2803026766dc119475873d528e10c0f7a0272d57c2ebded",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection/js-output.json",
+      "sha256": "a3c0728d162306483e6117b07873ebbf5dc584200243e04825180cd97383596b",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection/recipe.session.json",
+      "sha256": "1ea625792d251ee69ca9995cfd369a560b70329c5deaa776804b42bad451e5ac",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection/recorded.session.json",
+      "sha256": "da832bcfd1c1f8ed8322f1db6a13f7273318b3de1a9eece369e40e8ce7a39433",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection/recorder.json",
+      "sha256": "3bf2ddd2377392762430f3d0703c2bae78cb30ead824efa32b3b0ba502abfaf5",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection/worker.json",
+      "sha256": "e769a70995cdc5e961e5e3989a2ec9332710f1b5749d0fce69ac3855525cb321",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection-receipt.json",
+      "sha256": "518f457d2d18b27d6e61308a56179e70933d24bf368dd331a6b8f39ed07436eb",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-empty-intersection.session.json",
+      "sha256": "3e30fa1a56edacbbf45d8d95524f91e7b171c24d06a93df80c91fd72314b18b0",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection/comparison.json",
+      "sha256": "e43d6973ba6197a41b9cafd8c7eac8ea582869f89fb695bbacbc797bea9c0cb5",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection/js-output.json",
+      "sha256": "017d7f7d1a2e3cfbee0b094c536d95fa50cb974ca461f579b50256d9fefeebef",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection/recipe.session.json",
+      "sha256": "68d94bc8a1212c1dbac6af6e7453d8790b3c6696e7fe5ee69029124df9a7e861",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection/recorded.session.json",
+      "sha256": "935cf0002dbe2d86d8614520f2986a31c4cb1d75dc57434e2e6cc2be549144f4",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection/recorder.json",
+      "sha256": "6328bd17440e69ba279b6bc0585e97607d7d651e6abcc9059f456c517069c6ef",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection/worker.json",
+      "sha256": "25ce4d62c2e7d2d260dbce2304e99f7f08a5048d7b5c3e5628730330e22d5adc",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection-receipt.json",
+      "sha256": "958c53853718d66d7530f2ae96acda60810aae80e48733a09fff071682d36fae",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-food-intersection.session.json",
+      "sha256": "2e3fed613a7c004611d5ed4bedb96559222bb48d79e826f602d1f7ca0ae18981",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control/comparison.json",
+      "sha256": "0f869cfd5d54828079808543340a7a66fcaec9156717c129d6a7cd3d817d1b08",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control/js-output.json",
+      "sha256": "19d9be3ace47942bf86a0ba7119e3107f5afa017895416f550ffe687319c78b7",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control/recipe.session.json",
+      "sha256": "85991ba845a427db27ed28a7b2ebdbafdceb8f1fcdd2075d23238735c3f20c1e",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control/recorded.session.json",
+      "sha256": "2ce5be89a9faa47a96fc2869acf4f8aab78d4f5cde374472d20d7d9fada2b661",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control/recorder.json",
+      "sha256": "7ce9c3a98bc025d7d09ec2b29943f6ae13a400a968434f4f2e7b2b341bf82a2f",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control/worker.json",
+      "sha256": "8e93aad9d979980f038813e9ee451dd7decfe0fe22b69eee6e3cd86727c0b7ea",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control-receipt.json",
+      "sha256": "2f505f4032b301bc756960899a5c7ca55d2d24fc5a793c926cefb2b547c6f734",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/auto-picked-control.session.json",
+      "sha256": "753158768fe97e98a318d50eb97754662f482d8910579efe80ccd77a68b1f61a",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged/comparison.json",
+      "sha256": "10e60de8f2d6427a3c70e7a267ea78f990f73bc2900a8044f3ebd0927569f119",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged/js-output.json",
+      "sha256": "1e9267953a17771c80b561cd0fad661e896b1df8403635326c48cb80db08fd50",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged/recipe.session.json",
+      "sha256": "fb298d5cf4b4d6b7f19566c1b7c5d4eb12cb1f7b348b801175aade4243105d58",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged/recorded.session.json",
+      "sha256": "f9e0f71dbf50639b05a450b9ef3c5fe71694a33ec89912ac3589ed26bea1395b",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged/recorder.json",
+      "sha256": "086d60bc94cb9cbce190cec4861e6e23f16f78040cd6cdf0686cb3c24dd06abd",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged/worker.json",
+      "sha256": "728c31db2c568431926fb9ae9a6f7b3fffdd36a531948d27adb7d3fbc99ec273",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged-receipt.json",
+      "sha256": "e25cf9fff79b9dc54de8f6260de4c08b41775baa43850258565bcdfe3c33f25c",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/multiple-merged.session.json",
+      "sha256": "97bc18b224255fee0dc2af9f0c9742ef34925a5b7d40ef36dfbe1172bdbd05f8",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/observations.json",
+      "sha256": "da47c9b913807cbe27e4f0a9c4bc4202dd0d8b4b16e3d9d81783cd1477e47750",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/observe.mjs",
+      "sha256": "948efcd1ab4f1d33defee24f61c0635d600fc4ff20d4fe8318041a0604f03e7e",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged/comparison.json",
+      "sha256": "15aa05a250003e393b7e0fc0d6400d9bd3d4377e2ac937da77ab8e8aab3b7be7",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged/js-output.json",
+      "sha256": "a65859234dad02a04110fb1cb037ceb48d4ddca5d77e0d3a238fc99b931f20dd",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged/recipe.session.json",
+      "sha256": "cd44c7269fa03b86290ced0d3dbad352fecd7126e55c1e0ffbb19443195d073e",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged/recorded.session.json",
+      "sha256": "ef6d6f230989d03df6f643142c760c2e6162ddf86c59ad061df427ffd3466eab",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged/recorder.json",
+      "sha256": "e151ebbaf1665c8f92fcbc0c4239672df2ce6b5ae36bc1e41e72e02356da7e4e",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged/worker.json",
+      "sha256": "0e0ace3bd37fef47be7ee607aedd024a5d48e3616e20976ee2593532e41e9ccb",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged-receipt.json",
+      "sha256": "9f1412b021e7b5db85241a98dd1a3c4b9edf22d4c3f4390d804cdbe03a3e9950",
+      "role": "public evidence or diagnostic runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-justpicked-merge/single-merged.session.json",
+      "sha256": "68e26ef1e16c2f797a235ed68484fa3674d06a91764f0f6b6f5e5b4327889163",
+      "role": "public evidence or diagnostic runner"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "sha256": "18c2b27f70fdcf50bf24418f74295a696e63b1b6e284a77736a5fd829770ddd9",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+      "sha256": "6cc731d45628fa2f55c82c04a40ad98619229ff0978299686eb3f9dbd076840d",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/do.js",
+      "sha256": "7e87c976d9b1dfa1f92c784ab8cb9be64334a06cac7b311831ba30893ab40c0a",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/hack.js",
+      "sha256": "767f9ecb11191fb25eae5d71b36c1fb1442a913237a81964cc48ee571abec6a8",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/invent.js",
+      "sha256": "ed6e7464bd7ebb5449597a3ffb7f3f4783030965f0f7047aac29f0ac0e1f912e",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/obj.js",
+      "sha256": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/objnam.js",
+      "sha256": "bc6caee201e5afa469fcce9fd49bea825ff7e6288d279fd52fb04944b14fb143",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/pickup.js",
+      "sha256": "2ddf4e126f0d05ef795dbd8d880c9df62ff53d5cc6d5b6f089e884733e05665e",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/include/objects.h",
+      "sha256": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/do.c",
+      "sha256": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/hack.c",
+      "sha256": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/invent.c",
+      "sha256": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkobj.c",
+      "sha256": "49c2de3bcf1125be55f11c17ffc4f614956f5288a5edfb56b2248b7fcaa3b488",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/pickup.c",
+      "sha256": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "scripts/diff-fresh-worker.mjs",
+      "sha256": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "scripts/record-session.mjs",
+      "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "scripts/scoring-workspace.mjs",
+      "sha256": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "role": "pinned source or shared input"
+    }
+  ]
+}
