@@ -1,0 +1,90 @@
+[
+  {
+    "name": "partial-gold",
+    "passed": false,
+    "lengths": {
+      "rng": {
+        "c": 2449,
+        "js": 2314
+      },
+      "screens": {
+        "c": 68,
+        "js": 60
+      },
+      "cursors": {
+        "c": 68,
+        "js": 60
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "cFinalGold": 49,
+    "firstMismatch": {
+      "index": 60,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 60,
+        "key": ","
+      },
+      "kind": "js-missing"
+    }
+  },
+  {
+    "name": "all-gold",
+    "passed": false,
+    "lengths": {
+      "rng": {
+        "c": 2396,
+        "js": 2314
+      },
+      "screens": {
+        "c": 68,
+        "js": 60
+      },
+      "cursors": {
+        "c": 68,
+        "js": 60
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "cFinalGold": 50,
+    "firstMismatch": {
+      "index": 60,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 60,
+        "key": ","
+      },
+      "kind": "js-missing"
+    }
+  },
+  {
+    "name": "room-control",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2396,
+        "js": 2396
+      },
+      "screens": {
+        "c": 68,
+        "js": 68
+      },
+      "cursors": {
+        "c": 68,
+        "js": 68
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "cFinalGold": 50,
+    "firstMismatch": null
+  }
+]

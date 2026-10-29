@@ -1,0 +1,250 @@
+[
+  {
+    "name": "coins-first",
+    "carriedGold": 50,
+    "carriedArrows": 2758,
+    "inventoryTotal": 2849,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2498,
+        "js": 2498
+      },
+      "screens": {
+        "c": 164,
+        "js": 164
+      },
+      "cursors": {
+        "c": 164,
+        "js": 164
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "arrows-first",
+    "carriedGold": 49,
+    "carriedArrows": 2759,
+    "inventoryTotal": 2849,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2498,
+        "js": 2498
+      },
+      "screens": {
+        "c": 164,
+        "js": 164
+      },
+      "cursors": {
+        "c": 164,
+        "js": 164
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "auto-all",
+    "carriedGold": 50,
+    "carriedArrows": 2758,
+    "inventoryTotal": 2849,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2498,
+        "js": 2498
+      },
+      "screens": {
+        "c": 162,
+        "js": 162
+      },
+      "cursors": {
+        "c": 162,
+        "js": 162
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "explicit-count",
+    "carriedGold": 49,
+    "carriedArrows": 2759,
+    "inventoryTotal": 2849,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2498,
+        "js": 2498
+      },
+      "screens": {
+        "c": 166,
+        "js": 166
+      },
+      "cursors": {
+        "c": 166,
+        "js": 166
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "rejected-split",
+    "carriedGold": 49,
+    "carriedArrows": 2759,
+    "inventoryTotal": 2849,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2510,
+        "js": 2510
+      },
+      "screens": {
+        "c": 182,
+        "js": 182
+      },
+      "cursors": {
+        "c": 182,
+        "js": 182
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "accepted-split",
+    "carriedGold": 50,
+    "carriedArrows": 2758,
+    "inventoryTotal": 2849,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2510,
+        "js": 2510
+      },
+      "screens": {
+        "c": 182,
+        "js": 182
+      },
+      "cursors": {
+        "c": 182,
+        "js": 182
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "auto-coins",
+    "carriedGold": 50,
+    "carriedArrows": 0,
+    "inventoryTotal": 91,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2432,
+        "js": 2432
+      },
+      "screens": {
+        "c": 162,
+        "js": 162
+      },
+      "cursors": {
+        "c": 162,
+        "js": 162
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "auto-weapons",
+    "carriedGold": 1,
+    "carriedArrows": 2759,
+    "inventoryTotal": 2849,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2487,
+        "js": 2487
+      },
+      "screens": {
+        "c": 162,
+        "js": 162
+      },
+      "cursors": {
+        "c": 162,
+        "js": 162
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]

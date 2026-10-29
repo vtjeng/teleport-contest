@@ -1,0 +1,100 @@
+[
+  {
+    "name": "one-arrow",
+    "derivedWeights": [
+      951,
+      950,
+      951
+    ],
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2326,
+        "js": 2326
+      },
+      "screens": {
+        "c": 56,
+        "js": 56
+      },
+      "cursors": {
+        "c": 56,
+        "js": 56
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "two-arrows",
+    "derivedWeights": [
+      951,
+      949,
+      951
+    ],
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2326,
+        "js": 2326
+      },
+      "screens": {
+        "c": 56,
+        "js": 56
+      },
+      "cursors": {
+        "c": 56,
+        "js": 56
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "combination",
+    "derivedWeights": [
+      951,
+      950
+    ],
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2311,
+        "js": 2311
+      },
+      "screens": {
+        "c": 48,
+        "js": 48
+      },
+      "cursors": {
+        "c": 48,
+        "js": 48
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]

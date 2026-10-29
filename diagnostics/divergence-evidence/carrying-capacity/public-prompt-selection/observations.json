@@ -1,0 +1,50 @@
+[
+  {
+    "name": "decline-next",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2291,
+        "js": 2291
+      },
+      "screens": {
+        "c": 41,
+        "js": 41
+      },
+      "cursors": {
+        "c": 41,
+        "js": 41
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "darts": 800,
+    "total": 890
+  },
+  {
+    "name": "quit-control",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2291,
+        "js": 2291
+      },
+      "screens": {
+        "c": 41,
+        "js": 41
+      },
+      "cursors": {
+        "c": 41,
+        "js": 41
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "darts": 0,
+    "total": 90
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "mainSha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "jsTree": "d2c66290d9cf4ecccb9b33cb25d69197579346b2",
+  "frozenTree": "f94db314c0834c9ce4eb9c471f6e13753ea89348",
+  "scripts": {
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc"
+  }
+}

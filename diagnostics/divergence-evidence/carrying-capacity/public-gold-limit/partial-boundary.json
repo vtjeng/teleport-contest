@@ -1,0 +1,11 @@
+{
+  "boundaries": [
+    {
+      "name": "UnsupportedHeroCommandBoundaryError",
+      "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+      "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift\n    at failClosedCommand (file:///tmp/teleport-score-eIqBrt/js/cmd.js:3105:19)\n    at async rhack (file:///tmp/teleport-score-eIqBrt/js/cmd.js:6279:25)\n    at async moveloop_core (file:///tmp/teleport-score-eIqBrt/js/allmain.js:1971:9)\n    at async runSegment (file:///tmp/teleport-score-eIqBrt/js/jsmain.js:799:13)\n    at async file:///workspace/teleport-contest/diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/boundary.mjs:11:13"
+    }
+  ],
+  "screens": 60,
+  "rng": 2314
+}

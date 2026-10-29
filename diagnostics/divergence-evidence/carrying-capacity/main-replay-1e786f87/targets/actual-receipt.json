@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "commandId": "targets",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+    "/tmp/capacity-main-1e786f87",
+    "targets",
+    "/tmp/capacity-main-1e786f87-targets"
+  ],
+  "cwd": ".",
+  "jsSha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:29:52.359Z",
+  "exitCode": 0,
+  "elapsedSeconds": 3.151,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "oracle": "retained executed C recordings; no new C run"
+  },
+  "runnerSha256": "321ed2e5766e22164e9b7cd8d99d8ba8e3130ccdb347ecef9c687841d51c9cc0",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs": "321ed2e5766e22164e9b7cd8d99d8ba8e3130ccdb347ecef9c687841d51c9cc0",
+    "diagnostics/divergence-evidence/carrying-capacity/public-upper-boundaries/admission-limit/recorded.session.json": "a86401e7a06183ecf6faabec98e25fe086b3e069a93c8d10d6ca7106f0362321",
+    "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/partial-gold/recorded.session.json": "a382d5f5fa7178ee5d6544248e685cdda7fe1da8a50ea755f50e0bf23f238594",
+    "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/all-gold/recorded.session.json": "4748d09ea76414fc1ee9f643a13465030f8a82469e6a208be6ca2a8b028d7e5d",
+    "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/insert/recorded.session.json": "c03301d9b3c9861fecb11d7fe30dea5beac8247e45d10614b0f1aa478a166923"
+  },
+  "outputs": [
+    "/tmp/capacity-main-1e786f87-targets/source.json",
+    "/tmp/capacity-main-1e786f87-targets/results.json",
+    "/tmp/capacity-main-1e786f87-targets/public-upper-boundaries--admission-limit-js.json",
+    "/tmp/capacity-main-1e786f87-targets/public-upper-boundaries--admission-limit-comparison.json",
+    "/tmp/capacity-main-1e786f87-targets/public-gold-limit--partial-gold-js.json",
+    "/tmp/capacity-main-1e786f87-targets/public-gold-limit--partial-gold-comparison.json",
+    "/tmp/capacity-main-1e786f87-targets/public-gold-limit--all-gold-js.json",
+    "/tmp/capacity-main-1e786f87-targets/public-gold-limit--all-gold-comparison.json",
+    "/tmp/capacity-main-1e786f87-targets/public-sack-menu--insert-js.json",
+    "/tmp/capacity-main-1e786f87-targets/public-sack-menu--insert-comparison.json"
+  ],
+  "source": {
+    "mainSha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "jsTree": "d2c66290d9cf4ecccb9b33cb25d69197579346b2",
+    "frozenTree": "f94db314c0834c9ce4eb9c471f6e13753ea89348",
+    "scripts": {
+      "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc"
+    }
+  }
+}

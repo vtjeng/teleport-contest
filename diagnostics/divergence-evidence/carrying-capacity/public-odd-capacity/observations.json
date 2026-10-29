@@ -1,0 +1,112 @@
+[
+  {
+    "name": "odd-target",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2371,
+        "js": 2371
+      },
+      "screens": {
+        "c": 39,
+        "js": 39
+      },
+      "cursors": {
+        "c": 39,
+        "js": 39
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "capacity": 725,
+    "observations": [
+      {
+        "step": 16,
+        "arrows": 837,
+        "total": 1089,
+        "status": "Stressed"
+      },
+      {
+        "step": 22,
+        "arrows": 836,
+        "total": 1088,
+        "status": "Stressed"
+      },
+      {
+        "step": 28,
+        "arrows": 835,
+        "total": 1087,
+        "status": "Burdened"
+      },
+      {
+        "step": 33,
+        "arrows": 836,
+        "total": 1088,
+        "status": "Stressed"
+      },
+      {
+        "step": 37,
+        "arrows": 837,
+        "total": 1089,
+        "status": "Stressed"
+      }
+    ]
+  },
+  {
+    "name": "odd-control",
+    "passed": true,
+    "lengths": {
+      "rng": {
+        "c": 2350,
+        "js": 2350
+      },
+      "screens": {
+        "c": 39,
+        "js": 39
+      },
+      "cursors": {
+        "c": 39,
+        "js": 39
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "capacity": 725,
+    "observations": [
+      {
+        "step": 16,
+        "arrows": 400,
+        "total": 652,
+        "status": null
+      },
+      {
+        "step": 22,
+        "arrows": 399,
+        "total": 651,
+        "status": null
+      },
+      {
+        "step": 28,
+        "arrows": 398,
+        "total": 650,
+        "status": null
+      },
+      {
+        "step": 33,
+        "arrows": 399,
+        "total": 651,
+        "status": null
+      },
+      {
+        "step": 37,
+        "arrows": 400,
+        "total": 652,
+        "status": null
+      }
+    ]
+  }
+]

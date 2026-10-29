@@ -1,0 +1,170 @@
+[
+  {
+    "name": "stressed",
+    "qualified": true,
+    "passed": true,
+    "observations": [
+      {
+        "step": 17,
+        "arrows": 1336,
+        "total": 1426,
+        "cStatus": "Stressed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Stressed"
+      },
+      {
+        "step": 23,
+        "arrows": 1335,
+        "total": 1425,
+        "cStatus": "Stressed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Stressed"
+      },
+      {
+        "step": 29,
+        "arrows": 1334,
+        "total": 1424,
+        "cStatus": "Burdened",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Burdened"
+      },
+      {
+        "step": 34,
+        "arrows": 1335,
+        "total": 1425,
+        "cStatus": "Stressed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Stressed"
+      },
+      {
+        "step": 38,
+        "arrows": 1336,
+        "total": 1426,
+        "cStatus": "Stressed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Stressed"
+      }
+    ]
+  },
+  {
+    "name": "strained",
+    "qualified": true,
+    "passed": true,
+    "observations": [
+      {
+        "step": 17,
+        "arrows": 1811,
+        "total": 1901,
+        "cStatus": "Strained",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Strained"
+      },
+      {
+        "step": 23,
+        "arrows": 1810,
+        "total": 1900,
+        "cStatus": "Strained",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Strained"
+      },
+      {
+        "step": 29,
+        "arrows": 1809,
+        "total": 1899,
+        "cStatus": "Stressed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Stressed"
+      },
+      {
+        "step": 34,
+        "arrows": 1810,
+        "total": 1900,
+        "cStatus": "Strained",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Strained"
+      },
+      {
+        "step": 38,
+        "arrows": 1811,
+        "total": 1901,
+        "cStatus": "Strained",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Strained"
+      }
+    ]
+  },
+  {
+    "name": "overtaxed",
+    "qualified": true,
+    "passed": true,
+    "observations": [
+      {
+        "step": 17,
+        "arrows": 2286,
+        "total": 2376,
+        "cStatus": "Overtaxed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overtaxed"
+      },
+      {
+        "step": 23,
+        "arrows": 2285,
+        "total": 2375,
+        "cStatus": "Overtaxed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overtaxed"
+      },
+      {
+        "step": 29,
+        "arrows": 2284,
+        "total": 2374,
+        "cStatus": "Strained",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Strained"
+      },
+      {
+        "step": 34,
+        "arrows": 2285,
+        "total": 2375,
+        "cStatus": "Overtaxed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overtaxed"
+      },
+      {
+        "step": 38,
+        "arrows": 2286,
+        "total": 2376,
+        "cStatus": "Overtaxed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overtaxed"
+      }
+    ]
+  },
+  {
+    "name": "admission-limit",
+    "qualified": true,
+    "passed": false,
+    "observations": [
+      {
+        "step": 17,
+        "arrows": 2760,
+        "total": 2850,
+        "cStatus": "Overloaded",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overloaded"
+      },
+      {
+        "step": 23,
+        "arrows": 2759,
+        "total": 2849,
+        "cStatus": "Overtaxed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overloaded"
+      },
+      {
+        "step": 29,
+        "arrows": 2758,
+        "total": 2848,
+        "cStatus": "Overtaxed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overtaxed"
+      },
+      {
+        "step": 34,
+        "arrows": 2759,
+        "total": 2849,
+        "cStatus": "Overtaxed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overtaxed"
+      },
+      {
+        "step": 38,
+        "arrows": 2759,
+        "total": 2849,
+        "cStatus": "Overtaxed",
+        "jsStatus": "Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1 Overtaxed"
+      }
+    ]
+  }
+]

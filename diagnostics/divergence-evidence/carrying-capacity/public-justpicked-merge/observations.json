@@ -1,0 +1,162 @@
+[
+  {
+    "name": "single-merged",
+    "finalArrows": 860,
+    "finalGold": 49,
+    "derivedWeight": 950,
+    "burdened": false,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2300,
+        "js": 2300
+      },
+      "screens": {
+        "c": 51,
+        "js": 51
+      },
+      "cursors": {
+        "c": 51,
+        "js": 51
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "multiple-merged",
+    "finalArrows": 0,
+    "finalGold": 49,
+    "derivedWeight": 90,
+    "burdened": false,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2368,
+        "js": 2368
+      },
+      "screens": {
+        "c": 67,
+        "js": 67
+      },
+      "cursors": {
+        "c": 67,
+        "js": 67
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "auto-empty-intersection",
+    "finalArrows": 861,
+    "finalGold": 0,
+    "derivedWeight": 951,
+    "burdened": true,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2299,
+        "js": 2299
+      },
+      "screens": {
+        "c": 53,
+        "js": 53
+      },
+      "cursors": {
+        "c": 53,
+        "js": 53
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "auto-food-intersection",
+    "finalArrows": 861,
+    "finalGold": 49,
+    "derivedWeight": 951,
+    "burdened": true,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2292,
+        "js": 2292
+      },
+      "screens": {
+        "c": 53,
+        "js": 53
+      },
+      "cursors": {
+        "c": 53,
+        "js": 53
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "auto-picked-control",
+    "finalArrows": 0,
+    "finalGold": 49,
+    "derivedWeight": 90,
+    "burdened": false,
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2299,
+        "js": 2299
+      },
+      "screens": {
+        "c": 52,
+        "js": 52
+      },
+      "cursors": {
+        "c": 52,
+        "js": 52
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]

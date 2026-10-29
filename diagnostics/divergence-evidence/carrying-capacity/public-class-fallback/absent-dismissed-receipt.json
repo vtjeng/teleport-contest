@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "commandId": "absent-dismissed",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed.session.json",
+    "/tmp/capacity-class-fallback-absent-dismissed"
+  ],
+  "cwd": ".",
+  "jsSha": "2f2a5a3e48271b44ce133c4a55759547efd50898",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:34:24.830256+00:00",
+  "exitCode": 1,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "recorder": "existing patched binary; sibling provenance hash"
+  },
+  "runnerSha256": "18c2b27f70fdcf50bf24418f74295a696e63b1b6e284a77736a5fd829770ddd9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed.session.json": "f3727d162537a7f8360e5dc0ba223e40e863d8aea17f3de0f1aa4443f524bcd0",
+    "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs": "18c2b27f70fdcf50bf24418f74295a696e63b1b6e284a77736a5fd829770ddd9",
+    "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json": "6cc731d45628fa2f55c82c04a40ad98619229ff0978299686eb3f9dbd076840d",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "js/do.js": "7e87c976d9b1dfa1f92c784ab8cb9be64334a06cac7b311831ba30893ab40c0a",
+    "js/hack.js": "767f9ecb11191fb25eae5d71b36c1fb1442a913237a81964cc48ee571abec6a8",
+    "js/invent.js": "ed6e7464bd7ebb5449597a3ffb7f3f4783030965f0f7047aac29f0ac0e1f912e",
+    "js/obj.js": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+    "js/objnam.js": "bc6caee201e5afa469fcce9fd49bea825ff7e6288d279fd52fb04944b14fb143",
+    "js/pickup.js": "2ddf4e126f0d05ef795dbd8d880c9df62ff53d5cc6d5b6f089e884733e05665e",
+    "js/topl.js": "ca75cff44de2cdafcb9176c544a5933a00f75d5049f474a80a12932f46659e96",
+    "nethack-c/upstream/include/objects.h": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+    "nethack-c/upstream/src/do.c": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f",
+    "nethack-c/upstream/src/hack.c": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+    "nethack-c/upstream/src/invent.c": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+    "nethack-c/upstream/src/mkobj.c": "49c2de3bcf1125be55f11c17ffc4f614956f5288a5edfb56b2248b7fcaa3b488",
+    "nethack-c/upstream/src/objnam.c": "445d0b8697ceeb93f1249599b16caffb101a832ee425d76f9eb3fd65088f1dd3",
+    "nethack-c/upstream/src/pickup.c": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+    "nethack-c/upstream/win/tty/topl.c": "7abe4855c351b90048261752bab6bcc329f6fa236da1cca0cc48e362b6ff5d6d",
+    "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed/comparison.json",
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed/recorder.json",
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed/worker.json",
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed/recorded.session.json",
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed/js-output.json"
+  ],
+  "conversion": "Normalized saved completed live recorder/worker/comparison; copied raw outputs unchanged, not rerun.",
+  "elapsedSeconds": null
+}

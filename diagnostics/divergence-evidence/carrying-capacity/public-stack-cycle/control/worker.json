@@ -1,0 +1,1 @@
+{"status":0,"signal":null,"stdout":"__FRESH_DIFF_RESULT__\n{\"passed\":true,\"error\":null,\"lengths\":{\"rng\":{\"c\":2299,\"js\":2299},\"screens\":{\"c\":39,\"js\":39},\"cursors\":{\"c\":39,\"js\":39},\"animFrames\":{\"c\":0,\"js\":0}},\"rngMismatch\":null,\"screenMismatch\":null,\"cursorMismatch\":null,\"animMismatch\":null,\"segmentMismatch\":null}\n","stderr":""}

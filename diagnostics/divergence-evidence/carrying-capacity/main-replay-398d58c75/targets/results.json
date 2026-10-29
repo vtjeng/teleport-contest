@@ -1,0 +1,627 @@
+[
+  {
+    "id": "public-traditional-count--decline",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-traditional-count/decline/recorded.session.json",
+    "recordingSha256": "20f8adaf9c467fb4b8797170b52a8dc8225059adae7208f749818cd7cd4b280f",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2340,
+        "js": 2340
+      },
+      "screens": {
+        "c": 121,
+        "js": 121
+      },
+      "cursors": {
+        "c": 121,
+        "js": 121
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 105,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 105,
+        "key": "8"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 44,
+      "cCell": {
+        "ch": "#",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 105,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 105,
+        "key": "8"
+      },
+      "cCursor": [
+        46,
+        0,
+        1
+      ],
+      "jsCursor": [
+        44,
+        0,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-traditional-count--accept",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-traditional-count/accept/recorded.session.json",
+    "recordingSha256": "a0e6045a8e3fe79c4c805d0a33c2462bfc7707a066e9b0b70b16f11cf671d566",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2361,
+        "js": 2361
+      },
+      "screens": {
+        "c": 121,
+        "js": 121
+      },
+      "cursors": {
+        "c": 121,
+        "js": 121
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 105,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 105,
+        "key": "8"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 44,
+      "cCell": {
+        "ch": "#",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 105,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 105,
+        "key": "8"
+      },
+      "cCursor": [
+        46,
+        0,
+        1
+      ],
+      "jsCursor": [
+        44,
+        0,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-traditional-count--explicit-prefix",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-traditional-count/explicit-prefix/recorded.session.json",
+    "recordingSha256": "033889492611f9ac80aefd5f09ec242ee140792bd1a3d139f0fa8ef132bc4033",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2340,
+        "js": 2340
+      },
+      "screens": {
+        "c": 122,
+        "js": 122
+      },
+      "cursors": {
+        "c": 122,
+        "js": 122
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 105,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 105,
+        "key": "#"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 44,
+      "cCell": {
+        "ch": "#",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 105,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 105,
+        "key": "#"
+      },
+      "cCursor": [
+        45,
+        0,
+        1
+      ],
+      "jsCursor": [
+        44,
+        0,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-menu-request--weapons-only",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/recorded.session.json",
+    "recordingSha256": "b759779c9e9a738e903011cc3725c7a74a80c54ca1fb64718cde2056b2c651ac",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2360,
+        "js": 2360
+      },
+      "screens": {
+        "c": 151,
+        "js": 151
+      },
+      "cursors": {
+        "c": 151,
+        "js": 151
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 132,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 132,
+        "key": "\n"
+      },
+      "kind": "ch",
+      "row": 4,
+      "column": 41,
+      "cCell": {
+        "ch": "(",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "C",
+        "color": 8,
+        "attr": 1,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 132,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 132,
+        "key": "\n"
+      },
+      "cCursor": [
+        47,
+        4,
+        1
+      ],
+      "jsCursor": [
+        47,
+        6,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-menu-request--coins-only",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only/recorded.session.json",
+    "recordingSha256": "f345a4660633383417b08bcb62704fe6876c5c57e10a6daa69acee6f72a394ef",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2359,
+        "js": 2359
+      },
+      "screens": {
+        "c": 148,
+        "js": 148
+      },
+      "cursors": {
+        "c": 148,
+        "js": 148
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 132,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 132,
+        "key": "\n"
+      },
+      "kind": "ch",
+      "row": 2,
+      "column": 41,
+      "cCell": {
+        "ch": "C",
+        "color": 8,
+        "attr": 1,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "W",
+        "color": 8,
+        "attr": 1,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 132,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 132,
+        "key": "\n"
+      },
+      "cCursor": [
+        47,
+        4,
+        1
+      ],
+      "jsCursor": [
+        47,
+        6,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-look-restart--look-then-class",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-look-restart/look-then-class/recorded.session.json",
+    "recordingSha256": "993550fe778620ff0d2134de99b72774cbbee47acfae3735e31c8b7be03c66d8",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2351,
+        "js": 2351
+      },
+      "screens": {
+        "c": 134,
+        "js": 134
+      },
+      "cursors": {
+        "c": 134,
+        "js": 134
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 133,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 133,
+        "key": "\u001b"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "W",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "T",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 133,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 133,
+        "key": "\u001b"
+      },
+      "cCursor": [
+        57,
+        0,
+        1
+      ],
+      "jsCursor": [
+        44,
+        0,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-class-fallback--empty",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/empty/recorded.session.json",
+    "recordingSha256": "8cc9ff1ebc371b383ce344171a8479d984aff7d9db6d37de52d5294fdfa66873",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2351,
+        "js": 2351
+      },
+      "screens": {
+        "c": 131,
+        "js": 131
+      },
+      "cursors": {
+        "c": 131,
+        "js": 131
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 130,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 130,
+        "key": "\n"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "T",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "W",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 130,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 130,
+        "key": "\n"
+      },
+      "cCursor": [
+        46,
+        0,
+        1
+      ],
+      "jsCursor": [
+        57,
+        0,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-class-fallback--absent-dismissed",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed/recorded.session.json",
+    "recordingSha256": "d0e4b06c9de043b5cd990d511a07713cbd131907447c50111023120238f0295b",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2351,
+        "js": 2351
+      },
+      "screens": {
+        "c": 133,
+        "js": 133
+      },
+      "cursors": {
+        "c": 133,
+        "js": 133
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": {
+      "index": 132,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 132,
+        "key": "\u001b"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "T",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "W",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 132,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 132,
+        "key": "\u001b"
+      },
+      "cCursor": [
+        46,
+        0,
+        1
+      ],
+      "jsCursor": [
+        57,
+        0,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-large-menu-count--unsafe-prefix",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-large-menu-count/unsafe-prefix/recorded.session.json",
+    "recordingSha256": "9fb04f47ba25c82cbc303017e2fdf35f0aa824a9168e4367fee241b6af99b5f7",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2382,
+        "js": 2395
+      },
+      "screens": {
+        "c": 121,
+        "js": 121
+      },
+      "cursors": {
+        "c": 121,
+        "js": 121
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": {
+      "index": 2382,
+      "cCaller": null,
+      "jsEntry": "rnd(2)=2"
+    },
+    "screenMismatch": {
+      "index": 120,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 120,
+        "key": "\n"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "Y",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "f",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 120,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 120,
+        "key": "\n"
+      },
+      "cCursor": [
+        78,
+        0,
+        1
+      ],
+      "jsCursor": [
+        44,
+        4,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 642919,
+      "datetime": "20320612101500",
+      "nethackrc": "OPTIONS=name:StackAudit,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,playmode:debug,!wizweight,pickup_burden:l\n",
+      "moves": "i\u001b\u0017861 arrows\n\u001b\u001749 gold pieces\n\u001bi\u001bd1e\u001b\u001b,\u001b\u001bDAeP\n\u001b\u001b\u001bi\u001b"
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "caseId": "carrying-capacity-main-replay-1e786f87",
+  "shard": "carrying-capacity",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "carrying-capacity-public-upper-boundaries",
+    "carrying-capacity-public-gold-limit",
+    "carrying-capacity-public-sack-menu"
+  ],
+  "provenance": {
+    "jsSha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": "encumber_msg",
+      "start_line": 329,
+      "end_line": 360,
+      "commit_sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c"
+    },
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": "query_objlist",
+      "start_line": 740,
+      "end_line": 767,
+      "commit_sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c"
+    },
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": "preflightPickupObjects",
+      "start_line": 1008,
+      "end_line": 1070,
+      "commit_sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c"
+    }
+  ],
+  "hypothesis": "Main repairs causes1-3 restore the four target replays while preserving three controls.",
+  "expectedBehavior": "All seven official-overlay Main JS replays match retained executed C exactly.",
+  "observedBehavior": "Four former failing targets and three controls match screens/cursors/RNG/animation, both group commands exit0.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Exact-Main JS replay against saved executed C public recordings, not fresh C runs.",
+    "limitations": [
+      "Seven targeted replays, not broad validation or CI acceptance.",
+      "Retained C binary/source provenance unchanged; independent build attestation unavailable.",
+      "Clean detached Main checkout is an explicit prerequisite; runner verifies SHA and git trees.",
+      "All prior scope exclusions remain; no new fixture or semantic cause counted."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "not_applicable",
+    "evidence": [
+      "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/results.json",
+      "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/results.json"
+    ],
+    "reason": "Saved public-input C outputs match exact repaired Main JS on targets and controls."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Independent verification of Main repairs; historical evidence preserved.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "targets",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+        "/tmp/capacity-main-1e786f87",
+        "targets",
+        "/tmp/capacity-main-1e786f87-targets"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-upper-boundaries/admission-limit/recorded.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/partial-gold/recorded.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/all-gold/recorded.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/insert/recorded.session.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/receipt.json"
+    },
+    {
+      "id": "controls",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+        "/tmp/capacity-main-1e786f87",
+        "controls",
+        "/tmp/capacity-main-1e786f87-controls"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-upper-boundaries/overtaxed/recorded.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/room-control/recorded.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/no-weight-control/recorded.session.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/README.md",
+      "sha256": "5bd943652624f6857b32e99e0554a909600ea45fc58b2c3c97f5dbe22fb5f476",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/actual-receipt.json",
+      "sha256": "0c18411652ac80d2ec36b810dbab3f5f46d1976bb0295c72197f947634c3e758",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-gold-limit--room-control-comparison.json",
+      "sha256": "710c73f842420f4ec9d82454bf29d8c5bd19ae889c06f3127c88125dd4f9609b",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-gold-limit--room-control-js.json",
+      "sha256": "a52171df24de8db73f69f09d7b25643b2ba0ef2c5fb53641e05d356cef3f92fb",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-sack-menu--no-weight-control-comparison.json",
+      "sha256": "6f9ab2a9f2d5099678199076f03c80b204548de3f3ba7f4c41725e5cca25fb6a",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-sack-menu--no-weight-control-js.json",
+      "sha256": "17417586ddb8601e960fc587441b94d6971bd6088039ab633e6bb99ee93504be",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-upper-boundaries--overtaxed-comparison.json",
+      "sha256": "0b80fc8d5970c3377825f00bacabb1e36acb910823574a205357255a34f66f7b",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/public-upper-boundaries--overtaxed-js.json",
+      "sha256": "25e51f0039e310fd5f4353c10bc951df3da9183ccfd72dc51c8eebad3f692526",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/receipt.json",
+      "sha256": "8f914ffe791ff44f008bc0b937c3c7a8f3d573a3ce3e0d4c68f8482a98b64048",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/results.json",
+      "sha256": "4615b77131963ca4c58f706c4ad09da4eb22452ccdb4fb8eed4c04b62ae5a8cd",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/controls/source.json",
+      "sha256": "080d6fd3ed92f77a7bd5c7a6f82a5d803dc47c381e21020a4d931d8bd104c820",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/replay.mjs",
+      "sha256": "321ed2e5766e22164e9b7cd8d99d8ba8e3130ccdb347ecef9c687841d51c9cc0",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/actual-receipt.json",
+      "sha256": "8418510f8af3452d77b416f473c131ce91483aedf87b9afa71c21eea75966465",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/public-gold-limit--all-gold-comparison.json",
+      "sha256": "710c73f842420f4ec9d82454bf29d8c5bd19ae889c06f3127c88125dd4f9609b",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/public-gold-limit--all-gold-js.json",
+      "sha256": "183b9826f64facec9c5c5da6e49ecbbfbb59571d128489fcca48a9dc61b63789",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/public-gold-limit--partial-gold-comparison.json",
+      "sha256": "493859ac0a84f388dead24c84f4be87fd716df3c2928ddce289744b04db1f85a",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/public-gold-limit--partial-gold-js.json",
+      "sha256": "2202849c33fd551ba09ad7543fe4790067d9a2e4730b90e04d314548ea008bae",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/public-sack-menu--insert-comparison.json",
+      "sha256": "6f9ab2a9f2d5099678199076f03c80b204548de3f3ba7f4c41725e5cca25fb6a",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/public-sack-menu--insert-js.json",
+      "sha256": "bb26fdd766734b6f90b18844da3991a89870bc6cd918f27581a7e0e56df16714",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/public-upper-boundaries--admission-limit-comparison.json",
+      "sha256": "c48ddb6cfc7aca579054cb52f24a78ee967674f2f02ff76bd1f3a6ba713c9198",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/public-upper-boundaries--admission-limit-js.json",
+      "sha256": "df82b1821844d339fce5714be07a2fc2183a39d1ed26f9dc3e1565498c71c765",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/receipt.json",
+      "sha256": "76d2572ea9c8e5cf9e669bf9d823d2d141878956cac4d7616a61a1bb6d382554",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/results.json",
+      "sha256": "c866662ec0dcf0ba00d3030dfaa138f5916b18b70733318cc4dc1934e675f1e5",
+      "role": "Main replay evidence or runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/main-replay-1e786f87/targets/source.json",
+      "sha256": "080d6fd3ed92f77a7bd5c7a6f82a5d803dc47c381e21020a4d931d8bd104c820",
+      "role": "Main replay evidence or runner"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/all-gold/recorded.session.json",
+      "sha256": "4748d09ea76414fc1ee9f643a13465030f8a82469e6a208be6ca2a8b028d7e5d",
+      "role": "retained executed C oracle input"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/partial-gold/recorded.session.json",
+      "sha256": "a382d5f5fa7178ee5d6544248e685cdda7fe1da8a50ea755f50e0bf23f238594",
+      "role": "retained executed C oracle input"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-gold-limit/room-control/recorded.session.json",
+      "sha256": "811ba1ff3af35ae5d988b8ec70f22e040b5c56192bfc73ba8b1aab1f64624628",
+      "role": "retained executed C oracle input"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/insert/recorded.session.json",
+      "sha256": "c03301d9b3c9861fecb11d7fe30dea5beac8247e45d10614b0f1aa478a166923",
+      "role": "retained executed C oracle input"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-sack-menu/no-weight-control/recorded.session.json",
+      "sha256": "8225854a0a69810f4a4a77dac6e8a9d28361ef10b4a4de05837be259d28c53e7",
+      "role": "retained executed C oracle input"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-upper-boundaries/admission-limit/recorded.session.json",
+      "sha256": "a86401e7a06183ecf6faabec98e25fe086b3e069a93c8d10d6ca7106f0362321",
+      "role": "retained executed C oracle input"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-upper-boundaries/overtaxed/recorded.session.json",
+      "sha256": "76e4093fcfdc9543e99839f7f071ab916a18dbe3f1a4bc716fe901f7a57ad647",
+      "role": "retained executed C oracle input"
+    }
+  ]
+}

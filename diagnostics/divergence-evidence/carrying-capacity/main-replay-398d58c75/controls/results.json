@@ -1,0 +1,152 @@
+[
+  {
+    "id": "public-traditional-count--yes-no-control",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-traditional-count/yes-no-control/recorded.session.json",
+    "recordingSha256": "210d0dd1897f8facd37f52243533a0843581735c7cccfb38bda60c06dfaee3af",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2339,
+        "js": 2339
+      },
+      "screens": {
+        "c": 118,
+        "js": 118
+      },
+      "cursors": {
+        "c": 118,
+        "js": 118
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-menu-request--all-types",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types/recorded.session.json",
+    "recordingSha256": "8b6535b2a642f2603d22e6ed79fd5b482f4736965e2ebc5ff9efba5052da5a04",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2360,
+        "js": 2360
+      },
+      "screens": {
+        "c": 150,
+        "js": 150
+      },
+      "cursors": {
+        "c": 150,
+        "js": 150
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-look-restart--look-only",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-look-restart/look-only/recorded.session.json",
+    "recordingSha256": "1efda991f88b5e12d3bc8ce3043fb19cf481ef660951bb4b19e09b44d9db7366",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2351,
+        "js": 2351
+      },
+      "screens": {
+        "c": 133,
+        "js": 133
+      },
+      "cursors": {
+        "c": 133,
+        "js": 133
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-class-fallback--explicit-all",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/explicit-all/recorded.session.json",
+    "recordingSha256": "d277362c6a185d37beeb5a9265b713a744cac8325d1d8cde4db7867fbc11f139",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2351,
+        "js": 2351
+      },
+      "screens": {
+        "c": 132,
+        "js": 132
+      },
+      "cursors": {
+        "c": 132,
+        "js": 132
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "id": "public-large-menu-count--safe-control",
+    "recording": "diagnostics/divergence-evidence/carrying-capacity/public-large-menu-count/safe-control/recorded.session.json",
+    "recordingSha256": "0c8394491d826987f4c7a48df75b2fe0e96ee2ef3f91756852f1a5a3da38a082",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2382,
+        "js": 2382
+      },
+      "screens": {
+        "c": 120,
+        "js": 120
+      },
+      "cursors": {
+        "c": 120,
+        "js": 120
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]

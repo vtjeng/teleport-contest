@@ -1,0 +1,548 @@
+{
+  "schemaVersion": 1,
+  "caseId": "carrying-capacity-public-menu-request",
+  "shard": "carrying-capacity",
+  "status": "candidate",
+  "readiness": "review_ready",
+  "rootCause": "traditional-menu-request-loses-category-filter",
+  "relatedCases": [
+    "carrying-capacity-arithmetic",
+    "carrying-capacity-inventory-totals"
+  ],
+  "provenance": {
+    "jsSha": "2a287e2d22996790ed0800998622e9c6f3c14854",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/pickup.c",
+      "symbol": "query_classes",
+      "start_line": 140,
+      "end_line": 261,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": "query_classes",
+      "start_line": 2737,
+      "end_line": 2843,
+      "commit_sha": "2a287e2d22996790ed0800998622e9c6f3c14854"
+    },
+    {
+      "side": "C",
+      "path": "src/pickup.c",
+      "symbol": "menu_loot",
+      "start_line": 3265,
+      "end_line": 3393,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": "menu_loot",
+      "start_line": 3460,
+      "end_line": 3588,
+      "commit_sha": "2a287e2d22996790ed0800998622e9c6f3c14854"
+    },
+    {
+      "side": "C",
+      "path": "src/pickup.c",
+      "symbol": "traditional_loot",
+      "start_line": 3228,
+      "end_line": 3261,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/pickup.js",
+      "symbol": "traditional_loot",
+      "start_line": 3408,
+      "end_line": 3447,
+      "commit_sha": "2a287e2d22996790ed0800998622e9c6f3c14854"
+    }
+  ],
+  "hypothesis": "Traditional menu-on-request loses an explicit object class filter in JS.",
+  "expectedBehavior": "Show only requested object classes as C does.",
+  "observedBehavior": "Two filtered targets show extra classes in JS; unfiltered control matches. RNG and selected transfers match.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Supported traditional #loot menu-request filter handoff; executed C/official-overlay JS comparison.",
+    "limitations": [
+      "One seed/role and supported debug wishes; not natural acquisition coverage.",
+      "Only ordinary nonmagical sack and declared arrows/coins. No equipment effects, consumption, rings, timers, migration or combat.",
+      "Recorder binary hash and source correspondence retained in sibling provenance; independent build attestation unavailable.",
+      "Observed public outputs and source trace, not C internal-state instrumentation."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "reason": "Ordinary traditional filtered menu request; debug wishes and wizweight only establish observable setup. Non-debug variant not separately recorded.",
+    "evidence": [
+      "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/observations.json",
+      "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/recorded.session.json",
+      "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/js-output.json"
+    ]
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Authorized ongoing ordinary inventory weight audit; incidental public naming mismatch recorded as a separate cause.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "weapons-only",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only.session.json",
+        "/tmp/capacity-menu-request-weapons-only"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "frozen/screen-decode.mjs",
+        "js/do.js",
+        "js/hack.js",
+        "js/invent.js",
+        "js/obj.js",
+        "js/objnam.js",
+        "js/pickup.js",
+        "js/topl.js",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/objnam.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/win/tty/topl.c",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/diff-fresh.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only-receipt.json"
+    },
+    {
+      "id": "weapons-only-post-fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only.session.json",
+        "/tmp/capacity-menu-request-weapons-only-post-fix-new"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "frozen/screen-decode.mjs",
+        "js/do.js",
+        "js/hack.js",
+        "js/invent.js",
+        "js/obj.js",
+        "js/objnam.js",
+        "js/pickup.js",
+        "js/topl.js",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/objnam.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/win/tty/topl.c",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/diff-fresh.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    },
+    {
+      "id": "coins-only",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only.session.json",
+        "/tmp/capacity-menu-request-coins-only"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "frozen/screen-decode.mjs",
+        "js/do.js",
+        "js/hack.js",
+        "js/invent.js",
+        "js/obj.js",
+        "js/objnam.js",
+        "js/pickup.js",
+        "js/topl.js",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/objnam.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/win/tty/topl.c",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/diff-fresh.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only-receipt.json"
+    },
+    {
+      "id": "coins-only-post-fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only.session.json",
+        "/tmp/capacity-menu-request-coins-only-post-fix-new"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "frozen/screen-decode.mjs",
+        "js/do.js",
+        "js/hack.js",
+        "js/invent.js",
+        "js/obj.js",
+        "js/objnam.js",
+        "js/pickup.js",
+        "js/topl.js",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/objnam.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/win/tty/topl.c",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/diff-fresh.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    },
+    {
+      "id": "all-types",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types.session.json",
+        "/tmp/capacity-menu-request-all-types"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types.session.json",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+        "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+        "frozen/screen-decode.mjs",
+        "js/do.js",
+        "js/hack.js",
+        "js/invent.js",
+        "js/obj.js",
+        "js/objnam.js",
+        "js/pickup.js",
+        "js/topl.js",
+        "nethack-c/upstream/include/objects.h",
+        "nethack-c/upstream/src/do.c",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/invent.c",
+        "nethack-c/upstream/src/mkobj.c",
+        "nethack-c/upstream/src/objnam.c",
+        "nethack-c/upstream/src/pickup.c",
+        "nethack-c/upstream/win/tty/topl.c",
+        "scripts/diff-fresh-worker.mjs",
+        "scripts/diff-fresh.mjs",
+        "scripts/record-session.mjs",
+        "scripts/scoring-workspace.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/README.md",
+      "sha256": "9f09cdf5bb094e1785db101643ee32b37311e782362ba9389081deb08fd7bc19",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types/comparison.json",
+      "sha256": "5f45a626f92648ce18437b0a0ec29f956e0b70690e896d4729aa6dc39977cdd7",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types/js-output.json",
+      "sha256": "1cab1a6fe31cd625559cc7517d3bf11aa1fc8c516e48c17da63752b00729159a",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types/recipe.session.json",
+      "sha256": "8ea6b7a4a58271fbf308c341fa450caad62067867b201e7362a93326c02be78f",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types/recorded.session.json",
+      "sha256": "8b6535b2a642f2603d22e6ed79fd5b482f4736965e2ebc5ff9efba5052da5a04",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types/recorder.json",
+      "sha256": "53eff1e0aeb45935157e01bbdc6df94895041cf197e3750328732a602c6d394f",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types/worker.json",
+      "sha256": "1e14eb0aee234e667052374dccf6dbb5c1c84b1c8ac78e87187a1afcbb9c0192",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types-receipt.json",
+      "sha256": "304691d094f50c1a6020d821989a5c8780d37f922e9fd88295f5c6afcac4d4be",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types.session.json",
+      "sha256": "3fda5d906c5b81d61122710bf613be0ff3da00a153372025cf046a69cd25af40",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only/comparison.json",
+      "sha256": "ee24fdbcb0c134aad7f5bc4c24bba1aeaa8c1722af8444f467e73af5d642309e",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only/js-output.json",
+      "sha256": "ffbea40768201dc3be0e531bba55057629f514892e225de1e5bac0ab2f1eaa6b",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only/recipe.session.json",
+      "sha256": "b0c42c594f70ef2f05c4b23284a4e99339522f3b3195dcf4866639d6b136f14e",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only/recorded.session.json",
+      "sha256": "f345a4660633383417b08bcb62704fe6876c5c57e10a6daa69acee6f72a394ef",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only/recorder.json",
+      "sha256": "88b892ed9a5c4fdf5d882b47f642a141b03785037e62776f02ec9d6184a26eb7",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only/worker.json",
+      "sha256": "26174d8bc9dbbd978266c8f9e5a0a112b2ecc870f17947c6d61c1f43cdfaac66",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only-receipt.json",
+      "sha256": "7dcc0ab8f5fa9e788559f43c8f10fe2bc1276ca572b9c6232ec35ba23d98d49f",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only.session.json",
+      "sha256": "23709f86cac163615c09ac3924879cdf1052299e0150a731cc6bbb7eb54b32d2",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/observations.json",
+      "sha256": "4bce154d2f2f60d232b2dee8038bdef4d4ebc8c7a6a2af3a21123713b1afe223",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/observe.mjs",
+      "sha256": "845d46cce52438ad8ba18a9b7fcd434e0cc35d26bd780274be6509b7bb4ea9d1",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/comparison.json",
+      "sha256": "bd7fe437b8db2fc052621828af5d70d0ec3e211802ae3ab2413bbc2bfef31423",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/js-output.json",
+      "sha256": "6a38dca8f06d8e09df5ab5d789880d6151df6f67b292ac6e692384108758edec",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/recipe.session.json",
+      "sha256": "87e1b376505c923d64927e38c96a64e76149a557952cf2811e51273567ed6a96",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/recorded.session.json",
+      "sha256": "b759779c9e9a738e903011cc3725c7a74a80c54ca1fb64718cde2056b2c651ac",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/recorder.json",
+      "sha256": "bab6fa1d418579340a5ab943b85b0a880365bd34b82f7bad14085a69d47deeed",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/worker.json",
+      "sha256": "01cdc6baf5dc7c500480db721618b8fdfb9689c09b5a5e050f52be2b6f98771b",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only-receipt.json",
+      "sha256": "99cf65af6a03c5db77e3b1cbd23fe987505f13772475671718adbaec69a83b95",
+      "role": "public diagnostic evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only.session.json",
+      "sha256": "21380f4527f828b1ce8497c5de5df637f13722b9c6bad7b3965d75cfaf51e3f8",
+      "role": "public diagnostic evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/probe.mjs",
+      "sha256": "18c2b27f70fdcf50bf24418f74295a696e63b1b6e284a77736a5fd829770ddd9",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/public-stack-cycle/provenance.json",
+      "sha256": "6cc731d45628fa2f55c82c04a40ad98619229ff0978299686eb3f9dbd076840d",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/do.js",
+      "sha256": "7e87c976d9b1dfa1f92c784ab8cb9be64334a06cac7b311831ba30893ab40c0a",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/hack.js",
+      "sha256": "767f9ecb11191fb25eae5d71b36c1fb1442a913237a81964cc48ee571abec6a8",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/invent.js",
+      "sha256": "ed6e7464bd7ebb5449597a3ffb7f3f4783030965f0f7047aac29f0ac0e1f912e",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/obj.js",
+      "sha256": "5a3724ab4d4ff8bfc178cc48a2190a2c299c3ca6acfb063d9b5096da4c715dc5",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/objnam.js",
+      "sha256": "bc6caee201e5afa469fcce9fd49bea825ff7e6288d279fd52fb04944b14fb143",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/pickup.js",
+      "sha256": "2ddf4e126f0d05ef795dbd8d880c9df62ff53d5cc6d5b6f089e884733e05665e",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "js/topl.js",
+      "sha256": "ca75cff44de2cdafcb9176c544a5933a00f75d5049f474a80a12932f46659e96",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/include/objects.h",
+      "sha256": "eb573ca76f7afe35d6420b958333fbb3c44911415df4e0034e6367456e2913cb",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/do.c",
+      "sha256": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/hack.c",
+      "sha256": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/invent.c",
+      "sha256": "0b93d6ce1abb5b63ed7ea07c26a57e1016c6cef0fc2ef0e4016e6622054524b5",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkobj.c",
+      "sha256": "49c2de3bcf1125be55f11c17ffc4f614956f5288a5edfb56b2248b7fcaa3b488",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/objnam.c",
+      "sha256": "445d0b8697ceeb93f1249599b16caffb101a832ee425d76f9eb3fd65088f1dd3",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/src/pickup.c",
+      "sha256": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "nethack-c/upstream/win/tty/topl.c",
+      "sha256": "7abe4855c351b90048261752bab6bcc329f6fa236da1cca0cc48e362b6ff5d6d",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "scripts/diff-fresh-worker.mjs",
+      "sha256": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "scripts/record-session.mjs",
+      "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "role": "pinned source or shared input"
+    },
+    {
+      "path": "scripts/scoring-workspace.mjs",
+      "sha256": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "role": "pinned source or shared input"
+    }
+  ]
+}

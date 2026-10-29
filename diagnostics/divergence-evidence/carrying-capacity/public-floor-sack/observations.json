@@ -1,0 +1,58 @@
+[
+  {
+    "name": "partial-cycle",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2488,
+        "js": 2488
+      },
+      "screens": {
+        "c": 132,
+        "js": 132
+      },
+      "cursors": {
+        "c": 132,
+        "js": 132
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "all-fit-cycle",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2487,
+        "js": 2487
+      },
+      "screens": {
+        "c": 132,
+        "js": 132
+      },
+      "cursors": {
+        "c": 132,
+        "js": 132
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]
