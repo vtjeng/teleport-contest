@@ -1058,6 +1058,23 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
   .recent-repairs li { grid-template-columns:minmax(0,1fr); gap:2px; }
   .trial-tiles,.trial-details { grid-template-columns:minmax(0,1fr); }
 }
+/* Evidence cards stack on phones; long pins and source keys never widen the page. */
+#workflowEvidence { overflow-wrap:anywhere; }
+.workflow-lanes,.workflow-queue { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr)); gap:10px; margin:14px 0; }
+.workflow-card { border:1px solid var(--border); border-radius:8px; padding:14px; min-width:0; }
+.workflow-card p { margin:6px 0; font-size:13px; }
+.workflow-card small { color:var(--ink-secondary); }
+.workflow-status { color:var(--integration-blue); text-transform:capitalize; }
+.workflow-number { display:block; font-size:25px; font-variant-numeric:tabular-nums; }
+.workflow-heading { margin-top:30px; }
+#workflowEvidence details { margin:14px 0; font-size:13px; }
+#workflowEvidence summary { cursor:pointer; padding:8px 0; min-height:36px; }
+#workflowEvidence a { color:var(--score-link); text-decoration:underline; }
+.workflow-controls select { font:inherit; background:var(--surface-card); color:var(--ink-primary); padding:10px; border:1px solid var(--border); border-radius:5px; }
+.workflow-outcomes { width:100%; border-collapse:collapse; font-size:13px; }
+.workflow-outcomes th,.workflow-outcomes td { text-align:right; padding:8px 4px; border-bottom:1px solid var(--border); }
+.workflow-outcomes th:first-child { text-align:left; font-weight:400; }
+.workflow-rate { border-left:3px solid var(--integration-blue); padding:10px 14px; font-size:13px; line-height:1.6; }
 </style>
 
 <div class="header">
@@ -1075,9 +1092,11 @@ summary:focus-visible { outline:2px solid var(--integration-blue); outline-offse
 </section>
 <section class="section" aria-labelledby="scoreSummaryTitle">
   <h2 class="section-title" id="scoreSummaryTitle">Latest complete scores</h2>
+  <!--REPORTING_CONTEXT_PLACEHOLDER-->
   <div class="stats" id="stats"></div>
   <p class="compact-note">Last complete cohort stays visible during validation. Source-backed repairs can leave these scores unchanged.</p>
 </section>
+<section class="section" id="workflowEvidence" aria-label="Historical sessions, handoffs and discovery outcomes"></section>
 <section class="section" aria-labelledby="recentRepairsTitle">
   <div class="section-toolbar"><h2 class="section-title" id="recentRepairsTitle">Recent accepted repairs</h2><span class="compact-note" id="repairCount"></span></div>
   <ol class="recent-repairs" id="recentRepairs"></ol>
@@ -1216,6 +1235,9 @@ const createDashboardTime = /*LOCAL_TIME_PLACEHOLDER*/null;
 const localTime = createDashboardTime();
 document.getElementById('displayTimezone').textContent = 'Times in ' + localTime.zone;
 const DATA = /*DATA_PLACEHOLDER*/null;
+const WORKFLOW_DATA = /*WORKFLOW_DATA_PLACEHOLDER*/null;
+const workflowSummary = /*WORKFLOW_MODEL_PLACEHOLDER*/null;
+const renderWorkflow = /*WORKFLOW_VIEW_PLACEHOLDER*/null;
 const TRIAL_DATA = /*TRIAL_PLACEHOLDER*/null;
 const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
 const singleWorkerActivity = /*SINGLE_WORKER_PLACEHOLDER*/null;
@@ -1266,7 +1288,8 @@ const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
       + rate(baseline.withoutCarryInRate) + ' excluding carry-in. Observational.');
     syntheticMonitorView = view;
     singleWorkerSnapshot = singleWorkerActivity(view);
-    text('trialHeadline', 'Single Standard engineer · investigation may overlap CI; edits and publication stay sequential.');
+    text('trialHeadline', 'Historical records; ordinary writers are held for the baseline experiment.');
+    renderWorkflow(document, WORKFLOW_DATA, view, workflowSummary, DATA.challenges?.publication);
     const accepted = singleWorkerSnapshot.tasks.filter(task => task.publishedAt)
       .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
     text('repairCount', accepted.length + ' registered · latest ' + Math.min(5, accepted.length) + ' shown');

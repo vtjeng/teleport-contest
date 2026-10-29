@@ -1,0 +1,4047 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/inventory.json",
+      "sha256": "8f553f8eef09c233b50fbba8efb280215d6f5ee2ba665c304324c230206f7b55",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/inventory.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/message-final-receipt-4222eaf89.json",
+      "sha256": "d2eac904276846431dc7d89658e9b8a071a031570695afed9a44995b25fcd72d",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/message-final-receipt-4222eaf89.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/accepted-routing.json",
+      "sha256": "5eb650fab4b57c73a752ec82c3e3a107b34746c1dd1fef6274aa90960808d603",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/accepted-routing.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/case.json",
+      "sha256": "06d83e0d6321e0013d3f2d564cfb2f670bc6b99257774270db5faffb7936aa7b",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/projection/projection.json",
+      "sha256": "aca8b9fab93643afdd7625e4645773fecdd8c0259057a86e83466405a174a64a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/decisions.json",
+      "sha256": "82caee7223564dfc7a6f31267dd8eae99090ce4d898aa9012a398f893c66ae76",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/case.json",
+      "sha256": "11dd57a6f08b4fada1b0f361ea1ac93fc97b09c110fae5b6d06cff4eb0ad4302",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/projection/projection.json",
+      "sha256": "a6de7e28fdaa630c6307dc4b561425e526660df15ec8acb1a4cb8b8d22d0155c",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/decisions.json",
+      "sha256": "3e892b79023eb8ce3192da2017a7d57b4fedb149aafd24153eca3d8a8921b387",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/case.json",
+      "sha256": "56ee2b13ac13dd452261f677498a443b1c8a08c69ee7666ffa21637e19d5a294",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/projection/projection.json",
+      "sha256": "8d7a1edae976e660f6116ff50a428d8953d4026e76b7e9116bae9fbf6f53252a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/decisions.json",
+      "sha256": "4fa0f70568c10e07e0dd209f5c7753caa2dca5c92a6567d319a41742e0e860b4",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/case.json",
+      "sha256": "845d1f8b39e03d975668495791682d922482271ae69ea6d67d6a0de687a9dbea",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/projection/projection.json",
+      "sha256": "f5b076d5a63a537346c8c2333702367ed50ee70f74a12aad6db78d61abae450a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/decisions.json",
+      "sha256": "67d65ab992dff26be7a4b3f3a5f0cfa803a30efa6b82d1879891ba0582872077",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/case.json",
+      "sha256": "f8a8a5079cc14ab80a56f145b626af95a6ac1468f8d6fe3cf41f69a5998bd7ce",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/projection/projection.json",
+      "sha256": "038d2c3d33adaf7c518d243eb912945d8e4ae43133be5989f35aca4af1155e17",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/decisions.json",
+      "sha256": "5b58f88413f17455a49ccf58bc3fd4b5f93617b651d67491f2f7273233510b4d",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/case.json",
+      "sha256": "b9c488771b77f213f3ec5a8d672887b0f0ac4cd56aa8e805521ecca78daeee53",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/projection/projection.json",
+      "sha256": "3a058b47952f6a10d261524dfae8065c6b26df6058272a9e265e743b1c69043a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/decisions.json",
+      "sha256": "ecaf4c5a68bca4b18c78ba15090e2658aec2bc290b6792b45428601f4949c876",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/case.json",
+      "sha256": "c3b8e3f90a9945e64138c03003fcfd8b810ffc906c9c5c85d7b59333a52d207d",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/projection/projection.json",
+      "sha256": "8b23cfa099a26cca65727c5ada597d476851e8530b957c2bd62fd2ae7a0bb752",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/decisions.json",
+      "sha256": "11c05f7ba8e89395d3360625118d5c29224f3b6f77f5be43219d4adf1ec4791f",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/case.json",
+      "sha256": "c864538341f8ab5d6d947046cdf33825fe4429554cdc117e7be8cdc8724aea31",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/projection/projection.json",
+      "sha256": "f4ce43613f05fd3babe11d116ae5fbd88330f551c0c25570b61eb87293b1eacc",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/decisions.json",
+      "sha256": "51b6122cf4dad5959166b68f7ba8fc65ed83c7186a758732131a79d2f58d667b",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/case.json",
+      "sha256": "8895ae022c16fee90a9a06ffc66109d0ac00d8820e024cf7503b10a48bf75397",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/projection/projection.json",
+      "sha256": "0e018387868399c31eddca4502f8e0d95d960c4efc1b51fb06a56cc8b09b97e0",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/decisions.json",
+      "sha256": "c19834565f078bbc59e9110d94534b35d54de03704ae60b40d9a6033dc440d91",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/case.json",
+      "sha256": "1f4aedf6b989089563e64ca0f0c6fe3ef79dfcc9543e46de45c1cd43dc755a97",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/projection/projection.json",
+      "sha256": "2be3dea0a46cfe9ee71c28cdf9468ce1085ab80e424ae8d004097f78f827eb1f",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/decisions.json",
+      "sha256": "c63d9ca069ad4bd36ed7e37fcb56cfc1189bfbb6e603a2dbc9d3cbd526872dec",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/case.json",
+      "sha256": "633a5ba8b6f393453bb347f815c3ef673baeda961e8d088bcc9662ddbc5f309b",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/projection/projection.json",
+      "sha256": "569538662b8ced42e2c64856c4522b74c34e4773333e5b18478d598322ce4cd6",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/decisions.json",
+      "sha256": "cbce97f814745b2f754e5ccdbe6b8f5163a9b75afc26df6e8421ecdc0a86c75f",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/case.json",
+      "sha256": "dcd906fb803e3fea319201b69ddbc9a25d273f63ed8cabd65b6bfb765ac3fc1a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/projection/projection.json",
+      "sha256": "32c8edcee09622f47c655a6c800609eb9b7f7d3ef761f82aee3f80b1c7f69cea",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/decisions.json",
+      "sha256": "84b9cc2b37670c436fafeb04db6b98f66b77f62424c724ddef50141b5826e665",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/case.json",
+      "sha256": "afa13a3de60a796de2954c4559c331bcf9fc9001cf805d1e37e0cb19e01fd011",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/projection/projection.json",
+      "sha256": "ce19f78d397ca2567c79871625d805620886750624034df0d42ce9135c90f6f9",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/decisions.json",
+      "sha256": "55775e5bc26a91513a65345ce8ff8a67bec1a94199ae08ad0992aaf622e4a7da",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-callback-20261028/case.json",
+      "sha256": "7f8f40edff0cc0e7151417f1a4f619a940c984b0ac70dab6c0850d13ae0fd2e4",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-callback-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-callback-20261028/projection/projection.json",
+      "sha256": "ca312e9589f355b6ceb4a6d274ba4f1f677e699c6b88cd5d2f58c24be2d0498e",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-callback-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-callback-20261028/decisions.json",
+      "sha256": "9036919dfc6de9b11091ed80744a18e2cc7a3e04b48ab631aaf611fe7239f682",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-callback-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/case.json",
+      "sha256": "4173dfdddc107abbc38999bf5b1da1bb484483978d1776c748baf24419e03c53",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/projection/projection.json",
+      "sha256": "675af695a6541ef15fee69609a33ec7f8a02fbb433d2b03ec0cdc6648f8be9eb",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/decisions.json",
+      "sha256": "7d54c6ec57c792b7c37ddc08345a430b704678ace37727a033b6107c289d5cca",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/case.json",
+      "sha256": "4e978e050d26a408a7221d68740bd2d8e4662856d66b8da5350896ecac6e694e",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/projection/projection.json",
+      "sha256": "98448d6e123dcee5934109b364f893ea9688e94b34b4c3490f270aa500d6243a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/decisions.json",
+      "sha256": "efdfe11863d1f51c88a702d7bbaf5f88e103fdb73027af326158d21bfa0e19f2",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/case.json",
+      "sha256": "4c43ce7a528ecb3616764a9facb82b1cf3632e775047cb58ff1974f8714f0d57",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/projection/projection.json",
+      "sha256": "6d8ec2fc8da58df0c3e9d2ccaa4b0a4681a2ce4ae52dbf1a32e3553287786d22",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/decisions.json",
+      "sha256": "80a21735b8649d81f16c0d10dac524cbeaf412d7b8a25e2c1401cd34d1e0d8d2",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/decisions.json"
+    },
+    {
+      "ref": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/case.json",
+      "sha256": "9e4e33ebba9cee431eaf098067932c0babdb6e78c971dbc218f8b29beb14ac46",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/cc5a50e4e23b33f36a39ff8826a866bb7832caca/diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/case.json"
+    },
+    {
+      "ref": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/projection/projection.json",
+      "sha256": "2a1c1713346252e5697d057aa892896e8e4c63424cedf9891e12b7ed88dc556b",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/cc5a50e4e23b33f36a39ff8826a866bb7832caca/diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/projection/projection.json"
+    },
+    {
+      "ref": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/decisions.json",
+      "sha256": "3d060a8a11f3062d80ffe8d2ef2b84dbc1b9e123b53f2207577d4fe1c3c67d2c",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/cc5a50e4e23b33f36a39ff8826a866bb7832caca/diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/case.json",
+      "sha256": "cffa76a378925b2eeb67150eb82f70697119be88adb1d935ba9f2c6ef6100413",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/projection/projection.json",
+      "sha256": "896a34c9e24c5616781df50d6fe917bef726231f42ef705a1332372c8908b24a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/decisions.json",
+      "sha256": "c3434269b222f0782dec1a27b231e670c938c37df39ae0c80495cbcbd1e77dd2",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/case.json",
+      "sha256": "40d868f0fbbf82476cd4fabe269a0dbfb70bfdb55daf12eb3303e33612c1325f",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/projection/projection.json",
+      "sha256": "3352898162ccb34c99196eaa853bd944a43e85bb2e8cc353ba432c440966c29a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/decisions.json",
+      "sha256": "a4263383fe267e01023229a986380dc280eae45d39a7b269d4ad406f6e0350a7",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/case.json",
+      "sha256": "c5992709bd21dd07944ce5b7768d16f5243220ff3ab940c32aca7756cfcabbd5",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/projection/projection.json",
+      "sha256": "817ed61d7439cd9b2d274dd086b38b4c5db60c6d79722df45df2939aef90c9b4",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/decisions.json",
+      "sha256": "e37149428dafe66b95a975163eec2732370be35f8fce255ed6100f65f761c439",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/case.json",
+      "sha256": "55ae757736daf58d3f69c76fa144456c791d2f9cfc7799a00117f32dd6a3312f",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/projection/projection.json",
+      "sha256": "68cfc3694a3c62e9554296c9240d15edbe7155a5102c7c2834c648e3b2a80ffb",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/decisions.json",
+      "sha256": "bc00dc4732a3ffe64deab8058f58f8d8e9909b5b2cab864a79c0a6e080cecc98",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/case.json",
+      "sha256": "46203018baa98f40678c57f7a396667231e4475db4762972882281ada367a72d",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/case.json",
+      "sha256": "cfba9bc6120c7a8a437850bdac355c419ddfd2dfe9e12a15e13f88f580919423",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/projection/projection.json",
+      "sha256": "ec3925b01a6134e63070a181d977a3f279eac53358d155a967944a74853951bb",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/decisions.json",
+      "sha256": "e9f2ac05ea74e1421f9362ba6b4908cbd24997a3ad06ebab0e53fb0fac6396b9",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/case.json",
+      "sha256": "db404d44beea9af5bd859b04acc4bcb292be548848072261bb212e0430632ae7",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/projection/projection.json",
+      "sha256": "87f7bc49a6673a42ba70d336981f8a5003445892e7efa3822987306a273800aa",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/decisions.json",
+      "sha256": "e1e5d4923d92bf9e0af23fc6c355ca5250e75288a03cf40db45af4252365b9c7",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/case.json",
+      "sha256": "14b2426b8500b809277eccfad33402accf3dcaf48a76706d89deba66f5aeb0af",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/projection/projection.json",
+      "sha256": "b135e95b908adfbc2ec59fadcc1215d9d5ff9dc3e90b92d36ab7e0055ddbff5d",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/decisions.json",
+      "sha256": "eff4ef09f01e85b72c5808bde631a252f36bef54ab2ebd0f90011918adb57743",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/case.json",
+      "sha256": "862bbcbd25eb2d52fc6e00a920b813818501ea5c41fbd348b375c516b1704a61",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/projection/projection.json",
+      "sha256": "3e3280011d5a155e6fa54e8d1ac6b2998f3dfed09616e488c093133ab992f954",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/decisions.json",
+      "sha256": "f6eb9bd5f25b2881e237ece373e87f0cf7f50012cf0a79bb8dfef2fca53041c1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-ice-reset-20261029/case.json",
+      "sha256": "f993e2a5176ce8db4c34b3c5be93ee19b08676e4208b5cd971d655a269e7433e",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-solidfill-ice-reset-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/case.json",
+      "sha256": "35c6f23129026677b979c650ca10f752dfc77965c9078b5f447c33f4c99fe243",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/case.json",
+      "sha256": "85963b56608903c926caf31615ae9922a3cfff0084acb0b4b37afc7d38338318",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/projection/projection.json",
+      "sha256": "078e44b403a3e3e5bcbb6d555f7fd9cc7327eece99736b082eec54afd62614b0",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/decisions.json",
+      "sha256": "f85e0cf8de10b8613639c6b22d18b8ac889102d7884865ef8315cf2e43f6f0d8",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/case.json",
+      "sha256": "a44d42c2abf26c26cc6fd93f2dc2737e921b3dcec05ef8fce515d761dd0c37e2",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/projection/projection.json",
+      "sha256": "3553ca2848bd40c16ae7d3a01d03ae7899c0a24b54001e7ab30e36a662db12cb",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/decisions.json",
+      "sha256": "8ee0fb1eea428513ae2647a7f08090224baf85e68c18316ae948d974c6b4a63c",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/case.json",
+      "sha256": "2dd94d1006f6931bf42b9ac674b48e999f5b6a195fcc0dd597e312e4ecc7d275",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/projection/projection.json",
+      "sha256": "98767b84cbab69fcd5b0cf139381832ebb3897e848953127d2a5be5096543a0a",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/decisions.json",
+      "sha256": "fc8b743fec00c2e340a0aeb14f9646395f34d8b6c32fddf20b0ca55d315e3eaf",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/case.json",
+      "sha256": "5b199103aacfdd322f7274409554b16cea5f65bcd19aa8370ea3244a33f72183",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/case.json",
+      "sha256": "9429378532eace2be7282daf923945bd20e99519e44c2d261c571d139a5dce87",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/case.json",
+      "sha256": "5c92915a571f82afd4dcb8b5c32ea4c5f2df050776de5092d6054cc6f83e35b5",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/projection/projection.json",
+      "sha256": "cedc346ab1ff326aa78296d8a37987e68f068db042ae65a21e7de3265b8b3d49",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/projection/projection.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/decisions.json",
+      "sha256": "f89525a7cb9bb0bc18b5eba7807b44d5214332e880d50dd8f622ca955ce157a3",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/decisions.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/case.json",
+      "sha256": "a52c11c0c3d8ce06e88dc1b6b7e179a042b49b0137852803b3da4db843b5639e",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/case.json"
+    },
+    {
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/case.json",
+      "sha256": "f6cf50fdc137b90f6a256cdf06833356162eaa9f2dd67c33d25d5c7251a68515",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/case.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-summary.json",
+      "sha256": "b81fd84513279434c24956ce82a963be0c28d7702b73d93ef80ec6eca5d840b8",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-summary.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-keys.json",
+      "sha256": "9111e7977db1b5b5ecc90bdf55db81b2f4e71778586b9d75af402768597a011c",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-keys.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/case.json",
+      "sha256": "dfb6d82a7fc1e777af16bf3c95c17a82cfa780591feb3e293f5ffff17a78a97d",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/web-call-stub-negative/case.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/projection.json",
+      "sha256": "8c4185d5aa3de74752f79eeffbf36522e0f66abcd31210ecf25681355ce65807",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/web-call-stub-negative/projection.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/decisions.json",
+      "sha256": "b5feec4b98c9bce0f5ea7448d8ad41241c96b659a5853bf8ba4d66caf00ee9ec",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/web-call-stub-negative/decisions.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/case.json",
+      "sha256": "1f4ca3213a8abb0016da52614861ea758ae329aa8aa4cde520864b6b3fe0e2be",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/case.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/projection.json",
+      "sha256": "9202f65ec2bde911dce88b8437646da11c58f5b1acbd948396361703270cfd82",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/projection.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/decisions.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/decisions.json"
+    },
+    {
+      "ref": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/case.json",
+      "sha256": "e71ea8677b79f55d21b23f204250a5edf3be98f5ee10ea4ebaa3c155e7ce2f60",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/9c2df4fe2eda635c3a92afc6b3673626d595ebe1/diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/case.json"
+    },
+    {
+      "ref": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/projection.json",
+      "sha256": "149c5fcf9a56402caf89f8b1d86a85735a0842853d224075bcf4c6a0cff3b4e8",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/9c2df4fe2eda635c3a92afc6b3673626d595ebe1/diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/projection.json"
+    },
+    {
+      "ref": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
+      "path": "diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/decisions.json",
+      "sha256": "88b7e9f8b3ffa0c87e0dea86e582ca119cdf92d1aa5539dc3326208ebfc7d23d",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/9c2df4fe2eda635c3a92afc6b3673626d595ebe1/diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/decisions.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/case.json",
+      "sha256": "3350fa92b1767095ed3996c8f5afc84679f222ea607d720e2bb24415aee3254c",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/case.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/projection.json",
+      "sha256": "664e9980617b15fa83efaa6fb6a6adb8761407d05a07444d53dcbc53999431b8",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/projection.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/decisions.json",
+      "sha256": "db1f39fec14a33e3e3fd86c55ed7d84144443264b5785cec365202ffba265bfc",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/decisions.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/case.json",
+      "sha256": "40d3a94c8a8968672df13f98b320dfb4cb9aa22eb7cb4c0cc424c22fa400fa95",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/case.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/projection.json",
+      "sha256": "73fd31befc0b90b529d946bf68a57f37a60693f00e8057eded12a83245a495f3",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/projection.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/decisions.json",
+      "sha256": "b1fffe16ceed6bf61e021c1d5de006a42672092debabef5472fcf3ef599cae2c",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/decisions.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/case.json",
+      "sha256": "412e0944f7a64ece3c064b570ec4d77a5c10116d23404469a889232af0558d08",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/case.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/projection.json",
+      "sha256": "0a178312f121e09a73ece9381c53fedde82479cba979d9703ad9a0ecf2c64cf8",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/projection.json"
+    },
+    {
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/decisions.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/decisions.json"
+    },
+    {
+      "ref": "0a35429e69fde9181ac1ad2161df14d8ff8f0a0d",
+      "path": "diagnostics/divergence-evidence/object-catalog/declared-fields-20261028/case.json",
+      "sha256": "03bbff9986b036fa8ea44a38eec5edc12c371eb56dc592366600be595af3feba",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/0a35429e69fde9181ac1ad2161df14d8ff8f0a0d/diagnostics/divergence-evidence/object-catalog/declared-fields-20261028/case.json"
+    },
+    {
+      "ref": "c96dc555c32556c0e7d683cdd9ff11bb1d6af4fe",
+      "path": "diagnostics/divergence-evidence/character-tables/progression-20261028/case.json",
+      "sha256": "8cf65fccf667f45dca095a0bc65f11aae6536979d023899b6596247ad061a623",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/c96dc555c32556c0e7d683cdd9ff11bb1d6af4fe/diagnostics/divergence-evidence/character-tables/progression-20261028/case.json"
+    },
+    {
+      "ref": "d67328494dd3f56387163fbc5d90690021001392",
+      "path": "diagnostics/divergence-evidence/command-catalog/static-20261028/case.json",
+      "sha256": "af770ea7f8654a42e3b67ab3404fcb2bcc6bc38a3bbaa113a9e7f30407663c52",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/d67328494dd3f56387163fbc5d90690021001392/diagnostics/divergence-evidence/command-catalog/static-20261028/case.json"
+    }
+  ],
+  "cohorts": [
+    {
+      "refresh": {
+        "state": "updated",
+        "attemptedAt": "2026-10-29T01:33:38.994Z",
+        "lastSuccessAt": "2026-10-29T01:33:40.428Z",
+        "resolved": [
+          {
+            "pr": 89,
+            "branch": "analysis/levels/20261028-maze-deadends-31",
+            "head": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+            "base": "51f5686fac30306411156df215ca83ae910cf6bf",
+            "sourceCommittedAt": "2026-10-29T01:32:44Z",
+            "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ]
+          }
+        ]
+      },
+      "unboundCases": [
+        {
+          "id": "levels-map-single-cell-20261029",
+          "outcome": "confirmed",
+          "category": "manual",
+          "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/case.json",
+          "reason": "Manual evidence; no scanner denominator"
+        },
+        {
+          "id": "levels-solidfill-ice-reset-20261029",
+          "outcome": "confirmed",
+          "category": "manual",
+          "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-solidfill-ice-reset-20261029/case.json",
+          "reason": "Manual evidence; no scanner denominator"
+        },
+        {
+          "id": "levels-solidfill-wall-reset-20261028",
+          "outcome": "accepted",
+          "category": "manual",
+          "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/case.json",
+          "reason": "Manual evidence; no scanner denominator"
+        },
+        {
+          "id": "levels-drawbridge-door-mask-20261029",
+          "outcome": "confirmed",
+          "category": "manual",
+          "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/case.json",
+          "reason": "Manual evidence; no scanner denominator"
+        },
+        {
+          "id": "levels-mapchar-family-20261029",
+          "outcome": "confirmed",
+          "category": "manual",
+          "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/case.json",
+          "reason": "Manual evidence; no scanner denominator"
+        },
+        {
+          "id": "levels-randline-roughness-width-20261029",
+          "outcome": "confirmed",
+          "category": "manual",
+          "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/case.json",
+          "reason": "Manual evidence; no scanner denominator"
+        },
+        {
+          "id": "levels-terrain-string-prefix-20261029",
+          "outcome": "confirmed",
+          "category": "manual",
+          "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/case.json",
+          "reason": "Manual evidence; no scanner denominator"
+        }
+      ],
+      "skippedMetadata": [],
+      "completionCoverage": {
+        "references": 2,
+        "verified": 2,
+        "unsupported": 0
+      },
+      "id": "levels",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "pr": 89,
+      "runId": "ea2181cadbad5793b4be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "runSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+      "scanCompletedAt": "2026-10-28T21:29:59.554Z",
+      "reviewAsOf": "2026-10-28T21:41:28.321279+00:00",
+      "configHashes": {
+        "sourceAudit": "90cf247b2de35d85324fff36f5436209d3467d2dec1bce1965c1a6b2edf69116",
+        "mismatchQueue": "be7fd707d4a13e43d16b92f177ea2581dcb4c64a3481949123bfe803f921bdf3",
+        "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+        "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+        "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+      },
+      "toolHashes": {
+        "sourceAudit": "e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+        "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+        "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+        "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+      },
+      "sourceHash": "813489b798c715449ff5d4b54a148da933c3f7e9f2103636cc27db89b1fa8f17",
+      "rawFileScoped": 571,
+      "scope": "File-derived levels inventory, not every possible Lua or cross-file source hypothesis. Runtime owners and exclusion-name matches removed before review. Ownership overlaps are routing notes, not negative classifications.",
+      "summary": {
+        "total": 523,
+        "counts": {
+          "explained_negative": 59,
+          "confirmed": 2,
+          "accepted": 2,
+          "duplicate": 0,
+          "unresolved": 0,
+          "invalid_setup": 0,
+          "unreachable": 0,
+          "missing_coverage": 0,
+          "stale": 8,
+          "unreviewed": 452,
+          "unknown": 0
+        },
+        "reviewed": 63,
+        "resolved": 63,
+        "withoutCurrentReview": 460,
+        "negativeShare": 0.9365079365079365,
+        "filters": {
+          "exactBoundDecisions": 59,
+          "heuristicPriorityHints": 0
+        },
+        "causes": {
+          "explained_negative": 23,
+          "confirmed": 1,
+          "accepted": 2,
+          "duplicate": 0,
+          "unresolved": 0,
+          "invalid_setup": 0,
+          "unreachable": 0,
+          "missing_coverage": 0,
+          "stale": 0,
+          "unreviewed": 0,
+          "unknown": 0
+        },
+        "classifiedCauses": 26,
+        "missingCauseIdentity": 6,
+        "causeNegativeShare": null,
+        "rows": [
+          {
+            "key": "source-audit:edge-c-only:src/mklev.c:finddpos:impossible",
+            "status": "explained_negative",
+            "root": "finddpos-cardinal-caller-contract",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/mklev.c:occupied:is_lava",
+            "status": "explained_negative",
+            "root": "liquid-placement-predicate-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/mklev.c:occupied:is_pool",
+            "status": "explained_negative",
+            "root": "liquid-placement-predicate-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rn2",
+            "status": "explained_negative",
+            "root": "trap-selector-rng-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rnd",
+            "status": "explained_negative",
+            "root": "trap-selector-rng-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/mklev.c:traptype_roguelvl:rn2",
+            "status": "explained_negative",
+            "root": "trap-selector-rng-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:finish_map",
+            "status": "explained_negative",
+            "root": "cave-finish-metadata-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/mkmaze.c:maze_remove_deadends:rn2",
+            "status": "explained_negative",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/mkmaze.c:mazexy:rnd",
+            "status": "explained_negative",
+            "root": "mazexy-default-rnd-alias",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_getpoint",
+            "status": "explained_negative",
+            "root": "selection-numeric-point-helper-substitution",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_getpoint",
+            "status": "explained_negative",
+            "root": "selection-numeric-point-helper-substitution",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/rect.c:rnd_rect:rn2",
+            "status": "explained_negative",
+            "root": "rnd-rect-default-rng-alias",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:isok",
+            "status": "explained_negative",
+            "root": "selection-iteration-traversal-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getbounds",
+            "status": "explained_negative",
+            "root": "selection-iteration-traversal-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getpoint",
+            "status": "explained_negative",
+            "root": "selection-iteration-traversal-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:check_room:rn2",
+            "status": "explained_negative",
+            "root": "room-obstruction-rng-injection",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:create_door:rn2",
+            "status": "explained_negative",
+            "root": "room-door-rng-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:create_room:rn2",
+            "status": "explained_negative",
+            "root": "random-first-room-placement-rng-aliases",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:create_room:rnd",
+            "status": "explained_negative",
+            "root": "random-first-room-placement-rng-aliases",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:create_subroom:rnd",
+            "status": "explained_negative",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:flip_level_rnd:rn2",
+            "status": "explained_negative",
+            "root": "flip-dispatch-default-rng-interface",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:get_location:somexy",
+            "status": "explained_negative",
+            "root": "room-coordinate-fallback-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_lava",
+            "status": "explained_negative",
+            "root": "liquid-placement-predicate-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_pool",
+            "status": "explained_negative",
+            "root": "liquid-placement-predicate-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_bool",
+            "status": "explained_negative",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_int",
+            "status": "explained_negative",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_region",
+            "status": "explained_negative",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_str",
+            "status": "explained_negative",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:l_table_getset_feature_flag:rn2",
+            "status": "explained_negative",
+            "root": "feature-boolean-reader-excludes-random-sentinel",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_engraving:dupstr",
+            "status": "accepted",
+            "root": "c-string-prefix-at-construction-boundary",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": null
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:alloc",
+            "status": "explained_negative",
+            "root": "exclusion-record-allocation-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:create_des_coder",
+            "status": "explained_negative",
+            "root": "public-des-coder-initialization-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_level_flags:create_des_coder",
+            "status": "explained_negative",
+            "root": "public-des-coder-initialization-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_level_init:create_des_coder",
+            "status": "explained_negative",
+            "root": "public-des-coder-initialization-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_map:l_push_wid_hei_table",
+            "status": "explained_negative",
+            "root": "map-callback-dimension-serialization",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_message:alloc",
+            "status": "accepted",
+            "root": "level-message-c-string-prefix",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": null
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_clear",
+            "status": "explained_negative",
+            "root": "replace-terrain-selection-method-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getbounds",
+            "status": "explained_negative",
+            "root": "replace-terrain-selection-method-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getpoint",
+            "status": "explained_negative",
+            "root": "replace-terrain-selection-method-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_new",
+            "status": "explained_negative",
+            "root": "replace-terrain-selection-method-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_setpoint",
+            "status": "explained_negative",
+            "root": "replace-terrain-selection-method-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_teleport_region:create_des_coder",
+            "status": "explained_negative",
+            "root": "public-des-coder-initialization-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_terrain:create_des_coder",
+            "status": "explained_negative",
+            "root": "public-des-coder-initialization-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_wall_property:create_des_coder",
+            "status": "explained_negative",
+            "root": "public-des-coder-initialization-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:mapfrag_fromstr:dupstr",
+            "status": "confirmed",
+            "root": "c-string-prefix-at-construction-boundary",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": null
+          },
+          {
+            "key": "source-audit:edge-c-only:src/sp_lev.c:noncoalignment:rn2",
+            "status": "explained_negative",
+            "root": "altar-alignment-rng-interface-and-macro",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/mklev.c:occupied:isLavaAt",
+            "status": "explained_negative",
+            "root": "liquid-placement-predicate-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/mklev.c:occupied:isPoolAt",
+            "status": "explained_negative",
+            "root": "liquid-placement-predicate-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/mklev.c:traptype_rnd:levelTrapEnv",
+            "status": "explained_negative",
+            "root": "trap-selector-rng-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/mklev.c:traptype_roguelvl:levelTrapEnv",
+            "status": "explained_negative",
+            "root": "trap-selector-rng-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_finish_map",
+            "status": "explained_negative",
+            "root": "cave-finish-metadata-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionPoint",
+            "status": "explained_negative",
+            "root": "selection-numeric-point-helper-substitution",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionPoint",
+            "status": "explained_negative",
+            "root": "selection-numeric-point-helper-substitution",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/sp_lev.c:get_free_room_loc:coordinateEnvironment",
+            "status": "explained_negative",
+            "root": "room-coordinate-fallback-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isLavaAt",
+            "status": "explained_negative",
+            "root": "liquid-placement-predicate-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isPoolAt",
+            "status": "explained_negative",
+            "root": "liquid-placement-predicate-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/sp_lev.c:l_create_stairway:isLuaTable",
+            "status": "explained_negative",
+            "root": "ladder-table-dispatch-helper",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-helper:src/sp_lev.c:sp_amask_to_amask:fillEnvironment",
+            "status": "explained_negative",
+            "root": "altar-alignment-rng-interface-and-macro",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-only:src/sp_lev.c:lspo_level_flags:lcase",
+            "status": "explained_negative",
+            "root": "ascii-level-flag-case-normalization",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-js-only:src/sp_lev.c:lspo_mazewalk:walkfrom",
+            "status": "confirmed",
+            "root": "maze-intermediate-door-guard",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": null
+          },
+          {
+            "key": "source-audit:edge-stub:src/mkmaze.c:mkportal:maketrap",
+            "status": "explained_negative",
+            "root": "portal-construction-factory-delegation",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:message:src/mklev.c:finddpos:07c9fad716dba72a",
+            "status": "explained_negative",
+            "root": "finddpos-cardinal-caller-contract",
+            "methods": [
+              {
+                "kind": "missing_message",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:message:src/rect.c:init_rect:8ad3bff1629fb9b8",
+            "status": "explained_negative",
+            "root": "init-rect-post-allocation-null-guard",
+            "methods": [
+              {
+                "kind": "missing_message",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "ea2181cadbad5793b4be"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          }
+        ]
+      },
+      "strata": [
+        {
+          "method": {
+            "kind": "call_graph",
+            "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+            "run_id": "ea2181cadbad5793b4be"
+          },
+          "total": 475,
+          "counts": {
+            "explained_negative": 57,
+            "confirmed": 2,
+            "accepted": 2,
+            "duplicate": 0,
+            "unresolved": 0,
+            "invalid_setup": 0,
+            "unreachable": 0,
+            "missing_coverage": 0,
+            "stale": 8,
+            "unreviewed": 406,
+            "unknown": 0
+          },
+          "reviewed": 61,
+          "resolved": 61,
+          "withoutCurrentReview": 414,
+          "negativeShare": 0.9344262295081968,
+          "filters": {
+            "exactBoundDecisions": 57,
+            "heuristicPriorityHints": 0
+          },
+          "causes": {
+            "explained_negative": 22,
+            "confirmed": 1,
+            "accepted": 2,
+            "duplicate": 0,
+            "unresolved": 0,
+            "invalid_setup": 0,
+            "unreachable": 0,
+            "missing_coverage": 0,
+            "stale": 0,
+            "unreviewed": 0,
+            "unknown": 0
+          },
+          "classifiedCauses": 25,
+          "missingCauseIdentity": 6,
+          "causeNegativeShare": null,
+          "rows": [
+            {
+              "key": "source-audit:edge-c-only:src/mklev.c:finddpos:impossible",
+              "status": "explained_negative",
+              "root": "finddpos-cardinal-caller-contract",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/mklev.c:occupied:is_lava",
+              "status": "explained_negative",
+              "root": "liquid-placement-predicate-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/mklev.c:occupied:is_pool",
+              "status": "explained_negative",
+              "root": "liquid-placement-predicate-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rn2",
+              "status": "explained_negative",
+              "root": "trap-selector-rng-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rnd",
+              "status": "explained_negative",
+              "root": "trap-selector-rng-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/mklev.c:traptype_roguelvl:rn2",
+              "status": "explained_negative",
+              "root": "trap-selector-rng-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:finish_map",
+              "status": "explained_negative",
+              "root": "cave-finish-metadata-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/mkmaze.c:maze_remove_deadends:rn2",
+              "status": "explained_negative",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/mkmaze.c:mazexy:rnd",
+              "status": "explained_negative",
+              "root": "mazexy-default-rnd-alias",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_getpoint",
+              "status": "explained_negative",
+              "root": "selection-numeric-point-helper-substitution",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_getpoint",
+              "status": "explained_negative",
+              "root": "selection-numeric-point-helper-substitution",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/rect.c:rnd_rect:rn2",
+              "status": "explained_negative",
+              "root": "rnd-rect-default-rng-alias",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:isok",
+              "status": "explained_negative",
+              "root": "selection-iteration-traversal-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getbounds",
+              "status": "explained_negative",
+              "root": "selection-iteration-traversal-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getpoint",
+              "status": "explained_negative",
+              "root": "selection-iteration-traversal-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:check_room:rn2",
+              "status": "explained_negative",
+              "root": "room-obstruction-rng-injection",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:create_door:rn2",
+              "status": "explained_negative",
+              "root": "room-door-rng-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:create_room:rn2",
+              "status": "explained_negative",
+              "root": "random-first-room-placement-rng-aliases",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:create_room:rnd",
+              "status": "explained_negative",
+              "root": "random-first-room-placement-rng-aliases",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:create_subroom:rnd",
+              "status": "explained_negative",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:flip_level_rnd:rn2",
+              "status": "explained_negative",
+              "root": "flip-dispatch-default-rng-interface",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:get_location:somexy",
+              "status": "explained_negative",
+              "root": "room-coordinate-fallback-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_lava",
+              "status": "explained_negative",
+              "root": "liquid-placement-predicate-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_pool",
+              "status": "explained_negative",
+              "root": "liquid-placement-predicate-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_bool",
+              "status": "explained_negative",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_int",
+              "status": "explained_negative",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_region",
+              "status": "explained_negative",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_str",
+              "status": "explained_negative",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:l_table_getset_feature_flag:rn2",
+              "status": "explained_negative",
+              "root": "feature-boolean-reader-excludes-random-sentinel",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_engraving:dupstr",
+              "status": "accepted",
+              "root": "c-string-prefix-at-construction-boundary",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": null
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:alloc",
+              "status": "explained_negative",
+              "root": "exclusion-record-allocation-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:create_des_coder",
+              "status": "explained_negative",
+              "root": "public-des-coder-initialization-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_level_flags:create_des_coder",
+              "status": "explained_negative",
+              "root": "public-des-coder-initialization-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_level_init:create_des_coder",
+              "status": "explained_negative",
+              "root": "public-des-coder-initialization-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_map:l_push_wid_hei_table",
+              "status": "explained_negative",
+              "root": "map-callback-dimension-serialization",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_message:alloc",
+              "status": "accepted",
+              "root": "level-message-c-string-prefix",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": null
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_clear",
+              "status": "explained_negative",
+              "root": "replace-terrain-selection-method-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getbounds",
+              "status": "explained_negative",
+              "root": "replace-terrain-selection-method-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getpoint",
+              "status": "explained_negative",
+              "root": "replace-terrain-selection-method-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_new",
+              "status": "explained_negative",
+              "root": "replace-terrain-selection-method-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_setpoint",
+              "status": "explained_negative",
+              "root": "replace-terrain-selection-method-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_teleport_region:create_des_coder",
+              "status": "explained_negative",
+              "root": "public-des-coder-initialization-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_terrain:create_des_coder",
+              "status": "explained_negative",
+              "root": "public-des-coder-initialization-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_wall_property:create_des_coder",
+              "status": "explained_negative",
+              "root": "public-des-coder-initialization-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:mapfrag_fromstr:dupstr",
+              "status": "confirmed",
+              "root": "c-string-prefix-at-construction-boundary",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": null
+            },
+            {
+              "key": "source-audit:edge-c-only:src/sp_lev.c:noncoalignment:rn2",
+              "status": "explained_negative",
+              "root": "altar-alignment-rng-interface-and-macro",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/mklev.c:occupied:isLavaAt",
+              "status": "explained_negative",
+              "root": "liquid-placement-predicate-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/mklev.c:occupied:isPoolAt",
+              "status": "explained_negative",
+              "root": "liquid-placement-predicate-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/mklev.c:traptype_rnd:levelTrapEnv",
+              "status": "explained_negative",
+              "root": "trap-selector-rng-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/mklev.c:traptype_roguelvl:levelTrapEnv",
+              "status": "explained_negative",
+              "root": "trap-selector-rng-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_finish_map",
+              "status": "explained_negative",
+              "root": "cave-finish-metadata-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionPoint",
+              "status": "explained_negative",
+              "root": "selection-numeric-point-helper-substitution",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionPoint",
+              "status": "explained_negative",
+              "root": "selection-numeric-point-helper-substitution",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/sp_lev.c:get_free_room_loc:coordinateEnvironment",
+              "status": "explained_negative",
+              "root": "room-coordinate-fallback-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isLavaAt",
+              "status": "explained_negative",
+              "root": "liquid-placement-predicate-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isPoolAt",
+              "status": "explained_negative",
+              "root": "liquid-placement-predicate-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/sp_lev.c:l_create_stairway:isLuaTable",
+              "status": "explained_negative",
+              "root": "ladder-table-dispatch-helper",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-helper:src/sp_lev.c:sp_amask_to_amask:fillEnvironment",
+              "status": "explained_negative",
+              "root": "altar-alignment-rng-interface-and-macro",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-only:src/sp_lev.c:lspo_level_flags:lcase",
+              "status": "explained_negative",
+              "root": "ascii-level-flag-case-normalization",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-js-only:src/sp_lev.c:lspo_mazewalk:walkfrom",
+              "status": "confirmed",
+              "root": "maze-intermediate-door-guard",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": null
+            },
+            {
+              "key": "source-audit:edge-stub:src/mkmaze.c:mkportal:maketrap",
+              "status": "explained_negative",
+              "root": "portal-construction-factory-delegation",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            }
+          ]
+        },
+        {
+          "method": {
+            "kind": "missing_message",
+            "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+            "run_id": "ea2181cadbad5793b4be"
+          },
+          "total": 48,
+          "counts": {
+            "explained_negative": 2,
+            "confirmed": 0,
+            "accepted": 0,
+            "duplicate": 0,
+            "unresolved": 0,
+            "invalid_setup": 0,
+            "unreachable": 0,
+            "missing_coverage": 0,
+            "stale": 0,
+            "unreviewed": 46,
+            "unknown": 0
+          },
+          "reviewed": 2,
+          "resolved": 2,
+          "withoutCurrentReview": 46,
+          "negativeShare": 1,
+          "filters": {
+            "exactBoundDecisions": 2,
+            "heuristicPriorityHints": 0
+          },
+          "causes": {
+            "explained_negative": 2,
+            "confirmed": 0,
+            "accepted": 0,
+            "duplicate": 0,
+            "unresolved": 0,
+            "invalid_setup": 0,
+            "unreachable": 0,
+            "missing_coverage": 0,
+            "stale": 0,
+            "unreviewed": 0,
+            "unknown": 0
+          },
+          "classifiedCauses": 2,
+          "missingCauseIdentity": 0,
+          "causeNegativeShare": 1,
+          "rows": [
+            {
+              "key": "source-audit:message:src/mklev.c:finddpos:07c9fad716dba72a",
+              "status": "explained_negative",
+              "root": "finddpos-cardinal-caller-contract",
+              "methods": [
+                {
+                  "kind": "missing_message",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:message:src/rect.c:init_rect:8ad3bff1629fb9b8",
+              "status": "explained_negative",
+              "root": "init-rect-post-allocation-null-guard",
+              "methods": [
+                {
+                  "kind": "missing_message",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "ea2181cadbad5793b4be"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            }
+          ]
+        }
+      ],
+      "techniqueCoverageUnknown": 0
+    },
+    {
+      "refresh": {
+        "state": "updated",
+        "attemptedAt": "2026-10-29T01:33:38.994Z",
+        "lastSuccessAt": "2026-10-29T01:33:41.860Z",
+        "resolved": [
+          {
+            "pr": 102,
+            "branch": "analysis/monsters/20261028-af",
+            "head": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+            "base": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+            "sourceCommittedAt": "2026-10-29T01:19:50Z",
+            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ]
+          },
+          {
+            "pr": 96,
+            "branch": "analysis/monsters/20261028-ac",
+            "head": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
+            "base": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+            "sourceCommittedAt": "2026-10-28T22:19:43Z",
+            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ]
+          }
+        ]
+      },
+      "unboundCases": [],
+      "skippedMetadata": [],
+      "completionCoverage": {
+        "references": 0,
+        "verified": 0,
+        "unsupported": 0
+      },
+      "id": "monsters",
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "pr": 102,
+      "runId": "2bfc89cdcbaa6139046f",
+      "scanBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "runSha256": "4e7ab2870a6c57b5c1d586b651917cfabf28056c485f9f92ebc0e202cfcc1b93",
+      "scanCompletedAt": "2026-10-28T22:15:18.147Z",
+      "reviewAsOf": "2026-10-29T01:19:18.697693+00:00",
+      "configHashes": {
+        "sourceAudit": "0a5717e39fe6b62c715c52ec618bfdd83995cb094b8ce807226c6ee218d17228",
+        "mismatchQueue": "8da4b59c8407be58c3e9e6da1c759f794825e6e96c1b60185aff2ff450435a15",
+        "compiledConstants": "9f42ccb3cea8c74e875d2e02942599d371517f96f06fb10c9e10fdbf0b6f002a",
+        "luaDiscovery": "81bc9f5a2dd3bbbf38c7b5f4ebf3288de5245424f2d0e8658cdd58159fee552b",
+        "structuralPipeline": "b3c5d7d3e7c86c504556329a51d7ea991f7e421e14c74a46103a8745c96e2263"
+      },
+      "toolHashes": {
+        "sourceAudit": "e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+        "mismatchQueue": "20ed515f9cebf2a542f55ddc8ae4668faa6342f5830db89e31a6771340fcefb3",
+        "compiledConstants": "9bd1dd4fcd2841c3e1b56c2c941b17be4227e558885d9c73345ce274618db474",
+        "luaDiscovery": "624d1396483c6e9ee66e06326964a5944b2d234f6dc541d7f96c75f28b3bfbb4",
+        "structuralPipeline": "6337b4edfbafd48bda7a0143a56491314413139548454fad7e57429090afc387"
+      },
+      "sourceHash": "89763c4b095d7bba4a6b31c8e49f27fa027f52a9c335436406da46bf26f6c552",
+      "rawFileScoped": 689,
+      "scope": "Raw immutable scanner keys, not bugs or universal review coverage. Historical reviews are not automatically valid on current Main. Scope enumeration grants no authority to investigate excluded scenarios.",
+      "summary": {
+        "total": 689,
+        "counts": {
+          "explained_negative": 6,
+          "confirmed": 0,
+          "accepted": 0,
+          "duplicate": 0,
+          "unresolved": 4,
+          "invalid_setup": 0,
+          "unreachable": 0,
+          "missing_coverage": 0,
+          "stale": 0,
+          "unreviewed": 679,
+          "unknown": 0
+        },
+        "reviewed": 10,
+        "resolved": 6,
+        "withoutCurrentReview": 679,
+        "negativeShare": 1,
+        "filters": {
+          "exactBoundDecisions": 6,
+          "heuristicPriorityHints": 0
+        },
+        "causes": {
+          "explained_negative": 2,
+          "confirmed": 0,
+          "accepted": 0,
+          "duplicate": 0,
+          "unresolved": 0,
+          "invalid_setup": 0,
+          "unreachable": 0,
+          "missing_coverage": 0,
+          "stale": 0,
+          "unreviewed": 0,
+          "unknown": 0
+        },
+        "classifiedCauses": 2,
+        "missingCauseIdentity": 5,
+        "causeNegativeShare": null,
+        "rows": [
+          {
+            "key": "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot",
+            "status": "unresolved",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": null
+          },
+          {
+            "key": "source-audit:edge-stub:src/mcastu.c:mcast_fire_pillar:mon_spell_hits_spot",
+            "status": "explained_negative",
+            "root": "constant-argument-excludes-callee-diagnostic",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-stub:src/mcastu.c:mcast_lightning:mon_spell_hits_spot",
+            "status": "explained_negative",
+            "root": "constant-argument-excludes-callee-diagnostic",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-stub:src/mhitm.c:mdisplacem:which_armor",
+            "status": "explained_negative",
+            "root": "constant-argument-excludes-callee-diagnostic",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-stub:src/mhitu.c:gazemu:polymon",
+            "status": "unresolved",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": null
+          },
+          {
+            "key": "source-audit:edge-stub:src/mhitu.c:mattacku:which_armor",
+            "status": "explained_negative",
+            "root": "constant-argument-excludes-callee-diagnostic",
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:edge-stub:src/monmove.c:maybe_spin_web:maketrap",
+            "status": "explained_negative",
+            "root": null,
+            "methods": [
+              {
+                "kind": "call_graph",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          },
+          {
+            "key": "source-audit:message:src/mcastu.c:mcast_clone_wiz:00a83c749503f442",
+            "status": "unresolved",
+            "root": null,
+            "methods": [
+              {
+                "kind": "missing_message",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": null
+          },
+          {
+            "key": "source-audit:message:src/mcastu.c:mcast_disappear:e8d896909a1fe088",
+            "status": "unresolved",
+            "root": null,
+            "methods": [
+              {
+                "kind": "missing_message",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": null
+          },
+          {
+            "key": "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3",
+            "status": "explained_negative",
+            "root": "gazemu-unreachable-zero-react-ternary",
+            "methods": [
+              {
+                "kind": "missing_message",
+                "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                "run_id": "2bfc89cdcbaa6139046f"
+              }
+            ],
+            "filter": "exact-bound-decision"
+          }
+        ]
+      },
+      "strata": [
+        {
+          "method": {
+            "kind": "call_graph",
+            "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+            "run_id": "2bfc89cdcbaa6139046f"
+          },
+          "total": 670,
+          "counts": {
+            "explained_negative": 5,
+            "confirmed": 0,
+            "accepted": 0,
+            "duplicate": 0,
+            "unresolved": 2,
+            "invalid_setup": 0,
+            "unreachable": 0,
+            "missing_coverage": 0,
+            "stale": 0,
+            "unreviewed": 663,
+            "unknown": 0
+          },
+          "reviewed": 7,
+          "resolved": 5,
+          "withoutCurrentReview": 663,
+          "negativeShare": 1,
+          "filters": {
+            "exactBoundDecisions": 5,
+            "heuristicPriorityHints": 0
+          },
+          "causes": {
+            "explained_negative": 1,
+            "confirmed": 0,
+            "accepted": 0,
+            "duplicate": 0,
+            "unresolved": 0,
+            "invalid_setup": 0,
+            "unreachable": 0,
+            "missing_coverage": 0,
+            "stale": 0,
+            "unreviewed": 0,
+            "unknown": 0
+          },
+          "classifiedCauses": 1,
+          "missingCauseIdentity": 3,
+          "causeNegativeShare": null,
+          "rows": [
+            {
+              "key": "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot",
+              "status": "unresolved",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": null
+            },
+            {
+              "key": "source-audit:edge-stub:src/mcastu.c:mcast_fire_pillar:mon_spell_hits_spot",
+              "status": "explained_negative",
+              "root": "constant-argument-excludes-callee-diagnostic",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-stub:src/mcastu.c:mcast_lightning:mon_spell_hits_spot",
+              "status": "explained_negative",
+              "root": "constant-argument-excludes-callee-diagnostic",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-stub:src/mhitm.c:mdisplacem:which_armor",
+              "status": "explained_negative",
+              "root": "constant-argument-excludes-callee-diagnostic",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-stub:src/mhitu.c:gazemu:polymon",
+              "status": "unresolved",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": null
+            },
+            {
+              "key": "source-audit:edge-stub:src/mhitu.c:mattacku:which_armor",
+              "status": "explained_negative",
+              "root": "constant-argument-excludes-callee-diagnostic",
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            },
+            {
+              "key": "source-audit:edge-stub:src/monmove.c:maybe_spin_web:maketrap",
+              "status": "explained_negative",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "call_graph",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            }
+          ]
+        },
+        {
+          "method": {
+            "kind": "missing_message",
+            "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+            "run_id": "2bfc89cdcbaa6139046f"
+          },
+          "total": 19,
+          "counts": {
+            "explained_negative": 1,
+            "confirmed": 0,
+            "accepted": 0,
+            "duplicate": 0,
+            "unresolved": 2,
+            "invalid_setup": 0,
+            "unreachable": 0,
+            "missing_coverage": 0,
+            "stale": 0,
+            "unreviewed": 16,
+            "unknown": 0
+          },
+          "reviewed": 3,
+          "resolved": 1,
+          "withoutCurrentReview": 16,
+          "negativeShare": 1,
+          "filters": {
+            "exactBoundDecisions": 1,
+            "heuristicPriorityHints": 0
+          },
+          "causes": {
+            "explained_negative": 1,
+            "confirmed": 0,
+            "accepted": 0,
+            "duplicate": 0,
+            "unresolved": 0,
+            "invalid_setup": 0,
+            "unreachable": 0,
+            "missing_coverage": 0,
+            "stale": 0,
+            "unreviewed": 0,
+            "unknown": 0
+          },
+          "classifiedCauses": 1,
+          "missingCauseIdentity": 2,
+          "causeNegativeShare": null,
+          "rows": [
+            {
+              "key": "source-audit:message:src/mcastu.c:mcast_clone_wiz:00a83c749503f442",
+              "status": "unresolved",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "missing_message",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": null
+            },
+            {
+              "key": "source-audit:message:src/mcastu.c:mcast_disappear:e8d896909a1fe088",
+              "status": "unresolved",
+              "root": null,
+              "methods": [
+                {
+                  "kind": "missing_message",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": null
+            },
+            {
+              "key": "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3",
+              "status": "explained_negative",
+              "root": "gazemu-unreachable-zero-react-ternary",
+              "methods": [
+                {
+                  "kind": "missing_message",
+                  "version": "sha256:e87828f6970c5768303646cedd4b368ce55c8e62972f2387793551ff3fff0a7a",
+                  "run_id": "2bfc89cdcbaa6139046f"
+                }
+              ],
+              "filter": "exact-bound-decision"
+            }
+          ]
+        }
+      ],
+      "techniqueCoverageUnknown": 0
+    }
+  ],
+  "cases": [
+    {
+      "id": "levels-altar-alignment-rng-20261028",
+      "root": "altar-alignment-rng-interface-and-macro",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:noncoalignment:rn2",
+        "source-audit:edge-js-helper:src/sp_lev.c:sp_amask_to_amask:fillEnvironment"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-exclusion-registration-20261028",
+      "root": "exclusion-record-allocation-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:alloc"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-feature-flag-reader-20261028",
+      "root": "feature-boolean-reader-excludes-random-sentinel",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:l_table_getset_feature_flag:rn2"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-flag-casefold-20261028",
+      "root": "ascii-level-flag-case-normalization",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-js-only:src/sp_lev.c:lspo_level_flags:lcase"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-flip-dispatch-20261028",
+      "root": "flip-dispatch-default-rng-interface",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:flip_level_rnd:rn2"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-ladder-descriptors-20261028",
+      "root": "ladder-table-dispatch-helper",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-js-helper:src/sp_lev.c:l_create_stairway:isLuaTable"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-map-callback-size-20261028",
+      "root": "map-callback-dimension-serialization",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_map:l_push_wid_hei_table"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-maze-coordinate-choice-20261028",
+      "root": "mazexy-default-rnd-alias",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/mkmaze.c:mazexy:rnd"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-maze-deadends-20261028",
+      "root": null,
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": "2026-10-28T21:27:50.774768+00:00",
+      "keys": [
+        "source-audit:edge-c-only:src/mkmaze.c:maze_remove_deadends:rn2"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-mazewalk-intermediate-door-20261028",
+      "root": "maze-intermediate-door-guard",
+      "outcome": "confirmed",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-js-only:src/sp_lev.c:lspo_mazewalk:walkfrom"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-random-rectangle-20261028",
+      "root": "rnd-rect-default-rng-alias",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/rect.c:rnd_rect:rn2"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-random-room-placement-20261028",
+      "root": "random-first-room-placement-rng-aliases",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:create_room:rn2",
+        "source-audit:edge-c-only:src/sp_lev.c:create_room:rnd"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-replace-selection-20261028",
+      "root": "replace-terrain-selection-method-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_new",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_clear",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getbounds",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getpoint",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_setpoint"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-room-callback-20261028",
+      "root": null,
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": "2026-10-28T21:37:35.180108+00:00",
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_int",
+        "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_bool",
+        "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_str",
+        "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_region"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-callback-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-room-obstruction-20261028",
+      "root": "room-obstruction-rng-injection",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:check_room:rn2"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-selection-numeric-operators-20261028",
+      "root": "selection-numeric-point-helper-substitution",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_getpoint",
+        "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionPoint",
+        "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_getpoint",
+        "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionPoint"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-subroom-placement-20261028",
+      "root": null,
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": "2026-10-28T21:41:28.321279+00:00",
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:create_subroom:rnd"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-message-buffer-20261028",
+      "root": "level-message-c-string-prefix",
+      "outcome": "accepted",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_message:alloc"
+      ],
+      "prs": [
+        92
+      ],
+      "category": "scanner",
+      "ref": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/cc5a50e4e23b33f36a39ff8826a866bb7832caca/diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/case.json",
+      "events": [],
+      "completion": {
+        "verified": true,
+        "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+        "completedAt": null,
+        "recordedAt": "2026-10-28T22:43:36.094161+00:00",
+        "authority": "Parent independently read Main completion record msg_019edc70def51fa7016ae276f29ac88197ba93192d9de9f139 and reported it to this shard.",
+        "references": [
+          {
+            "caseIds": [
+              "levels-message-buffer-20261028"
+            ],
+            "sha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+            "authority": "Parent independently read Main completion record msg_019edc70def51fa7016ae276f29ac88197ba93192d9de9f139 and reported it to this shard.",
+            "recordedAt": "2026-10-28T22:43:36.094161+00:00",
+            "completedAt": null,
+            "source": {
+              "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+              "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/message-final-receipt-4222eaf89.json",
+              "pr": 89,
+              "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+              "excludedPathFragments": [
+                "long-worm-shopkeeper",
+                "shopkeeper-departure",
+                "buried-state",
+                "figurine",
+                "unpaid-glob",
+                "ring-invisibility",
+                "whatis",
+                "migrating-object"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "levels-coder-guard-delegation-20261029",
+      "root": "public-des-coder-initialization-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_level_flags:create_des_coder",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_level_init:create_des_coder",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_terrain:create_des_coder",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_wall_property:create_des_coder",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:create_des_coder",
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_teleport_region:create_des_coder"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-engraving-string-prefix-20261028",
+      "root": "c-string-prefix-at-construction-boundary",
+      "outcome": "accepted",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:lspo_engraving:dupstr"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/case.json",
+      "events": [],
+      "completion": {
+        "verified": true,
+        "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+        "completedAt": null,
+        "recordedAt": "2026-10-28T23:44:14.670726+00:00",
+        "authority": "Parent explicitly verified Main completion; no independent private-receipt read claimed.",
+        "references": [
+          {
+            "caseIds": [
+              "levels-solidfill-wall-reset-20261028",
+              "levels-engraving-string-prefix-20261028"
+            ],
+            "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+            "authority": "Parent explicitly verified Main completion; no independent private-receipt read claimed.",
+            "recordedAt": "2026-10-28T23:44:14.670726+00:00",
+            "completedAt": null,
+            "source": {
+              "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+              "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/accepted-routing.json",
+              "pr": 89,
+              "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+              "excludedPathFragments": [
+                "long-worm-shopkeeper",
+                "shopkeeper-departure",
+                "buried-state",
+                "figurine",
+                "unpaid-glob",
+                "ring-invisibility",
+                "whatis",
+                "migrating-object"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "levels-finddpos-direction-20261028",
+      "root": "finddpos-cardinal-caller-contract",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/mklev.c:finddpos:impossible",
+        "source-audit:message:src/mklev.c:finddpos:07c9fad716dba72a"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-liquid-placement-predicates-20261028",
+      "root": "liquid-placement-predicate-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/mklev.c:occupied:is_pool",
+        "source-audit:edge-c-only:src/mklev.c:occupied:is_lava",
+        "source-audit:edge-js-helper:src/mklev.c:occupied:isPoolAt",
+        "source-audit:edge-js-helper:src/mklev.c:occupied:isLavaAt",
+        "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_pool",
+        "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_lava",
+        "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isPoolAt",
+        "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isLavaAt"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-map-single-cell-20261029",
+      "root": "map-array-single-cell-reset",
+      "outcome": "confirmed",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [],
+      "prs": [
+        89
+      ],
+      "category": "manual",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-map-string-prefix-20261028",
+      "root": "c-string-prefix-at-construction-boundary",
+      "outcome": "confirmed",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:mapfrag_fromstr:dupstr"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-rect-allocation-guard-20261028",
+      "root": "init-rect-post-allocation-null-guard",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:message:src/rect.c:init_rect:8ad3bff1629fb9b8"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-room-door-rng-20261028",
+      "root": "room-door-rng-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:create_door:rn2"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-selection-iterate-20261028",
+      "root": "selection-iteration-traversal-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/selvar.c:selection_iterate:isok",
+        "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getbounds",
+        "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getpoint"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-solidfill-ice-reset-20261029",
+      "root": "terrain-flags-wall-info-alias-reset",
+      "outcome": "confirmed",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [],
+      "prs": [
+        89
+      ],
+      "category": "manual",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-solidfill-ice-reset-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-solidfill-wall-reset-20261028",
+      "root": "terrain-flags-wall-info-alias-reset",
+      "outcome": "accepted",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [],
+      "prs": [
+        89
+      ],
+      "category": "manual",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/case.json",
+      "events": [],
+      "completion": {
+        "verified": true,
+        "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+        "completedAt": null,
+        "recordedAt": "2026-10-28T23:44:14.670726+00:00",
+        "authority": "Parent explicitly verified Main completion; no independent private-receipt read claimed.",
+        "references": [
+          {
+            "caseIds": [
+              "levels-solidfill-wall-reset-20261028",
+              "levels-engraving-string-prefix-20261028"
+            ],
+            "sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+            "authority": "Parent explicitly verified Main completion; no independent private-receipt read claimed.",
+            "recordedAt": "2026-10-28T23:44:14.670726+00:00",
+            "completedAt": null,
+            "source": {
+              "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+              "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/accepted-routing.json",
+              "pr": 89,
+              "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+              "excludedPathFragments": [
+                "long-worm-shopkeeper",
+                "shopkeeper-departure",
+                "buried-state",
+                "figurine",
+                "unpaid-glob",
+                "ring-invisibility",
+                "whatis",
+                "migrating-object"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "levels-trap-selector-rng-20261028",
+      "root": "trap-selector-rng-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rn2",
+        "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rnd",
+        "source-audit:edge-c-only:src/mklev.c:traptype_roguelvl:rn2",
+        "source-audit:edge-js-helper:src/mklev.c:traptype_rnd:levelTrapEnv",
+        "source-audit:edge-js-helper:src/mklev.c:traptype_roguelvl:levelTrapEnv"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-room-coordinate-retries-20261029",
+      "root": "room-coordinate-fallback-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/sp_lev.c:get_location:somexy",
+        "source-audit:edge-js-helper:src/sp_lev.c:get_free_room_loc:coordinateEnvironment"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-cave-finish-metadata-20261029",
+      "root": "cave-finish-metadata-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-c-only:src/mkmap.c:mkmap:finish_map",
+        "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_finish_map"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-drawbridge-door-mask-20261029",
+      "root": "terrain-flags-alias-coherence",
+      "outcome": "confirmed",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [],
+      "prs": [
+        89
+      ],
+      "category": "manual",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-mapchar-family-20261029",
+      "root": "c-string-prefix-at-construction-boundary",
+      "outcome": "confirmed",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [],
+      "prs": [
+        89
+      ],
+      "category": "manual",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-portal-construction-delegation-20261029",
+      "root": "portal-construction-factory-delegation",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-stub:src/mkmaze.c:mkportal:maketrap"
+      ],
+      "prs": [
+        89
+      ],
+      "category": "scanner",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-randline-roughness-width-20261029",
+      "root": "randline-roughness-signed-byte-conversion",
+      "outcome": "confirmed",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [],
+      "prs": [
+        89
+      ],
+      "category": "manual",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "levels-terrain-string-prefix-20261029",
+      "root": "c-string-prefix-at-construction-boundary",
+      "outcome": "confirmed",
+      "reportedReady": true,
+      "reviewedAt": null,
+      "keys": [],
+      "prs": [
+        89
+      ],
+      "category": "manual",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/96d2484d39d48496ece9c44cb4146949b8a0aae1/diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "web-call-stub-negative",
+      "root": null,
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-stub:src/monmove.c:maybe_spin_web:maketrap"
+      ],
+      "prs": [
+        102
+      ],
+      "category": "scanner",
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/web-call-stub-negative/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "medusa-stone-transition-scope",
+      "root": null,
+      "outcome": "unresolved",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-stub:src/mhitu.c:gazemu:polymon"
+      ],
+      "prs": [
+        102
+      ],
+      "category": "scanner",
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "medusa-ugly-reaction-negative",
+      "root": "gazemu-unreachable-zero-react-ternary",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:message:src/mhitu.c:gazemu:0dfe9e7fb294fee3"
+      ],
+      "prs": [
+        96
+      ],
+      "category": "scanner",
+      "ref": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/9c2df4fe2eda635c3a92afc6b3673626d595ebe1/diagnostics/divergence-evidence/monsters/medusa-ugly-reaction-negative/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "cleric-floor-spell-stub-negative",
+      "root": "constant-argument-excludes-callee-diagnostic",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-stub:src/mcastu.c:mcast_fire_pillar:mon_spell_hits_spot",
+        "source-audit:edge-stub:src/mcastu.c:mcast_lightning:mon_spell_hits_spot"
+      ],
+      "prs": [
+        102
+      ],
+      "category": "scanner",
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "fixed-armor-slot-stub-negative",
+      "root": "constant-argument-excludes-callee-diagnostic",
+      "outcome": "explained_negative",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-stub:src/mhitu.c:mattacku:which_armor",
+        "source-audit:edge-stub:src/mhitm.c:mdisplacem:which_armor"
+      ],
+      "prs": [
+        102
+      ],
+      "category": "scanner",
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/case.json",
+      "events": [],
+      "completion": null
+    },
+    {
+      "id": "castmu-attack-ownership-scope",
+      "root": null,
+      "outcome": "unresolved",
+      "reportedReady": false,
+      "reviewedAt": null,
+      "keys": [
+        "source-audit:edge-stub:src/mcastu.c:castmu:mon_spell_hits_spot",
+        "source-audit:message:src/mcastu.c:mcast_clone_wiz:00a83c749503f442",
+        "source-audit:message:src/mcastu.c:mcast_disappear:e8d896909a1fe088"
+      ],
+      "prs": [
+        102
+      ],
+      "category": "scanner",
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/32a73e22b6dc09db8114cc106ba1aee4c8760c95/diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/case.json",
+      "events": [],
+      "completion": null
+    }
+  ],
+  "audits": [
+    {
+      "id": "declared-fields-20261028",
+      "pr": 98,
+      "ref": "0a35429e69fde9181ac1ad2161df14d8ff8f0a0d",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/0a35429e69fde9181ac1ad2161df14d8ff8f0a0d/diagnostics/divergence-evidence/object-catalog/declared-fields-20261028/case.json",
+      "outcome": "explained_negative",
+      "scope": "Finite non-ring source-table comparison only; exact per-row locations and values in target-output.json.",
+      "limitations": [
+        "No runtime exposure or gameplay consequence established.",
+        "No rings, runtime handlers, game execution, recorder, state injection or denied-work artifacts.",
+        "Remaining unexamined fields and portability limits are listed in README.md."
+      ]
+    },
+    {
+      "id": "progression-20261028",
+      "pr": 99,
+      "ref": "c96dc555c32556c0e7d683cdd9ff11bb1d6af4fe",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/c96dc555c32556c0e7d683cdd9ff11bb1d6af4fe/diagnostics/divergence-evidence/character-tables/progression-20261028/case.json",
+      "outcome": "explained_negative",
+      "scope": "13 roles and five races: attribute vectors, HP/energy advancement vectors and role cutoff; 277 skill entries in 13 tables; 44 innate rows in 18 tables.",
+      "limitations": [
+        "Source declarations only; runtime correctness and exposure unestablished.",
+        "Dispatch, eligibility, random rolls, initialization and state updates are unexamined.",
+        "Existing tests already cover overlapping declarations; see README for incremental evidence and omitted fields.",
+        "Restricted parser for pinned syntax, not a general compiler or preprocessor."
+      ]
+    },
+    {
+      "id": "static-20261028",
+      "pr": 95,
+      "ref": "d67328494dd3f56387163fbc5d90690021001392",
+      "url": "https://github.com/vtjeng/teleport-contest/blob/d67328494dd3f56387163fbc5d90690021001392/diagnostics/divergence-evidence/command-catalog/static-20261028/case.json",
+      "outcome": "bounded static declarations match; seven symbolic keys unexamined",
+      "scope": "extcmdlist names/labels/default keys; commands_init explicit bind_key aliases; escape/count special keys; eight yn_function_menu option labels. Exclusions and unexamined fields are in README and observations.json.",
+      "limitations": []
+    }
+  ]
+}

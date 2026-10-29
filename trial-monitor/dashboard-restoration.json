@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "baselineCommit": "d0e6129d5eddb3a3db1eaaa64b65370a12997972",
+  "baselineSourceCommit": "736b8cd0424817ab9838e29b7ffb7e04228a354b",
+  "baselineTree": "1103791acf7cb7f04986928c4dd03104f6815e00",
+  "reportingSourceCommit": "fa6ac3709a0acf413c83bd459c6772b16476343f",
+  "evidencePath": "trial-monitor/evidence.json",
+  "evidenceSha256": "25c545161ab372965d824e3da8c7efa5d5280aba43dd50a16bc1e71ff1e62c6b",
+  "mode": "frozen-historical-reporting",
+  "ordinaryWriters": "held",
+  "refresh": "not restored in this overlay"
+}

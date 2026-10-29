@@ -3,6 +3,7 @@
 // Generates a self-contained HTML dashboard by injecting data into the template.
 
 import { execSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +14,8 @@ import { createChartTimeRange } from './dashboard-time-range.mjs';
 import { singleWorkerActivity } from './single-worker-activity.mjs';
 import { syntheticPublicationStatus } from './published-synthetic.mjs';
 import { createTrialMonitor } from './trial-monitor.mjs';
+import { workflowSummary } from './dashboard-workflow.mjs';
+import { renderWorkflow } from './dashboard-workflow-view.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The history and per-case challenge data can exceed execSync's 1 MiB default.
@@ -29,7 +32,16 @@ export function escapeJsonForScript(json) {
     .replaceAll('\u2029', '\\u2029');
 }
 
-export function injectDashboardData(template, data, queueData, commit, trialData = 'null') {
+export function reportingContextNotice(context) {
+  if (context === null) return '';
+  if (context?.version !== 1 || context.mode !== 'frozen-historical-reporting'
+      || !['baselineCommit', 'baselineSourceCommit', 'baselineTree', 'reportingSourceCommit']
+        .every(key => /^[a-f0-9]{40}$/u.test(context[key] ?? '')))
+    throw new Error('Invalid dashboard restoration provenance');
+  return `<p class="compact-note" id="reportingContext">Gameplay baseline: ${context.baselineSourceCommit} (tree ${context.baselineTree}), restored by ${context.baselineCommit}. Historical reporting snapshot: ${context.reportingSourceCommit}. Later repair outcomes are historical evidence, not repairs applied to this gameplay baseline. Ordinary writers are held; this evidence snapshot does not refresh.</p>`;
+}
+
+export function injectDashboardData(template, data, queueData, commit, trialData = 'null', evidenceData = 'null', context = null) {
   const reservations = JSON.parse(data)?.workerReservations, queue = JSON.parse(queueData);
   if (reservations && queue) {
     queue.workerWork = workerWork(reservations, queue);
@@ -40,6 +52,10 @@ export function injectDashboardData(template, data, queueData, commit, trialData
   const html = template
     .replace('/*DATA_PLACEHOLDER*/null', () => escapeJsonForScript(data))
     .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData))
+    .replace('/*WORKFLOW_DATA_PLACEHOLDER*/null', () => escapeJsonForScript(evidenceData))
+    .replace('/*WORKFLOW_MODEL_PLACEHOLDER*/null', () => workflowSummary.toString())
+    .replace('/*WORKFLOW_VIEW_PLACEHOLDER*/null', () => renderWorkflow.toString())
+    .replace('<!--REPORTING_CONTEXT_PLACEHOLDER-->', () => reportingContextNotice(context))
     .replace('/*TRIAL_PLACEHOLDER*/null', () => escapeJsonForScript(trialData))
     .replace('/*SYNTHETIC_STATUS_PLACEHOLDER*/null', () => syntheticPublicationStatus.toString())
     .replace('/*TRIAL_MODEL_PLACEHOLDER*/null', () => createTrialMonitor.toString())
@@ -81,7 +97,12 @@ function main() {
     manifest: JSON.parse(readFileSync(join(__dirname, '../trial-monitor/manifest.json'), 'utf8')),
     register: JSON.parse(readFileSync(join(__dirname, '../trial-monitor/repairs.json'), 'utf8')),
   });
-  const html = injectDashboardData(template, data, queueData.trim(), commit, trialData);
+  const context = JSON.parse(readFileSync(join(__dirname, '../trial-monitor/dashboard-restoration.json'), 'utf8'));
+  const evidence = readFileSync(join(__dirname, '../trial-monitor/evidence.json'), 'utf8');
+  if (context.evidencePath !== 'trial-monitor/evidence.json'
+      || createHash('sha256').update(evidence).digest('hex') !== context.evidenceSha256)
+    throw new Error('Frozen dashboard evidence differs from its source pin');
+  const html = injectDashboardData(template, data, queueData.trim(), commit, trialData, evidence, context);
 
   const outPath = process.argv[2] || 'dashboard.html';
   writeFileSync(outPath, html);
