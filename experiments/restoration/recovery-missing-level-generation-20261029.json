@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "preparedAt": "2026-10-29T21:02:30.455511+00:00",
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "behaviorChunk": "Complete named fake-Wizard loaders and unnamed below-Medusa maze generation through existing level generation/finalization API.",
+  "sources": [
+    "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+    "acde269c6bba9ab9adb0600824f199f65ff0443a",
+    "b1b9709b30d2302b2041227e21483901665096cb"
+  ],
+  "associatedSupportSources": [
+    "55902742b2c99b74db943203d00eaad623eae938"
+  ],
+  "currentHBefore": {
+    "publicAndRetainedCDigestCases": 6,
+    "pass": 3,
+    "fail": 3,
+    "targetBoundaries": "fakewiz1 andfakewiz2 match through6boundaries, then missingnative loader output atboundary7; belowMedusa seed81 wrong rooms/maze flag; nearby room seed79passes."
+  },
+  "afterOriginalTargetTests": {
+    "tests": 7,
+    "pass": 7
+  },
+  "CProvenanceLimit": "Two fake-Wizard targets andtwo minetn controls use bundled nativeC recordings. BelowMedusa target/control use retained complete-output hashes originally C-matched per published source test; freshC execution and underlying C capture not independently repeated.",
+  "fixtureProvenance": {
+    "selectedAt": "2026-10-29T20:59:07.237177+00:00",
+    "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+    "sources": [
+      "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+      "acde269c6bba9ab9adb0600824f199f65ff0443a",
+      "b1b9709b30d2302b2041227e21483901665096cb"
+    ],
+    "files": [
+      {
+        "source": "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+        "path": "recipes/mklev.c/trial-fakewiz-minetn-control.session.json",
+        "sha256": "4b70d8fb8e9f70a53c5a09ba4227bc56af915dbb73226fe43444d01039a84b17",
+        "bytes": 246
+      },
+      {
+        "source": "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+        "path": "recipes/mklev.c/trial-fakewiz1-levelport.session.json",
+        "sha256": "1c43b9bfbfd989a43348786bab324d5014426ef4edc995fa48bc1b2a6fd96c06",
+        "bytes": 246
+      },
+      {
+        "source": "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+        "path": "recordings/mklev.c/trial-fakewiz-minetn-control.session.json",
+        "sha256": "dec330707967c7fa6466c8666f4e2562a0d68f9f16dead3193c486f4e1286e11",
+        "bytes": 276369
+      },
+      {
+        "source": "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+        "path": "recordings/mklev.c/trial-fakewiz1-levelport.session.json",
+        "sha256": "62abd7fd528b2561787d5055c400eafa3cd0ddd6a1cc919b5806d209bbe78d6f",
+        "bytes": 305046
+      },
+      {
+        "source": "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+        "path": "scripts/fakewiz1-level-generation.test.mjs",
+        "sha256": "4b4b6f0cbaeb18ba76cf5dcdd4cc6cad260366d0c624bbbafae615ea040a31d3",
+        "bytes": 1841
+      },
+      {
+        "source": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+        "path": "recordings/mklev.c/trial-fakewiz2-levelport.session.json",
+        "sha256": "99d0ca18124c227f8307d7783397675099223c9ffedc163f409deb27c4f73064",
+        "bytes": 244459
+      },
+      {
+        "source": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+        "path": "recordings/mklev.c/trial-fakewiz2-minetn-control.session.json",
+        "sha256": "879a37d85c8735b151d4f13839d45f280891dcd88944b079018c969328c102a5",
+        "bytes": 155074
+      },
+      {
+        "source": "acde269c6bba9ab9adb0600824f199f65ff0443a",
+        "path": "scripts/fakewiz2-level-generation.test.mjs",
+        "sha256": "177b76f36104e6d1d3c3cdf42dbb6a222a8fed616f935e286b15ab3b2146267f",
+        "bytes": 1492
+      },
+      {
+        "source": "b1b9709b30d2302b2041227e21483901665096cb",
+        "path": "scripts/below-medusa-maze.test.mjs",
+        "sha256": "106961b0100279213388197ad1620c79890998e57bac445af69fbc2ab2e8a651",
+        "bytes": 1953
+      }
+    ],
+    "scope": "Original ordinary wizard level-teleport routes and native level-loader behavior. Authored fakewiz modules contain no des.room call. No stopped des.room type construction or new room API fixture."
+  },
+  "dependencyProof": "Existing loader dispatcher, ThemeroomSelection, selection_match, hellTweaks, create_maze/mazexy/populate_maze, Invocation_lev and finalization helpers existH. Named loader modules added; no original18 door/turn/input changes, no broad finalP file copy. Original API calls contain no des.room construction case.",
+  "testMaintenance": "Support source559027 updates branch-count source assertion from6to7 and5to6 because the real new procedural branch must finalize. Old failure retained; not counted as gameplay defect.",
+  "risks": [
+    "Invocation-depth procedural branch is source-translated but not exercised by these below-Medusa inputs.",
+    "No fresh hiddenjudge evidence.",
+    "Local only; frozen54 manifest unchanged."
+  ],
+  "validation": {
+    "focusedTargetTests": {
+      "tests": 7,
+      "pass": 7
+    },
+    "durableAndReportingTests": {
+      "tests": 24,
+      "pass": 24
+    },
+    "lint": "pass",
+    "relativeImports": "pass",
+    "namespaceMembers": "pass withcomputedaccesslimitsretained",
+    "newCExecution": false
+  }
+}
