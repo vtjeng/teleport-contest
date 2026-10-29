@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-backed live pile_limit editor empty",
+  "segments": [
+    {
+      "seed": 15641285,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:pile_limit\n\n\n#optionsfull\n      "
+    }
+  ]
+}
