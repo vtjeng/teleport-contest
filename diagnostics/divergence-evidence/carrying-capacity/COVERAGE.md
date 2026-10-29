@@ -33,9 +33,12 @@ absolute. Finite matching probes are not exhaustive certification.
 | Traditional numeric prompt omits live echo | confirmed candidate cause4 | public-traditional-count;3 failures+1 control |
 | Traditional filtered menu request loses class restriction | confirmed candidate cause5 | public-menu-request;2 failures+1 control |
 | Look-inside fails to restart traditional class query | confirmed candidate cause6 | public-look-restart;1 failure+1 control |
+| Empty/absent class lacks one-by-one fallback | confirmed candidate cause7 | public-class-fallback;2 failures+1 control |
+| Full-menu long count resets to trailing digits | confirmed candidate cause8 | public-large-menu-count;1 failure+1 control |
 
-Historical public corpus:61 fixtures,51 strict matches,10 failing fixtures grouped
-into6 semantic causes at their pinned pre-fix sources. No scanner keys or filter rules. Prior arithmetic row
+Historical public corpus:66 fixtures,53 strict matches,13 failing fixtures grouped
+into8 semantic causes at their pinned pre-fix sources. The8 behavior causes span6 source repair families: causes5-7 share query_classes.
+No scanner keys or filter rules. Prior arithmetic row
 counts are not cause counts. Source-bound receipts and exposure limits live in
 each package. #105/#108 remain unchanged.
 
@@ -59,7 +62,7 @@ each package. #105/#108 remain unchanged.
   source hashes are retained. This provenance limit is explicit.
 - Main1e786f87d927b72bd07122fc3eead0ecb5d8203c contains repairs for causes1-3;
   historical failures remain intact. Saved-C/isolated-Main replay verification
-  passed all4 former targets and3 controls; see main-replay-1e786f87. Causes4-6 source paths remain unchanged at that Main SHA.
+  passed all4 former targets and3 controls; see main-replay-1e786f87. Causes4-8 source paths remain unchanged at that Main SHA.
 
 ## Practical next paths
 
@@ -69,10 +72,12 @@ each package. #105/#108 remain unchanged.
    counted-row stop/continue, edit/cancel/clamp paths are now qualified.
    Traditional askchain exposed cause4; filtered menu handoff exposed cause5.
    Look-inside restart exposed cause6. Exact-Main replay verifies causes1-3 on7 existing fixtures (not new cases).
-   Next: query_classes empty/absent-class fallback versus explicit one-by-one.
+   Empty/absent-class fallback exposed cause7; full-menu safe-integer boundary
+   exposed cause8. Next: ordinary multiple-drop entry at the first burden
+   boundary, with weight display off to avoid the already-fixed naming cause.
    This is not exhaustive input/seed/role certification; nesting beyond three levels,
    arbitrary menu permutations and other object catalogs remain coverage gaps.
-2. Post-fix validation for causes4-6 awaits Main's implementation.
+2. Post-fix validation for causes4-8 awaits Main's implementation.
    Fresh public reruns are declared in each candidate package; do not repeat
    unchanged failures. If a new ordinary-weight source change or concrete lead
    appears, reopen that path with a new executed C comparison.

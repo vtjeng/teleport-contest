@@ -1,0 +1,101 @@
+[
+  {
+    "name": "unsafe-prefix",
+    "passed": false,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2382,
+        "js": 2395
+      },
+      "screens": {
+        "c": 121,
+        "js": 121
+      },
+      "cursors": {
+        "c": 121,
+        "js": 121
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": {
+      "index": 2382,
+      "cCaller": null,
+      "jsEntry": "rnd(2)=2"
+    },
+    "screenMismatch": {
+      "index": 120,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 120,
+        "key": "\n"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "Y",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "f",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "cursorMismatch": {
+      "index": 120,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 120,
+        "key": "\n"
+      },
+      "cCursor": [
+        78,
+        0,
+        1
+      ],
+      "jsCursor": [
+        44,
+        4,
+        1
+      ]
+    },
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  {
+    "name": "safe-control",
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2382,
+        "js": 2382
+      },
+      "screens": {
+        "c": 120,
+        "js": 120
+      },
+      "cursors": {
+        "c": 120,
+        "js": 120
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  }
+]
