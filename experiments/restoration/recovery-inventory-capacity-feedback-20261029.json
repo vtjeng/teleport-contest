@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "26e56ce08dd2794bde95d027d9747b9c8e1953f5",
+    "6296b084841485d9a6968a580446dfd077aef0d0",
+    "ca33ba55222335c5ab644d9249d704c70f72ccdc",
+    "1e786f87d927b72bd07122fc3eead0ecb5d8203c"
+  ],
+  "scope": "Four compatible pickup/inventory fixes: silent burden status, count-one heavy-stack admission, single gold-row admission, priced container menu naming. No literal dependency on original18 behavior.",
+  "dependencyReview": "pickup.js has no original18 G-to-B diff. Four independent causes share this owner. The status C recording diverges at status label boundary21; its later count-one pickup at boundary32 needs the independent count fix for complete replay. Per-source ablation and native boundary diagnosis separate these, rather than claiming a semantic dependency.",
+  "evidence": "Nine published PR110 full public C recordings with original manifest hashes; one derived recording prefix for durable count-boundary regression. Existing H pickup regression suite includes previously parent-cleared paid held-SACK fixture, restored byte-identically from original local support (not the denied unpaid investigation).",
+  "preservedFixture": {
+    "source": "/workspace/teleport-contest/.cache/glob-public-stash-source-clock-reviewed-qualification-20261019/attempt.mjs",
+    "bytes": 16486,
+    "sha256": "ffc92d4c0b8f936908da7ead55d3c4bf3d9fec57733f90fcd6232b98403e58c9"
+  },
+  "sourceHashes": {
+    "src/pickup.c": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+    "src/objnam.c": "445d0b8697ceeb93f1249599b16caffb101a832ee425d76f9eb3fd65088f1dd3"
+  },
+  "limits": "Historical recorder/source provenance retained; independent original build attestation unavailable. No new C capture or hidden-score claim. All denied unpaid/glob/ring/other investigations remain excluded."
+}
