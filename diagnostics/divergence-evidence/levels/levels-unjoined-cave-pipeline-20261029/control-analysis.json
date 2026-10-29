@@ -1,0 +1,221 @@
+{
+  "pairs": [
+    {
+      "fg": ".",
+      "bg": " ",
+      "lit": 0,
+      "seed": 3,
+      "rngCalls": 1612,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": ".",
+      "bg": " ",
+      "lit": 0,
+      "seed": 19,
+      "rngCalls": 1618,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": ".",
+      "bg": " ",
+      "lit": 0,
+      "seed": 43,
+      "rngCalls": 1626,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": ".",
+      "bg": " ",
+      "lit": 0,
+      "seed": 101,
+      "rngCalls": 1638,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": ".",
+      "bg": " ",
+      "lit": 1,
+      "seed": 3,
+      "rngCalls": 1612,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": ".",
+      "bg": " ",
+      "lit": 1,
+      "seed": 19,
+      "rngCalls": 1618,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": ".",
+      "bg": " ",
+      "lit": 1,
+      "seed": 43,
+      "rngCalls": 1626,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": ".",
+      "bg": " ",
+      "lit": 1,
+      "seed": 101,
+      "rngCalls": 1638,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "#",
+      "bg": "T",
+      "lit": 0,
+      "seed": 3,
+      "rngCalls": 1612,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "#",
+      "bg": "T",
+      "lit": 0,
+      "seed": 19,
+      "rngCalls": 1618,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "#",
+      "bg": "T",
+      "lit": 0,
+      "seed": 43,
+      "rngCalls": 1626,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "#",
+      "bg": "T",
+      "lit": 0,
+      "seed": 101,
+      "rngCalls": 1638,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "#",
+      "bg": "T",
+      "lit": 1,
+      "seed": 3,
+      "rngCalls": 1612,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "#",
+      "bg": "T",
+      "lit": 1,
+      "seed": 19,
+      "rngCalls": 1618,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "#",
+      "bg": "T",
+      "lit": 1,
+      "seed": 43,
+      "rngCalls": 1626,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "#",
+      "bg": "T",
+      "lit": 1,
+      "seed": 101,
+      "rngCalls": 1638,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "I",
+      "bg": "W",
+      "lit": 0,
+      "seed": 3,
+      "rngCalls": 1612,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "I",
+      "bg": "W",
+      "lit": 0,
+      "seed": 19,
+      "rngCalls": 1618,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "I",
+      "bg": "W",
+      "lit": 0,
+      "seed": 43,
+      "rngCalls": 1626,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "I",
+      "bg": "W",
+      "lit": 0,
+      "seed": 101,
+      "rngCalls": 1638,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "I",
+      "bg": "W",
+      "lit": 1,
+      "seed": 3,
+      "rngCalls": 1612,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "I",
+      "bg": "W",
+      "lit": 1,
+      "seed": 19,
+      "rngCalls": 1618,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "I",
+      "bg": "W",
+      "lit": 1,
+      "seed": 43,
+      "rngCalls": 1626,
+      "sameTape": true,
+      "differentCells": true
+    },
+    {
+      "fg": "I",
+      "bg": "W",
+      "lit": 1,
+      "seed": 101,
+      "rngCalls": 1638,
+      "sameTape": true,
+      "differentCells": true
+    }
+  ],
+  "scope": "All24 paired controls use identical observed legal RNG tapes but differ in final cell hashes when smoothing is disabled. This is not independent RNG equivalence or universal coverage."
+}

@@ -1,0 +1,94 @@
+{
+  "testedJsSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+  "discoveredAt": "2026-10-29T03:47:03.523320+00:00",
+  "reviewedAt": "2026-10-29T03:47:03.523320+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mkmap.c:init_map": "968e5428f0903f3e4516ce28e6ba4592f93eb590f121639668f02d8ccfe36ea9",
+    "nethack-c/upstream/src/mkmap.c:init_fill": "074344c50644d6a01c18d758ccf2133086a492fca462f87a08727799f547baf7",
+    "nethack-c/upstream/src/mkmap.c:get_map": "5226714584694ea82d0612af7d8426693d47e4709acd6421b07c038579935e86",
+    "nethack-c/upstream/src/mkmap.c:pass_one": "54e0ed716411ac75549eef7f80a80c2c316e55091bb8b103722a3ec8d30ca58c",
+    "nethack-c/upstream/src/mkmap.c:pass_two": "6f2163115a4d2125438611d9ddfa59d41b2b6e125749e917f45498a73c0ba6c1",
+    "nethack-c/upstream/src/mkmap.c:pass_three": "370ce7bb714a6e1518b22e5206026b5368d575400456c6756dcdd744f8243b96",
+    "nethack-c/upstream/src/mkmap.c:finish_map": "fb8882f2c8a17894dd27458a0cb9195daad80ee4b4c21f89e6e7ac5b13917e76",
+    "nethack-c/upstream/src/mkmap.c:litstate_rnd": "be3ca2202ff7f5cdf2e8a3b2b8bbd3e8b12ed756b0cc015f1a6e0dd5bd7b91ad",
+    "nethack-c/upstream/src/mkmap.c:mkmap": "c0e795402d61d26e2602b9d1bf731bd283e4c35ecc31c0018aa39c32ffe09bec",
+    "js/mklev.js:mkmap": "2127aa235293f526daf43b642d4b263a463e1c2f5fc11c4278ac0759917340dc",
+    "js/mklev.js:mkmap_init_map": "5ce97aea623356347bf9c704b1cdc7270e028f2915fa8e39a902e4801dac87a4",
+    "js/mklev.js:mkmap_init_fill": "cdea4e1fdb0f4fb604a831b8451ff7f36281a8bb950a94fa42336d916adf17ae",
+    "js/mklev.js:mkmap_get_map": "2aafb4c499fb4619c55e0babf880e3e281ee567e6ebbc217768220d8e5452f37",
+    "js/mklev.js:mkmap_pass_one": "19e1f507ca5bfe5adfcae57f3b63ef8e0096ab281fb17d252ebd35625cfad105",
+    "js/mklev.js:mkmap_pass_two": "029999691a1be721ac8f927107885af186941366e11e33ba823d91ac9d7a34f6",
+    "js/mklev.js:mkmap_pass_three": "cf987f4d1ef55b916c1d7ab215dca0f6e96a95f970ff7ce3dc586b81ac287b0b",
+    "js/mklev.js:mkmap_finish_map": "ab5eb79f289e75cc8956066f27a6797fb6cfc9e737b50bc368199f73a58b576a",
+    "js/mklev.js:litstate_rnd": "63808defb813e372ecbdf7b000e32fef9782487c6fb95a5b905fc58e4d8c6295"
+  },
+  "bindingChecks": [
+    {
+      "path": "js/mklev.js",
+      "symbol": "mkmap",
+      "scanAndCurrentBodySha256": "2127aa235293f526daf43b642d4b263a463e1c2f5fc11c4278ac0759917340dc",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "mkmap_init_map",
+      "scanAndCurrentBodySha256": "5ce97aea623356347bf9c704b1cdc7270e028f2915fa8e39a902e4801dac87a4",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "mkmap_init_fill",
+      "scanAndCurrentBodySha256": "cdea4e1fdb0f4fb604a831b8451ff7f36281a8bb950a94fa42336d916adf17ae",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "mkmap_get_map",
+      "scanAndCurrentBodySha256": "2aafb4c499fb4619c55e0babf880e3e281ee567e6ebbc217768220d8e5452f37",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "mkmap_pass_one",
+      "scanAndCurrentBodySha256": "19e1f507ca5bfe5adfcae57f3b63ef8e0096ab281fb17d252ebd35625cfad105",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "mkmap_pass_two",
+      "scanAndCurrentBodySha256": "029999691a1be721ac8f927107885af186941366e11e33ba823d91ac9d7a34f6",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "mkmap_pass_three",
+      "scanAndCurrentBodySha256": "cf987f4d1ef55b916c1d7ab215dca0f6e96a95f970ff7ce3dc586b81ac287b0b",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "mkmap_finish_map",
+      "scanAndCurrentBodySha256": "ab5eb79f289e75cc8956066f27a6797fb6cfc9e737b50bc368199f73a58b576a",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "litstate_rnd",
+      "scanAndCurrentBodySha256": "63808defb813e372ecbdf7b000e32fef9782487c6fb95a5b905fc58e4d8c6295",
+      "unchanged": true
+    }
+  ],
+  "configuration": "Node24.19.0; Clang19.1.7 (3+b1), -std=c11 -O2; fixed initialization seed24301/date20400314015926,Tourist/human/female/neutral,bonesfalse; per-case cave seed3/19/43/101. Shared observed RNG tape.",
+  "limitations": [
+    "Eleven keys form ONE unjoined pipeline/buffer-delegation cause. Five C phase edges and five renamed JS edges are not ten independent findings. Temporary storage equivalence is logical output under successful allocation only, not JS GC timing or C OOM handling.",
+    "The new question is pipeline composition and phase ordering from a shared initial random fill, not another isolated cellular-pass or finishing-metadata sample. Existing phase/metadata proofs remain scoped and are not recounted. Target smoothed=true executes two pass_three iterations; paired smoothed=false controls omit those iterations with identical RNG tapes.",
+    "Four seeds3/19/43/101,three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER,lit0/1 comprise24targets and24controls. Each run compares all1,680 cells including unused column0 on typ,lit,roomno andicedpool. Inputs are fresh construction levels,joined=false,walled=false,icedpools=false. No rooms are created.",
+    "JS executes production newgame_pre_mklev and public des.level_init(mines) via mklev specialLevelLoader, then stops before finish. C executes exact mkmap and all active callees from a valid typed lev_init descriptor. The Lua argument reader, C full startup and independent dungeon initialization are not compared. No private JS function is extracted.",
+    "JS RNG tracing supplies legal rn2/rnd values to C, which checks every operation and bound and consumes the entire tape. This demonstrates equal behavior under shared draws; it does NOT establish C/JS RNG generator equivalence. Full raw tapes are reproducibly regenerated by the runner rather than published as bulky artifacts.",
+    "Joining and wallification are disabled and C hooks abort if reached. No join-map cleanup,cap exit,room topology,walls,negative-light/depth RNG,reused metadata,allocator failure,full finalization or runtime claim. Cave-cap remains parked; no new seed sweep attempts its reachability.",
+    "Source hashes and C bodies are pinned. All tested JS caller/helper bodies remain equal to the frozen scan base; immutable run identities and official export projection are preserved. Main advanced to f3e2e6d63; the reusable clean checkout was updated safely and target/control/layout rerun. No gameplay edits or acceptance inference for Main publications.",
+    "Four diagnostic keys,ten changed-caller bindings,bottomstairs,cave-cap and three parked prerequisite gaps remain unresolved and untouched. All access/safety exclusions remain in force."
+  ]
+}

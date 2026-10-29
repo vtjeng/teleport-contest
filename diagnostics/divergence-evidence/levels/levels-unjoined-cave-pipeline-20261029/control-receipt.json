@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T03:45:09.408Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "5a7bb00f078859caf30291ce1e667d15c622bda6e9e3484c9fec7f62402b24f3",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/oracle.c": "0b1213c2f49f93824fae6a2dd81b354335dd90898c1bfad8ccff6946519544d0",
+    "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/source-contract.json": "6dfde7fc3a8a785d0eaf3a8ee4786414c349b6c82fc9efb53b7419de6cd205c1"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/control-output.txt"
+  ]
+}

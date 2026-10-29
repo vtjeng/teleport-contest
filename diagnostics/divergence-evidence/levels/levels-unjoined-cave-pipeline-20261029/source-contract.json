@@ -1,0 +1,51 @@
+{
+  "jsSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/game.js": "dd1587ff93820e71524f2f577341b430d942462271141f0026411e27ecfe11b2",
+    "js/mklev.js": "eda77ef62939bca00cf2008bb03c04debf4faa0528d026c07dafcccf8a35d54b",
+    "js/rng.js": "072e95b76b014136e7578f023e7eb5165aea0b830063e60f4e8adf669e6bcb98",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/include/sp_lev.h": "a48d5bd2d9a5b20b474b790d52f4f19179678c87ec0b51019e39dc6684d7a6bf",
+    "nethack-c/upstream/src/mkmap.c": "25046834749be29ad3ec4b03f024189de5026b805da0129537dd5c75ca7e2f50"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "init_map"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "init_fill"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "get_map"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "pass_one"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "pass_two"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "pass_three"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "finish_map"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "litstate_rnd"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "mkmap"
+    }
+  ]
+}

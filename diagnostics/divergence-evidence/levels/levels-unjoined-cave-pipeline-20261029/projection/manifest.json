@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "ebaafeedf396332ef7522f65098fb0eb730b2b8a9c1c4d7be90aceabae42010f",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/mkmap.c:mkmap:alloc",
+    "source-audit:edge-c-only:src/mkmap.c:mkmap:init_fill",
+    "source-audit:edge-c-only:src/mkmap.c:mkmap:init_map",
+    "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_one",
+    "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_three",
+    "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_two",
+    "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_init_fill",
+    "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_init_map",
+    "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_one",
+    "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_three",
+    "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_two"
+  ],
+  "decisionsSha256": "c969385326eef3ff13f6bd3d0ef5bcbc65b9c469c72e00baaa19b481c9bdfcf6",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 11,
+    "decisionsChecked": 11,
+    "before": {
+      "active": 11,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 11,
+      "excluded": 0
+    }
+  }
+}
