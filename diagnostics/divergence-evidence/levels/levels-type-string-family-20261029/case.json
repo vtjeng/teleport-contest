@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-type-string-family-20261029",
+  "shard": "levels",
+  "status": "candidate",
+  "readiness": "review_ready",
+  "rootCause": "c-string-prefix-at-construction-boundary",
+  "relatedCases": [
+    "levels-levregion-name-prefix-20261029",
+    "levels-mapchar-family-20261029",
+    "levels-option-string-family-20261029",
+    "levels-message-buffer-20261028"
+  ],
+  "provenance": {
+    "jsSha": "2579242c67804962299920a58e3052ab3718c187",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/alloc.c",
+      "symbol": "dupstr",
+      "start_line": 238,
+      "end_line": 247,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_str_opt",
+      "start_line": 1055,
+      "end_line": 1076,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "do_room_or_subroom",
+      "start_line": 231,
+      "end_line": 301,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "add_room",
+      "start_line": 304,
+      "end_line": 319,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_table_roomtype_opt",
+      "start_line": 4004,
+      "end_line": 4020,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_table_coords_or_region",
+      "start_line": 5561,
+      "end_line": 5577,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "light_region",
+      "start_line": 2839,
+      "end_line": 2862,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "update_croom",
+      "start_line": 6324,
+      "end_line": 6333,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "spo_endroom",
+      "start_line": 4119,
+      "end_line": 4134,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "add_doors_to_room",
+      "start_line": 5544,
+      "end_line": 5555,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_region",
+      "start_line": 5584,
+      "end_line": 5715,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/trap.c",
+      "symbol": "maketrap",
+      "start_line": 456,
+      "end_line": 588,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mktrap",
+      "start_line": 2036,
+      "end_line": 2154,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "create_trap",
+      "start_line": 1812,
+      "end_line": 1846,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_traptype_byname",
+      "start_line": 4379,
+      "end_line": 4388,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_trap",
+      "start_line": 4397,
+      "end_line": 4470,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_region",
+      "start_line": 4194,
+      "end_line": 4330,
+      "commit_sha": "2579242c67804962299920a58e3052ab3718c187"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_trap",
+      "start_line": 3281,
+      "end_line": 3345,
+      "commit_sha": "2579242c67804962299920a58e3052ab3718c187"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "get_table_roomtype_opt",
+      "start_line": 2841,
+      "end_line": 2855,
+      "commit_sha": "2579242c67804962299920a58e3052ab3718c187"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "get_traptype_byname",
+      "start_line": 3267,
+      "end_line": 3273,
+      "commit_sha": "2579242c67804962299920a58e3052ab3718c187"
+    }
+  ],
+  "hypothesis": "Room and trap type matching in JS retains embedded-NUL suffixes that C string copying or comparison ignores.",
+  "expectedBehavior": "The requested special room or trap is constructed using the prefix before NUL.",
+  "observedBehavior": "Room targets: C creates one morgue (rtype 6) or temple (rtype 10), bounds (11,6)-(15,8), needfill=0 and needjoining=1; JS creates no room. Trap targets: C creates rust (9) or anti-magic (21) at (11,6), unseen; JS throws Unknown trap type and creates none. Each path has three matching controls.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Two explicit public API construction paths, four targets and six controls.",
+    "limitations": [
+      "Two API paths, four suffixed targets and six controls, one existing C-string prefix cause. Manual/unbound; scanner counts unchanged. Shipped exposure unknown. No room stocking, finalization, trap activation or runtime behavior claim.",
+      "Room path: public des.region with explicit rectangle (10,6)-(14,8), lit=0, filled=0 and type morgue/temple plus NUL suffix, on fresh solidfill floor. C executes registered lspo_region, exact string reader/dupstr, room creation, topology and stack teardown. Fixed typed scalar readers supply valid coordinates and flags; raw string facade exposes the whole byte allocation. Full Lua table parsing and numeric coercion are not tested. Ordinary, plain morgue and plain temple controls pass.",
+      "Room oracle includes actual mkroom structure and exact topologize body with its non-SPECIALIZATION signature. Scoped rm fields use ints with valid 0/1 values; no bitfield claim. Explicit ANY_LOC coordinate adapter applies level frame (1,0) and asserts no active room. No irregular selection, door, wallification or callback branch executes; those adapters abort.",
+      "Trap path: public positional des.trap(name,10,6) on fresh ROOM floor, no traps, actors or objects. Exact registered lspo_trap calls get_traptype_byname, create_trap, mktrap and maketrap. Actual trap structure, union and bitfields retained. Targets rust and anti magic plus NUL suffix; plain rust, anti magic and mixed-case RuSt controls pass.",
+      "Trap oracle uses typed Lua positional adapters, ASCII-only strcasecmp adapter for strcmpi, D1 difficulty 1 and in_mklev=true. The single rnd(4) construction draw returns legal value 1; RNG sequence equivalence is not claimed. Rust/anti-magic avoid specialized trap constructors and victim creation. Unrelated side effects abort; no runtime or excluded investigation executes.",
+      "Optional table-form trap type and des.room type have not been executed here. Do not generalize to those bindings, random placement, arbitrary names, diagnostics or finalization. All prior parked and denied investigations remain excluded."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Supported in-bounds construction APIs; no shipped exposure or score impact established."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Bounded source-led follow-up to existing C-string family; no exact scanner key assigned.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "room-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-source-contract.json"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-target-receipt.json"
+    },
+    {
+      "id": "room-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-control-receipt.json"
+    },
+    {
+      "id": "room-post_fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    },
+    {
+      "id": "trap-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-source-contract.json"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-target-receipt.json"
+    },
+    {
+      "id": "trap-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-control-receipt.json"
+    },
+    {
+      "id": "trap-post_fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/README.md",
+      "sha256": "6ced3332250cf5291a9a83e387ee419035e38ad4dbf2780c490c2cb6d87f8de8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/coverage.json",
+      "sha256": "fd5e8dced9f5c2446588a0d33b72ab05fb67d40e8d1a62f76c9218207ea3faf4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-control-output.txt",
+      "sha256": "8539687dd706a4a5363c28c6681e5650ecb53e4571225d7ad5724726f47233d1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-control-receipt.json",
+      "sha256": "5ea257887f1963aacb60320bd851e38c54d4eda86d06f9f21ca6fcb974179c24",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-oracle.c",
+      "sha256": "a8c7fb02c1dd30f7b99658cf1528c0ffbac22eb02af989446816b1026cd76760",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-probe.mjs",
+      "sha256": "fe2737e8564927d497b0b6f4501cd955c69ae6add575866cfe00f50e85684b68",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-source-contract.json",
+      "sha256": "987bec84b87a399856dfb93dacc5c3f12a89e056570e076a9ec8c93d914bd607",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-target-output.txt",
+      "sha256": "83c8c2d17ef4b5c67ae1a08fb9c9b4b0af04f12913fb221bbb0f66947acca1e7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/room-target-receipt.json",
+      "sha256": "d778613b27ce7ecb8e38c7e1f5ccf12f773a48e1d795c54dbdf26cdc05278813",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/source-fingerprints.json",
+      "sha256": "c134ef2cbd0b9268390ab01b8be39e2295637f4302840e3414ac2256d0edf57a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-control-output.txt",
+      "sha256": "49177b0eedd6604d808a9097585bf185a2501d061b68630cff06a6c16441e9ee",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-control-receipt.json",
+      "sha256": "34e699ce158953a74617a3ce5bb9d0ca94b7c6f102d5c5b9c69151334f69eeca",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-oracle.c",
+      "sha256": "33abfad56faeb22bf3da3ff69af2cc2a57772c03add53c943c0321d325186798",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-probe.mjs",
+      "sha256": "a11120d1fe60caf0a21268ba4748a8aca891d983c100a3883a88e3bc906acc06",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-source-contract.json",
+      "sha256": "09a9497d9ef969f88fd6d584403e6b1a5ff2b58acd8e2defd963b0e54f0c7297",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-target-output.txt",
+      "sha256": "51f3da8d66254cd2b0a4356c2eba034fb1d319a8ae6be031ea356213b82e79bb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-type-string-family-20261029/trap-target-receipt.json",
+      "sha256": "2731fdc8062bdf7d4a9e7d995cd600fb489bd65face95d1c85eb0e849a697a0b",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

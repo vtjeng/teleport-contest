@@ -1,0 +1,54 @@
+{
+  "discoveredAt": "2026-10-29T04:45:46.930019+00:00",
+  "reviewedAt": "2026-10-29T04:45:46.930019+00:00",
+  "toolingSha": "fbcf473308e4b51016fda70aee63d6d3edfb06ad",
+  "functions": [
+    {
+      "path": "nethack-c/upstream/src/trap.c",
+      "symbol": "maketrap",
+      "sha256": "59492be8855da96971f1a1a9371635f8b2b396626e3dc5fe9e9167599cadee23"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mktrap",
+      "sha256": "e10c0ad5cca11095eb72f4e9a9187f0f4a527d869aea1d1c538e368ef9012d6f"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "create_trap",
+      "sha256": "f87aa83b9535a10d7a7fc2a45517c776334f7bcfad7c354dc488667b5bf44e88"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_traptype_byname",
+      "sha256": "3b127e595dd347895d16aace9f00f0238ca7da1636b61eecf270a8a5a12edce4"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_trap",
+      "sha256": "f7cbe47c50ae0e030215a8e22bf7adbe4a3ebede72a1b0cf96ad05e0ea86e816"
+    },
+    {
+      "path": "nethack-c/upstream/src/alloc.c",
+      "symbol": "dupstr",
+      "sha256": "28efe46c154232019485369ab420b79e2216ea053fdc86d8815bf8eb6d3b65fa"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_str_opt",
+      "sha256": "7e69edb56631eac57a22ac1e19991922cfffd3725a954e2f425d4edcf3b6a3b2"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_table_traptype_opt",
+      "sha256": "41cff9ad66949481c2a58ee328be39bd99ddec96a52dd8e47d0a1892d4b7026c"
+    }
+  ],
+  "limitations": [
+    "Public des.trap({type:name,x:10,y:6,spider_on_web:false,victim:false}) on fresh solidfill ROOM floor. Targets rust and anti magic with embedded NUL suffix; controls plain rust, anti magic and mixed-case RuSt. This is a table-form extension of the existing C-string cause, not an independent cause.",
+    "C executes exact registered lspo_trap, get_table_traptype_opt, get_table_str_opt, dupstr, create_trap, mktrap and maketrap. Typed Lua table/string facade exposes the raw full byte allocation; production dupstr supplies truncation. Fixed coordinate/boolean readers supply valid x/y, false spider_on_web and victim, default seen=false. launchfrom and teledest are absent. Callback and unrelated adapters abort. Full Lua VM parsing, numeric coercion and arbitrary table fields are unproved.",
+    "C uses actual trap structure and valid fresh construction state. Rust/anti-magic avoid specialized constructors; no victims, actors or objects are created. JS seed 0x5eed deterministically chooses TELEP_TRAP (14) for the unrecognized full name through the default -1 random selector. This witnesses the wrong constructor result only; it does not assert RNG equivalence, random selector correctness or teleport runtime behavior.",
+    "All previous positional-trap oracle bounds apply: explicit coordinate frame (1,0), ASCII strcasecmp adapter, D1 difficulty 1, legal rnd(4)=1 adapter, no random C placement, no runtime activation, finalization or shipped-exposure claim. No excluded investigation executes.",
+    "Tested JS base fbcf473308e4b51016fda70aee63d6d3edfb06ad adds only the preceding evidence package to accepted Main 2579242c67804962299920a58e3052ab3718c187; source files are unchanged. Earlier receipts are preserved without rebinding."
+  ]
+}
