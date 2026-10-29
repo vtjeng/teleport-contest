@@ -307,9 +307,20 @@ successful CI checks locally.
 4. Run `worker-state.mjs preflight --task <id>` and resolve its omissions.
    Preflight rejects committed `*.test.mjs` files outside the test discovery
    roots. For a candidate without a task record, run
-   `node scripts/checkpoint-preflight.mjs --commit <candidate-sha>` before
+   `node scripts/checkpoint-preflight.mjs --commit <candidate-sha> --base <accepted-base-sha>` before
    dispatching any full Checkpoint; a nonzero exit blocks dispatch. This reads
    the exact committed tree, so commit corrections and check the new SHA.
+   Changed trial register/manifest JSON is parsed and checked with the existing
+   trial-monitor schema. Use the accepted batch base to cover all batch commits;
+   omitting `--base` checks only the commit's own changes (root commits included).
+   When `focusedTests` lists dashboard tests, run those tests once in the exact
+   candidate checkout before dispatch, including when only the template or
+   trial register changed:
+   `node --test scripts/dashboard-data.test.mjs scripts/trial-monitor.test.mjs`.
+   This catches stale shared-batch title expectations. Preflight reports the
+   selection but does not execute tests or certify their result; resolve failures
+   and preserve the receipt. Do not rerun the full suite locally; full hosted
+   gates remain mandatory. See [preflight limits](../docs/checkpoint-preflight.md).
    Keep source-relative evidence runners as `check.mjs` and register intended
    automated tests through `scripts/*.test.mjs` wrappers. New evidence handoffs
    use the versioned existing `case.json` format and packaging validator in
