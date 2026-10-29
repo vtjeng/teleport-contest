@@ -22,8 +22,11 @@ absolute. Finite matching probes are not exhaustive certification.
 | Decline one row versus quit whole selection | scoped negative | public-prompt-selection;2 fixtures |
 | Plain sack arrow and coin weight round trips | scoped negative | public-sack;3 fixtures |
 | Container menu wizard-weight naming mode | confirmed candidate cause3 | public-sack-menu;1 failure+1 control |
+| Nested plain sack recursive weight and threshold cycle | scoped negative | public-nested-sack;2 fixtures |
+| Ordinary tip to floor or sack, pickup/merge | scoped negative | public-tip-weight;2 fixtures |
+| Floor-sack partial removal versus all-fit | scoped negative | public-floor-sack;2 fixtures |
 
-Current public corpus:27 fixtures,23 strict matches,4 failing fixtures grouped
+Current public corpus:33 fixtures,29 strict matches,4 failing fixtures grouped
 into3 semantic causes. No scanner keys or filter rules. Prior arithmetic row
 counts are not cause counts. Source-bound receipts and exposure limits live in
 each package. #105/#108 remain unchanged.
@@ -40,6 +43,9 @@ each package. #105/#108 remain unchanged.
   target. Tourist capacity725 qualified. A menu calibration guessed slot e
   after a rejected wish; actual darts slot f was observed and corrected.
   Neither setup-only result is a negative finding.
+- Overloaded floor-sack setup could not apply; #loot at2849 was also refused
+  in both engines. Two-stage loading and a2000-arrow drop established the final
+  floor-sack witness. These initial attempts are setup-only, not negatives.
 - No unresolved attempted case remains in the qualified packages. The inherited
   recorder has no independent build attestation; binary and relevant matching
   source hashes are retained. This provenance limit is explicit.
@@ -48,11 +54,16 @@ each package. #105/#108 remain unchanged.
 
 ## Practical next paths
 
-1. Nested plain sacks: recursive weight propagation and partial removal from a
-   contained ordinary sack remain untested in public play. This is the next
-   supported setup to establish; flat sack results do not establish it.
-2. Post-fix validation for the three candidates waits on Main's implementation;
-   do not repeatedly probe unchanged failures.
+1. Completed the practical ordinary-weight frontier: flat/mixed chains, public
+   count split/merge, all burden boundaries, coin rounding, prompts, carried and
+   nested plain sacks, tip routes and floor-sack partial admission. No further
+   distinct source-backed discrepancy is currently qualified in that frontier.
+   This is not exhaustive input/seed/role certification; higher nesting depths,
+   arbitrary menu permutations and other object catalogs remain coverage gaps.
+2. Post-fix validation for all three candidates awaits Main's implementation.
+   Fresh public reruns are declared in each candidate package; do not repeat
+   unchanged failures. If a new ordinary-weight source change or concrete lead
+   appears, reopen that path with a new executed C comparison.
 3. Shops, inventory-slot limits, magical containers and special object/form
    effects remain outside the current ordinary weight-path investigation.
 

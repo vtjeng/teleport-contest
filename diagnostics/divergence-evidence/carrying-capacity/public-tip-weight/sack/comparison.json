@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 2372,
+      "js": 2372
+    },
+    "screens": {
+      "c": 127,
+      "js": 127
+    },
+    "cursors": {
+      "c": 127,
+      "js": 127
+    },
+    "animFrames": {
+      "c": 1,
+      "js": 1
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": null,
+  "cursorMismatch": null,
+  "animMismatch": null,
+  "segmentMismatch": null
+}
