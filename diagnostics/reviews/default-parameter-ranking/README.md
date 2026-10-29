@@ -25,8 +25,10 @@ The measurement reads only two pinned source files at scan base
 `32578f23091dad34635a9b4fe0bfb45ed9840e39` and compares the accepted implementation
 at `d1d8ac170b75dca71abe29819b5daa9972301221` with the working implementation.
 It reports source/tool hashes and reasons. Missing Git objects fail the command.
-On these same two inputs: old delegation hints **0**, new hints **2**, filtered
-**0**, candidates retained **2**. No macro hint changes or corpus-wide count
+On these same two inputs with the published conservative guard: old delegation
+hints **0**, new hints **1**, filtered **0**, candidates retained **2**. The
+`check_room` source has member assignments, so the lexical guard leaves that
+warning visible at its original priority. No macro hint changes or corpus-wide count
 claim; this is a bounded ranking evaluation, not another discovery scan or
 runtime probe. No compute savings are claimed.
 
