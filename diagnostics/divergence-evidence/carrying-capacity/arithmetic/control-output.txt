@@ -1,0 +1,8 @@
+{
+  "mode": "control",
+  "rows": 6,
+  "weightRows": 3,
+  "roundRows": 3,
+  "mismatches": 0,
+  "firstFailures": []
+}

@@ -1,0 +1,8 @@
+{
+  "mode": "target",
+  "rows": 27708,
+  "weightRows": 11700,
+  "roundRows": 16008,
+  "mismatches": 0,
+  "firstFailures": []
+}
