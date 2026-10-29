@@ -1,0 +1,26 @@
+[
+  {
+    "casts": 8,
+    "energy": 108,
+    "hunger": 892,
+    "practice": 15
+  },
+  {
+    "casts": 9,
+    "energy": 101,
+    "hunger": 891,
+    "practice": 15
+  },
+  {
+    "casts": 10,
+    "energy": 86,
+    "hunger": 890,
+    "practice": 18
+  },
+  {
+    "casts": 11,
+    "energy": 71,
+    "hunger": 889,
+    "practice": 21
+  }
+]

@@ -1,0 +1,465 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-depleted-hp-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-depleted-energy-20261029"
+  ],
+  "provenance": {
+    "jsSha": "82402a4ee97a94f2f45b896f6fbef260e093ddcd",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dokick.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/allmain.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "82402a4ee97a94f2f45b896f6fbef260e093ddcd"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "82402a4ee97a94f2f45b896f6fbef260e093ddcd"
+    },
+    {
+      "side": "JS",
+      "path": "js/dokick.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "82402a4ee97a94f2f45b896f6fbef260e093ddcd"
+    },
+    {
+      "side": "JS",
+      "path": "js/allmain.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "82402a4ee97a94f2f45b896f6fbef260e093ddcd"
+    }
+  ],
+  "hypothesis": "Ordinary depleted HP must preserve its deficit across gain/loss and clamp to1 when loss subtracts more than current HP.",
+  "expectedBehavior": "One wall kick preserves2-point deficit through levels2\u21923\u21922\u21921. Four wound-free kicks leave5/20; loss subtracts8 and clamps to1/12.",
+  "observedBehavior": "Four complete public C/JS comparisons match all reached resource/XP states and kick RNG. One ordinary regeneration point occurs during the four-kick setup.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Natural wall-kick HP depletion with no wounded status, followed by supported wizard-assisted gain/loss.",
+    "limitations": [
+      "Wizard-assisted level changes, not natural level-loss or recovery history.",
+      "Public resource transitions bind the8-point subtraction; exact C increment-array memory is not directly observed.",
+      "No altered HP maximum, higher-level minuhpmax branch or upper-current clamp qualified.",
+      "Only four nonfatal kicks, with C wound-branch draws proving no wounded legs; no status-expiry investigation."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target/result.json"
+    ],
+    "reason": "Natural wall-kick HP depletion with no wounded status, followed by supported wizard-assisted gain/loss."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+        "control",
+        "/tmp/hero-hp-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/recipes/control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+        "target",
+        "/tmp/hero-hp-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/recipes/target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target-receipt.json"
+    },
+    {
+      "id": "floor-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+        "floor-control",
+        "/tmp/hero-hp-floor-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/recipes/floor-control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control-receipt.json"
+    },
+    {
+      "id": "floor-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+        "floor-target",
+        "/tmp/hero-hp-floor-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/recipes/floor-target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/README.md",
+      "sha256": "4b034ea09bd3c85dbfc5cd60cde1a1f1a6ccaf4aa0df4ee8d11e898aab0e87ad",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control/js-output.json.gz",
+      "sha256": "850e2d68c16f26bff1b7ea355b22df006849f0be6b7946e8907b6da71e45e225",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control/recipe.session.json",
+      "sha256": "e8c80476419dd9d57e0fa2b3b3ab4b09b83f3216f06fedf941160e85e2f418ad",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control/recorded.session.json.gz",
+      "sha256": "d83d6fdce207c50c99c8eaf02e82586974aa230922c6a7e1f547fa0340bb9f5b",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control/recorder.json",
+      "sha256": "6c6ce8e21890d7b4ccfde3413e84f28c4a9f47654ab688fbe690c7c7ad031454",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control/result.json",
+      "sha256": "72818e6ff75f34caa1496cbbb86a06ee480bb1329312f6e07c17ea5867e08e6d",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control/worker.json",
+      "sha256": "00846a07251d9e1812f96516a6d14d124c16c548a8c9157c19fd6fe1965aa8c8",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/control-receipt.json",
+      "sha256": "feae1ab94c0c370faa6087402032991d98b7507627e4dd053e279ad602421a55",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control/js-output.json.gz",
+      "sha256": "3cd45714f641e74729460fd08b8d5ca1abf52ec945698474d408532d275f4dcf",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control/recipe.session.json",
+      "sha256": "2b0c06e95504afa5d6c0fa2bd26f0da798c9604a56b49ab02e601aa308f76069",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control/recorded.session.json.gz",
+      "sha256": "b31623909116ec5d3b3dc900e84a288428d6c5af8b6b209b23663fdfcb7a0752",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control/recorder.json",
+      "sha256": "de09f9ced62b6df6138d3f51edbe23d2f7625d1d150477bbb277198c2e117001",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control/result.json",
+      "sha256": "56350a0315256ffa77c9e1ec5b20670115194eefbdad2532774096ef9a8e36b7",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control/worker.json",
+      "sha256": "c8e4d81801d672ff915ba705ed850abd07083ed1719d3f9879b7c8318ac1218f",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-control-receipt.json",
+      "sha256": "51f0f6d673083926fd6955a1cdc659fd720b6d8fbd827c075f8741eff6715bdd",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target/js-output.json.gz",
+      "sha256": "3c7fffd31e1dc2ee7dba237c76a708c5b89ec49b20d31023771b38cf44ec66db",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target/recipe.session.json",
+      "sha256": "78dfbf9cc56c189b4d37f81250a5a35fcf8425884c3cc85d49338df03b70a316",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target/recorded.session.json.gz",
+      "sha256": "77dbe44a9aa9fb0a2fabf49da9b82336047960d8042b6b8899e774ba0d684765",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target/recorder.json",
+      "sha256": "19f861f638e2f4eb069902799b383be6810f10228ebba57ed6b969d5eaebdee6",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target/result.json",
+      "sha256": "0a902f04f3c1cce2b72c7b4166a99447c349098e01889b1894bf416eb400893a",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target/worker.json",
+      "sha256": "5c32b18ae7f2f09b241eac698704b98c38fabb0ddaa756f72df7290fbe57efd2",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/floor-target-receipt.json",
+      "sha256": "48ef9b71fbf6fa5352adac98dc27bd4d128fe992bf108358fdd779785a3a198f",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/js-setup-observations.json",
+      "sha256": "ad1cd3f1d941ab8c6b4de2d31bcff85b5184846292671ee10ddd7800d496d975",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/recipes/control.json",
+      "sha256": "bbaf5991b2efdb73064f5192a295b80b9b4dcef634ab7419e2c2df61a80e50ab",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/recipes/floor-control.json",
+      "sha256": "7c2cb7d421db695f2e2cae8f013c93297f292cb66a02f9bf8a147b6a429a0232",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/recipes/floor-target.json",
+      "sha256": "f521188d7102163a435f363ea287f37b813d6cd8b57a18133e031e2430bdd1c3",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/recipes/target.json",
+      "sha256": "e192d9b7bcbada5ab3029329145391ca50d77f557df556362d87517dced6c837",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target/js-output.json.gz",
+      "sha256": "8cc229b361d1847162c45bbf5739c60abb6ded11a2636e9efb12afb72f66fcf1",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target/recipe.session.json",
+      "sha256": "ede4b58efbb682af84370c8635a63b48f8322f27a8a99d920886cc62022fcb3b",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target/recorded.session.json.gz",
+      "sha256": "b67abee2d13a7e6e5381730cb74df20bf73fef1ef467c1469743b28472b5fc1a",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target/recorder.json",
+      "sha256": "62c887254e5abaff7050a5ad428a6e70f448f93e024a9fb822ee1fa8adc730f0",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target/result.json",
+      "sha256": "2cfdedc92ee4395b260c5fc958ed67089935da46085db2cb477b47fbc28c8daf",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target/worker.json",
+      "sha256": "564050b41f330d054d2464ff6f4fb0d2e0bccd5665929a46a5d763b472d004b8",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/target-receipt.json",
+      "sha256": "927cce869bbc4137b7b327a138315a359051726e366229312233e207e48d61a2",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/verification.txt",
+      "sha256": "c7a50e631ca9b4c351cce082714ea49bf39b4224f79b10311cf67b3003d63617",
+      "role": "recording, receipt or verification artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/depleted-hp-20261029/verify.mjs",
+      "sha256": "be50e7dae9cc7dc2d32847e1b5f5aa02696f9cf4c09f32670b54032f6e5ecffc",
+      "role": "recording, receipt or verification artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json",
+      "sha256": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/allmain.js",
+      "sha256": "cb69f2ca68a242b0f92ba69c274f25218623e8bc396cafa67534856157f929a2",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/dokick.js",
+      "sha256": "41a378fe652a770a5a171644b50f1ad2d22c8845c60775c86f639bf1c904b1ad",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/gstate.js",
+      "sha256": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "js/jsmain.js",
+      "sha256": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/allmain.c",
+      "sha256": "6ce44a662ad3d180b9dcbf7660a1899b8d1356c8ef83e7787b21b39c6b2a35e4",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/dokick.c",
+      "sha256": "9226896b106f7fce77ac5d87c64c798e8758630fc712599d36c29cc58954fea4",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source or recorder provenance"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or recorder provenance"
+    }
+  ]
+}

@@ -125,3 +125,15 @@ Five new public recipes match (50 distinct public recipes total). Failed casts e
 ### Historical energy capacity observer
 
 Three further public recipes match (53 distinct total): initial full7/7 rejected cast says yet; after level1→2→1 full7/7 says anymore; depleted12/19 has no suffix. This observes retained C peak at least15, not its exact memory value; JS peak19 is separately asserted. See energy-peak-observer-20261029. Full-state C trace, depleted HP, reduced-max histories and natural practice remain unavailable within existing qualified interfaces.
+
+## Depleted HP prerequisite resolved in a bounded public setup
+
+Four new public recipes match (57 distinct total). One wall kick gives a2-point deficit preserved across gain/loss; four kicks leave5/20 and loss clamps5−8 to1/12. C wound-branch draws prove no wounded legs; ordinary HP regeneration is retained in the exact state sequence. See depleted-hp-20261029. This supersedes the prior generic depleted-HP setup gap and current-below-one clamp gap. Reduced maxima, higher-level minimum-max and upper-current clamps remain component-only; natural level-loss/recovery and practiced-skill histories remain unqualified. Zero new semantic causes.
+
+## Natural practice prerequisite qualified
+
+Three further public recipes match (60 distinct total). Healthy ordinary cure-sickness casts earn18 then21 practice across the20-point eligibility threshold. Wizard loss to1 removes free slots; gain to2 restores one and re-emits general eligibility. See natural-practice-20261029. This supersedes the blanket natural-practice setup gap; naturally earned-and-spent slot refunds are the next reachable integration frontier. Forced wizcast is not a practice setup because it skips use_skill. No status expiry, active ailment, object-effect emulation or combat route used. Zero new semantic causes.
+
+## Naturally spent slot refund and public numeric observation
+
+Four further public recipes match (64 distinct total). Normal enhance menus, with practice bypass declined, expose21 earned points and slots19→18→0→1. Healing advances to Basic, is refunded on loss, and returns as Unskilled21/20 eligible after regain. See natural-spent-slot-20261029. The refund-only first page omits the healing row; later regain observes it, while JS verifies the intermediate state. This closes the previously named naturally earned-and-spent single-slot frontier and strengthens exact C practice observation through supported menus. Multiple-skill refund order remains outside this bounded witness; natural level recovery and altered-max resource histories remain unqualified. No new causes.

@@ -32,7 +32,7 @@ others are directories in this PR. JS-only test coverage is not a C oracle.
 | pluslvl: first rank vs no new rank; achievement repeated; peak fallback | A traverses rank boundaries; R observes first/repeat event order in public chronicle | rank-gender now observes male/female ranks14/18 and repeat events; no direct C identifier-memory claim |
 | pluslvl: HP/energy peaks rise vs existing higher peaks | Public full-resource transitions; P109/L restricted fields | Energy peak now has public message observation after loss (energy-peak-observer); exact C peak and HP peak still require a supported observer |
 | losexp: debug nonfatal override; level>1; level1 XP reset | Public wizard loss; L API level1 reset, public command refuses that call | No new ordinary public level1 reset route qualified |
-| losexp: HP min, prevent raising prior max, current below1/above max | P109/L constructed API states including level10/11/12/30 floor | Natural reduced max/current history is setup-blocked, not a negative |
+| losexp: HP min, prevent raising prior max, current below1/above max | P109/L constructed API states including level10/11/12/30 floor | depleted-hp executes natural damage and current-below-one floor; reduced maxima and upper-current clamp remain component-only |
 | losexp: energy max/current floor and upper clamp; positive XP vs zero | P109/L API; public normal full-resource loss | depleted-energy now executes spent-current exact-zero and negative-current clamps; reduced energy maxima and upper clamp remain component-only |
 | losexp: resistance/fatal/polymorph branches | None pursued | Excluded combat/drain, death and polymorph contexts; not candidate setup routes |
 | adjabil: role then race; grants/revokes; empty gain/loss strings | A role/race traversals; E selected racial+role re-entry; silent Ranger views | Finite pairing/message evidence, not all state masks |
@@ -40,7 +40,7 @@ others are directories in this PR. JS-only test coverage is not a C oracle.
 | adjabil: suppress feedback due to another intrinsic source | Source: no legal role/race pairing supplies the same above-level1 ability; comment reconciled to actual tables | Requires another intrinsic source; prohibited effects are not substitute setup. No failed reproduction claimed |
 | adjabil: unaware/dreaming feedback and unchanged-level call | Not pursued | Unaware/status contexts and polymorph reinitialization excluded; ordinary wizard no-op returns before adjabil |
 | postadjabil: initial skip, warning/see-invisible update vs other property | A public crossings and silent Ranger; no independent map-observer claim | Initial no-monster vs visible affected state not distinguished; supported noncombat visual setup would be required, without entering another audit's scope |
-| adjabil: add skill slots / loss and spent-skill refunds | I Knight and A Monk public menus; S notification predicates | Natural practice acquisition unqualified; S does not substitute for it |
+| adjabil: add skill slots / loss and spent-skill refunds | I Knight and A Monk public menus; S notification predicates | natural-practice and natural-spent-slot now execute earned practice, eligibility, spending and single-slot refund; S retains broader component predicates |
 | minuhpmax/setuhpmax: ordinary min/max, same/new max, peak/current clamp | P109/L projections; public gain/loss | Polymorph arm excluded; exact natural state construction missing |
 | attrib helpers outside advancement (exercise, poison, luck, alignment change, object/form attribution) | Not audited here | Outside delegated advancement scope or explicit exclusions; no source-only suspicion list |
 | experience(monster) and rndexp(effect/form callers) | Not audited | Excluded combat/object-effect/polymorph routes |
@@ -128,11 +128,23 @@ The identified energy-history and public peak-message prerequisites are resolved
 
 | Remaining frontier | Smallest missing prerequisite | Disposition |
 | --- | --- | --- |
-| Depleted HP/current or reduced maximum crossing a loss floor | A qualified nonfatal public setup without combat, object effects or excluded status paths | Setup unqualified; component floor matrix remains the only executed evidence |
+| Reduced maximum crossing a loss floor | A qualified nonfatal public maximum-reduction setup without excluded effects | Current depletion and below-one clamp are now qualified by depleted-hp; reduced maximum remains component-only |
 | Natural Welcome back and level recovery | A permitted natural level-loss source preserving ulevelmax | Known drain/object routes excluded; wizard resets history |
-| Natural practiced-skill ordering | A permitted successful practice action with a reachable advancement boundary | Existing debug skill menus qualify refunds only; effects/combat are not substitute setup |
+| Natural practiced-skill ordering | Resolved for healthy ordinary cure-sickness casts and one spent slot | natural-practice/natural-spent-slot provide public point counts, eligibility and refund evidence; broader multi-skill ordering not claimed |
 | Initial intrinsic masks and exact peak/slot internals | Existing supported read-only full-state observation | Not provided by recorder's terminal/RNG interface; no instrumentation authorized |
 | Level30 true XP threshold and MAXULEV effects | Reachable permitted high-XP award or level-cap trigger | Qualified component only; no unbounded grinding or excluded effects |
 | postadjabil map refresh under warning/see-invisible | Supported noncombat visible-state setup and cross-audit scope agreement | Not qualified; monster/level investigations remain with their owners |
 
 This is bounded exhaustion of the currently qualified advancement setup/observer routes, not an assertion that every permitted gameplay path or every source of bugs is exhausted. A new supported prerequisite can reopen these rows. No installs, engine instrumentation, gameplay edits or denied actions occurred in this follow-on.
+
+## Depleted HP prerequisite resolved in a bounded public setup
+
+Four new public recipes match (57 distinct total). One wall kick gives a2-point deficit preserved across gain/loss; four kicks leave5/20 and loss clamps5−8 to1/12. C wound-branch draws prove no wounded legs; ordinary HP regeneration is retained in the exact state sequence. See depleted-hp-20261029. This supersedes the prior generic depleted-HP setup gap and current-below-one clamp gap. Reduced maxima, higher-level minimum-max and upper-current clamps remain component-only; natural level-loss/recovery and practiced-skill histories remain unqualified. Zero new semantic causes.
+
+## Natural practice prerequisite qualified
+
+Three further public recipes match (60 distinct total). Healthy ordinary cure-sickness casts earn18 then21 practice across the20-point eligibility threshold. Wizard loss to1 removes free slots; gain to2 restores one and re-emits general eligibility. See natural-practice-20261029. This supersedes the blanket natural-practice setup gap; naturally earned-and-spent slot refunds are the next reachable integration frontier. Forced wizcast is not a practice setup because it skips use_skill. No status expiry, active ailment, object-effect emulation or combat route used. Zero new semantic causes.
+
+## Naturally spent slot refund and public numeric observation
+
+Four further public recipes match (64 distinct total). Normal enhance menus, with practice bypass declined, expose21 earned points and slots19→18→0→1. Healing advances to Basic, is refunded on loss, and returns as Unskilled21/20 eligible after regain. See natural-spent-slot-20261029. The refund-only first page omits the healing row; later regain observes it, while JS verifies the intermediate state. This closes the previously named naturally earned-and-spent single-slot frontier and strengthens exact C practice observation through supported menus. Multiple-skill refund order remains outside this bounded witness; natural level recovery and altered-max resource histories remain unqualified. No new causes.
