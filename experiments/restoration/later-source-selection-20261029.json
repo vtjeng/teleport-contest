@@ -1,9 +1,9 @@
 {
   "version": 1,
   "createdAt": "2026-10-29T17:52:25.865Z",
-  "base": "bcf6d50b858f1637b5b0db29e4bcefb652ada283",
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
   "originalDraft": "d485894ba370b37e87a1b1967af3ad770728cb94",
-  "scope": "LOCAL preparation; no publication/full-gate acceptance.",
+  "scope": "Separate LOCAL write/welcome follow-on; frozen54 remains unchanged.",
   "includedSources": [
     "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
     "31c06a1840696aa879ef4f13f64671231bb18459",
@@ -58,7 +58,9 @@
     "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
     "9205e0859870d4c8967254334152b10742407260",
     "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
-    "71421a2cc835750c412e88e3692b616434d5fd2b"
+    "71421a2cc835750c412e88e3692b616434d5fd2b",
+    "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+    "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f"
   ],
   "decisions": [
     {
@@ -536,15 +538,25 @@
       "paths": [
         "js/write.js"
       ],
-      "status": "omitted-conservative-dependency-cut",
-      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
-      "dependencies": [
-        {
-          "path": "js/write.js",
-          "kind": "excluded-window-owner",
-          "source": "G-to-B gameplay window; same-owner independence not established"
-        }
-      ]
+      "status": "selected-reconciliation",
+      "reason": "writeEnv supplies the inventoryComparisonDiscovered hook already required by G invent.js. Local environment only; native nonblind merge target and no-stack control verify behavior. The omitted blind-marker change is in a different branch and is not imported.",
+      "dependencies": [],
+      "priorConservativeDisposition": {
+        "status": "omitted-conservative-dependency-cut",
+        "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+        "dependencies": [
+          {
+            "path": "js/write.js",
+            "kind": "excluded-window-owner",
+            "source": "G-to-B gameplay window; same-owner independence not established"
+          }
+        ]
+      },
+      "stage": "separate-followon-write-welcome",
+      "dependencyReview": {
+        "reason": "writeEnv supplies the inventoryComparisonDiscovered hook already required by G invent.js. Local environment only; native nonblind merge target and no-stack control verify behavior. The omitted blind-marker change is in a different branch and is not imported.",
+        "adaptation": "Exact original game source patches; original associated tests restored."
+      }
     },
     {
       "sha": "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
@@ -1293,15 +1305,25 @@
         "js/jsmain.js",
         "js/role_init.js"
       ],
-      "status": "omitted-conservative-dependency-cut",
-      "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
-      "dependencies": [
-        {
-          "path": "js/allmain.js",
-          "kind": "excluded-window-owner",
-          "source": "G-to-B gameplay window; same-owner independence not established"
-        }
-      ]
+      "status": "selected-reconciliation",
+      "reason": "Atomic welcome helper plus its newgame/restored callers. Existing G HALLUC/HALLUC_RES/save/restore contracts suffice; no elapsed-turn/lava behavior. Supported initialized-game save/restore target/control, C-source expectation; no new native C game run.",
+      "dependencies": [],
+      "priorConservativeDisposition": {
+        "status": "omitted-conservative-dependency-cut",
+        "reason": "Atomic source patch intersects held owner/version lineage; omitted pending proof of independence. This is conservative, not a proven semantic dependency.",
+        "dependencies": [
+          {
+            "path": "js/allmain.js",
+            "kind": "excluded-window-owner",
+            "source": "G-to-B gameplay window; same-owner independence not established"
+          }
+        ]
+      },
+      "stage": "separate-followon-write-welcome",
+      "dependencyReview": {
+        "reason": "Atomic welcome helper plus its newgame/restored callers. Existing G HALLUC/HALLUC_RES/save/restore contracts suffice; no elapsed-turn/lava behavior. Supported initialized-game save/restore target/control, C-source expectation; no new native C game run.",
+        "adaptation": "Exact original game source patches; original associated tests restored."
+      }
     },
     {
       "sha": "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
@@ -3520,15 +3542,13 @@
     }
   ],
   "windowExcluded": [
-    "js/allmain.js",
     "js/explode.js",
     "js/hack.js",
     "js/monmove.js",
     "js/options.js",
     "js/shknam.js",
     "js/sounds.js",
-    "js/trap.js",
-    "js/write.js"
+    "js/trap.js"
   ],
   "conservativeScopeHolds": [
     "js/getpos.js",
@@ -3819,5 +3839,82 @@
   "preservedReceiptFiles": 101,
   "previousPreparationBase": "9d0de92cfd2a5fe3dadf1edf8f7e8ff84392f110",
   "previousPreparedCandidate": "b5e27609060a7b27271c5dc91cf7060fb3cdd5ad",
-  "rebaseNote": "Unchanged 54-source gameplay patch replayed onto published anonymous tooling; gameplay, package, C and frozen trees match the previously validated local bulk candidate."
+  "rebaseNote": "Unchanged 54-source gameplay patch replayed onto published anonymous tooling; gameplay, package, C and frozen trees match the previously validated local bulk candidate.",
+  "followon": {
+    "baseSources": [
+      "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+      "31c06a1840696aa879ef4f13f64671231bb18459",
+      "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+      "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+      "d10c2ca001b6e37c226338c6327fe20140f67af4",
+      "24829e0c969d64aa54602a69e80e336866efef98",
+      "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+      "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+      "a417b8757506d80247d65920f56fbd80cfcb802e",
+      "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+      "362972c8776200aa1afa01b960c8d82b3f26839a",
+      "31ff0967e40690a429f0565faed1f15b18a378b8",
+      "9bedae28a45a79361b5511e550302631d19c93ad",
+      "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+      "462b798181c86d27e4b2664619c16287156784f0",
+      "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+      "ee16ba2d55e473c23a3b8622e38518fb07d6fa71",
+      "0d693cf362aab175af64b73f46e0613534ac510e",
+      "72899cc3a69cf4ec0e7d29f90b54768d5139850c",
+      "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+      "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+      "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+      "fb2b4c33aed28df36bda5d8cbeeab27894f3fd2b",
+      "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+      "3108052babe42b5b7cbd3b8656f34766a74e9314",
+      "e23c28201c58642fb5b13cd5638b5373c092cfef",
+      "81a9a34b0fc1dd692a1c594debf7a7938e5e013c",
+      "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+      "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+      "513507b6cb96460df2d20d5e42daff581265fd44",
+      "707255022097adb75759ec0e9d302e64cc8d6713",
+      "da903a3bb561b686986985d176e538fc0a211c1a",
+      "28887f127150a4e5499a41114fbea90692e991c1",
+      "fadaf1bd04e99606ac730a0a55170ba93a627157",
+      "3a541bf65a2625c705156e8cc221beed88fe94f9",
+      "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+      "f65996d10b662e3e26ce3f4cdf6e456d3576b07c",
+      "2df03d803ed259df4bc163393f65868d2700a7ec",
+      "180ab356a5256c920a3e035723ca72a1d4d84ee1",
+      "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+      "afc035b41e49d29bcd9e18fcc6befa63504f3233",
+      "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "91b65d284dcadcf324cb38573ec228a095db3d78",
+      "03885c5cff03d34970e3cf8fb02aa50f9fcafa3e",
+      "0328f0b4b1cce18fd8b10776f8a9e58324b1e976",
+      "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+      "5099d3bb2edb348fd076f3ebc39f28266465b700",
+      "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+      "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+      "9205e0859870d4c8967254334152b10742407260",
+      "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
+      "71421a2cc835750c412e88e3692b616434d5fd2b"
+    ],
+    "addedSources": [
+      "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+      "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f"
+    ]
+  },
+  "originalFrozen54WindowOwners": [
+    "js/allmain.js",
+    "js/explode.js",
+    "js/hack.js",
+    "js/monmove.js",
+    "js/options.js",
+    "js/shknam.js",
+    "js/sounds.js",
+    "js/trap.js",
+    "js/write.js"
+  ],
+  "windowOwnersWithIndependentFollowons": [
+    "js/allmain.js",
+    "js/write.js"
+  ]
 }

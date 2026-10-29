@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "originalSources": [
+    {
+      "sha": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+      "reason": "writeEnv supplies the inventoryComparisonDiscovered hook already required by G invent.js. Local environment only; native nonblind merge target and no-stack control verify behavior. The omitted blind-marker change is in a different branch and is not imported."
+    },
+    {
+      "sha": "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f",
+      "reason": "Atomic welcome helper plus its newgame/restored callers. Existing G HALLUC/HALLUC_RES/save/restore contracts suffice; no elapsed-turn/lava behavior. Supported initialized-game save/restore target/control, C-source expectation; no new native C game run."
+    }
+  ],
+  "qualification": {
+    "validBefore": {
+      "tests": 4,
+      "pass": 2,
+      "fail": 2
+    },
+    "after": {
+      "tests": 6,
+      "pass": 6,
+      "fail": 0
+    },
+    "invalidInitialSetup": "Private helper destructured mutable exported game before initialization; target/control invalid. Corrected to live module state; preserved log not counted as bug evidence.",
+    "nativeCGameExecution": false,
+    "welcomeExpected": "Pinned C source, production JS save/restore API target/control; no native C recording claimed.",
+    "writeExpected": "Existing native C target/control recordings."
+  },
+  "fixtures": [
+    {
+      "path": "recordings/write.c/trial-marker-no-stack-control.session.json",
+      "ref": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+      "bytes": 224977
+    },
+    {
+      "path": "recordings/write.c/trial-marker-stack-merge.session.json",
+      "ref": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+      "bytes": 221203
+    },
+    {
+      "path": "scripts/write-marker-stack.test.mjs",
+      "ref": "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+      "bytes": 1045
+    }
+  ],
+  "publication": "NONE"
+}
