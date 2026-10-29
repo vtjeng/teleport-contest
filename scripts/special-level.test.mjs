@@ -87,6 +87,23 @@ for (const fg of ['.', '#', 'I', 'L']) {
     });
 }
 
+test('levregion destination names retain the C string prefix', async () => {
+    for (const [name, expected] of [
+        ['oracle\0suffix', 'oracle'], ['medusa\0suffix', 'medusa'],
+        ['oracle', 'oracle'], ['medusa', 'medusa'], ['3', '3'],
+    ]) {
+        await runLoader(des => {
+            des.level_init({ style: 'solidfill', fg: '.', lit: false });
+            des.levregion({ region: [1, 1, 4, 4], region_islev: true,
+                type: 'portal', name, padding: 2 });
+            assert.equal(game.lregions.length, 1);
+            assert.equal(game.lregions[0].rname, expected);
+            assert.deepEqual(game.lregions[0].inarea, { x1: 1, y1: 1, x2: 4, y2: 4 });
+            assert.equal(game.lregions[0].padding, 2);
+        });
+    }
+});
+
 for (const [property, bit] of [['nondiggable', 8], ['nonpasswall', 16]]) {
     for (const style of ['solidfill', 'mazegrid']) {
         test(`${style} ${property} wall flags after repeated level_init`, async () => {

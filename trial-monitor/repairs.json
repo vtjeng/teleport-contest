@@ -26092,7 +26092,9 @@
           "nethack-c/upstream/src/sp_lev.c:lspo_engraving",
           "nethack-c/upstream/src/nhlua.c:get_table_option",
           "nethack-c/upstream/src/sp_lev.c:lspo_door/lspo_ladder/lspo_feature",
-          "js/nhlua.js:luaL_checkoption"
+          "js/nhlua.js:luaL_checkoption",
+          "nethack-c/upstream/src/sp_lev.c:lspo_levregion",
+          "js/mklev.js:lspo_levregion"
         ],
         "witness": [
           "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/probe.mjs",
@@ -26100,7 +26102,8 @@
           "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/case.json",
           "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/case.json",
           "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/case.json",
-          "diagnostics/divergence-evidence/levels/levels-option-string-family-20261029/case.json"
+          "diagnostics/divergence-evidence/levels/levels-option-string-family-20261029/case.json",
+          "diagnostics/divergence-evidence/levels/levels-levregion-name-prefix-20261029/case.json"
         ],
         "test": [
           "scripts/special-level.test.mjs",

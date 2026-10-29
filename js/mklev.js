@@ -4115,7 +4115,8 @@ export function lspo_levregion(args, env) {
                                                       'stair-down',
                                                       regiontypes)];
     tmplregion.padding = get_table_int_opt(table, 'padding', 0);
-    tmplregion.rname = get_table_str_opt(table, 'name', null);
+    // C get_table_str_opt() returns a dupstr(): retain its C-string prefix.
+    tmplregion.rname = get_table_str_opt(table, 'name', null)?.split('\0', 1)[0] ?? null;
 
     levregion_add(tmplregion, env);
 }
