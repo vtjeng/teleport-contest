@@ -1,0 +1,26 @@
+{
+  "testedJsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:22:08.869467+00:00",
+  "reviewedAt": "2026-10-28T22:22:08.869467+00:00",
+  "toolingSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "sourceAuditBindingBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "jsFunctionUnchangedFromScanBase": true,
+  "functionSha256": "00eaac0c90bb77a3a81545ae807e7939b5a9340bbe4fcd37634b68b06fdd58aa",
+  "files": {
+    "js/mklev.js": "ab947e22fa852df29a546a526a5b8a1b8b8198cbcf69ad6ec2828bb1462638d0",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "scripts/discovery-project.mjs": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+    "scripts/discovery-hub.mjs": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+    "nethack-c/upstream/src/hacklib.c": "9f9710dcd8fe0b3735c0b319eb7c26b7fb4148d32a5851ffe72ed94c3bbfeae2"
+  },
+  "exactCBodies": [
+    "lspo_level_flags",
+    "lowc",
+    "strncmpi"
+  ],
+  "limitations": [
+    "Tested recognized ASCII names only; no Unicode, embedded NUL, error paths, private coder flags, or finalization/runtime effects.",
+    "Fixed string-stack adapter; no Lua interpreter execution."
+  ]
+}

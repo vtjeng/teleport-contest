@@ -1,0 +1,318 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-solidfill-boolean-light-20261029",
+  "shard": "levels",
+  "status": "candidate",
+  "readiness": "review_ready",
+  "rootCause": "level-light-unsigned-bitfield-assignment",
+  "relatedCases": [
+    "levels-location-lighting-contracts-20261029"
+  ],
+  "provenance": {
+    "jsSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "splev_chr2typ",
+      "start_line": 382,
+      "end_line": 390,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "check_mapchr",
+      "start_line": 393,
+      "end_line": 398,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_option",
+      "start_line": 1122,
+      "end_line": 1133,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_int_opt",
+      "start_line": 1029,
+      "end_line": 1039,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_str_opt",
+      "start_line": 1055,
+      "end_line": 1076,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_mapchr_opt",
+      "start_line": 256,
+      "end_line": 271,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_boolean",
+      "start_line": 1079,
+      "end_line": 1104,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "get_table_boolean_opt",
+      "start_line": 1107,
+      "end_line": 1118,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp",
+      "start_line": 77,
+      "end_line": 121,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp_lit",
+      "start_line": 125,
+      "end_line": 145,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lvlfill_solid",
+      "start_line": 374,
+      "end_line": 388,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "splev_initlev",
+      "start_line": 2982,
+      "end_line": 3018,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_level_init",
+      "start_line": 3837,
+      "end_line": 3875,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_level_init",
+      "start_line": 2736,
+      "end_line": 2770,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "splev_initlev",
+      "start_line": 1854,
+      "end_line": 1896,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lvlfill_solid",
+      "start_line": 1800,
+      "end_line": 1814,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/nhlua.js",
+      "symbol": "get_table_boolean",
+      "start_line": 282,
+      "end_line": 295,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "set_levltyp_lit",
+      "start_line": 195,
+      "end_line": 209,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/include/rm.h",
+      "symbol": "struct rm.lit",
+      "start_line": 159,
+      "end_line": 172,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    }
+  ],
+  "hypothesis": "Supported lit=\"yes\" is read as integer 2 and truncates in C unsigned one-bit light storage, while JS Boolean conversion preserves it as true.",
+  "expectedBehavior": "Three solidfill targets produce 1617 dark cells each; all 29 controls match the recorded C values.",
+  "observedBehavior": "JS lights all 4851 target cells. The 29 controls match C with zero cell mismatches.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Public JS des.level_init via startup/mklev; exact registered C level_init handler, argument readers, dispatcher and terrain writers with typed Lua table facade and actual Lua option matcher.",
+    "limitations": [
+      "Three target terrains (ROOM, CORR, ICE), one string yes; 29 specified controls. Fresh STONE map, construction before finalization. No runtime or shipped exposure claim.",
+      "C BITFIELDS enabled as configured; unsigned lit width 1. Both extra-sanity configurations execute with identical stored fields. Diagnostics captured, not full message/UI parity.",
+      "Typed Lua facade admits only the tested raw scalar values, no callbacks/metatables/coercion. Actual get_table_boolean and luaL_checkoption execute; all unsupported initialization/runtime hooks abort.",
+      "Related diagnostic scanner gaps obtain a supported C caller but remain unresolved without full diagnostic comparison. Manual storage cause does not suppress their keys."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Supported production level-init inputs and valid fresh-map setup demonstrated. Shipped exposure and downstream gameplay impact unknown."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Manual source-led supported caller discovered while inspecting unresolved light diagnostic leads. Storage mismatch is not those diagnostic keys; no canonical binding invented.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-checkoption.inc"
+      ],
+      "expectedExit": 1,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-checkoption.inc"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/control-receipt.json"
+    },
+    {
+      "id": "post-fix",
+      "role": "post_fix",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-checkoption.inc"
+      ],
+      "expectedExit": 0,
+      "receipt": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/README.md",
+      "sha256": "cc801d7a65ed3190b87c923f9c2ef0ab942b8a8015aad3796c5d04f830738f1f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/control-output.txt",
+      "sha256": "552d0208c31cc1d5ece869b976dcd491ae128d54aabfd64e7548ffbd9712d50d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/control-receipt.json",
+      "sha256": "c0a31ebef723928f05cea87e89c9a57a70e129ddf4386f4ad66a8ecbaa8ed44e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-checkoption.inc",
+      "sha256": "b1b77cface9af5fb2af6472d87e4f3db24bed7c57c481395c1527d979125af2f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-license.txt",
+      "sha256": "d83103413067359fa162d5c465c076d6a9a25f8d678f06b7ed2a7c9d9e4fa704",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-string-contract.txt",
+      "sha256": "145665bf8997a43a9a1d8bbd389c46e57e9c62a8a180effd6cff5730d70cf30f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/oracle.c",
+      "sha256": "87f7c8acaad7e5858dbd6e43e3bf1e0f417299be1d5a8952d9e9d694f62daeb3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/probe.mjs",
+      "sha256": "b428b7e3e48b6eabfc9ee873b7b44b71b00aaf29ba83673e6e436aeb3c33bcca",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/source-contract.json",
+      "sha256": "1f0ba729239151c618172498adeea8dc478da0d91e073619582019b99487cf97",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/source-fingerprints.json",
+      "sha256": "115e8b911a45897dcb3c336eedac92f7dbc3fb5b6a5d66c86931409edfb6c14e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/target-output.txt",
+      "sha256": "46b8cea8d4a05dc7eaf97a08fc1b31feebd3230e422ca2670c2c18aaf1537557",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/target-receipt.json",
+      "sha256": "5c1594279eece7bbd34c9b3b170d9fb8ed821f44131888aa488a9472475d3bec",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

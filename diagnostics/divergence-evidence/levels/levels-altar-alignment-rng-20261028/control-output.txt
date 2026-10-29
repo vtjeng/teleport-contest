@@ -1,0 +1,65 @@
+{
+  "scope": "Three valid original alignments, two JS seeds, coaligned/noncoaligned public altar initialization; exact C macro evaluation and shared RNG tape. No priests or runtime.",
+  "results": [
+    {
+      "role": "Knight",
+      "alignment": "lawful",
+      "nonco": false,
+      "seed": 28105701,
+      "original": 1,
+      "mask": 4,
+      "tape": [],
+      "matched": true
+    },
+    {
+      "role": "Knight",
+      "alignment": "lawful",
+      "nonco": false,
+      "seed": 28105702,
+      "original": 1,
+      "mask": 4,
+      "tape": [],
+      "matched": true
+    },
+    {
+      "role": "Tourist",
+      "alignment": "neutral",
+      "nonco": false,
+      "seed": 28105701,
+      "original": 0,
+      "mask": 2,
+      "tape": [],
+      "matched": true
+    },
+    {
+      "role": "Tourist",
+      "alignment": "neutral",
+      "nonco": false,
+      "seed": 28105702,
+      "original": 0,
+      "mask": 2,
+      "tape": [],
+      "matched": true
+    },
+    {
+      "role": "Barbarian",
+      "alignment": "chaotic",
+      "nonco": false,
+      "seed": 28105701,
+      "original": -1,
+      "mask": 1,
+      "tape": [],
+      "matched": true
+    },
+    {
+      "role": "Barbarian",
+      "alignment": "chaotic",
+      "nonco": false,
+      "seed": 28105702,
+      "original": -1,
+      "mask": 1,
+      "tape": [],
+      "matched": true
+    }
+  ]
+}

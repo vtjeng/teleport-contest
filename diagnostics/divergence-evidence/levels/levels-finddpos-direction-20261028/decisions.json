@@ -1,0 +1,48 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:finddpos:impossible",
+    "evidenceKey": "21a02f132f7e63c490d992bd8a4e9c0d345524a594fce24d30f61e298965d8e4",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "e72c26b6e4e9bf7e4de71ec22266423578e1dad6dc2960db83615ea04b44bb14",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "The missing illegal-direction diagnostic is unreachable from the pinned repository finddpos callers:all10 calls in C and corresponding JS pass a cardinal DIR_N/E/S/W constant. This reviews the diagnostic only, not placement/search equivalence.",
+      "proof": "The portable runner hash-verifies current C/JS mklev sources, checks every finddpos identifier/reference after removing comments/strings, verifies10 calls with matching direction sequence and checks tracked C/header references occur only in src/mklev.c. Exact C finddpos executes all4 cardinal values with no diagnostic. Its default arm is bypassed before room search; a first-success shift adapter isolates that control flow.",
+      "control": "Eight explicit noncardinal integer controls (-1,1,3,5,7,8,9,10) each trigger the exact illegal-direction diagnostic once, return false, leave output coordinates unchanged and make no RNG/shift call. These counterfactual calls are oracle-positive controls, not reachable gameplay setups or divergence candidates. Source scope excludes external/instrumented callers, configuration changes and memory corruption.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:51",
+        "nethack-c/upstream/src/mklev.c:147",
+        "nethack-c/upstream/src/mklev.c:462",
+        "nethack-c/upstream/src/mklev.c:710",
+        "js/mklev.js:7071"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028",
+      "reviewedBase": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:message:src/mklev.c:finddpos:07c9fad716dba72a",
+    "evidenceKey": "3636ea68ae64186ef933268f6c5ece49c33b224c37e3cf92539eeaccaecc35e7",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "3d5d6ba31ce3f4e56978c071747768be5e7771b6c463a26c4ee922155721b674",
+    "status": "explained_negative",
+    "reason": "unreachable",
+    "evidence": {
+      "explanation": "The missing illegal-direction diagnostic is unreachable from the pinned repository finddpos callers:all10 calls in C and corresponding JS pass a cardinal DIR_N/E/S/W constant. This reviews the diagnostic only, not placement/search equivalence.",
+      "proof": "The portable runner hash-verifies current C/JS mklev sources, checks every finddpos identifier/reference after removing comments/strings, verifies10 calls with matching direction sequence and checks tracked C/header references occur only in src/mklev.c. Exact C finddpos executes all4 cardinal values with no diagnostic. Its default arm is bypassed before room search; a first-success shift adapter isolates that control flow.",
+      "control": "Eight explicit noncardinal integer controls (-1,1,3,5,7,8,9,10) each trigger the exact illegal-direction diagnostic once, return false, leave output coordinates unchanged and make no RNG/shift call. These counterfactual calls are oracle-positive controls, not reachable gameplay setups or divergence candidates. Source scope excludes external/instrumented callers, configuration changes and memory corruption.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:51",
+        "nethack-c/upstream/src/mklev.c:147",
+        "nethack-c/upstream/src/mklev.c:462",
+        "nethack-c/upstream/src/mklev.c:710",
+        "js/mklev.js:7071"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028",
+      "reviewedBase": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

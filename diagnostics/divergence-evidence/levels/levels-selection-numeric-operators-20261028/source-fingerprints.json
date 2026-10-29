@@ -1,0 +1,45 @@
+{
+  "testedJsSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+  "discoveredAt": "2026-10-28T23:07:57.296648+00:00",
+  "reviewedAt": "2026-10-28T23:07:57.296648+00:00",
+  "exactCBodies": {
+    "nethack-c/upstream/src/nhlsel.c": [
+      "l_selection_or",
+      "l_selection_sub"
+    ],
+    "nethack-c/upstream/src/selvar.c": [
+      "selection_new",
+      "selection_free",
+      "selection_getbounds",
+      "selection_recalc_bounds",
+      "selection_getpoint",
+      "selection_setpoint"
+    ],
+    "nethack-c/upstream/src/rect.c": [
+      "rect_bounds"
+    ]
+  },
+  "functionHashes": {
+    "nethack-c/upstream/src/nhlsel.c:l_selection_or": "1da13770e3f43540b80927af6bc77331dd6d9ae97f6bc87484a4eec2a7a4b3aa",
+    "nethack-c/upstream/src/nhlsel.c:l_selection_sub": "d6d7711d211283a8c4802449b88061cda572c8130021cd1cf4d3d14c6df6f5fa",
+    "nethack-c/upstream/src/selvar.c:selection_new": "6d913b8ca4caa82997ce67c6d04573d4dd4b4fffd0f4761de641dd7ed437429e",
+    "nethack-c/upstream/src/selvar.c:selection_free": "95bcd7908c68fb26631fc9e13829e699855a85e2ff15eb762efa0cd85513c6a2",
+    "nethack-c/upstream/src/selvar.c:selection_getbounds": "0ba39ab523a09a5882bc1e81c2cedc7b9f48ddc8f76a1f69fb846fcea3b7e28b",
+    "nethack-c/upstream/src/selvar.c:selection_recalc_bounds": "3b99f83da4317c35816190f7dfb383f6cc11cb6849be544ddaccd4450b9d675c",
+    "nethack-c/upstream/src/selvar.c:selection_getpoint": "47402ee879031e62fe0b0a5bf77092254de0470a5412a84bdaa261e4e3f88e41",
+    "nethack-c/upstream/src/selvar.c:selection_setpoint": "d9987187051df698ab2ac8a161e0d80665e930e56823477d5c1dfb359c889a1f",
+    "nethack-c/upstream/src/rect.c:rect_bounds": "a25b31f2abe0a641574f58ab800ec849f4cc643ef49d9c0ef32abe6425b0f1f0",
+    "js/nhlsel.js:selectionPoint": "7842374e25dab667744591cef8a01cbaca377806cbaa6d628c667c029e0afa3c",
+    "js/nhlsel.js:l_selection_or": "baa9d0c4011ff91fb02bd1abcc903779332335707af9419baed2613b794bb0ca",
+    "js/nhlsel.js:l_selection_sub": "04e59699599aa5fc635ddfc103872a7f35f7c02ba147154239675a62c21f2ed9"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "clang -std=c99 -O2; COLNO80 ROWNO21; fixed two-selection stack; values0..7 only",
+  "limitations": [
+    "Finite numeric value domain0..7 at overlapping (3,4), plus disjoint boolean inputs at (3,4)/(7,2). One absolute map frame; no mixed/relative frame, coordinate conversion, arbitrary bounds, signed/wrapping values, Lua parser, finalization or runtime claim.",
+    "Actual production JS selection_new/set and OR/subtraction exports, as used in repository tests and translated callers. Exact C functions execute with a fixed valid two-selection Lua stack adapter and actual selection storage/allocation. No custom Lua interpreter. Input maps and output bytes are inspected only, not injected.",
+    "Full map bytes and computed bounds are compared, not internal cached-bound dirty flags. Existing Main-owned selection-frame candidates remain separate and unresolved by these comparisons. Shipped exposure is not attributed."
+  ]
+}

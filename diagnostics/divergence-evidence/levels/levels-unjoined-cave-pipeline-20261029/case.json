@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-unjoined-cave-pipeline-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "unjoined-cave-pipeline-buffer-delegation",
+  "relatedCases": [
+    "levels-cave-finish-metadata-20261029"
+  ],
+  "provenance": {
+    "jsSha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "init_map",
+      "start_line": 24,
+      "end_line": 34,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "init_fill",
+      "start_line": 37,
+      "end_line": 52,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "get_map",
+      "start_line": 55,
+      "end_line": 60,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "pass_one",
+      "start_line": 68,
+      "end_line": 96,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "pass_two",
+      "start_line": 101,
+      "end_line": 121,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "pass_three",
+      "start_line": 124,
+      "end_line": 144,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "finish_map",
+      "start_line": 331,
+      "end_line": 363,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "litstate_rnd",
+      "start_line": 443,
+      "end_line": 448,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmap.c",
+      "symbol": "mkmap",
+      "start_line": 451,
+      "end_line": 486,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "mkmap",
+      "start_line": 5473,
+      "end_line": 5508,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "mkmap_init_map",
+      "start_line": 5145,
+      "end_line": 5154,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "mkmap_init_fill",
+      "start_line": 5158,
+      "end_line": 5169,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "mkmap_get_map",
+      "start_line": 5173,
+      "end_line": 5177,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "mkmap_pass_one",
+      "start_line": 5181,
+      "end_line": 5205,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "mkmap_pass_two",
+      "start_line": 5208,
+      "end_line": 5231,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "mkmap_pass_three",
+      "start_line": 5235,
+      "end_line": 5258,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "mkmap_finish_map",
+      "start_line": 5442,
+      "end_line": 5469,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "litstate_rnd",
+      "start_line": 535,
+      "end_line": 541,
+      "commit_sha": "f3e2e6d638383a5f77f153057d0af6684ca64cfb"
+    }
+  ],
+  "hypothesis": "Renamed JS cave initialization/pass calls or per-pass buffers might change full unjoined generation compared with C mkmap composition.",
+  "expectedBehavior": "With the same legal initialization draws, all active C phases and JS production phases yield identical terrain and metadata; smoothing changes outputs without consuming additional RNG.",
+  "observedBehavior": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 \u00d7three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER \u00d7lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 \u00d7three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER \u00d7lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+    "limitations": [
+      "Eleven keys form ONE unjoined pipeline/buffer-delegation cause. Five C phase edges and five renamed JS edges are not ten independent findings. Temporary storage equivalence is logical output under successful allocation only, not JS GC timing or C OOM handling.",
+      "The new question is pipeline composition and phase ordering from a shared initial random fill, not another isolated cellular-pass or finishing-metadata sample. Existing phase/metadata proofs remain scoped and are not recounted. Target smoothed=true executes two pass_three iterations; paired smoothed=false controls omit those iterations with identical RNG tapes.",
+      "Four seeds3/19/43/101,three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER,lit0/1 comprise24targets and24controls. Each run compares all1,680 cells including unused column0 on typ,lit,roomno andicedpool. Inputs are fresh construction levels,joined=false,walled=false,icedpools=false. No rooms are created.",
+      "JS executes production newgame_pre_mklev and public des.level_init(mines) via mklev specialLevelLoader, then stops before finish. C executes exact mkmap and all active callees from a valid typed lev_init descriptor. The Lua argument reader, C full startup and independent dungeon initialization are not compared. No private JS function is extracted.",
+      "JS RNG tracing supplies legal rn2/rnd values to C, which checks every operation and bound and consumes the entire tape. This demonstrates equal behavior under shared draws; it does NOT establish C/JS RNG generator equivalence. Full raw tapes are reproducibly regenerated by the runner rather than published as bulky artifacts.",
+      "Joining and wallification are disabled and C hooks abort if reached. No join-map cleanup,cap exit,room topology,walls,negative-light/depth RNG,reused metadata,allocator failure,full finalization or runtime claim. Cave-cap remains parked; no new seed sweep attempts its reachability.",
+      "Source hashes and C bodies are pinned. All tested JS caller/helper bodies remain equal to the frozen scan base; immutable run identities and official export projection are preserved. Main advanced to f3e2e6d63; the reusable clean checkout was updated safely and target/control/layout rerun. No gameplay edits or acceptance inference for Main publications.",
+      "Four diagnostic keys,ten changed-caller bindings,bottomstairs,cave-cap and three parked prerequisite gaps remain unresolved and untouched. All access/safety exclusions remain in force."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Supported public JS mines initialization with exact production C mkmap and active callees over a typed descriptor/shared RNG trace; no independent C Lua binding or shipped attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+    "keys": [
+      "source-audit:edge-c-only:src/mkmap.c:mkmap:alloc",
+      "source-audit:edge-c-only:src/mkmap.c:mkmap:init_map",
+      "source-audit:edge-c-only:src/mkmap.c:mkmap:init_fill",
+      "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_one",
+      "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_two",
+      "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_three",
+      "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_init_map",
+      "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_init_fill",
+      "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_one",
+      "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_two",
+      "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_three"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/README.md",
+      "sha256": "c5f070c6bf895e949662c0b7110004cc2fbe69469861b9fc9b04f3aa588c1c65",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/control-analysis.json",
+      "sha256": "78a145fd503f399069706c386882830be61fbbd45c877676c103da02dde87270",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/control-output.txt",
+      "sha256": "36a363022e7e0a4b36c1faf7c01956e7f9149cdd50958a49190c3ba60e65e5bb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/control-receipt.json",
+      "sha256": "6d7c0bc3133b82be44704d8c4d7fae8c4692ba0a282b3851268aeb82b5d79f2e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/decisions.json",
+      "sha256": "c969385326eef3ff13f6bd3d0ef5bcbc65b9c469c72e00baaa19b481c9bdfcf6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/oracle.c",
+      "sha256": "0b1213c2f49f93824fae6a2dd81b354335dd90898c1bfad8ccff6946519544d0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/probe.mjs",
+      "sha256": "5a7bb00f078859caf30291ce1e667d15c622bda6e9e3484c9fec7f62402b24f3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/projection/manifest.json",
+      "sha256": "03f00f4717202aca1356924c30af72922b37179c840b14b63b43ac297ce21c55",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/projection/projection.json",
+      "sha256": "ebaafeedf396332ef7522f65098fb0eb730b2b8a9c1c4d7be90aceabae42010f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/projection/review-template.json",
+      "sha256": "a62b314737e76016ab10bdbe5e3c7d96226c0dedd169919b682a11156b7a8379",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/source-contract.json",
+      "sha256": "6dfde7fc3a8a785d0eaf3a8ee4786414c349b6c82fc9efb53b7419de6cd205c1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/source-fingerprints.json",
+      "sha256": "fc8c5b59a8d333f7a49ea4c703ab0e27c8c9092b150e6991c3f87afca966fd94",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/target-output.txt",
+      "sha256": "001dd477421f09cdee443a4a9d6f01a769c26143ce7f40aa91687e7222b999cf",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029/target-receipt.json",
+      "sha256": "a75319d9e7cee9c9b8cb09ea6ad20478497d22e04072236153b1bc0bc39e2293",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

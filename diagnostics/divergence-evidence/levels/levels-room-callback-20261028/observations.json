@@ -1,0 +1,257 @@
+{
+  "scope": "12 rectangular room callback descriptors; no filling/finalization or orig_rtype claim",
+  "results": [
+    {
+      "type": "ordinary",
+      "rtype": 0,
+      "lit": 0,
+      "joined": false,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": false,
+        "irregular": false,
+        "needjoining": false,
+        "type": "ordinary"
+      },
+      "matched": true
+    },
+    {
+      "type": "ordinary",
+      "rtype": 0,
+      "lit": 0,
+      "joined": true,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": false,
+        "irregular": false,
+        "needjoining": true,
+        "type": "ordinary"
+      },
+      "matched": true
+    },
+    {
+      "type": "ordinary",
+      "rtype": 0,
+      "lit": 1,
+      "joined": false,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": true,
+        "irregular": false,
+        "needjoining": false,
+        "type": "ordinary"
+      },
+      "matched": true
+    },
+    {
+      "type": "ordinary",
+      "rtype": 0,
+      "lit": 1,
+      "joined": true,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": true,
+        "irregular": false,
+        "needjoining": true,
+        "type": "ordinary"
+      },
+      "matched": true
+    },
+    {
+      "type": "vault",
+      "rtype": 4,
+      "lit": 0,
+      "joined": false,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": false,
+        "irregular": false,
+        "needjoining": false,
+        "type": "vault"
+      },
+      "matched": true
+    },
+    {
+      "type": "vault",
+      "rtype": 4,
+      "lit": 0,
+      "joined": true,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": false,
+        "irregular": false,
+        "needjoining": true,
+        "type": "vault"
+      },
+      "matched": true
+    },
+    {
+      "type": "vault",
+      "rtype": 4,
+      "lit": 1,
+      "joined": false,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": true,
+        "irregular": false,
+        "needjoining": false,
+        "type": "vault"
+      },
+      "matched": true
+    },
+    {
+      "type": "vault",
+      "rtype": 4,
+      "lit": 1,
+      "joined": true,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": true,
+        "irregular": false,
+        "needjoining": true,
+        "type": "vault"
+      },
+      "matched": true
+    },
+    {
+      "type": "temple",
+      "rtype": 10,
+      "lit": 0,
+      "joined": false,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": false,
+        "irregular": false,
+        "needjoining": false,
+        "type": "temple"
+      },
+      "matched": true
+    },
+    {
+      "type": "temple",
+      "rtype": 10,
+      "lit": 0,
+      "joined": true,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": false,
+        "irregular": false,
+        "needjoining": true,
+        "type": "temple"
+      },
+      "matched": true
+    },
+    {
+      "type": "temple",
+      "rtype": 10,
+      "lit": 1,
+      "joined": false,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": true,
+        "irregular": false,
+        "needjoining": false,
+        "type": "temple"
+      },
+      "matched": true
+    },
+    {
+      "type": "temple",
+      "rtype": 10,
+      "lit": 1,
+      "joined": true,
+      "descriptor": {
+        "width": 5,
+        "height": 3,
+        "region": {
+          "x1": 11,
+          "y1": 5,
+          "x2": 15,
+          "y2": 7
+        },
+        "lit": true,
+        "irregular": false,
+        "needjoining": true,
+        "type": "temple"
+      },
+      "matched": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{"sourceLevel":1,"destinationLevel":2,"expected":[10,6,17,0,2,0],"observed":[10,6,17,0,2,0]}
+{"sourceLevel":2,"destinationLevel":1,"expected":[20,9,17,0,1,0],"observed":[20,9,17,0,1,0]}
+{"sourceLevel":1,"destinationLevel":3,"expected":[10,6,17,0,3,0],"observed":[10,6,17,0,3,0]}
+{"sourceLevel":3,"destinationLevel":1,"expected":[20,9,17,0,1,0],"observed":[20,9,17,0,1,0]}
+{"sourceLevel":2,"destinationLevel":3,"expected":[10,6,17,0,3,0],"observed":[10,6,17,0,3,0]}
+{"sourceLevel":3,"destinationLevel":2,"expected":[20,9,17,0,2,0],"observed":[20,9,17,0,2,0]}
+{"sourceLevel":1,"destinationLevel":2,"expected":[1,0,17,0,2,0],"observed":[1,0,17,0,2,0]}
+{"sourceLevel":2,"destinationLevel":1,"expected":[78,19,17,0,1,0],"observed":[78,19,17,0,1,0]}
+{"sourceLevel":1,"destinationLevel":3,"expected":[1,0,17,0,3,0],"observed":[1,0,17,0,3,0]}
+{"sourceLevel":3,"destinationLevel":1,"expected":[78,19,17,0,1,0],"observed":[78,19,17,0,1,0]}
+{"sourceLevel":2,"destinationLevel":3,"expected":[1,0,17,0,3,0],"observed":[1,0,17,0,3,0]}
+{"sourceLevel":3,"destinationLevel":2,"expected":[78,19,17,0,2,0],"observed":[78,19,17,0,2,0]}
+{"sourceLevel":1,"destinationLevel":2,"expected":[40,10,17,0,2,0],"observed":[40,10,17,0,2,0]}
+{"sourceLevel":2,"destinationLevel":1,"expected":[60,15,17,0,1,0],"observed":[60,15,17,0,1,0]}
+{"sourceLevel":1,"destinationLevel":3,"expected":[40,10,17,0,3,0],"observed":[40,10,17,0,3,0]}
+{"sourceLevel":3,"destinationLevel":1,"expected":[60,15,17,0,1,0],"observed":[60,15,17,0,1,0]}
+{"sourceLevel":2,"destinationLevel":3,"expected":[40,10,17,0,3,0],"observed":[40,10,17,0,3,0]}
+{"sourceLevel":3,"destinationLevel":2,"expected":[60,15,17,0,2,0],"observed":[60,15,17,0,2,0]}
+{"mode":"target","count":18,"scope":"Portal caller delegation and destination assignment only; C factory adapter, actual JS constructor; protected-portal control omits diagnostic parity."}

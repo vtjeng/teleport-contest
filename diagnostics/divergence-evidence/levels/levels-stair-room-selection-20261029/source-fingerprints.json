@@ -1,0 +1,27 @@
+{
+  "testedJsSha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+  "discoveredAt": "2026-10-29T02:38:07.113909+00:00",
+  "reviewedAt": "2026-10-29T02:38:07.113909+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mkroom.c:inside_room": "9cf6febeba14a93d8acfbacaf0ecf84e9f934f6833172f096db4a1bfb3c211de",
+    "nethack-c/upstream/src/mkroom.c:has_dnstairs": "2f1288b9d8140bb04635a6c9011ff1a632f870a798be46e013d37d3ae4ad6a64",
+    "nethack-c/upstream/src/mkroom.c:has_upstairs": "e6ff322c1fc964533b31ddf0aa6f20160de9197c83f49af898cccea7986dfc72",
+    "nethack-c/upstream/src/mklev.c:generate_stairs_room_good": "76311f84444d4334ffee7802435ad364698b5ae66497570f9314198794f346dc",
+    "nethack-c/upstream/src/mklev.c:generate_stairs_find_room": "f066a367131a3fc19e256f2b5628b3d8390213779148b8379ca5f82fdcd2bde9",
+    "js/mklev.js:generate_stairs_find_room": "40c204e21119c3faf582fe03eacbd0b6f1d91ecb5534a4f3a685f9e8e8e86a4c",
+    "js/mklev.js:generate_stairs_room_good": "73df692fb1ba11155a51884819db1aaf804928dcb1f546dad3254bb37252f03c",
+    "js/mkroom.js:has_dnstairs": "8a0c1204d265e8b38870ca0ba1ca68f572ae3110bb5f599bc9266d826b5733b7",
+    "js/mkroom.js:has_upstairs": "3aac3096e13c9e5b7c4c05fd102d2b34702ba7e951160760024c703e6ad98d6e"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "Node24.19.0; Clang19.1.7 (3+b1), -std=c11 -O2; regular room records, shared legal random choice, successful allocation.",
+  "limitations": [
+    "Thirteen target choices across six configurations and four controls, all regular rooms; one candidate-array allocation key/cause. No universal room-selector parity claim.",
+    "C five exact functions execute with successful allocation. JS private selector body is extracted verbatim and bound to actual exported generate_stairs_room_good and its real stair-membership dependencies. This is a component proof, not a public Lua or full generation witness.",
+    "One shared legal random choice per nonempty setup, no random choice for empty rooms. Independent RNG and seed exposure are unproved. Fixtures cover ordinary/themed/other room types, joined/unjoined rooms and existing up/down stair records; not irregular/subroom membership, malformed records or OOM.",
+    "No stair construction, placement, topology/finalization or runtime claims. In particular generate_stairs:Is_botlevel remains unresolved; the candidate-list proof does not resolve that separate control-flow difference.",
+    "Cave-cap and the three parked gaps remain unresolved. No denied work, install, gameplay edit or Main-owned repair is revisited."
+  ]
+}

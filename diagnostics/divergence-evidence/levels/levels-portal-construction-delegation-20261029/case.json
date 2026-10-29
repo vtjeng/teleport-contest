@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-portal-construction-delegation-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "portal-construction-factory-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "mkportal",
+      "start_line": 1464,
+      "end_line": 1479,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/trap.c",
+      "symbol": "maketrap",
+      "start_line": 456,
+      "end_line": 588,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "mkportal",
+      "start_line": 1534,
+      "end_line": 1540,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/trap.js",
+      "symbol": "maketrap",
+      "start_line": 987,
+      "end_line": 1076,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    }
+  ],
+  "hypothesis": "The scanner marks the portal constructor dependency as a stub; successful portal construction or destination assignment might be missing.",
+  "expectedBehavior": "Given a successful MAGIC_PORTAL factory return, mkportal stores destination dungeon/level; a null return leaves the existing portal untouched. JS must execute a real constructor for the tested floor fixtures.",
+  "observedBehavior": "Exact C mkportal executes against successful/null factory interface adapters, asserting one MAGIC_PORTAL call and destination forwarding. Production JS mkportal/maketrap constructs18 reciprocal portal endpoints over3 coordinate pairs\u00d73 level pairs, each exactly linked once with matching coordinates/type/destination. Eighteen protected-portal retry controls return null and leave prior records/list lengths unchanged.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Exact C mkportal executes against successful/null factory interface adapters, asserting one MAGIC_PORTAL call and destination forwarding. Production JS mkportal/maketrap constructs18 reciprocal portal endpoints over3 coordinate pairs\u00d73 level pairs, each exactly linked once with matching coordinates/type/destination. Eighteen protected-portal retry controls return null and leave prior records/list lengths unchanged.",
+    "limitations": [
+      "Constructor delegation and caller-owned destination fields only:18 portal endpoints over3 coordinate pairs and3 reciprocal level pairs in a3-level dungeon. Empty ROOM cells, no existing traps for targets. No portal travel, complete level generation/finalization, arbitrary terrain, trap replacement or generic metadata parity.",
+      "C oracle compiles exact mkportal against a factory interface adapter which returns either a record or NULL and checks one MAGIC_PORTAL call. It does NOT compile full C maketrap. The scoped question is whether the JS callee is a stub and whether its successful result receives the caller destination; full C factory semantics are not established by this adapter.",
+      "JS executes real mkmaze.mkportal and trap.maketrap with GameMap states and creates/links reciprocal portal records. Both function bodies are unchanged from the frozen discovery base. Minimal level fixtures do not invoke runtime capabilities.",
+      "Eighteen rejection controls attempt construction on a previously created protected portal. Actual JS returns null without replacing/doubling/mutating that portal. C adapter returns NULL and exact caller records one impossible diagnostic. C maketrap protected-trap return and trap.h macro are source-pinned, not executed by the C adapter.",
+      "Diagnostic parity is explicitly excluded: C emits a diagnostic on NULL; JS omits that message. The separate impossible/message leads remain unreviewed, not filtered by this construction-stub proof. Controls are rejected constructor attempts, not successful alternate portal routes.",
+      "Source hashes invalidate the proof on changed files. No broad declaration that all maketrap callers, construction branches, or prior trap selector/registration domains are equivalent. Three parked gaps and all Main-owned candidates unchanged."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exported level-construction API and reciprocal paired fixtures; no shipped route, runtime travel or full C trap-construction parity claimed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The frozen stub attribution does not describe the executed JS portal-construction path: mkportal calls the production trap.js maketrap and receives/links a real portal. Both JS caller and factory bodies are unchanged from the frozen scanner base. This is a scoped factory-delegation negative, not complete trap parity.",
+    "keys": [
+      "source-audit:edge-stub:src/mkmaze.c:mkportal:maketrap"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/README.md",
+      "sha256": "e716be07f3dc549e6f1c47d000ba5184a4a2e3f30d13fb66201ef51fa3d790c7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/control-output.txt",
+      "sha256": "8f09af9c899c9428ef6a362578c6bb8f466bcbb0f9a93e0c8a96615ef7f105ad",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/control-receipt.json",
+      "sha256": "fc9e5ef3da56b3f44288ebd60908703404b8293364e4bb41138509b083ad28b0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/decisions.json",
+      "sha256": "f89525a7cb9bb0bc18b5eba7807b44d5214332e880d50dd8f622ca955ce157a3",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/oracle.c",
+      "sha256": "e7f00d205427b9d1d576cb49dea51f460682ba005d1b4ab068b142f6e76d6dc0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/probe.mjs",
+      "sha256": "ae9f3b080a1f01d907a369aaaefbeaa4743420db2001a76fda378cbdd1c27d89",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/projection/manifest.json",
+      "sha256": "4e649156698d64398449084adc1b6d6bc08e8ab429bb1878a6c31171271f6cda",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/projection/projection.json",
+      "sha256": "cedc346ab1ff326aa78296d8a37987e68f068db042ae65a21e7de3265b8b3d49",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/projection/review-template.json",
+      "sha256": "2b606ae430fe5a53e2ee7905b60209f7feef21895ab1276b20c8938f44fbc6ff",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/source-contract.json",
+      "sha256": "20acdd8b97cfda5da5033fdf8c32cac3f1eb34a949abed7284123766827d1a9b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/source-fingerprints.json",
+      "sha256": "139294e0ebec2a530ebf966f79a11a91096f5ec11c4183ae69005efe7db89ec9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/target-output.txt",
+      "sha256": "247a1a209d44b923e7025c40f202ba584733f93913d7f42c20294b33fb06e329",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/target-receipt.json",
+      "sha256": "9315eb7248b1e0022505c2537b6884002fc82704d16f023d9d3b01db58f2b832",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

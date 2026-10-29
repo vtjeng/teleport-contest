@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T02:36:58.663Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "4cace5a0b2bd68966921d5707c43a0fee5382a951a01d4b66e322f627fddb11f",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/oracle.c": "52af03bb722dc4b19db69e2e8abd18b6b4069f727252ada7990b4872cb1d7147",
+    "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/source-contract.json": "22b72a61b2e9c5eccf175f7633a45113776728d5a36701dfb299667a44b19f30",
+    "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/fixtures.json": "f2e1a6cff6a5b10901bb1fcc852277d0cc23aaf5961b942cae0102055b8a591d"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029/target-output.txt"
+  ]
+}

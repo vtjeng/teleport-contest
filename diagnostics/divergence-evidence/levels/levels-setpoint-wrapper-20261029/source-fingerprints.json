@@ -1,0 +1,27 @@
+{
+  "testedJsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "discoveredAt": "2026-10-29T01:41:31.252533+00:00",
+  "reviewedAt": "2026-10-29T01:41:31.252533+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/nhlsel.c:l_selection_setpoint": "17da3ba883a4f7e273e0e06aeca482a442a8b33f820d0acb8b8aea41367e82d0",
+    "nethack-c/upstream/src/nhlsel.c:l_selection_new": "598e17a0350e36400edb4a1d48cec137ff8dc62869bbeb563eb0287132a716a6",
+    "nethack-c/upstream/src/nhlsel.c:l_selection_check": "2712f7dfc4dbb80f5f01477baed0724ca1054cfd3c88a2d8c66307eaf16b97c5",
+    "nethack-c/upstream/src/selvar.c:selection_new": "6d913b8ca4caa82997ce67c6d04573d4dd4b4fffd0f4761de641dd7ed437429e",
+    "nethack-c/upstream/src/selvar.c:selection_setpoint": "d9987187051df698ab2ac8a161e0d80665e930e56823477d5c1dfb359c889a1f",
+    "js/nhlsel.js:l_selection_setpoint": "c0d117dd390da5e34886211add6450508a7f88e61399314a3309744510cecd87",
+    "js/themerooms.js:selection_new": "3c98d3b3856b9cfed16f9bd913ec9f52d50458004da2cbb7f71623b5f904f8f3"
+  },
+  "jsWrapperAndAllocatorUnchangedFromScanBase": true,
+  "configuration": "Node24.19.0,Clang19.1.7 -std=c11 -O2; exact C wrapper/storage with fixed typed successful-path stack/coordinate adapters; real JS wrapper/resolver and public state/frame setup.",
+  "limitations": [
+    "Twenty targets:four-argument existing-selection update, values0,1,2,7,126, two interior coordinates(2,2)/(4,3), two frames(1,0)/(10,6). Eight controls:two-argument fresh creation and three-argument default-value update over the same coordinates/frames. Entire1680-byte maps and calculated bounds compared.",
+    "Exact C l_selection_setpoint and six selvar storage/bounds functions compile unchanged. Fixed typed Lua adapters implement only successful argc2/3/4 paths: selection validation, integer reads, stack pop/new/settop. The allocation adapter invokes real selection_new; full userdata/metatable allocation, Lua VM/parser and invalid-input diagnostics are not executed.",
+    "C coordinate adapter asserts explicit nonnegative inputs, ANY_LOC and null room, then adds the stated frame origin. It is not a general coordinate resolver. JS uses the real coordinate resolver on the production game state and frame established by public level_init/map; the exported production wrapper receives that frame and a null-room coder view.",
+    "This is a wrapper/API-boundary proof, not invocation through the private Lua-global symbol or a shipped loader. Source confirms the production Lua-global set method forwards args/env to this exact wrapper. No arbitrary Lua runtime or internal storage mutation is introduced.",
+    "Only absolute selection objects are supplied. Existing objects retain identity and an unrelated(35,17) anchor; fresh objects have only the new point. No relative-selection, mixed-frame, subroom, random-coordinate, zero/one-argument, out-of-bounds, invalid-input or error parity claim.",
+    "Values plus1 are1..127, representable with either signed or unsigned char. No compiler-dependent narrowing, embedded-NUL selection storage or larger numeric domain is tested. No RNG or runtime behavior claim.",
+    "The four scanner keys describe one delegated selection setter cause. Prior same-frame OR/sub proof, mixed-frame fixes, cave-cap unresolved lead and three parked gaps retain their own boundaries."
+  ]
+}

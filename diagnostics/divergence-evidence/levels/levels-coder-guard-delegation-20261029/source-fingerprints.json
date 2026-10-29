@@ -1,0 +1,36 @@
+{
+  "testedJsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "discoveredAt": "2026-10-29T00:24:53.738285+00:00",
+  "reviewedAt": "2026-10-29T00:24:53.738285+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:create_des_coder": "4b4fdceb25545d531077b07b31a7d9a4fc5ad5df84ecb8be928c23a4660e5ec4",
+    "nethack-c/upstream/src/sp_lev.c:load_special": "ba0412e9bfb99a371ffc94148b35f0fb17855039c6b0df86b28f1ffef25f1f2e",
+    "nethack-c/upstream/src/sp_lev.c:sp_level_coder_init": "39fab1cb6d467a727acb81637c4a734cf5f3b0e054c244c77fe7e0921a7b11d3",
+    "nethack-c/upstream/src/sp_lev.c:lspo_level_flags": "179b1dc57d089d571ea1ecbe184aca9a288897edea929c78c89079af988b9c5c",
+    "nethack-c/upstream/src/sp_lev.c:lspo_level_init": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde",
+    "nethack-c/upstream/src/sp_lev.c:lspo_terrain": "bb16b3577666b873d8a0f622984cc239d854037ef23f45982c168824594e8c2e",
+    "nethack-c/upstream/src/sp_lev.c:lspo_wall_property": "8ba638671dd251f0f6ddd87d9d1eee3899c992aa82442cfd13119360a493d331",
+    "nethack-c/upstream/src/sp_lev.c:lspo_exclusion": "0259634e7527506dac1d29e2009fea35efa5366df825280ff5fe5fba30d2bb4c",
+    "nethack-c/upstream/src/sp_lev.c:lspo_teleport_region": "2c0f59d49e38360c1ba513602572635be6f92ff2ff4f849be24bf64ae073be93",
+    "js/mklev.js:create_des_coder": "2c313d980045ec0ad40e21e7dfd1f954db28b0dde3ffc4f4b7335c82a66afca8",
+    "js/mklev.js:createSpecialLevelApi": "2c4725d4de6642f2ca934859e51fd381523154681429ea56125d64f78544c6b5",
+    "js/mklev.js:sp_level_coder_init": "ec3b2c5c72f3a77199de1e720295ccd97709490d25a29f49fbe3db4162b06811",
+    "js/mklev.js:lspo_level_flags": "d9e0b4413980ce693e7a8952492e6529a62503973cfc4c091c8ba72c07bc8fb0",
+    "js/mklev.js:lspo_level_init": "33ac00c2c02d4782bf58c570cbe5d6e1bb056b41e5151aef7ce1c7d0701beadf",
+    "js/mklev.js:lspo_terrain": "2ffaa90a0283a806ca38146856616782332714b50f7c2e8b83078c05a650f763",
+    "js/mklev.js:lspo_wall_property": "131ca8c99b5d2b4a76078bb266a238b6131baeda544b3f1aac7a64c5f7c09944",
+    "js/mklev.js:lspo_exclusion": "3880ab8cea95e87fa6b0c412af0c211b58630bc59fbe24fee60787e3ceb6b1e6",
+    "js/mklev.js:lspo_teleport_region": "850228c095e343eebbabf909faae3422f5df270766ab4d9cb2b962bb96324956"
+  },
+  "selectedJsWrappersUnchangedFromScanBase": true,
+  "configuration": "clang -std=c11 -O2 exact create_des_coder with sentinel initializer-interface adapter; Node24.19.0 production special loader,seed0x5eed,datetime20400314015926,Tourist/human/female/neutral,bonesfalse. Sentinel before finalization.",
+  "limitations": [
+    "Normal successful special-level load with an initialized coder, the six listed methods and no reset/finalize/reentrant callback. No blanket suppression of all create_des_coder edges, other loaders or direct private environment injection.",
+    "C oracle executes the exact guard only. Its initializer-interface adapter returns a sentinel and counts calls; this proves conditional dispatch, not C allocator correctness, full coder initialization contents or C execution of each API body. The source loader ordering supplies the initialized-pointer precondition.",
+    "JS executes the production loader/API path. Target observes rndmongen/deathdrops/temperature across six calls; controls observe these defaults in two fresh loaders. No broad state, terrain, region enforcement, RNG, callback or finalization equivalence claim.",
+    "C guard preserves an existing pointer/marker across six calls and invokes the adapter once for null on control. Successful allocation/nonreturning failure contract is assumed; OOM/error-handling parity is excluded.",
+    "Whole-file source hashes deliberately invalidate the runner on changed sources; selected wrapper hashes match the frozen scanner base. The map guard key stays unreviewed because of its separate JS attribution gap. Three parked gaps are untouched."
+  ]
+}

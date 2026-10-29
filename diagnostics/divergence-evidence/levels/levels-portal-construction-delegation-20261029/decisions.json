@@ -1,0 +1,25 @@
+[
+  {
+    "key": "source-audit:edge-stub:src/mkmaze.c:mkportal:maketrap",
+    "evidenceKey": "48c10f3c568a7caa4ad69f50ea80372a4131dcb469b250418fdbe334de97f2e9",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "73566bdb49083eda4fd6c71cf41c28b4e104bab31ae1015b376250900c1ba866",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The frozen stub attribution does not describe the executed JS portal-construction path: mkportal calls the production trap.js maketrap and receives/links a real portal. Both JS caller and factory bodies are unchanged from the frozen scanner base. This is a scoped factory-delegation negative, not complete trap parity.",
+      "proof": "Exact C mkportal executes against successful/null factory interface adapters, asserting one MAGIC_PORTAL call and destination forwarding. Production JS mkportal/maketrap constructs18 reciprocal portal endpoints over3 coordinate pairs×3 level pairs, each exactly linked once with matching coordinates/type/destination. Eighteen protected-portal retry controls return null and leave prior records/list lengths unchanged.",
+      "control": "Protected existing portals take the null path. C caller emits one diagnostic in this adapter control; JS diagnostic parity is explicitly NOT compared, and mkportal impossible/message keys remain unreviewed. C maketrap itself is not compiled: its successful/null interface is the precondition; the actual C protected-portal guard and trap.h undestroyable macro are pinned as source. No travel, trap replacement, generic metadata, arbitrary terrain or runtime claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmaze.c:1464",
+        "nethack-c/upstream/src/trap.c:456",
+        "nethack-c/upstream/include/trap.h:116",
+        "js/mkmaze.js:1534",
+        "js/trap.js:987"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029",
+      "reviewedBase": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

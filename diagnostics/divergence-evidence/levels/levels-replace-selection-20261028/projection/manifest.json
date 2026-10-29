@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "ce19f78d397ca2567c79871625d805620886750624034df0d42ce9135c90f6f9",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_clear",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getbounds",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getpoint",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_new",
+    "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_setpoint"
+  ],
+  "decisionsSha256": "55775e5bc26a91513a65345ce8ff8a67bec1a94199ae08ad0992aaf622e4a7da",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 5,
+    "decisionsChecked": 5,
+    "before": {
+      "active": 5,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 5,
+      "excluded": 0
+    }
+  }
+}

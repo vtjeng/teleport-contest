@@ -1,0 +1,57 @@
+{
+  "mode": "target",
+  "oracle": "6 initialized guards;0 initializer calls;pointer and marker unchanged",
+  "results": [
+    [
+      {
+        "api": "level_flags",
+        "flags": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "api": "level_init",
+        "flags": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "api": "terrain",
+        "flags": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "api": "wall_property",
+        "flags": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "api": "exclusion",
+        "flags": [
+          0,
+          0,
+          -1
+        ]
+      },
+      {
+        "api": "teleport_region",
+        "flags": [
+          0,
+          0,
+          -1
+        ]
+      }
+    ]
+  ],
+  "scope": "Guard lifecycle and three level flags only;no broad API or initialization-content parity claim."
+}

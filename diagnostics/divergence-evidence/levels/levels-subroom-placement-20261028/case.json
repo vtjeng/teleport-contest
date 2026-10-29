@@ -1,0 +1,65 @@
+{
+  "caseId": "levels-subroom-placement-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "51f5686fac30306411156df215ca83ae910cf6bf",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:41:28.321279+00:00",
+  "reviewedAt": "2026-10-28T21:41:28.321279+00:00",
+  "hypothesis": "The C-only create_subroom:rnd edge might omit or change random size/position draws and edge adjustments in nested room APIs.",
+  "supportedSetup": "Production startup and public floor initialization. Parent des.region has explicit dimensions, arrival_room true and lit 0. Inside its contents, des.room requests a vault child with chance 0, filled 0, lit 0 and explicit or paired random coordinates/dimensions. Parent bounds independently asserted. Capture child callback before finalization.",
+  "expectedC": "create_subroom rejects parent dimensions below four without drawing. Valid cases draw width/height before x/y, normalize x/y=1 to zero and shift far-edge abutments by one before handing bounds to add_subroom.",
+  "observedJS": "All ten acceptance/bounds/RNG-consumption cases match executed C under checked shared draw tapes.",
+  "control": "Two explicit edge-adjustment controls, two seeds for random-position/random-size/minimum-parent cases, and narrow/short parent rejection controls with zero draws and no child callback.",
+  "scope": "Ten create_subroom parameter/acceptance cases only. Does not prove add_subroom allocation, room topology, collisions between siblings, full metadata, independent ISAAC parity, filling, finalization or orig_rtype.",
+  "oracleProvenance": "Unchanged C create_subroom body. Fixed parent bounds match independently asserted public parent postconditions. rnd replays the valid JS tape with bound/value/exhaustion checks; litstate_rnd accepts only fixed 0. add_subroom captures its bounds/type/lit/special parameters rather than allocating C room state. No save export or arbitrary Lua runtime.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:1668",
+    "nethack-c/upstream/src/sp_lev.c:2806",
+    "js/mklev.js:6834",
+    "js/mklev.js:2945"
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "js/mklev.js": "ab947e22fa852df29a546a526a5b8a1b8b8198cbcf69ad6ec2828bb1462638d0"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "2f290e50f6173b7a0e6dd01809a1f9e53fbbcf016095da1055025dd562fc0ca4",
+    "probeSha256": "243e727f74c16d00c6a0f92be037d02d381a30209e2a780ccc41a2edc8cbb6b2"
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/probe.mjs",
+  "expectedExit": 0,
+  "evidencePaths": [
+    "README.md",
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "verification.json",
+    "decisions.json",
+    "projection/projection.json",
+    "projection/manifest.json"
+  ],
+  "nextExperiment": null,
+  "scannerBindings": [
+    {
+      "key": "source-audit:edge-c-only:src/sp_lev.c:create_subroom:rnd",
+      "evidenceKey": "f6f43bd7151b1ddf7a9f5d0a51c7495f94de7b472c432abe6557b4ccb5ea50c5",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "cefb15121eba0bbba48a083b6f5f7c8269e4ec53df251375f15914bd7d44544a",
+      "status": null
+    }
+  ],
+  "discoveryRun": {
+    "runId": "ea2181cadbad5793b4be",
+    "base": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+    "path": "/tmp/levels-hub-20261028-31-ready/run.json",
+    "sha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+    "projection": "projection/projection.json"
+  }
+}

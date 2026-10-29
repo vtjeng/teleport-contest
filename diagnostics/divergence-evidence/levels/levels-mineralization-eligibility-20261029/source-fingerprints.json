@@ -1,0 +1,154 @@
+{
+  "testedJsSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+  "discoveredAt": "2026-10-29T03:27:07.920866+00:00",
+  "reviewedAt": "2026-10-29T03:27:07.920866+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/dungeon.c:on_level": "2dd00be6afbb859ec1a52e030d8ebf80a3128bd7caea68d196be339445745dd1",
+    "nethack-c/upstream/src/dungeon.c:Is_special": "67aa9661753fed7a2477c19b50bb4f60aa5a06909644f3f625a255aceb5bdbdd",
+    "nethack-c/upstream/src/dungeon.c:In_hell": "c28561f3bce6a93dbe68b35c0f23608e897ca9109ef60ee75f00cadfa5e31498",
+    "nethack-c/upstream/src/dungeon.c:In_quest": "777eebd22434e5f4d2596c0c3077ea465c3973ab1f85d7322769f22d598f206c",
+    "nethack-c/upstream/src/dungeon.c:In_mines": "f60a711ecb46486af6c3eced811471e065095cd5c7165958f66206f7ce895946",
+    "nethack-c/upstream/src/dungeon.c:In_V_tower": "7b51b95350f1fe7d79776e81632722f99f1a7c400346020b1cf84215cea32c3b",
+    "nethack-c/upstream/src/dungeon.c:depth": "cd7931f19c4e59e212bc0e11271660f075d9e5a0421d278df140f3bf6c05d9d1",
+    "nethack-c/upstream/src/dungeon.c:dunlev": "e4b42f1a572fd55ae693aa7a2487780d45e426e1c2e117e2dbcb1032b6c740a1",
+    "nethack-c/upstream/src/mklev.c:water_has_kelp": "7a02d31fc717f027568d146df870dbf27adb30ba9bb683d5c1bb17c142951886",
+    "nethack-c/upstream/src/mklev.c:mineralize": "50b51a8fa424a2f7c02416e5711af8813658782c919aaa030c459f7ec26beed9",
+    "js/mineralize.js:currentLevel": "c6d5922b1d2e7c16fccae563be976232e9b20e93504831ee9bd508c1de897e0e",
+    "js/mineralize.js:topologyLevel": "f84cf508d00dfb86a69124b1522d274773d68d3b643fd3f75021b94086198afb",
+    "js/mineralize.js:dungeonNumber": "9e43efbbb15b97c423d24dbc662e16dbd8a5da979c51170eb73278fc783866b3",
+    "js/mineralize.js:locationAt": "3caa739c083af0f35b09ccbad0de8f7e06eb4d02c84bfe70d1fd40f7ca9de9dc",
+    "js/mineralize.js:levelAssigned": "498b3d979ba41c9078e7ea0e735441d0c8dd6b538df07da81ec08a8e4d194d6d",
+    "js/mineralize.js:isTopologyLevel": "1da3a9b017c8110024fb6b2c7e8d90c2775632a16610f1c8427a93151c846190",
+    "js/mineralize.js:inEndgame": "2f287c72f20c55b68dc91b497890052b2c792586ae237620d44b92da620ce0ac",
+    "js/mineralize.js:inHell": "0dacdb22245385ecd87fe519eedf275ea7ff659b5ac9d4a470de57bb02a79712",
+    "js/mineralize.js:arborealLevel": "eec15c61dbb5244da1d73e55f9bee35af512f5b2d584572aedbdce385e6a4bf8",
+    "js/mineralize.js:currentSpecialLevel": "71a64e1e44eb93168253d164e291bdb6a583e991fe5f09bc392c8ea507ef20d4",
+    "js/mineralize.js:excludedSpecialLevel": "101b0260cc2e41818ae6915d799a93e6c8e75c527cbba138096f2dc054207ca2",
+    "js/mineralize.js:mineralizeEnv": "dbc22fbe6803cebf8722005bcbcedc48ba2a90deef1784421d2df1a4726421b6",
+    "js/mineralize.js:preflightLevelContext": "dd9bc19df080288d47364a174c7eff7269a5d6cb76371522d11f1739eb0e15b3",
+    "js/mineralize.js:waterHasKelp": "9c01af0bcc3054316dfe7032fa798ff3dae5c500185b03d68c5806cb961c39f1",
+    "js/mineralize.js:water_has_kelp": "bb2803483a321d94a6ed244ee069622b2183123f2c1df16ebe1058e7bcbd884b",
+    "js/mineralize.js:mineralize": "61aeb233920b7ac3c435b97aad92c53545ed82dbe41a35718411bb8f1a251983",
+    "js/object_generation.js:objectGenerationEnv": "062c4f55347b116e0453b0f4d835b486492260f697843f78dcbbdc2468b4b621"
+  },
+  "bindingChecks": [
+    {
+      "path": "js/mineralize.js",
+      "symbol": "currentLevel",
+      "scanAndCurrentBodySha256": "c6d5922b1d2e7c16fccae563be976232e9b20e93504831ee9bd508c1de897e0e",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "topologyLevel",
+      "scanAndCurrentBodySha256": "f84cf508d00dfb86a69124b1522d274773d68d3b643fd3f75021b94086198afb",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "dungeonNumber",
+      "scanAndCurrentBodySha256": "9e43efbbb15b97c423d24dbc662e16dbd8a5da979c51170eb73278fc783866b3",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "locationAt",
+      "scanAndCurrentBodySha256": "3caa739c083af0f35b09ccbad0de8f7e06eb4d02c84bfe70d1fd40f7ca9de9dc",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "levelAssigned",
+      "scanAndCurrentBodySha256": "498b3d979ba41c9078e7ea0e735441d0c8dd6b538df07da81ec08a8e4d194d6d",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "isTopologyLevel",
+      "scanAndCurrentBodySha256": "1da3a9b017c8110024fb6b2c7e8d90c2775632a16610f1c8427a93151c846190",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "inEndgame",
+      "scanAndCurrentBodySha256": "2f287c72f20c55b68dc91b497890052b2c792586ae237620d44b92da620ce0ac",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "inHell",
+      "scanAndCurrentBodySha256": "0dacdb22245385ecd87fe519eedf275ea7ff659b5ac9d4a470de57bb02a79712",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "arborealLevel",
+      "scanAndCurrentBodySha256": "eec15c61dbb5244da1d73e55f9bee35af512f5b2d584572aedbdce385e6a4bf8",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "currentSpecialLevel",
+      "scanAndCurrentBodySha256": "71a64e1e44eb93168253d164e291bdb6a583e991fe5f09bc392c8ea507ef20d4",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "excludedSpecialLevel",
+      "scanAndCurrentBodySha256": "101b0260cc2e41818ae6915d799a93e6c8e75c527cbba138096f2dc054207ca2",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "mineralizeEnv",
+      "scanAndCurrentBodySha256": "dbc22fbe6803cebf8722005bcbcedc48ba2a90deef1784421d2df1a4726421b6",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "preflightLevelContext",
+      "scanAndCurrentBodySha256": "dd9bc19df080288d47364a174c7eff7269a5d6cb76371522d11f1739eb0e15b3",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "waterHasKelp",
+      "scanAndCurrentBodySha256": "9c01af0bcc3054316dfe7032fa798ff3dae5c500185b03d68c5806cb961c39f1",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "water_has_kelp",
+      "scanAndCurrentBodySha256": "bb2803483a321d94a6ed244ee069622b2183123f2c1df16ebe1058e7bcbd884b",
+      "unchanged": true
+    },
+    {
+      "path": "js/mineralize.js",
+      "symbol": "mineralize",
+      "scanAndCurrentBodySha256": "61aeb233920b7ac3c435b97aad92c53545ed82dbe41a35718411bb8f1a251983",
+      "unchanged": true
+    },
+    {
+      "path": "js/object_generation.js",
+      "symbol": "objectGenerationEnv",
+      "scanAndCurrentBodySha256": "062c4f55347b116e0453b0f4d835b486492260f697843f78dcbbdc2468b4b621",
+      "unchanged": true
+    }
+  ],
+  "configuration": "Node24.19.0; Clang19.1.7 (3+b1), -std=c11 -O2; exact deterministic topology and legal RNG tape described in topology.mjs/probe.mjs.",
+  "semanticCauses": [
+    "kelp-selector-context-rng-delegation",
+    "mineralization-valid-context-gate-delegation"
+  ],
+  "limitations": [
+    "Thirteen keys represent TWO causes: three kelp-selector context/RNG delegation keys and ten mineralization valid-context gate delegation keys. No new repair or candidate.",
+    "The fixed topology is generated on every execution through production newgame_pre_mklev: seed24301,date20400314015926,Tourist/human/female/neutral,bonesfalse. The runner asserts exact equality to topology.json, including77 floors in9 dungeons and37 special records. Typed C fixtures consume that topology; C dungeon initialization, alternate seeds/roles/topologies and shipped exposure are not proved.",
+    "Direct kelp tests cover37 terrain constants,divisors pool0/2/10 and moat0/3/30,zero/max legal draws, and D1/Astral/Water at one valid coordinate. Only Boolean result and RNG bound sequence are compared. No vegetation resource creation, invalid coordinates, negative direct divisors or independent RNG equivalence.",
+    "Mineralize tests all77 current floors,arboreal false/true,two maps and three kelp parameter pairs(0,0),(2,3),(-1,-1),normal versus skip checks. Each map is ROOM except one optional3\u00d73STONE island and separate POOL/MOAT/WATER cells. Gold/gem probabilities remain0; maximum legal kelp draws prevent resource-producing branches. All such C callees and non-rn2 random helpers abort if unexpectedly reached.",
+    "The eligibility proof does not cover default/nonzero gold/gem probabilities, branch multipliers on nonzero probabilities, quantities, resource allocation or placement, runtime behavior, timers, arbitrary maps, all scan ordering, or full finalization. In_mines is reviewed only for special-level eligibility and probability0. C exact full functions contain untouched out-of-scope branches; no claim is made about those branches.",
+    "All selected JS callers and the recorded helpers are body-equal to the frozen scan base; complete source hashes, exact C-body checks, immutable run IDs and exporter provenance are retained. Four prior diagnostic gaps,ten changed-caller gaps,cave-cap,bottomstairs and three parked prerequisites remain unresolved. No repeated probes or new rescans for those gaps.",
+    "Main advanced to aa14c5b76 during packaging. The reusable checkout was safely updated and both modes rerun. Unique prior solidfill overlay was preserved separately. Main-owned repairs remain separate; observed publication does not assert an unseen final acceptance receipt."
+  ]
+}

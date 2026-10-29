@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-room-obstruction-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "room-obstruction-rng-injection",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "check_room",
+      "start_line": 1407,
+      "end_line": 1480,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/rect.c",
+      "symbol": "get_rect",
+      "start_line": 82,
+      "end_line": 99,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "check_room",
+      "start_line": 6606,
+      "end_line": 6660,
+      "commit_sha": "d1d8ac170b75dca71abe29819b5daa9972301221"
+    }
+  ],
+  "hypothesis": "A C-only rn2 edge may indicate a missing obstruction draw or changed acceptance/room shift in fixed room construction.",
+  "expectedBehavior": "Empty map creates unshifted bounds with no RNG; northwest obstruction can shift constructor bounds; central obstruction exhausts 101 retries and produces no room.",
+  "observedBehavior": "All six cases match exact C acceptance, handoff bounds and checked draw consumption. JS injects the same rn2 operation.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Six des.room requests reached through production special loader after public stone/obstacle setup. Two seeds for each of three layouts; fixed chance/type/light/geometry.",
+    "limitations": [
+      "C add_room captures parameters and split_rects asserts arguments; C room allocation/allocator mutation are not executed.",
+      "Shared checked RNG tape, not independent ISAAC or all-seed proof.",
+      "No terrain topology, repeated-room, subroom, finalization or orig_rtype claim."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/probe.mjs",
+      "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/target-output.txt",
+      "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/control-output.txt"
+    ],
+    "reason": "Public room and terrain APIs execute; shipped route exposure not evaluated."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Unreviewed frozen check_room:rn2 edge; no rescan or stale binding import.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:check_room:rn2"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/README.md",
+      "sha256": "e72819146e906f0d6fa2b6fe8c2523d16cc3777c532ffda45726c9970dd172f3",
+      "role": "README.md"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/control-output.txt",
+      "sha256": "b80ef0a070d7f43a35daf282d5ec7155ba83a5586580e20111c6f56c24d349df",
+      "role": "control-output.txt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/control-receipt.json",
+      "sha256": "3939875ccc0c8158603e0eca7aa754b59ed73e3f0f4aa445b94ae597937353da",
+      "role": "control-receipt.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/decisions.json",
+      "sha256": "7d54c6ec57c792b7c37ddc08345a430b704678ace37727a033b6107c289d5cca",
+      "role": "decisions.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/observations.json",
+      "sha256": "4f2a9730477e8df950770bd149b4362206d1c660c18e9358db905dec696b3f5e",
+      "role": "observations.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/probe.mjs",
+      "sha256": "f93b651da334ac0d67939478ccb4a37d9912c436d90d4bf5b8459d5eaa63b958",
+      "role": "probe.mjs"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/projection/manifest.json",
+      "sha256": "9605a8ce55568a03a06804c28d6f9a285175b92f19fd63ad7eab82d3da7fc29e",
+      "role": "manifest.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/projection/projection.json",
+      "sha256": "675af695a6541ef15fee69609a33ec7f8a02fbb433d2b03ec0cdc6648f8be9eb",
+      "role": "projection.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/projection/review-template.json",
+      "sha256": "078c8c5410bc02a18a200d1801e02708c43199ad7abcbc0395171b92a17afe93",
+      "role": "review-template.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/source-fingerprints.json",
+      "sha256": "ed601d9f361f9abe1e8dc897107f65f59b26a7d5f1967e36cd0870abed599e83",
+      "role": "source-fingerprints.json"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/target-output.txt",
+      "sha256": "3e6b0646dae6f07100f7257d2aa284d8aee6c39c1325f7190774903e07d9c201",
+      "role": "target-output.txt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/target-receipt.json",
+      "sha256": "fe701d13521623241eee0c34454dd67671a768c4046073cee7651e5739337660",
+      "role": "target-receipt.json"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/oracle.c",
+      "sha256": "5d1d478706a5b567d06bc23f7fc4ad82f479e6c0d19ad21abcee30cbf7c3b488",
+      "role": "C oracle input"
+    }
+  ]
+}

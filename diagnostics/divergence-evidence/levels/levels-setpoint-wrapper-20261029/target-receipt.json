@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:40:10.251Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "0fdb528557d50830243ad6f60672fd46615ab6f001eb5050231cbc8b6d968c66",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/oracle.c": "46d6e6bfdd6de91c90582cd8d17aea3770c1733efae6a4b47c3125c5f454b07a",
+    "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/source-contract.json": "6ab966cf642514dfc4e41f82af33cf9ae6b3d75749825aafc131ed10df4089ce"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029/target-output.txt"
+  ]
+}

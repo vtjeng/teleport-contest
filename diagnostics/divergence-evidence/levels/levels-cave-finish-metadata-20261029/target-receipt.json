@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:32:37.972Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "74a1bfee7e4b9a92cd581770ae12751a1cbdc6a82905744db0e12f34342df18b",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/oracle.c": "73fcaea703081b013c58e99554748119c0b10fd5442a6e6af370161f1b8c16ed",
+    "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/source-contract.json": "d54ab5d45759c0d4daa7e39c9156e364993308310951dc505a792b4202cf13e4"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/target-output.txt"
+  ]
+}

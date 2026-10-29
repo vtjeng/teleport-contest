@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-trap-selector-rng-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "trap-selector-rng-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "traptype_rnd",
+      "start_line": 1938,
+      "end_line": 1998,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "traptype_roguelvl",
+      "start_line": 2002,
+      "end_line": 2030,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/include/trap.h",
+      "symbol": "trap_types",
+      "start_line": 57,
+      "end_line": 94,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mktrap.js",
+      "symbol": "levelTrapEnv",
+      "start_line": 113,
+      "end_line": 120,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/mktrap.js",
+      "symbol": "traptype_rnd",
+      "start_line": 162,
+      "end_line": 213,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/mktrap.js",
+      "symbol": "traptype_roguelvl",
+      "start_line": 215,
+      "end_line": 233,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon.js",
+      "symbol": "level_difficulty",
+      "start_line": 872,
+      "end_line": 901,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon.js",
+      "symbol": "single_level_branch",
+      "start_line": 647,
+      "end_line": 649,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon.js",
+      "symbol": "builds_up",
+      "start_line": 771,
+      "end_line": 781,
+      "commit_sha": "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    }
+  ],
+  "hypothesis": "Missing direct C RNG edges and new levelTrapEnv helper edges may indicate changed trap-type choice or RNG consumption.",
+  "expectedBehavior": "With equivalent context and supplied legal draws, both selectors return the same trap type and use the same RNG bounds/counts.",
+  "observedBehavior": "7000 exact-C/general-JS selector comparisons:25 initial trap choices \u00d77 secondary values \u00d710 contexts (ordinary depths1..8, hell depth26, one-level Knox depth18) \u00d7noteleport0/1 \u00d7NOSPIDERONWEB0/4. Results match, including2746 NO_TRAP returns,4254 accepted choices and280 hole cases making a second rn2(7) call. Exact C bodies and trap enum are included; C level predicates use asserted context adapters. JS uses production level_difficulty and single_level_branch with explicit minimal dungeon state.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "7000 exact-C/general-JS selector comparisons:25 initial trap choices \u00d77 secondary values \u00d710 contexts (ordinary depths1..8, hell depth26, one-level Knox depth18) \u00d7noteleport0/1 \u00d7NOSPIDERONWEB0/4. Results match, including2746 NO_TRAP returns,4254 accepted choices and280 hole cases making a second rn2(7) call. Exact C bodies and trap enum are included; C level predicates use asserted context adapters. JS uses production level_difficulty and single_level_branch with explicit minimal dungeon state.",
+    "limitations": [
+      "Finite selector-contract domain only:25 initial choices,7 legal secondary values,ordinary difficulty1..8/hell26/Knox18,noteleport0/1 and flags0/4. No all-depth/all-flag or complete topology claim.",
+      "C exact selectors use context adapters for level_difficulty, Inhell and single_level_branch. JS calls its production context functions with minimal explicit dungeon state; actual difficulty is asserted. These adapters do not establish C/JS dungeon-state computation equivalence.",
+      "RNG values are supplied through checked interfaces, not generated independently. Tests compare selection and draw bounds/counts; they do not construct traps, execute retries/placement, create victims, change monsters/objects, or test runtime effects, finalization or shipped exposure.",
+      "The seven Rogue controls exhaust legal draws for that switch only. No broad equivalence or suppression of other trap placement/runtime warnings follows."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exact helper-contract comparison; no shipped call attribution or full C/JS level construction asserted."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Direct C RNG edges are delegated through levelTrapEnv.random in both JS trap-type selectors. These five edges share one delegation cause; supplied legal draw values produce the same results and checked draw bounds/counts in the finite domain.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rn2",
+      "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rnd",
+      "source-audit:edge-c-only:src/mklev.c:traptype_roguelvl:rn2",
+      "source-audit:edge-js-helper:src/mklev.c:traptype_rnd:levelTrapEnv",
+      "source-audit:edge-js-helper:src/mklev.c:traptype_roguelvl:levelTrapEnv"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/README.md",
+      "sha256": "c229643c6d634cdd37ea56d756234f79879c131f4ecd29b00f15e3aea65f0c13",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/accepted-routing.json",
+      "sha256": "5eb650fab4b57c73a752ec82c3e3a107b34746c1dd1fef6274aa90960808d603",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/control-output.txt",
+      "sha256": "adf0f5cf516051351be51bedd99f3189d86ea40dd6c6af35050cf366e9faf6fa",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/control-receipt.json",
+      "sha256": "ccef86a0bdb624c5cead983f712199fd9ae30fc9ccb78a729d1f6e17a6fddb5e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/decisions.json",
+      "sha256": "f85e0cf8de10b8613639c6b22d18b8ac889102d7884865ef8315cf2e43f6f0d8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/oracle.c",
+      "sha256": "f5a5e6702717013780a6ed28f1d11e7b5721a7d6ea3b989d84791cce1ffa504e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/probe.mjs",
+      "sha256": "aa6b10ec528a9294d1d4774d7ab1cb818c28524a92e274ab096b4423c750f4e5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/projection/manifest.json",
+      "sha256": "31ffd755b769758e330081e07c124283f6b744f4e29d689af1125a795652c2ba",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/projection/projection.json",
+      "sha256": "078e44b403a3e3e5bcbb6d555f7fd9cc7327eece99736b082eec54afd62614b0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/projection/review-template.json",
+      "sha256": "ba167a191866483dc4b5d2642dac3b3bf222a4eb4dbcae9caed2bae76b1c8873",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/source-fingerprints.json",
+      "sha256": "6a1ee21b951f743f46b7a735a32b4a419cdb0209a56eafc43dcb96f0126aa155",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/target-output.txt",
+      "sha256": "8981231715d75a032182ef0b0fb40eaa3bd280baeec3b8cbbe261e186ebe6afc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/target-receipt.json",
+      "sha256": "b3c49e683b76352ded1343f08e9bdb1bd673f9870fc487a82cad39596c3fb014",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

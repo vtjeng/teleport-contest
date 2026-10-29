@@ -1,0 +1,19 @@
+{
+  "key": "source-audit:edge-c-only:src/mklev.c:generate_stairs:Is_botlevel",
+  "status": "unresolved",
+  "checkedAt": "2026-10-29T02:38:07.113909+00:00",
+  "jsSha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "observation": "C generate_stairs skips its down-stair search when Is_botlevel is true. JS generate_stairs always calls its down-stair selector/sampler, then mkstairs rejects a bottom-level stair. This could consume extra RNG if ordinary generation reaches a branch bottom. No such production execution has been demonstrated.",
+  "sourceRefs": [
+    "nethack-c/upstream/src/mklev.c:2250",
+    "nethack-c/upstream/src/dungeon.c:1643",
+    "js/mklev.js:7681",
+    "js/mklev.js:698",
+    "nethack-c/upstream/dat/dungeon.lua:83"
+  ],
+  "missingEvidence": "Equivalent valid production setup that reaches ordinary room generation at branch bottom, plus portable exact C/JS execution and a nonbottom control. Directly invoking the private generator with an invented branch layout would not establish this.",
+  "routeCaveat": "Observed dungeon.lua castle/sanctum/minend/x-goal entries use base=-1 and makelevel routes special levels before ordinary generation. This inspection is not a complete proof for all branches/loaders or alternate supported APIs.",
+  "nextExperiment": "Trace remaining production dispatch routes and supported dungeon configuration contracts; qualify only if a valid ordinary-bottom route exists. No seed sweep, arbitrary Lua runtime, new dependency or denied prerequisite is authorized by this note.",
+  "dispositionEffect": "None; keep this key active/unreviewed. It is not included in the negative projection."
+}

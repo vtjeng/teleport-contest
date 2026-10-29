@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "68cfc3694a3c62e9554296c9240d15edbe7155a5102c7c2834c648e3b2a80ffb",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/mklev.c:occupied:is_lava",
+    "source-audit:edge-c-only:src/mklev.c:occupied:is_pool",
+    "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_lava",
+    "source-audit:edge-c-only:src/sp_lev.c:is_ok_location:is_pool",
+    "source-audit:edge-js-helper:src/mklev.c:occupied:isLavaAt",
+    "source-audit:edge-js-helper:src/mklev.c:occupied:isPoolAt",
+    "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isLavaAt",
+    "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:isPoolAt"
+  ],
+  "decisionsSha256": "bc00dc4732a3ffe64deab8058f58f8d8e9909b5b2cab864a79c0a6e080cecc98",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 8,
+    "decisionsChecked": 8,
+    "before": {
+      "active": 8,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 8,
+      "excluded": 0
+    }
+  }
+}

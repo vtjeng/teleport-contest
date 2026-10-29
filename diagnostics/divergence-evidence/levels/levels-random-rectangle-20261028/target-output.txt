@@ -1,0 +1,108 @@
+{
+  "scope": "Four reachable allocator states; exhaustive valid indices plus two JS RNG seeds per state. C shares checked RNG results; not independent RNG equivalence.",
+  "results": [
+    {
+      "layout": 1,
+      "selected": 0,
+      "actual": [
+        1,
+        1,
+        22,
+        0,
+        79,
+        20
+      ],
+      "matched": true
+    },
+    {
+      "layout": 1,
+      "seed": 28105301,
+      "tape": [
+        "rn2(1)=0"
+      ],
+      "actual": [
+        1,
+        1,
+        22,
+        0,
+        79,
+        20
+      ],
+      "matched": true
+    },
+    {
+      "layout": 1,
+      "seed": 28105302,
+      "tape": [
+        "rn2(1)=0"
+      ],
+      "actual": [
+        1,
+        1,
+        22,
+        0,
+        79,
+        20
+      ],
+      "matched": true
+    },
+    {
+      "layout": 2,
+      "selected": 0,
+      "actual": [
+        2,
+        1,
+        22,
+        0,
+        33,
+        20
+      ],
+      "matched": true
+    },
+    {
+      "layout": 2,
+      "selected": 1,
+      "actual": [
+        2,
+        1,
+        47,
+        0,
+        79,
+        20
+      ],
+      "matched": true
+    },
+    {
+      "layout": 2,
+      "seed": 28105301,
+      "tape": [
+        "rn2(2)=1"
+      ],
+      "actual": [
+        2,
+        1,
+        47,
+        0,
+        79,
+        20
+      ],
+      "matched": true
+    },
+    {
+      "layout": 2,
+      "seed": 28105302,
+      "tape": [
+        "rn2(2)=1"
+      ],
+      "actual": [
+        2,
+        1,
+        47,
+        0,
+        79,
+        20
+      ],
+      "matched": true
+    }
+  ]
+}

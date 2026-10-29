@@ -1,0 +1,9 @@
+{"mode":"control","sourceCallers":{"nethack-c/upstream/src/mklev.c":["E","W","N","S","W","E","S","N","S","N"],"js/mklev.js":["E","W","N","S","W","E","S","N","S","N"]},"scope":"Pinned repository calls only; external callers, instrumentation, memory corruption, changed visibility/configuration and future source revisions excluded."}
+-1 0 1 0 0 -99 -99
+1 0 1 0 0 -99 -99
+3 0 1 0 0 -99 -99
+5 0 1 0 0 -99 -99
+7 0 1 0 0 -99 -99
+8 0 1 0 0 -99 -99
+9 0 1 0 0 -99 -99
+10 0 1 0 0 -99 -99

@@ -1,0 +1,329 @@
+{
+  "dungeons": [
+    {
+      "num_dunlevs": 26,
+      "depth_start": 1,
+      "hellish": false
+    },
+    {
+      "num_dunlevs": 21,
+      "depth_start": 27,
+      "hellish": true
+    },
+    {
+      "num_dunlevs": 8,
+      "depth_start": 3,
+      "hellish": false
+    },
+    {
+      "num_dunlevs": 6,
+      "depth_start": 15,
+      "hellish": false
+    },
+    {
+      "num_dunlevs": 4,
+      "depth_start": 6,
+      "hellish": false
+    },
+    {
+      "num_dunlevs": 1,
+      "depth_start": 21,
+      "hellish": false
+    },
+    {
+      "num_dunlevs": 3,
+      "depth_start": 33,
+      "hellish": false
+    },
+    {
+      "num_dunlevs": 6,
+      "depth_start": -5,
+      "hellish": false
+    },
+    {
+      "num_dunlevs": 2,
+      "depth_start": 1,
+      "hellish": false
+    }
+  ],
+  "specials": [
+    {
+      "dlevel": {
+        "dnum": 0,
+        "dlevel": 9
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 0,
+        "dlevel": 11
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 0,
+        "dlevel": 15
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 0,
+        "dlevel": 25
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 0,
+        "dlevel": 26
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 1
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 5
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 7
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 9
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 11
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 12
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 13
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 14
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 17
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 19
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 1,
+        "dlevel": 21
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 2,
+        "dlevel": 3
+      },
+      "town": true
+    },
+    {
+      "dlevel": {
+        "dnum": 2,
+        "dlevel": 8
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 3,
+        "dlevel": 1
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 3,
+        "dlevel": 3
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 3,
+        "dlevel": 6
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 4,
+        "dlevel": 1
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 4,
+        "dlevel": 2
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 4,
+        "dlevel": 3
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 4,
+        "dlevel": 4
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 5,
+        "dlevel": 1
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 6,
+        "dlevel": 1
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 6,
+        "dlevel": 2
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 6,
+        "dlevel": 3
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 7,
+        "dlevel": 1
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 7,
+        "dlevel": 2
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 7,
+        "dlevel": 3
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 7,
+        "dlevel": 4
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 7,
+        "dlevel": 5
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 7,
+        "dlevel": 6
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 8,
+        "dlevel": 1
+      },
+      "town": false
+    },
+    {
+      "dlevel": {
+        "dnum": 8,
+        "dlevel": 2
+      },
+      "town": false
+    }
+  ],
+  "mines_dnum": 2,
+  "quest_dnum": 3,
+  "tower_dnum": 6,
+  "astral_level": {
+    "dnum": 7,
+    "dlevel": 1
+  },
+  "water_level": {
+    "dnum": 7,
+    "dlevel": 2
+  },
+  "rogue_level": {
+    "dnum": 0,
+    "dlevel": 15
+  },
+  "oracle_level": {
+    "dnum": 0,
+    "dlevel": 9
+  }
+}

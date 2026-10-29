@@ -1,0 +1,1926 @@
+{
+  "scope": "Shared absolute frame; overlap values0..7 target, disjoint boolean controls. Entire1680-byte maps and computed bounds compared; no mixed-frame claim.",
+  "comparisons": 128,
+  "results": [
+    {
+      "op": "or",
+      "a": 0,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "or",
+      "a": 0,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "or",
+      "a": 0,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "or",
+      "a": 0,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 0,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "or",
+      "a": 0,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 0,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 0,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 2,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "or",
+      "a": 2,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 2,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "or",
+      "a": 2,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 2,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 2,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 2,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 2,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 3,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 3,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 3,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 3,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "or",
+      "a": 3,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 3,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 3,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 3,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 4,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "or",
+      "a": 4,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 4,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 4,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 4,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "or",
+      "a": 4,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 4,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 4,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 5,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 5,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 5,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 5,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 5,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 5,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "or",
+      "a": 5,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 5,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 6,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 6,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 6,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 6,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 6,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 6,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 6,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "or",
+      "a": 6,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 7,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 7,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 7,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 7,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 7,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 7,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 7,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "or",
+      "a": 7,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 2,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 2,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 2,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 2,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 2,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 2,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 2,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 2,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 3,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "sub",
+      "a": 3,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 3,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 3,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 3,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "sub",
+      "a": 3,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 3,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 3,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 4,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 4,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 4,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 4,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 4,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 4,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 4,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 4,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 5,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "sub",
+      "a": 5,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 5,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "sub",
+      "a": 5,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 5,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 5,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 5,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 5,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 6,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "sub",
+      "a": 6,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "sub",
+      "a": 6,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 6,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 6,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 6,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 6,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 6,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 7,
+      "b": 0,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 7,
+      "valueAtOther": 0,
+      "fullMapSha256": "2cfa43359ceb24b9cbb545e241c4946c9066f7fafc517ef38ec64b2eb7765940"
+    },
+    {
+      "op": "sub",
+      "a": 7,
+      "b": 1,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 6,
+      "valueAtOther": 0,
+      "fullMapSha256": "97227de68fa6fe5c4dc8ed3c469caaed36e5286c9b42f66cab4023ce82ab6250"
+    },
+    {
+      "op": "sub",
+      "a": 7,
+      "b": 2,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 5,
+      "valueAtOther": 0,
+      "fullMapSha256": "60abaac87351eb93bba33a1312197aac8f934ea5e07bbd82a19bf32ac2665e9c"
+    },
+    {
+      "op": "sub",
+      "a": 7,
+      "b": 3,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 4,
+      "valueAtOther": 0,
+      "fullMapSha256": "ca76c07f196c59e3725ab32e01addd419db2dbd4e1807f3694fa128a0f99216c"
+    },
+    {
+      "op": "sub",
+      "a": 7,
+      "b": 4,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 3,
+      "valueAtOther": 0,
+      "fullMapSha256": "466d57519bee563d131cfae8d1ead9081ecd065b99f9058290fbf5ec2cf37f45"
+    },
+    {
+      "op": "sub",
+      "a": 7,
+      "b": 5,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 2,
+      "valueAtOther": 0,
+      "fullMapSha256": "b86e80e991ab830db06b21fca9e3803df3e57b9b32288be916fa3a8c8c20c18a"
+    },
+    {
+      "op": "sub",
+      "a": 7,
+      "b": 6,
+      "layout": 0,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 7,
+      "b": 7,
+      "layout": 0,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    }
+  ]
+}

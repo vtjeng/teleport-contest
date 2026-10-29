@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-feature-flag-reader-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "feature-boolean-reader-excludes-random-sentinel",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "l_table_getset_feature_flag",
+      "start_line": 4739,
+      "end_line": 4755,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "l_table_getset_feature_flag",
+      "start_line": 3532,
+      "end_line": 3544,
+      "commit_sha": "4222eaf89f2cc3b1392273b70cc27b399418c691"
+    }
+  ],
+  "hypothesis": "Scanner RNG edges may represent a missing random feature-flag branch.",
+  "expectedBehavior": "Boolean true/false controls demonstrate the feature flag write path executes. Absent, numeric 0/1 and four recognized strings are targets. No forced internal -1 injection is used.",
+  "observedBehavior": "get_table_boolean_opt returns -2 for absent fields or calls get_table_boolean. Successful boolean/integer reads return 0/1, recognized strings return option index 0..3; all other reads raise a nonreturning Lua error. None returns -1. Exact C reader and flag-helper bodies plus 27 public JS initializations (fountain/throne/tree \u00d7 nine valid representations) confirm mask writes and zero draws. This is a reader-local reachability proof, not universal boolean or runtime feature equivalence.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "get_table_boolean_opt returns -2 for absent fields or calls get_table_boolean. Successful boolean/integer reads return 0/1, recognized strings return option index 0..3; all other reads raise a nonreturning Lua error. None returns -1. Exact C reader and flag-helper bodies plus 27 public JS initializations (fountain/throne/tree \u00d7 nine valid representations) confirm mask writes and zero draws. This is a reader-local reachability proof, not universal boolean or runtime feature equivalence.",
+    "limitations": [
+      "Fresh fountain/throne/tree initialization only, nine valid optional-value forms. No arbitrary preexisting metadata, other feature flags, or runtime behavior proof.",
+      "Fixed typed Lua field adapters implement tested input types/options; no Lua interpreter.",
+      "Unreachable claim is confined to this helper call through get_table_boolean_opt with default -2; no generic suppression of other RNG branches."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Focused public generation API tests, not shipped exposure attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Through this optional reader with default -2, the val == -1 RNG branch cannot be reached by a successful public feature argument read.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:l_table_getset_feature_flag:rn2"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/README.md",
+      "sha256": "c169689c7aeec4448c6f122a607a212258f7bc1783963fc47cea21f41699ee84",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/control-output.txt",
+      "sha256": "db5a0be1bfd40be11d5d1e735900102bf725f35aeeddad3955076eb5300d5ac2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/control-receipt.json",
+      "sha256": "94793bbc9abbc9bf6d03e4a3b8b4af1d1a4312a91c22618e287640588138b46a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/decisions.json",
+      "sha256": "4fa0f70568c10e07e0dd209f5c7753caa2dca5c92a6567d319a41742e0e860b4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/oracle.c",
+      "sha256": "40c91020b59af298a3a4a890272d4b475ea8ce714c1c3d75bba991c7b0cbd107",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/probe.mjs",
+      "sha256": "95b9fea8ddde80094b890ae4632bebb5fe3b5cb5ada12ffd79f18f06ccfd6c9d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/projection/manifest.json",
+      "sha256": "8f85b4600ed169bd583e799a41f39ce5b5f6c8c1955ca6719f5bec6e50d982aa",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/projection/projection.json",
+      "sha256": "8d7a1edae976e660f6116ff50a428d8953d4026e76b7e9116bae9fbf6f53252a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/projection/review-template.json",
+      "sha256": "bdf0a74522859b37b6ead22e03f58d2414dcf1d5b0fdd93a13a758ec5285f56e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/source-fingerprints.json",
+      "sha256": "9cd16dcee71f6e496e416d0edd8664bcede00d6d1f66973402d115e784c19403",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/target-output.txt",
+      "sha256": "851df3fb6c98d524fcdec113c3985342f35d688f54285dd527de28307a26acd6",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/target-receipt.json",
+      "sha256": "e97aef4d72da581aadb214f755096e247859023907fe7754e5352ba2151badf7",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

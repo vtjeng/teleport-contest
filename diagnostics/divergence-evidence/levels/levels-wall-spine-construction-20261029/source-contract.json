@@ -1,0 +1,43 @@
+{
+  "jsSha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/game.js": "dd1587ff93820e71524f2f577341b430d942462271141f0026411e27ecfe11b2",
+    "js/mklev.js": "eda77ef62939bca00cf2008bb03c04debf4faa0528d026c07dafcccf8a35d54b",
+    "js/mkmaze.js": "e0722923b9f99824b30b2089f0869c055ff56eb9a24dfda832f52b60c29fd4db",
+    "js/rect.js": "e7c2fa4b62b528783be6f307e696e3e82914affeff352706a6ca253fb34ead05",
+    "nethack-c/upstream/include/dungeon.h": "e48eaafdb22fc82121de702086c40c3245d6aeb9fe5556712ee1e2f18744a308",
+    "nethack-c/upstream/include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "nethack-c/upstream/src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "iswall"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "iswall_or_stone"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "is_solid"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "extend_spine"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "wall_cleanup"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "fix_wall_spines"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "wallification"
+    }
+  ]
+}

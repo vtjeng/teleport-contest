@@ -1,0 +1,28 @@
+{
+  "testedJsSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+  "discoveredAt": "2026-10-29T02:52:03.909723+00:00",
+  "reviewedAt": "2026-10-29T02:52:03.909723+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/dungeon.c:In_hell": "c28561f3bce6a93dbe68b35c0f23608e897ca9109ef60ee75f00cadfa5e31498",
+    "nethack-c/upstream/src/stairs.c:stairway_free_all": "879e3d2f427f76b9e133342471d08fde033645ba07950ddf43b2be085c2a388a",
+    "nethack-c/upstream/src/region.c:free_region": "aed0bb42a76cb7b5d58e1501d29c8ad41b7599804ddc5b121a3e77084a7f654f",
+    "nethack-c/upstream/src/region.c:clear_regions": "18b30d1e6176b1f6b3a9f9fab32902b97258d0ccc1d7ea1e72793d184c5b58f8",
+    "nethack-c/upstream/src/dungeon.c:free_exclusions": "572755607a4c66b2251907680ab2ee237509426ea919bb76371bf4d9098ba9f8",
+    "nethack-c/upstream/src/mklev.c:clear_level_structures": "767239abfff134ef6633a6448b760da1dc714b03299e0e394e7503e1e89738f3",
+    "nethack-c/upstream/src/sp_lev.c:lspo_reset_level": "f31142ae630359b52ba46a36c5c02ed23b13d628bb8bba56172f1a683423ddb8",
+    "js/mklev.js:clear_level_structures": "8c01908fef34e72ba658ff963cd33a3b6b3b33cef76c48dc63a2637405b7c2ff",
+    "js/mklev.js:lspo_reset_level": "81bdd5ef39e3370558497fba11a8c7131772cdb13e24e22f87500e9cde246c6f"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "Node24.19.0; Clang19.1.7 (3+b1), -std=c11 -O2; seed24301,date20400314015926, Tourist/human/female/neutral; bones disabled; D1 construction; no turns.",
+  "limitations": [
+    "Three scanner edges grouped as one logical list-reset delegation cause. Twenty-one populated cases and three empty controls, two resets each. Counts1,2,5 and all seven nonempty combinations are finite coverage, not a universal reset proof.",
+    "JS executes supported public special-loader level_init, gas_cloud, ladder, exclusion and reset_level APIs; no private JS extraction or mutation of resource heads. Initial list lengths are asserted. C exact reset/clear and all three cleanup routines plus free_region execute over owned, valid allocated metadata. C fixture construction is a typed allocation adapter, not independent C descriptor constructors.",
+    "C region records own a rect allocation; messages and monster arrays are null. Stair/exclusion records carry only fields used by cleanup. Geometry/metadata content is not compared. Absent-resource reset preparation and unrelated helpers are adapters; only final logical cleanup is proven. C malloc/free success is assumed; no OOM, allocator-size, resource ownership outside the fixture or JS GC/reclamation timing claim.",
+    "Region comparison maps C count/capacity/null array to JS empty active list/capacity0; this is logical absence, not pointer representation equality. Stair/exclusion linked heads are null after both resets. Other resource types, flags, frames, topology and reset effects are not included.",
+    "Gas clouds are created with damage0 and ttl10 on empty construction levels; no turns advance and no monsters are present. No cloud damage, aging, enter/leave callbacks, runtime stair traversal or exclusion enforcement is tested.",
+    "The separately Main-owned reset hellish-temperature candidate is neither fixed nor negated. This proof uses non-hellish D1 only. Cave-cap, bottom-level stair search and three parked gaps remain unresolved; all denied investigations stay excluded."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "87f7bc49a6673a42ba70d336981f8a5003445892e7efa3822987306a273800aa",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:message:src/rect.c:init_rect:8ad3bff1629fb9b8"
+  ],
+  "decisionsSha256": "e1e5d4923d92bf9e0af23fc6c355ca5250e75288a03cf40db45af4252365b9c7",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 1,
+    "decisionsChecked": 1,
+    "before": {
+      "active": 1,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 1,
+      "excluded": 0
+    }
+  }
+}

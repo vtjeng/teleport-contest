@@ -1,0 +1,90 @@
+{
+  "caseId": "levels-room-callback-20261028",
+  "shard": "levels",
+  "outcome": "explained negative",
+  "baseJs": "51f5686fac30306411156df215ca83ae910cf6bf",
+  "baseC": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:37:35.180108+00:00",
+  "reviewedAt": "2026-10-28T21:37:35.180108+00:00",
+  "hypothesis": "Replacing C table-entry helpers with a JS object literal might lose or change fields in a room contents callback.",
+  "supportedSetup": "Production startup/mklev special loader, public floor initialization, then des.region([10,5,14,7]) with type ordinary/vault/temple, lit 0/1, joined false/true, arrival_room true, filled 0. Capture the callback before finalization; assert one room and one callback.",
+  "expectedC": "Descriptor width 5, height 3, region absolute [11,5,15,7], requested lit/joined booleans, irregular false and correct type name.",
+  "observedJS": "All twelve descriptor comparisons match executed C serializer output.",
+  "control": "Each room type has all four lit/joined combinations. Assert dimensions independently and actual JS room bounds/type/lighting/joining before comparing the callback.",
+  "scope": "Twelve rectangular callback payloads only. Does not prove C room allocation, irregular rooms, filling, finalization, orig_rtype, all room types or every coordinate input.",
+  "oracleProvenance": "Exact l_push_mkroom_table and get_mkroom_name bodies plus room_types table. Fixed field-capture adapters model nhlua.c integer/boolean/string/region table writes, not an arbitrary Lua runtime. Valid minimal C room holds explicit public region setup postconditions; room construction itself is not executed in C. JS constructs its room through public APIs and independently asserts those fields.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/sp_lev.c:3059",
+    "nethack-c/upstream/src/sp_lev.c:3957",
+    "nethack-c/upstream/src/sp_lev.c:3991",
+    "nethack-c/upstream/src/nhlua.c:302",
+    "js/mklev.js:1933",
+    "js/mklev.js:4293"
+  ],
+  "sourceHashes": {
+    "js/mklev.js": "ab947e22fa852df29a546a526a5b8a1b8b8198cbcf69ad6ec2828bb1462638d0",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/nhlua.c": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1",
+    "nethack-c/upstream/include/mkroom.h": "7baf848feb30c94c196e6bee2ee7f0a83822ad92042dd855b74d212fde514f5a"
+  },
+  "toolConfig": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)",
+    "flags": [
+      "-std=c99",
+      "-O2"
+    ],
+    "oracleSha256": "05201a1d2847bcfc8e21df5e4ff4aaa0e9553fee2a75f2234528bf5d82cb99fd",
+    "probeSha256": "7dd20b88de24c0924f15d90295c32b68b2b2a57b9c7ed2fef565e65c39c66921"
+  },
+  "reproduce": "node diagnostics/divergence-evidence/levels/levels-room-callback-20261028/probe.mjs",
+  "expectedExit": 0,
+  "evidencePaths": [
+    "README.md",
+    "oracle.c",
+    "probe.mjs",
+    "observations.json",
+    "verification.json",
+    "decisions.json",
+    "projection/projection.json",
+    "projection/manifest.json"
+  ],
+  "nextExperiment": null,
+  "scannerBindings": [
+    {
+      "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_int",
+      "evidenceKey": "3d37c69c393afe202cc1cf47f48ed73765dda675c6966eb098b12b767cc73ae6",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "947d105b80e4bbcc07a2844314e9e7fc9b615637c6f029a09c5d669d4aa161a6",
+      "status": null
+    },
+    {
+      "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_bool",
+      "evidenceKey": "7cb04838abe7c0ad06883b391d977a87cf2618781d64f739bb00c3104f5a60fc",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "7022a3cd966a25c28bcdce079ec71525c308bfcf46a6d5f09199a474a4f410a4",
+      "status": null
+    },
+    {
+      "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_str",
+      "evidenceKey": "a609ec40d713d5f9ed61f7c92d467d19b0007fde6a74a2cd251efe0802124474",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "b4688be005c329de0b31a4519839f293736a444dce31cd6b76eb4562292e457b",
+      "status": null
+    },
+    {
+      "key": "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_region",
+      "evidenceKey": "e1f6261a39edbd07da11af40c671855d98ec16499299a9d59938d4ee23172579",
+      "runId": "ea2181cadbad5793b4be",
+      "reviewFingerprint": "25f4998fd0b97c58cc25b38b8148d5dfc0b274a32ad1b722b14c774805d16902",
+      "status": null
+    }
+  ],
+  "discoveryRun": {
+    "runId": "ea2181cadbad5793b4be",
+    "base": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+    "path": "/tmp/levels-hub-20261028-31-ready/run.json",
+    "sha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+    "projection": "projection/projection.json"
+  }
+}

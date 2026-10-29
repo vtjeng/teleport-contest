@@ -1,0 +1,116 @@
+{
+  "testedJsSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+  "discoveredAt": "2026-10-29T03:37:46.256121+00:00",
+  "reviewedAt": "2026-10-29T03:37:46.256121+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mkroom.c:somex": "fcc77c5da517dd16230b78e77881aa27c54a748c5cd2d086cfd894d5fe20d5e1",
+    "nethack-c/upstream/src/mkroom.c:somey": "f8c44eb56545e7b225af59a7d8e62689b9a8d3cdf290f40e4580cd52f61301a8",
+    "nethack-c/upstream/src/mkroom.c:inside_room": "9cf6febeba14a93d8acfbacaf0ecf84e9f934f6833172f096db4a1bfb3c211de",
+    "nethack-c/upstream/src/mkroom.c:somexy": "e87818ce11e36a223b7e0d2917d170d85aaf5e6757781fff1fdec0a89154c8b0",
+    "nethack-c/upstream/src/mkroom.c:somexyspace": "68930bc12567abc25172ade27a7734607de4e55ee0f573a260416ca582be1bd6",
+    "nethack-c/upstream/src/mklev.c:occupied": "30fc49a4ebd66b3d83ca5cf96456f7b41e3f524b837c772ea6ad0fdfb909ea59",
+    "nethack-c/upstream/src/mklev.c:bydoor": "d7d1b3e9eb301f50762ed68b4eec6299a21d9296011bf5963a51dbb8fae4a396",
+    "nethack-c/upstream/src/mklev.c:find_okay_roompos": "278d729df348e82c6256fd8071e93b0ad2ae266ce1c8407e1ffe7fc4f99861b3",
+    "nethack-c/upstream/src/mklev.c:count_level_features": "63718ce41c472ef3a44e5d43d41f9210038b30be63336d6e4086dda9dda63179",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b",
+    "nethack-c/upstream/src/mklev.c:mkfount": "eec91bb9222fea7ed4db39873c731d77780e5b2a8d2789ed396eb2638feab1cf",
+    "nethack-c/upstream/src/mklev.c:mksink": "daaba543567d26cf10ca034009c9a07bb7cadf3625833a58bb108b525d8dddef",
+    "nethack-c/upstream/src/mklev.c:mkaltar": "9981e894f4db7181130aa394819d87a3b73509f5f5bb4877cec09ff0472202ed",
+    "nethack-c/upstream/src/sp_lev.c:fill_special_room": "a305492c9a540851f307f4efde92ade6e6439b47fbb1bf7f26f2a9e776f89013",
+    "js/room_features.js:roomFeatureEnv": "3cfe5ce18779995a6c5c859256130e18d9dcd76f6f770afdbdd0f124759fdf95",
+    "js/room_features.js:find_okay_roompos": "239a226db1d42bb6547af4717a0878ce98171422287677d252124d94fba50bcd",
+    "js/room_features.js:mkfount": "04fc10ff2cce3b643fccd535f998b23c2c9b859e922b7277e344b0fa84b9bf02",
+    "js/room_features.js:mksink": "c9594eaaeb7f02d68eed62556a32841a693e66134ae8ae57cd03e3457eda0535",
+    "js/room_features.js:mkaltar": "2c66f91356a6ca1c36dd60724082d3d9df85b0a73738562baa1a8e119c00b6bb",
+    "js/mklev.js:fill_special_room": "5a16d18818ff0301df642e133bf5921ed19061bc484cc5d14d8e0aeb5e50d328",
+    "js/mklev.js:somexyspace": "b19814fe9d0f966de02ff4dc9604cade1498d3ea1a54beb585aa12c48298d3d1",
+    "js/mklev.js:bydoor": "a09b2db9b0fa45d91d60d361e2131c13a2cdfb546bb2af54a95b0702b70f5a00",
+    "js/terrain.js:set_levltyp": "d6f85b9b1362cf808def430488df96a836410a891e6bede877839001a1c07bf4",
+    "js/terrain.js:count_level_features": "97981cb095f8756ac084b7acc6c125f49f4ce163e3c0b84690bd13bf961a5d05",
+    "js/object_generation.js:objectGenerationEnv": "062c4f55347b116e0453b0f4d835b486492260f697843f78dcbbdc2468b4b621"
+  },
+  "bindingChecks": [
+    {
+      "path": "js/room_features.js",
+      "symbol": "roomFeatureEnv",
+      "scanAndCurrentBodySha256": "3cfe5ce18779995a6c5c859256130e18d9dcd76f6f770afdbdd0f124759fdf95",
+      "unchanged": true
+    },
+    {
+      "path": "js/room_features.js",
+      "symbol": "find_okay_roompos",
+      "scanAndCurrentBodySha256": "239a226db1d42bb6547af4717a0878ce98171422287677d252124d94fba50bcd",
+      "unchanged": true
+    },
+    {
+      "path": "js/room_features.js",
+      "symbol": "mkfount",
+      "scanAndCurrentBodySha256": "04fc10ff2cce3b643fccd535f998b23c2c9b859e922b7277e344b0fa84b9bf02",
+      "unchanged": true
+    },
+    {
+      "path": "js/room_features.js",
+      "symbol": "mksink",
+      "scanAndCurrentBodySha256": "c9594eaaeb7f02d68eed62556a32841a693e66134ae8ae57cd03e3457eda0535",
+      "unchanged": true
+    },
+    {
+      "path": "js/room_features.js",
+      "symbol": "mkaltar",
+      "scanAndCurrentBodySha256": "2c66f91356a6ca1c36dd60724082d3d9df85b0a73738562baa1a8e119c00b6bb",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "fill_special_room",
+      "scanAndCurrentBodySha256": "5a16d18818ff0301df642e133bf5921ed19061bc484cc5d14d8e0aeb5e50d328",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "somexyspace",
+      "scanAndCurrentBodySha256": "b19814fe9d0f966de02ff4dc9604cade1498d3ea1a54beb585aa12c48298d3d1",
+      "unchanged": true
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "bydoor",
+      "scanAndCurrentBodySha256": "a09b2db9b0fa45d91d60d361e2131c13a2cdfb546bb2af54a95b0702b70f5a00",
+      "unchanged": true
+    },
+    {
+      "path": "js/terrain.js",
+      "symbol": "set_levltyp",
+      "scanAndCurrentBodySha256": "d6f85b9b1362cf808def430488df96a836410a891e6bede877839001a1c07bf4",
+      "unchanged": true
+    },
+    {
+      "path": "js/terrain.js",
+      "symbol": "count_level_features",
+      "scanAndCurrentBodySha256": "97981cb095f8756ac084b7acc6c125f49f4ce163e3c0b84690bd13bf961a5d05",
+      "unchanged": true
+    },
+    {
+      "path": "js/object_generation.js",
+      "symbol": "objectGenerationEnv",
+      "scanAndCurrentBodySha256": "062c4f55347b116e0453b0f4d835b486492260f697843f78dcbbdc2468b4b621",
+      "unchanged": true
+    }
+  ],
+  "configuration": "Node24.19.0; Clang19.1.7 (3+b1), -std=c11 -O2; deterministic shared coordinate/feature draws; no independent RNG assertion.",
+  "semanticCauses": [
+    "ordinary-feature-environment-rng-delegation",
+    "special-room-postorder-stock-dispatch"
+  ],
+  "limitations": [
+    "Seven keys represent TWO causes: five ordinary-feature environment/RNG delegation keys and two special-room postorder/stock-call dispatch keys. They are not seven independent discoveries.",
+    "Feature targets use a regular5\u00d75 OROOM or THEMEROOM,three positions and horizontal bit0/1,with one fountain and sink outside. Fountain draws0..6,altar0..2,sink no feature draw. Controls replace every room square with FOUNTAIN, forcing sampler failure except THEMERoom altar which returns before sampling. Existing source-backed search proofs are reused as dependencies, not recounted as new keys.",
+    "The C feature oracle contains exact constructors,search/sampling,terrain setter and full feature recount. Relevant terrain and alignment macros are pinned; Align2amask is copied verbatim. No traps,fluids,invocation square,doors or subrooms occur in feature fixtures. C predicates for absent facilities are explicit adapters. JS production exports execute; only private bydoor is extracted verbatim into the required hook, matching the existing supported component test approach. No full public Lua-binding or generation proof.",
+    "Feature comparisons cover terrain,horizontal/altar mask,counts and draw counts/bounds. They preserve the upstream extra fountain/sink increment after recount. They do not prove all geometry,independent RNG,invalid setter behavior,feature interactions or runtime drinking/altar use. Old terrain is ROOM in successful construction; no ice/object/timer behavior is exercised.",
+    "Fill comparison covers11 room types,no-fill or flag-only states (ordinary/theme use normal rather than flag-only),one normal-shop state,three rectangular tree shapes up to depth2,and synchronous/Promise-resolved shop hooks. Final9-bit flags and ordered room-index/shop-type/flags-before-call triples agree. All-unfilled controls have neither flags nor calls.",
+    "The stock_room boundary is captured in BOTH C and JS. This verifies dispatch/arguments/order only, not the actual stock_room implementation,inventory or actors. Exact source binds the default JS callable to imported stock_room; no claim is made that the capture fixture executes that default. Other population helpers abort if reached. Room construction/storage,orig_rtype,population,RNG inside stocking,Promise rejection,global finalization and runtime are outside scope.",
+    "All selected caller and recorded dependency bodies remain unchanged from frozen scan32578f. Original identities/projection and exact current source hashes remain available. Four diagnostic keys,ten changed selection-caller bindings,cave-cap,bottomstairs and three parked gaps are untouched/unresolved. Main-owned repairs and all safety/access exclusions remain separate."
+  ]
+}

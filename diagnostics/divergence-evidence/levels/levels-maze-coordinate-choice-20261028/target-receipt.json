@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:21:23.920Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "b6639419958cf61786f83b246f4a301d623625760fda906d38280ac7c1a07dfb",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/oracle.c": "33fba04922d956d5414544761d0d2e4a184b02898a24a5da51b73abd332bb0de"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/target-output.txt"
+  ]
+}

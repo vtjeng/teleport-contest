@@ -1,0 +1,32 @@
+{
+  "testedJsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "discoveredAt": "2026-10-29T00:35:20.515816+00:00",
+  "reviewedAt": "2026-10-29T00:35:20.515816+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mkroom.c:somex": "fcc77c5da517dd16230b78e77881aa27c54a748c5cd2d086cfd894d5fe20d5e1",
+    "nethack-c/upstream/src/mkroom.c:somey": "f8c44eb56545e7b225af59a7d8e62689b9a8d3cdf290f40e4580cd52f61301a8",
+    "nethack-c/upstream/src/mkroom.c:inside_room": "9cf6febeba14a93d8acfbacaf0ecf84e9f934f6833172f096db4a1bfb3c211de",
+    "nethack-c/upstream/src/mkroom.c:somexy": "e87818ce11e36a223b7e0d2917d170d85aaf5e6757781fff1fdec0a89154c8b0",
+    "nethack-c/upstream/src/sp_lev.c:is_ok_location": "68fce11f40e4e0a303f0aad67f0fb28b51c60a0c407abc8fe7b7d609fc18d9ea",
+    "nethack-c/upstream/src/sp_lev.c:get_location": "23678d765a71434d5b84667c53c611d1948fff48f34d48ec5c8345c39e07cd6a",
+    "nethack-c/upstream/src/sp_lev.c:get_unpacked_coord": "02fafe7178d8ac994891f6d3a66e5a551d03098d43b03c11f6e0c3088295c330",
+    "nethack-c/upstream/src/sp_lev.c:get_location_coord": "e3f525d473ea0c87da30c74cccc1c0d1f3a3c950e655cf338642a4406a5055eb",
+    "nethack-c/upstream/src/sp_lev.c:get_room_loc": "928c8ab82e0ef00b2d90e132450cc4c7df59d997aef65d33d737f4c55ee95df0",
+    "nethack-c/upstream/src/sp_lev.c:get_free_room_loc": "1ddd82e099768a432816c400212d363e99f27385491d12b2d79fb947cc962933",
+    "js/room_coordinates.js:coordinateEnvironment": "0bbf9d74aa14f2e9432ad4abcc90109b6170b700994c408f297b35bf25179ce5",
+    "js/room_coordinates.js:somexy": "58d530a161de1e966192a1d48450db13ad5a1110d52016e3c8d5cadcd9d979c3",
+    "js/room_coordinates.js:get_location": "cabfbf3973b767e02fcbd96b389c4ab80dff029ed6c89b6c3a2372d789bceaca",
+    "js/room_coordinates.js:get_free_room_loc": "6fe1c7e00426c08468313c073ae2740d2e14b900f1e8c292cc4c95815f9482c3"
+  },
+  "jsCoordinateModuleUnchangedFromScanBase": true,
+  "configuration": "clang19.1.7 -std=c11 -O2; Node24.19.0; shared legal draw tapes; Linux; exact C helper bodies, minimal fixed-state adapters.",
+  "limitations": [
+    "One regular5x3 room at10,6..14,8,14 ROOM cells and one dry FOUNTAIN; no subrooms, irregularity, custom predicate/picker, water-level, objects or frame conversion. Initial packed coordinate is explicit0,0 or random/defaultDRY, original output coordinates are-1,-1 as in the C room trap caller.",
+    "Exact ten C function bodies execute with minimal struct/global adapters and an empty object grid; out-of-domain pool/lava/impossible branches abort. Enum is copied from pinned rm.h, coordxy is int16_t and getloc_flags_t uint32_t. C panic adapter longjmps to capture nonreturning failure; diagnostic wording/process termination differences are not tested.",
+    "Legal deterministic draws choose fountain until the designated success index, then adjacent ROOM. Shared tapes test call count/consumption and branch boundaries, not independent RNG implementation, seed frequency or universal topology.",
+    "204 target comparisons exhaust success1..101 and101-failure boundary for two initial-coordinate forms; four direct-floor controls. These finite domains do not establish general get_location/somexy equivalence, full trap/altar construction, runtime or finalization.",
+    "Source hashes invalidate this proof on changes; entire JS coordinate module is unchanged from frozen scan base. This is a compiled helper proof with production JS exports, not a full public Lua API or shipped recording. No runtime behavior of traps/objects/monsters is exercised."
+  ]
+}

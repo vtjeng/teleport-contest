@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:12:48.043Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "ad2ec44b9b70276278a265dfedb32a303965492f13fd7923d7208885c2247b0b",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/oracle.c": "054dd6e259e7d2b7d4f5c6dc8ce5845be6dab04b6b222d4c54da7dea82e91deb",
+    "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/source-contract.json": "f5ca1d478904975976061fbf7d2582b3aceadf4c4aa899e0e99d9284e1093506"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/target-output.txt"
+  ]
+}

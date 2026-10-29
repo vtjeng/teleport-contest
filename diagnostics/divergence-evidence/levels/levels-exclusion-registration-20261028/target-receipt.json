@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:52:57.264Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "183624d9a3547afe58216011520f8f968ed9125d9bd6a80d7cba8eda46e146cd",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/oracle.c": "f135f95509228d041ec8a85d930f287685069169923e02e7e663927a2cf7e21c"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/target-output.txt"
+  ]
+}

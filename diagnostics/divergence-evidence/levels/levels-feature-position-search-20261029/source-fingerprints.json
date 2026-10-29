@@ -1,0 +1,32 @@
+{
+  "testedJsSha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+  "discoveredAt": "2026-10-29T02:25:20.744641+00:00",
+  "reviewedAt": "2026-10-29T02:25:20.744641+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mkroom.c:somex": "fcc77c5da517dd16230b78e77881aa27c54a748c5cd2d086cfd894d5fe20d5e1",
+    "nethack-c/upstream/src/mkroom.c:somey": "f8c44eb56545e7b225af59a7d8e62689b9a8d3cdf290f40e4580cd52f61301a8",
+    "nethack-c/upstream/src/mkroom.c:inside_room": "9cf6febeba14a93d8acfbacaf0ecf84e9f934f6833172f096db4a1bfb3c211de",
+    "nethack-c/upstream/src/mkroom.c:somexy": "e87818ce11e36a223b7e0d2917d170d85aaf5e6757781fff1fdec0a89154c8b0",
+    "nethack-c/upstream/src/mkroom.c:somexyspace": "68930bc12567abc25172ade27a7734607de4e55ee0f573a260416ca582be1bd6",
+    "nethack-c/upstream/src/mklev.c:occupied": "30fc49a4ebd66b3d83ca5cf96456f7b41e3f524b837c772ea6ad0fdfb909ea59",
+    "nethack-c/upstream/src/mklev.c:bydoor": "d7d1b3e9eb301f50762ed68b4eec6299a21d9296011bf5963a51dbb8fae4a396",
+    "nethack-c/upstream/src/mklev.c:find_okay_roompos": "278d729df348e82c6256fd8071e93b0ad2ae266ce1c8407e1ffe7fc4f99861b3",
+    "js/room_features.js:find_okay_roompos": "239a226db1d42bb6547af4717a0878ce98171422287677d252124d94fba50bcd",
+    "js/room_features.js:roomFeatureEnv": "3cfe5ce18779995a6c5c859256130e18d9dcd76f6f770afdbdd0f124759fdf95",
+    "js/room_features.js:roomHook": "fb087554248a74a3ca8468c474ee36696370b1c4801314c05df53f2b48fedccc",
+    "js/mklev.js:somexyspace": "b19814fe9d0f966de02ff4dc9604cade1498d3ea1a54beb585aa12c48298d3d1",
+    "js/mklev.js:bydoor": "a09b2db9b0fa45d91d60d361e2131c13a2cdfb546bb2af54a95b0702b70f5a00"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "Node24.19.0; Clang19.1.7 (3+b1), -std=c11 -O2; fixed regular room and shared legal draw tape; no extra dependencies.",
+  "limitations": [
+    "One cause and four scanner keys, not four behavior discoveries. Finite 48-target/8-control domain; six first-success positions, four cardinal doors and two door types. No universal RNG or layout parity claim.",
+    "Exact C sampler/search/predicate bodies run over a 5x5 regular room with no subrooms. JS exported search and sampler run directly; the private bydoor body is extracted verbatim and injected through the production hooks interface with the matched state. This is a component-delegation proof, not full public Lua binding or loader execution.",
+    "Shared deterministic legal rn1/rn2 draw values drive both engines; independent RNG streams and seed reachability are not established. C trap/fluid/invocation adapters represent their absence in these fixtures, not those implementations. No monster/object/runtime behavior executes.",
+    "No-door controls prove immediate acceptance; all-FOUNTAIN controls prove somexyspace failure after 101 rejected draws and short-circuit before bydoor. Such terrain is a valid construction snapshot, not a claim that ordinary room generation emits it. All candidate coordinates are within room bounds.",
+    "Room geometry generation, irregular rooms, subroom exclusion, feature placement/counters, full finalization, malformed hooks, diagnostics, mixed frames and runtime are outside scope. Existing coordinate-retry proofs are not enlarged beyond these composed search paths.",
+    "Three parked gaps and cave-cap remain unresolved. Previously denied work is excluded. Main owns all candidate repairs."
+  ]
+}

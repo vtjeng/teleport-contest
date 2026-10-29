@@ -1,0 +1,26 @@
+{
+  "testedJsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "discoveredAt": "2026-10-28T23:44:14.670726+00:00",
+  "reviewedAt": "2026-10-28T23:44:14.670726+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mklev.c:traptype_rnd": "039127de4c720967ba89610ba7d0ce8705c11e36e5778401d93a3c9dda63de51",
+    "nethack-c/upstream/src/mklev.c:traptype_roguelvl": "d5c411e8d946b6af54c3283ca99dcd0cfe921abe88251b8b0604e87450bffbdb",
+    "nethack-c/upstream/include/trap.h:trap_types": "958746a06e83fc4a3a5c94b074d5dfb5d8fa9b04646743b4434feafcb37c89cb",
+    "js/mktrap.js:levelTrapEnv": "919948bba2d47df066557f6b6e0a0c5c409c3d9f730ea87cdcc8e587203dd3a9",
+    "js/mktrap.js:traptype_rnd": "830737219352c7b98ec8256ab8da006ba63ccdb5c472d4734cd340542a04d656",
+    "js/mktrap.js:traptype_roguelvl": "6bb804fd7f58974fef7c3a7c3d2c4c6582801c17ca052646367c3178f0640520",
+    "js/dungeon.js:level_difficulty": "d76f982bb14de0015e003bd73cb5c7510338a542dcd8def0cd2f62eed02c97a3",
+    "js/dungeon.js:single_level_branch": "b1e2c5dee375973f64a07b9feabead897f322c09d0c26d1c9cd8a8d0c41ca735",
+    "js/dungeon.js:builds_up": "2c71f100a02306977171a7562a4ab38839182b6345f6853fb74cd1d220c37796"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "clang -std=c11 -O2; exact C selectors and enum; asserted context/RNG adapters; Node24.19.0 production JS exports with supported environment argument",
+  "limitations": [
+    "Finite selector-contract domain only:25 initial choices,7 legal secondary values,ordinary difficulty1..8/hell26/Knox18,noteleport0/1 and flags0/4. No all-depth/all-flag or complete topology claim.",
+    "C exact selectors use context adapters for level_difficulty, Inhell and single_level_branch. JS calls its production context functions with minimal explicit dungeon state; actual difficulty is asserted. These adapters do not establish C/JS dungeon-state computation equivalence.",
+    "RNG values are supplied through checked interfaces, not generated independently. Tests compare selection and draw bounds/counts; they do not construct traps, execute retries/placement, create victims, change monsters/objects, or test runtime effects, finalization or shipped exposure.",
+    "The seven Rogue controls exhaust legal draws for that switch only. No broad equivalence or suppression of other trap placement/runtime warnings follows."
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-finddpos-direction-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "finddpos-cardinal-caller-contract",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "finddpos",
+      "start_line": 147,
+      "end_line": 205,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "finddpos declaration",
+      "start_line": 51,
+      "end_line": 51,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "join caller directions",
+      "start_line": 462,
+      "end_line": 485,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "makeniche caller directions",
+      "start_line": 710,
+      "end_line": 714,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/include/hack.h",
+      "symbol": "movementdirs",
+      "start_line": 639,
+      "end_line": 653,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "finddpos",
+      "start_line": 7089,
+      "end_line": 7119,
+      "commit_sha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc"
+    }
+  ],
+  "hypothesis": "The missing finddpos illegal-direction diagnostic may be unreachable because all repository callers supply cardinal constants.",
+  "expectedBehavior": "All production call-site direction values select a nondefault switch arm; illegal-direction diagnostic is observable only in counterfactual controls outside that caller contract.",
+  "observedBehavior": "The portable runner hash-verifies current C/JS mklev sources, checks every finddpos identifier/reference after removing comments/strings, verifies10 calls with matching direction sequence and checks tracked C/header references occur only in src/mklev.c. Exact C finddpos executes all4 cardinal values with no diagnostic. Its default arm is bypassed before room search; a first-success shift adapter isolates that control flow.",
+  "witness": {
+    "kind": "source",
+    "scope": "The portable runner hash-verifies current C/JS mklev sources, checks every finddpos identifier/reference after removing comments/strings, verifies10 calls with matching direction sequence and checks tracked C/header references occur only in src/mklev.c. Exact C finddpos executes all4 cardinal values with no diagnostic. Its default arm is bypassed before room search; a first-success shift adapter isolates that control flow.",
+    "limitations": [
+      "Unreachable only from the pinned repository C/JS call sites. External callers, instrumented calls, memory corruption, changed configuration/visibility and future source changes are excluded. No general suppression of illegal-direction diagnostics.",
+      "The source audit strips comments/string literals, verifies all identifier occurrences and each fixed call argument, and rejects changed source hashes. It also checks tracked C/header references for the symbol. This is a source closure proof, not an assumption that a small random sample failed to reach the diagnostic.",
+      "Exact C finddpos uses deterministic rn1 and first-success finddpos_shift adapters to isolate switch dispatch. No room geometry, irregular-room search, retry/fallback order, RNG generator, corridor placement or runtime parity claim.",
+      "Invalid-direction controls deliberately bypass production callers only to establish that the oracle catches the diagnostic; they are not classified as supported gameplay setups or divergences. JS runtime calls are not forced through a private export."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "not_applicable",
+    "evidence": [],
+    "reason": "Pinned source caller-closure proof for an unreachable diagnostic, not shipped or runtime parity."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The missing illegal-direction diagnostic is unreachable from the pinned repository finddpos callers:all10 calls in C and corresponding JS pass a cardinal DIR_N/E/S/W constant. This reviews the diagnostic only, not placement/search equivalence.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:finddpos:impossible",
+      "source-audit:message:src/mklev.c:finddpos:07c9fad716dba72a"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/caller-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/caller-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/README.md",
+      "sha256": "41598576a4367b8456b5dd1e56fd98787b9a981c1941bea789007ed05653e885",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/caller-contract.json",
+      "sha256": "e5ffa6d2846f890a7cd4f653ef16b8deff95f1a11b67b085841b8999ce0453b9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/control-output.txt",
+      "sha256": "85f2aa6be4c20f8a437912189fd3584c355cb85b3dd98fb44a9343208b9e5794",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/control-receipt.json",
+      "sha256": "30b7cb5f36738afc0b80208e4d271cf56532f21ec8f758703429565271d4d07c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/decisions.json",
+      "sha256": "e37149428dafe66b95a975163eec2732370be35f8fce255ed6100f65f761c439",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/oracle.c",
+      "sha256": "9c27dd0ee5392ae669a4efdd57b8b561bceff96714e00a8cad6ebcb2c07b00f0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/probe.mjs",
+      "sha256": "3d718b38868141470f25cec0e78aa1720f1658e11d16499ced5058574943bc2d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/projection/manifest.json",
+      "sha256": "77d821b728099a1cbb8aef0bbfb69c6199c76be1baf4fae880b346cd3641ced8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/projection/projection.json",
+      "sha256": "817ed61d7439cd9b2d274dd086b38b4c5db60c6d79722df45df2939aef90c9b4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/projection/review-template.json",
+      "sha256": "2d7b4bd6dab3c0f7739581827ca2baf5fe9f047190349f98fe2585a463d839d5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/source-fingerprints.json",
+      "sha256": "a7b55736a6620bbc9549ca1a1bfe11dff09779281d774f4a89125855e55a8107",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/target-output.txt",
+      "sha256": "986a7b80dc784bb6d516fe52dc7ae3c3a6c9bb8be99a13df297d5bea7f940177",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/target-receipt.json",
+      "sha256": "72eff6af149b0e9263517f3d965ddf05c24f520c10385a5246c9ed74aa858064",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

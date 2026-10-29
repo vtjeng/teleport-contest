@@ -1,0 +1,22 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:flip_level_rnd:rn2",
+    "evidenceKey": "333142e2d4c9e085229d65dc6588e3e590c74e9804428533cbdb9d5261c5ed38",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "4f3ac429898bdd90c75bccd32a836cf823ccf6e2deb140af6978051bf5f14625",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS random.rn2 defaults to the production rn2 helper; this C-only call edge is an interface alias.",
+      "proof": "Exact C flip_level_rnd dispatch body and public JS generation-mode flip_level_rnd agree across all nine flp 0..3/draw-bit combinations plus two default JS RNG seeds. C captures outgoing mask and draw count; JS exposes selected axes using one corridor marker on an otherwise empty full-floor map. No full C flip execution or independent RNG equivalence claim.",
+      "control": "All-zero choices across masks 0,1,2,3 leave the marker fixed; disabled axes consume no draws. Enabled axes each draw rn2(2) in vertical-then-horizontal order.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:967",
+        "js/sp_lev.js:423"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028",
+      "reviewedBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

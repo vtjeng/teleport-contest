@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "cb55fc3e507ca6d1e6f5ae0ac92a4ebe9ea1a2991099fa1e91505d6fe5aa88f9",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/mklev.c:find_okay_roompos:bydoor",
+    "source-audit:edge-c-only:src/mklev.c:find_okay_roompos:somexyspace",
+    "source-audit:edge-js-helper:src/mklev.c:find_okay_roompos:roomFeatureEnv",
+    "source-audit:edge-js-helper:src/mklev.c:find_okay_roompos:roomHook"
+  ],
+  "decisionsSha256": "e2c855c3f5925ea73ad26571099b3a85d45c38bde8c65976a294802db7ae1fef",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 4,
+    "decisionsChecked": 4,
+    "before": {
+      "active": 4,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 4,
+      "excluded": 0
+    }
+  }
+}

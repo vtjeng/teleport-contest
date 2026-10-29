@@ -1,0 +1,22 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:alloc",
+    "evidenceKey": "ab85f79c25b7c14eb84b7aa0f6982757c712fe17385edd44b1fa9597aa45faa0",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "28579724bdec496fec59ade03a19d565023f478e7c481a1b1494991c1b171cbf",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS constructs a fresh exclusion-zone object where C allocates a record; the missing allocation edge does not omit registration in the tested paths.",
+      "proof": "15 public exclusion cases with two inserts each: default/four explicit types × default map frame, placed map frame and room frame. Exact C exclusion registration and coordinate functions match ordered zonetype/bounds records; distinct nodes and last-in-first-out insertion are checked. Fixed typed table readers and asserted frame/room postconditions; no teleportation, generation enforcement or finalization.",
+      "control": "Default type produces teleport zones in each frame; explicit types and two distinct rectangles verify mapping, frame conversion and list order.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:5497",
+        "js/mklev.js:4099"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028",
+      "reviewedBase": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:create_door:rn2",
+    "evidenceKey": "f0c224465cdf8597a1c0c5823bad987e2a98fc37cc5222b296b26a80ef0ca326",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "5c078826ca8c7121a5b2ffd67b264e34e342bce7e4618ebf24607dadab0e273d",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS create_door uses its injected random argument, defaulting to rn2 and supplied by the production des.door environment, in place of direct C rn2 calls.",
+      "proof": "48 public room-wall door cases in a fixed five-by-five room with open exterior: four walls, fixed/random position, two seeds, random/closed/secret states. Exact C create_door/rnddoor/okdoor/bydoor replay the production JS draw tape with requested bounds and full consumption checked; resulting door coordinates/type/five-bit mask agree. The C caller prelude reproduces the random-state discarded rnddoor draw. No independent RNG or arbitrary-room proof.",
+      "control": "32 explicit closed/secret cases skip the random-state resolution draws while retaining random wall-choice retries and optional position draws;16 random-state targets match.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1714",
+        "js/mklev.js:7306"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028",
+      "reviewedBase": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

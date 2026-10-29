@@ -1,0 +1,229 @@
+{
+  "scope": "27 fresh feature initializations: three feature types × nine valid optional boolean representations. Exact C readers and flag helper; no runtime.",
+  "results": [
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": "absent",
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": 0,
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": 1,
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": "true",
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": "false",
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": "yes",
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "fountain",
+      "fields": [
+        "looted",
+        "warned"
+      ],
+      "value": "no",
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": "absent",
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": 0,
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": 1,
+      "expected": 1,
+      "actual": 1,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": "true",
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": "false",
+      "expected": 1,
+      "actual": 1,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": "yes",
+      "expected": 1,
+      "actual": 1,
+      "rngCalls": 0
+    },
+    {
+      "type": "throne",
+      "fields": [
+        "looted"
+      ],
+      "value": "no",
+      "expected": 1,
+      "actual": 1,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": "absent",
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": 0,
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": 1,
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": "true",
+      "expected": 0,
+      "actual": 0,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": "false",
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": "yes",
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    },
+    {
+      "type": "tree",
+      "fields": [
+        "looted",
+        "swarm"
+      ],
+      "value": "no",
+      "expected": 3,
+      "actual": 3,
+      "rngCalls": 0
+    }
+  ]
+}

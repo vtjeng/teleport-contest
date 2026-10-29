@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-selection-iterate-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "selection-iteration-traversal-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_new",
+      "start_line": 15,
+      "end_line": 30,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_free",
+      "start_line": 33,
+      "end_line": 44,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getbounds",
+      "start_line": 77,
+      "end_line": 95,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_recalc_bounds",
+      "start_line": 99,
+      "end_line": 165,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getpoint",
+      "start_line": 168,
+      "end_line": 178,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_setpoint",
+      "start_line": 181,
+      "end_line": 208,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_iterate",
+      "start_line": 726,
+      "end_line": 743,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/themerooms.js",
+      "symbol": "selection_iterate",
+      "start_line": 267,
+      "end_line": 280,
+      "commit_sha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca"
+    }
+  ],
+  "hypothesis": "JS bound clamping and method delegation may alter callback eligibility or order compared with C isok/getbounds/getpoint iteration.",
+  "expectedBehavior": "Only valid x>0 selected map points invoke callbacks, in x-major/y-minor order; iteration does not mutate the selection.",
+  "observedBehavior": "Exact C iteration plus allocation/read/write/bounds helpers matches production JS iteration for all1680 singleton cells and64 subsets of six boundary points. Callback coordinates and order match, column0 is skipped, and JS input maps remain unchanged. Both use absolute selections and no origin conversion. This is a finite proof, not equivalence for arbitrary selections or alternate origins.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Exact C iteration plus allocation/read/write/bounds helpers matches production JS iteration for all1680 singleton cells and64 subsets of six boundary points. Callback coordinates and order match, column0 is skipped, and JS input maps remain unchanged. Both use absolute selections and no origin conversion. This is a finite proof, not equivalence for arbitrary selections or alternate origins.",
+    "limitations": [
+      "All1680 singleton map coordinates plus64 subsets of six specified boundary points; finite Boolean selection domains only. No universal equivalence claim, arbitrary numeric values, corrupted bounds, null selection or throwing callback cases.",
+      "Production selection_new/set/selection_iterate exports with default null origin and absolute selections. No relative/origin-conversion, Lua iterator, mixed-frame, finalization, runtime or shipped-exposure claim.",
+      "Exact C selection_iterate and supporting selection storage/bounds helpers; callback captures coordinates in order. No Lua interpreter or custom JS state injection. Existing origin-conversion lead remains unreviewed."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Production module API with absolute selection and default null origin; shipped exposure not attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS selection_iterate clamps x to1 and uses production bounds/get methods in place of C per-cell isok and selection helpers. The three edges are one bounded traversal-delegation cause.",
+    "keys": [
+      "source-audit:edge-c-only:src/selvar.c:selection_iterate:isok",
+      "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getbounds",
+      "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getpoint"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/README.md",
+      "sha256": "167a6ec51922905cfbca1465cb98ae6264ac8f5fda353fd4954ef0348893f9f5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/control-output.txt",
+      "sha256": "4363ec7168b17dae122e0af430250481133ac87e6a08284dc7e86996d62c9439",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/control-receipt.json",
+      "sha256": "f179a8a7ef607cad2da1726f6fc39f4b507ff2ab878b737669358d29700be469",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/decisions.json",
+      "sha256": "f6eb9bd5f25b2881e237ece373e87f0cf7f50012cf0a79bb8dfef2fca53041c1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/oracle.c",
+      "sha256": "a1265163793e97a93e40d3669f300ad0d02692c1534a533bd34a6e53bc273985",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/probe.mjs",
+      "sha256": "e22cdacb01da037d217ebe074394e2f5c81acf4fe820aa0040fe78212594622f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/projection/manifest.json",
+      "sha256": "7b803a143514ada70740dc9db47d2e2cfcf6e63bda0d3ed3749c66b81f89f29b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/projection/projection.json",
+      "sha256": "3e3280011d5a155e6fa54e8d1ac6b2998f3dfed09616e488c093133ab992f954",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/projection/review-template.json",
+      "sha256": "c64eded5ba419e5e65b6dc232afacf9ad6b2657a7cfda682d8b82e3825b37b27",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/source-fingerprints.json",
+      "sha256": "786a5d111a5ebce4d3ae30ff78eedbf42dd71f5fe36b50f5a3571bb2949db608",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/target-output.txt",
+      "sha256": "f5e75f0a174025be4ba3a05387f5d7714411efb5862f8b5d36d010f019d5534d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/target-receipt.json",
+      "sha256": "10cac14bf1c462da870dcb259397883a3c61b66181195f37b2c9283485d1c135",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

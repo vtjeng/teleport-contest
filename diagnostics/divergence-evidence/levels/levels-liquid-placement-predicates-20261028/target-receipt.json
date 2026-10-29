@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:48:32.489Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "21f311a153a9f52658a7dac223f42c9e158a7233936e494e95d6fd4b41280f58",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/oracle.c": "19bb2a640d46b77f708c19b733afa210306094f9e75e6bc8f1484799582385ca"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/target-output.txt"
+  ]
+}

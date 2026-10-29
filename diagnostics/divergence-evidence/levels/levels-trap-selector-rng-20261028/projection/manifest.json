@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "078e44b403a3e3e5bcbb6d555f7fd9cc7327eece99736b082eec54afd62614b0",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rn2",
+    "source-audit:edge-c-only:src/mklev.c:traptype_rnd:rnd",
+    "source-audit:edge-c-only:src/mklev.c:traptype_roguelvl:rn2",
+    "source-audit:edge-js-helper:src/mklev.c:traptype_rnd:levelTrapEnv",
+    "source-audit:edge-js-helper:src/mklev.c:traptype_roguelvl:levelTrapEnv"
+  ],
+  "decisionsSha256": "f85e0cf8de10b8613639c6b22d18b8ac889102d7884865ef8315cf2e43f6f0d8",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 5,
+    "decisionsChecked": 5,
+    "before": {
+      "active": 5,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 5,
+      "excluded": 0
+    }
+  }
+}

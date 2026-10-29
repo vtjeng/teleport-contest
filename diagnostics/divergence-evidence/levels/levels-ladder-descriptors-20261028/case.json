@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-ladder-descriptors-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "ladder-table-dispatch-helper",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "l_create_stairway",
+      "start_line": 4147,
+      "end_line": 4213,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/nhlua.c",
+      "symbol": "nhl_get_xy_params",
+      "start_line": 506,
+      "end_line": 523,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "l_create_stairway",
+      "start_line": 3054,
+      "end_line": 3118,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    }
+  ],
+  "hypothesis": "Scanner edge may indicate missing or changed table/positional ladder dispatch.",
+  "expectedBehavior": "The two positional forms independently reach the non-table branch and agree with table forms at both positions.",
+  "observedBehavior": "Eight public down-ladder calls on D:1: x/y table, coord table, direction+two integers, two integers with default direction \u00d7 two frames. Exact C l_create_stairway/nhl_get_xy_params with fixed typed readers and coordinate adapter match stairway-add arguments, terrain/ladder fields and SpLev_Map marker. No full C linked-list, random coordinate, up-stair/dungeon-end, trap removal, parser-generalization or movement claim.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Eight public down-ladder calls on D:1: x/y table, coord table, direction+two integers, two integers with default direction \u00d7 two frames. Exact C l_create_stairway/nhl_get_xy_params with fixed typed readers and coordinate adapter match stairway-add arguments, terrain/ladder fields and SpLev_Map marker. No full C linked-list, random coordinate, up-stair/dungeon-end, trap removal, parser-generalization or movement claim.",
+    "limitations": [
+      "Eight fixed down-ladder forms on D:1 only. No random coordinates, up-ladder, dungeon-end stairs, existing trap removal, runtime traversal or full metadata proof.",
+      "C uses typed argument readers and fixed coordinate conversion, and captures stairway_add arguments; its complete list allocator and Lua interpreter are not executed."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Focused generation API registration fixtures; shipped/runtime exposure not attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS isLuaTable dispatch corresponds to C LUA_TTABLE classification for the tested supported ladder descriptors.",
+    "keys": [
+      "source-audit:edge-js-helper:src/sp_lev.c:l_create_stairway:isLuaTable"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/README.md",
+      "sha256": "1d87e86edf63b9ac6d1f2fc01bde350fa12c764b7174b8cd2b1db2b167aa8f95",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/control-output.txt",
+      "sha256": "3ceab2c08c97663452863acc94c756d2a8c3c73af75a125f021efbc06b87ac21",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/control-receipt.json",
+      "sha256": "fd14ca2b195eb12f970b294a38ca23c728ab6035c6bb96da60688b71e8214d54",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/decisions.json",
+      "sha256": "ecaf4c5a68bca4b18c78ba15090e2658aec2bc290b6792b45428601f4949c876",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/oracle.c",
+      "sha256": "5c05cd9eb3464e4a8635d1fe98723abd93581b6331aca1d1d928467f2e1099ab",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/probe.mjs",
+      "sha256": "180d538dcf45ad7e3b4fb58dc02dd19938c067c159478115b6917034c56cf10a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/projection/manifest.json",
+      "sha256": "cb15cb5ecc80a3dce3011bfdb931eadf50447c0348f151c81fe2c5a146907e10",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/projection/projection.json",
+      "sha256": "3a058b47952f6a10d261524dfae8065c6b26df6058272a9e265e743b1c69043a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/projection/review-template.json",
+      "sha256": "b27c4a5a75f37d94ddf71f280006189e5217df0339e161e32cd979e252ecf4a4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/source-fingerprints.json",
+      "sha256": "28cf4b5f4131aa16c9fe212c407fa92d58032c1587156e4b0bbc200e9f0a9d19",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/target-output.txt",
+      "sha256": "0b91378813a159a6340d230bb893e2a417600f133dab3413b4aa612f85d71f89",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/target-receipt.json",
+      "sha256": "54c67723a6d441478abfdee5b1042c318b530f2457085871a9886135a1f93cb6",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

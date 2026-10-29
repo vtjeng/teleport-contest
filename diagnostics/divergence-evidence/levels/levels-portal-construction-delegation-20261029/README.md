@@ -1,0 +1,24 @@
+# Portal construction: scoped stub-attribution negative
+
+The frozen stub attribution does not describe the executed JS portal-construction path: mkportal calls the production trap.js maketrap and receives/links a real portal. Both JS caller and factory bodies are unchanged from the frozen scanner base. This is a scoped factory-delegation negative, not complete trap parity.
+
+Exact C mkportal executes against successful/null factory interface adapters, asserting one MAGIC_PORTAL call and destination forwarding. Production JS mkportal/maketrap constructs18 reciprocal portal endpoints over3 coordinate pairs×3 level pairs, each exactly linked once with matching coordinates/type/destination. Eighteen protected-portal retry controls return null and leave prior records/list lengths unchanged.
+
+Control: Protected existing portals take the null path. C caller emits one diagnostic in this adapter control; JS diagnostic parity is explicitly NOT compared, and mkportal impossible/message keys remain unreviewed. C maketrap itself is not compiled: its successful/null interface is the precondition; the actual C protected-portal guard and trap.h undestroyable macro are pinned as source. No travel, trap replacement, generic metadata, arbitrary terrain or runtime claim.
+
+Clean-base reproduction:
+
+1. Check out `176bb0e38117602afab165ee6d4e363c11943fdb`, initialize C gitlink `16ff59115315917b93185d026aeefea06db9b0f4`.
+2. Copy this complete evidence directory at the same relative path.
+3. Use Node24.19.0 and Clang19.1.7 (`source /workspace/.setup/activate.sh` here); no install/network dependency.
+4. Run `node diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/probe.mjs target`: expected exit0,18 constructed endpoints.
+5. Run `node diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/probe.mjs control`: expected exit0,18 protected-portal rejection controls.
+6. Run `node --test scripts/test-suites.test.mjs`. Manual ordinary .mjs runner, outside default CI.
+
+The positive proof is not mere call-name presence: production JS allocates and links portal records, and exact C mkportal forwards coordinates/MAGIC_PORTAL and writes destinations through its successful factory return. The returned records form reciprocal pairs for levels1↔2,1↔3,2↔3. Each individual GameMap contains exactly one portal. The C adapter intentionally limits this to caller/factory-interface behavior; it cannot establish complete C trap initialization.
+
+No suppression of diagnostic differences: the C null branch invokes impossible once in the control, and JS has no corresponding message. That observation is preserved while reviewing only the edge-stub mkportal→maketrap key. Nearby message/impossible keys remain active.
+
+Limits: Constructor delegation and caller-owned destination fields only:18 portal endpoints over3 coordinate pairs and3 reciprocal level pairs in a3-level dungeon. Empty ROOM cells, no existing traps for targets. No portal travel, complete level generation/finalization, arbitrary terrain, trap replacement or generic metadata parity. C oracle compiles exact mkportal against a factory interface adapter which returns either a record or NULL and checks one MAGIC_PORTAL call. It does NOT compile full C maketrap. The scoped question is whether the JS callee is a stub and whether its successful result receives the caller destination; full C factory semantics are not established by this adapter. JS executes real mkmaze.mkportal and trap.maketrap with GameMap states and creates/links reciprocal portal records. Both function bodies are unchanged from the frozen discovery base. Minimal level fixtures do not invoke runtime capabilities. Eighteen rejection controls attempt construction on a previously created protected portal. Actual JS returns null without replacing/doubling/mutating that portal. C adapter returns NULL and exact caller records one impossible diagnostic. C maketrap protected-trap return and trap.h macro are source-pinned, not executed by the C adapter. Diagnostic parity is explicitly excluded: C emits a diagnostic on NULL; JS omits that message. The separate impossible/message leads remain unreviewed, not filtered by this construction-stub proof. Controls are rejected constructor attempts, not successful alternate portal routes. Source hashes invalidate the proof on changed files. No broad declaration that all maketrap callers, construction branches, or prior trap selector/registration domains are equivalent. Three parked gaps and all Main-owned candidates unchanged.
+
+Official exporter verifies the original immutable run and one active→filtered key. Updated counts:57 negative keys/25 causes,4 historical/candidate keys,8 stale,454 without disposition. Manual candidates remain separate. Other source inspections this turn produced no qualified outcome and are not counted as negatives.

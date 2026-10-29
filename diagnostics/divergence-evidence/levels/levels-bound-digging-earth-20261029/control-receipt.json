@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "929c5cf7c8755af07b98456c3f76b05f9434dccd",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T02:16:48.049Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "f27f2611c57c57b3659fc893f3affe3a5e6c85e3e7bfb59a9c9c14072c0b6e6c",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/oracle.c": "d657c9da8b9d93491f01d6f8fae9993c4ab7e59d40f72eff1a10971b2c6186d1",
+    "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/source-contract.json": "60cc10ec86261757d6546e8e8785d4577223b4c4365d01f27ced582e9d9dec13",
+    "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/fixtures.json": "b259a0f0f22ee0eaf4b3dc40d29cf30a83b0e03f0c4ccc64972712e6dd26b847"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/control-output.txt"
+  ]
+}

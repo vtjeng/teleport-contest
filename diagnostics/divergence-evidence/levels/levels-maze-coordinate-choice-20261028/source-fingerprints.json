@@ -1,0 +1,24 @@
+{
+  "testedJsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:22:08.869467+00:00",
+  "reviewedAt": "2026-10-28T22:22:08.869467+00:00",
+  "toolingSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "sourceAuditBindingBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "jsFunctionUnchangedFromScanBase": true,
+  "functionSha256": "20004de167ed2330837b79df7f0eaf60928aad2d2788ddbd3e60b593618d13ee",
+  "files": {
+    "js/mkmaze.js": "e0722923b9f99824b30b2089f0869c055ff56eb9a24dfda832f52b60c29fd4db",
+    "nethack-c/upstream/src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0",
+    "scripts/discovery-project.mjs": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+    "scripts/discovery-hub.mjs": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7"
+  },
+  "exactCBodies": [
+    "mazexy"
+  ],
+  "limitations": [
+    "Eight maps/draw sequences only; no universal geometry or independent RNG equivalence.",
+    "C accepts the same checked draw tape as JS; no population, finalization or runtime claim."
+  ],
+  "harnessCorrection": "An initial observation parser expected rn2 logging; actual default helper logs rnd one-based values. Corrected parser and reran; this was a harness error, not a gameplay divergence."
+}

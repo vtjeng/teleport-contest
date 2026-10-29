@@ -1,0 +1,33 @@
+{
+  "jsSha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/mklev.js": "c2447e3e03bc7b1575dfc7b41bafec0a01a18181f989a14bf33bdd6a1b102398",
+    "js/mkroom.js": "5d560ba1b779ed5b80332815d4320c124e5737b6351a07935294c956016d88f2",
+    "js/room_coordinates.js": "9621ab8b435e3803438c5b0762793ba2db554a2f57f0f178f443b1663e8c08d9",
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4",
+    "nethack-c/upstream/src/mkroom.c": "bef143b8557acd2636512fb3a824314bd36bd599e11ba536c1d45d867a04499c"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "has_dnstairs"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "has_upstairs"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "generate_stairs_room_good"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "generate_stairs_find_room"
+    }
+  ]
+}

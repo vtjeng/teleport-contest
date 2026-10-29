@@ -1,0 +1,27 @@
+{
+  "testedJsSha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+  "discoveredAt": "2026-10-29T02:31:24.434678+00:00",
+  "reviewedAt": "2026-10-29T02:31:24.434678+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mkroom.c:inside_room": "9cf6febeba14a93d8acfbacaf0ecf84e9f934f6833172f096db4a1bfb3c211de",
+    "nethack-c/upstream/src/mklev.c:alloc_doors": "1daa20c599acd7498af4e9a8268c570433d6a2275ed59ab5c54fbc1ab15bd643",
+    "nethack-c/upstream/src/mklev.c:add_door": "45fabcfd188201e66e1ecd64eeb4e8a6ba8eb3e5d0b80d7546de08999cc429cc",
+    "nethack-c/upstream/src/sp_lev.c:maybe_add_door": "d0f53a90726783a8fe59e9775fd688a2d0cd6591566bb4314a5ec45021225062",
+    "nethack-c/upstream/src/sp_lev.c:add_doors_to_room": "42918df9e9c65d4b901662faff7a8808f8a26122c4cd4a3c3032748e2f39a480",
+    "js/mklev.js:add_door": "c1295f1a2a89666c70beaf63bb1193bccab4dbc6050bca9a563638f8e12df69a",
+    "js/mklev.js:maybe_add_door": "23dca01e9021f2e43e780cee7f137de273d729e898319c87a8820a8627aefb19",
+    "js/mklev.js:add_doors_to_room": "6e99b1792dc62700043095cc1897d1a5c9cbdea8b42b4392d678ecea8519bea7"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "Node24.19.0; Clang19.1.7 (3+b1), -std=c11 -O2; DOORINC20; signed-char per-room door count; successful allocation only; no RNG.",
+  "limitations": [
+    "One key and one capacity-delegation cause, bounded to12 target sequences and3 controls with8 stages each. Three regular root rooms and one regular nested subroom; two door densities and DOOR/SDOOR types. No universal layout or allocation equivalence claim.",
+    "Exact C alloc_doors/add_door/inside_room/maybe_add_door/add_doors_to_room execute with successful malloc and matching typed fields. doorct/nsubrooms retain signed-char widths and every per-room count is asserted0..127; no overflow experiment. C capacity20 increments are observed separately, not compared to JS array capacity.",
+    "JS actual exported add_doors_to_room runs through private maybe_add_door/add_door unchanged. Matching GameMap/room records are explicit regular construction snapshots. This is not independent C/JS room geometry generation, Lua callbacks or complete loader attribution.",
+    "All candidate cells lie in each visited room expanded rectangle; regular inside_room short-circuits irregular/shared-neighbor logic. C shared_with_room aborts if unexpectedly reached. No irregular rooms, invalid/edge coordinates, subroom room-number tagging or orig_rtype claim.",
+    "Compare logical door coordinates, count and all four room fdoor/doorct slices after each stage. Repeated registrations are idempotent. Unused C allocated slots, allocation failure/OOM, door state/orientation, topology reachability, finalization and runtime entities are unreviewed.",
+    "Three parked gaps and cave-cap remain unresolved. All excluded investigations remain excluded; no gameplay edits or new repair candidate."
+  ]
+}

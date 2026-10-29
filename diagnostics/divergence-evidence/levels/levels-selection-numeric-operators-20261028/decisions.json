@@ -1,0 +1,94 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_getpoint",
+    "evidenceKey": "e2018b3f3cb9fd0805c7ea22e8f676db05f7464ec7a4f20f21942b9728110aab",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "45c071d70a724630a4bc6332bab1e1d65fe1782c93199724f09341c8fb06c6aa",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS selectionPoint decodes numeric point storage in place of the C selection_getpoint calls in OR/subtraction. The four edges describe one helper-substitution cause, not four independent defects.",
+      "proof": "Exact C OR/subtraction wrappers plus selection allocation/read/write/bounds and rect_bounds helpers match production JS exports for all64 overlap value pairs0..7 under each operator (128 comparisons) and all4 disjoint boolean pairs per operator (8 controls). Entire1680-byte maps and computed bounds agree. JS outputs are fresh, absolute and leave both inputs unchanged. Fixed two-selection Lua stack adapters; shared absolute frame only.",
+      "control": "Disjoint boolean pairs distinguish overlap arithmetic from independent point retention, including empty operands/results; controls pass8 comparisons.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/nhlsel.c:306",
+        "nethack-c/upstream/src/nhlsel.c:361",
+        "js/nhlsel.js:20",
+        "js/nhlsel.js:60",
+        "js/nhlsel.js:76"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028",
+      "reviewedBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionPoint",
+    "evidenceKey": "5f773424e179d8185f4c83731c2f55871e57f091913c63b8df16dcb5514d36b3",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "d59854155c7fdfe4d3c2f6cff782ccbeefb52fa9d0fba9833eafc74f4fb13e5e",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS selectionPoint decodes numeric point storage in place of the C selection_getpoint calls in OR/subtraction. The four edges describe one helper-substitution cause, not four independent defects.",
+      "proof": "Exact C OR/subtraction wrappers plus selection allocation/read/write/bounds and rect_bounds helpers match production JS exports for all64 overlap value pairs0..7 under each operator (128 comparisons) and all4 disjoint boolean pairs per operator (8 controls). Entire1680-byte maps and computed bounds agree. JS outputs are fresh, absolute and leave both inputs unchanged. Fixed two-selection Lua stack adapters; shared absolute frame only.",
+      "control": "Disjoint boolean pairs distinguish overlap arithmetic from independent point retention, including empty operands/results; controls pass8 comparisons.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/nhlsel.c:306",
+        "nethack-c/upstream/src/nhlsel.c:361",
+        "js/nhlsel.js:20",
+        "js/nhlsel.js:60",
+        "js/nhlsel.js:76"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028",
+      "reviewedBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_getpoint",
+    "evidenceKey": "d898e45e08c4d609076842fff26e0ad607af4ecc91b31bcaf54566a6f2402fc6",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "483ac254040c1d2f6822fd1f40f5d5cd5e960382449161380db94b45543e07d8",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS selectionPoint decodes numeric point storage in place of the C selection_getpoint calls in OR/subtraction. The four edges describe one helper-substitution cause, not four independent defects.",
+      "proof": "Exact C OR/subtraction wrappers plus selection allocation/read/write/bounds and rect_bounds helpers match production JS exports for all64 overlap value pairs0..7 under each operator (128 comparisons) and all4 disjoint boolean pairs per operator (8 controls). Entire1680-byte maps and computed bounds agree. JS outputs are fresh, absolute and leave both inputs unchanged. Fixed two-selection Lua stack adapters; shared absolute frame only.",
+      "control": "Disjoint boolean pairs distinguish overlap arithmetic from independent point retention, including empty operands/results; controls pass8 comparisons.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/nhlsel.c:306",
+        "nethack-c/upstream/src/nhlsel.c:361",
+        "js/nhlsel.js:20",
+        "js/nhlsel.js:60",
+        "js/nhlsel.js:76"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028",
+      "reviewedBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionPoint",
+    "evidenceKey": "02cafcbb04e9ff6d9f1383f82545483413642609738a5baded9eaa6820dc2af5",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "1a07254c5371c22da7255effc47bb84db5b64f48af79aa46d918c730c5c0b6fd",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS selectionPoint decodes numeric point storage in place of the C selection_getpoint calls in OR/subtraction. The four edges describe one helper-substitution cause, not four independent defects.",
+      "proof": "Exact C OR/subtraction wrappers plus selection allocation/read/write/bounds and rect_bounds helpers match production JS exports for all64 overlap value pairs0..7 under each operator (128 comparisons) and all4 disjoint boolean pairs per operator (8 controls). Entire1680-byte maps and computed bounds agree. JS outputs are fresh, absolute and leave both inputs unchanged. Fixed two-selection Lua stack adapters; shared absolute frame only.",
+      "control": "Disjoint boolean pairs distinguish overlap arithmetic from independent point retention, including empty operands/results; controls pass8 comparisons.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/nhlsel.c:306",
+        "nethack-c/upstream/src/nhlsel.c:361",
+        "js/nhlsel.js:20",
+        "js/nhlsel.js:60",
+        "js/nhlsel.js:76"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028",
+      "reviewedBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

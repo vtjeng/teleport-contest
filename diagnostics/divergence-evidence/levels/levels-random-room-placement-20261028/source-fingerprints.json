@@ -1,0 +1,28 @@
+{
+  "testedJsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:45:36.662749+00:00",
+  "reviewedAt": "2026-10-28T22:45:36.662749+00:00",
+  "toolingSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "exactCBodies": {
+    "nethack-c/upstream/src/sp_lev.c": [
+      "create_room",
+      "check_room"
+    ],
+    "nethack-c/upstream/src/rect.c": [
+      "get_rect"
+    ]
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "files": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/rect.c": "0ba24377934d74be6846e39885bc2f886801c3709c41afb702445261d8f73562"
+  },
+  "jsFunctionSha256": "6d8cd6343a07a71d16cb7b713232ec76ea35d2f06719d09af96c052042736749",
+  "limitations": [
+    "Five first-room configurations/two seeds, empty stone map/one initial allocator rectangle. No repeated-room, vault, full allocator mutation, storage, topology, metadata or finalization proof.",
+    "C captures add_room bounds and checks split handoff instead of executing their storage/mutation.",
+    "RNG tapes are shared, normalized to zero-based primitive draws; not independent RNG or trace-label equivalence."
+  ],
+  "invalidSetupDiscarded": "w=-1,h=4 was rejected by JS Room must have both w and h; C lspo_room:4065-4066 has the identical guard. Removed before receipts and not counted as a divergence or negative."
+}

@@ -1,0 +1,33 @@
+{
+  "testedJsSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+  "discoveredAt": "2026-10-28T23:35:50.911366+00:00",
+  "reviewedAt": "2026-10-28T23:35:50.911366+00:00",
+  "exactCBodies": {
+    "nethack-c/upstream/src/alloc.c": [
+      "alloc",
+      "nhalloc"
+    ],
+    "nethack-c/upstream/src/rect.c": [
+      "init_rect",
+      "free_rect"
+    ]
+  },
+  "functionHashes": {
+    "nethack-c/upstream/src/alloc.c:alloc": "578581ab5e8d79131530b2541353f6a1296f890b289c1994c0e4ef77fddb352e",
+    "nethack-c/upstream/src/alloc.c:nhalloc": "5621e6a5a26a17e55a1d4cd1f2f91b2c096443ada94d77b7f67eb46f8a2ca2dd",
+    "nethack-c/upstream/src/rect.c:init_rect": "bcb22eb99eb2f0ac7e6bc936658bcfce5642925210c0f2b1e8448e68529eca1e",
+    "nethack-c/upstream/src/rect.c:free_rect": "05bf51158657cdfe323cd40b77c2a698390dcfb795668008ead17e623bb5cc67",
+    "nethack-c/upstream/include/global.h:allocator-contract": "827a0b353e8a61a873b7edca1ab47f56a854f7cf1573595366b992c45b1ab6ea",
+    "js/rect.js:init_rect": "b79f42373ff4be616fdc5ee0f01c089b164b7a41a035dd8412aadee97fa9b5a0",
+    "js/rect.js:free_rect": "0d7a727c5dd33b10fa7ab886a11327bab4c3238367be5589ac09e1ae431f6b2f"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "clang -std=c11 -O2, both without/with -DMONITOR_HEAP; fake malloc returns NULL or static aligned storage; _Noreturn panic capture exits; heap logging skipped; no actual resource exhaustion",
+  "limitations": [
+    "Control-flow proof for the specific post-allocation init_rect null diagnostic only, under the pinned nonreturning panic/non-null allocator contract. Do not suppress allocator-level failures, arbitrary panic messages, capacity diagnostics, changed allocators or overrides that return after panic.",
+    "Target uses a deterministic malloc adapter and a nonreturning panic capture; it does not exhaust memory or run a full process shutdown. MONITOR_HEAP test sets logging already initialized/disabled, so no log/environment access occurs. Both compile branches execute their exact allocator source bodies.",
+    "JS controls cover successful initialization, reinitialization storage reuse, free and fresh reallocation only. No actual JS/C OOM parity, arbitrary fragmentation, production gameplay reachability or shipped-score claim. Prior rectangle-choice/order evidence is not expanded."
+  ]
+}

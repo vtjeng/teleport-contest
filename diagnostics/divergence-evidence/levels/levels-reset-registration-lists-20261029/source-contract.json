@@ -1,0 +1,45 @@
+{
+  "jsSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/game.js": "dd1587ff93820e71524f2f577341b430d942462271141f0026411e27ecfe11b2",
+    "js/mklev.js": "c2447e3e03bc7b1575dfc7b41bafec0a01a18181f989a14bf33bdd6a1b102398",
+    "js/region.js": "218f90d79178a1228f5b6882aed282ba244ca1084a9531cf015235b34e4286e8",
+    "js/stairs.js": "4c847f04cbafd625009d6c917809668e3a5691d81138dd92ef08e56f1130dee6",
+    "nethack-c/upstream/src/dungeon.c": "4b3e7b2a8afa70fc442a99fd79551982836def70864f738085926f3f326906e9",
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4",
+    "nethack-c/upstream/src/region.c": "ff09423d896d87b9a53dde460efc76e7cb14a6e459b17a8ea971dd18c2362d92",
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/stairs.c": "9a1b5465220cc0dde85d44221a8be8fcef20bcc3010c05e0795a3058a7ba8cf5"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_hell"
+    },
+    {
+      "path": "nethack-c/upstream/src/stairs.c",
+      "symbol": "stairway_free_all"
+    },
+    {
+      "path": "nethack-c/upstream/src/region.c",
+      "symbol": "free_region"
+    },
+    {
+      "path": "nethack-c/upstream/src/region.c",
+      "symbol": "clear_regions"
+    },
+    {
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "free_exclusions"
+    },
+    {
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "clear_level_structures"
+    },
+    {
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_reset_level"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "recordedAt": "2026-10-28T22:33:07.996455+00:00",
+  "caseId": "levels-message-buffer-20261028",
+  "evidencePr": "https://github.com/vtjeng/teleport-contest/pull/92",
+  "routingStatus": "implemented_and_accepted",
+  "mainSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "receiptAuthority": "Parent coordination message confirms publication with passing gates; not a new local Checkpoint execution.",
+  "discoveryAccounting": "Retain original candidate key in frozen-run accounting; do not count this routing update as a new discovery or reinterpret unrelated stale decisions.",
+  "frozenEvidence": "Original PR92 bases, target/control receipts and candidate status are not rewritten."
+}

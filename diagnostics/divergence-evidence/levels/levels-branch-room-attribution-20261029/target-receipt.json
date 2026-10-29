@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:21:28.127Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "949916efc18120e3df3cf2873d2fa1aed6d62ad840b5f8020fff692e36abf787",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/oracle.c": "f27855eab8ff5ed733c823e4efb7daf4197d7b000000e29164024f02d77b2995",
+    "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/source-contract.json": "c93be002a17a042318d85267773c877502d22cb1ba133c5b7e1ad68bc38c43b8"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-branch-room-attribution-20261029/target-output.txt"
+  ]
+}

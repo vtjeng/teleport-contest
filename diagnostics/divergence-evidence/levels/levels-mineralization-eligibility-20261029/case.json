@@ -1,0 +1,395 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-mineralization-eligibility-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "on_level",
+      "start_line": 1439,
+      "end_line": 1443,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "Is_special",
+      "start_line": 1448,
+      "end_line": 1457,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_hell",
+      "start_line": 1942,
+      "end_line": 1945,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_quest",
+      "start_line": 1849,
+      "end_line": 1852,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_mines",
+      "start_line": 1856,
+      "end_line": 1859,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_V_tower",
+      "start_line": 1907,
+      "end_line": 1910,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "depth",
+      "start_line": 1431,
+      "end_line": 1434,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "dunlev",
+      "start_line": 1325,
+      "end_line": 1328,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "water_has_kelp",
+      "start_line": 1432,
+      "end_line": 1440,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mineralize",
+      "start_line": 1449,
+      "end_line": 1541,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "currentLevel",
+      "start_line": 49,
+      "end_line": 54,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "topologyLevel",
+      "start_line": 56,
+      "end_line": 61,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "dungeonNumber",
+      "start_line": 63,
+      "end_line": 65,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "locationAt",
+      "start_line": 67,
+      "end_line": 72,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "levelAssigned",
+      "start_line": 74,
+      "end_line": 76,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "isTopologyLevel",
+      "start_line": 78,
+      "end_line": 81,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "inEndgame",
+      "start_line": 83,
+      "end_line": 87,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "inHell",
+      "start_line": 89,
+      "end_line": 99,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "arborealLevel",
+      "start_line": 101,
+      "end_line": 109,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "currentSpecialLevel",
+      "start_line": 111,
+      "end_line": 121,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "excludedSpecialLevel",
+      "start_line": 123,
+      "end_line": 133,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "mineralizeEnv",
+      "start_line": 135,
+      "end_line": 147,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "preflightLevelContext",
+      "start_line": 149,
+      "end_line": 167,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "waterHasKelp",
+      "start_line": 169,
+      "end_line": 181,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "water_has_kelp",
+      "start_line": 185,
+      "end_line": 201,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mineralize.js",
+      "symbol": "mineralize",
+      "start_line": 206,
+      "end_line": 291,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/object_generation.js",
+      "symbol": "objectGenerationEnv",
+      "start_line": 60,
+      "end_line": 65,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    }
+  ],
+  "hypothesis": "Explicit JS context validation and helper delegation may change mineralization eligibility, kelp decisions or RNG call order compared with C topology predicates.",
+  "expectedBehavior": "Endgame blocks before kelp unless checks are bypassed; other exclusions block mineral sampling after kelp. Water suppresses WATER kelp but not pool/moat, and disabled divisors consume no draw.",
+  "observedBehavior": "2,256 targets (1,332 direct kelp selectors and924 normal gate calls) and1,590 controls (666 Water selectors and924 skip-check gate calls) match compiled C and exported production JS. Complete RNG bound sequences and selector Boolean results agree. Mineral draws occur in96 normal cases and462 bypass controls.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "2,256 targets (1,332 direct kelp selectors and924 normal gate calls) and1,590 controls (666 Water selectors and924 skip-check gate calls) match compiled C and exported production JS. Complete RNG bound sequences and selector Boolean results agree. Mineral draws occur in96 normal cases and462 bypass controls.",
+    "limitations": [
+      "Thirteen keys represent TWO causes: three kelp-selector context/RNG delegation keys and ten mineralization valid-context gate delegation keys. No new repair or candidate.",
+      "The fixed topology is generated on every execution through production newgame_pre_mklev: seed24301,date20400314015926,Tourist/human/female/neutral,bonesfalse. The runner asserts exact equality to topology.json, including77 floors in9 dungeons and37 special records. Typed C fixtures consume that topology; C dungeon initialization, alternate seeds/roles/topologies and shipped exposure are not proved.",
+      "Direct kelp tests cover37 terrain constants,divisors pool0/2/10 and moat0/3/30,zero/max legal draws, and D1/Astral/Water at one valid coordinate. Only Boolean result and RNG bound sequence are compared. No vegetation resource creation, invalid coordinates, negative direct divisors or independent RNG equivalence.",
+      "Mineralize tests all77 current floors,arboreal false/true,two maps and three kelp parameter pairs(0,0),(2,3),(-1,-1),normal versus skip checks. Each map is ROOM except one optional3\u00d73STONE island and separate POOL/MOAT/WATER cells. Gold/gem probabilities remain0; maximum legal kelp draws prevent resource-producing branches. All such C callees and non-rn2 random helpers abort if unexpectedly reached.",
+      "The eligibility proof does not cover default/nonzero gold/gem probabilities, branch multipliers on nonzero probabilities, quantities, resource allocation or placement, runtime behavior, timers, arbitrary maps, all scan ordering, or full finalization. In_mines is reviewed only for special-level eligibility and probability0. C exact full functions contain untouched out-of-scope branches; no claim is made about those branches.",
+      "All selected JS callers and the recorded helpers are body-equal to the frozen scan base; complete source hashes, exact C-body checks, immutable run IDs and exporter provenance are retained. Four prior diagnostic gaps,ten changed-caller gaps,cave-cap,bottomstairs and three parked prerequisites remain unresolved. No repeated probes or new rescans for those gaps.",
+      "Main advanced to aa14c5b76 during packaging. The reusable checkout was safely updated and both modes rerun. Unique prior solidfill overlay was preserved separately. Main-owned repairs remain separate; observed publication does not assert an unseen final acceptance receipt."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Production exported initialization components with actual initialized topology and supported constructed maps; no C topology-generation or shipped exposure claim."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Two bounded initialized-context delegation causes with unchanged source bindings; resource paths remain unreviewed.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:water_has_kelp:rn2",
+      "source-audit:edge-js-helper:src/mklev.c:water_has_kelp:currentLevel",
+      "source-audit:edge-js-helper:src/mklev.c:water_has_kelp:waterHasKelp",
+      "source-audit:edge-c-only:src/mklev.c:mineralize:In_hell",
+      "source-audit:edge-c-only:src/mklev.c:mineralize:In_V_tower",
+      "source-audit:edge-c-only:src/mklev.c:mineralize:Is_special",
+      "source-audit:edge-c-only:src/mklev.c:mineralize:In_mines",
+      "source-audit:edge-js-helper:src/mklev.c:mineralize:currentLevel",
+      "source-audit:edge-js-helper:src/mklev.c:mineralize:inEndgame",
+      "source-audit:edge-js-helper:src/mklev.c:mineralize:locationAt",
+      "source-audit:edge-js-helper:src/mklev.c:mineralize:mineralizeEnv",
+      "source-audit:edge-js-helper:src/mklev.c:mineralize:preflightLevelContext",
+      "source-audit:edge-js-helper:src/mklev.c:mineralize:waterHasKelp"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/topology.json",
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/topology.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/topology.json",
+        "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/topology.mjs"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/README.md",
+      "sha256": "4d6ba503e37f626a198079eb940539ff4c194c5b60a21b442f7ac56881c5314a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/control-output.txt",
+      "sha256": "69f33cd31aab22b14a96d157c1f52fa208a7c4409dc4922c0619d5ec31a44e48",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/control-receipt.json",
+      "sha256": "201fc994c55d737aa9e9370bd808d9d44b0d5bb59a0a60617c44ca04eb9084bd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/decisions.json",
+      "sha256": "eec06b01516e81e4720c04a65374a5995385336108014558c81a56ffdf9255cc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/oracle.c",
+      "sha256": "462c772b54f6ad7f5435bb3e5188303006bf8095378001dde861813d2fe0485f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/probe.mjs",
+      "sha256": "268238d521a372daeddd80a98c9c807a004cb0eef9fd0c8f9416e81babc692e8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/projection/manifest.json",
+      "sha256": "c0596e443a9503d22741d1823bbd34cf210237b3b49e1be823949a81096edaf0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/projection/projection.json",
+      "sha256": "cb0408900209ee74cade24c8903890a00d5f841cacd644817e69d11f2fa4aa83",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/projection/review-template.json",
+      "sha256": "af4d30d6ba938d4936a52212d20f920c5657ffd3667af641e35987d29c092765",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/source-contract.json",
+      "sha256": "c3402eb21bc53c7bacff2e1e93646d7af9391464ab98aad4c906006b8d91f978",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/source-fingerprints.json",
+      "sha256": "4be5256e1f002aeb6dda5e9726f1d72064bd80951443d034c0cb4ba5ee6ee85a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/target-output.txt",
+      "sha256": "2f478126951c0fb8059c1e8ce1419e633d81cfc259c43f6406e722d8c1fe7a3f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/target-receipt.json",
+      "sha256": "00ea0d5940b5b0ea3b1d602cc27359746226b81fe60450bfa33c637701e88f9b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/topology.json",
+      "sha256": "ff3e3214a4ea85a2efa44e9c7be368753402fe9d45ded4a12beeb0f5651443b0",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-mineralization-eligibility-20261029/topology.mjs",
+      "sha256": "696a72bf0a7e47dc1aa9233d08569103155fb88dc9513afe6110f88dbc3fde10",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

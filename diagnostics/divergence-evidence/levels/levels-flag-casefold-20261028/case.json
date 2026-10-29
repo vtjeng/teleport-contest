@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-flag-casefold-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "ascii-level-flag-case-normalization",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_level_flags",
+      "start_line": 3759,
+      "end_line": 3831,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_level_flags",
+      "start_line": 2666,
+      "end_line": 2705,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    }
+  ],
+  "hypothesis": "The scanner edge may indicate different case handling for level flag names.",
+  "expectedBehavior": "18 lowercase names versus 36 uppercase/alternating-case variants.",
+  "observedBehavior": "Exact C lspo_level_flags, strncmpi and lowc bodies with fixed string-stack adapters match public JS des.level_flags in 54 comparisons: 18 names, three ASCII case spellings. Level-flag storage only; no Unicode, embedded NUL, coder-private flags, errors or finalization claims.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Exact C lspo_level_flags, strncmpi and lowc bodies with fixed string-stack adapters match public JS des.level_flags in 54 comparisons: 18 names, three ASCII case spellings. Level-flag storage only; no Unicode, embedded NUL, coder-private flags, errors or finalization claims.",
+    "limitations": [
+      "Tested recognized ASCII names only; no Unicode, embedded NUL, error paths, private coder flags, or finalization/runtime effects.",
+      "Fixed string-stack adapter; no Lua interpreter execution."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Production API/fixed C oracle comparison; shipped level exposure unestablished."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS lcase replaces C strcmpi for recognized ASCII flag names; the extra helper is equivalent case normalization in this tested domain.",
+    "keys": [
+      "source-audit:edge-js-only:src/sp_lev.c:lspo_level_flags:lcase"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/README.md",
+      "sha256": "1815d7333976a7237f5c0552f524c657294db244e7c7c57dbe6e33ecf94e68e4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/control-output.txt",
+      "sha256": "e6369c63b4ee2ab73b9f5f6191c6619e2e8a8bf574e3eff43e699b4d07c9e1c5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/control-receipt.json",
+      "sha256": "76c2cf1616f95ae009f09c7d39fdc8272ff9825636dba28a2cb09bf4061b0ed9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/decisions.json",
+      "sha256": "67d65ab992dff26be7a4b3f3a5f0cfa803a30efa6b82d1879891ba0582872077",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/oracle.c",
+      "sha256": "3d3cb25dba3c68b02265b6a49f83e9752923fc955ed2cae8173c031082798700",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/probe.mjs",
+      "sha256": "c9b3802a29563e03c217883cfdad81253070cc60d223fde0fd5795ff93924b4b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/projection/manifest.json",
+      "sha256": "6be4d08c9c7353bc5bc04aacb5bf7d28ea3e2d3b9e34a2aca44b71320ddd350c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/projection/projection.json",
+      "sha256": "f5b076d5a63a537346c8c2333702367ed50ee70f74a12aad6db78d61abae450a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/projection/review-template.json",
+      "sha256": "8b3762d4cbd1c4c46f6fb2e61726151a29940e32797662e0fc603e753d759848",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/source-fingerprints.json",
+      "sha256": "b465a003de8b4dc279e0116ee5c9dec7f217b5e0af2a5f683783326d6fa36fa5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/target-output.txt",
+      "sha256": "a932e1b1408bca21e62de34f85819f217cc661b2568b7f4852afdb055cf1bd22",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/target-receipt.json",
+      "sha256": "ee0431fe86afe3fcb78c5ef5c57f7f56d2b2811794ed7f0e44a6cb2b50cf8852",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

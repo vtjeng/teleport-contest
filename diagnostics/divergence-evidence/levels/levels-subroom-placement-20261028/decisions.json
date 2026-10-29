@@ -1,0 +1,23 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:create_subroom:rnd",
+    "evidenceKey": "f6f43bd7151b1ddf7a9f5d0a51c7495f94de7b472c432abe6557b4ccb5ea50c5",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "cefb15121eba0bbba48a083b6f5f7c8269e4ec53df251375f15914bd7d44544a",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS randomOneBased defaults to rnd and production build_room supplies env.random.rnd. The missing-call edge is an injected alias, not an omitted draw.",
+      "proof": "Exact C create_subroom executes with a checked shared draw tape. Ten public nested-room API cases match acceptance and add_subroom handoff bounds. Fixed lighting and unconditional type selection isolate size/position. This source-edge disposition does not claim all subroom behavior is equivalent.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1685",
+        "js/mklev.js:6843",
+        "js/mklev.js:2992"
+      ],
+      "control": "Near/far edge adjustments, random dimensions/position on two seeds, minimum 4x4 parent and two too-small parent rejections with zero draws.",
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028",
+      "reviewedBase": "51f5686fac30306411156df215ca83ae910cf6bf",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

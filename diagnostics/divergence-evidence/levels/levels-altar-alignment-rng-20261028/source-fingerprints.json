@@ -1,0 +1,21 @@
+{
+  "testedJsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:37:39.135620+00:00",
+  "reviewedAt": "2026-10-28T22:37:39.135620+00:00",
+  "toolingSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "jsFunctionsUnchangedFromScanBase": true,
+  "functionHashes": {
+    "noncoalignment": "a3891df418f9247692cb3b1057d908ea3502f13d3e783e18ea20ab1f9ad490a4",
+    "js:noncoalignment": "32c018657c0ffa294428587a1ceefab3752ce8fda0028ef6a0e95d3112a8bc26",
+    "sp_amask_to_amask": "4b196605719fba921b9dd1fc608023a4b2e181123403b27e4c4661fb4271f45e",
+    "js:sp_amask_to_amask": "617e39329fce2be2922a6aa43afaa7384d1ac7f1de98bf7772ebca6c88cbe916"
+  },
+  "alignHeaderSha256": "963176a750f3e58ca29d4b5b13f2eaf51fefdbf66b7a1a681401092dd72f7cb2",
+  "limitations": [
+    "Only coaligned/noncoaligned altar mask initialization for three valid original alignments and two seeds. No random/explicit mask, priest/shrine, monster or runtime alignment claims.",
+    "Exact C converter and macro execute; full C Lua/altar allocation path does not.",
+    "C replays checked JS draws; no independent RNG equivalence or all-seed claim."
+  ],
+  "harnessCorrection": "Initial type assertion used a wrong literal terrain number; replaced by imported ALTAR constant and reran before receipts. This was a test-author error, not a gameplay mismatch."
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:33:20.161Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "cc53c727efe74bc8b245920b3f87dbf7153cf9137042069eedff71a2decdfcbd",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/oracle.c": "336922e1a4c3344885bda1c550e19c24bade828ed9e6266102c5cc83497a6ebe"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/control-output.txt"
+  ]
+}

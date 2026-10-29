@@ -1,0 +1,361 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-room-feature-dispatch-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "levels-feature-position-search-20261029"
+  ],
+  "provenance": {
+    "jsSha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somex",
+      "start_line": 666,
+      "end_line": 669,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somey",
+      "start_line": 672,
+      "end_line": 675,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room",
+      "start_line": 678,
+      "end_line": 687,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexy",
+      "start_line": 694,
+      "end_line": 740,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexyspace",
+      "start_line": 744,
+      "end_line": 756,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "occupied",
+      "start_line": 1806,
+      "end_line": 1811,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "bydoor",
+      "start_line": 1750,
+      "end_line": 1775,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "find_okay_roompos",
+      "start_line": 2303,
+      "end_line": 2314,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "count_level_features",
+      "start_line": 828,
+      "end_line": 842,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "set_levltyp",
+      "start_line": 77,
+      "end_line": 121,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mkfount",
+      "start_line": 2285,
+      "end_line": 2300,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mksink",
+      "start_line": 2317,
+      "end_line": 2329,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "mkaltar",
+      "start_line": 2332,
+      "end_line": 2350,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "fill_special_room",
+      "start_line": 2731,
+      "end_line": 2804,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_features.js",
+      "symbol": "roomFeatureEnv",
+      "start_line": 30,
+      "end_line": 36,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_features.js",
+      "symbol": "find_okay_roompos",
+      "start_line": 45,
+      "end_line": 57,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_features.js",
+      "symbol": "mkfount",
+      "start_line": 59,
+      "end_line": 72,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_features.js",
+      "symbol": "mksink",
+      "start_line": 74,
+      "end_line": 84,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_features.js",
+      "symbol": "mkaltar",
+      "start_line": 86,
+      "end_line": 97,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "fill_special_room",
+      "start_line": 545,
+      "end_line": 662,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "somexyspace",
+      "start_line": 7610,
+      "end_line": 7624,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "bydoor",
+      "start_line": 7297,
+      "end_line": 7305,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/terrain.js",
+      "symbol": "set_levltyp",
+      "start_line": 42,
+      "end_line": 79,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/terrain.js",
+      "symbol": "count_level_features",
+      "start_line": 26,
+      "end_line": 40,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    },
+    {
+      "side": "JS",
+      "path": "js/object_generation.js",
+      "symbol": "objectGenerationEnv",
+      "start_line": 60,
+      "end_line": 65,
+      "commit_sha": "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+    }
+  ],
+  "hypothesis": "Explicit JS feature environments/RNG and asynchronous recursive fill dispatch may alter initializer metadata,counts or child-before-parent behavior.",
+  "expectedBehavior": "Feature RNG only follows successful placement; fountain/sink increment after recount; ordinary/theme altar rules and recursive special-room flags follow exact C. Subrooms are visited before own-room early returns and stock dispatch.",
+  "observedBehavior": "270 targets (132 feature initializers and138 fill dispatch/flag comparisons) and198 controls (132 no-free-square features and66 all-unfilled trees) match exact compiled C and exported JS. The comparison preserves the upstream fountain/sink double-count quirk and child-before-parent stock-call ordering, including Promise-resolved JS callbacks.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "270 targets (132 feature initializers and138 fill dispatch/flag comparisons) and198 controls (132 no-free-square features and66 all-unfilled trees) match exact compiled C and exported JS. The comparison preserves the upstream fountain/sink double-count quirk and child-before-parent stock-call ordering, including Promise-resolved JS callbacks.",
+    "limitations": [
+      "Seven keys represent TWO causes: five ordinary-feature environment/RNG delegation keys and two special-room postorder/stock-call dispatch keys. They are not seven independent discoveries.",
+      "Feature targets use a regular5\u00d75 OROOM or THEMEROOM,three positions and horizontal bit0/1,with one fountain and sink outside. Fountain draws0..6,altar0..2,sink no feature draw. Controls replace every room square with FOUNTAIN, forcing sampler failure except THEMERoom altar which returns before sampling. Existing source-backed search proofs are reused as dependencies, not recounted as new keys.",
+      "The C feature oracle contains exact constructors,search/sampling,terrain setter and full feature recount. Relevant terrain and alignment macros are pinned; Align2amask is copied verbatim. No traps,fluids,invocation square,doors or subrooms occur in feature fixtures. C predicates for absent facilities are explicit adapters. JS production exports execute; only private bydoor is extracted verbatim into the required hook, matching the existing supported component test approach. No full public Lua-binding or generation proof.",
+      "Feature comparisons cover terrain,horizontal/altar mask,counts and draw counts/bounds. They preserve the upstream extra fountain/sink increment after recount. They do not prove all geometry,independent RNG,invalid setter behavior,feature interactions or runtime drinking/altar use. Old terrain is ROOM in successful construction; no ice/object/timer behavior is exercised.",
+      "Fill comparison covers11 room types,no-fill or flag-only states (ordinary/theme use normal rather than flag-only),one normal-shop state,three rectangular tree shapes up to depth2,and synchronous/Promise-resolved shop hooks. Final9-bit flags and ordered room-index/shop-type/flags-before-call triples agree. All-unfilled controls have neither flags nor calls.",
+      "The stock_room boundary is captured in BOTH C and JS. This verifies dispatch/arguments/order only, not the actual stock_room implementation,inventory or actors. Exact source binds the default JS callable to imported stock_room; no claim is made that the capture fixture executes that default. Other population helpers abort if reached. Room construction/storage,orig_rtype,population,RNG inside stocking,Promise rejection,global finalization and runtime are outside scope.",
+      "All selected caller and recorded dependency bodies remain unchanged from frozen scan32578f. Original identities/projection and exact current source hashes remain available. Four diagnostic keys,ten changed selection-caller bindings,cave-cap,bottomstairs and three parked gaps are untouched/unresolved. Main-owned repairs and all safety/access exclusions remain separate."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exported production component APIs and required dependency hooks over typed regular-room/tree fixtures. Stocking is captured at the call boundary; no full Lua or shipped generation attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Two bounded call-delegation causes with unchanged source identities; stocking implementation and runtime remain unreviewed.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:mkfount:rn2",
+      "source-audit:edge-c-only:src/mklev.c:mkaltar:rn2",
+      "source-audit:edge-js-helper:src/mklev.c:mkfount:roomFeatureEnv",
+      "source-audit:edge-js-helper:src/mklev.c:mksink:roomFeatureEnv",
+      "source-audit:edge-js-helper:src/mklev.c:mkaltar:roomFeatureEnv",
+      "source-audit:edge-c-only:src/sp_lev.c:fill_special_room:stock_room",
+      "source-audit:edge-js-helper:src/sp_lev.c:fill_special_room:visitSubrooms"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/README.md",
+      "sha256": "55a0fb6a2ef779caf9c7629c3379abcdc7487ab2a5a389e3426e9e32e20770c9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/control-output.txt",
+      "sha256": "44094b6d7d3c7c3dd2a40f1b8a7ab52aa7190675d85667fbb687a88bfdd9b656",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/control-receipt.json",
+      "sha256": "6083b9f1b5d1770fe55780dba885aa0342f7e6b8d54ee3d2f3efaac95a109d78",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/decisions.json",
+      "sha256": "aa140f1e1d68494727a85ec515b7a47d8d157ca7fc17eee51584aa023557478a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/oracle.c",
+      "sha256": "2c57e6c688d91756b777c20e9664b182525c373e757840db58942969888c68bc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/probe.mjs",
+      "sha256": "d4c8b0d8fb1154549a8e2a900cbfe803f5e95e0cdcd18ba327e8b641f3491077",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/projection/manifest.json",
+      "sha256": "3dcb6563d0a74604a155fdd46f75e92dc68ae248ad2906b01a8f676a02e589ee",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/projection/projection.json",
+      "sha256": "b44fe7f998fdcc986d88822a1e673f2fd0a9c6ba3b04738cbb4a7ebfa891ee94",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/projection/review-template.json",
+      "sha256": "7d1f591aa1317af93fc18c8a6a4c7a22c5964a1af1ab7420191d1c0e8889eba7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/source-contract.json",
+      "sha256": "5d2bccc1417dcae617fb4ac9e60c0ba4a2ff63f6c5c5f875a0f27fa9c45d7ce9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/source-fingerprints.json",
+      "sha256": "0a2e39ae0f3fd5519bad0249d2bd310532c0f9f5f854a750ef2d4e70f64edf1c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/target-output.txt",
+      "sha256": "e8093bac132d8e83efc4ae394de9b643125d02add7bcb8543bd2e6eb78d8580d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-feature-dispatch-20261029/target-receipt.json",
+      "sha256": "bb98a85e985e11abd99bdfe96994e34fbb1449225932e2946eb18447dd8eb131",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

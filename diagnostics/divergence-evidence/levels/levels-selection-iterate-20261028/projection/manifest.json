@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "3e3280011d5a155e6fa54e8d1ac6b2998f3dfed09616e488c093133ab992f954",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/selvar.c:selection_iterate:isok",
+    "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getbounds",
+    "source-audit:edge-c-only:src/selvar.c:selection_iterate:selection_getpoint"
+  ],
+  "decisionsSha256": "f6eb9bd5f25b2881e237ece373e87f0cf7f50012cf0a79bb8dfef2fca53041c1",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 3,
+    "decisionsChecked": 3,
+    "before": {
+      "active": 3,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 3,
+      "excluded": 0
+    }
+  }
+}

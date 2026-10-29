@@ -1,0 +1,32 @@
+{
+  "testedJsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "discoveredAt": "2026-10-28T23:49:42.587614+00:00",
+  "reviewedAt": "2026-10-28T23:49:42.587614+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:is_ok_location": "68fce11f40e4e0a303f0aad67f0fb28b51c60a0c407abc8fe7b7d609fc18d9ea",
+    "nethack-c/upstream/src/mklev.c:occupied": "30fc49a4ebd66b3d83ca5cf96456f7b41e3f524b837c772ea6ad0fdfb909ea59",
+    "nethack-c/upstream/src/dbridge.c:is_pool": "555d4b7b1105f25c113a4c2140fb5b0bb184ec2a110614d5dba15139a0466698",
+    "nethack-c/upstream/src/dbridge.c:is_lava": "69e5757d7d96c3999bdbc7ab96154caa76c6125ddc489b5a8a5edd0b8407f959",
+    "nethack-c/upstream/src/dbridge.c:is_moat": "9f7aa554c83a0d50606c1fabd4cb020e74f62a28ae91720a579a61864793fb6b",
+    "nethack-c/upstream/include/rm.h:levl_typ_types": "2681b85fecbb5b6e7046300679ae46f615419988aae5d45e401424ceb3ae9c73",
+    "js/mktrap.js:occupied": "e9476735782f797a2bf2acda07dccc6aa5b9528e5db729c546d42f9920d410ea",
+    "js/mktrap.js:isPoolAt": "6a411bc6b33c15cd6bdf048e0c9dbc992d2c14af8bfb8ff6e002c46587cf6b11",
+    "js/mktrap.js:isLavaAt": "e4dda1b7920d4a4c066a2edb27357abfc8949603e0995f4b9588c380c2472290",
+    "js/mktrap.js:raisedDrawbridgeOver": "f2c51ff53ca6f31208037cb3a5c3c2f99390a14885007af66365d6dd65ddeea6",
+    "js/room_coordinates.js:is_ok_location": "7aa3dce1e847992dc15d60833323247918c57318e7e61a0a844a574182184873",
+    "js/room_coordinates.js:isPoolAt": "7c50c23668e10a92964228934ed969a1156324dfbaacfe8c88c0457a3c515d9f",
+    "js/room_coordinates.js:isLavaAt": "c1951d8a76d38b502c8b8cd33c52b3cfc7e14db2c5e3045fc187c83166634eb4",
+    "js/room_coordinates.js:raisedDrawbridgeOver": "f2c51ff53ca6f31208037cb3a5c3c2f99390a14885007af66365d6dd65ddeea6",
+    "js/room_coordinates.js:coordinateEnvironment": "0bbf9d74aa14f2e9432ad4abcc90109b6170b700994c408f297b35bf25179ce5"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "clang -std=c11 -O2; exact C predicates and terrain enum, fixed empty cell/context adapters; Node24.19.0 production JS consumers with fresh GameMap and supported state argument",
+  "limitations": [
+    "Fixed interior coordinate11,5 and humidity0/WET/HOT/both only. Target covers the16 legal raised-bridge direction/substrate masks in ordinary and Juiblex identity; controls cover9 direct/lowered terrains. No arbitrary flags, boundary coordinates or other humidity modes.",
+    "Exact C bodies use fixed-context adapters: no water-level override, no custom is_ok_location predicate, empty trap cell and non-invocation position. JS uses a fresh GameMap and absent invocation position with corresponding level identities. C sobj_at aborts if called; the chosen humidity domain never enters object lookup.",
+    "This compares predicates on explicitly constructed valid terrain/mask encodings, not production bridge construction or open/close/destruction. No object/monster/runtime behavior or global dungeon-state equivalence is asserted.",
+    "Only eight liquid-helper edge keys are reviewed. Invocation, coordinateEnvironment, water-level/on_level and other humidity/coordinate warnings are not suppressed. Shipped exposure and full placement/finalization remain unestablished."
+  ]
+}

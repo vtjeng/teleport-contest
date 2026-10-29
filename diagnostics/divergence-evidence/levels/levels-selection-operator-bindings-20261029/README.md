@@ -1,0 +1,22 @@
+# Ten selection-operator keys: current binding remains unresolved
+
+The existing numeric-selection proof covers the finite behavior exercised here. Its exact C oracle is reused unchanged, and current JS passes128 overlapping numeric targets plus8 disjoint boolean controls. These are reused observations, not a new semantic discovery or broader equivalence claim.
+
+The ten selected unreviewed keys concern result allocation, rect union, point writes and JS bounds helpers across OR/subtraction. Both current callers now include the accepted mixed-frame conversion before those operations, unlike the frozen inventory. `binding-audit.json` records old/current body hashes. A passing same-absolute-frame test does not qualify the changed mixed-frame path or create a current scanner identity. All ten are exported as unresolved and remain active; no negative filter is proposed.
+
+Reproduction:
+
+1. Check out `89b8b37ad4ea952f25d2c8059411f21b2688f91c`; initialize C gitlink `16ff59115315917b93185d026aeefea06db9b0f4`.
+2. Overlay this whole evidence directory at the same relative path.
+3. Use Node24.19.0 and Clang19.1.7 (`source /workspace/.setup/activate.sh` here).
+4. Run `node diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/probe.mjs target`: exit0,128 comparisons.
+5. Run `node diagnostics/divergence-evidence/levels/levels-selection-operator-bindings-20261029/probe.mjs control`: exit0,8 comparisons.
+6. Run `node --test scripts/test-suites.test.mjs`; package validation preserves unresolved/incomplete status.
+
+The source contract records the original oracle hash and original proof base. The new runner adds exact source/body guards, preserving the old fixtures and whole-map/bounds/identity assertions. Every small reproduction dependency is included; no private scratch directory is required. The compact official projection preserves original keys, evidenceKey/runId/reviewFingerprint and verifies10 active before/10 active after,0 filtered.
+
+Next experiment: at the next justified scoped inventory refresh, obtain current caller/evidence identities and reassess each edge under the explicit finite same-frame condition. Do not refresh the corpus solely to create a disposition. Mixed-frame repairs remain Main-owned; this audit does not require reimplementing them.
+
+Limits: This is a ten-key qualification audit, not ten new semantic findings. The prior selection-numeric-operators oracle is reused byte-for-byte with its exact finite fixtures and no domain expansion. No new independent cause or current negative count is asserted. Both JS operands are absolute. Targets exhaust values0..7 at overlapping(3,4), controls use disjoint boolean points(3,4)/(7,2). All1680 map bytes and computed bounds match; result identity is fresh and both inputs unchanged. No relative/mixed frames, arbitrary layouts, signed overflow, invalid operands or OOM claim. Current l_selection_or/sub add accepted selection_map_frame conversion when absolute markers differ. Frozen scan caller bodies differ. Those branches are outside the reused proof, so this package does not manufacture a new current review fingerprint or suppress any of the ten old-run leads. C exact operator/selection storage/bounds functions execute with fixed valid two-selection Lua-stack adapters. l_selection_push_new adapter creates real selection_new storage but does not implement Lua userdata/metatable registration. No complete Lua parser/binding claim. The selected keys cover fresh-result allocation, rect union, point writes and JS bounds helpers. Validation/type-check keys and cached bounds-dirty state are not included. All ten remain active/unresolved in the exported projection, awaiting a justified current-source binding and scoped qualification. Eight previously stale reviewed bindings elsewhere remain untouched. Prior historical evidence remains immutable; its finite proof is revalidated here without retroactively promoting old identities. Main-owned mixed-frame fixes are not duplicated. Cave-cap, bottom-level stairs and three parked gaps remain unresolved; all safety/access exclusions remain. No broad rescan, dependency install or gameplay change.
+
+Accounting unchanged:74 negative keys/33 causes,5 historical/candidate keys,8 previously stale reviewed bindings,436 without current qualified disposition. Of those436,10 now have this explicit unresolved binding audit; the other426 were not qualified by this pass. No ready candidate, new proved-negative suppression or new independent cause.

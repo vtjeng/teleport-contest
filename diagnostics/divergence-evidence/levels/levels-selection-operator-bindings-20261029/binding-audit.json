@@ -1,0 +1,37 @@
+{
+  "originalScanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "currentBase": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+  "keys": [
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:l_selection_push_new",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:rect_bounds",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_setpoint",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:rectBounds",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionBounds",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:l_selection_push_new",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:rect_bounds",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_setpoint",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:rectBounds",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionBounds"
+  ],
+  "callerComparisons": [
+    {
+      "path": "js/nhlsel.js",
+      "symbol": "l_selection_or",
+      "scanBodySha256": "baa9d0c4011ff91fb02bd1abcc903779332335707af9419baed2613b794bb0ca",
+      "currentBodySha256": "350c26070b99d9268460d0020d8e146af46b7255faea1d905fc5e07e54fdb564",
+      "change": "Accepted mixed-frame conversion precedes the existing bounds and point operations.",
+      "sameFrameProofScope": "Both operands absolute; conversion branch not taken.",
+      "binding": "stale source identity; no current negative asserted"
+    },
+    {
+      "path": "js/nhlsel.js",
+      "symbol": "l_selection_sub",
+      "scanBodySha256": "04e59699599aa5fc635ddfc103872a7f35f7c02ba147154239675a62c21f2ed9",
+      "currentBodySha256": "82a1546482204220cbe6723418b7e32a657aee5cb981f0f32b92b916f47c4c5e",
+      "change": "Accepted mixed-frame conversion precedes the existing bounds and point operations.",
+      "sameFrameProofScope": "Both operands absolute; conversion branch not taken.",
+      "binding": "stale source identity; no current negative asserted"
+    }
+  ],
+  "disposition": "All ten stay active/unresolved; eight previously stale reviewed bindings elsewhere remain unchanged. No new confirmed or negative count."
+}

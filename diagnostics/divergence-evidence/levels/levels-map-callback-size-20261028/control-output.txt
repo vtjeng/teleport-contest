@@ -1,0 +1,31 @@
+{
+  "scope": "Six top-level map callback size observations for 3x2 floor fragments; plain, trailing newline, ASCII digit labels; two interior positions.",
+  "results": [
+    {
+      "map": "...\n...",
+      "x": 10,
+      "y": 5,
+      "expected": {
+        "width": 3,
+        "height": 2
+      },
+      "actual": {
+        "width": 3,
+        "height": 2
+      }
+    },
+    {
+      "map": "...\n...",
+      "x": 20,
+      "y": 8,
+      "expected": {
+        "width": 3,
+        "height": 2
+      },
+      "actual": {
+        "width": 3,
+        "height": 2
+      }
+    }
+  ]
+}

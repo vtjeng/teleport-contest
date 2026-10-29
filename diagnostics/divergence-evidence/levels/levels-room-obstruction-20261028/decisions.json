@@ -1,0 +1,23 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:check_room:rn2",
+    "evidenceKey": "81849e3691e2e32360462fee2349ee998080b289c4720c0d92553f93e3f2f7f8",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "5dea28dd6da354765c6d33b18b1888303dcc45264a91cd72a1c8e9c09823fe80",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS check_room random argument defaults to rn2 and production create_room forwards its default RNG. This missing-call edge is an alias, not an absent obstruction draw.",
+      "proof": "Six public room construction fixtures match exact C check_room/create_room/get_rect bodies on acceptance, final constructor bounds and checked shared draw tape consumption. The source choice random(3) corresponds to C rn2(3). No full allocator/topology or universal seed proof is inferred.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1459",
+        "js/mklev.js:6632",
+        "js/mklev.js:6661"
+      ],
+      "control": "Two seeds: empty map creates unshifted room without RNG; NW obstacle shifts bounds; central obstacle rejects after 101 draws.",
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028",
+      "reviewedBase": "d1d8ac170b75dca71abe29819b5daa9972301221",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T03:14:25.753Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "8200765117760496492fb1b9d4690cc5184e4b99dbe070fee9e760653a0588c8",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/oracle.c": "1f79f91870309d770213732da2944fbf948efd8bec337339ffd4e2ae49e9066c",
+    "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/source-contract.json": "704c9811453a67a9a6468fc14ac80b814d838e6164ce17cc3dcba155936dc7af"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029/target-output.txt"
+  ]
+}

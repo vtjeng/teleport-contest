@@ -1,0 +1,23 @@
+[
+  {
+    "key": "source-audit:edge-js-only:src/sp_lev.c:lspo_level_flags:lcase",
+    "evidenceKey": "f8fd0529fb20e1b37b989d9b21897e7cc5271cb1bce3d499e5a8c6f253be4a9d",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "45295bc7b8eb025d840d8b512750ddfabed86a847f3cb30be779631e711ac848",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS lcase replaces C strcmpi for recognized ASCII flag names; the extra helper is equivalent case normalization in this tested domain.",
+      "proof": "Exact C lspo_level_flags, strncmpi and lowc bodies with fixed string-stack adapters match public JS des.level_flags in 54 comparisons: 18 names, three ASCII case spellings. Level-flag storage only; no Unicode, embedded NUL, coder-private flags, errors or finalization claims.",
+      "control": "18 lowercase names versus 36 uppercase/alternating-case variants.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:3759",
+        "nethack-c/upstream/src/hacklib.c:718",
+        "js/mklev.js:2666"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

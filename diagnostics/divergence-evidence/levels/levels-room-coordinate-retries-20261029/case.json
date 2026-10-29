@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-room-coordinate-retries-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "room-coordinate-fallback-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somex",
+      "start_line": 666,
+      "end_line": 669,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somey",
+      "start_line": 672,
+      "end_line": 675,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "inside_room",
+      "start_line": 678,
+      "end_line": 687,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkroom.c",
+      "symbol": "somexy",
+      "start_line": 694,
+      "end_line": 740,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "is_ok_location",
+      "start_line": 1280,
+      "end_line": 1308,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_location",
+      "start_line": 1202,
+      "end_line": 1269,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_unpacked_coord",
+      "start_line": 1317,
+      "end_line": 1334,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_location_coord",
+      "start_line": 1337,
+      "end_line": 1353,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_room_loc",
+      "start_line": 1360,
+      "end_line": 1378,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_free_room_loc",
+      "start_line": 1385,
+      "end_line": 1404,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "coordinateEnvironment",
+      "start_line": 43,
+      "end_line": 51,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "somexy",
+      "start_line": 77,
+      "end_line": 121,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "get_location",
+      "start_line": 217,
+      "end_line": 275,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    },
+    {
+      "side": "JS",
+      "path": "js/room_coordinates.js",
+      "symbol": "get_free_room_loc",
+      "start_line": 339,
+      "end_line": 364,
+      "commit_sha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242"
+    }
+  ],
+  "hypothesis": "An indirect somexy call and extra coordinateEnvironment helper may change room-floor selection, retry boundary or RNG consumption.",
+  "expectedBehavior": "Dry fountain triggers floor fallback; success1..101 accepted,101 failures terminate before attempt102; direct floor returns immediately.",
+  "observedBehavior": "Exact ten C coordinate/eligibility helper bodies versus production JS exports. 204 target comparisons: explicit or random initial location on a dry fountain, then success on each fallback attempt1..101 or101 failures before scheduled success102. C/JS agree on coordinates, failure and draw count. Actual room contains14 floor cells and one fountain; no invalid empty-room premise. Whole room_coordinates.js is unchanged from the frozen scanner base.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Exact ten C coordinate/eligibility helper bodies versus production JS exports. 204 target comparisons: explicit or random initial location on a dry fountain, then success on each fallback attempt1..101 or101 failures before scheduled success102. C/JS agree on coordinates, failure and draw count. Actual room contains14 floor cells and one fountain; no invalid empty-room premise. Whole room_coordinates.js is unchanged from the frozen scanner base.",
+    "limitations": [
+      "One regular5x3 room at10,6..14,8,14 ROOM cells and one dry FOUNTAIN; no subrooms, irregularity, custom predicate/picker, water-level, objects or frame conversion. Initial packed coordinate is explicit0,0 or random/defaultDRY, original output coordinates are-1,-1 as in the C room trap caller.",
+      "Exact ten C function bodies execute with minimal struct/global adapters and an empty object grid; out-of-domain pool/lava/impossible branches abort. Enum is copied from pinned rm.h, coordxy is int16_t and getloc_flags_t uint32_t. C panic adapter longjmps to capture nonreturning failure; diagnostic wording/process termination differences are not tested.",
+      "Legal deterministic draws choose fountain until the designated success index, then adjacent ROOM. Shared tapes test call count/consumption and branch boundaries, not independent RNG implementation, seed frequency or universal topology.",
+      "204 target comparisons exhaust success1..101 and101-failure boundary for two initial-coordinate forms; four direct-floor controls. These finite domains do not establish general get_location/somexy equivalence, full trap/altar construction, runtime or finalization.",
+      "Source hashes invalidate this proof on changes; entire JS coordinate module is unchanged from frozen scan base. This is a compiled helper proof with production JS exports, not a full public Lua API or shipped recording. No runtime behavior of traps/objects/monsters is exercised."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exact C helper bodies and production JS exported helpers in a valid fixed room fixture. Full production API and shipped attribution not claimed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "In the tested normal rectangular-room environment, get_location delegates to the default somexy picker and get_free_room_loc normalizes the same supplied coordinate environment. Missing direct-call/extra-environment-helper edges do not imply a coordinate or retry divergence in this domain. Two keys share one room-coordinate delegation cause.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:get_location:somexy",
+      "source-audit:edge-js-helper:src/sp_lev.c:get_free_room_loc:coordinateEnvironment"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/README.md",
+      "sha256": "dcbc175784e2a236feaeb490ddb58b2d802a10825cacf3960dc3d7e6660d5d01",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/control-output.txt",
+      "sha256": "659c027c57e231c40b6b82e730fd83874e996b3e82013b59422a7bfe27461f51",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/control-receipt.json",
+      "sha256": "b20f5ec2444d9d348071531f485e3ad16b825d63c4294de35d1147ebfc283977",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/decisions.json",
+      "sha256": "8ee0fb1eea428513ae2647a7f08090224baf85e68c18316ae948d974c6b4a63c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/oracle.c",
+      "sha256": "f293831f5eb364da6c46bf7128bc6386e0f69130dd188f9956842b2eab3fee44",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/probe.mjs",
+      "sha256": "2f66f782180f660bdcc85ad49f966c789fae7f6975841d79497a81447dc3decb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/projection/manifest.json",
+      "sha256": "61679ddff9557d83a4cdd41fd83f4aacec69a5b6f6932a56ddc4a57a8cbe87ed",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/projection/projection.json",
+      "sha256": "3553ca2848bd40c16ae7d3a01d03ae7899c0a24b54001e7ab30e36a662db12cb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/projection/review-template.json",
+      "sha256": "0a4bb9fa00a6bac608db1da61b94837950913033c9a8d0e63107548f6fb16cf5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/source-contract.json",
+      "sha256": "44835470626a9a94352d37ca5b53164db061cdd8f185cc31bf349270509df43c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/source-fingerprints.json",
+      "sha256": "34b9c3867616c279fac488e07e8032d502e186c07c2322d36efddc9f645afe9f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/target-output.txt",
+      "sha256": "3905743d5fff56140d2daf228e34bf25c0f36480900535d8697693383fc9f18f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/target-receipt.json",
+      "sha256": "b8a24b65cfd5c9dd3c9075d64070c92d63f554a99f2bd3f1178bd0bc46c7b61e",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

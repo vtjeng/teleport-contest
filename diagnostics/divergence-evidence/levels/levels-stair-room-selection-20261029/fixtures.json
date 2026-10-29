@@ -1,0 +1,197 @@
+{
+  "target": [
+    {
+      "id": "ordinary-first",
+      "rooms": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1
+        ]
+      ],
+      "choices": [
+        0
+      ]
+    },
+    {
+      "id": "theme-relax",
+      "rooms": [
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          1,
+          0,
+          1
+        ]
+      ],
+      "choices": [
+        0
+      ]
+    },
+    {
+      "id": "occupied-relax",
+      "rooms": [
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          2,
+          0
+        ]
+      ],
+      "choices": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "unjoined-fallback",
+      "rooms": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ]
+      ],
+      "choices": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "ordinary-tie",
+      "rooms": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "choices": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "nonordinary-fallback",
+      "rooms": [
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ]
+      ],
+      "choices": [
+        0,
+        1,
+        2
+      ]
+    }
+  ],
+  "control": [
+    {
+      "id": "no-rooms",
+      "rooms": [],
+      "choices": [
+        -1
+      ]
+    },
+    {
+      "id": "one-ordinary",
+      "rooms": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "choices": [
+        0
+      ]
+    },
+    {
+      "id": "one-theme",
+      "rooms": [
+        [
+          1,
+          1,
+          0
+        ]
+      ],
+      "choices": [
+        0
+      ]
+    },
+    {
+      "id": "one-occupied",
+      "rooms": [
+        [
+          1,
+          0,
+          1
+        ]
+      ],
+      "choices": [
+        0
+      ]
+    }
+  ]
+}

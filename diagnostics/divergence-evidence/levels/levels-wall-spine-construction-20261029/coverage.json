@@ -1,0 +1,38 @@
+{
+  "recordedAt": "2026-10-29T04:16:20.868662+00:00",
+  "scannerBaseline": {
+    "negativeKeys": 108,
+    "negativeCauses": 40,
+    "historicalCandidateKeys": 5,
+    "staleBindings": 8,
+    "unqualifiedKeys": 402
+  },
+  "newManualOutcome": {
+    "caseId": "levels-wall-spine-construction-20261029",
+    "status": "explained_negative",
+    "semanticCauses": 1,
+    "targetFixtures": 189398,
+    "controlFixtures": 241052,
+    "scannerKeysDisposed": 0
+  },
+  "inspectedNotQualified": [
+    "lspo_region: source comparison only; no new discrepancy established, no disposition",
+    "create_door: source comparison only; failed-search diagnostic not qualified, no disposition",
+    "create_maze: source inspection found no new scaling discrepancy; prior 16-map maze-deadends proof already covers widths1/2, so no unchanged oracle expansion",
+    "flip_level: room/subroom and map-loop source inspection only; no new executed outcome"
+  ],
+  "stillActive": [
+    {
+      "key": "source-audit:message:src/mkmaze.c:fix_wall_spines:3f43c53bb3e5d08f",
+      "gap": "No supported production invalid-bounds caller and executed full diagnostic comparison; single-cell valid-bounds proof does not suppress this key."
+    },
+    {
+      "key": "source-audit:message:src/mkmaze.c:wall_cleanup:2d7a821eb9fe8566",
+      "gap": "Same invalid-bounds diagnostic qualification gap."
+    }
+  ],
+  "nextFrontier": "create_corridor room/door endpoint lookup and search failure: compare concrete C/JS source branches before selecting a supported fixture. Existing authored nxcor=false digging proof does not qualify endpoint selection. No new probe run yet.",
+  "parked": "orig_rtype save-export (denied configuration access; no retry), numeric-string region portable C API dependency, unsupported JS gradient, cave-cap reachability, bottom-level stairs valid preconditions, ten changed-caller bindings, four prior diagnostics. No unchanged probe repeats.",
+  "exhausted": false,
+  "remainingUsableCount": "unknown; 402 scanner keys are unqualified, not 402 runnable hypotheses"
+}

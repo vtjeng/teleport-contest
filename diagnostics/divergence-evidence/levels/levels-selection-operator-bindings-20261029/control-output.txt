@@ -1,0 +1,126 @@
+{
+  "scope": "Shared absolute frame; overlap values0..7 target, disjoint boolean controls. Entire1680-byte maps and computed bounds compared; no mixed-frame claim.",
+  "comparisons": 8,
+  "results": [
+    {
+      "op": "or",
+      "a": 0,
+      "b": 0,
+      "layout": 1,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "or",
+      "a": 0,
+      "b": 1,
+      "layout": 1,
+      "bounds": {
+        "lx": 7,
+        "ly": 2,
+        "hx": 7,
+        "hy": 2
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 1,
+      "fullMapSha256": "1a23ee2ae7cef9ae2c785f3ac7ec3cbd386f77192d6fa94f02b1c5bc29bf9a68"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 0,
+      "layout": 1,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "or",
+      "a": 1,
+      "b": 1,
+      "layout": 1,
+      "bounds": {
+        "lx": 3,
+        "ly": 2,
+        "hx": 7,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 1,
+      "fullMapSha256": "3b4bf0432efbd693f050021221d84a2348d2fd059da641efbfe068ca8abd6a58"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 0,
+      "layout": 1,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 0,
+      "b": 1,
+      "layout": 1,
+      "bounds": {
+        "lx": 0,
+        "ly": 0,
+        "hx": 79,
+        "hy": 20
+      },
+      "valueAtOverlap": 0,
+      "valueAtOther": 0,
+      "fullMapSha256": "974b95d0c46e77d9297b165bc37e61d432e1508885f6107f3ab268029fcf940d"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 0,
+      "layout": 1,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    },
+    {
+      "op": "sub",
+      "a": 1,
+      "b": 1,
+      "layout": 1,
+      "bounds": {
+        "lx": 3,
+        "ly": 4,
+        "hx": 3,
+        "hy": 4
+      },
+      "valueAtOverlap": 1,
+      "valueAtOther": 0,
+      "fullMapSha256": "49a3bec58840a3cbe8ec3d058f2388a480630ae879bd67eab12e51eb888800d9"
+    }
+  ]
+}

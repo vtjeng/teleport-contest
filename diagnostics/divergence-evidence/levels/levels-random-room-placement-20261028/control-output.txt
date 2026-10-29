@@ -1,0 +1,33 @@
+{
+  "scope": "Five first-room parameter configurations, two seeds. C bounds/acceptance capture and normalized primitive RNG tape; no full allocator mutation or room storage proof.",
+  "results": [
+    {
+      "form": 0,
+      "seed": 28105801,
+      "calls": 1,
+      "bounds": [
+        17,
+        5,
+        22,
+        8
+      ],
+      "rawTape": [],
+      "tape": [],
+      "matched": true
+    },
+    {
+      "form": 0,
+      "seed": 28105802,
+      "calls": 1,
+      "bounds": [
+        17,
+        5,
+        22,
+        8
+      ],
+      "rawTape": [],
+      "tape": [],
+      "matched": true
+    }
+  ]
+}

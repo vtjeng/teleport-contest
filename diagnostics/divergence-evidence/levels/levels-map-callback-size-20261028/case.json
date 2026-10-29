@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-map-callback-size-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "map-callback-dimension-serialization",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "l_push_wid_hei_table",
+      "start_line": 3050,
+      "end_line": 3055,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "l_push_wid_hei_table",
+      "start_line": 1882,
+      "end_line": 1884,
+      "commit_sha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be"
+    }
+  ],
+  "hypothesis": "The scanner C-only calls may represent omitted map callback size fields.",
+  "expectedBehavior": "Plain 3x2 maps at (10,5) and (20,8); trailing newline and numeric-label forms preserve width 3 / height 2.",
+  "observedBehavior": "Six public JS map callbacks match exact C mapfrag_fromstr/stripdigits/str_lines_maxlen and l_push_wid_hei_table output. Three 3x2 floor representations (plain, trailing newline, ASCII digit labels), two interior positions; one callback with exactly width/height and unchanged painted extent. Fixed C typed table capture and fragment-to-descriptor handoff, not full C lspo_map execution.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "Six public JS map callbacks match exact C mapfrag_fromstr/stripdigits/str_lines_maxlen and l_push_wid_hei_table output. Three 3x2 floor representations (plain, trailing newline, ASCII digit labels), two interior positions; one callback with exactly width/height and unchanged painted extent. Fixed C typed table capture and fragment-to-descriptor handoff, not full C lspo_map execution.",
+    "limitations": [
+      "Only three 3x2 rectangular floor representations at two interior positions. No room clipping, single-cell reset, alignment, arbitrary Unicode, metadata or finalization.",
+      "C executes fragment parsing and table serialization with a fixed direct handoff, not the complete lspo_map wrapper or Lua interpreter."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Focused production JS API/C oracle tests; no shipped-level exposure attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "The JS des.map wrapper invokes l_push_wid_hei_table; the C-only call-site edge does not mean callback dimensions are omitted.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_map:l_push_wid_hei_table"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/README.md",
+      "sha256": "50d84bf520df738e4ed668573e2f56f3545cdf759faae993e233ebd71b6c2081",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/control-output.txt",
+      "sha256": "7760db267c020b06df7e24b3a96b67cb3e4ed523cefddfab0f5115a875ee4479",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/control-receipt.json",
+      "sha256": "9b732987ee340fcee87bde450157816d03241b8e61ab11fee65640e7fd5dc080",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/decisions.json",
+      "sha256": "11c05f7ba8e89395d3360625118d5c29224f3b6f77f5be43219d4adf1ec4791f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/oracle.c",
+      "sha256": "7531e46d17689e0a35ddd3ddd33bbb5d92d6526ffb5792d7829be6e5af38e4b4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/probe.mjs",
+      "sha256": "9d215ec688eb588227692054365960a85387c2126e967713b3fc7c6fc237b797",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/projection/manifest.json",
+      "sha256": "6a18b79edb08fe9fe9f10f670a44809ec767ba73faa5477b3dab329a7c47ffe1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/projection/projection.json",
+      "sha256": "8b23cfa099a26cca65727c5ada597d476851e8530b957c2bd62fd2ae7a0bb752",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/projection/review-template.json",
+      "sha256": "53314886052461fa7b6e7a96f3cbf757e3e2caae5ffb25a0707dd1c3f7a906ec",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/source-fingerprints.json",
+      "sha256": "019c2e92b127bfb49454f54f0e54cb12c425979acb455029f881ceca55162c04",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/target-output.txt",
+      "sha256": "3f0508a40f64738b7c6dc6e3770507d960569ea87cb83cef558b30fe5f28045a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/target-receipt.json",
+      "sha256": "649226e0606a3ee9ba6e5c069a6f93dd49578740e079f30d55d036fdfddd6ebc",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

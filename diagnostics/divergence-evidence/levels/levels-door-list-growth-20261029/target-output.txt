@@ -1,0 +1,13 @@
+{"dense":0,"secret":0,"sequence":[0,1,2,3,0,2,1,3],"index":72,"allocations":4,"stages":8,"stateSha256":"e0ac0f8b91776398659698155ce15ff0e8bf82e87fe672cd990ee5570d75ac59","equal":true}
+{"dense":0,"secret":0,"sequence":[2,1,3,0,2,0,3,1],"index":72,"allocations":4,"stages":8,"stateSha256":"676432a36458b81b2d98bc2d59bd0d36ba452aeeb0901c575ab22ce2b15b0049","equal":true}
+{"dense":0,"secret":0,"sequence":[3,2,0,1,0,1,2,3],"index":72,"allocations":4,"stages":8,"stateSha256":"c2aea88ee3c203ffa44abc87fe4725a916ede614a678acd9ea920f565d6f8e77","equal":true}
+{"dense":0,"secret":1,"sequence":[0,1,2,3,0,2,1,3],"index":72,"allocations":4,"stages":8,"stateSha256":"e0ac0f8b91776398659698155ce15ff0e8bf82e87fe672cd990ee5570d75ac59","equal":true}
+{"dense":0,"secret":1,"sequence":[2,1,3,0,2,0,3,1],"index":72,"allocations":4,"stages":8,"stateSha256":"676432a36458b81b2d98bc2d59bd0d36ba452aeeb0901c575ab22ce2b15b0049","equal":true}
+{"dense":0,"secret":1,"sequence":[3,2,0,1,0,1,2,3],"index":72,"allocations":4,"stages":8,"stateSha256":"c2aea88ee3c203ffa44abc87fe4725a916ede614a678acd9ea920f565d6f8e77","equal":true}
+{"dense":1,"secret":0,"sequence":[0,1,2,3,0,2,1,3],"index":162,"allocations":9,"stages":8,"stateSha256":"0a924997aaccaa14def447b149a75059731ac9be32d6f57b2fb4d5a3efe53f56","equal":true}
+{"dense":1,"secret":0,"sequence":[2,1,3,0,2,0,3,1],"index":162,"allocations":9,"stages":8,"stateSha256":"a5981f25cc5cdb2c0d1432f795c2643477d6e0eb8e21512f481aff74f1f1db87","equal":true}
+{"dense":1,"secret":0,"sequence":[3,2,0,1,0,1,2,3],"index":162,"allocations":9,"stages":8,"stateSha256":"28016ad4c8447b185abe1c5cf7fcaafc77d626bd9b0b279c8a0a5e5ae5de0175","equal":true}
+{"dense":1,"secret":1,"sequence":[0,1,2,3,0,2,1,3],"index":162,"allocations":9,"stages":8,"stateSha256":"0a924997aaccaa14def447b149a75059731ac9be32d6f57b2fb4d5a3efe53f56","equal":true}
+{"dense":1,"secret":1,"sequence":[2,1,3,0,2,0,3,1],"index":162,"allocations":9,"stages":8,"stateSha256":"a5981f25cc5cdb2c0d1432f795c2643477d6e0eb8e21512f481aff74f1f1db87","equal":true}
+{"dense":1,"secret":1,"sequence":[3,2,0,1,0,1,2,3],"index":162,"allocations":9,"stages":8,"stateSha256":"28016ad4c8447b185abe1c5cf7fcaafc77d626bd9b0b279c8a0a5e5ae5de0175","equal":true}
+{"mode":"target","count":12,"stages":96,"equal":true}

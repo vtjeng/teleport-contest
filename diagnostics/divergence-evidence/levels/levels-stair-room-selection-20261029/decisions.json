@@ -1,0 +1,24 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:generate_stairs_find_room:alloc",
+    "evidenceKey": "4f56d9e180053e570170e1bcf7f67bcc3ad60324c1c16ef3019224a0d4565279",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "7bd7213c03c7e4695340e091afca2e546139d20f08317e536d04851466857214",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The C temporary candidate-index allocation is represented by a JS array. The tested selector retains phase ordering, candidate indices and random-choice bounds; absence of alloc is not a missing selector operation.",
+      "proof": "Thirteen target choices across six regular-room configurations plus four controls compare exact C selector/eligibility/stair-membership functions to exact private JS selector extraction and actual exported eligibility with real dependencies. Strict ordinary-room, relaxed themed-room, occupied-room and fallback choices match selected index, random-call count and bound. Empty-room control returns null with no allocation or random call.",
+      "control": "Three single-room controls cover ordinary, themed and occupied rooms; empty-room control avoids all draws. Every nonempty case consumes one legal shared-tape choice. This is component-level selection evidence, not full stair creation, RNG implementation, irregular membership, allocation failure or generation dispatch.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2201",
+        "nethack-c/upstream/src/mklev.c:2219",
+        "nethack-c/upstream/src/mkroom.c:640",
+        "js/mklev.js:7641"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-stair-room-selection-20261029",
+      "reviewedBase": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

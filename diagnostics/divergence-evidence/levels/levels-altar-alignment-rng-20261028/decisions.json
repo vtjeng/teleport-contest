@@ -1,0 +1,48 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:noncoalignment:rn2",
+    "evidenceKey": "41f84688bfa64189ebc9261f87f693628fab5e176a8b32dac92ae462b0f75a1b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "11411180a088eb29fdd22f53855eefd99802796414b4c4fad30d42764b6a9731",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS alignment helper delegates to injected rn2 through fillEnvironment. It explicitly preserves repeated evaluation of C Align2amask(noncoalignment(...)); these edges are not omitted or extra alignment draws in the tested altar path.",
+      "proof": "12 comparisons: lawful Knight, neutral Tourist, chaotic Barbarian × two seeds × coaligned/noncoaligned public altar initialization. Exact C noncoalignment/sp_amask_to_amask plus unchanged Align2amask macro match stored JS altar masks and shared draw-tape consumption. Noncoaligned uses two or three draws; coaligned uses none. Mask 3 in one sequence is a demonstrated matching C macro result, not independently corrected behavior.",
+      "control": "Coaligned requests for all three alignments consume zero draws; target covers two- and three-draw noncoaligned sequences. No priests are constructed.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1852",
+        "nethack-c/upstream/src/sp_lev.c:1908",
+        "nethack-c/upstream/include/align.h:50",
+        "js/themeroom_fill.js:884",
+        "js/themeroom_fill.js:909"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028",
+      "reviewedBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:sp_amask_to_amask:fillEnvironment",
+    "evidenceKey": "5fdff684faf293fe26fe7f7efbf94a820957337d3fdcd855da35e2a70cb1d015",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "08abcbfa8d43a11cafc9bc61d27c21010f31c2483d80e039c119d7b641f58a91",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS alignment helper delegates to injected rn2 through fillEnvironment. It explicitly preserves repeated evaluation of C Align2amask(noncoalignment(...)); these edges are not omitted or extra alignment draws in the tested altar path.",
+      "proof": "12 comparisons: lawful Knight, neutral Tourist, chaotic Barbarian × two seeds × coaligned/noncoaligned public altar initialization. Exact C noncoalignment/sp_amask_to_amask plus unchanged Align2amask macro match stored JS altar masks and shared draw-tape consumption. Noncoaligned uses two or three draws; coaligned uses none. Mask 3 in one sequence is a demonstrated matching C macro result, not independently corrected behavior.",
+      "control": "Coaligned requests for all three alignments consume zero draws; target covers two- and three-draw noncoaligned sequences. No priests are constructed.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1852",
+        "nethack-c/upstream/src/sp_lev.c:1908",
+        "nethack-c/upstream/include/align.h:50",
+        "js/themeroom_fill.js:884",
+        "js/themeroom_fill.js:909"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028",
+      "reviewedBase": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

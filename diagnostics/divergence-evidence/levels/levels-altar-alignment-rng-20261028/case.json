@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-altar-alignment-rng-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "altar-alignment-rng-interface-and-macro",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "sp_amask_to_amask",
+      "start_line": 1908,
+      "end_line": 1923,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/include/align.h",
+      "symbol": "Align2amask",
+      "start_line": 50,
+      "end_line": 53,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/themeroom_fill.js",
+      "symbol": "sp_amask_to_amask",
+      "start_line": 909,
+      "end_line": 936,
+      "commit_sha": "4222eaf89f2cc3b1392273b70cc27b399418c691"
+    }
+  ],
+  "hypothesis": "Injected RNG/environment helpers might change altar alignment mask or draw consumption.",
+  "expectedBehavior": "Coaligned requests for all three alignments consume zero draws; target covers two- and three-draw noncoaligned sequences. No priests are constructed.",
+  "observedBehavior": "12 comparisons: lawful Knight, neutral Tourist, chaotic Barbarian \u00d7 two seeds \u00d7 coaligned/noncoaligned public altar initialization. Exact C noncoalignment/sp_amask_to_amask plus unchanged Align2amask macro match stored JS altar masks and shared draw-tape consumption. Noncoaligned uses two or three draws; coaligned uses none. Mask 3 in one sequence is a demonstrated matching C macro result, not independently corrected behavior.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "12 comparisons: lawful Knight, neutral Tourist, chaotic Barbarian \u00d7 two seeds \u00d7 coaligned/noncoaligned public altar initialization. Exact C noncoalignment/sp_amask_to_amask plus unchanged Align2amask macro match stored JS altar masks and shared draw-tape consumption. Noncoaligned uses two or three draws; coaligned uses none. Mask 3 in one sequence is a demonstrated matching C macro result, not independently corrected behavior.",
+    "limitations": [
+      "Only coaligned/noncoaligned altar mask initialization for three valid original alignments and two seeds. No random/explicit mask, priest/shrine, monster or runtime alignment claims.",
+      "Exact C converter and macro execute; full C Lua/altar allocation path does not.",
+      "C replays checked JS draws; no independent RNG equivalence or all-seed claim."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Public altar initialization witness; shipped exposure not attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS alignment helper delegates to injected rn2 through fillEnvironment. It explicitly preserves repeated evaluation of C Align2amask(noncoalignment(...)); these edges are not omitted or extra alignment draws in the tested altar path.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:noncoalignment:rn2",
+      "source-audit:edge-js-helper:src/sp_lev.c:sp_amask_to_amask:fillEnvironment"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/README.md",
+      "sha256": "48e69de16d403eb86b1130eadd6845599ce7b7ce56604aec67344bf9f6170273",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/control-output.txt",
+      "sha256": "ba09af0b305316f59b84284a725e87baecd56d3289f2c6fe267aeb3df967e3db",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/control-receipt.json",
+      "sha256": "686aff4b6d79e97e4c5f0641367283aeff3e2b9d5baf1818744567e39dd75934",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/decisions.json",
+      "sha256": "82caee7223564dfc7a6f31267dd8eae99090ce4d898aa9012a398f893c66ae76",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/oracle.c",
+      "sha256": "de8031a5334427c741c80626df03005ac330c89816495ec4cd5a7ccd2405f659",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/probe.mjs",
+      "sha256": "a2ea9d73844d5de691aac2d2cf55804a035f1275e0bc946ed0bc1141df5b4e21",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/projection/manifest.json",
+      "sha256": "fa60b8a1e5e603f26af729795b93cf8ca165924aed9e4ac1f92f24b25a9ff277",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/projection/projection.json",
+      "sha256": "aca8b9fab93643afdd7625e4645773fecdd8c0259057a86e83466405a174a64a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/projection/review-template.json",
+      "sha256": "8d732b402d91e93ee2965d20f04ab7f800cbf1a85114300ab18cf3affa7d2e77",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/source-fingerprints.json",
+      "sha256": "f0af9592dae8800b74de1391b63c108a00448b5c15be078225cffbe4128cfcca",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/target-output.txt",
+      "sha256": "563af3067888abc79197e9780fbcd51763412b72e5d3876cb986ed0396f0fb4c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/target-receipt.json",
+      "sha256": "c82571a22786c131e399559ba0fa0ea62f168a352ca08fed13c9c38aef0da5b5",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

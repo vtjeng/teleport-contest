@@ -1,0 +1,109 @@
+{
+  "scope": "Eight fixed down-ladder descriptor calls on D:1: four argument forms/two frames. C captures stairway_add arguments; no C linked-list or movement proof.",
+  "results": [
+    {
+      "form": 0,
+      "frame": 0,
+      "expected": [
+        3,
+        2,
+        0,
+        1,
+        0,
+        2,
+        27,
+        2,
+        1
+      ],
+      "actual": [
+        3,
+        2,
+        0,
+        1,
+        0,
+        2,
+        27,
+        2,
+        1
+      ]
+    },
+    {
+      "form": 0,
+      "frame": 1,
+      "expected": [
+        12,
+        8,
+        0,
+        1,
+        0,
+        2,
+        27,
+        2,
+        1
+      ],
+      "actual": [
+        12,
+        8,
+        0,
+        1,
+        0,
+        2,
+        27,
+        2,
+        1
+      ]
+    },
+    {
+      "form": 1,
+      "frame": 0,
+      "expected": [
+        3,
+        2,
+        0,
+        1,
+        0,
+        2,
+        27,
+        2,
+        1
+      ],
+      "actual": [
+        3,
+        2,
+        0,
+        1,
+        0,
+        2,
+        27,
+        2,
+        1
+      ]
+    },
+    {
+      "form": 1,
+      "frame": 1,
+      "expected": [
+        12,
+        8,
+        0,
+        1,
+        0,
+        2,
+        27,
+        2,
+        1
+      ],
+      "actual": [
+        12,
+        8,
+        0,
+        1,
+        0,
+        2,
+        27,
+        2,
+        1
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:clear_level_structures:clear_regions",
+    "evidenceKey": "139f0c09554c1d79c5864831334f1cc5cd40dabb835ece2d4bd7d77a13220856",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "1a101ad98f8e726c3187d0994cad1e9ec69c0db21d0c73ffecf2635837c6c963",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "Replacing GameMap and nulling stair/exclusion heads provides the tested logical cleanup performed by three explicit C cleanup calls. This is not a claim about JS garbage collection or all clear-level state.",
+      "proof": "Twenty-one populated cases (seven nonempty combinations of region/stair/exclusion registrations × counts1,2,5) and three empty controls compare two resets each. Actual public JS level_init/gas_cloud/ladder/exclusion/reset_level APIs match exact compiled C reset/clear and region/stair/exclusion free functions on zero region count/capacity, no active region array entries and null stair/exclusion heads. Both resets match in all48 stages.",
+      "control": "Three empty cases perform two resets without acquiring resources. Populated setups assert every requested list count before reset; second reset verifies idempotent empty state. Gas clouds have damage0,ttl10, no monsters and no turns advanced. C uses valid allocated metadata fixtures and successful allocation, not independent constructor or full pre-reset behavior.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:850",
+        "nethack-c/upstream/src/region.c:394",
+        "nethack-c/upstream/src/stairs.c:27",
+        "nethack-c/upstream/src/dungeon.c:2582",
+        "js/mklev.js:483",
+        "js/game.js:54"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029",
+      "reviewedBase": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:clear_level_structures:stairway_free_all",
+    "evidenceKey": "226b3e3face28029102d8b1c0cd492e0fd4d16bcb03b7413acaf9ab0b98e5f92",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "437555fe01a3cdc7b9e7a612a830a9969804805c9b3bbf0463ccf8e30dc06148",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "Replacing GameMap and nulling stair/exclusion heads provides the tested logical cleanup performed by three explicit C cleanup calls. This is not a claim about JS garbage collection or all clear-level state.",
+      "proof": "Twenty-one populated cases (seven nonempty combinations of region/stair/exclusion registrations × counts1,2,5) and three empty controls compare two resets each. Actual public JS level_init/gas_cloud/ladder/exclusion/reset_level APIs match exact compiled C reset/clear and region/stair/exclusion free functions on zero region count/capacity, no active region array entries and null stair/exclusion heads. Both resets match in all48 stages.",
+      "control": "Three empty cases perform two resets without acquiring resources. Populated setups assert every requested list count before reset; second reset verifies idempotent empty state. Gas clouds have damage0,ttl10, no monsters and no turns advanced. C uses valid allocated metadata fixtures and successful allocation, not independent constructor or full pre-reset behavior.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:850",
+        "nethack-c/upstream/src/region.c:394",
+        "nethack-c/upstream/src/stairs.c:27",
+        "nethack-c/upstream/src/dungeon.c:2582",
+        "js/mklev.js:483",
+        "js/game.js:54"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029",
+      "reviewedBase": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:clear_level_structures:free_exclusions",
+    "evidenceKey": "0395974e891dabd9d6eb750fe48c55fd25d5be9e1de6e37c8caf21690763934e",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "ba2bb540ccef886a672afd886f59d184bccd1c2949d8e27deb648dd599177863",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "Replacing GameMap and nulling stair/exclusion heads provides the tested logical cleanup performed by three explicit C cleanup calls. This is not a claim about JS garbage collection or all clear-level state.",
+      "proof": "Twenty-one populated cases (seven nonempty combinations of region/stair/exclusion registrations × counts1,2,5) and three empty controls compare two resets each. Actual public JS level_init/gas_cloud/ladder/exclusion/reset_level APIs match exact compiled C reset/clear and region/stair/exclusion free functions on zero region count/capacity, no active region array entries and null stair/exclusion heads. Both resets match in all48 stages.",
+      "control": "Three empty cases perform two resets without acquiring resources. Populated setups assert every requested list count before reset; second reset verifies idempotent empty state. Gas clouds have damage0,ttl10, no monsters and no turns advanced. C uses valid allocated metadata fixtures and successful allocation, not independent constructor or full pre-reset behavior.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:850",
+        "nethack-c/upstream/src/region.c:394",
+        "nethack-c/upstream/src/stairs.c:27",
+        "nethack-c/upstream/src/dungeon.c:2582",
+        "js/mklev.js:483",
+        "js/game.js:54"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029",
+      "reviewedBase": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

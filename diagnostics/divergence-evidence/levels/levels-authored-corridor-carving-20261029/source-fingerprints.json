@@ -1,0 +1,27 @@
+{
+  "testedJsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "discoveredAt": "2026-10-29T01:48:49.996210+00:00",
+  "reviewedAt": "2026-10-29T01:48:49.996210+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:create_corridor": "e0cc13deeca2e3745e2bcef0d37d572abb05547cc9042cf6dd98023d97630df5",
+    "nethack-c/upstream/src/sp_lev.c:dig_corridor": "66515100a371f06151202d5e0731240b79c6fe1f3cc194f7246dbaf0b1ad25e3",
+    "nethack-c/upstream/src/sp_lev.c:search_door": "31ac0713acbc2cbff543ac097f871ac01cad0d973b279fc844e37f42e22d22c0",
+    "nethack-c/upstream/src/mklev.c:maybe_sdoor": "6673e82182a5e0490da7284991855fbe9a8a5d7ccca9bc8dd1e081e3cc8e8068",
+    "js/mklev.js:create_corridor": "2dbc607f5930adab664988a843d81a6a37f6108ca5bb2a047bc7902ae2c98801",
+    "js/mklev.js:dig_corridor": "fa6978955960e6b74df1a09f8d825b88ab11a42f7c45ead215398ea565183e14",
+    "js/mklev.js:lspo_corridor": "64712d4321e6b61acd60f63d534472485b96e5052eb562af33fe723fee81550e"
+  },
+  "jsWrapperCallerAndCarverUnchangedFromScanBase": true,
+  "configuration": "Node24.19.0,Clang19.1.7 -std=c11 -O2; exact C corridor functions; typed room/map input; depth1 and shared bounded RNG tape; public JS level-construction API.",
+  "limitations": [
+    "Caller-scoped inactive-helper proof only: explicit des.corridor with two valid five-by-five authored rooms, first facing door on each, four source directions, D:1, seeds24301/24302. Eight offset targets and eight aligned controls compare all1680 terrain cells.",
+    "Both create_corridor bodies pass nxcor=false. The extra JS levelObjectEnv call is guarded by nxcor and therefore not evaluated in this path. nxcor=true remains unreviewed, not globally dead or equivalent; do not generalize this key decision beyond the pinned caller condition.",
+    "C executes exact create_corridor, search_door, dig_corridor and maybe_sdoor. The C initial room bounds/terrain come from asserted public JS setup, not an independently executed C room/region pipeline. Known dimensions and valid doors are checked before carving. No Lua parsing or room/door registration equivalence claim.",
+    "RNG replay checks every bound/value and total consumption against the JS-generated tape, including EOF. It is a coupled deterministic comparison, not an independent RNG implementation proof. Depth adapter is fixed1, so deeper-level secret-corridor RNG is outside scope.",
+    "Unexpected C random-corridor generation, object creation, panic and impossible calls assert. No object construction/runtime is investigated or executed. No arbitrary internal JS mutation: setup uses level_init, terrain and region; operation uses public des.corridor.",
+    "Only terrain types are compared. Other metadata, all seeds/layouts, full corridor reachability/geometry, level finalization, runtime traversal, random rooms/walls, invalid-input diagnostics and nxcor=true are not established.",
+    "Existing search-door order proof is related but remains separate. Cave cap-exit and three parked gaps remain unresolved; no new divergence or Main-owned repair is duplicated."
+  ]
+}

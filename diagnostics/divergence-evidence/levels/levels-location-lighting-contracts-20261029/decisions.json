@@ -1,0 +1,74 @@
+[
+  {
+    "key": "source-audit:edge-js-helper:src/sp_lev.c:is_ok_location:coordinateEnvironment",
+    "evidenceKey": "5100db86d650a496e7ea5c7c14cbe3a7ac5bd621824d361ac4def592b2ef1419",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "4d48779902ce908d97868424955e943c89284262194f5457fa12c2b8d6a278c4",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mkmaze.c:125",
+        "nethack-c/upstream/include/dungeon.h:110",
+        "js/room_coordinates.js:156",
+        "js/mkmaze.js:195"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029",
+      "reviewedBase": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "location-environment-water-macro-delegation",
+      "explanation": "The explicit JS on_level call supplies the tested Is_waterlevel macro decision, while coordinateEnvironment passes the supplied state without changing eligibility. This covers assigned Water records and the tested empty construction square only.",
+      "proof": "Exact compiled C is_ok_location/on_level/is_pool/is_moat/is_lava and real exported JS is_ok_location compare all37 terrain values ×128 humidity masks ×three custom predicate modes across two ordinary level relations (28,416 cases) and matching Water (14,208 controls). Return values and custom predicate call counts agree. Water short-circuits even a rejecting callback; ordinary custom callbacks precede ANY_LOC and all humidity rules.",
+      "control": "Water controls always accept and never call the installed predicate. Ordinary same-dungeon/different-floor and different-dungeon/same-floor distinguish level equality. Callback false/true cases override all humidity masks. No boulders, no runtime objects, drawbridgemask0, assigned Water only. Other bridges, Juiblex, random coordinate search, invalid coordinates, unassigned dungeon records and placement are not claimed."
+    }
+  },
+  {
+    "key": "source-audit:edge-js-only:src/sp_lev.c:is_ok_location:on_level",
+    "evidenceKey": "9fbf96041206adf822bb03415caa3e5042b5b969b4a241927d6f1cb2bbede238",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "723906533fca72ca13f444f53bdefa7092beafb1de46231b30cc883b089d52e5",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mkmaze.c:125",
+        "nethack-c/upstream/include/dungeon.h:110",
+        "js/room_coordinates.js:156",
+        "js/mkmaze.js:195"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029",
+      "reviewedBase": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "location-environment-water-macro-delegation",
+      "explanation": "The explicit JS on_level call supplies the tested Is_waterlevel macro decision, while coordinateEnvironment passes the supplied state without changing eligibility. This covers assigned Water records and the tested empty construction square only.",
+      "proof": "Exact compiled C is_ok_location/on_level/is_pool/is_moat/is_lava and real exported JS is_ok_location compare all37 terrain values ×128 humidity masks ×three custom predicate modes across two ordinary level relations (28,416 cases) and matching Water (14,208 controls). Return values and custom predicate call counts agree. Water short-circuits even a rejecting callback; ordinary custom callbacks precede ANY_LOC and all humidity rules.",
+      "control": "Water controls always accept and never call the installed predicate. Ordinary same-dungeon/different-floor and different-dungeon/same-floor distinguish level equality. Callback false/true cases override all humidity masks. No boulders, no runtime objects, drawbridgemask0, assigned Water only. Other bridges, Juiblex, random coordinate search, invalid coordinates, unassigned dungeon records and placement are not claimed."
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mkmaze.c:set_levltyp_lit:rn2",
+    "evidenceKey": "c8ab7f1c72422cb90aa5286103fb06ac012e4b2b65f8e9a1f5ae830bd0a716c9",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "45dd854bfc7c0b071d9e080a3190f36dc98e80afdaaf7b5b9844153998f46d4f",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:1280",
+        "nethack-c/upstream/src/mkmaze.c:125",
+        "nethack-c/upstream/include/dungeon.h:110",
+        "js/room_coordinates.js:156",
+        "js/mkmaze.js:195"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-location-lighting-contracts-20261029",
+      "reviewedBase": "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "terrain-light-rng-parameter-delegation",
+      "explanation": "JS delegates C rn2(2) to its random parameter (default rn2). Shared legal draws demonstrate the tested light/RNG dispatch; no independent RNG equivalence is asserted.",
+      "proof": "Exact C set_levltyp/set_levltyp_lit versus exported JS setter: six old terrains (STONE,SDOOR,STAIRS,LADDER,FOUNTAIN,SINK),37 new terrain values,lit -1/0/1,priorlit0/1,draw0/1 yield2,664 targets. Lit -2 yields888 controls. Return,type,lit,secret-door candig bit,draw count and feature counts match; C diagnostic count stays0 in valid inputs.",
+      "control": "Protected stairs/ladders refuse all changes and consume no draw. No-change lighting controls retain prior light except the underlying lava setter lights lava; random-light targets cover both draw results and lava bypass. Exact C setter runs with EXTRA_SANITY_CHECKS enabled. No old ice/raised bridge, melt timers/object effects, debug overwrite, invalid inputs or full construction pipeline. Four diagnostic leads are separately unresolved, not filtered by this passing valid-domain proof."
+    }
+  }
+]

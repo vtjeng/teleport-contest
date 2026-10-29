@@ -1,0 +1,94 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_setpoint:l_selection_check",
+    "evidenceKey": "ead8c327e427b869f8d0eb26fb0c1f04c308806b835d4b50029a9a46a5a5bb55",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "0b426813d89f1a2e199442fad88ba0788b1ad063f0c87ece79af176e0ca3373e",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "The setter wrapper implements selection validation/allocation/storage through different JS primitives. Four source-call edges describe one delegation cause; tested explicit-coordinate creation/update behavior is present. This does not prove all argument forms, invalid-input diagnostics, random-coordinate or mixed-frame behavior.",
+      "proof": "Twenty four-argument targets: values0,1,2,7,126 × default and translated map origins × two interior coordinates; eight two/three-argument controls cover fresh creation and default value1. Exact C l_selection_setpoint with fixed typed stack/coordinate adapters and real selection storage functions matches all1680 bytes and bounds. Existing JS selections retain identity and an unrelated anchor point; fresh results have only the requested point.",
+      "control": "Two-argument calls create a fresh selection; three-argument calls use default1 and preserve an existing anchor. Public JS level_init/map establishes valid state/frame; exported production l_selection_setpoint is invoked with that state/frame and null current room. The C adapter implements the equivalent explicit frame offset, not a full Lua VM or general coordinate resolver. Storage values fit signed char after+1. No RNG, subroom, out-of-bounds, random coordinate, relative selection representation, errors, mixed frames or runtime claims.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/nhlsel.c:159",
+        "nethack-c/upstream/src/selvar.c:181",
+        "js/nhlsel.js:100",
+        "js/themerooms.js:83",
+        "js/mklev.js:5019"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029",
+      "reviewedBase": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_setpoint:l_selection_new",
+    "evidenceKey": "3343ecf1649cf8574507e1d18090f2a867d00116d07a270a6765091010cf0b6b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "7e5e95a0d55d0d76ffd2b5651df625905df26669061f101280a308e3c01ca511",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "The setter wrapper implements selection validation/allocation/storage through different JS primitives. Four source-call edges describe one delegation cause; tested explicit-coordinate creation/update behavior is present. This does not prove all argument forms, invalid-input diagnostics, random-coordinate or mixed-frame behavior.",
+      "proof": "Twenty four-argument targets: values0,1,2,7,126 × default and translated map origins × two interior coordinates; eight two/three-argument controls cover fresh creation and default value1. Exact C l_selection_setpoint with fixed typed stack/coordinate adapters and real selection storage functions matches all1680 bytes and bounds. Existing JS selections retain identity and an unrelated anchor point; fresh results have only the requested point.",
+      "control": "Two-argument calls create a fresh selection; three-argument calls use default1 and preserve an existing anchor. Public JS level_init/map establishes valid state/frame; exported production l_selection_setpoint is invoked with that state/frame and null current room. The C adapter implements the equivalent explicit frame offset, not a full Lua VM or general coordinate resolver. Storage values fit signed char after+1. No RNG, subroom, out-of-bounds, random coordinate, relative selection representation, errors, mixed frames or runtime claims.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/nhlsel.c:159",
+        "nethack-c/upstream/src/selvar.c:181",
+        "js/nhlsel.js:100",
+        "js/themerooms.js:83",
+        "js/mklev.js:5019"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029",
+      "reviewedBase": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/nhlsel.c:l_selection_setpoint:selection_setpoint",
+    "evidenceKey": "2b8f889765e63b38e0306676e3846c188005e2ddfa13e9d0ee30479640db4669",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "f117d92222427b4c28c88b0892b98042c372860ce42cf11f5e571607a5482578",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "The setter wrapper implements selection validation/allocation/storage through different JS primitives. Four source-call edges describe one delegation cause; tested explicit-coordinate creation/update behavior is present. This does not prove all argument forms, invalid-input diagnostics, random-coordinate or mixed-frame behavior.",
+      "proof": "Twenty four-argument targets: values0,1,2,7,126 × default and translated map origins × two interior coordinates; eight two/three-argument controls cover fresh creation and default value1. Exact C l_selection_setpoint with fixed typed stack/coordinate adapters and real selection storage functions matches all1680 bytes and bounds. Existing JS selections retain identity and an unrelated anchor point; fresh results have only the requested point.",
+      "control": "Two-argument calls create a fresh selection; three-argument calls use default1 and preserve an existing anchor. Public JS level_init/map establishes valid state/frame; exported production l_selection_setpoint is invoked with that state/frame and null current room. The C adapter implements the equivalent explicit frame offset, not a full Lua VM or general coordinate resolver. Storage values fit signed char after+1. No RNG, subroom, out-of-bounds, random coordinate, relative selection representation, errors, mixed frames or runtime claims.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/nhlsel.c:159",
+        "nethack-c/upstream/src/selvar.c:181",
+        "js/nhlsel.js:100",
+        "js/themerooms.js:83",
+        "js/mklev.js:5019"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029",
+      "reviewedBase": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-only:src/nhlsel.c:l_selection_setpoint:selection_new",
+    "evidenceKey": "8f18f22c3b99c25ab36604d7dd72529d7950f861783001d2dab64cecf5652c82",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "ab5a4f69157f53e3107aeb41be52eea916d25b37346e041ff370490798b91c0f",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "The setter wrapper implements selection validation/allocation/storage through different JS primitives. Four source-call edges describe one delegation cause; tested explicit-coordinate creation/update behavior is present. This does not prove all argument forms, invalid-input diagnostics, random-coordinate or mixed-frame behavior.",
+      "proof": "Twenty four-argument targets: values0,1,2,7,126 × default and translated map origins × two interior coordinates; eight two/three-argument controls cover fresh creation and default value1. Exact C l_selection_setpoint with fixed typed stack/coordinate adapters and real selection storage functions matches all1680 bytes and bounds. Existing JS selections retain identity and an unrelated anchor point; fresh results have only the requested point.",
+      "control": "Two-argument calls create a fresh selection; three-argument calls use default1 and preserve an existing anchor. Public JS level_init/map establishes valid state/frame; exported production l_selection_setpoint is invoked with that state/frame and null current room. The C adapter implements the equivalent explicit frame offset, not a full Lua VM or general coordinate resolver. Storage values fit signed char after+1. No RNG, subroom, out-of-bounds, random coordinate, relative selection representation, errors, mixed frames or runtime claims.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/nhlsel.c:159",
+        "nethack-c/upstream/src/selvar.c:181",
+        "js/nhlsel.js:100",
+        "js/themerooms.js:83",
+        "js/mklev.js:5019"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-setpoint-wrapper-20261029",
+      "reviewedBase": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

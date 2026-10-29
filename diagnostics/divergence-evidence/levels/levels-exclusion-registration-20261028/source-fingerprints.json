@@ -1,0 +1,27 @@
+{
+  "testedJsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:53:54.657027+00:00",
+  "reviewedAt": "2026-10-28T22:53:54.657027+00:00",
+  "toolingSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "exactCBodies": {
+    "nethack-c/upstream/src/sp_lev.c": [
+      "lspo_exclusion",
+      "get_location",
+      "get_unpacked_coord",
+      "get_location_coord"
+    ]
+  },
+  "jsFunctionUnchangedFromScanBase": true,
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:lspo_exclusion": "0259634e7527506dac1d29e2009fea35efa5366df825280ff5fe5fba30d2bb4c",
+    "nethack-c/upstream/src/sp_lev.c:get_location": "23678d765a71434d5b84667c53c611d1948fff48f34d48ec5c8345c39e07cd6a",
+    "nethack-c/upstream/src/sp_lev.c:get_unpacked_coord": "02fafe7178d8ac994891f6d3a66e5a551d03098d43b03c11f6e0c3088295c330",
+    "nethack-c/upstream/src/sp_lev.c:get_location_coord": "e3f525d473ea0c87da30c74cccc1c0d1f3a3c950e655cf338642a4406a5055eb",
+    "js/mklev.js:lspo_exclusion": "3880ab8cea95e87fa6b0c412af0c211b58630bc59fbe24fee60787e3ceb6b1e6"
+  },
+  "limitations": [
+    "15 valid positive-coordinate fixtures with two records each. No arbitrary bounds, random coordinates, allocation failure, teleport/runtime enforcement or finalization.",
+    "C frame/room initial conditions are fixed to asserted public JS postconditions; Lua table readers are fixed typed adapters."
+  ]
+}

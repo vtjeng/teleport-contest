@@ -1,0 +1,16 @@
+{
+  "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "cWrappers": [
+    "lspo_level_flags",
+    "lspo_level_init",
+    "lspo_terrain",
+    "lspo_wall_property",
+    "lspo_exclusion",
+    "lspo_teleport_region"
+  ],
+  "sourceHashes": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "js/mklev.js": "9a39692009456ca604e3544ec0c01463176c3d3e69616b0cab1b11305c46f386"
+  }
+}

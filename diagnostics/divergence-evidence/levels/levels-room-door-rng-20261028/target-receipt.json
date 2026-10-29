@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:29:23.129Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "9c974e48e9ca92d79aa60ccf9e0032c708c647dd0ab96d3f49ce27f8058b6735",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/oracle.c": "b406ee8920b12d18a2e99b477d1ce2dab06a2678b5d5315ef9f502baa10d3ac1"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/target-output.txt"
+  ]
+}

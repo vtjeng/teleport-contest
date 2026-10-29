@@ -1,0 +1,84 @@
+{
+  "discoveredAt": "2026-10-29T04:16:20.868662+00:00",
+  "reviewedAt": "2026-10-29T04:16:20.868662+00:00",
+  "toolingSha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+  "functions": [
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "iswall",
+      "sha256": "72cb866e93c5d09ad393f15c431b572ed72bdcea6eccd2485802dcaf9efa089a"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "iswall_or_stone",
+      "sha256": "800d30b86b0e64d3f2f9b1e90ce38093d02fa1f46f2c7afcc40ba0f7f26df559"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "is_solid",
+      "sha256": "7b7409812dcdefdb7da5ed5a0255c223a027bcfb42ccabadcd154f01989b2ce6"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "extend_spine",
+      "sha256": "241467b2944c96825ae69dd87e267750093afb7d289b65e6f7c783c82bdec9ff"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "wall_cleanup",
+      "sha256": "72e6b3b2b4e310865510e7f7eae748b514395619cf434b87f71fffab7c49042f"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "fix_wall_spines",
+      "sha256": "8b6448f2fb3dac33dd79a5a19bc37d62e395afb5870daef164e22891387c839f"
+    },
+    {
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "wallification",
+      "sha256": "77ac1722361b5ab372646e417dcd4eaff880e366e354d6a5bb0927acb45b25b0"
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "extend_spine",
+      "sha256": "37337ed9879c5ed3511092255f0a0a40147cb23d1669c48b28b934027191154d"
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "wall_cleanup",
+      "sha256": "ee60f79ea4a93be7dee18a4e191952a5685cba07117c4e4edda78336a8f1668a"
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "fix_wall_spines",
+      "sha256": "32cdeb5005e7c80323a7cbe21ba7803e321e0102709ad7b8805c760e918b5e52"
+    },
+    {
+      "path": "js/mklev.js",
+      "symbol": "wallification",
+      "sha256": "fc8c212d447d6739145f2282ee203391f2bed2d9e246fd903b46f165b4fe462a"
+    },
+    {
+      "path": "js/mkmaze.js",
+      "symbol": "iswall",
+      "sha256": "d26f22f153283fb5a43a3e03f211cb79ba3c35b157ee30eb8efeebb693a0e6e9"
+    },
+    {
+      "path": "js/mkmaze.js",
+      "symbol": "iswall_or_stone",
+      "sha256": "889145aa77a3aef62db7ec711957f6fe176e0c60790987b5c058b6cdb887324b"
+    },
+    {
+      "path": "js/mkmaze.js",
+      "symbol": "is_solid",
+      "sha256": "6a6fcdf56443d9e8bdd28e25e90f6d8158133f6222d72a3c63ed710cab8e1cb6"
+    }
+  ],
+  "limitations": [
+    "Finite single-cell output domain, not full-level wallification/order/finalization equivalence. Exact C fix_wall_spines and wallification (cleanup followed by spines) versus exported production JS functions on valid typed maps and bounds. No C or JS Lua binding tested.",
+    "At interior (12,9), all 6561 ternary eight-neighbor configurations over STONE/HWALL/ROOM. At eight edge/corner centers (1,0),(1,20),(79,0),(79,20),(1,10),(79,10),(30,0),(30,20), all 256 HWALL/ROOM binary configurations; outside cells are ignored exactly as predicates specify. These domains do not cover every terrain neighbor class.",
+    "Targets cover all 11 ordinary wall center types; controls apply cleanup+spines to 14 center types:STONE,VWALL,HWALL,CROSSWALL,TRWALL,DBWALL,SDOOR,LAVAPOOL,LAVAWALL,IRONBARS,DOOR,CORR,ROOM,ICE. Each tests default inactive protected rectangle(0,0)-(0,0) and one protected center. Bughack protected behavior is a typed engine-state fixture, not a shipped Baalzebub attribution.",
+    "C maps are zeroed each fixture. JS reuses a GameMap and overwrites the complete in-bounds 3x3 neighborhood each fixture; these functions read only that neighborhood for the one-cell bounds. Only resulting center terrain is compared; other metadata, invalid-bound diagnostic output and allocation failures are not proved.",
+    "One manual/unbound functional cause. Frozen scanner keys for wall_cleanup and fix_wall_spines concern panic diagnostics on invalid bounds, which are outside this valid-bounds proof. They remain active/unresolved; no source-only no-yield inspection is recorded as a negative. No canonical scanner ID is invented."
+  ]
+}

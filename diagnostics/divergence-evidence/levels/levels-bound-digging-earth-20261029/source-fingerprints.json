@@ -1,0 +1,39 @@
+{
+  "testedJsSha": "929c5cf7c8755af07b98456c3f76b05f9434dccd",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "929c5cf7c8755af07b98456c3f76b05f9434dccd",
+  "discoveredAt": "2026-10-29T02:16:54.127072+00:00",
+  "reviewedAt": "2026-10-29T02:16:54.127072+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mkmaze.c:bound_digging": "14f5c46d8aa7f23859439b4df5bb050fc52377527e2dc903f80ee1905da72d5b",
+    "nethack-c/upstream/src/mkmaze.c:get_level_extends": "78a38bd3c101bdd3a2812aa104bb22335db3cbaaf4e47e61e61601797f675224",
+    "nethack-c/upstream/src/dungeon.c:on_level": "2dd00be6afbb859ec1a52e030d8ebf80a3128bd7caea68d196be339445745dd1",
+    "js/mkmaze.js:bound_digging": "7814c5e43b5d3c7bf912d071674bcd7376a0d93d4ef65fe711d86cfd2d7f385d",
+    "js/mkmaze.js:get_level_extends": "e0146a1b41f4af3d77ab01f9b068ccb30368dc7216e95097f75616d4bef90dab",
+    "js/dungeon.js:on_level": "d573c73f5c7b69c9e01e1c68530523deb9703bd23705abc66fd992c7aa2fe8bb"
+  },
+  "jsFunctionsUnchangedFromScanBase": true,
+  "configuration": "Node24.19.0,Clang19.1.7 -std=c11 -O2. Exact C functions and macro expansion; matched nonempty GameMap/C-grid fixtures with assigned level records. No RNG.",
+  "limitations": [
+    "Twenty-four non-Earth targets and12 Earth controls: six explicit nonempty floor/walled-room maps, maze flag0/1, two mismatching current/Earth record relationships and one equal relationship. All1680 wall_info bytes plus xmin/ymin/xmax/ymax compare; terrain is unchanged.",
+    "C executes exact bound_digging/get_level_extends/on_level with the upstream Is_earthlevel\u2192Lcheck\u2192Lassigned macro definitions. Typed struct/grid adapters provide the same fields as GameMap fixtures; these are lower-level valid construction snapshots, not independent full level generation or public Lua loader executions.",
+    "All Earth records are assigned(2,1). Current records are(0,1),(2,2) or(2,1), separating dungeon and floor equality. Unassigned/missing/invalid topology records are not tested; no broad claim about JS nullable values or all macro users.",
+    "Every map contains ROOM cells before the boundary scan. Empty/all-STONE maps are excluded, avoiding the known unqualified scan-boundary concern. Edge fixtures include playable x1/78 and y0/20; wall-ring fixtures retain interior ROOM. No invalid setup is counted as a negative.",
+    "Starting wall_info is0. Existing properties, other metadata/aliases, arbitrary layouts, complete level finalization, runtime digging/phasing and hero state behavior are unreviewed. No runtime entity/object operations are invoked.",
+    "This is one macro-expansion/delegation cause for bound_digging:on_level. The earlier wall-property eligibility proof is not expanded into a universal boundary/topology result. Cave cap-exit, three parked gaps, Main-owned candidates and all safety exclusions remain unchanged."
+  ],
+  "prepublicationSourceCheck": {
+    "mainSha": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+    "checkedAt": "2026-10-29T02:17:08.723853+00:00",
+    "unchangedPaths": [
+      "js/mkmaze.js",
+      "js/dungeon.js",
+      "js/game.js",
+      "nethack-c",
+      "scripts/discovery-hub.mjs",
+      "scripts/discovery-project.mjs",
+      "scripts/evidence-package.mjs"
+    ],
+    "scope": "Source comparison only; execution receipts retain their exact 929c5cf7 base."
+  }
+}

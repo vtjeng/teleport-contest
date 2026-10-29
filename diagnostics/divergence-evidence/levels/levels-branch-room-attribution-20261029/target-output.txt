@@ -1,0 +1,1 @@
+{"mode":"target","cases":144,"roomFound":72,"noRoom":72,"stairs":96,"inputSha256":"d3342a2628dc40e8d2c4443fd5b42f0d7d57e784ee5cfd4f0ff24ce65adba59c","observationsSha256":"41a91eac10a1b0f0693a9e6cc1641f642ee6fa2549797eadbc7a613891d2743a","equal":true}

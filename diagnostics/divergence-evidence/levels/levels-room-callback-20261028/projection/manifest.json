@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "ca312e9589f355b6ceb4a6d274ba4f1f677e699c6b88cd5d2f58c24be2d0498e",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_bool",
+    "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_int",
+    "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_region",
+    "source-audit:edge-c-only:src/sp_lev.c:l_push_mkroom_table:nhl_add_table_entry_str"
+  ],
+  "decisionsSha256": "9036919dfc6de9b11091ed80744a18e2cc7a3e04b48ab631aaf611fe7239f682",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 4,
+    "decisionsChecked": 4,
+    "before": {
+      "active": 4,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 4,
+      "excluded": 0
+    }
+  }
+}

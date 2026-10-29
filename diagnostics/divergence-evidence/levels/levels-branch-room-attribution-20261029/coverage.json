@@ -1,0 +1,21 @@
+{
+  "recordedAt": "2026-10-29T04:22:34.240270+00:00",
+  "newCause": "discarded-read-only-branch-room-attribution",
+  "keys": 1,
+  "targetFixtures": 144,
+  "controlFixtures": 288,
+  "accountingAfterPublication": {
+    "negativeKeys": 109,
+    "negativeCauses": 41,
+    "historicalCandidateKeys": 5,
+    "staleBindings": 8,
+    "unqualifiedKeys": 401
+  },
+  "manualSeparate": [
+    "solidfill boolean-light candidate awaiting Main",
+    "wall-spine finite construction negative"
+  ],
+  "nextFrontier": "put_lregion_here construction-only eligibility/exclusion precedence on empty actor/object state; inspect source discrepancy before tests. Do not extend to teleport/player/monster runtime.",
+  "parked": "All earlier prerequisites,denied paths,cave-cap,bottomstairs,changed callers anddiagnostic gaps unchanged.",
+  "exhausted": false
+}

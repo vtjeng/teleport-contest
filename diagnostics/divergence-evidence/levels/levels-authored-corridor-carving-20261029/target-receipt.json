@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:46:56.131Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "6ae6ee8d5056d515a4c7a5f398e1b0914839058537f773cf7a74ed89add78f4b",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/oracle.c": "a8e8e7fcf971ed1308618870127bb7c1d8fa914d374a54b8875352b5d04c50ee",
+    "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/source-contract.json": "52a1b4069214f8f6a63dbf44a92b4dc6807b587111267f5ea640a5400cfc5288"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-authored-corridor-carving-20261029/target-output.txt"
+  ]
+}

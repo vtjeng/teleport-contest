@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:06:53.050Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "ac4373b66235c71c9f6d40f0077f6bbccdf2ede4a901a8c561efd8ca432a5d4f",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/oracle.c": "7c6f5f819ad42418afaeca285023b580942f0335a76453e0e9306c4dbde16e76"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/control-output.txt"
+  ]
+}

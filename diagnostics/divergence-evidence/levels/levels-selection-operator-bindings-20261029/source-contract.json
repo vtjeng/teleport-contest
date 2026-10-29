@@ -1,0 +1,54 @@
+{
+  "jsSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "js/nhlsel.js": "186796f5731cb67bb7250697fadb5e1827968f7120bd38908f8928485f84775b",
+    "js/themerooms.js": "f4517d828ae6a6ce27a1e9251097db1493c04451128ff199109151293de3a1fd",
+    "nethack-c/upstream/src/nhlsel.c": "ce93cdb316eb18ae4ad32238076ab61cec319973a5cff049ce95289a54239ec5",
+    "nethack-c/upstream/src/rect.c": "0ba24377934d74be6846e39885bc2f886801c3709c41afb702445261d8f73562",
+    "nethack-c/upstream/src/selvar.c": "af33824e7004e7799ca1e88d0b00813bb5b9a1087015b9fb5a250473b2318b58"
+  },
+  "exactCFunctions": [
+    {
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_or"
+    },
+    {
+      "path": "nethack-c/upstream/src/nhlsel.c",
+      "symbol": "l_selection_sub"
+    },
+    {
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_new"
+    },
+    {
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_free"
+    },
+    {
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getbounds"
+    },
+    {
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_recalc_bounds"
+    },
+    {
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_getpoint"
+    },
+    {
+      "path": "nethack-c/upstream/src/selvar.c",
+      "symbol": "selection_setpoint"
+    },
+    {
+      "path": "nethack-c/upstream/src/rect.c",
+      "symbol": "rect_bounds"
+    }
+  ],
+  "reusedOracle": {
+    "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/oracle.c",
+    "sha256": "7c6f5f819ad42418afaeca285023b580942f0335a76453e0e9306c4dbde16e76",
+    "originalProofBase": "cc5a50e4e23b33f36a39ff8826a866bb7832caca"
+  }
+}

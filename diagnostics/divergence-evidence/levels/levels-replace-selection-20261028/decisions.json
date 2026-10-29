@@ -1,0 +1,112 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_new",
+    "evidenceKey": "1eda18b7312b25d5b72992de98c1bac8d43af8b598898e8e607ab380d439b3e9",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "23e7cd94b94280effea13326421520191bc86d37affe2f001a11767d7b5fd32a",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS uses ThemeroomSelection constructor/set/get/bounds and an inline full-map clear; these C-only selection call edges are alternate implementations in the tested replacement domain.",
+      "proof": "30 comparisons: whole map, region, explicit rectangle, sparse absolute selection and empty selection × chances 0/50/100 × two seeds. Exact C lspo_replace_terrain and seven selection helper bodies match the public JS des.replace_terrain terrain coordinates and checked shared RNG tape. Typed table, default frame, and terrain-write adapters are explicit; no mapfragment, parser, lighting/metadata, relative frame composition or finalization claim.",
+      "control": "Chance zero retains the input map but still consumes a draw per eligible floor; empty selection consumes none. Chance 100 changes all eligible floors. Region and explicit bounds agree; sparse selection filters membership.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:5051",
+        "nethack-c/upstream/src/selvar.c:16",
+        "js/mklev.js:3807",
+        "js/themerooms.js:38"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_clear",
+    "evidenceKey": "a45020716eae1d47a5f3ee4e45991e26d44698cd3f57a8c6fefd9acc05898440",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "2b6eba83283f653c11fe246939eb8a7964bcdf5c106952ed5b9b2844756c1409",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS uses ThemeroomSelection constructor/set/get/bounds and an inline full-map clear; these C-only selection call edges are alternate implementations in the tested replacement domain.",
+      "proof": "30 comparisons: whole map, region, explicit rectangle, sparse absolute selection and empty selection × chances 0/50/100 × two seeds. Exact C lspo_replace_terrain and seven selection helper bodies match the public JS des.replace_terrain terrain coordinates and checked shared RNG tape. Typed table, default frame, and terrain-write adapters are explicit; no mapfragment, parser, lighting/metadata, relative frame composition or finalization claim.",
+      "control": "Chance zero retains the input map but still consumes a draw per eligible floor; empty selection consumes none. Chance 100 changes all eligible floors. Region and explicit bounds agree; sparse selection filters membership.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:5051",
+        "nethack-c/upstream/src/selvar.c:16",
+        "js/mklev.js:3807",
+        "js/themerooms.js:38"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getbounds",
+    "evidenceKey": "695c199f703f434b4eb1cc88b07fd8ca9a03500b230fe138be5e4ab82dba0d44",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "b9387f4dd5c09b87d9ad80794ac616e7d13a4ba1dc2a5a59344705a5ad668089",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS uses ThemeroomSelection constructor/set/get/bounds and an inline full-map clear; these C-only selection call edges are alternate implementations in the tested replacement domain.",
+      "proof": "30 comparisons: whole map, region, explicit rectangle, sparse absolute selection and empty selection × chances 0/50/100 × two seeds. Exact C lspo_replace_terrain and seven selection helper bodies match the public JS des.replace_terrain terrain coordinates and checked shared RNG tape. Typed table, default frame, and terrain-write adapters are explicit; no mapfragment, parser, lighting/metadata, relative frame composition or finalization claim.",
+      "control": "Chance zero retains the input map but still consumes a draw per eligible floor; empty selection consumes none. Chance 100 changes all eligible floors. Region and explicit bounds agree; sparse selection filters membership.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:5051",
+        "nethack-c/upstream/src/selvar.c:16",
+        "js/mklev.js:3807",
+        "js/themerooms.js:38"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getpoint",
+    "evidenceKey": "84d36a70912db33579dabc13bea094d8009ef627d08ff7536d61a95b130e0cfb",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "6dddfeb3f5c7b913324b835a61c6b7ab839d6719c48969db551ee9c56341cce1",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS uses ThemeroomSelection constructor/set/get/bounds and an inline full-map clear; these C-only selection call edges are alternate implementations in the tested replacement domain.",
+      "proof": "30 comparisons: whole map, region, explicit rectangle, sparse absolute selection and empty selection × chances 0/50/100 × two seeds. Exact C lspo_replace_terrain and seven selection helper bodies match the public JS des.replace_terrain terrain coordinates and checked shared RNG tape. Typed table, default frame, and terrain-write adapters are explicit; no mapfragment, parser, lighting/metadata, relative frame composition or finalization claim.",
+      "control": "Chance zero retains the input map but still consumes a draw per eligible floor; empty selection consumes none. Chance 100 changes all eligible floors. Region and explicit bounds agree; sparse selection filters membership.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:5051",
+        "nethack-c/upstream/src/selvar.c:16",
+        "js/mklev.js:3807",
+        "js/themerooms.js:38"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_setpoint",
+    "evidenceKey": "29e0c8c8a39d7191088b9ea094fd2e75e3a2b7a443a7da4e38b89d2b8c190b09",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "488eb53729019a3f56363c3bb5dfa12eff13e86ff4bc4cbdbc7533f12a5c8814",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "JS uses ThemeroomSelection constructor/set/get/bounds and an inline full-map clear; these C-only selection call edges are alternate implementations in the tested replacement domain.",
+      "proof": "30 comparisons: whole map, region, explicit rectangle, sparse absolute selection and empty selection × chances 0/50/100 × two seeds. Exact C lspo_replace_terrain and seven selection helper bodies match the public JS des.replace_terrain terrain coordinates and checked shared RNG tape. Typed table, default frame, and terrain-write adapters are explicit; no mapfragment, parser, lighting/metadata, relative frame composition or finalization claim.",
+      "control": "Chance zero retains the input map but still consumes a draw per eligible floor; empty selection consumes none. Chance 100 changes all eligible floors. Region and explicit bounds agree; sparse selection filters membership.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/sp_lev.c:5051",
+        "nethack-c/upstream/src/selvar.c:16",
+        "js/mklev.js:3807",
+        "js/themerooms.js:38"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028",
+      "reviewedBase": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

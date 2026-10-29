@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "d1d8ac170b75dca71abe29819b5daa9972301221",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T21:54:08.431Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "f93b651da334ac0d67939478ccb4a37d9912c436d90d4bf5b8459d5eaa63b958",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/oracle.c": "5d1d478706a5b567d06bc23f7fc4ad82f479e6c0d19ad21abcee30cbf7c3b488"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/control-output.txt"
+  ]
+}

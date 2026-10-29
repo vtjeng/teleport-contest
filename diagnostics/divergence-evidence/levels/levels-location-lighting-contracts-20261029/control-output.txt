@@ -1,0 +1,1 @@
+{"mode":"control","eligibility":14208,"lighting":888,"total":15096,"inputSha256":"d904e8035218eb61f822bb9b72e28be24744d52bb7fc64688e6b3a538d4564c6","observationSha256":"7a65d161366889c3fb7501b816f79bdc757c6fdfce0b7e492b0ae0e8f39cbdfe","equal":true}

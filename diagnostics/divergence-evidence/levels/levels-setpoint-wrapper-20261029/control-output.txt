@@ -1,0 +1,9 @@
+{"form":2,"value":1,"frame":0,"point":0,"anchor":false,"bounds":{"lx":3,"ly":2,"hx":3,"hy":2},"bytesSha256":"1f9df449007e6c94bed4df2f5472c4de5f33b3024f4f601c01a1702cf97d4c7e","equal":true}
+{"form":2,"value":1,"frame":0,"point":1,"anchor":false,"bounds":{"lx":5,"ly":3,"hx":5,"hy":3},"bytesSha256":"91c85703e06a9e2c81cb76a25d460165b59732241f345bb39eb9f46c2d2bb12d","equal":true}
+{"form":2,"value":1,"frame":1,"point":0,"anchor":false,"bounds":{"lx":12,"ly":8,"hx":12,"hy":8},"bytesSha256":"57ef5de423501f9c825cf362bb836a463d371e9308e051f7edcd9eb1d59c503c","equal":true}
+{"form":2,"value":1,"frame":1,"point":1,"anchor":false,"bounds":{"lx":14,"ly":9,"hx":14,"hy":9},"bytesSha256":"928b1f58d52f36ddd10c433c339934c0f3c252ab5c7b923475a1b8f8aea65534","equal":true}
+{"form":3,"value":1,"frame":0,"point":0,"anchor":true,"bounds":{"lx":3,"ly":2,"hx":35,"hy":17},"bytesSha256":"aa025dd5d230b7f09fa14b7cc2a83fb787c1b5769bc0e694f520657aa7a12bb3","equal":true}
+{"form":3,"value":1,"frame":0,"point":1,"anchor":true,"bounds":{"lx":5,"ly":3,"hx":35,"hy":17},"bytesSha256":"15e50032b1c37da8f2d08815ef88c30b65e21f5e07350ee46ad77d66492386d3","equal":true}
+{"form":3,"value":1,"frame":1,"point":0,"anchor":true,"bounds":{"lx":12,"ly":8,"hx":35,"hy":17},"bytesSha256":"0522b617c1ab87d74c4053624211ba84857108592dfcaefb1a17eac7371c0c62","equal":true}
+{"form":3,"value":1,"frame":1,"point":1,"anchor":true,"bounds":{"lx":14,"ly":9,"hx":35,"hy":17},"bytesSha256":"8abe7fda07c3022c5cb0d7afb8af19ece97b16983c9370fb523b4591d830575a","equal":true}
+{"mode":"control","cases":8,"equal":true}

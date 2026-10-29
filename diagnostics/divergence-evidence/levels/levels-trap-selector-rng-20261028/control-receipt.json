@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T23:42:44.648Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "aa6b10ec528a9294d1d4774d7ab1cb818c28524a92e274ab096b4423c750f4e5",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/oracle.c": "f5a5e6702717013780a6ed28f1d11e7b5721a7d6ea3b989d84791cce1ffa504e"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/control-output.txt"
+  ]
+}

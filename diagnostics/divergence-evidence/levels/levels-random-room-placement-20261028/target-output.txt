@@ -1,0 +1,248 @@
+{
+  "scope": "Five first-room parameter configurations, two seeds. C bounds/acceptance capture and normalized primitive RNG tape; no full allocator mutation or room storage proof.",
+  "results": [
+    {
+      "form": 1,
+      "seed": 28105801,
+      "calls": 1,
+      "bounds": [
+        59,
+        2,
+        62,
+        3
+      ],
+      "rawTape": [
+        "rn2(1)=0",
+        "rn2(12)=1",
+        "rn2(4)=0",
+        "rn2(69)=56",
+        "rn2(13)=10",
+        "rn2(3)=0"
+      ],
+      "tape": [
+        [
+          1,
+          0
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          69,
+          56
+        ],
+        [
+          13,
+          10
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "form": 1,
+      "seed": 28105802,
+      "calls": 1,
+      "bounds": [
+        49,
+        2,
+        51,
+        7
+      ],
+      "rawTape": [
+        "rn2(1)=0",
+        "rn2(12)=0",
+        "rn2(4)=3",
+        "rn2(70)=46",
+        "rn2(10)=0"
+      ],
+      "tape": [
+        [
+          1,
+          0
+        ],
+        [
+          12,
+          0
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          70,
+          46
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "form": 2,
+      "seed": 28105801,
+      "calls": 1,
+      "bounds": [
+        33,
+        5,
+        38,
+        8
+      ],
+      "rawTape": [
+        "rnd(5)=3",
+        "rnd(5)=2"
+      ],
+      "tape": [
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "form": 2,
+      "seed": 28105802,
+      "calls": 1,
+      "bounds": [
+        3,
+        5,
+        8,
+        8
+      ],
+      "rawTape": [
+        "rnd(5)=1",
+        "rnd(5)=2"
+      ],
+      "tape": [
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "form": 3,
+      "seed": 28105801,
+      "calls": 1,
+      "bounds": [
+        17,
+        5,
+        21,
+        7
+      ],
+      "rawTape": [
+        "rn2(15)=2",
+        "rn2(8)=1"
+      ],
+      "tape": [
+        [
+          15,
+          2
+        ],
+        [
+          8,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "form": 3,
+      "seed": 28105802,
+      "calls": 1,
+      "bounds": [
+        17,
+        5,
+        24,
+        6
+      ],
+      "rawTape": [
+        "rn2(15)=5",
+        "rn2(8)=0"
+      ],
+      "tape": [
+        [
+          15,
+          5
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "form": 4,
+      "seed": 28105801,
+      "calls": 1,
+      "bounds": [
+        22,
+        5,
+        27,
+        8
+      ],
+      "rawTape": [
+        "rnd(3)=3",
+        "rnd(3)=2"
+      ],
+      "tape": [
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "matched": true
+    },
+    {
+      "form": 4,
+      "seed": 28105802,
+      "calls": 1,
+      "bounds": [
+        22,
+        5,
+        27,
+        8
+      ],
+      "rawTape": [
+        "rnd(3)=3",
+        "rnd(3)=1"
+      ],
+      "tape": [
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "matched": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "base": "51f5686fac30306411156df215ca83ae910cf6bf",
+  "verifiedAt": "2026-10-28T21:37:35.180108+00:00",
+  "focusedExit": 0,
+  "cleanGameplayCheckout": true,
+  "stdoutSha256": "44eb62e7b67fa72a5595f756427fb971e199e286421602b058c5a85cfd72dded",
+  "sourceBodies": "Both serializer/name bodies and room_types table copied unchanged; fixed table-write adapter documented.",
+  "suiteGuardCommand": "node --test scripts/test-suites.test.mjs",
+  "suiteGuardExit": 0,
+  "suiteGuardPasses": 6,
+  "serializerUnchangedFromScanBase": true
+}

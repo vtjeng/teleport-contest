@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-exclusion-registration-20261028",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "exclusion-record-allocation-delegation",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_exclusion",
+      "start_line": 5498,
+      "end_line": 5532,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_location",
+      "start_line": 1202,
+      "end_line": 1269,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_unpacked_coord",
+      "start_line": 1317,
+      "end_line": 1334,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "get_location_coord",
+      "start_line": 1337,
+      "end_line": 1353,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_exclusion",
+      "start_line": 4111,
+      "end_line": 4141,
+      "commit_sha": "b95445f519c19c3cbce5be6252c18e03e77275a7"
+    }
+  ],
+  "hypothesis": "Scanner edge may indicate missing exclusion record construction.",
+  "expectedBehavior": "Default type produces teleport zones in each frame; explicit types and two distinct rectangles verify mapping, frame conversion and list order.",
+  "observedBehavior": "15 public exclusion cases with two inserts each: default/four explicit types \u00d7 default map frame, placed map frame and room frame. Exact C exclusion registration and coordinate functions match ordered zonetype/bounds records; distinct nodes and last-in-first-out insertion are checked. Fixed typed table readers and asserted frame/room postconditions; no teleportation, generation enforcement or finalization.",
+  "witness": {
+    "kind": "production_api",
+    "scope": "15 public exclusion cases with two inserts each: default/four explicit types \u00d7 default map frame, placed map frame and room frame. Exact C exclusion registration and coordinate functions match ordered zonetype/bounds records; distinct nodes and last-in-first-out insertion are checked. Fixed typed table readers and asserted frame/room postconditions; no teleportation, generation enforcement or finalization.",
+    "limitations": [
+      "15 valid positive-coordinate fixtures with two records each. No arbitrary bounds, random coordinates, allocation failure, teleport/runtime enforcement or finalization.",
+      "C frame/room initial conditions are fixed to asserted public JS postconditions; Lua table readers are fixed typed adapters."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Focused generation API registration fixtures; shipped/runtime exposure not attributed."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "JS constructs a fresh exclusion-zone object where C allocates a record; the missing allocation edge does not omit registration in the tested paths.",
+    "keys": [
+      "source-audit:edge-c-only:src/sp_lev.c:lspo_exclusion:alloc"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/oracle.c"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/README.md",
+      "sha256": "b09036365f395ddfb783a28165b2d07ba6168dc87a40eccbf47a6061b2746bc9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/control-output.txt",
+      "sha256": "b66a269b99bd7b1f1ed44a079c4c78468a19e69efa79b255d18dd56e4736fb75",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/control-receipt.json",
+      "sha256": "c7c7c19e45fdc425edd0ab8559795c1732b170abfe3953b4309dcf6e77e2c5c5",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/decisions.json",
+      "sha256": "3e892b79023eb8ce3192da2017a7d57b4fedb149aafd24153eca3d8a8921b387",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/oracle.c",
+      "sha256": "f135f95509228d041ec8a85d930f287685069169923e02e7e663927a2cf7e21c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/probe.mjs",
+      "sha256": "183624d9a3547afe58216011520f8f968ed9125d9bd6a80d7cba8eda46e146cd",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/projection/manifest.json",
+      "sha256": "31386b20e144c1f712a67f7e58f31fdc233079f703a0e59ac091ce5fa68ff391",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/projection/projection.json",
+      "sha256": "a6de7e28fdaa630c6307dc4b561425e526660df15ec8acb1a4cb8b8d22d0155c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/projection/review-template.json",
+      "sha256": "48ec378ced32056f5f31a4d20cb2ff697f46a1baf58c5eb1210e86edbf991c90",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/source-fingerprints.json",
+      "sha256": "2afbbe60ab0d6c4b54623456a9c750ea93a76d703d7d85ed4df5930d86daff36",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/target-output.txt",
+      "sha256": "a01db8ad85c218b903e91ffa5c49974f01f39ceceace41214371c7b91f694ab7",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/target-receipt.json",
+      "sha256": "72c724656de1b7dfc97c30b185490f25dd45e2b1c1372de8a33199e6076a5174",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

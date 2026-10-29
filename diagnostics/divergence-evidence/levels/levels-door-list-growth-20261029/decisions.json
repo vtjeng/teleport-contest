@@ -1,0 +1,24 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:add_door:alloc_doors",
+    "evidenceKey": "6f5304d04c16dde934b7f0b07f509b595f78e74d83144dd65f86196075bb5341",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "1216349e0d0a0255768e4aaca705d04165143cea9664a592ee660995c269348d",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "C alloc_doors reserves and copies capacity; JavaScript dynamic-array insertion preserves the tested logical door list and per-room slices without that allocation helper. Capacity itself is not an observable parity claim.",
+      "proof": "Twelve targets (two boundary-door densities, ordinary/secret types, three interleaved registration sequences) and three empty-map controls compare eight stages each. Exact C alloc_doors/add_door/inside_room/maybe_add_door/add_doors_to_room match actual exported JS add_doors_to_room. Each target reaches 72 or162 logical entries, crossing four or nine allocation increments of20, while every individual room doorct remains0..127. All logical coordinates, room fdoor/doorct pairs and total counts match; repeat calls are idempotent.",
+      "control": "Three no-door controls retain empty arrays and zero counts with no C allocations. Targets repeat earlier roots/subrooms after registration and assert no logical change. Three regular root rooms and one regular subroom provide real interleaved slice shifts; source-pinned comparison excludes irregular/shared-neighbor branches, allocation failure, byte overflow, full generation/finalization and runtime doors.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:556",
+        "nethack-c/upstream/src/mklev.c:574",
+        "nethack-c/upstream/src/sp_lev.c:5544",
+        "js/mklev.js:7457"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-door-list-growth-20261029",
+      "reviewedBase": "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "scope": "Nonreturning allocator contract in two compile configurations; deterministic malloc adapter, no actual OOM. Success controls compare init/reinit/free/reinit.",
+  "results": [
+    {
+      "monitor": false,
+      "observed": "alloc stopped before init_rect null guard"
+    },
+    {
+      "monitor": true,
+      "observed": "nhalloc stopped before init_rect null guard"
+    }
+  ]
+}

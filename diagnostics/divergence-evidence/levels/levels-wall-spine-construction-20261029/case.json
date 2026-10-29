@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-wall-spine-construction-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "wall-spine-single-cell-construction",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "iswall",
+      "start_line": 45,
+      "end_line": 55,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "iswall_or_stone",
+      "start_line": 59,
+      "end_line": 66,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "is_solid",
+      "start_line": 70,
+      "end_line": 73,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "extend_spine",
+      "start_line": 166,
+      "end_line": 194,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "wall_cleanup",
+      "start_line": 198,
+      "end_line": 225,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "fix_wall_spines",
+      "start_line": 229,
+      "end_line": 287,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "wallification",
+      "start_line": 290,
+      "end_line": 294,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "extend_spine",
+      "start_line": 7918,
+      "end_line": 7927,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "wall_cleanup",
+      "start_line": 7928,
+      "end_line": 7948,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "fix_wall_spines",
+      "start_line": 7949,
+      "end_line": 7978,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "wallification",
+      "start_line": 7979,
+      "end_line": 7982,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "iswall",
+      "start_line": 157,
+      "end_line": 162,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "iswall_or_stone",
+      "start_line": 165,
+      "end_line": 168,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "is_solid",
+      "start_line": 172,
+      "end_line": 174,
+      "commit_sha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea"
+    }
+  ],
+  "hypothesis": "Wall-spine masks, wall cleanup or protected-area predicate choice could yield different constructed center terrain on valid maps and boundary cells.",
+  "expectedBehavior": "C and JS center terrain agree for each stated finite neighborhood, center type, location and protection configuration.",
+  "observedBehavior": "189398 target fixtures and241052 controls match exact compiled C on resulting center terrain;132010 targets and45097 controls actually change the center type.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "189398 target fixtures and241052 controls match exact compiled C on resulting center terrain;132010 targets and45097 controls actually change the center type.",
+    "limitations": [
+      "Finite single-cell output domain, not full-level wallification/order/finalization equivalence. Exact C fix_wall_spines and wallification (cleanup followed by spines) versus exported production JS functions on valid typed maps and bounds. No C or JS Lua binding tested.",
+      "At interior (12,9), all 6561 ternary eight-neighbor configurations over STONE/HWALL/ROOM. At eight edge/corner centers (1,0),(1,20),(79,0),(79,20),(1,10),(79,10),(30,0),(30,20), all 256 HWALL/ROOM binary configurations; outside cells are ignored exactly as predicates specify. These domains do not cover every terrain neighbor class.",
+      "Targets cover all 11 ordinary wall center types; controls apply cleanup+spines to 14 center types:STONE,VWALL,HWALL,CROSSWALL,TRWALL,DBWALL,SDOOR,LAVAPOOL,LAVAWALL,IRONBARS,DOOR,CORR,ROOM,ICE. Each tests default inactive protected rectangle(0,0)-(0,0) and one protected center. Bughack protected behavior is a typed engine-state fixture, not a shipped Baalzebub attribution.",
+      "C maps are zeroed each fixture. JS reuses a GameMap and overwrites the complete in-bounds 3x3 neighborhood each fixture; these functions read only that neighborhood for the one-cell bounds. Only resulting center terrain is compared; other metadata, invalid-bound diagnostic output and allocation failures are not proved.",
+      "One manual/unbound functional cause. Frozen scanner keys for wall_cleanup and fix_wall_spines concern panic diagnostics on invalid bounds, which are outside this valid-bounds proof. They remain active/unresolved; no source-only no-yield inspection is recorded as a negative. No canonical scanner ID is invented."
+    ]
+  },
+  "exposure": {
+    "route": "unestablished",
+    "attribution": "not_applicable",
+    "evidence": [],
+    "reason": "Typed valid-map engine-function comparison only. No shipped route or Lua binding attribution."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Manual functional comparison. Existing scanner rows are invalid-bounds diagnostic messages, not this valid-bounds topology hypothesis; no nearby key is assigned or suppressed.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/README.md",
+      "sha256": "d68dc565882eb364a3a9e82fc7dbd017b81642e4ad1ec91853fd536d83f3df26",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/control-output.txt",
+      "sha256": "3fc4d91399d1b8f85d4f6f9d529009c759d559bf7b34b52a21350919bc7b2e9e",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/control-receipt.json",
+      "sha256": "3d30cb7e04f07e5df3be066e043c8144543f8be1445f1bc269bd31967f8fc6d9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/coverage.json",
+      "sha256": "c08fd8cc490332cf0b846bc6c414e9ff279be57beb0fad7a511e5626ecc78cf8",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/oracle.c",
+      "sha256": "054dd6e259e7d2b7d4f5c6dc8ce5845be6dab04b6b222d4c54da7dea82e91deb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/probe.mjs",
+      "sha256": "ad2ec44b9b70276278a265dfedb32a303965492f13fd7923d7208885c2247b0b",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/source-contract.json",
+      "sha256": "f5ca1d478904975976061fbf7d2582b3aceadf4c4aa899e0e99d9284e1093506",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/source-fingerprints.json",
+      "sha256": "45b1e441e9086f530ee89e3ca9e4b0f824260af39646af0747f2993a6875efad",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/target-output.txt",
+      "sha256": "0cef0ea890187235cd0db28527e61569a1f93d73e07b6c810f6916cdce1d3367",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-wall-spine-construction-20261029/target-receipt.json",
+      "sha256": "36a873349dbb62971d442c8bf195e7d69e6764a7ae078f77db2c73829fc54fcd",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

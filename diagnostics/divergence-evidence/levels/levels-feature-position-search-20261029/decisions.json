@@ -1,0 +1,90 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:find_okay_roompos:bydoor",
+    "evidenceKey": "4d0bccec87642c77ae4e24cdb4e9df4c001812b983d975c7a2727727c5bb0fed",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "ee5acefcb261265293fe9b7303a53f4d4fd6a74092e706366c0377f44005728b",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The JS environment and hook calls retain the C search-loop delegation to somexyspace and bydoor. They do not omit the sampler or door predicate in the tested production environment contract.",
+      "proof": "Exact C find_okay_roompos, somexyspace, somexy, somex, somey, inside_room, occupied and bydoor match exported JS find_okay_roompos and somexyspace with exact source-extracted private JS bydoor. Forty-eight targets cover four cardinal door positions, ordinary/secret doors and first success at attempts 1, 2, 50, 199, 200 or 201. Eight controls cover no-door immediate acceptance and sampler failure after 101 occupied candidates. Return values, retained coordinates and shared-tape consumption match. JS hook counters confirm the 200-attempt boundary and bydoor short circuit.",
+      "control": "Four no-door controls accept the first coordinate with two draws. Four all-FOUNTAIN room controls return false after 202 draws inside the first sampler call and never invoke bydoor. These are matched rectangular construction snapshots with no traps, fluids, invocation square, subrooms or irregularity; C nonapplicable occupancy dependencies return false. No feature placement, independent RNG, full generation or runtime claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2303",
+        "nethack-c/upstream/src/mkroom.c:744",
+        "js/room_features.js:45",
+        "js/mklev.js:7609"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029",
+      "reviewedBase": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:find_okay_roompos:somexyspace",
+    "evidenceKey": "2f3bca240539e73e7e2c05794e702f42c086f568a16d9ac50f2297b31aaa9105",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "c1b24633a0e9194c0c4d46d9f078fe135c62442e7a3c88fb56e41f0bef4562ab",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The JS environment and hook calls retain the C search-loop delegation to somexyspace and bydoor. They do not omit the sampler or door predicate in the tested production environment contract.",
+      "proof": "Exact C find_okay_roompos, somexyspace, somexy, somex, somey, inside_room, occupied and bydoor match exported JS find_okay_roompos and somexyspace with exact source-extracted private JS bydoor. Forty-eight targets cover four cardinal door positions, ordinary/secret doors and first success at attempts 1, 2, 50, 199, 200 or 201. Eight controls cover no-door immediate acceptance and sampler failure after 101 occupied candidates. Return values, retained coordinates and shared-tape consumption match. JS hook counters confirm the 200-attempt boundary and bydoor short circuit.",
+      "control": "Four no-door controls accept the first coordinate with two draws. Four all-FOUNTAIN room controls return false after 202 draws inside the first sampler call and never invoke bydoor. These are matched rectangular construction snapshots with no traps, fluids, invocation square, subrooms or irregularity; C nonapplicable occupancy dependencies return false. No feature placement, independent RNG, full generation or runtime claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2303",
+        "nethack-c/upstream/src/mkroom.c:744",
+        "js/room_features.js:45",
+        "js/mklev.js:7609"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029",
+      "reviewedBase": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mklev.c:find_okay_roompos:roomFeatureEnv",
+    "evidenceKey": "4ae35ca0dd63e8287a4f3b6e11075bc97ae3c469c49eb0a6556f16d508f11e83",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "27852eb0aaeccee2fb400c362ea556c323fb402cee84dd4ea66b88eb6258568a",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The JS environment and hook calls retain the C search-loop delegation to somexyspace and bydoor. They do not omit the sampler or door predicate in the tested production environment contract.",
+      "proof": "Exact C find_okay_roompos, somexyspace, somexy, somex, somey, inside_room, occupied and bydoor match exported JS find_okay_roompos and somexyspace with exact source-extracted private JS bydoor. Forty-eight targets cover four cardinal door positions, ordinary/secret doors and first success at attempts 1, 2, 50, 199, 200 or 201. Eight controls cover no-door immediate acceptance and sampler failure after 101 occupied candidates. Return values, retained coordinates and shared-tape consumption match. JS hook counters confirm the 200-attempt boundary and bydoor short circuit.",
+      "control": "Four no-door controls accept the first coordinate with two draws. Four all-FOUNTAIN room controls return false after 202 draws inside the first sampler call and never invoke bydoor. These are matched rectangular construction snapshots with no traps, fluids, invocation square, subrooms or irregularity; C nonapplicable occupancy dependencies return false. No feature placement, independent RNG, full generation or runtime claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2303",
+        "nethack-c/upstream/src/mkroom.c:744",
+        "js/room_features.js:45",
+        "js/mklev.js:7609"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029",
+      "reviewedBase": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mklev.c:find_okay_roompos:roomHook",
+    "evidenceKey": "e1930c4e5e9fa3ac27c522d0da710aa926786faf089786ba02360abccc171c30",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "db96f6a768765ea52b79e4d64b268644e9dbe2081fdf455c2cdf8494b353ad52",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The JS environment and hook calls retain the C search-loop delegation to somexyspace and bydoor. They do not omit the sampler or door predicate in the tested production environment contract.",
+      "proof": "Exact C find_okay_roompos, somexyspace, somexy, somex, somey, inside_room, occupied and bydoor match exported JS find_okay_roompos and somexyspace with exact source-extracted private JS bydoor. Forty-eight targets cover four cardinal door positions, ordinary/secret doors and first success at attempts 1, 2, 50, 199, 200 or 201. Eight controls cover no-door immediate acceptance and sampler failure after 101 occupied candidates. Return values, retained coordinates and shared-tape consumption match. JS hook counters confirm the 200-attempt boundary and bydoor short circuit.",
+      "control": "Four no-door controls accept the first coordinate with two draws. Four all-FOUNTAIN room controls return false after 202 draws inside the first sampler call and never invoke bydoor. These are matched rectangular construction snapshots with no traps, fluids, invocation square, subrooms or irregularity; C nonapplicable occupancy dependencies return false. No feature placement, independent RNG, full generation or runtime claim.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:2303",
+        "nethack-c/upstream/src/mkroom.c:744",
+        "js/room_features.js:45",
+        "js/mklev.js:7609"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-feature-position-search-20261029",
+      "reviewedBase": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]

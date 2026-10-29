@@ -1,0 +1,5 @@
+{"fixture":"no-rooms","choice":0,"actual":[-1,0,0],"cAllocations":0,"equal":true}
+{"fixture":"one-ordinary","choice":0,"actual":[0,1,1],"cAllocations":1,"equal":true}
+{"fixture":"one-theme","choice":0,"actual":[0,1,1],"cAllocations":1,"equal":true}
+{"fixture":"one-occupied","choice":0,"actual":[0,1,1],"cAllocations":1,"equal":true}
+{"mode":"control","count":4,"equal":true}

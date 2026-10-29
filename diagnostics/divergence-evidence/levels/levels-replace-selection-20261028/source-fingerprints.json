@@ -1,0 +1,37 @@
+{
+  "testedJsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T22:29:18.771771+00:00",
+  "reviewedAt": "2026-10-28T22:29:18.771771+00:00",
+  "toolingSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "sourceAuditBindingBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "jsFunctionUnchangedFromScanBase": true,
+  "jsFunction": "lspo_replace_terrain",
+  "functionSha256": "7d3fcd0a22863784bedb631227d34656b8630790440286c366dc682516840381",
+  "exactCBodies": {
+    "nethack-c/upstream/src/sp_lev.c": [
+      "lspo_replace_terrain"
+    ],
+    "nethack-c/upstream/src/selvar.c": [
+      "selection_new",
+      "selection_free",
+      "selection_clear",
+      "selection_getbounds",
+      "selection_recalc_bounds",
+      "selection_getpoint",
+      "selection_setpoint"
+    ]
+  },
+  "files": {
+    "nethack-c/upstream/src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "nethack-c/upstream/src/selvar.c": "af33824e7004e7799ca1e88d0b00813bb5b9a1087015b9fb5a250473b2318b58",
+    "scripts/discovery-project.mjs": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+    "scripts/discovery-hub.mjs": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7"
+  },
+  "testedJsFileSha256": "ab947e22fa852df29a546a526a5b8a1b8b8198cbcf69ad6ec2828bb1462638d0",
+  "limitations": [
+    "Typed argument readers, default frame x+1 conversion, and terrain write are fixed adapters. Full Lua parsing and terrain metadata effects are not tested.",
+    "Floor-to-corridor fromterrain path only. No mapfragment, relative-selection composition, arbitrary bounds, all seeds or finalization.",
+    "C shares checked JS RNG draws; not independent RNG implementation equivalence."
+  ]
+}

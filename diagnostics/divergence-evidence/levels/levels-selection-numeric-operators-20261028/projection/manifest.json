@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "98448d6e123dcee5934109b364f893ea9688e94b34b4c3490f270aa500d6243a",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_or:selection_getpoint",
+    "source-audit:edge-c-only:src/nhlsel.c:l_selection_sub:selection_getpoint",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_or:selectionPoint",
+    "source-audit:edge-js-helper:src/nhlsel.c:l_selection_sub:selectionPoint"
+  ],
+  "decisionsSha256": "efdfe11863d1f51c88a702d7bbaf5f88e103fdb73027af326158d21bfa0e19f2",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 4,
+    "decisionsChecked": 4,
+    "before": {
+      "active": 4,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 4,
+      "excluded": 0
+    }
+  }
+}

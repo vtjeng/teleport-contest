@@ -1,0 +1,37 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_new",
+    "evidenceKey": "1eda18b7312b25d5b72992de98c1bac8d43af8b598898e8e607ab380d439b3e9",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "23e7cd94b94280effea13326421520191bc86d37affe2f001a11767d7b5fd32a",
+    "status": null
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_clear",
+    "evidenceKey": "a45020716eae1d47a5f3ee4e45991e26d44698cd3f57a8c6fefd9acc05898440",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "2b6eba83283f653c11fe246939eb8a7964bcdf5c106952ed5b9b2844756c1409",
+    "status": null
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getbounds",
+    "evidenceKey": "695c199f703f434b4eb1cc88b07fd8ca9a03500b230fe138be5e4ab82dba0d44",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "b9387f4dd5c09b87d9ad80794ac616e7d13a4ba1dc2a5a59344705a5ad668089",
+    "status": null
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_getpoint",
+    "evidenceKey": "84d36a70912db33579dabc13bea094d8009ef627d08ff7536d61a95b130e0cfb",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "6dddfeb3f5c7b913324b835a61c6b7ab839d6719c48969db551ee9c56341cce1",
+    "status": null
+  },
+  {
+    "key": "source-audit:edge-c-only:src/sp_lev.c:lspo_replace_terrain:selection_setpoint",
+    "evidenceKey": "29e0c8c8a39d7191088b9ea094fd2e75e3a2b7a443a7da4e38b89d2b8c190b09",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "488eb53729019a3f56363c3bb5dfa12eff13e86ff4bc4cbdbc7533f12a5c8814",
+    "status": null
+  }
+]

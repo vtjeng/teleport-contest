@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-28T22:21:23.044Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "c9b3802a29563e03c217883cfdad81253070cc60d223fde0fd5795ff93924b4b",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/oracle.c": "3d3cb25dba3c68b02265b6a49f83e9752923fc955ed2cae8173c031082798700"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/control-output.txt"
+  ]
+}

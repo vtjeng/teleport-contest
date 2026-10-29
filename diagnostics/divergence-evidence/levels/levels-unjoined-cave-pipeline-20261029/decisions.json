@@ -1,0 +1,266 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:alloc",
+    "evidenceKey": "4c6ca2764e5f4ba6dd92f443e4553990b4be4d9381779a254e6e311ccc8145fc",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "7600f356ba125f1598bd131823f91b864f0664a2dbe6b846446bad8696a77ced",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:init_map",
+    "evidenceKey": "14de169d5051198af0d989ac5b9e31fbee3b7265d23ed2d33abbab63b1a86cda",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "bfbfd563b96645499d288e6d92afbf9969bcbd172071ad882b17828f3faeebc0",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:init_fill",
+    "evidenceKey": "aa2e1c26148ee5a729b0852f42f4a570c380811a36ed1d128b9c7854ddfa21f9",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "7a6810066aac2d970d4347da2b940355c2380baf96c9e37f951c651dbcbdfda7",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_one",
+    "evidenceKey": "1ace440cfd7011f3d767e589538c90ddadc1bfface6123dadbd969a053b6d15f",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "6f16d83bcd9adb011b1e922bcbe1dcd67f213fe99ead1c23c5f42b202e40b4c6",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_two",
+    "evidenceKey": "a9a3d0655a50f0c188fd25e28cf653cab4094ffe524d881f8be89396d01256d5",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "d4dd5b5be03ef18c38451478512c9f6792c3d3c17755201320150f66c52fa8e7",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:pass_three",
+    "evidenceKey": "912ad639261a8c558d75416d8712250d353f96a3209c2d39f84c78319da40f4b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "fc749f0a9c7e8a68a4801930fc269f1ad2e03b71f6c934325279dfb30789d5a0",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_init_map",
+    "evidenceKey": "928e82d2417ca39c7f13de3cfaa7bb8e9278b4a025827a9f09b1a4b4f449033e",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "f28254385d6618353cab4d0005bb63ddfe74835dee94bbf62f49285a9e5d126f",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_init_fill",
+    "evidenceKey": "6b689c652939225462c5b64d8ed3ec7e60267d515ec9915ea2679b87771ac143",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "8f4047557f92cdbc2a819639a3d9bb6c121fe19bdf1607480b731071d6b02bc0",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_one",
+    "evidenceKey": "9106bd0bba7f284cda0749c133f2825151d9a6d6fe2c38b0c46e9036e467052e",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "9e585f73698e626e066a8ed17ac19b7f31a0c4ca148c60e09f367f942fd2cc31",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_two",
+    "evidenceKey": "4ee4a21dac029aaa1504ab7cb986e65fc9778f9824e9d3354c023e5ccd52c5b9",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "132c1fd4612c14a35abadc19f409fdc53f5d2c8d4ba71485f05bf7b23ee33468",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_pass_three",
+    "evidenceKey": "86ef2d3fa1f08ecccd27c2410376e95444f30dfd5c84d048d92eacfca9001459",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "8a0c3314a6502fa145b0a84e0f1145f069e3335f8d5751636691fb2e6ba1c73a",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "The renamed JS initialization/pass calls and per-pass temporary storage preserve the tested unjoined mkmap pipeline composition. This qualifies eleven call/buffer-delegation keys in the finite successful-allocation domain, not independent RNG or all cave generation.",
+      "proof": "Twenty-four smoothed targets and24 unsmoothed controls: four seeds3/19/43/101 ×three foreground/background pairsROOM/STONE,CORR/TREE,ICE/WATER ×lit0/1. Supported public JS des.level_init(mines) executes the whole production pipeline. Its observed legal rn2/rnd tape drives exact compiled C mkmap,init_map,init_fill,get_map,all three passes andfinish_map. Every one of1,680 cells matches on typ,lit,roomno andicedpool, and C consumes the entire tape with exact operation/bound checks. All24 paired controls have identical tapes but different output hashes.",
+      "control": "Unsmoothed controls skip pass_three while retaining the same initialization draws. Target smoothing executes its two source iterations. Joining and wallification are disabled; their C hooks abort if reached, so cave-cap is neither exercised nor resolved. Explicit lit0/1 only; negative-light/depth RNG, joined/walled maps, independent generator equivalence, allocator failures, reused map metadata, room topology, finalization and runtime are outside scope. Existing individual-pass and finish metadata proofs are dependencies, not recounted discoveries.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:24",
+        "nethack-c/upstream/src/mkmap.c:37",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "js/mklev.js:5145",
+        "js/mklev.js:5473"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-unjoined-cave-pipeline-20261029",
+      "reviewedBase": "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+      "semanticCause": "unjoined-cave-pipeline-buffer-delegation"
+    }
+  }
+]
