@@ -1,0 +1,943 @@
+[
+  {
+    "id": "confusion-blindness-1-1",
+    "counts": [
+      1,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel less confused now.  You can see again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2605,
+          "js": 2605
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "confusion-blindness-1-2",
+    "counts": [
+      1,
+      2
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can see again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2605,
+          "js": 2605
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "confusion-blindness-2-1",
+    "counts": [
+      2,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel less confused now."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2605,
+          "js": 2605
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "confusion-deafness-1-1",
+    "counts": [
+      1,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel less confused now.  You can hear again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2605,
+          "js": 2605
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "confusion-deafness-1-2",
+    "counts": [
+      1,
+      2
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can hear again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2604,
+          "js": 2604
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "confusion-deafness-2-1",
+    "counts": [
+      2,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel less confused now."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2605,
+          "js": 2605
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "confusion-displacement-1-1",
+    "counts": [
+      1,
+      1
+    ],
+    "state": {
+      "moves": 3,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel less confused now."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2582,
+          "js": 2582
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "confusion-displacement-1-2",
+    "counts": [
+      1,
+      2
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel that monsters no longer have difficulty pinpointing your location."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2609,
+          "js": 2609
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "confusion-displacement-2-1",
+    "counts": [
+      2,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel less confused now."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2609,
+          "js": 2609
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "blindness-deafness-1-1",
+    "counts": [
+      1,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        },
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can see again.  You can hear again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2605,
+          "js": 2605
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "blindness-deafness-1-2",
+    "counts": [
+      1,
+      2
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        },
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can hear again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2604,
+          "js": 2604
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "blindness-deafness-2-1",
+    "counts": [
+      2,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        },
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can see again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2605,
+          "js": 2605
+        },
+        "screens": {
+          "c": 29,
+          "js": 29
+        },
+        "cursors": {
+          "c": 29,
+          "js": 29
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "blindness-displacement-1-1",
+    "counts": [
+      1,
+      1
+    ],
+    "state": {
+      "moves": 3,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can see again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2582,
+          "js": 2582
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "blindness-displacement-1-2",
+    "counts": [
+      1,
+      2
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel that monsters no longer have difficulty pinpointing your location."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2609,
+          "js": 2609
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "blindness-displacement-2-1",
+    "counts": [
+      2,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can see again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2609,
+          "js": 2609
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "deafness-displacement-1-1",
+    "counts": [
+      1,
+      1
+    ],
+    "state": {
+      "moves": 3,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can hear again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2582,
+          "js": 2582
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "deafness-displacement-1-2",
+    "counts": [
+      1,
+      2
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel that monsters no longer have difficulty pinpointing your location."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2609,
+          "js": 2609
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "deafness-displacement-2-1",
+    "counts": [
+      2,
+      1
+    ],
+    "state": {
+      "moves": 6,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You can hear again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2608,
+          "js": 2608
+        },
+        "screens": {
+          "c": 30,
+          "js": 30
+        },
+        "cursors": {
+          "c": 30,
+          "js": 30
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "id": "all-four-1",
+    "counts": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "state": {
+      "moves": 3,
+      "movement": 12,
+      "properties": [
+        {
+          "name": "confusion",
+          "intrinsic": 0
+        },
+        {
+          "name": "blindness",
+          "intrinsic": 0
+        },
+        {
+          "name": "deafness",
+          "intrinsic": 0
+        },
+        {
+          "name": "displacement",
+          "intrinsic": 0
+        }
+      ],
+      "toplines": "You feel less confused now.  You can see again.  You can hear again."
+    },
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2582,
+          "js": 2582
+        },
+        "screens": {
+          "c": 34,
+          "js": 34
+        },
+        "cursors": {
+          "c": 34,
+          "js": 34
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  }
+]

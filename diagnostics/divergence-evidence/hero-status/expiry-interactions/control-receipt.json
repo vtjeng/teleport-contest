@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "scripts/run-hero-timeouts.mjs"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:23:39.477523+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "4ebbc7ff3184f4f0226195d514bc19e4fb8312a5ba1d30348ccea629263032ea",
+  "inputHashes": {
+    "recipes/timeout.c/confusion-expiry.session.json": "d22551a79f43bc94f885c64a8300d94928e1c6daa37090212137ed12ff70689c",
+    "recipes/timeout.c/burdened-confusion-expiry.session.json": "338fbb72d5464a94922f885ea0fa023d73735155552db3612b56206c490580c7",
+    "recipes/timeout.c/hallucination-expiry.session.json": "48455096b8a7cd12a0c32656c7b8a60bef2bd62ecd2a1119c5ee0ae6a0d9bf29",
+    "recipes/timeout.c/burdened-hallucination-expiry.session.json": "7331ab9e798b3fd87b8d717d68bcbc402392875543c2043edb78d9a1e0a25b8c",
+    "recipes/timeout.c/glib-expiry.session.json": "4f6daffaba83640b794b7a954e901fb251ae4a529c4f16162d3b4d69b903fd4a",
+    "recipes/timeout.c/displacement-expiry.session.json": "bcaea9326d289caa3cd331e146ab69155c55df27c105286f0e16e35ae8302cff"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-status/expiry-interactions/control-output.txt"
+  ]
+}

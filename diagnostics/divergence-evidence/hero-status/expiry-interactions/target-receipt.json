@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-status/expiry-interactions/run.mjs",
+    "/tmp/hero-status-final"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:23:39.476693+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "8458585a4d371d254ba240e09f77c2ffd4789f3e4affccaec729501f72bfb11a",
+  "inputHashes": {
+    "recipes/timeout.c/displacement-expiry.session.json": "bcaea9326d289caa3cd331e146ab69155c55df27c105286f0e16e35ae8302cff"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-status/expiry-interactions/results.json",
+    "diagnostics/divergence-evidence/hero-status/expiry-interactions/recordings.json.gz"
+  ]
+}

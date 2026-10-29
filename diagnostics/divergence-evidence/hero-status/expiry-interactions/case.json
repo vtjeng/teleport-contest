@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-status-expiry-interactions",
+  "shard": "hero-status",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/timeout.c",
+      "symbol": "nh_timeout",
+      "start_line": 588,
+      "end_line": 945,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/timeout.js",
+      "symbol": "decrement_property_timeouts",
+      "start_line": 1502,
+      "end_line": 1766,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/timeout.js",
+      "symbol": "nh_timeout",
+      "start_line": 1768,
+      "end_line": 1849,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    }
+  ],
+  "hypothesis": "Pairwise simultaneous and adjacent ordinary hero timeout expiry may differ in observable message ordering or elapsed-turn RNG behavior.",
+  "expectedBehavior": "The supported public wizard menu sets the specified counts together; each timer expires through ordinary wait actions in ascending property order; C and JS observable boundaries match.",
+  "observedBehavior": "All 19 final recordings match full RNG logs, screens, cursors and animation frames. C public timeout snapshots verify initial counts and no timed properties at completion. JS low timeout bits are zero and movement >= NORMAL_SPEED. No first divergence exists in the measured prefixes.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Six pairs of confusion/blindness/deafness/displacement, counts (1,1),(1,2),(2,1), and all four at one; one fixed existing clean seed, human female neutral Healer, stationary waits, debug monster generation disabled.",
+    "limitations": [
+      "Debug public-input exposure only; no normal acquisition routes measured.",
+      "No direct C internal movement or property-bit instrumentation; only public timer snapshots and observable turn/RNG behavior compared.",
+      "New interaction cases are unburdened; burdened coverage remains the existing single-property controls.",
+      "No nonzero extrinsic property sources, equipment effects, occupations, object timer callbacks, polymorph or excluded investigations.",
+      "Single seed and short finite prefixes do not establish general equivalence."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "not_applicable",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-status/expiry-interactions/recordings.json.gz"
+    ],
+    "reason": "Real public #wizintrinsic and #timeout commands in wizard mode, followed by wait input; negative has no defect exposure claim."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Explicitly delegated bounded status-clock interaction audit; checked existing single-property controls, relevant history, decisions and published evidence for overlap.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-status/expiry-interactions/run.mjs",
+        "/tmp/hero-status-final"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-status/expiry-interactions/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "recipes/timeout.c/displacement-expiry.session.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-status/expiry-interactions/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "scripts/run-hero-timeouts.mjs"
+      ],
+      "cwd": ".",
+      "runner": "scripts/run-hero-timeouts.mjs",
+      "ci": "manual",
+      "inputs": [
+        "recipes/timeout.c/confusion-expiry.session.json",
+        "recipes/timeout.c/burdened-confusion-expiry.session.json",
+        "recipes/timeout.c/hallucination-expiry.session.json",
+        "recipes/timeout.c/burdened-hallucination-expiry.session.json",
+        "recipes/timeout.c/glib-expiry.session.json",
+        "recipes/timeout.c/displacement-expiry.session.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-status/expiry-interactions/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/calibration-results.json",
+      "sha256": "a516d7941e67f99395706482ec0ef2ef52d55a0d648929651138e866d926d679",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/control-output.txt",
+      "sha256": "ba826a3cb1188fb0c37cdff6276f151ce36d0ebad460c318041897293deaa54a",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/control-receipt.json",
+      "sha256": "be4e4e49f95b91577aaee8e54bc91f362c4fab7a6d04b1bd245581eddf5da6f8",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/focused-tests.txt",
+      "sha256": "62e2e62d60de69fb72786a36867b44d2dc7db2f01148773e6a196c56448a7a2b",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/provenance.json",
+      "sha256": "d5ef4b0fdced38682e65299a4eb88cbd54d393a1a391e9fa8312500251e74a5e",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/recordings.json.gz",
+      "sha256": "97cc2c04fb0b7d7b2c9dad857c5e71fd45bc4ddfc65d3cbfb31a2304065d8e86",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/results.json",
+      "sha256": "67d8fe3943096cbf62e1220d0870670577680e690c9a53e0d14e8aaae39c8c2e",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/run.mjs",
+      "sha256": "8458585a4d371d254ba240e09f77c2ffd4789f3e4affccaec729501f72bfb11a",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/target-receipt.json",
+      "sha256": "d2933225967ab0db39633e8c71471013c9e882b89c747483357b1199a24e3c49",
+      "role": "audit runner, raw recording bundle, result or receipt"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-status/expiry-interactions/README.md",
+      "sha256": "ead650672242f8d5aad99d40992bc81cdabeb1a69face5d4e13e099e179d1f7b",
+      "role": "bounded findings, reproduction and limits"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "js/allmain.js",
+      "sha256": "cb69f2ca68a242b0f92ba69c274f25218623e8bc396cafa67534856157f929a2",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "js/potion.js",
+      "sha256": "5d1c2083148a552a7261f62f910e03784e6975b72adafa5c77d60571b310c9c6",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "js/timeout.js",
+      "sha256": "6b24f86cea548629eff8659cafb3e9c0da239dc7595ef230fb2733277f84b9d0",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "js/wizcmds.js",
+      "sha256": "1ae1874ae26e7c588057c0862345b33b035ddd0a25ee443296c4cf503fb5c5b2",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "recipes/timeout.c/burdened-confusion-expiry.session.json",
+      "sha256": "338fbb72d5464a94922f885ea0fa023d73735155552db3612b56206c490580c7",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "recipes/timeout.c/burdened-hallucination-expiry.session.json",
+      "sha256": "7331ab9e798b3fd87b8d717d68bcbc402392875543c2043edb78d9a1e0a25b8c",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "recipes/timeout.c/confusion-expiry.session.json",
+      "sha256": "d22551a79f43bc94f885c64a8300d94928e1c6daa37090212137ed12ff70689c",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "recipes/timeout.c/displacement-expiry.session.json",
+      "sha256": "bcaea9326d289caa3cd331e146ab69155c55df27c105286f0e16e35ae8302cff",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "recipes/timeout.c/glib-expiry.session.json",
+      "sha256": "4f6daffaba83640b794b7a954e901fb251ae4a529c4f16162d3b4d69b903fd4a",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "recipes/timeout.c/hallucination-expiry.session.json",
+      "sha256": "48455096b8a7cd12a0c32656c7b8a60bef2bd62ecd2a1119c5ee0ae6a0d9bf29",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "scripts/diff-fresh-worker.mjs",
+      "sha256": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "scripts/fresh-matrix.mjs",
+      "sha256": "b999ecce6f88bd7c43a7cd438f76deee3eb7e000698ea7e99c63e0af6b2dc272",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "scripts/record-session.mjs",
+      "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    },
+    {
+      "path": "scripts/run-hero-timeouts.mjs",
+      "sha256": "4ebbc7ff3184f4f0226195d514bc19e4fb8312a5ba1d30348ccea629263032ea",
+      "role": "source/config/runner dependency; remaining transitive repository inputs pinned by jsSha and cGitlink"
+    }
+  ]
+}

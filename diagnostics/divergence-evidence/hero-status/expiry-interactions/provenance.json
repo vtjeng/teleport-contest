@@ -1,0 +1,17 @@
+{
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "recorderTimeoutSourceSha256": "779540f647749e0da11109f18a90e11c9e7bc36af44ed6455440b40fc6910596",
+  "upstreamTimeoutSourceSha256": "779540f647749e0da11109f18a90e11c9e7bc36af44ed6455440b40fc6910596",
+  "toolingSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "targetElapsedSeconds": 23.975993156433105,
+  "totals": {
+    "rng": 49532,
+    "screens": 1325,
+    "cursors": 1325,
+    "animFrames": 0
+  },
+  "cases": 19,
+  "controlCases": 6
+}
