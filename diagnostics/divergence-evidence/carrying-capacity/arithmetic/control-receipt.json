@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/carrying-capacity/arithmetic/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:19:02.789398+00:00",
+  "exitCode": 0,
+  "elapsedSeconds": 0.5748802210000008,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "cc": "cc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "1597d9ae5ac0f78262ccda6f41d8c4c1f74a7d60616e83d3f94b1928d600401d",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/carrying-capacity/arithmetic/adapter.h": "137afc9f79763f74978444cdb4ad3b1867e0b495e9074d856803caf8d96636b3",
+    "nethack-c/upstream/src/hack.c": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+    "nethack-c/upstream/src/attrib.c": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+    "nethack-c/upstream/include/weight.h": "ac168750ddcde6c592ccbeaaf44c59921cc1f73ed36d269f20364b0e08b91cd1",
+    "js/hack.js": "767f9ecb11191fb25eae5d71b36c1fb1442a913237a81964cc48ee571abec6a8",
+    "js/attrib.js": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+    "js/gstate.js": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+    "js/const.js": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+    "js/objects.js": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/carrying-capacity/arithmetic/control-output.txt"
+  ]
+}

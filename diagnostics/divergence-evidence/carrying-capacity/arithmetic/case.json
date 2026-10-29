@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "caseId": "carrying-capacity-arithmetic",
+  "shard": "carrying-capacity",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "ordinary-capacity-integer-arithmetic-parity",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "weight_cap",
+      "start_line": 4295,
+      "end_line": 4346,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "inv_weight",
+      "start_line": 4351,
+      "end_line": 4365,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "calc_capacity",
+      "start_line": 4372,
+      "end_line": 4382,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "near_capacity",
+      "start_line": 4385,
+      "end_line": 4388,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/hack.c",
+      "symbol": "rounddiv",
+      "start_line": 4551,
+      "end_line": 4572,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "src/attrib.c",
+      "symbol": "acurrstr",
+      "start_line": 1245,
+      "end_line": 1262,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/hack.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": "acurrstr",
+      "start_line": 811,
+      "end_line": 816,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    }
+  ],
+  "hypothesis": "Ordinary capacity arithmetic, encoded strength conversion, coin rounding or burden boundaries may differ between C and JS.",
+  "expectedBehavior": "Production JS values equal executed upstream C values for the declared finite matrix. Half rounding is away from zero.",
+  "observedBehavior": "27708 target rows and 6 explicit controls matched. No semantic divergence found.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Verbatim C acurrstr, weight_cap, inv_weight, calc_capacity, near_capacity and rounddiv compiled with the restricted adapter; production JS APIs.",
+    "limitations": [
+      "Constructed numeric state only; no recorded gameplay or input reachability proof. Arbitrary ordinary object weights are inputs to arithmetic, not claims about weight construction for ROCK.",
+      "C ACURR is supplied final valid attributes; C acurr, attribute updates and equipment effects are not tested.",
+      "No polymorph, flying, levitation, wounds, riding, air level, boulder exclusion, object consumption, timers, migration, combat or status expiry.",
+      "No overflow, invalid attributes, division by zero, or values outside declared ranges. Imported JS dependency closure is pinned by jsSha; listed hashes cover direct harness and arithmetic dependencies."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "not_applicable",
+    "evidence": [
+      "diagnostics/divergence-evidence/carrying-capacity/arithmetic/target-output.txt",
+      "diagnostics/divergence-evidence/carrying-capacity/arithmetic/control-output.txt"
+    ],
+    "reason": "Scoped negative at arithmetic API boundary. No divergence requiring shipped exposure attribution; gameplay coverage remains a gap."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Independent user-requested carrying-capacity audit; no scanner keys or filters.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/arithmetic/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/arithmetic/adapter.h",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/include/weight.h",
+        "js/hack.js",
+        "js/attrib.js",
+        "js/gstate.js",
+        "js/const.js",
+        "js/objects.js"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/carrying-capacity/arithmetic/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/carrying-capacity/arithmetic/adapter.h",
+        "nethack-c/upstream/src/hack.c",
+        "nethack-c/upstream/src/attrib.c",
+        "nethack-c/upstream/include/weight.h",
+        "js/hack.js",
+        "js/attrib.js",
+        "js/gstate.js",
+        "js/const.js",
+        "js/objects.js"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/adapter.h",
+      "sha256": "137afc9f79763f74978444cdb4ad3b1867e0b495e9074d856803caf8d96636b3",
+      "role": "adapter"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/control-output.txt",
+      "sha256": "fea7de883ebc9732a330c88807f6e44e29c840abc2aa05765f4680d00570b4ab",
+      "role": "execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/control-receipt.json",
+      "sha256": "e09fc35bed34f54f53042a4d38957606a79af1ba5f486626326af7fb3af7d2a8",
+      "role": "execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/probe.mjs",
+      "sha256": "1597d9ae5ac0f78262ccda6f41d8c4c1f74a7d60616e83d3f94b1928d600401d",
+      "role": "runner"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/target-output.txt",
+      "sha256": "d81ecf715fafed76603c94c6ed8d28806af280284ff2801c2f22d4cc761376af",
+      "role": "execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/target-receipt.json",
+      "sha256": "5bdbbf69d83d075e1ee4e4db41552ea4cdd3221bef253f065ad20ae9c7718551",
+      "role": "execution evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/carrying-capacity/arithmetic/README.md",
+      "sha256": "11f5b5fe0f4a42c12ca8755a50266443fab0b2c1e749c6d5bec962074b8ffad4",
+      "role": "scope and overlap report"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/hack.c",
+      "sha256": "547cab9e7aaa922aa5bb8b5ad38696f9f74e3e1e31c264509a9448a689cb4665",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "source input"
+    },
+    {
+      "path": "nethack-c/upstream/include/weight.h",
+      "sha256": "ac168750ddcde6c592ccbeaaf44c59921cc1f73ed36d269f20364b0e08b91cd1",
+      "role": "source input"
+    },
+    {
+      "path": "js/hack.js",
+      "sha256": "767f9ecb11191fb25eae5d71b36c1fb1442a913237a81964cc48ee571abec6a8",
+      "role": "source input"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "source input"
+    },
+    {
+      "path": "js/gstate.js",
+      "sha256": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+      "role": "source input"
+    },
+    {
+      "path": "js/const.js",
+      "sha256": "10b5a209a92a21e6ac81a03be458efdd2df92b2d1bfbac2dce6860c18f758dc3",
+      "role": "source input"
+    },
+    {
+      "path": "js/objects.js",
+      "sha256": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+      "role": "source input"
+    }
+  ]
+}
