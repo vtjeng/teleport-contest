@@ -1,0 +1,4 @@
+{"mask":0,"count":1,"snapshots":[[0,0,0,0,0],[0,0,0,0,0]],"equal":true}
+{"mask":0,"count":2,"snapshots":[[0,0,0,0,0],[0,0,0,0,0]],"equal":true}
+{"mask":0,"count":5,"snapshots":[[0,0,0,0,0],[0,0,0,0,0]],"equal":true}
+{"mode":"control","cases":3,"resets":6,"equal":true}

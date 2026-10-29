@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-reset-registration-lists-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "reset-registration-list-replacement",
+  "relatedCases": [
+    "levels-reset-hell-temperature-20261029"
+  ],
+  "provenance": {
+    "jsSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "In_hell",
+      "start_line": 1942,
+      "end_line": 1945,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/stairs.c",
+      "symbol": "stairway_free_all",
+      "start_line": 27,
+      "end_line": 37,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/region.c",
+      "symbol": "free_region",
+      "start_line": 263,
+      "end_line": 276,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/region.c",
+      "symbol": "clear_regions",
+      "start_line": 394,
+      "end_line": 405,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "free_exclusions",
+      "start_line": 2582,
+      "end_line": 2593,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mklev.c",
+      "symbol": "clear_level_structures",
+      "start_line": 850,
+      "end_line": 927,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/sp_lev.c",
+      "symbol": "lspo_reset_level",
+      "start_line": 5993,
+      "end_line": 6010,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "clear_level_structures",
+      "start_line": 483,
+      "end_line": 532,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    },
+    {
+      "side": "JS",
+      "path": "js/mklev.js",
+      "symbol": "lspo_reset_level",
+      "start_line": 4572,
+      "end_line": 4589,
+      "commit_sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c"
+    }
+  ],
+  "hypothesis": "JS may retain registered regions, stairways or exclusions because clear_level_structures omits explicit C cleanup calls.",
+  "expectedBehavior": "Reset leaves no active region entries, zero region capacity, and null stairway/exclusion heads; repeated reset remains empty.",
+  "observedBehavior": "Twenty-one populated cases (seven nonempty combinations of region/stair/exclusion registrations \u00d7 counts1,2,5) and three empty controls compare two resets each. Actual public JS level_init/gas_cloud/ladder/exclusion/reset_level APIs match exact compiled C reset/clear and region/stair/exclusion free functions on zero region count/capacity, no active region array entries and null stair/exclusion heads. Both resets match in all48 stages.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Twenty-one populated cases (seven nonempty combinations of region/stair/exclusion registrations \u00d7 counts1,2,5) and three empty controls compare two resets each. Actual public JS level_init/gas_cloud/ladder/exclusion/reset_level APIs match exact compiled C reset/clear and region/stair/exclusion free functions on zero region count/capacity, no active region array entries and null stair/exclusion heads. Both resets match in all48 stages.",
+    "limitations": [
+      "Three scanner edges grouped as one logical list-reset delegation cause. Twenty-one populated cases and three empty controls, two resets each. Counts1,2,5 and all seven nonempty combinations are finite coverage, not a universal reset proof.",
+      "JS executes supported public special-loader level_init, gas_cloud, ladder, exclusion and reset_level APIs; no private JS extraction or mutation of resource heads. Initial list lengths are asserted. C exact reset/clear and all three cleanup routines plus free_region execute over owned, valid allocated metadata. C fixture construction is a typed allocation adapter, not independent C descriptor constructors.",
+      "C region records own a rect allocation; messages and monster arrays are null. Stair/exclusion records carry only fields used by cleanup. Geometry/metadata content is not compared. Absent-resource reset preparation and unrelated helpers are adapters; only final logical cleanup is proven. C malloc/free success is assumed; no OOM, allocator-size, resource ownership outside the fixture or JS GC/reclamation timing claim.",
+      "Region comparison maps C count/capacity/null array to JS empty active list/capacity0; this is logical absence, not pointer representation equality. Stair/exclusion linked heads are null after both resets. Other resource types, flags, frames, topology and reset effects are not included.",
+      "Gas clouds are created with damage0 and ttl10 on empty construction levels; no turns advance and no monsters are present. No cloud damage, aging, enter/leave callbacks, runtime stair traversal or exclusion enforcement is tested.",
+      "The separately Main-owned reset hellish-temperature candidate is neither fixed nor negated. This proof uses non-hellish D1 only. Cave-cap, bottom-level stair search and three parked gaps remain unresolved; all denied investigations stay excluded."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Public construction/reset APIs with exact C cleanup routines; no shipped game or runtime enforcement attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "Replacing GameMap and nulling stair/exclusion heads provides the tested logical cleanup performed by three explicit C cleanup calls. This is not a claim about JS garbage collection or all clear-level state.",
+    "keys": [
+      "source-audit:edge-c-only:src/mklev.c:clear_level_structures:clear_regions",
+      "source-audit:edge-c-only:src/mklev.c:clear_level_structures:stairway_free_all",
+      "source-audit:edge-c-only:src/mklev.c:clear_level_structures:free_exclusions"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/source-contract.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/README.md",
+      "sha256": "3fde45dfa0e5fa863e01fb354f68f9196c4a478f2a58dedf1577ed1157d3e241",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/control-output.txt",
+      "sha256": "6aa1c9b7db8f729a25c1cd04d4ea91e56e998895ca222a6c7743f50fd36c4a0a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/control-receipt.json",
+      "sha256": "46fb63fd5398cada941a475a80a22e6825ac290418585ec1ac575698217927d4",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/decisions.json",
+      "sha256": "52d209739aab94c72e097bbe9d6e88d60182034264a015ce1bf1a637400ca9d2",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/oracle.c",
+      "sha256": "26ccfb52acc99c0d289b58581fc8f0f7c3a8a43266f02c1b0bdb8de7a04d6fbe",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/probe.mjs",
+      "sha256": "9c3f70bb75e155012e57b2f3ab5e8c4aa8cea118301133376969c0e2a0d777b1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/projection/manifest.json",
+      "sha256": "cd629bc42853b71ba5716e9a65d101815bb68dc924b86ef5cc06d1b2176c191c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/projection/projection.json",
+      "sha256": "f0592adb5ccfbd731a3bc2a7c725ec29c1b5ead4e4697e60bed2eab2b56c818f",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/projection/review-template.json",
+      "sha256": "f83e86de6ede4834f5ae544b69b0f26dfe6ae87fe84ee78bad8d5a50cdedeecb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/source-contract.json",
+      "sha256": "5ef927a7656fb18e5d3de3e58d54184b63aaa87e54474a2072b7a88c3390fbcc",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/source-fingerprints.json",
+      "sha256": "a1f8e0ab5241f6904bf8b742624c8b87e946f43ee4ea24e0b1ce8499d242108d",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/target-output.txt",
+      "sha256": "ada0ff72805923bd4b3d6f542b6592a6213394708588d442f44ae2f7bd0ef97a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/target-receipt.json",
+      "sha256": "9c5039c4033de600166d06a53f8b9b412c42daafd89073c921951fee32ad6593",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

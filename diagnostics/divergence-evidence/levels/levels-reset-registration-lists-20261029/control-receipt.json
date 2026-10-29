@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T02:51:21.928Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "9c3f70bb75e155012e57b2f3ab5e8c4aa8cea118301133376969c0e2a0d777b1",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/oracle.c": "26ccfb52acc99c0d289b58581fc8f0f7c3a8a43266f02c1b0bdb8de7a04d6fbe",
+    "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/source-contract.json": "5ef927a7656fb18e5d3de3e58d54184b63aaa87e54474a2072b7a88c3390fbcc"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-reset-registration-lists-20261029/control-output.txt"
+  ]
+}
