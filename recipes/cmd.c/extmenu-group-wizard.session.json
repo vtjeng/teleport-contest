@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 421039,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ExtMenu,role:Ranger,race:human,gender:male,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,extmenu,playmode:debug\n",
+      "moves": ".# "
+    }
+  ],
+  "comment": "Fresh C extmenu grouping control: wizard"
+}

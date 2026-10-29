@@ -2318,18 +2318,22 @@ export async function do_repeat(state = game) {
     return result;
 }
 
-// C ref: cmd.c extcmd_via_menu() (752-889). The menu has one row per
-// accelerator at the matched prefix depth; selecting one more character
-// narrows the same command list until one exact extended command remains.
+// C ref: cmd.c extcmd_via_menu() (752-889). Group names by accelerator
+// for long choice lists, preserve descriptions for short lists, and wrap
+// long groups. Selecting a character narrows the same command list.
 export async function extcmd_via_menu(state = game) {
     let prefix = '';
     let matchLevel = 0;
+    // C keeps the largest description width across successive prefix menus.
+    let biggest = 0;
     for (;;) {
         const choices = extcmdlist.filter((entry) => {
             if (entry.flags & (CMD_NOT_AVAILABLE | INTERNALCMD)) return false;
             if (!(entry.flags & AUTOCOMPLETE)) return false;
             if (!state.wizard && (entry.flags & WIZMODECMD)) return false;
-            return entry.ef_txt.startsWith(prefix);
+            if (!entry.ef_txt.startsWith(prefix)) return false;
+            biggest = Math.max(biggest, entry.ef_desc.length);
+            return true;
         });
         if (choices.length === 0) return -1;
         if (choices.length > MAX_EXT_CMD) {
@@ -2339,18 +2343,46 @@ export async function extcmd_via_menu(state = game) {
         }
         if (choices.length === 1) return extcmdlist.indexOf(choices[0]);
 
-        const groups = new Map();
+        const onePerLine = choices.length < ROWNO - 3;
+        const items = [];
+        let previousAccelerator = null;
+        let previousName = '';
+        let prompt = '';
+        let count = 0;
+        let wasTooLong = false;
+        const flush = () => {
+            if (count) items.push({
+                selector: previousAccelerator,
+                value: previousAccelerator,
+                label: prompt.padEnd(biggest + 15),
+            });
+            count = 0;
+        };
         for (const entry of choices) {
             const accelerator = entry.ef_txt[matchLevel];
             if (!accelerator) continue;
-            if (!groups.has(accelerator)) groups.set(accelerator, []);
-            groups.get(accelerator).push(entry);
+            const newAccelerator = accelerator !== previousAccelerator;
+            if (newAccelerator || onePerLine) wasTooLong = false;
+            const wrapped = count >= 2
+                && prompt.length + 4 + entry.ef_txt.length
+                    >= Math.min(QBUFSZ, COLNO - 6);
+            if (newAccelerator || onePerLine || wrapped) {
+                flush();
+                if (wrapped && !newAccelerator && !onePerLine)
+                    wasTooLong = true;
+            }
+            previousAccelerator = accelerator;
+            if (!count || onePerLine) {
+                prompt = `${wasTooLong ? 'or ' : ''}${entry.ef_txt} [${entry.ef_desc}]`;
+            } else if (count === 1) {
+                prompt = `${wasTooLong ? 'or ' : ''}${previousName} or ${entry.ef_txt}`;
+            } else {
+                prompt += ` or ${entry.ef_txt}`;
+            }
+            previousName = entry.ef_txt;
+            count++;
         }
-        const items = [...groups].map(([accelerator, rows]) => ({
-            selector: accelerator,
-            value: accelerator,
-            label: rows.map((row) => `${row.ef_txt} [${row.ef_desc}]`).join(' or '),
-        }));
+        flush();
         const selected = await select_menu(state, {
             items,
             how: PICK_ONE,
