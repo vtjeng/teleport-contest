@@ -1,0 +1,14 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { runDifferential, formatReport } from '../../../../scripts/diff-fresh.mjs';
+const here = dirname(fileURLToPath(import.meta.url));
+const name = process.argv[2];
+const matrix = JSON.parse(readFileSync(resolve(here, 'matrix.json')));
+if (!Object.hasOwn(matrix, name)) throw new Error('Choose a named matrix row');
+const out = resolve(process.argv[3] || `/tmp/hero-advancement-${name}-${Date.now()}`);
+const result = await runDifferential(matrix[name], process.env, { evidenceDir: out });
+writeFileSync(resolve(out, 'result.json'), JSON.stringify(result, null, 2));
+console.log(formatReport(result));
+console.log(`Evidence: ${out}`);
+process.exitCode = result.passed ? 0 : 1;

@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-boundaries-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    },
+    {
+      "side": "JS",
+      "path": "js/wizcmds.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "176bb0e38117602afab165ee6d4e363c11943fdb"
+    }
+  ],
+  "hypothesis": "Ordinary debug-command level gain/loss roundtrips can disagree despite matching static role/race declarations.",
+  "expectedBehavior": "Exact C/JS observable parity for the four explicit matrix rows, including crossed intrinsic messages and level/resource/XP status.",
+  "observedBehavior": "All four rows reached their intended transitions and matched RNG, screens, cursors and animation frames; no divergent semantic cause found.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Four seeded non-polymorphed nonfatal debug #levelchange paths; visible resources and intrinsic feedback.",
+    "limitations": [
+      "No retained build attestation for preinstalled C binary; adjacent source bytes match pinned reference.",
+      "No natural incremental-XP, depleted-resource clamp, MAXULEV or all-role/race claim.",
+      "Messages/status do not expose all hidden property and skill state."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/verification.txt"
+    ],
+    "reason": "Recorded public debug commands invoke ordinary advancement APIs; natural gameplay exposure is not established."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Authorized independent dynamic advancement audit, reconciled against PR #99 and existing level-change regressions.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+        "control",
+        "/tmp/hero-advancement-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/matrix.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/control-receipt.json"
+    },
+    {
+      "id": "race-roundtrip",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+        "race-roundtrip",
+        "/tmp/hero-advancement-race-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/matrix.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip-receipt.json"
+    },
+    {
+      "id": "cutoff-roundtrip",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+        "cutoff-roundtrip",
+        "/tmp/hero-advancement-cutoff-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/matrix.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip-receipt.json"
+    },
+    {
+      "id": "role-roundtrip",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+        "role-roundtrip",
+        "/tmp/hero-advancement-role-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/matrix.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/role-roundtrip-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/README.md",
+      "sha256": "f466999585cb6fa8f4c476471b74f7564bf3a5cd5f18e6ee655a12ae9e7155f9",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/control/js-output.json.gz",
+      "sha256": "f7b20843c3548eca54ad57445a9403b52921d7575c1775e0bc34b1dac056d6d9",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/control/recipe.session.json",
+      "sha256": "aaa49cab6677d0a3013065668b4f528252a19dd42f48744d9ec57d4800274602",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/control/recorded.session.json.gz",
+      "sha256": "b86537e977de2364983707fa172a27075787e91432a8d8244232dfa0fcf30a6d",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/control/recorder.json",
+      "sha256": "ef783a7cc1c2be75f89636c22d90a011636a465554f1bec09ff9e9a743d93cfe",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/control/result.json",
+      "sha256": "09fdca15bda4d2942d4f34d982eec3d99f5f945d239177c98235bd69b1db4e95",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/control/worker.json",
+      "sha256": "f5c80b0a9a7872faed530fd1e05d4343fe68a8baacc6bb85fbc0b67535fabee4",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/control-receipt.json",
+      "sha256": "62b016feae7a3c550d9b2f1e67d41d9f35c1047896bdfdee855cb0479da2f7cb",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/js-output.json.gz",
+      "sha256": "3c5b6c57db68136d9a271ff5448512807238400c007eeaf8698e4913c92d913e",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/recipe.session.json",
+      "sha256": "8734ab4e2939bfc63b45a8a66af077fd33d24f0c9668a7cbca8cfd3fc08b50df",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/recorded.session.json.gz",
+      "sha256": "33bb0959f69d30591d025d64edbe2a33d24455596e9f227ccdc42400c9474d54",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/recorder.json",
+      "sha256": "60675585de8adc3badd33af8fc40079caf736c98b9b8ea8d6fc73ac69e50f448",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/result.json",
+      "sha256": "9f6c2b5917afcc22242b5a12c30930f67553fc330ef5e2239144aec4dd8db986",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip/worker.json",
+      "sha256": "1f46b20b06fbbb3f431e708d9253686d6b55d506bbf93c6fb1101e3717e1f947",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/cutoff-roundtrip-receipt.json",
+      "sha256": "797a4160a3335b1243a7164d164eaee257e07be3981c8c5310e8a1727af1a30c",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/environment.json",
+      "sha256": "66c4f5d8de6d1ab7f1a6f1fcdfb997c069689f8dd4c861cdb079613f0a81c631",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/focused-tests.txt",
+      "sha256": "b45a5e43da57bad2e37649cb964ac0f870b684011c90d6de6e64796a5c849bb5",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/matrix.json",
+      "sha256": "df6390db11716df1dbdcf58cb8b322f77b6af8c8658107f5de3fca3b0afc802a",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/prior-pr99.json",
+      "sha256": "397f5301d208f0aa516e698c018c953fd1d56bbc2b43ff6841c00017ef48a51a",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/js-output.json.gz",
+      "sha256": "b4b77a0e1698d22cfdd853102dbee46ac960d45dfb9cb7433371ed80165d22a3",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/recipe.session.json",
+      "sha256": "890b9b0d6797841a6851a112073332f9564181ea195caf85df37d6c6a3b611e6",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/recorded.session.json.gz",
+      "sha256": "7ee19dec57d5dbd29e9e8f641922d82f36aaaa4fb04b8fd389dc2694924d1144",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/recorder.json",
+      "sha256": "1387adc1d11885c461b17e2229db594505cfbd4900560204302c0925e9b3b8a1",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/result.json",
+      "sha256": "94dcbf6495a977166040f17aca0f64f792605669cdd78fcbeb7555245eb483af",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip/worker.json",
+      "sha256": "58e3e674bb667599ece5d83cfa1260810ed150155012f8afae2f08f1581c2fe2",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/race-roundtrip-receipt.json",
+      "sha256": "1295d742a94dc39f8220029e86a64d92db1f13bd19d89bf948a0606568271aa0",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/role-roundtrip/js-output.json.gz",
+      "sha256": "9d3f82897cd3a680c0e05b3399680b1c0b008d40a0cf35ec2a7b0b2627152bac",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/role-roundtrip/recipe.session.json",
+      "sha256": "3c9f69d5cc4273ddf5b3ec1b81b5ff3e929b15472507b977ccd9186722a1ca1a",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/role-roundtrip/recorded.session.json.gz",
+      "sha256": "c623c33c04c9493efcc541d8d3af92b6722c16c9de49acb6d3288bdbbab8357b",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/role-roundtrip/recorder.json",
+      "sha256": "1694922f246eb4a05a0620c001883c6e2294bae976c2d3f09ad03551eec94234",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/role-roundtrip/result.json",
+      "sha256": "5f9664371e2706fd504c35193d2e6141f62c1806e532eafb9748742f921c83a6",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/role-roundtrip/worker.json",
+      "sha256": "48beac37bf58ef461e46794a7d87ac03951f3ae963f8b1766f75a1827d7af73d",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/role-roundtrip-receipt.json",
+      "sha256": "646d1e761c3c4f7e5e507b4ca27768ad057ecff2d9e1ad176b0fe9933d9298b4",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/run.mjs",
+      "sha256": "ff4c142012af208074577c76f8119a616359d44d1082cba82bfb78bc6394f0b9",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/verification.txt",
+      "sha256": "4f01db11d4d2a1b68a90ca19454e6af055b88080452cd0168373ff2cf57bfa78",
+      "role": "audit evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/boundaries-20261029/verify.mjs",
+      "sha256": "90c23f53b161cf272c00cf02f28b4d75d49ad1f3e5a9eebe93773e195a3a4e93",
+      "role": "audit evidence"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "sha256": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "js/wizcmds.js",
+      "sha256": "1ae1874ae26e7c588057c0862345b33b035ddd0a25ee443296c4cf503fb5c5b2",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/diff-fresh-worker.mjs",
+      "sha256": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/record-session.mjs",
+      "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/recorder-prompt-plan.mjs",
+      "sha256": "17454f8fb06adf124b17ffa1abf6b21d6445da816685e44faaea75565aa0633b",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/scoring-workspace.mjs",
+      "sha256": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/run-level-change.mjs",
+      "sha256": "6fac4a71bd29e80848afbdbd26a762bb97ed70694e4e7365f730d115ae6a829d",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/hero-attributes.test.mjs",
+      "sha256": "fc2f10d55cc6bbb710852891f82f9cb5db65e6f275abbe91d0eca269a1d08594",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/attrib-innate.test.mjs",
+      "sha256": "b54f6a2784a924f4361d7fe92e43782812018486f5a45c31a89e8869d5cd3e3a",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/level-change.test.mjs",
+      "sha256": "d109251b95e7bdff9554cccea4da6451fab060fed99a556ebc312501e5db7a42",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source or harness input"
+    },
+    {
+      "path": "nethack-c/build-recorder.sh",
+      "sha256": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38",
+      "role": "pinned source or harness input"
+    }
+  ]
+}
