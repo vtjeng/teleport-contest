@@ -1,0 +1,3 @@
+{"inputHex":"7275737400737566666978","expectedC":{"error":null,"traps":[[11,6,9,0]]},"observedJS":{"error":null,"traps":[[11,6,14,0]]},"equal":false}
+{"inputHex":"616e7469206d6167696300737566666978","expectedC":{"error":null,"traps":[[11,6,21,0]]},"observedJS":{"error":null,"traps":[[11,6,14,0]]},"equal":false}
+{"mode":"target","failures":2}

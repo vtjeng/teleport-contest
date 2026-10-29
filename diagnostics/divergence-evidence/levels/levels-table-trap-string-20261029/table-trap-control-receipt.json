@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "table-trap-control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-table-trap-string-20261029/table-trap-probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "fbcf473308e4b51016fda70aee63d6d3edfb06ad",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:45:04.769Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "e775d30be0de64d4090b173a21e868d9b6bc45dbfc9badb9a117768243398a87",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-table-trap-string-20261029/table-trap-oracle.c": "936c7bc9f2727b01e9f27c384e3872b8c1281d5b2f88827daada26ba0d47e683",
+    "diagnostics/divergence-evidence/levels/levels-table-trap-string-20261029/table-trap-source-contract.json": "8698f25bbf837855aab7c89dacaa6ad370ec870a9f4a63342bf9cab814f38ad0"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-table-trap-string-20261029/table-trap-control-output.txt"
+  ]
+}
