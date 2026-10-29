@@ -1744,7 +1744,8 @@ test('recent accepted repairs and timeline include newer post-trial work in firs
     // newer investigations remain unaccepted; inspect the complete timeline.
     rendered.get('activityWindow').value = 'all';
     rendered.get('activityWindow').listeners.change[0]();
-    assert.ok(rendered.get('timeline').innerHTML.includes(newest[0].repair.title), 'actual post-trial CI bars are rendered');
+    assert.ok(newest.some(result => rendered.get('timeline').innerHTML.includes(result.repair.title)),
+        'actual post-trial CI bars are rendered, including shared batches');
     assert.equal(createTrialMonitor(snapshot).summarize().baseline.acceptedCount, 13, 'frozen baseline unchanged');
     assert.ok(rendered.get('goalTable').innerHTML, 'strict DOM startup reaches the final section');
 });

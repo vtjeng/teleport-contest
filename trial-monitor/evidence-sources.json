@@ -3,12 +3,12 @@
   "inventories": [
     {
       "id": "levels",
-      "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+      "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
       "pr": 89,
       "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/inventory.json",
       "cases": [
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-altar-alignment-rng-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -25,7 +25,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-exclusion-registration-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -42,7 +42,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-feature-flag-reader-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -59,7 +59,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-flag-casefold-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -76,7 +76,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-flip-dispatch-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -93,7 +93,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-ladder-descriptors-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -110,7 +110,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-map-callback-size-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -127,7 +127,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-maze-coordinate-choice-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -144,7 +144,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -161,7 +161,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-mazewalk-intermediate-door-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -178,7 +178,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-random-rectangle-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -195,7 +195,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-random-room-placement-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -212,7 +212,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-replace-selection-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -229,7 +229,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-room-callback-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -246,7 +246,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-room-obstruction-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -263,7 +263,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-selection-numeric-operators-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -280,7 +280,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-subroom-placement-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -302,7 +302,7 @@
           "path": "diagnostics/divergence-evidence/levels/levels-message-buffer-20261028/case.json"
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-coder-guard-delegation-20261029/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -319,7 +319,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-engraving-string-prefix-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -336,7 +336,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -353,7 +353,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-liquid-placement-predicates-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -370,7 +370,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -387,7 +387,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-map-string-prefix-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -404,7 +404,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-rect-allocation-guard-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -421,7 +421,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-room-door-rng-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -438,7 +438,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-selection-iterate-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -455,7 +455,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-solidfill-ice-reset-20261029/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -472,7 +472,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -489,7 +489,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -506,9 +506,111 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "pr": 89,
           "path": "diagnostics/divergence-evidence/levels/levels-room-coordinate-retries-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ],
+          "refreshSource": null
+        },
+        {
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ],
+          "refreshSource": null
+        },
+        {
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ],
+          "refreshSource": null
+        },
+        {
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-mapchar-family-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ],
+          "refreshSource": null
+        },
+        {
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ],
+          "refreshSource": null
+        },
+        {
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-randline-roughness-width-20261029/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/levels/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ],
+          "refreshSource": null
+        },
+        {
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
+          "pr": 89,
+          "path": "diagnostics/divergence-evidence/levels/levels-terrain-string-prefix-20261029/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
           "excludedPathFragments": [
             "long-worm-shopkeeper",
@@ -546,16 +648,16 @@
         ]
       },
       "refreshStatus": {
-        "state": "not-applied",
-        "attemptedAt": "2026-10-29T01:13:30.647Z",
-        "lastSuccessAt": "2026-10-29T00:42:38.612Z",
+        "state": "updated",
+        "attemptedAt": "2026-10-29T01:33:38.994Z",
+        "lastSuccessAt": "2026-10-29T01:33:40.428Z",
         "resolved": [
           {
             "pr": 89,
             "branch": "analysis/levels/20261028-maze-deadends-31",
-            "head": "08bf60e0d6cd4b54160db41d6e10b188cda43cdb",
+            "head": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
             "base": "51f5686fac30306411156df215ca83ae910cf6bf",
-            "sourceCommittedAt": "2026-10-29T01:06:46Z",
+            "sourceCommittedAt": "2026-10-29T01:32:44Z",
             "allowedDirectory": "diagnostics/divergence-evidence/levels/",
             "excludedPathFragments": [
               "long-worm-shopkeeper",
@@ -568,12 +670,11 @@
               "migrating-object"
             ]
           }
-        ],
-        "error": "Another configured source failed; previous snapshot retained"
+        ]
       },
       "completions": [
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "path": "diagnostics/divergence-evidence/levels/levels-maze-deadends-20261028/message-final-receipt-4222eaf89.json",
           "pr": 89,
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -589,7 +690,7 @@
           ]
         },
         {
-          "ref": "b9e660d256d4b6f9f7661d10e036aa6298f97381",
+          "ref": "96d2484d39d48496ece9c44cb4146949b8a0aae1",
           "path": "diagnostics/divergence-evidence/levels/levels-trap-selector-rng-20261028/accepted-routing.json",
           "pr": 89,
           "allowedDirectory": "diagnostics/divergence-evidence/levels/",
@@ -609,13 +710,13 @@
     },
     {
       "id": "monsters",
-      "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
+      "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
       "pr": 102,
       "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-summary.json",
       "keysPath": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/inventory-keys.json",
       "cases": [
         {
-          "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
+          "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
           "pr": 102,
           "path": "diagnostics/divergence-evidence/monsters/web-call-stub-negative/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
@@ -632,7 +733,7 @@
           ]
         },
         {
-          "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
+          "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
           "pr": 102,
           "path": "diagnostics/divergence-evidence/monsters/medusa-stone-transition-scope/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
@@ -666,7 +767,7 @@
           ]
         },
         {
-          "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
+          "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
           "pr": 102,
           "path": "diagnostics/divergence-evidence/monsters/cleric-floor-spell-stub-negative/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
@@ -683,7 +784,7 @@
           ]
         },
         {
-          "ref": "462a52f28782449e8afc22e02da7fc48bd972e42",
+          "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
           "pr": 102,
           "path": "diagnostics/divergence-evidence/monsters/fixed-armor-slot-stub-negative/case.json",
           "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
@@ -698,6 +799,23 @@
             "whatis",
             "migrating-object"
           ]
+        },
+        {
+          "ref": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+          "pr": 102,
+          "path": "diagnostics/divergence-evidence/monsters/castmu-attack-ownership-scope/case.json",
+          "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+          "excludedPathFragments": [
+            "long-worm-shopkeeper",
+            "shopkeeper-departure",
+            "buried-state",
+            "figurine",
+            "unpaid-glob",
+            "ring-invisibility",
+            "whatis",
+            "migrating-object"
+          ],
+          "refreshSource": null
         }
       ],
       "refresh": {
@@ -741,11 +859,47 @@
         ]
       },
       "refreshStatus": {
-        "state": "last-known",
-        "attemptedAt": "2026-10-29T01:13:30.647Z",
-        "lastSuccessAt": "2026-10-29T00:42:39.966Z",
-        "resolved": [],
-        "error": "Invalid or excluded published source head"
+        "state": "updated",
+        "attemptedAt": "2026-10-29T01:33:38.994Z",
+        "lastSuccessAt": "2026-10-29T01:33:41.860Z",
+        "resolved": [
+          {
+            "pr": 102,
+            "branch": "analysis/monsters/20261028-af",
+            "head": "32a73e22b6dc09db8114cc106ba1aee4c8760c95",
+            "base": "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+            "sourceCommittedAt": "2026-10-29T01:19:50Z",
+            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ]
+          },
+          {
+            "pr": 96,
+            "branch": "analysis/monsters/20261028-ac",
+            "head": "9c2df4fe2eda635c3a92afc6b3673626d595ebe1",
+            "base": "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+            "sourceCommittedAt": "2026-10-28T22:19:43Z",
+            "allowedDirectory": "diagnostics/divergence-evidence/monsters/",
+            "excludedPathFragments": [
+              "long-worm-shopkeeper",
+              "shopkeeper-departure",
+              "buried-state",
+              "figurine",
+              "unpaid-glob",
+              "ring-invisibility",
+              "whatis",
+              "migrating-object"
+            ]
+          }
+        ]
       },
       "completions": [],
       "skippedMetadata": []
