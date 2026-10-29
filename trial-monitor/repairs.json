@@ -27630,6 +27630,30 @@
         ]
       },
       "candidates": []
+    },
+    {
+      "id": "gold-pickup-live-count",
+      "title": "Let floor gold reach the source-owned partial count decision",
+      "investigator": "capacity PR #110",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pickup.c:pickup_object/lift_object/carry_count",
+          "js/pickup.js:preflightPickupObjects"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/110",
+          "scripts/fixtures/capacity-public/gold-all-target.session.json.gz",
+          "scripts/fixtures/capacity-public/gold-partial-target.session.json.gz"
+        ],
+        "test": [
+          "scripts/pickup-gold-capacity.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }

@@ -1022,13 +1022,21 @@ function preflightPickupObjects(selected, state) {
         && !object.oartifact
         && object.otyp !== CORPSE
         && object.otyp !== SCR_SCARE_MONSTER;
+    // Gold has its own carry_count rounding and may admit fewer coins than
+    // requested. A single ordinary floor coin row must reach that live
+    // decision before any addinv projection is built.
+    const sourceCoinLift = exceedsCarryCapacity
+        && selected.length === 1
+        && actionable.length === 1
+        && object.where === OBJ_FLOOR
+        && object.oclass === COIN_CLASS;
     // pickup.c:750-798 has no aggregate-capacity rejection for a selected
     // list. It calls pickup_object() once per row, in menu order, so each
     // lift_object()/carry_count() decision sees the inventory left by the
     // preceding row. If the aggregate reaches the maximum capacity, don't
     // build addinv plans from that aggregate projection; defer every row to
-    // the live source-ordered path. Keep the special object and gold paths
-    // behind their existing preflight handling.
+    // the live source-ordered path. Special objects and gold retain their
+    // separate admission handling rather than entering this multi-row gate.
     const sourceMultiSelectionCapacityBoundary = exceedsCarryCapacity
         && selected.length > 1
         && actionable.length === selected.length
@@ -1041,7 +1049,7 @@ function preflightPickupObjects(selected, state) {
             && !obj.oartifact
             && obj.otyp !== CORPSE
             && obj.otyp !== SCR_SCARE_MONSTER);
-    if (exceedsCarryCapacity && !sourceZeroLift && !sourcePartialStackLift
+    if (exceedsCarryCapacity && !sourceZeroLift && !sourcePartialStackLift && !sourceCoinLift
         && !sourceMultiSelectionCapacityBoundary) {
         throw new UnsupportedPickupError(
             'pickup() requiring a partial or failed lift',
@@ -1058,7 +1066,7 @@ function preflightPickupObjects(selected, state) {
     // before pick_obj() reaches addinv(). Leave the addinv plan empty here so
     // the accepted answer can build it at that source position; a declined
     // lift must not reach inventory planning at all.
-    const deferAddinvForBurdenPrompt = sourcePartialStackLift
+    const deferAddinvForBurdenPrompt = sourcePartialStackLift || sourceCoinLift
         || sourceMultiSelectionCapacityBoundary
         || (!sourceZeroLift
             && calc_capacity(addedWeight, state) > promptLimit);
