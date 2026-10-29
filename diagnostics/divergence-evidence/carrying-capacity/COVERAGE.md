@@ -31,9 +31,10 @@ absolute. Finite matching probes are not exhaustive certification.
 | Counted burden decline/quit/accept rollback | scoped negative | public-counted-decline;3 fixtures |
 | Count editing, cancellation, clamping and gold prediction | scoped negative | public-count-edit;4 fixtures |
 | Traditional numeric prompt omits live echo | confirmed candidate cause4 | public-traditional-count;3 failures+1 control |
+| Traditional filtered menu request loses class restriction | confirmed candidate cause5 | public-menu-request;2 failures+1 control |
 
-Current public corpus:56 fixtures,49 strict matches,7 failing fixtures grouped
-into4 semantic causes. No scanner keys or filter rules. Prior arithmetic row
+Current public corpus:59 fixtures,50 strict matches,9 failing fixtures grouped
+into5 semantic causes. No scanner keys or filter rules. Prior arithmetic row
 counts are not cause counts. Source-bound receipts and exposure limits live in
 each package. #105/#108 remain unchanged.
 
@@ -64,11 +65,12 @@ each package. #105/#108 remain unchanged.
    count split/merge, all burden boundaries, coin rounding, prompts, carried and
    nested plain sacks, tip routes and floor-sack partial admission. Additional menu-order/filter/count-rollback and depth-three probes match;
    counted-row stop/continue, edit/cancel/clamp paths are now qualified.
-   Traditional askchain exposed cause4. Next: traditional query_classes menu
-   request handoff, avoiding unchanged numeric-echo failures.
+   Traditional askchain exposed cause4; filtered menu handoff exposed cause5.
+   Next: source-guided query_classes look-inside restart behavior, avoiding
+   unchanged numeric echo and category-filter failures.
    This is not exhaustive input/seed/role certification; nesting beyond three levels,
    arbitrary menu permutations and other object catalogs remain coverage gaps.
-2. Post-fix validation for all four candidates awaits Main's implementation.
+2. Post-fix validation for all five candidates awaits Main's implementation.
    Fresh public reruns are declared in each candidate package; do not repeat
    unchanged failures. If a new ordinary-weight source change or concrete lead
    appears, reopen that path with a new executed C comparison.
