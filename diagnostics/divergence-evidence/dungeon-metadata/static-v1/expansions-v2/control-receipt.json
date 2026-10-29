@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/audit.mjs",
+    "--controls"
+  ],
+  "cwd": ".",
+  "jsSha": "de3380e285e5f4abf40375459f9490f92569e7dc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:15:01.721Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "acorn": "8.18.0"
+  },
+  "runnerSha256": "8860314929c0a2a0f654086f3af381a48a6557ff2f0c62507090ec5cb02bf10f",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/dungeon-metadata/static-v1/target-output.json": "1037434250a4abef4de169ee478ea05fbbb49ef0fadc3ae9e0026cf4076a1b2e",
+    "js/dungeon_data.js": "de25792331f13079a3b8a74fd668e9a5a93e9218c67dc78b3f0559cb9a3015c1",
+    "nethack-c/upstream/src/role.c": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+    "nethack-c/upstream/include/you.h": "d19cfa0233582f1ad550b9dfc788f26166f3ff21225e3d8a0cd43b6de2094289",
+    "js/roles.js": "4a175af064c61c6a4b23e8cd19230216b04f844276eaa08b851328eb5ee5de09",
+    "nethack-c/upstream/include/hack.h": "2840a9bd41fb0c09384839fafdbd427a5d8705ad8d3eb5e2a0308cccea36813b",
+    "js/dungeon.js": "9004aac3fb4860023ec5dabfcb5418644985fe29b66c4c0af26df4186f9ed67c",
+    "package.json": "32a370c374e37d0c8a8a8e182996f0e2039d8348411ca2f9257081646e26c644",
+    "package-lock.json": "666fb7d8a593d86d659bb1ef15c4b8a5788d3b2c689c3b2d5420ce59846dabf0",
+    "node_modules/acorn/dist/acorn.js": "fc3ed7b81e58464715d0291402892f22c3d86ea75302645a330390f85d8015c9",
+    "node_modules/acorn/package.json": "5c1ed7259579a7899b303f514b0194adcb9fe474fc7d136a84c6a45f10eefc84"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/dungeon-metadata/static-v1/expansions-v2/control-output.json"
+  ]
+}

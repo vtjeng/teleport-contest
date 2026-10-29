@@ -1,0 +1,22 @@
+{
+  "passed": 17,
+  "controls": [
+    "positive: all supplemental declarations consistent",
+    "positive: comments do not affect role field extraction",
+    "detect mismatched role filecode",
+    "detect duplicate role filecode",
+    "detect missing quest file",
+    "detect missing quest mapping",
+    "detect duplicate placeholder expansion",
+    "detect orphan role family file",
+    "detect missing filler file",
+    "detect changed stem",
+    "detect changed declared stem count",
+    "detect duplicate stem level",
+    "detect extra stem file",
+    "detect dangling alias prototype",
+    "detect dangling alias topology field",
+    "detect duplicate alias destinations",
+    "reject missing alias macro"
+  ]
+}
