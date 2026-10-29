@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "commandId": "targets",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/replay.mjs",
+    "/tmp/capacity-main-398d58c75",
+    "targets",
+    "/tmp/capacity-main-398d58c75-targets"
+  ],
+  "cwd": ".",
+  "jsSha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:56:03.137Z",
+  "exitCode": 1,
+  "elapsedSeconds": 5.929,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "oracle": "retained executed C recordings; no new C run"
+  },
+  "runnerSha256": "264a97de756da778d8f9e231372c2ac081b8387e7dbf05cfdd9f1729234dd7ed",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/replay.mjs": "264a97de756da778d8f9e231372c2ac081b8387e7dbf05cfdd9f1729234dd7ed",
+    "diagnostics/divergence-evidence/carrying-capacity/public-traditional-count/decline/recorded.session.json": "20f8adaf9c467fb4b8797170b52a8dc8225059adae7208f749818cd7cd4b280f",
+    "diagnostics/divergence-evidence/carrying-capacity/public-traditional-count/accept/recorded.session.json": "a0e6045a8e3fe79c4c805d0a33c2462bfc7707a066e9b0b70b16f11cf671d566",
+    "diagnostics/divergence-evidence/carrying-capacity/public-traditional-count/explicit-prefix/recorded.session.json": "033889492611f9ac80aefd5f09ec242ee140792bd1a3d139f0fa8ef132bc4033",
+    "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/weapons-only/recorded.session.json": "b759779c9e9a738e903011cc3725c7a74a80c54ca1fb64718cde2056b2c651ac",
+    "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/coins-only/recorded.session.json": "f345a4660633383417b08bcb62704fe6876c5c57e10a6daa69acee6f72a394ef",
+    "diagnostics/divergence-evidence/carrying-capacity/public-look-restart/look-then-class/recorded.session.json": "993550fe778620ff0d2134de99b72774cbbee47acfae3735e31c8b7be03c66d8",
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/empty/recorded.session.json": "8cc9ff1ebc371b383ce344171a8479d984aff7d9db6d37de52d5294fdfa66873",
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/absent-dismissed/recorded.session.json": "d0e4b06c9de043b5cd990d511a07713cbd131907447c50111023120238f0295b",
+    "diagnostics/divergence-evidence/carrying-capacity/public-large-menu-count/unsafe-prefix/recorded.session.json": "9fb04f47ba25c82cbc303017e2fdf35f0aa824a9168e4367fee241b6af99b5f7"
+  },
+  "outputs": [
+    "/tmp/capacity-main-398d58c75-targets/source.json",
+    "/tmp/capacity-main-398d58c75-targets/results.json",
+    "/tmp/capacity-main-398d58c75-targets/public-traditional-count--decline-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-traditional-count--decline-comparison.json",
+    "/tmp/capacity-main-398d58c75-targets/public-traditional-count--accept-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-traditional-count--accept-comparison.json",
+    "/tmp/capacity-main-398d58c75-targets/public-traditional-count--explicit-prefix-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-traditional-count--explicit-prefix-comparison.json",
+    "/tmp/capacity-main-398d58c75-targets/public-menu-request--weapons-only-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-menu-request--weapons-only-comparison.json",
+    "/tmp/capacity-main-398d58c75-targets/public-menu-request--coins-only-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-menu-request--coins-only-comparison.json",
+    "/tmp/capacity-main-398d58c75-targets/public-look-restart--look-then-class-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-look-restart--look-then-class-comparison.json",
+    "/tmp/capacity-main-398d58c75-targets/public-class-fallback--empty-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-class-fallback--empty-comparison.json",
+    "/tmp/capacity-main-398d58c75-targets/public-class-fallback--absent-dismissed-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-class-fallback--absent-dismissed-comparison.json",
+    "/tmp/capacity-main-398d58c75-targets/public-large-menu-count--unsafe-prefix-js.json",
+    "/tmp/capacity-main-398d58c75-targets/public-large-menu-count--unsafe-prefix-comparison.json"
+  ],
+  "source": {
+    "mainSha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "jsTree": "9ece2852e4ee07aa4f302065e470fa49db07b460",
+    "frozenTree": "f94db314c0834c9ce4eb9c471f6e13753ea89348",
+    "scripts": {
+      "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc"
+    }
+  }
+}

@@ -82,7 +82,9 @@ each package. #105/#108 remain unchanged.
    interactions beyond the tested weapons-only and all-category drop paths.
    This is not exhaustive input/seed/role certification; nesting beyond three levels,
    arbitrary menu permutations and other object catalogs remain coverage gaps.
-2. Post-fix validation for causes4-8 awaits Main's implementation.
+2. Current-base replay on Main398d58c75 confirms all9 cause4-8 target variants
+   still fail identically and all5 controls pass (main-replay-398d58c75).
+   These14 replays add no fixtures or causes. Post-fix validation awaits Main's implementation.
    Fresh public reruns are declared in each candidate package; do not repeat
    unchanged failures. If a new ordinary-weight source change or concrete lead
    appears, reopen that path with a new executed C comparison.

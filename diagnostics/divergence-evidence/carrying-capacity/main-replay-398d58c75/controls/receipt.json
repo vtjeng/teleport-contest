@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "commandId": "controls",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/replay.mjs",
+    "/tmp/capacity-main-398d58c75",
+    "controls",
+    "/tmp/capacity-main-398d58c75-controls"
+  ],
+  "cwd": ".",
+  "jsSha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:56:00.983Z",
+  "exitCode": 0,
+  "elapsedSeconds": 3.735,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "oracle": "retained executed C recordings; no new C run"
+  },
+  "runnerSha256": "264a97de756da778d8f9e231372c2ac081b8387e7dbf05cfdd9f1729234dd7ed",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/replay.mjs": "264a97de756da778d8f9e231372c2ac081b8387e7dbf05cfdd9f1729234dd7ed",
+    "diagnostics/divergence-evidence/carrying-capacity/public-traditional-count/yes-no-control/recorded.session.json": "210d0dd1897f8facd37f52243533a0843581735c7cccfb38bda60c06dfaee3af",
+    "diagnostics/divergence-evidence/carrying-capacity/public-menu-request/all-types/recorded.session.json": "8b6535b2a642f2603d22e6ed79fd5b482f4736965e2ebc5ff9efba5052da5a04",
+    "diagnostics/divergence-evidence/carrying-capacity/public-look-restart/look-only/recorded.session.json": "1efda991f88b5e12d3bc8ce3043fb19cf481ef660951bb4b19e09b44d9db7366",
+    "diagnostics/divergence-evidence/carrying-capacity/public-class-fallback/explicit-all/recorded.session.json": "d277362c6a185d37beeb5a9265b713a744cac8325d1d8cde4db7867fbc11f139",
+    "diagnostics/divergence-evidence/carrying-capacity/public-large-menu-count/safe-control/recorded.session.json": "0c8394491d826987f4c7a48df75b2fe0e96ee2ef3f91756852f1a5a3da38a082"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/source.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/results.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-traditional-count--yes-no-control-js.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-traditional-count--yes-no-control-comparison.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-menu-request--all-types-js.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-menu-request--all-types-comparison.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-look-restart--look-only-js.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-look-restart--look-only-comparison.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-class-fallback--explicit-all-js.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-class-fallback--explicit-all-comparison.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-large-menu-count--safe-control-js.json",
+    "diagnostics/divergence-evidence/carrying-capacity/main-replay-398d58c75/controls/public-large-menu-count--safe-control-comparison.json"
+  ],
+  "source": {
+    "mainSha": "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "jsTree": "9ece2852e4ee07aa4f302065e470fa49db07b460",
+    "frozenTree": "f94db314c0834c9ce4eb9c471f6e13753ea89348",
+    "scripts": {
+      "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+      "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc"
+    }
+  },
+  "conversion": "Copied retained output files unchanged; output references normalized to repository paths. Original receipt retained."
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "case": "public-traditional-count--decline",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-traditional-count--accept",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-traditional-count--explicit-prefix",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-menu-request--weapons-only",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-menu-request--coins-only",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-look-restart--look-then-class",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-class-fallback--empty",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-class-fallback--absent-dismissed",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-large-menu-count--unsafe-prefix",
+    "comparisonIdenticalToHistorical": true,
+    "passed": false
+  },
+  {
+    "case": "public-traditional-count--yes-no-control",
+    "comparisonIdenticalToHistorical": true,
+    "passed": true
+  },
+  {
+    "case": "public-menu-request--all-types",
+    "comparisonIdenticalToHistorical": true,
+    "passed": true
+  },
+  {
+    "case": "public-look-restart--look-only",
+    "comparisonIdenticalToHistorical": true,
+    "passed": true
+  },
+  {
+    "case": "public-class-fallback--explicit-all",
+    "comparisonIdenticalToHistorical": true,
+    "passed": true
+  },
+  {
+    "case": "public-large-menu-count--safe-control",
+    "comparisonIdenticalToHistorical": true,
+    "passed": true
+  }
+]
