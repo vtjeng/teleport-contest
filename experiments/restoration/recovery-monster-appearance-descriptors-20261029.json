@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "preparedAt": "2026-10-29T21:34:58.169467+00:00",
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "behaviorChunk": "Initial monster appearance descriptors: named and random supported shapechangers/mimics, ordinary-monster no-op and native Vlad special-item guard.",
+  "sources": [
+    "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+    "94fcc8aaa07e8ebeb1239b8387ef2a87fe944d03",
+    "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+    "2334ab188dce37c487e62933b30877b24673ffb5",
+    "d169996310d3a746394ec7cee4a4cc5421f9503a",
+    "1293bffbf416873f4fa5d86a73698f1124afbd04",
+    "85f53c9b9d445be9ca95f4d81c6153226549f81d",
+    "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+    "90495956e5ee776d37c0f7f6258ca43a65351070"
+  ],
+  "scope": "Dynamic des.monster API on initialized game/native catalog with solidfill floor; no des.room input, room-type construction, injected gamestate/flags/RNG, movement planner, global rendering-hook mutation or object delivery. mon.js changes export two existing helpers only; no existing helper body changed.",
+  "CExpectedBehavior": "Pinned sp_lev.c:create_monster appearance switch and gate, mon.c:select_newcham_form/mgender_from_permonst/validvamp plus native catalog. Existing published unit/source expectations retained. No newly executed C constructor or fresh gameplay strict recording claimed.",
+  "qualification": {
+    "test": "scripts/monster-appearance-descriptor-recovery.test.mjs",
+    "exactHBefore": {
+      "tests": 20,
+      "passingNativeConstructionAndNamedMimicControls": 10,
+      "failingAppearanceVariants": 10
+    },
+    "after": {
+      "tests": 20,
+      "pass": 20
+    },
+    "secondaryUnitScope": "Original nine sources add deterministic per-form state/RNG tests to existing themeroom-fill suite; these are secondary units, not the reachability oracle."
+  },
+  "dependencyProof": "Existing full-game init/mklev/publicdes.monster and native form/gender/validvamp/light helpers are reused. No original18 Medusa/lava/movement/option change or stopped room-type case introduced.",
+  "limits": [
+    "Wizard-specific appearance remains outside this recovered scope; no repeat of its parked probe.",
+    "Invalid-form diagnostic wording, arbitrary light-emitting forms and all species combinations not exhaustively qualified.",
+    "No hiddenjudge claim; candidate local only.",
+    "An early fixture import error and an overstrict random-mimic self-selection expectation were corrected and preserved; neither counted as gameplay bug.",
+    "Sparse missing baseline manifest caused one reporting-setup failure; exact baseline bytes restored, frozen54 manifest not edited."
+  ],
+  "validation": {
+    "initializedGameApiTests": {
+      "tests": 20,
+      "pass": 20
+    },
+    "durableAndRegressionTests": {
+      "tests": 152,
+      "pass": 152
+    },
+    "lint": "pass",
+    "relativeImports": "pass",
+    "namespaceMembers": "pass withcomputedaccesslimitsretained",
+    "newCExecution": false
+  }
+}

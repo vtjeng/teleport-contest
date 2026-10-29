@@ -117,9 +117,12 @@ import {
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
     PM_CHAMELEON,
+    PM_SANDESTIN,
     PM_CHIEFTAIN,
     PM_DWARF,
+    PM_DOPPELGANGER,
     PM_ELF,
+    PM_ETTIN_ZOMBIE,
     PM_ETTIN,
     PM_GIANT,
     PM_GNOME,
@@ -127,6 +130,7 @@ import {
     PM_GHOST,
     PM_FOG_CLOUD,
     PM_GIANT_MIMIC,
+    PM_GNOME_ZOMBIE,
     PM_GIANT_SPIDER,
     PM_HEALER,
     PM_HUMAN,
@@ -148,6 +152,8 @@ import {
     PM_STUDENT,
     PM_THUG,
     PM_TOURIST,
+    PM_VAMPIRE,
+    PM_VLAD_THE_IMPALER,
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
@@ -167,6 +173,7 @@ import {
 } from '../js/timeout.js';
 import { S_altar } from '../js/symbols.js';
 import { set_levltyp } from '../js/terrain.js';
+import { mon_has_special } from '../js/wizard.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
@@ -652,16 +659,6 @@ test('furniture and monster appearances resolve while unsupported shapes fail ea
     assert.equal(giantMimic.m_ap_type, M_AP_NOTHING);
     assert.equal(giantMimic.mappearance, 0);
 
-    const randomShape = monsterDescriptorFixture();
-    assert.throws(() => lspo_monster([{
-        class: S_MIMIC,
-        appear_as: 'mon:random',
-    }], randomShape.room, {
-        state: randomShape.state,
-        random: quietObjectRandom(),
-    }), /unsupported initial-level monster creation/u);
-    assert.equal(randomShape.level.monlist, null);
-
     const { level, room, state } = monsterDescriptorFixture();
     const random = {};
     for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
@@ -679,11 +676,9 @@ test('furniture and monster appearances resolve while unsupported shapes fail ea
             },
         },
     };
-    // Shapechanger transformations remain outside this narrow mimic span.
+    // Other shapechanger transformations remain outside this narrow span.
     // An appear_as prefix the C does not know is a Lua parser error.
     const invalid = [
-        [{ id: PM_CHAMELEON, appear_as: 'mon:jackal' },
-            /unsupported initial-level monster creation/u],
         [{ class: S_MIMIC, appear_as: 'chest' }, /Unknown appear_as type/u],
     ];
 
@@ -694,6 +689,290 @@ test('furniture and monster appearances resolve while unsupported shapes fail ea
         );
         assert.equal(level.monlist, null);
     }
+});
+
+test('a special-level chameleon takes its named monster form', () => {
+    // C sp_lev.c:create_monster() installs a named form with set_mon_data().
+    // A C #wizloaddes recording independently accepts mon:jackal for a
+    // chameleon; the focused API test checks its internal state and RNG path.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const calls = [];
+    const random = quietObjectRandom();
+    const rn2 = random.rn2;
+    random.rn2 = bound => {
+        calls.push(bound);
+        return rn2(bound);
+    };
+    const monster = lspo_monster([{
+        id: PM_CHAMELEON,
+        appear_as: 'mon:jackal',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(monster.data, state.mons[PM_JACKAL]);
+    assert.equal(monster.mnum, PM_JACKAL);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.equal(monster.mappearance, 0);
+    assert.ok(calls.includes(10), 'C mgender_from_permonst draws for jackal');
+});
+
+test('control: a special-level chameleon without appearance keeps its natural form', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_CHAMELEON }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    // C makemon may already select an initial shape. Without appear_as,
+    // create_monster leaves that normal selection alone.
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('a mimic can select a random monster appearance from C form selection', () => {
+    // C sp_lev.c calls select_newcham_form for mon:random. A private C
+    // #wizloaddes recording draws rn2(330)=245 in that arm and displays an
+    // ettin zombie; mon:jackal is a nearby accepted control.
+    const { state, room } = monsterDescriptorFixture();
+    const calls = [];
+    const random = quietObjectRandom();
+    const originalRn1 = random.rn1;
+    random.rn1 = (bound, base) => {
+        calls.push([bound, base]);
+        return bound === 330 ? PM_ETTIN_ZOMBIE : originalRn1(bound, base);
+    };
+    const monster = lspo_monster([{
+        id: PM_GIANT_MIMIC,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.data, state.mons[PM_GIANT_MIMIC]);
+    assert.equal(monster.m_ap_type, M_AP_MONSTER);
+    assert.equal(monster.mappearance, PM_ETTIN_ZOMBIE);
+    assert.deepEqual(calls.filter(([bound]) => bound === 330), [[330, 0]]);
+});
+
+test('a chameleon can select a random special-level monster form', () => {
+    // The C recording reaches the initial chameleon fallback, then the
+    // appear_as selector's animal arm: rn2(3)=0, rn2(98)=79.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const random = quietObjectRandom();
+    const originalRn2 = random.rn2;
+    const calls = [];
+    const threes = [0, 2, 0];
+    random.rn2 = bound => {
+        calls.push(['rn2', bound]);
+        if (bound === 3) return threes.shift() ?? 2;
+        if (bound === 98) return 79;
+        return originalRn2(bound);
+    };
+    random.rn1 = (bound, base) => {
+        calls.push(['rn1', bound, base]);
+        return bound === 330 ? PM_GNOME_ZOMBIE : base;
+    };
+    const monster = lspo_monster([{
+        id: PM_CHAMELEON,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(state.ga.animal_list_count, 98);
+    assert.equal(monster.data, state.mons[state.ga.animal_list[79]]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.deepEqual(threes, []);
+    assert.ok(calls.some(([kind, bound]) => kind === 'rn2' && bound === 98));
+});
+
+test('a special-level doppelganger takes a random monster form', () => {
+    // C #wizloaddes target adds a second select_newcham_form sequence and
+    // displays the selected form; the no-appearance control does not.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const random = quietObjectRandom();
+    const originalRn2 = random.rn2;
+    const calls = [];
+    random.rn2 = bound => {
+        calls.push(bound);
+        if (bound === 7) return 2;
+        if (bound === 3) return calls.filter(n => n === 3).length % 2 ? 0 : 2;
+        return originalRn2(bound);
+    };
+    random.rn1 = (bound, base) => {
+        if (bound === 330) return PM_GNOME_ZOMBIE;
+        return base;
+    };
+    const monster = lspo_monster([{
+        id: PM_DOPPELGANGER,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_DOPPELGANGER);
+    assert.equal(monster.data, state.mons[PM_GNOME_ZOMBIE]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.equal(calls.filter(bound => bound === 7).length, 2);
+});
+
+test('control: a special-level doppelganger without appearance keeps its initial form', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_DOPPELGANGER }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_DOPPELGANGER);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('a special-level sandestin takes a random monster form', () => {
+    // A C #wizloaddes target draws a second select_newcham_form rn2(7)
+    // and displays the requested form. Its no-appearance control does not.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const random = quietObjectRandom();
+    const calls = [];
+    random.rn2 = bound => {
+        calls.push(bound);
+        if (bound === 7) return 0; // sandestin falls back to an ordinary form
+        return Math.max(0, bound - 1);
+    };
+    const forms = [PM_ETTIN_ZOMBIE, PM_GNOME_ZOMBIE];
+    random.rn1 = (bound, base) => bound === 330 ? forms.shift() : base;
+    const monster = lspo_monster([{
+        id: PM_SANDESTIN,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_SANDESTIN);
+    assert.equal(monster.data, state.mons[PM_GNOME_ZOMBIE]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.deepEqual(forms, []);
+    assert.equal(calls.filter(bound => bound === 7).length, 2);
+});
+
+test('control: a special-level sandestin without appearance keeps its initial form', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_SANDESTIN }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_SANDESTIN);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('a special-level vampire takes a valid named fog form', () => {
+    // C sp_lev.c:create_monster() accepts mon:fog cloud through validvamp()
+    // and installs the species with set_mon_data(). A C #wizloaddes target
+    // displays fog cloud; the same level without appear_as displays a bat.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{
+        id: PM_VAMPIRE,
+        appear_as: 'mon:fog cloud',
+    }], room, { state, random: quietObjectRandom() });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_VAMPIRE);
+    assert.equal(monster.data, state.mons[PM_FOG_CLOUD]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('control: a special-level vampire without appearance keeps its natural selection', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_VAMPIRE }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_VAMPIRE);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('a special-level vampire accepts a random monster form', () => {
+    // C sp_lev.c:create_monster() selects through pickvampshape() for
+    // mon:random. A #wizloaddes target displays a vampire and differs from
+    // its no-appearance bat control; the C target rerecord is deterministic.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const calls = [];
+    const random = quietObjectRandom();
+    const originalRn2 = random.rn2;
+    random.rn2 = bound => {
+        calls.push(bound);
+        return originalRn2(bound);
+    };
+    const monster = lspo_monster([{
+        id: PM_VAMPIRE,
+        appear_as: 'mon:random',
+    }], room, { state, random });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_VAMPIRE);
+    assert.equal(monster.data, state.mons[monster.mnum]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+    assert.ok(calls.filter(bound => bound === 4).length >= 2,
+        'initial and descriptor vampire shapes each draw');
+});
+
+test('Vlad with his special item ignores a requested fog appearance', () => {
+    // C #wizloaddes target and no-appearance control both display Vlad with
+    // identical post-load RNG. mon.c:validvamp() forces the Vlad form when
+    // mon_has_special() is true.
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{
+        id: PM_VLAD_THE_IMPALER,
+        appear_as: 'mon:fog cloud',
+    }], room, { state, random: quietObjectRandom() });
+    assert.ok(monster);
+    assert.equal(monster.cham, PM_VLAD_THE_IMPALER);
+    assert.equal(mon_has_special(monster), true);
+    assert.equal(monster.data, state.mons[PM_VLAD_THE_IMPALER]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('control: special-level Vlad without appearance stays Vlad', () => {
+    const { state, room } = monsterDescriptorFixture();
+    light_globals_init(state);
+    const monster = lspo_monster([{ id: PM_VLAD_THE_IMPALER }], room, {
+        state, random: quietObjectRandom(),
+    });
+    assert.ok(monster);
+    assert.equal(monster.data, state.mons[PM_VLAD_THE_IMPALER]);
+    assert.equal(monster.m_ap_type, M_AP_NOTHING);
+});
+
+test('a non-shapechanger ignores a requested monster appearance', () => {
+    // C sp_lev.c:create_monster() only enters the appearance switch for a
+    // mimic or shapechanger. Independent C custom-level target/control both
+    // show a jackal and use identical 3125-entry RNG logs.
+    function create(appear_as) {
+        const { state, room } = monsterDescriptorFixture();
+        const calls = [];
+        const random = quietObjectRandom();
+        for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
+            const original = random[name];
+            random[name] = (...args) => {
+                calls.push([name, ...args]);
+                return original(...args);
+            };
+        }
+        const descriptor = { id: PM_JACKAL };
+        if (appear_as) descriptor.appear_as = appear_as;
+        const monster = lspo_monster([descriptor], room, { state, random });
+        assert.ok(monster);
+        assert.equal(monster.data, state.mons[PM_JACKAL]);
+        assert.equal(monster.m_ap_type, M_AP_NOTHING);
+        assert.equal(monster.mappearance, 0);
+        return calls;
+    }
+    const control = create(null);
+    assert.deepEqual(create('mon:giant ant'), control);
+    assert.deepEqual(create('mon:random'), control);
 });
 
 test('create_monster relocates an occupied fixed coordinate inside its room', () => {

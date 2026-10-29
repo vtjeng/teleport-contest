@@ -42,6 +42,7 @@ import {
     M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_MONSTER,
+    LS_MONSTER,
     NO_LOC_WARN,
     ROCKTRAP,
     ROLLING_BOULDER_TRAP,
@@ -93,7 +94,9 @@ import { mkclass, set_malign } from './makemon.js';
 import { newsym } from './display.js';
 import { onscary, set_apparxy } from './monmove.js';
 import { mk_roamer } from './priest.js';
-import { name_to_mon, your_race } from './mondata.js';
+import { emits_light, is_shapeshifter, is_vampshifter, name_to_mon, pm_invisible, set_mon_data, your_race } from './mondata.js';
+import { mgender_from_permonst, select_newcham_form, validvamp } from './mon.js';
+import { del_light_source, new_light_source } from './light.js';
 import { mk_mplayer } from './mplayer.js';
 import { lspo_gas_cloud, lspo_monster } from './mklev.js';
 import { christen_monst } from './do_name.js';
@@ -129,8 +132,11 @@ import {
     PM_ATTENDANT,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
+    PM_CHAMELEON,
+    PM_SANDESTIN,
     PM_CHIEFTAIN,
     PM_DWARF,
+    PM_DOPPELGANGER,
     PM_ELF,
     PM_ETTIN,
     PM_GIANT,
@@ -162,9 +168,11 @@ import {
     PM_TOURIST,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
+    PM_VLAD_THE_IMPALER,
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
+    PM_WIZARD_OF_YENDOR,
     PM_WOOD_NYMPH,
     PM_SALAMANDER,
     S_EEL,
@@ -172,6 +180,7 @@ import {
     S_GHOST,
     S_LIGHT,
     S_MIMIC,
+    S_HUMAN,
     S_VAMPIRE,
 } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -718,14 +727,40 @@ function createMonsterBody(m, croom, env) {
             break;
         }
         case M_AP_MONSTER: {
-            // sp_lev.c:create_monster() permits a mimic to look like another
-            // monster. Other shapechangers remain outside this narrow arm.
-            const mndx = name_to_mon(m.appear_as, { state });
+            // C sp_lev.c:create_monster(): a mimic uses mappearance, while a
+            // chameleon takes the named form as its actual species.
+            let mndx = m.appear_as.toLowerCase() === 'random'
+                ? select_newcham_form(mtmp, { state, random: env.random })
+                : name_to_mon(m.appear_as, { state });
+            if (ismnum(mndx) && is_vampshifter(mtmp)) {
+                const form = { value: mndx };
+                if (!validvamp(mtmp, form, S_HUMAN, state)) mndx = NON_PM;
+                else mndx = form.value;
+            }
             if (!ismnum(mndx)) {
-                impossible(`create_monster: invalid mimic appearance ("${m.appear_as}")`, env);
+                const kind = mtmp.cham === PM_CHAMELEON
+                    ? 'chameleon shape' : 'mimic appearance';
+                impossible(`create_monster: invalid ${kind} ("${m.appear_as}")`, env);
             } else if (state.mons[mndx] === mtmp.data) {
                 mtmp.m_ap_type = M_AP_NOTHING;
                 mtmp.mappearance = 0;
+            } else if (mtmp.cham === PM_CHAMELEON
+                       || mtmp.cham === PM_DOPPELGANGER
+                       || mtmp.cham === PM_SANDESTIN
+                       || is_vampshifter(mtmp)) {
+                const olddata = mtmp.data;
+                const target = state.mons[mndx];
+                mgender_from_permonst(mtmp, target, env.random);
+                set_mon_data(mtmp, target, state);
+                if (emits_light(olddata) !== emits_light(target)) {
+                    if (emits_light(olddata))
+                        del_light_source(LS_MONSTER, mtmp, state);
+                    if (emits_light(target))
+                        new_light_source(mtmp.mx, mtmp.my, emits_light(target),
+                            LS_MONSTER, mtmp, state);
+                }
+                if (!mtmp.perminvis || pm_invisible(olddata))
+                    mtmp.perminvis = pm_invisible(target);
             } else {
                 mtmp.m_ap_type = M_AP_MONSTER;
                 mtmp.mappearance = mndx;
@@ -811,14 +846,30 @@ function createMonsterBody(m, croom, env) {
     return finish(maybeMtmp);
 }
 
-// The monster appearance arm of create_monster() remains unported. Refuse
-// those descriptors before create_monster() consumes RNG or mutates level
-// state; object and furniture appearances are source-complete above.
+// Refuse remaining unsupported monster appearance descriptors before creation
+// consumes RNG or mutates level state.
 function assertSupportedMonsterAppearance(m, state) {
     if (m.appear_as == null) return;
+    if (m.appear === M_AP_MONSTER && ismnum(m.id)) {
+        const species = state.mons[m.id];
+        const vital = state.mvitals?.[m.id]?.mvflags ?? 0;
+        // C silently ignores appearances for an ordinary monster. Only use
+        // the pre-creation no-op when explicit creation will retain this
+        // species; random substitutions can turn into shapechangers.
+        if (species && species.mlet !== S_MIMIC
+            && !is_shapeshifter(species)
+            && m.id !== PM_WIZARD_OF_YENDOR
+            && !(vital & G_GONE)
+            && !((species.geno & G_UNIQ) && (vital & G_EXTINCT))
+            && !In_mines(state.u?.uz)) return;
+    }
     if (m.appear === M_AP_MONSTER
-        && m.appear_as.toLowerCase() !== 'random'
-        && (ismnum(m.id) ? state.mons[m.id]?.mlet === S_MIMIC
+        && (ismnum(m.id) ? (state.mons[m.id]?.mlet === S_MIMIC
+            || m.id === PM_CHAMELEON
+            || m.id === PM_DOPPELGANGER
+            || m.id === PM_SANDESTIN
+            || m.id === PM_VAMPIRE || m.id === PM_VAMPIRE_LEADER
+            || m.id === PM_VLAD_THE_IMPALER)
             : m.class === S_MIMIC)) return;
     if (m.appear !== M_AP_OBJECT && m.appear !== M_AP_FURNITURE) {
         throw new UnsupportedMonsterCreationError(
