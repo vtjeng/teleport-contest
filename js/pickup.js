@@ -2767,16 +2767,16 @@ async function query_classes(action, objs, here, state) {
     if (bucx.jcnt) iletArr.push('P');
 
     const ilets = iletArr.join('');
+    let m_seen = false;
 
     // C: 194-260. Prompt loop — entered when iletct > 1.
     if (iletArr.length > 1) {
-    for (;;) {
+    askAgain: for (;;) {
         let oclasses = '';
         result.one_by_one = false;
         result.allflag = false;
         let not_everything = false;
         let filtered = false;
-        let m_seen = false;
 
         const qbuf =
             `What kinds of thing do you want to ${action}? [${ilets}]`;
@@ -2794,11 +2794,11 @@ async function query_classes(action, objs, here, state) {
                 // pickup.c marks contents as known after displaying them.
                 if (objs?.where === OBJ_CONTAINED)
                     objs.ocontainer.cknown = true;
-                continue;
+                continue askAgain;
             } else if (sym === 'i') {
                 // C discards display_inventory()'s key and resumes ask_again.
                 await display_inventory(null, true, state);
-                continue;
+                continue askAgain;
             } else if (sym === 'm') {
                 m_seen = true;
             } else if ('uBUCXP'.includes(sym)) {
@@ -2824,18 +2824,18 @@ async function query_classes(action, objs, here, state) {
             }
         }
 
+        result.selection = oclasses;
         if (m_seen) {
-            result.menu_on_request = -2;
+            result.menu_on_request = ((result.allflag || !oclasses.length) && !filtered)
+                ? -2 : -3;
             return result;
-        } else if (result.one_by_one || result.allflag || oclasses.length
-            || filtered) {
-            result.selection = oclasses;
-            result.ok = !not_everything || oclasses.length;
-            return result;
-        } else {
-            // No valid input -- re-prompt (goto ask_again in C).
-            continue;
         }
+        if (!oclasses.length && (!result.allflag || not_everything)) {
+            result.one_by_one = true;
+            result.allflag = false;
+        }
+        result.ok = true;
+        return result;
     }
     }
     // C: 261. Return TRUE when selection is set (single class or prompt).

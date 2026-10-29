@@ -27984,6 +27984,31 @@
         ]
       },
       "candidates": []
+    },
+    {
+      "id": "traditional-query-classes-control-flow",
+      "title": "Preserve traditional class-query filtering, restarts and fallback",
+      "investigator": "capacity PR #110 causes5-7",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/pickup.c:query_classes",
+          "js/pickup.js:query_classes"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/110",
+          "scripts/fixtures/capacity-menu/menu-request-weapons-only.session.json.gz",
+          "scripts/fixtures/capacity-menu/look-restart-look-then-class.session.json.gz",
+          "scripts/fixtures/capacity-menu/class-fallback-empty.session.json.gz"
+        ],
+        "test": [
+          "scripts/traditional-query-classes.test.mjs"
+        ]
+      },
+      "candidates": []
     }
   ]
 }
