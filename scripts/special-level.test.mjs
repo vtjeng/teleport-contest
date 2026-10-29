@@ -119,6 +119,16 @@ test('centered row-array map uses the same C string prefix', async () => {
     });
 });
 
+test('one-cell row-array map resets the frame without painting', async () => {
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: ' ' });
+        const placed = await des.map(['.']);
+        assert.deepEqual([placed.xstart, placed.ystart, placed.xsize, placed.ysize],
+            [1, 0, 79, 21]);
+        assert.equal(placed.selection.numpoints(), 0);
+        assert.equal(game.level.at(39, 11).typ, STONE);
+    });
+});
 
 for (const [operation, combine, expectedWalls] of [
     ['union', l_selection_or, 1], ['subtraction', l_selection_sub, 0],

@@ -26436,6 +26436,28 @@
       ]
     },
     {
+      "id": "map-row-singleton-reset",
+      "title": "Reset the special-level map frame for a one-cell row-array map",
+      "investigator": "levels PR #89",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/sp_lev.c:lspo_map/reset_xystart_size",
+          "js/mklev.js:mapFromRows"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/probe.mjs"
+        ],
+        "test": [
+          "scripts/special-level.test.mjs"
+        ]
+      },
+      "candidates": []
+    },
+    {
       "id": "selection-frame-normalization",
       "title": "Normalize relative and absolute selections for composition and negation",
       "investigator": "levels PR #67 and #83",

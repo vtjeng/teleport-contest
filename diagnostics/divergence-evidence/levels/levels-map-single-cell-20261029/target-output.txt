@@ -1,0 +1,67 @@
+[
+  {
+    "form": "string",
+    "textHex": "2e",
+    "kind": "target",
+    "expectedC": {
+      "frame": [
+        1,
+        0,
+        79,
+        21
+      ],
+      "points": []
+    },
+    "observedJS": {
+      "frame": [
+        39,
+        11,
+        1,
+        1
+      ],
+      "points": [
+        [
+          39,
+          11
+        ]
+      ]
+    },
+    "matched": false
+  }
+]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: string
++ actual - expected
+
+  {
+    frame: [
++     39,
++     11,
+      1,
++     1
+-     0,
+-     79,
+-     21
+    ],
++   points: [
++     [
++       39,
++       11
++     ]
++   ]
+-   points: []
+  }
+
+    at file:///workspace/levels-clean-base-25/diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/probe.mjs:48:51 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: { frame: [ 39, 11, 1, 1 ], points: [ [ 39, 11 ] ] },
+  expected: { frame: [ 1, 0, 79, 21 ], points: [] },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

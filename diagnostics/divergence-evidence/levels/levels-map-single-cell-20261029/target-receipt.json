@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T00:05:30.488Z",
+  "exitCode": 1,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "758b98f8138c6d858387d6653f30d948010baf94af6d4555374d16bcda93ef86",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/oracle.c": "6b9a38fc9a0c1c78f290100fe9699c6eac866a0352e50599a86254c2da57b273"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-map-single-cell-20261029/target-output.txt"
+  ]
+}

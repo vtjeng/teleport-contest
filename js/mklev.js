@@ -5039,6 +5039,10 @@ function mapFromRows(rows, frame, state) {
         throw new Error('special-level map rows must have equal width');
     frame.xsize = width;
     frame.ysize = height;
+    if (width <= 1 && height <= 1) {
+        reset_xystart_size(frame, state);
+        return { ...frame, selection: new ThemeroomSelection(null, true) };
+    }
     frame.xstart = 2 + Math.trunc(
         (frame.xMazeMax - 2 - width) / 2,
     );
