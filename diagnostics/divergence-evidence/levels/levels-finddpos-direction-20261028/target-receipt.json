@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/probe.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T00:02:31.179Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "3d718b38868141470f25cec0e78aa1720f1658e11d16499ced5058574943bc2d",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/oracle.c": "9c27dd0ee5392ae669a4efdd57b8b561bceff96714e00a8cad6ebcb2c07b00f0",
+    "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/caller-contract.json": "e5ffa6d2846f890a7cd4f653ef16b8deff95f1a11b67b085841b8999ce0453b9"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-finddpos-direction-20261028/target-output.txt"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "jsSha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "sourceHashes": {
+    "nethack-c/upstream/src/mklev.c": "9958b95e15d0a6e27cac80c07a8bb8eac54ef239a51af3992cff303a615731a4",
+    "js/mklev.js": "9a39692009456ca604e3544ec0c01463176c3d3e69616b0cab1b11305c46f386"
+  },
+  "callDirections": [
+    "E",
+    "W",
+    "N",
+    "S",
+    "W",
+    "E",
+    "S",
+    "N",
+    "S",
+    "N"
+  ],
+  "scope": "Pinned repository calls only; external callers, instrumentation, memory corruption, changed visibility/configuration and future source revisions excluded."
+}

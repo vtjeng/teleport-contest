@@ -1,0 +1,20 @@
+{
+  "testedJsSha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "discoveredAt": "2026-10-29T00:02:39.531088+00:00",
+  "reviewedAt": "2026-10-29T00:02:39.531088+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mklev.c:finddpos": "3adaa3c603a5ce642d4fcf70c46dfbf09776f5414c1cfe6cb09dc434a1d160ae",
+    "nethack-c/upstream/include/hack.h:movementdirs": "08a41648447e086d9df016c766551d9f11e54cd0da208e25207b7dda0e73e6cf",
+    "js/mklev.js:finddpos": "ae9fb6810888cad4fdc723c330b02e3ae35f835d857833999194ce9bdda1da08"
+  },
+  "jsFinddposUnchangedFromScanBase": true,
+  "configuration": "clang -std=c11 -O2, exact finddpos/movement enum, first-success shift and deterministic rn1 adapters; source closure checks pinned C and JS files through Node24.19.0 and git",
+  "limitations": [
+    "Unreachable only from the pinned repository C/JS call sites. External callers, instrumented calls, memory corruption, changed configuration/visibility and future source changes are excluded. No general suppression of illegal-direction diagnostics.",
+    "The source audit strips comments/string literals, verifies all identifier occurrences and each fixed call argument, and rejects changed source hashes. It also checks tracked C/header references for the symbol. This is a source closure proof, not an assumption that a small random sample failed to reach the diagnostic.",
+    "Exact C finddpos uses deterministic rn1 and first-success finddpos_shift adapters to isolate switch dispatch. No room geometry, irregular-room search, retry/fallback order, RNG generator, corridor placement or runtime parity claim.",
+    "Invalid-direction controls deliberately bypass production callers only to establish that the oracle catches the diagnostic; they are not classified as supported gameplay setups or divergences. JS runtime calls are not forced through a private export."
+  ]
+}
