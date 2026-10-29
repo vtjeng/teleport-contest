@@ -1444,6 +1444,8 @@ export function mkinvk_check_wall(x, y, state = game) {
 // records the coder's icedpools choice only while a special level is being
 // initialized. The cloud arm clears engravings after the terrain write.
 function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
+    const previous = state.level.at(x, y);
+    const wallFlags = previous && IS_WALL(previous.typ) ? previous.wall_info : null;
     if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
     // set_levltyp_lit can retain the prior type (for example, a secret door
@@ -1451,6 +1453,12 @@ function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
     // resulting map type rather than the requested one.
     const actualType = location.typ;
     if (actualType === SDOOR || IS_DOOR(actualType)) {
+        if (actualType === DOOR && wallFlags !== null) {
+            // C's rm.flags word becomes the door mask when terrain() paints
+            // an ordinary door over a wall (including a drawbridge wall).
+            location.flags = wallFlags;
+            location.doormask = wallFlags;
+        }
         if (actualType === SDOOR) {
             // C's doormask aliases rm.flags. A terrain() paint can overwrite
             // a locked coordinate door before stock_room() reads its mask.

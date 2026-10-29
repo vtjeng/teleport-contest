@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T00:42:39.031Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "79ba9aa0fb2016591717ff214a34645ce2c626f86a955799dc6d0c468e3330f7",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/oracle.c": "0f7626094ad554fee84315d270894e409e41c7bfcb6518507e3be27de40814f5",
+    "diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/source-contract.json": "0888c63c4d784f5225d33eb2ae4d931d903dd26cd38e6f3a53c4ad349ebf353d"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-drawbridge-door-mask-20261029/control-output.txt"
+  ]
+}

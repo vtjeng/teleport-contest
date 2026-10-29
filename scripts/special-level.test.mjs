@@ -12,7 +12,7 @@ import { monst_globals_init } from '../js/monsters.js';
 import { TIN, EGG, APPLE, CORPSE, STATUE, FIGURINE, objects_globals_init } from '../js/objects.js';
 import { PM_CHAMELEON, PM_CAVE_DWELLER, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
-import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, HWALL, STONE, TREE } from '../js/const.js';
+import { ICE, ICED_POOL, ICED_MOAT, ROOM, CORR, DOOR, D_LOCKED, HWALL, STONE, TREE } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -149,6 +149,21 @@ test('an empty C string prefix uses the optional level-init default', async () =
     });
 });
 
+test('terrain door paint retains the drawbridge wall flags word', async () => {
+    for (const [bridgeState, mask] of [['closed', D_LOCKED], ['open', 0]]) {
+        await runLoader(async des => {
+            des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+            des.terrain({ x: 13, y: 10, typ: '}', lit: 0 });
+            des.terrain({ x: 13, y: 9, typ: '-', lit: 0 });
+            des.drawbridge({ x: 13, y: 10, dir: 'north', state: bridgeState });
+            const wall = game.level.at(14, 9);
+            des.terrain({ x: 13, y: 9, typ: '+', lit: 0 });
+            assert.equal(wall.typ, DOOR);
+            assert.equal(wall.doormask, mask);
+            des.terrain({ x: 13, y: 10, typ: '.', lit: 0 });
+        });
+    }
+});
 
 for (const [operation, combine, expectedWalls] of [
     ['union', l_selection_or, 1], ['subtraction', l_selection_sub, 0],

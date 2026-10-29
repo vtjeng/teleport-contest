@@ -1,0 +1,9 @@
+{"dir":0,"kind":1,"expected":{"before":[23,0,1],"after":[23,0,1]},"observed":{"before":[23,0,1],"after":[23,0,1]}}
+{"dir":0,"kind":2,"expected":{"before":[12,8,1],"after":[14,4,1]},"observed":{"before":[12,8,1],"after":[14,4,1]}}
+{"dir":1,"kind":1,"expected":{"before":[23,0,1],"after":[23,0,1]},"observed":{"before":[23,0,1],"after":[23,0,1]}}
+{"dir":1,"kind":2,"expected":{"before":[12,8,1],"after":[14,4,1]},"observed":{"before":[12,8,1],"after":[14,4,1]}}
+{"dir":2,"kind":1,"expected":{"before":[23,0,0],"after":[23,0,1]},"observed":{"before":[23,0,0],"after":[23,0,1]}}
+{"dir":2,"kind":2,"expected":{"before":[12,8,0],"after":[14,4,1]},"observed":{"before":[12,8,0],"after":[14,4,1]}}
+{"dir":3,"kind":1,"expected":{"before":[23,0,0],"after":[23,0,0]},"observed":{"before":[23,0,0],"after":[23,0,0]}}
+{"dir":3,"kind":2,"expected":{"before":[12,8,0],"after":[14,4,0]},"observed":{"before":[12,8,0],"after":[14,4,0]}}
+{"mode":"control","differences":0}

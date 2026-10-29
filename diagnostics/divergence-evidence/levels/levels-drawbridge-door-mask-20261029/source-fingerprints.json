@@ -1,0 +1,34 @@
+{
+  "testedJsSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "2f80ba5210a57819a2aaa8dbf5b8c88618b85242",
+  "discoveredAt": "2026-10-29T00:43:38.231062+00:00",
+  "reviewedAt": "2026-10-29T00:43:38.231062+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/sp_lev.c:lspo_level_init": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde",
+    "nethack-c/upstream/src/sp_lev.c:splev_initlev": "4bfdf774370460e956830e3a3d825252fef166a623886fd036a7664c0b59eb60",
+    "nethack-c/upstream/src/sp_lev.c:lvlfill_solid": "0eb3809f0e0cc79d09d8992f030ffe512566389d511cabca324f275923bd3d05",
+    "nethack-c/upstream/src/sp_lev.c:sel_set_ter": "63ad752215977fad6413b49ba0d08c6afcc0a82cbc46a4f2409ef9f049ae451c",
+    "nethack-c/upstream/src/sp_lev.c:lspo_terrain": "bb16b3577666b873d8a0f622984cc239d854037ef23f45982c168824594e8c2e",
+    "nethack-c/upstream/src/sp_lev.c:lspo_drawbridge": "499df28f0eb51eea089cfdf39b442876ff29a9e7162b906623f34c0a4e9203d8",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b",
+    "nethack-c/upstream/src/mkmaze.c:set_levltyp_lit": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d",
+    "nethack-c/upstream/src/dbridge.c:is_ice": "b16fd999dfa7a405f9f7c635b69de0d378ecb933cd7afa397db20adcd2b62422",
+    "nethack-c/upstream/src/dbridge.c:create_drawbridge": "f4a8a7aeff3c76c33f07c780da7daf104ead4d6958b2870b136eb2df2c5829b0",
+    "js/mklev.js:lspo_level_init": "33ac00c2c02d4782bf58c570cbe5d6e1bb056b41e5151aef7ce1c7d0701beadf",
+    "js/mklev.js:lspo_drawbridge": "b1efdc8c0d1276cda8e16567a2cd126678b0c76d633dc5efba5c3155abf5cfa9",
+    "js/mklev.js:lspo_terrain": "2ffaa90a0283a806ca38146856616782332714b50f7c2e8b83078c05a650f763",
+    "js/mklev.js:sel_set_ter": "65d430c52c8193c976c009a1c9cd2161803c0988af8aebfbdbfb846a39d02f32",
+    "js/dbridge.js:create_drawbridge": "8dd94e58aeb16e27c61a742a8cccfac653f2b292db242af551983b4e9043ec74",
+    "js/terrain.js:set_levltyp": "d6f85b9b1362cf808def430488df96a836410a891e6bede877839001a1c07bf4",
+    "js/game.js:makeLocation": "da2ba24f972df0788e7dfa7634c17bfa10e8af750f3dd16f0592cb9184512715"
+  },
+  "configuration": "Node24.19.0,Clang19.1.7 -std=c11 -O2. Production JS special loader,seed0x5eed,datetime20400314015926,Tourist/human/female/neutral,bonesfalse; stop before finalization. Explicit lit0/state/direction; no fixture-dependent random decisions.",
+  "limitations": [
+    "Construction-only API sequence: default frame1,0, floor solidfill, explicit MOAT span14,10 and HWALL adjacent in each cardinal direction, explicit open/closed drawbridge, ordinary/secret door paint, then replace span with floor. Final fixture has no remaining drawbridge; no bridge/door operations, entities, object effects or gameplay commands execute.",
+    "C executes exact lspo_level_init, lspo_drawbridge and lspo_terrain wrappers and exact construction/terrain writers. Typed table readers accept only the fixed supplied enum/integer inputs; coordinate adapter asserts default frame1,0, nonrandom interior coordinates and no room. This is not a full Lua VM or parser/coercion test.",
+    "C rm.h aliases doormask/wall_info/drawbridgemask to flags. Minimal fixed structs preserve the used fields; coordinates are small in-range integers. Unused selection/parser and runtime-effect adapters abort if reached; exact is_ice executes, with no ice-removal path.",
+    "Observed portcullis terrain, wall_info and orientation agree before painting. Four targets compare resulting ordinary-door type/mask/orientation. Eight controls cover initially-open bridges and secret-door replacement; they do not prove arbitrary bridge topology, metadata or runtime parity.",
+    "Related to existing shared terrain-flag alias cases, but retention across drawbridge-to-door construction differs from earlier clearing/reset paths. Main must deduplicate repair identity; no additional independent-root or score-impact claim. Shipped exposure unknown."
+  ]
+}
