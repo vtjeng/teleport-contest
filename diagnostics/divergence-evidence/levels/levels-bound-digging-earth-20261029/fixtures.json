@@ -1,0 +1,62 @@
+[
+  {
+    "name": "interior-floor",
+    "rect": [
+      11,
+      5,
+      15,
+      9
+    ],
+    "walls": false
+  },
+  {
+    "name": "interior-room",
+    "rect": [
+      11,
+      5,
+      15,
+      9
+    ],
+    "walls": true
+  },
+  {
+    "name": "northwest-edge",
+    "rect": [
+      1,
+      0,
+      4,
+      3
+    ],
+    "walls": false
+  },
+  {
+    "name": "southeast-edge",
+    "rect": [
+      75,
+      17,
+      78,
+      20
+    ],
+    "walls": false
+  },
+  {
+    "name": "wide-room",
+    "rect": [
+      4,
+      8,
+      73,
+      11
+    ],
+    "walls": true
+  },
+  {
+    "name": "tall-room",
+    "rect": [
+      37,
+      2,
+      41,
+      18
+    ],
+    "walls": true
+  }
+]

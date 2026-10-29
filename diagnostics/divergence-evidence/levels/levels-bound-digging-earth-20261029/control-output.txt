@@ -1,0 +1,13 @@
+{"fixture":"interior-floor","maze":0,"relation":2,"bounds":{"xmin":10,"xmax":16,"ymin":4,"ymax":10},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"interior-floor","maze":1,"relation":2,"bounds":{"xmin":10,"xmax":16,"ymin":4,"ymax":10},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"interior-room","maze":0,"relation":2,"bounds":{"xmin":9,"xmax":17,"ymin":3,"ymax":11},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"interior-room","maze":1,"relation":2,"bounds":{"xmin":10,"xmax":16,"ymin":4,"ymax":10},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"northwest-edge","maze":0,"relation":2,"bounds":{"xmin":0,"xmax":5,"ymin":-1,"ymax":4},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"northwest-edge","maze":1,"relation":2,"bounds":{"xmin":0,"xmax":5,"ymin":-1,"ymax":4},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"southeast-edge","maze":0,"relation":2,"bounds":{"xmin":74,"xmax":79,"ymin":16,"ymax":21},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"southeast-edge","maze":1,"relation":2,"bounds":{"xmin":74,"xmax":79,"ymin":16,"ymax":21},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"wide-room","maze":0,"relation":2,"bounds":{"xmin":2,"xmax":75,"ymin":6,"ymax":13},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"wide-room","maze":1,"relation":2,"bounds":{"xmin":3,"xmax":74,"ymin":7,"ymax":12},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"tall-room","maze":0,"relation":2,"bounds":{"xmin":35,"xmax":43,"ymin":0,"ymax":20},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"fixture":"tall-room","maze":1,"relation":2,"bounds":{"xmin":36,"xmax":42,"ymin":1,"ymax":19},"marked":0,"maskSha256":"065cc6b2b996ca729f6aa0208e13ac4b494dd0d74a4c4df6053d08b0c11da865","equal":true}
+{"mode":"control","count":12,"equal":true}

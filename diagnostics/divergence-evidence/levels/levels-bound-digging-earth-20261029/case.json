@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "caseId": "levels-bound-digging-earth-20261029",
+  "shard": "levels",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": "bound-digging-earth-macro-expansion",
+  "relatedCases": [],
+  "provenance": {
+    "jsSha": "929c5cf7c8755af07b98456c3f76b05f9434dccd",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "bound_digging",
+      "start_line": 1441,
+      "end_line": 1461,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/mkmaze.c",
+      "symbol": "get_level_extends",
+      "start_line": 1353,
+      "end_line": 1427,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/dungeon.c",
+      "symbol": "on_level",
+      "start_line": 1439,
+      "end_line": 1443,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "bound_digging",
+      "start_line": 1586,
+      "end_line": 1599,
+      "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+    },
+    {
+      "side": "JS",
+      "path": "js/mkmaze.js",
+      "symbol": "get_level_extends",
+      "start_line": 1544,
+      "end_line": 1582,
+      "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+    },
+    {
+      "side": "JS",
+      "path": "js/dungeon.js",
+      "symbol": "on_level",
+      "start_line": 1411,
+      "end_line": 1415,
+      "commit_sha": "929c5cf7c8755af07b98456c3f76b05f9434dccd"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/include/dungeon.h",
+      "symbol": "Is_earthlevel/Lcheck/Lassigned",
+      "start_line": 110,
+      "end_line": 114,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    }
+  ],
+  "hypothesis": "The explicit JS on_level call might introduce a boundary-setting condition missing from C.",
+  "expectedBehavior": "Assigned Earth/current level equality bypasses boundary flags; other levels receive nondiggable boundaries and nonpasswall cells strictly beyond them.",
+  "observedBehavior": "Twenty-four non-Earth targets and12 Earth controls: six nonempty floor/walled-room layouts \u00d7 maze flag0/1, with different dungeon/same floor and same dungeon/different floor targets. Exact compiled C bound_digging/get_level_extends/on_level and upstream Earth macros match the real exported JS routines on all1680 wall_info bytes and four boundary coordinates. Earth controls leave all masks0; non-Earth cases set nondiggable8/nonpasswall16 at the expected boundaries.",
+  "witness": {
+    "kind": "compiled_oracle",
+    "scope": "Twenty-four non-Earth targets and12 Earth controls: six nonempty floor/walled-room layouts \u00d7 maze flag0/1, with different dungeon/same floor and same dungeon/different floor targets. Exact compiled C bound_digging/get_level_extends/on_level and upstream Earth macros match the real exported JS routines on all1680 wall_info bytes and four boundary coordinates. Earth controls leave all masks0; non-Earth cases set nondiggable8/nonpasswall16 at the expected boundaries.",
+    "limitations": [
+      "Twenty-four non-Earth targets and12 Earth controls: six explicit nonempty floor/walled-room maps, maze flag0/1, two mismatching current/Earth record relationships and one equal relationship. All1680 wall_info bytes plus xmin/ymin/xmax/ymax compare; terrain is unchanged.",
+      "C executes exact bound_digging/get_level_extends/on_level with the upstream Is_earthlevel\u2192Lcheck\u2192Lassigned macro definitions. Typed struct/grid adapters provide the same fields as GameMap fixtures; these are lower-level valid construction snapshots, not independent full level generation or public Lua loader executions.",
+      "All Earth records are assigned(2,1). Current records are(0,1),(2,2) or(2,1), separating dungeon and floor equality. Unassigned/missing/invalid topology records are not tested; no broad claim about JS nullable values or all macro users.",
+      "Every map contains ROOM cells before the boundary scan. Empty/all-STONE maps are excluded, avoiding the known unqualified scan-boundary concern. Edge fixtures include playable x1/78 and y0/20; wall-ring fixtures retain interior ROOM. No invalid setup is counted as a negative.",
+      "Starting wall_info is0. Existing properties, other metadata/aliases, arbitrary layouts, complete level finalization, runtime digging/phasing and hero state behavior are unreviewed. No runtime entity/object operations are invoked.",
+      "This is one macro-expansion/delegation cause for bound_digging:on_level. The earlier wall-property eligibility proof is not expanded into a universal boundary/topology result. Cave cap-exit, three parked gaps, Main-owned candidates and all safety exclusions remain unchanged."
+    ]
+  },
+  "exposure": {
+    "route": "api",
+    "attribution": "unresolved",
+    "evidence": [],
+    "reason": "Exported level-boundary routines on explicit valid nonempty GameMap states. No public Lua loader, shipped recording or runtime digging attribution."
+  },
+  "origin": {
+    "kind": "scanner",
+    "reason": "C Is_earthlevel expands through Lcheck/Lassigned to on_level; the explicit JS on_level call is not an extra boundary effect. The proof is limited to assigned Earth/current level records and the tested nonempty map fixtures.",
+    "keys": [
+      "source-audit:edge-js-only:src/mkmaze.c:bound_digging:on_level"
+    ],
+    "projection": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/projection/projection.json",
+    "manifest": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/projection/manifest.json",
+    "decisions": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/decisions.json"
+  },
+  "commands": [
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/probe.mjs",
+        "target"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/fixtures.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/target-receipt.json"
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/probe.mjs",
+        "control"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/probe.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/oracle.c",
+        "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/source-contract.json",
+        "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/fixtures.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/README.md",
+      "sha256": "269b8ae71836b4545b72eae7fa5231459e8bf86b2db0535d324af9de038446b9",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/control-output.txt",
+      "sha256": "6a150221cf962904c9b1e39552b8327edb4e9c80f6ffeac755ee5cd049b016ed",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/control-receipt.json",
+      "sha256": "efc75ea1e17b458bdf1c96c16f2c08fdf97707f60799b2e99ce8ac4535a4ff92",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/decisions.json",
+      "sha256": "91d66dd3431d033775976ddc5617321a5c8ae2e3d52b592cdab51cf223d00f11",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/fixtures.json",
+      "sha256": "b259a0f0f22ee0eaf4b3dc40d29cf30a83b0e03f0c4ccc64972712e6dd26b847",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/oracle.c",
+      "sha256": "d657c9da8b9d93491f01d6f8fae9993c4ab7e59d40f72eff1a10971b2c6186d1",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/probe.mjs",
+      "sha256": "f27f2611c57c57b3659fc893f3affe3a5e6c85e3e7bfb59a9c9c14072c0b6e6c",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/projection/manifest.json",
+      "sha256": "b3e16251d862313e4877b08bcc8eee12bbd03ce52574980ba5470fda5256ecbb",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/projection/projection.json",
+      "sha256": "9dd8cfe6cc32477580a4271875a0471d52b8f643eac2b7adcd5b83e6dab75def",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/projection/review-template.json",
+      "sha256": "6eabbcecaef6c61605b8948d8a9c2547eaefa61e9a716acbeb224f469af064ae",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/source-contract.json",
+      "sha256": "60cc10ec86261757d6546e8e8785d4577223b4c4365d01f27ced582e9d9dec13",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/source-fingerprints.json",
+      "sha256": "3dadd98053f60c299faf13f8e40662c88f9bab9355dabb2a03dd6226a1b00a37",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/target-output.txt",
+      "sha256": "b72f83d5a5e212dbb64ca40c777ea405263fea19a4a6ce96f116537fa29e766a",
+      "role": "evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029/target-receipt.json",
+      "sha256": "501ae91bc193a3b316426b1187792eb316846ea1c85d7410fe22ead4ba4c7afd",
+      "role": "evidence"
+    }
+  ],
+  "dependencies": []
+}

@@ -1,0 +1,25 @@
+[
+  {
+    "key": "source-audit:edge-js-only:src/mkmaze.c:bound_digging:on_level",
+    "evidenceKey": "2a819f759044ed74a0e74732a6f6021a709547a000f3a15064c6e7c6e2ecfaf4",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "e731d196056c2bff5131681af51dfecba73fb214af7415ddce1c0efaef9a450b",
+    "status": "explained_negative",
+    "reason": "scanner-assumption-invalid",
+    "evidence": {
+      "explanation": "C Is_earthlevel expands through Lcheck/Lassigned to on_level; the explicit JS on_level call is not an extra boundary effect. The proof is limited to assigned Earth/current level records and the tested nonempty map fixtures.",
+      "proof": "Twenty-four non-Earth targets and12 Earth controls: six nonempty floor/walled-room layouts × maze flag0/1, with different dungeon/same floor and same dungeon/different floor targets. Exact compiled C bound_digging/get_level_extends/on_level and upstream Earth macros match the real exported JS routines on all1680 wall_info bytes and four boundary coordinates. Earth controls leave all masks0; non-Earth cases set nondiggable8/nonpasswall16 at the expected boundaries.",
+      "control": "Earth coordinates equal current coordinates, so the boundary operation leaves the entire map unrestricted. Non-Earth targets separately distinguish dnum and dlevel equality. Terrain remains unchanged in all cases. Typed GameMap/C-grid fixtures are explicit lower-level construction states, not full public loader, shipped recording or runtime proofs. Empty/all-STONE maps, unassigned/invalid level records, preexisting property flags, other layouts and runtime digging/phasing remain outside scope.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmaze.c:1441",
+        "nethack-c/upstream/include/dungeon.h:110",
+        "nethack-c/upstream/src/dungeon.c:1439",
+        "js/mkmaze.js:1586",
+        "js/dungeon.js:1411"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-bound-digging-earth-20261029",
+      "reviewedBase": "929c5cf7c8755af07b98456c3f76b05f9434dccd",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]
