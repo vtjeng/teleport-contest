@@ -26,7 +26,7 @@ Additional qualified outcomes (all matching; zero new semantic causes):
 | Loss floor, XP reset, historical maximum | loss-floor-recovery-20261029: 16 targets + 1 control | Restricted PR #109 adapter; API-only nonfatal level-one call; natural history unqualified |
 | XP overshoot, revisit, max-level award | xp-integration-20261029: 3 full recordings | Debug-assisted transport; level-30 award is below 110000000 threshold, so not an isolated MAXULEV guard test |
 
-PR #111 now contains 34 matching public recordings and the three new component
+PR #111 now contains 41 matching public recordings and the three new component
 matrices above. Counts are fixtures, not independent causes. Earlier PR #109's
 60+4 states remain separate. Existing XP repair 8585e9745 is preserved, not new.
 One pre-existing exploratory Wizard level-generation RNG mismatch remains
@@ -68,3 +68,21 @@ matching public first/repeated-rank records with exact event assertions. Zero ne
 causes. This supersedes any implication that every remaining route is blocked:
 highlighted XP and female/later-rank chronicle paths have plausible public setups
 but are not yet qualified. Highlight rule selection is the next concrete frontier.
+
+
+Follow-on completion (no pause remains): xp-highlight qualifies five public
+percentage-rule records at below/exact50%, terminal-point100% and level-gain
+reset, including actual parsed JS rule/selection and C/JS cell-color assertions.
+rank-gender adds male/female later-rank and reacquisition chronicle records.
+max-resource-caps adds130 matching API targets +2 controls for level30 resource
+throttling and retained increment slots. No new semantic causes.77 focused tests
+pass. These were continued without stopping at each matching package.
+
+The named reachable frontiers from the prior inventory are now executed. Their
+remaining narrow gap is C-internal redraw-gate isolation: public final colors
+cannot prove which redraw requester fired. Smallest missing capability is a
+supported read-only C state/branch receipt at more_experienced's call boundary,
+or a qualified complete highlighting component oracle; neither is available in
+these packages. No gameplay mutation or unsupported state setter is substituted.
+Natural depleted/practice/timing histories and full-recorder build provenance
+remain separate gaps. This is not a claim of exhaustive ordinary gameplay.

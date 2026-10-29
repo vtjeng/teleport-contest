@@ -19,17 +19,17 @@ others are directories in this PR. JS-only test coverage is not a C oracle.
 | newpw/newhp: initialization vs low/high xlev; initial random terms | N executed full bodies plus A public initialization and traversals | Initial alignment skip at moves>0 is reinitialization/polymorph context and excluded |
 | newhp: CON bands, positive floor, stored increments | N numeric matrix; P106/I/A public transitions | Equipment/temporary modifiers excluded or separate prerequisite; ACURR adapter is explicit |
 | newpw: WIS division, positive floor, stored increments | N and public transitions | No extrapolation to arbitrary modified attributes |
-| newhp/newpw: MAXULEV diminishing gains and no increment-slot write | Existing JS test only; P109 newexplevel guard does not call these at 30 | API oracle feasible, but no permitted public trigger identified: wizard/newexplevel both stop before pluslvl; usual effect trigger excluded. Do not call this a public negative |
+| newhp/newpw: MAXULEV diminishing gains and no increment-slot write | max-resource-caps:130 targets+2 controls now compare executed complete C bodies; P109 guard does not call these at30 | API now qualified in bounded matrix, but no permitted public trigger identified: wizard/newexplevel both stop before pluslvl; usual effect trigger excluded. Do not call this a public negative |
 | more_experienced: XP changed/showexp redraw | I/X public records, G executed API observes botl directly | Existing run-leave-level matrix also has showexp pair; not a new discovery |
 | more_experienced: XP unchanged/score-only; score change; beginner threshold and already false | G 96 targets + 2 controls; C/JS exact fields | Constructed score histories only; natural acquisition not established |
 | more_experienced: no highlight rules / redraw already pending | G includes complete C exp_percent_changing with no rules and aborting unreachable dependencies | Qualified component; no terminal claim |
-| more_experienced: highlight rules, changed percent, selected rule changes | Existing JS level-arrival tests; no dedicated C receipt in this audit | **Reachable candidate**: supported STATUSHILITES config plus below-threshold Tourist sightseeing; first qualify actual parsed rule and old/new color, then compare. No new bug asserted |
+| more_experienced: highlight rules, changed percent, selected rule changes | xp-highlight: five full public records plus parsed runtime/selected-rule and C/JS color assertions | Rule-selection integration now qualified at50%, terminal100% and reset; C-internal redraw-gate isolation still requires a supported observer or expanded component oracle |
 | more_experienced: signed-long wrap and JS exact-integer refusal | Known explicit unsupported numeric range in source/tests | No bounded ordinary public reachability; do not grind or label as newly discovered |
 | newexplevel: below/at/above threshold, at most one gain and max-level guard | P109 exact API threshold matrix; I/X production low XP; X level30 award stays below threshold | Actual level30 threshold is oracle-only, not established by public award |
 | pluslvl: incremental vs wizard message/RNG/resource ordering | I/X incremental; P106/A/E wizard; P109/L numeric projection | All public evidence is debug-assisted setup, not natural walking/drain history |
 | pluslvl: overshoot cap vs no cap | P109 API and X public overshoot/revisit | Matching reached values, not arbitrary XP history proof |
 | pluslvl: fresh ulevelmax vs recovered level | L restricted Welcome back API; wizard public resets ulevelmax | Natural recovery requires a permitted loss history; combat/drain effects excluded |
-| pluslvl: first rank vs no new rank; achievement repeated; peak fallback | A traverses rank boundaries; R observes first/repeat event order in public chronicle | **Reachable** female rank encoding and later-rank chronicle variants remain unexecuted by this observer; not blocked or exhausted |
+| pluslvl: first rank vs no new rank; achievement repeated; peak fallback | A traverses rank boundaries; R observes first/repeat event order in public chronicle | rank-gender now observes male/female ranks14/18 and repeat events; no direct C identifier-memory claim |
 | pluslvl: HP/energy peaks rise vs existing higher peaks | Public full-resource transitions; P109/L restricted fields | Full-runtime peak-preservation histories require permitted depleted/max-reduced setup; no arbitrary state setter established |
 | losexp: debug nonfatal override; level>1; level1 XP reset | Public wizard loss; L API level1 reset, public command refuses that call | No new ordinary public level1 reset route qualified |
 | losexp: HP min, prevent raising prior max, current below1/above max | P109/L constructed API states including level10/11/12/30 floor | Natural reduced max/current history is setup-blocked, not a negative |
@@ -76,3 +76,21 @@ Natural depleted/practice/shared-turn and at-threshold level30 histories remain
 separate setup gaps. Full-recorder build attestation remains unavailable. No
 additional authority is requested, no action was denied/pending, and no gameplay
 edit is proposed from these matching results. Elapsed time is not active compute.
+
+
+## Follow-on resolution
+
+The previously named public highlight and female/later-rank frontiers were
+executed before returning this checkpoint; see xp-highlight and rank-gender.
+MAXULEV throttling is now executed component evidence, still not public-trigger
+coverage. All match with declared limits. Prior long-highlight threshold fix
+49626a567 remains acknowledged; no duplicate bug claim.
+
+No new discrepancy hypothesis survives these bounded comparisons. C-internal
+redraw requester identity remains unobserved: the smallest useful next capability
+is an existing supported read-only state/branch receipt at the more_experienced
+boundary, or qualifying the full highlight dependency closure as a C component.
+Neither has been established here. Do not infer the internal branch from final
+color alone, or add competing gameplay/tooling changes. Natural histories,
+provenance and excluded contexts retain their earlier dispositions. This is a
+qualification boundary for the identified paths, not global exhaustion.
