@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T02:29:35Z",
+  "asOf": "2026-10-29T02:45:55Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -26910,6 +26910,80 @@
         ],
         "test": [
           "scripts/quest-levels.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+          "committedAt": "2026-10-29T02:33:31Z",
+          "sourceCommit": "5099d3bb2edb348fd076f3ebc39f28266465b700",
+          "sourceCommittedAt": "2026-10-29T02:32:08Z",
+          "runs": [
+            {
+              "id": 40807099613,
+              "name": "Checkpoint",
+              "sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/randline-priority-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:33:54Z",
+              "completedAt": "2026-10-29T02:43:20Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40807099613"
+            },
+            {
+              "id": 40808096353,
+              "name": "Lint",
+              "sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:44:01Z",
+              "completedAt": "2026-10-29T02:45:13Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40808096353"
+            },
+            {
+              "id": 40808096341,
+              "name": "Dashboard",
+              "sha": "89b8b37ad4ea952f25d2c8059411f21b2688f91c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T02:44:01Z",
+              "completedAt": "2026-10-29T02:45:55Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40808096341"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reset-hell-temperature",
+      "title": "Restore the hellish temperature default when resetting a level",
+      "investigator": "levels PR #89",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mklev.c:clear_level_structures",
+          "nethack-c/upstream/src/sp_lev.c:lspo_reset_level",
+          "js/mklev.js:clear_level_structures"
+        ],
+        "witness": [
+          "diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/case.json"
+        ],
+        "test": [
+          "scripts/mklev-hell-reset.test.mjs"
         ]
       },
       "candidates": []

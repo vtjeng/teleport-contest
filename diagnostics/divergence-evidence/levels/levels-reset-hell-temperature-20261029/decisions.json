@@ -1,0 +1,35 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mklev.c:clear_level_structures:In_hell",
+    "evidenceKey": "ce00e44400411e83d93db2df4999dcd62807888041d52257e9856959b4ed7560",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "d90e5ef37adbdd559eb1295e802880b79249d8340dd48baddff08c1e14e9a4af",
+    "status": "confirmed",
+    "witness": {
+      "setup": "Actual newgame_pre_mklev dungeon configuration, Gehennom floors1..3, empty production special-loader callback, public des.level_flags(cold/temperate/hot) then await des.reset_level(). No private JS helper invocation. Exact compiled C lspo_reset_level→clear_level_structures→In_hell with typed setup and non-temperature adapters.",
+      "failingCommand": "node diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs target",
+      "observed": "Nine JS reset results are temperature0 (temperate).",
+      "expected": "Nine C reset results are temperature1 (hot), from the actual dungeon hellish flag.",
+      "control": {
+        "command": "node diagnostics/divergence-evidence/levels/levels-reset-hell-temperature-20261029/probe.mjs control",
+        "result": "Exit0 for nine Dungeons of Doom floors1..3 × prior temperature -1/0/1; C/JS both reset to0."
+      },
+      "evidenceBasis": "C-executed",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mklev.c:850",
+        "nethack-c/upstream/src/sp_lev.c:5993",
+        "nethack-c/upstream/src/dungeon.c:1942",
+        "js/mklev.js:483",
+        "js/mklev.js:4572"
+      ]
+    },
+    "claim": {
+      "expected": "Reset restores branch-default temperature, hot in hellish branches.",
+      "suspectedDifference": "JS clear_level_structures unconditionally sets temperature0 after coder initialization; ordinary loader order masks the omission, reset API order exposes it."
+    },
+    "handoff": {
+      "caseId": "levels-reset-hell-temperature-20261029",
+      "qualification": "API-scoped flag reset; shipped exposure and score impact unknown. Does not qualify other reset state or runtime effects."
+    }
+  }
+]
