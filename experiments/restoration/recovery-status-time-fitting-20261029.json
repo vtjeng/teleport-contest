@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "bfb69a5cc3d4d7edc654d44e91e25ee5fbc6e8cd",
+    "047103bd88541bea2cef67d5bc27a7fe73fd8f93"
+  ],
+  "scope": "C stat_update_time BL_FLUSH status-row re-fit and retained carrying-capacity padding as turn-counter width grows. Two dependent source scopes, one coherent status-refresh behavior.",
+  "dependencies": "Padding correction depends on time-row re-fit. Existing H full-status snapshots/layout helpers suffice; display.js has no original18 window diff. No original18 allmain, traps or other gameplay paths imported.",
+  "cSource": {
+    "gitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "files": {
+      "src/botl.c": "765fe13d7ee604c606c6920bce9bcb2a8a82299dbd56073b2b90101409409360",
+      "win/tty/wintty.c": "43381180f9dfe41111b0dd34ba2ea0eb02f852b25e696810161c83e8c63745d5"
+    }
+  },
+  "recordings": {
+    "probe": {
+      "recipes/display.c/trial-time-width-probe.session.json": "5f41a6aec4255458cffcaad744bf36a1b71c2c5224e2fed6bbafd1b5f0f7268d",
+      "recordings/display.c/trial-time-width-probe.session.json": "6a448d4d892a3a110466e9b7d40c733b7a2a11ca705c5d4eec68291a9090f11c"
+    },
+    "prefix-control": {
+      "recipes/display.c/trial-time-width-prefix-control.session.json": "c01ca31b4553049506cc7f3052d0387df6835253448d4bd9cb0b1a84bb4ba806",
+      "recordings/display.c/trial-time-width-prefix-control.session.json": "b0cbc8d342e21a16973168ba7ad818711dd3aef1841a80d1687a6307583c2c72"
+    },
+    "no-gold-control": {
+      "recipes/display.c/trial-time-width-no-gold-control.session.json": "5e8aa0c8e25781e57dedd4cd4fe32d75cfe7149e72c798a252495748dbd67770",
+      "recordings/display.c/trial-time-width-no-gold-control.session.json": "61e8142e8e343fee527386d3cdfc70adb70b3e80f06bea898f4275d8c15409ac"
+    },
+    "no-blind-control": {
+      "recipes/display.c/trial-time-width-no-blind-control.session.json": "07a229289887b4cc833555d0e071564fb6c483f36c1d41d41ee031a775868cfa",
+      "recordings/display.c/trial-time-width-no-blind-control.session.json": "dd95474714fe0d94466c708ab3224b4d0a859b7cb746e51c310d76fbdbff204e"
+    },
+    "capacity-padding-probe": {
+      "recipes/display.c/trial-time-width-capacity-padding-probe.session.json": "c544022543840b5a3e2e10ff65738d74825e63cc57a389ef4adefb08d7a9748d",
+      "recordings/display.c/trial-time-width-capacity-padding-probe.session.json": "dbe1698230e499350ac004da2f2f981d035915ef0dbafd5d841e1c53dab4f93d"
+    },
+    "capacity-padding-control": {
+      "recipes/display.c/trial-time-width-capacity-padding-control.session.json": "5346fda5a19377b92f2b266b59dc1fa2721a9b61197a7510c78d186c4983328f",
+      "recordings/display.c/trial-time-width-capacity-padding-control.session.json": "a0a50ea3008d2789dca39611b2c002bea2205f87c2c49c1ae2d9be2ec71774a0"
+    }
+  },
+  "baselineObservedBoundary": "Three affected recordings stop at UnsupportedStatusRefreshError: make_things_fit shrinking a row on a turn-counter refresh; three neighboring recordings match. Historical capacity-padding-control is affected on H and is not counted as a passing H control.",
+  "limits": "Six historical public C recordings, no fresh C execution or original binary build attestation. Finite source-backed status coverage, not proof of every animation state. Rendering changes are judge-observable, not expected gameplay no-ops."
+}
