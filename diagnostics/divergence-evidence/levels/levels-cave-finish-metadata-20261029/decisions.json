@@ -1,0 +1,48 @@
+[
+  {
+    "key": "source-audit:edge-c-only:src/mkmap.c:mkmap:finish_map",
+    "evidenceKey": "cf7e5ede1fe2f9ab986a96d3cd5367c01c8e2f8c5c44b45b91ca99794a146f4b",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "21de5b2020cd891315c0fe77f620b85607154e364d9e1196c67e9fad930dedb2",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C finish_map is delegated to JS mkmap_finish_map. Executed public mines initialization preserves the tested lighting and ice-tag effects; the differing callee name does not establish missing behavior. This is a finite non-walled/no-room metadata proof, not full cave or finish_map equivalence.",
+      "proof": "Twelve targets: foreground/background ICE/LAVA, ROOM/TREE, TREE/ROOM × lit0/1 × icedpools flag absent/present, seed24301. Eight controls: ROOM/STONE and ICE/STONE × the same switches. All1659cells per map match exact compiled C finish_map on the observed terrain, starting with zero metadata/no rooms. Lava lights with lit0; background trees light with lit1 but foreground trees stay dark; ice tags switch16→8 via the public level_flags API.",
+      "control": "ROOM/STONE controls discriminate lit0/1 without lava/ice/tree exceptions; ICE/STONE controls isolate the pool/moat tag switch. The C oracle consumes only observed JS terrain, never JS metadata; terrain/RNG generation itself is not compared. No walls, room lighting, joining, smoothing, reused-state metadata, finalization or runtime claims.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:331",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "nethack-c/upstream/src/sp_lev.c:3009",
+        "js/mklev.js:5429",
+        "js/mklev.js:5460"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029",
+      "reviewedBase": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  },
+  {
+    "key": "source-audit:edge-js-helper:src/mkmap.c:mkmap:mkmap_finish_map",
+    "evidenceKey": "534b198e8f4e4bcbec021a72bd3fc1a3023a1d23c187154676b66540ef414acb",
+    "runId": "ea2181cadbad5793b4be",
+    "reviewFingerprint": "ebe655e7d393962e2fe1a4cc48304a84098e28a8d43c06db5ed1909463085370",
+    "status": "explained_negative",
+    "reason": "equivalent-implementation",
+    "evidence": {
+      "explanation": "C finish_map is delegated to JS mkmap_finish_map. Executed public mines initialization preserves the tested lighting and ice-tag effects; the differing callee name does not establish missing behavior. This is a finite non-walled/no-room metadata proof, not full cave or finish_map equivalence.",
+      "proof": "Twelve targets: foreground/background ICE/LAVA, ROOM/TREE, TREE/ROOM × lit0/1 × icedpools flag absent/present, seed24301. Eight controls: ROOM/STONE and ICE/STONE × the same switches. All1659cells per map match exact compiled C finish_map on the observed terrain, starting with zero metadata/no rooms. Lava lights with lit0; background trees light with lit1 but foreground trees stay dark; ice tags switch16→8 via the public level_flags API.",
+      "control": "ROOM/STONE controls discriminate lit0/1 without lava/ice/tree exceptions; ICE/STONE controls isolate the pool/moat tag switch. The C oracle consumes only observed JS terrain, never JS metadata; terrain/RNG generation itself is not compared. No walls, room lighting, joining, smoothing, reused-state metadata, finalization or runtime claims.",
+      "sourceRefs": [
+        "nethack-c/upstream/src/mkmap.c:331",
+        "nethack-c/upstream/src/mkmap.c:451",
+        "nethack-c/upstream/src/sp_lev.c:3009",
+        "js/mklev.js:5429",
+        "js/mklev.js:5460"
+      ],
+      "evidenceCase": "diagnostics/divergence-evidence/levels/levels-cave-finish-metadata-20261029",
+      "reviewedBase": "176bb0e38117602afab165ee6d4e363c11943fdb",
+      "scanBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39"
+    }
+  }
+]
