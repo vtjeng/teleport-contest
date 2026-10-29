@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T05:09:14Z",
+  "asOf": "2026-10-29T05:25:47Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -27535,7 +27535,7 @@
     },
     {
       "id": "terrain-light-bitfield-storage",
-      "title": "Store terrain lighting with the C unsigned one-bit semantics",
+      "title": "Match unsigned one-bit storage for special-level API values",
       "investigator": "levels PR #89",
       "kind": "parity-repair",
       "window": "post-trial",
@@ -27546,7 +27546,10 @@
           "nethack-c/upstream/src/nhlua.c:get_table_boolean",
           "nethack-c/upstream/src/sp_lev.c:lspo_level_init/lvlfill_solid",
           "nethack-c/upstream/include/rm.h:struct rm.lit",
-          "js/mkmaze.js:set_levltyp_lit"
+          "js/mkmaze.js:set_levltyp_lit",
+          "nethack-c/upstream/src/sp_lev.c:create_monster",
+          "nethack-c/upstream/include/monst.h:female/mpeaceful/msleeping",
+          "js/themeroom_fill.js:create_monster"
         ],
         "witness": [
           "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/case.json"
@@ -27629,7 +27632,58 @@
           "scripts/capacity-silent-status.test.mjs"
         ]
       },
-      "candidates": []
+      "candidates": [
+        {
+          "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+          "committedAt": "2026-10-29T05:12:26Z",
+          "sourceCommit": "26e56ce08dd2794bde95d027d9747b9c8e1953f5",
+          "sourceCommittedAt": "2026-10-29T05:11:15Z",
+          "runs": [
+            {
+              "id": 40822052372,
+              "name": "Checkpoint",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/capacity-public-three-causes-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:12:35Z",
+              "completedAt": "2026-10-29T05:21:56Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40822052372"
+            },
+            {
+              "id": 40823058702,
+              "name": "Lint",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:22:51Z",
+              "completedAt": "2026-10-29T05:24:04Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40823058702"
+            },
+            {
+              "id": 40823058730,
+              "name": "Dashboard",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:22:51Z",
+              "completedAt": "2026-10-29T05:25:47Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40823058730"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "gold-pickup-live-count",
@@ -27653,7 +27707,58 @@
           "scripts/pickup-gold-capacity.test.mjs"
         ]
       },
-      "candidates": []
+      "candidates": [
+        {
+          "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+          "committedAt": "2026-10-29T05:12:26Z",
+          "sourceCommit": "ca33ba55222335c5ab644d9249d704c70f72ccdc",
+          "sourceCommittedAt": "2026-10-29T05:11:42Z",
+          "runs": [
+            {
+              "id": 40822052372,
+              "name": "Checkpoint",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/capacity-public-three-causes-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:12:35Z",
+              "completedAt": "2026-10-29T05:21:56Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40822052372"
+            },
+            {
+              "id": 40823058702,
+              "name": "Lint",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:22:51Z",
+              "completedAt": "2026-10-29T05:24:04Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40823058702"
+            },
+            {
+              "id": 40823058730,
+              "name": "Dashboard",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:22:51Z",
+              "completedAt": "2026-10-29T05:25:47Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40823058730"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "container-menu-priced-naming",
@@ -27678,7 +27783,58 @@
           "scripts/container-menu-wizweight.test.mjs"
         ]
       },
-      "candidates": []
+      "candidates": [
+        {
+          "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+          "committedAt": "2026-10-29T05:12:26Z",
+          "sourceCommit": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+          "sourceCommittedAt": "2026-10-29T05:12:26Z",
+          "runs": [
+            {
+              "id": 40822052372,
+              "name": "Checkpoint",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/capacity-public-three-causes-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:12:35Z",
+              "completedAt": "2026-10-29T05:21:56Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40822052372"
+            },
+            {
+              "id": 40823058702,
+              "name": "Lint",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:22:51Z",
+              "completedAt": "2026-10-29T05:24:04Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40823058702"
+            },
+            {
+              "id": 40823058730,
+              "name": "Dashboard",
+              "sha": "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:22:51Z",
+              "completedAt": "2026-10-29T05:25:47Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40823058730"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

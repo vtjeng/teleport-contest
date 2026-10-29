@@ -104,6 +104,43 @@ test('levregion destination names retain the C string prefix', async () => {
     }
 });
 
+// Source-derived C expectations: lspo_monster accepts the boolean-string
+// indices, then create_monster directly assigns these unsigned one-bit fields.
+// No new C constructor execution is claimed for these API cases.
+for (const [field, stored] of [
+    ['peaceful', 'mpeaceful'], ['asleep', 'msleeping'], ['female', 'female'],
+]) {
+    test(`native monster ${field} uses C one-bit storage`, async () => {
+        for (const [value, expected] of [
+            ['yes', false], ['true', false], ['false', true], ['no', true],
+            [false, false], [true, true], [0, false], [1, true],
+        ]) {
+            await runLoader(async des => {
+                des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+                await des.monster({ id: 'giant ant', x: 10, y: 6,
+                    peaceful: false, asleep: false, female: false,
+                    inventory: false, [field]: value });
+                const mon = game.level.monlist;
+                assert.ok(mon);
+                assert.equal(mon.nmon, null);
+                assert.deepEqual([mon.mx, mon.my], [11, 6]);
+                assert.equal(mon.data.pmnames[2], 'giant ant');
+                assert.equal(Boolean(mon[stored]), expected, `${field}/${String(value)}`);
+            });
+        }
+    });
+}
+
+test('explicit C truthy-to-one monster flags retain their semantics', async () => {
+    await runLoader(async des => {
+        des.level_init({ style: 'solidfill', fg: '.', lit: 0 });
+        await des.monster({ id: 'giant ant', x: 10, y: 6,
+            peaceful: false, asleep: false, female: false,
+            inventory: false, cancelled: 'yes' });
+        assert.equal(Boolean(game.level.monlist.mcan), true);
+    });
+});
+
 test('region types use copied C string prefixes', async () => {
     for (const [name, type] of [
         ['morgue\0suffix', MORGUE], ['temple\0suffix', TEMPLE],
