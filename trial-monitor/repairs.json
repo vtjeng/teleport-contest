@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-29T05:40:39Z",
+  "asOf": "2026-10-29T05:57:54Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -27905,6 +27905,82 @@
         "test": [
           "scripts/special-level.test.mjs",
           "scripts/sp-lev-table-helpers.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "50c9eaf4505615cbb25f522f04199c6f7a89d8c8",
+          "committedAt": "2026-10-29T05:43:13Z",
+          "sourceCommit": "6437c374e03e9178167572e662f35eb1bc8dbaac",
+          "sourceCommittedAt": "2026-10-29T05:43:13Z",
+          "runs": [
+            {
+              "id": 40825165101,
+              "name": "Checkpoint",
+              "sha": "50c9eaf4505615cbb25f522f04199c6f7a89d8c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/callback-string-preflight-20261029",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:44:55Z",
+              "completedAt": "2026-10-29T05:54:50Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40825165101"
+            },
+            {
+              "id": 40826244117,
+              "name": "Lint",
+              "sha": "50c9eaf4505615cbb25f522f04199c6f7a89d8c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:56:21Z",
+              "completedAt": "2026-10-29T05:57:32Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40826244117"
+            },
+            {
+              "id": 40826244216,
+              "name": "Dashboard",
+              "sha": "50c9eaf4505615cbb25f522f04199c6f7a89d8c8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-29T05:56:21Z",
+              "completedAt": "2026-10-29T05:57:54Z",
+              "completedAtSource": "final-job",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/40826244216"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "traditional-count-live-echo",
+      "title": "Echo traditional numeric prompt input at each TTY boundary",
+      "investigator": "capacity PR #110",
+      "kind": "parity-repair",
+      "window": "post-trial",
+      "origin": "single-agent",
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/win/tty/topl.c:tty_yn_function",
+          "js/topl.js:tty_yn_function"
+        ],
+        "witness": [
+          "https://github.com/vtjeng/teleport-contest/pull/110",
+          "scripts/fixtures/capacity-menu/traditional-count-decline.session.json.gz",
+          "scripts/fixtures/capacity-menu/traditional-count-accept.session.json.gz",
+          "scripts/fixtures/capacity-menu/traditional-count-explicit-prefix.session.json.gz"
+        ],
+        "test": [
+          "scripts/traditional-count-echo.test.mjs"
         ]
       },
       "candidates": []
