@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "exporterSha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+  "hubSha256": "8ea59a7401bb6b5f4435cce3e6059a16baced10f6b12576c5ca53eb26929cff7",
+  "originalRunSha256": "b087d8cb44d510370100ae2b193e7caebc770402333397612e5035ee0f5d2de8",
+  "originalLeadCount": 12534,
+  "projectionSha256": "cedc346ab1ff326aa78296d8a37987e68f068db042ae65a21e7de3265b8b3d49",
+  "runId": "ea2181cadbad5793b4be",
+  "selectedKeys": [
+    "source-audit:edge-stub:src/mkmaze.c:mkportal:maketrap"
+  ],
+  "decisionsSha256": "f89525a7cb9bb0bc18b5eba7807b44d5214332e880d50dd8f622ca955ce157a3",
+  "validation": {
+    "originalComparison": "verified",
+    "selected": 1,
+    "decisionsChecked": 1,
+    "before": {
+      "active": 1,
+      "filtered": 0,
+      "excluded": 0
+    },
+    "after": {
+      "active": 0,
+      "filtered": 1,
+      "excluded": 0
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "commandId": "control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/probe.mjs",
+    "control"
+  ],
+  "cwd": ".",
+  "jsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T01:18:58.292Z",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "clang": "19.1.7 (3+b1)"
+  },
+  "runnerSha256": "ae9f3b080a1f01d907a369aaaefbeaa4743420db2001a76fda378cbdd1c27d89",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/oracle.c": "e7f00d205427b9d1d576cb49dea51f460682ba005d1b4ab068b142f6e76d6dc0",
+    "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/source-contract.json": "20acdd8b97cfda5da5033fdf8c32cac3f1eb34a949abed7284123766827d1a9b"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/levels/levels-portal-construction-delegation-20261029/control-output.txt"
+  ]
+}

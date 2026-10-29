@@ -1,0 +1,23 @@
+{
+  "testedJsSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "toolingSha": "176bb0e38117602afab165ee6d4e363c11943fdb",
+  "discoveredAt": "2026-10-29T01:19:07.867443+00:00",
+  "reviewedAt": "2026-10-29T01:19:07.867443+00:00",
+  "functionHashes": {
+    "nethack-c/upstream/src/mkmaze.c:mkportal": "19e8ee8fb7ae04741d1afaac753a00441a91bb3700d3690b7e8bd2ace2f647cb",
+    "nethack-c/upstream/src/trap.c:maketrap": "59492be8855da96971f1a1a9371635f8b2b396626e3dc5fe9e9167599cadee23",
+    "js/mkmaze.js:mkportal": "c3ac93842844f2b271814e17eaa1c85f8654fc524e95c4eac9a7e042e39987dd",
+    "js/trap.js:maketrap": "e51408d5c28818b96ad67af1f16eba1609d594083829c5b363e34051e1824f64"
+  },
+  "jsCallerAndFactoryUnchangedFromScanBase": true,
+  "configuration": "Node24.19.0,Clang19.1.7 -std=c11 -O2. Exact C caller with successful/null factory interface adapter; actual JS portal/trap constructors on paired GameMap fixtures; no random draws required.",
+  "limitations": [
+    "Constructor delegation and caller-owned destination fields only:18 portal endpoints over3 coordinate pairs and3 reciprocal level pairs in a3-level dungeon. Empty ROOM cells, no existing traps for targets. No portal travel, complete level generation/finalization, arbitrary terrain, trap replacement or generic metadata parity.",
+    "C oracle compiles exact mkportal against a factory interface adapter which returns either a record or NULL and checks one MAGIC_PORTAL call. It does NOT compile full C maketrap. The scoped question is whether the JS callee is a stub and whether its successful result receives the caller destination; full C factory semantics are not established by this adapter.",
+    "JS executes real mkmaze.mkportal and trap.maketrap with GameMap states and creates/links reciprocal portal records. Both function bodies are unchanged from the frozen discovery base. Minimal level fixtures do not invoke runtime capabilities.",
+    "Eighteen rejection controls attempt construction on a previously created protected portal. Actual JS returns null without replacing/doubling/mutating that portal. C adapter returns NULL and exact caller records one impossible diagnostic. C maketrap protected-trap return and trap.h macro are source-pinned, not executed by the C adapter.",
+    "Diagnostic parity is explicitly excluded: C emits a diagnostic on NULL; JS omits that message. The separate impossible/message leads remain unreviewed, not filtered by this construction-stub proof. Controls are rejected constructor attempts, not successful alternate portal routes.",
+    "Source hashes invalidate the proof on changed files. No broad declaration that all maketrap callers, construction branches, or prior trap selector/registration domains are equivalent. Three parked gaps and all Main-owned candidates unchanged."
+  ]
+}
