@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "2579242c67804962299920a58e3052ab3718c187",
+    "f1b91b9793db21b1cff6627604cc92df95be0ab6",
+    "1c4be74beb32edbfc897de805f218e180f8c6002"
+  ],
+  "scope": "Table-form des.map lighting through existing C-compatible option reader and one-bit terrain writer; preserve lava override and default dark behavior.",
+  "relatedFamily": "Table-map lighting omission plus proven existing Lua C-string and one-bit storage dependencies. These source scopes are provenance, not three independent repair claims.",
+  "dependencyReview": "Direct parent supplies one-bit terrain writer. Pure Lua option-prefix helper is additionally required for valid NUL-suffixed boolean strings. Both dependencies have failing ablation controls. No original18-window behavior or monster-constructor patch imported.",
+  "evidence": "Nine fresh native C Lua/map/getmap API reference grids plus two shipped hellfill complete C recordings. Parent:3targets fail/17controls pass. Final80combined tests pass. Without option-prefix fix two valid NUL controls fail; without one-bit writer yes inputs fail.",
+  "profile": "Actual recorder binary d0e5dceb; DWARF rm.lit1bit/flags5bits. Current installed headers select released+BITFIELDS and binary lacks optional diagnostic format. These observations are not source build attestation. Original recorder install state preserved through disposable copy.",
+  "limits": "Native binary/source provenance retained, no formal source build attestation. Custom Lua grid fixtures are compared with real JS descriptor API states, not full JS replays of arbitrary Lua. Shipped witness/control are full replayed production recordings; no hidden-score claim.",
+  "parentCandidate": "211b94bbdad2cc338bb6e87263e7b2d5d899a2ac"
+}

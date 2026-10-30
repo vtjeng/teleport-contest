@@ -64,7 +64,9 @@
     "9205e0859870d4c8967254334152b10742407260",
     "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
     "71421a2cc835750c412e88e3692b616434d5fd2b",
-    "2579242c67804962299920a58e3052ab3718c187"
+    "2579242c67804962299920a58e3052ab3718c187",
+    "f1b91b9793db21b1cff6627604cc92df95be0ab6",
+    "1c4be74beb32edbfc897de805f218e180f8c6002"
   ],
-  "localFollowonManifest": "experiments/restoration/recovery-terrain-lighting-bit-storage-20261030.json"
+  "localFollowonManifest": "experiments/restoration/recovery-table-map-lighting-20261030.json"
 }

@@ -1202,15 +1202,14 @@ function themeroom_map_fits(definition, xstart, ystart, state) {
 // the location metadata before setting terrain. The map's default lit=false
 // still leaves lava lit, and door orientation depends on the already-loaded
 // cell immediately to its left.
-function set_themeroom_map_terrain(x, y, typ, state) {
+function set_themeroom_map_terrain(x, y, typ, state, lit = 0) {
     const loc = state.level.at(x, y);
     loc.flags = 0;
     loc.doormask = 0;
     loc.horizontal = false;
     loc.roomno = 0;
     loc.edge = false;
-    if (!set_levltyp(x, y, typ, { state })) return;
-    loc.lit = IS_LAVA(typ);
+    if (!set_levltyp_lit(x, y, typ, lit, state)) return;
 
     if (typ === SDOOR || IS_DOOR(typ)) {
         if (typ === SDOOR) loc.doormask = D_CLOSED;
@@ -4655,7 +4654,10 @@ function createSpecialLevelApi(state) {
                 return mapFromRows(rowsOrSpec, frame, state);
             }
             const spec = rowsOrSpec;
-            const mf = mapfrag_fromstr(spec.map);
+            const mapText = spec.map;
+            // C lspo_map() reads this field through the Lua boolean reader.
+            const lit = get_table_boolean_opt(spec, 'lit', 0);
+            const mf = mapfrag_fromstr(mapText);
             const has_contents = typeof spec.contents === 'function';
             if (!mf) throw new Error('Map data error');
             // sp_lev.c:lspo_map returns the selection of cells it wrote,
@@ -4726,7 +4728,7 @@ function createSpecialLevelApi(state) {
                                                   y - frame.ystart);
                         if (mptyp === INVALID_TYPE) continue;
                         if (mptyp >= MAX_TYPE) continue;
-                        set_themeroom_map_terrain(x, y, mptyp, state);
+                        set_themeroom_map_terrain(x, y, mptyp, state, lit);
                         frame.splevMap[x][y] = 1;
                         selection.set(x, y);
                     }

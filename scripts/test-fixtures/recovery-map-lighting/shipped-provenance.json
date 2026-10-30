@@ -1,0 +1,14 @@
+[
+  {
+    "name": "witness",
+    "sourceCommit": "ae608c79cd4a62e94647d90144137ab62f753002",
+    "sourcePath": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/witness.recorded.session.json.gz",
+    "sha256": "496aea81a7ca431ef03c41eb5343b886f80d4bdb92da620e985f2b725a30cfae"
+  },
+  {
+    "name": "control",
+    "sourceCommit": "ae608c79cd4a62e94647d90144137ab62f753002",
+    "sourcePath": "diagnostics/divergence-evidence/levels/levels-map-lighting-20261028/control.recorded.session.json.gz",
+    "sha256": "9789cc12a3fad90a9238d3ea36f0b5355293104ae0b518766f2117f1719cd994"
+  }
+]

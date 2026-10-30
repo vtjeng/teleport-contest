@@ -257,8 +257,11 @@ export function luaL_checkoption(value, defval, opts) {
     const name = value == null ? defval : value;
     if (typeof name !== 'string')
         throw new Error(`string expected, got ${luaL_typename(value)}`);
-    const index = opts.indexOf(name);
-    if (index < 0) throw new Error(`invalid option '${name}'`);
+    // Lua's option matcher compares C strings, so bytes after NUL do not
+    // participate in strcmp (or its invalid-option diagnostic).
+    const cName = name.split('\0', 1)[0];
+    const index = opts.indexOf(cName);
+    if (index < 0) throw new Error(`invalid option '${cName}'`);
     return index;
 }
 
