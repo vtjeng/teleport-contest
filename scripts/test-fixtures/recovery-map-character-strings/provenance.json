@@ -1,0 +1,13 @@
+{
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "exactFunctions": [
+    "splev_chr2typ",
+    "check_mapchr"
+  ],
+  "copiedSource": "nhlua.c char2typ table, two unchanged function bodies; rm.h terrain enum",
+  "sha256": {
+    "src/nhlua.c": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1",
+    "include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7"
+  },
+  "limits": "Primitive C string lookup only. No Lua userdata, optional table reader, descriptor writer, C constructor or shipped gameplay execution."
+}
