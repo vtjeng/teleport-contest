@@ -1,0 +1,20 @@
+{
+  "historicalSource": "8fbb4ebc5222a82658c2bd0602d78a9ac5963b9d",
+  "base": "98c39f6db858b4662355789da8c049a667c5eb92",
+  "status": "qualified-local-not-published",
+  "qualifiedAt": "2026-10-30T15:22:49.501936+00:00",
+  "setup": "Native stock_room keeper; real peffects POT_INVISIBILITY establishes property. Planned/live targets and visible controls. No ring eating or offhome departure.",
+  "before": "Both invisible targets wander to x5 instead of guard x3; visible controls pass. Startup message cleared before potion to avoid unrelated empty More input.",
+  "after": "29 combined shop/layout tests pass; lint passes",
+  "reference": {
+    "source": "nethack-c/upstream/src/shk.c",
+    "sha256": "b2b5b82934b15c1a4a3c9474a650ff5800a83f0b9634696fdf080d0458f16e1b",
+    "contract": "Invis or steed clears avoid but retains initial appr=1",
+    "kind": "source-derived; no new C execution; mounted variant not independently exercised"
+  },
+  "window": "shk.js unchanged G-to-B; no excluded behavior imported",
+  "pending": [
+    "Combined source/window audit and full validation",
+    "No remote publication authorization"
+  ]
+}

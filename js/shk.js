@@ -4000,7 +4000,9 @@ export async function shk_move(shkp, state, rawEnv = {}) {
         const invisible = Boolean((invis?.intrinsic || invis?.extrinsic)
             && !invis.blocked);
         if (invisible || hero.usteed) {
-            appr = 0;
+            // C leaves appr at 1: the keeper still approaches its guard
+            // square, but no longer avoids the unseen or mounted hero.
+            env._shopAvoid = false;
         } else {
             const door = eshkp.shd ?? {};
             const uondoor = hero.ux === door.x && hero.uy === door.y;
