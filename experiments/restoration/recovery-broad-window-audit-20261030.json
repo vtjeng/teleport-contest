@@ -1,0 +1,193 @@
+{
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "scope": "All22 merged gameplay components; overlapping AST regions and unchanged-owner checks rerun on assembled tree",
+  "directSourceIntersection": [],
+  "ancestry": "Original18 commits were already ancestors of H through preserved P/forward rollback; ancestry is not payload reintroduction.",
+  "rows": [
+    {
+      "sha": "6a9782d87200413e19e991108a7ba24abbcad7ec",
+      "title": "Attribute burning-oil self-blasts to the hero",
+      "status": "not-reintroduced",
+      "reason": "Explosion attribution owner unchanged; no replacement killer-attribution implementation or prerequisite added."
+    },
+    {
+      "sha": "6936e760c17ce03609c71ea67c24cf86e423e2ef",
+      "title": "Preserve gas-spore killer through unseen and hallucinated blasts",
+      "status": "not-reintroduced",
+      "reason": "Gas-spore attribution owner unchanged; no substitute killer-preservation route added."
+    },
+    {
+      "sha": "9c8b4b9505d7e4f1af013072d2c653cc31e8b13a",
+      "title": "Stop monster movement after fatal Medusa gaze",
+      "status": "not-reintroduced",
+      "reason": "dochug AST equals G in H and every component; fatal m_respond gameover guard remains absent. Only monflee speech changes in that file."
+    },
+    {
+      "sha": "10b15b6c3aaba3344de3361d27cd95b98c530470",
+      "title": "Run independent dashboard derivations concurrently",
+      "status": "already-baseline-infrastructure",
+      "reason": "Already-authorized dashboard concurrency behavior in baseline H; no new restoration in this batch."
+    },
+    {
+      "sha": "fd8ffa0f71245190bd185061d3aefbe220bf9baa",
+      "title": "Match C integer health thresholds in humanoid speech",
+      "status": "not-reintroduced",
+      "reason": "Humanoid speech owner unchanged; no replacement integer HP threshold comparison added."
+    },
+    {
+      "sha": "e6aca26f3efa7f5a87ffae3ee8ac2852a5a55024",
+      "title": "Match C off-map direction feedback",
+      "status": "not-reintroduced",
+      "reason": "Off-map feedback owner unchanged; command dispatch/count changes do not replace mention_walls or map-boundary wording/conditions."
+    },
+    {
+      "sha": "3e7e809bbcb7262560309762be501f8c5bd45f3f",
+      "title": "Limit dashboard checkout to used files with full history",
+      "status": "already-baseline-infrastructure",
+      "reason": "Already-authorized sparse Dashboard checkout in baseline H; batch has no workflow changes."
+    },
+    {
+      "sha": "c33311a5cb969c4be830c2a3ebe6fb5635581295",
+      "title": "Run lava sinking at each elapsed hero turn",
+      "status": "not-reintroduced",
+      "reason": "finishHeroTimeEffects AST equals G; no sink_into_lava definition/call in proposed components. Hatch hook is at existing timeout position; deltrap changes only pit-neighbor unlink."
+    },
+    {
+      "sha": "181e7962e0dcd6d9748311ae430f6a4b93a58b41",
+      "title": "Test six-way recording replay checkpoint sharding",
+      "status": "not-reintroduced",
+      "reason": "Standard Checkpoint workflow/stage unchanged, RECORDING_SHARDS remains4, not window6."
+    },
+    {
+      "sha": "bd8baedbea27ece121066a062b5ad0a99280a167",
+      "title": "Match simple marker name in blind spellbook refusal",
+      "status": "not-reintroduced",
+      "reason": "dowrite AST equals G; blind branch still uses yname. writeEnv adds only inventory-comparison feedback, not simple marker-name refusal."
+    },
+    {
+      "sha": "352dbfee403c177e71e00bf8abd042e2702f8a52",
+      "title": "Preserve generated closed doors when stocking shops",
+      "status": "not-reintroduced",
+      "reason": "stock_room AST equals G; no effective flags/doormask fallback or upstream ordinary-shop alias synchronization introduced. New map wall/light metadata does not replace that decision."
+    },
+    {
+      "sha": "f526c2184b807471f2745a6b2f4cbf005cc60a00",
+      "title": "Show live scores option errors with C TTY semantics",
+      "status": "not-reintroduced",
+      "reason": "optfn_scores AST equals G. New live TTY reporting is scoped to other option keys; score reportError and its missing live diagnostic stay unchanged."
+    },
+    {
+      "sha": "d3cf7dd21ef60106d5bb51f78ba540716424306a",
+      "title": "Show live pickup-type errors with C TTY semantics",
+      "status": "not-reintroduced",
+      "reason": "optfn_pickup_types AST equals G; its initial/live badopt split is unchanged. Other pickup/packorder paths do not replace this option handler."
+    },
+    {
+      "sha": "e1ca7d4637a98e649fd04e3828cb67aefb767ce6",
+      "title": "Implement runmode choice menu from C",
+      "status": "not-reintroduced",
+      "reason": "handler_runmode and its interactive registry entry remain absent; existing G startup/value parsing is not this choice menu."
+    },
+    {
+      "sha": "2037791de170b6c1c31501d74682d62357257b44",
+      "title": "Open source-matched loot sorting choice menu",
+      "status": "not-reintroduced",
+      "reason": "handler_sortloot and its interactive registry entry remain absent; no alternative sorting-choice implementation added."
+    },
+    {
+      "sha": "3a230bfe460472ae92481a6117d9715faf415e9a",
+      "title": "Open source-matched vanquished sorting menu",
+      "status": "not-reintroduced",
+      "reason": "handler_sortvanquished and its interactive registry entry remain absent; no alternative ordering-menu implementation added."
+    },
+    {
+      "sha": "b7f641ddee92a803669dbae19e3d5431dea6235e",
+      "title": "Open source-matched map-location filter choices",
+      "status": "not-reintroduced",
+      "reason": "handler_whatis_filter and its interactive registry entry remain absent. No stopped coordinate/custom-output investigation or artifacts used."
+    },
+    {
+      "sha": "15ed31f2d2a765d68c8377f8360f4475d9476ac7",
+      "title": "Open source-matched coordinate display choices",
+      "status": "not-reintroduced",
+      "reason": "handler_whatis_coord and its interactive registry entry remain absent. No coordinate-choice menu or stopped description-coordinate follow-on restored."
+    }
+  ],
+  "evidence": "window-function-audit-assembled.json plus per-row manual call/dataflow review",
+  "limits": "Source/dependency audit, not a replay of every historical window witness or proof of hidden per-screen neutrality.",
+  "assembledHead": "4dbc8c9d0f155200e9936ae73718299b87302b41",
+  "functionChecks": [
+    {
+      "path": "js/options.js",
+      "function": "optfn_scores",
+      "goodHash": "38dfbe514f32f8ac3e2b86ea9c4fac7a70b0a4835d8b311e4cc1c294d3f12d8a",
+      "baseHash": "38dfbe514f32f8ac3e2b86ea9c4fac7a70b0a4835d8b311e4cc1c294d3f12d8a",
+      "baseEqualsGood": true,
+      "newComponentChanges": []
+    },
+    {
+      "path": "js/options.js",
+      "function": "optfn_pickup_types",
+      "goodHash": "b90a2d5e275b9aa92ab441c0756a076cf649c96246423fc0e2fcb5e38e4b4ad8",
+      "baseHash": "b90a2d5e275b9aa92ab441c0756a076cf649c96246423fc0e2fcb5e38e4b4ad8",
+      "baseEqualsGood": true,
+      "newComponentChanges": []
+    },
+    {
+      "path": "js/write.js",
+      "function": "dowrite",
+      "goodHash": "1cbef240c92e769109937b6adef1fe82c1c29534f5df3a6ad245647c285e8f4b",
+      "baseHash": "1cbef240c92e769109937b6adef1fe82c1c29534f5df3a6ad245647c285e8f4b",
+      "baseEqualsGood": true,
+      "newComponentChanges": []
+    },
+    {
+      "path": "js/shknam.js",
+      "function": "stock_room",
+      "goodHash": "02c64442051c01067cd860d29f1fa8c26fb9c12cc6a9011992e2c8cb90197ede",
+      "baseHash": "02c64442051c01067cd860d29f1fa8c26fb9c12cc6a9011992e2c8cb90197ede",
+      "baseEqualsGood": true,
+      "newComponentChanges": []
+    },
+    {
+      "path": "js/allmain.js",
+      "function": "finishHeroTimeEffects",
+      "goodHash": "554bf91b8e809366205c230ba6d514dec94ec7c542aca3b989a7c05eceb16473",
+      "baseHash": "554bf91b8e809366205c230ba6d514dec94ec7c542aca3b989a7c05eceb16473",
+      "baseEqualsGood": true,
+      "newComponentChanges": []
+    },
+    {
+      "path": "js/monmove.js",
+      "function": "dochug",
+      "goodHash": "0802fbbc850f51f2bb13b9d01cc63a2c2b9f6a1d474275d9126ab3484a4c7909",
+      "baseHash": "0802fbbc850f51f2bb13b9d01cc63a2c2b9f6a1d474275d9126ab3484a4c7909",
+      "baseEqualsGood": true,
+      "newComponentChanges": []
+    }
+  ],
+  "gameplayPathHashes": {
+    "js/allmain.js": "0578ea7e1ab5d62f78072334c3b900bfc1cffe520caf6072d1073be1a11718b3",
+    "js/cmd.js": "fc584c8f407d6aef4bafbb431014e9a95f77031a8fa4241df77ec65110ea147a",
+    "js/display.js": "985814e50ce84c95837948b805d0bb60748864d2215133d66da6707d5d6ed783",
+    "js/fakewiz1_levels.js": "28172e917874131968508bffa48040014d1bc822ef0f0f0f249b85a9bca3d8ff",
+    "js/fakewiz2_level.js": "59684c1dee6f35ce5d695d49ee7876266bb23490672346495a57aaf941d19dc0",
+    "js/hacklib.js": "ef71524e89bc4968cfe9c220da3cde943f82c5d98afa946f9ef52fcba95bd2c1",
+    "js/jsmain.js": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+    "js/mklev.js": "975817726b186fcd441daaa272b3ba43717e930ac8e107c79c068b06fa7b0675",
+    "js/mkmaze.js": "e0e411cbcdb6f1c883eb6a513c586e4eca14ef1e1e67924d7a0c3965091542c6",
+    "js/mon.js": "af2ffef1961809e91c00d4b21c6168574c7d98f2d21c0aa207156e5161f8df5f",
+    "js/monmove.js": "1710259d3c5107911e75cd0510cd033062f507ee0c5b06bb6ae6791d4e049abf",
+    "js/nhlua.js": "2aa293a8b38b4bb48cab2bd9eb1c0317bb955faa9e91feafe91f9f6500ec04bd",
+    "js/options.js": "b75c608340c9b2e8a901bd2390989fd11466b94cde28cbd8445eb98efb37474c",
+    "js/pickup.js": "9df9088d7225f34dafa4a843eaa3ecf69c5483b09c46c7adf22d54af5d28cfbc",
+    "js/pray.js": "83700aa618cdf3575ab614b06264624159105afd3077af38827024a799a5f29b",
+    "js/role_init.js": "297c8ca54ec22eaa7ee28d5449924577f7aaaac36da38c6c8c751ee64785791d",
+    "js/themeroom_fill.js": "247e90b05271a4ed723c49b26877f24c93d29b824c784fa181bf4e9ec3af8cb5",
+    "js/topl.js": "4eee9aa63b9044004fa5c243bebe4806ddcc418c43dceb4f50fd97d62262810f",
+    "js/trap.js": "faf68e3431fe7df4abcd08d9e63588dfe1f29e53443bb11d9fab527aa56ea43c",
+    "js/tty_menu.js": "480b6ffc6696adc82f2d25ece2ee45789c0367c4b876a7fbb066f6c1fdda5e29",
+    "js/wield.js": "f0fd28a6e4d4aa479b623dca4ff099095911e3bf58c195800919ed1a0cbe6b86",
+    "js/write.js": "7c74b10c20c1c9e44365d094571462716f2dd3932b116fd3ff2769b50d1c4e6a"
+  }
+}
