@@ -595,5 +595,11 @@
     "newSourceIntersection": [],
     "twoWindowDashboardChangesAlreadyBaseline": true,
     "limits": "AST and manual semantic/dependency review, not historical witness replay or hidden-score neutrality proof"
-  }
+  },
+  "integrationAdjustments": [
+    {
+      "path": "scripts/ride-direction.test.mjs",
+      "reason": "Old assertion expected UnsupportedHeroCommandBoundaryError from redraw. Qualified direction-redraw recovery now implements this arm; replaced refusal expectation with retry completion, equal prompt, no extra turn and identical RNG versus prompt-only control. No gameplay code change."
+    }
+  ]
 }
