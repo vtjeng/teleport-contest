@@ -1,0 +1,32 @@
+{
+  "base": "2dae4742307f389c2ce7b9b6eda383835c9ee11d",
+  "sourceCommit": "e4cb3d2854aaf4b0d0fa6a4fa74bc050a06cd6ad",
+  "behavior": "Preserve entry species for the post-movement AT_WEAP gate after a polymorph trap.",
+  "reference": {
+    "gitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "path": "src/monmove.c",
+    "sha256": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "lines": [
+      702,
+      947
+    ],
+    "kind": "source-derived; no new C execution"
+  },
+  "fixtureChanges": "Use initialized playmode:debug,monpolycontrol options instead of direct wizard/mon_polycontrol flag assignments. Native constructors and actual trap/newcham/action path; constructed API state, not public-input recording.",
+  "before": {
+    "target": "HP15 versus expected16",
+    "control": "pass"
+  },
+  "after": {
+    "movementTests": 205,
+    "layoutTests": 6,
+    "lint": "pass",
+    "diffCheck": "pass"
+  },
+  "limits": [
+    "No complete C gameplay recording",
+    "No hosted Checkpoint or judge validation",
+    "No claim of shipped exposure or score effect"
+  ],
+  "excludedWindow": "Only entry data capture and AT_WEAP operand changed; no fatal-Medusa guard or buried-state behavior added."
+}

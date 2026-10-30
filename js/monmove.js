@@ -2418,6 +2418,8 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 export async function dochug(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
+    // C captures mdat before movement; a trap may polymorph this monster.
+    const preMoveSpecies = monster.data;
     const preflight = requireDochugOperation(rawEnv, 'preflight');
     const usePreMoveItems = requireDochugOperation(rawEnv, 'usePreMoveItems');
     const moveMonster = requireDochugOperation(rawEnv, 'moveMonster');
@@ -2742,7 +2744,7 @@ export async function dochug(monster, rawEnv = {}) {
                our hero can't.  Is that fair? */
             const shootsAfterMoving = !range.nearby
                 && (ranged_attk_available(monster, env)
-                    || attacktype(monster.data, AT_WEAP)
+                    || attacktype(preMoveSpecies, AT_WEAP)
                     || find_offensive(monster, env));
             if (!shootsAfterMoving) {
                 // monmove.c:953-954 returns mattacku() when this mover still
