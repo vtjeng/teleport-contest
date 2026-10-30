@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "8ee8b29fc610c4f5008fbe3827d917c331463f02",
+    "355b5698c9c02f0ba0ba3f607c6f768fc592d121"
+  ],
+  "scope": "Traditional TTY count echo and traditional inventory class-query restart, explicit-menu filtering, empty/absent-class fallback. Two behavior families; no long-count arithmetic restoration.",
+  "dependencyReview": "No topl.js/pickup.js changes in original G-to-B18 window. Existing callers, askchain and live TTY machinery remain H implementations. Prior source-test maintenance fa6ac370 is reconciled by updating its loop-label assertion, not treated as an additional behavior. Other independently prepared capacity/count chunks remain separate.",
+  "evidence": "Twelve full published native C recordings from PR110: H8fail4pass, recovered12pass. Three count-echo targets plus one control; five class-query affected recordings plus three controls. Hash-pinned fixtures preserve original C source/binary provenance; no new C capture/build attestation.",
+  "sourceHashes": {
+    "src/pickup.c": "915da0f8fce16461cc42a0035f7ef3e9847fc8f8ee3708a7f017ad6587383134",
+    "win/tty/topl.c": "7abe4855c351b90048261752bab6bcc329f6fa236da1cca0cc48e362b6ff5d6d"
+  },
+  "limits": "The two large-menu-count recordings sharing the upstream fixture manifest are intentionally not copied into this chunk; their arithmetic is covered by the separate long-count candidate. Does not claim every traditional prompt or hidden-score parity."
+}
