@@ -49,3 +49,18 @@ test('applied-source notice matches only the local selected original patches', (
       decision.status === 'selected-reconciliation', decision.sha);
   }
 });
+
+// Source provenance is not a no-regression oracle; this guards the explicit
+// exclusion decision and the exact gameplay bytes that received source review.
+test('broad recovery preserves the reviewed window exclusion boundary', () => {
+  const audit = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-broad-window-audit-20261030.json', import.meta.url), 'utf8'));
+  const manifest = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-broad-batch-20261030.json', import.meta.url), 'utf8'));
+  assert.equal(audit.rows.length, 18);
+  const window = new Set(audit.rows.map(row => row.sha));
+  assert.deepEqual(manifest.additionalIncludedSourceScopes.filter(sha => window.has(sha)), []);
+  assert.equal(audit.rows.filter(row => row.status === 'already-baseline-infrastructure').length, 2);
+  assert.ok(audit.rows.every(row => ['not-reintroduced', 'already-baseline-infrastructure'].includes(row.status)));
+  for (const [path, expected] of Object.entries(audit.gameplayPathHashes)) {
+    assert.equal(createHash('sha256').update(readFileSync(new URL(`../${path}`, import.meta.url))).digest('hex'), expected, path);
+  }
+});
