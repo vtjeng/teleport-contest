@@ -1,0 +1,61 @@
+[
+  {
+    "name": "stable-or",
+    "shift": false,
+    "op": "or",
+    "x": 10,
+    "y": 6,
+    "boundary": 50,
+    "token": "SEL_LIFE_STABLE_OR=10,6",
+    "expected": [
+      [
+        10,
+        6
+      ]
+    ]
+  },
+  {
+    "name": "stable-sub",
+    "shift": false,
+    "op": "sub",
+    "x": 10,
+    "y": 6,
+    "boundary": 51,
+    "token": "SEL_LIFE_STABLE_SUB=",
+    "expected": []
+  },
+  {
+    "name": "shift-or",
+    "shift": true,
+    "op": "or",
+    "x": 20,
+    "y": 8,
+    "boundary": 49,
+    "token": "SEL_LIFE_SHIFT_OR=10,6;20,8",
+    "expected": [
+      [
+        10,
+        6
+      ],
+      [
+        20,
+        8
+      ]
+    ]
+  },
+  {
+    "name": "shift-sub",
+    "shift": true,
+    "op": "sub",
+    "x": 20,
+    "y": 8,
+    "boundary": 50,
+    "token": "SEL_LIFE_SHIFT_SUB=10,6",
+    "expected": [
+      [
+        10,
+        6
+      ]
+    ]
+  }
+]

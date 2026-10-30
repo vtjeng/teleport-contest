@@ -230,12 +230,13 @@ test('fill eligibility includes Boulder starting at difficulty four', () => {
 });
 
 // Every method that returns a fresh ThemeroomSelection must keep the
-// receiver's coordinate frame, or js/mklev.js applies frame.xstart/ystart a
+// receiver's coordinate frame (except whole-map negation), or mklev applies a
 // second time to a selection js/bigrm.js selection_match() built in map
 // coordinates. The table names each prototype method with the arguments it
 // needs; a method added without a row fails the coverage assertion below, and
-// one that forgets the frame fails the `absolute` assertion.
-test('selection-returning methods keep the receiver coordinate frame', () => {
+// one that forgets the frame fails the `absolute` assertion. Negation is
+// deliberately normalized to map coordinates, as C selection_not() requires.
+test('selection-returning methods preserve frames except whole-map negation', () => {
     const calls = {
         // Returns a selection; the argument list is the minimum each accepts.
         clone: [],
@@ -268,7 +269,7 @@ test('selection-returning methods keep the receiver coordinate frame', () => {
             if (!(result instanceof ThemeroomSelection) || result === receiver)
                 continue;
             selectionReturning += 1;
-            assert.equal(result.absolute, absolute, `${name} absolute=${absolute}`);
+            assert.equal(result.absolute, name === 'negate' || absolute, `${name} absolute=${absolute}`);
         }
     }
     // clone, percentage, filter_mapchar, negate and grow, in both frames.

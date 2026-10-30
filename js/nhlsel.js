@@ -9,7 +9,7 @@ import {
 } from './const.js';
 import { get_location_coord } from './room_coordinates.js';
 import { luaL_checkinteger } from './nhlua.js';
-import { selection_new, ThemeroomSelection } from './themerooms.js';
+import { selection_map_frame, selection_new, ThemeroomSelection } from './themerooms.js';
 
 function checkSelection(selection) {
     if (!(selection instanceof ThemeroomSelection))
@@ -57,8 +57,14 @@ function rectBounds(a, b) {
 export function l_selection_or(a, b) {
     checkSelection(a);
     checkSelection(b);
+    if (a.absolute !== b.absolute
+        || a.origin?.xstart !== b.origin?.xstart
+        || a.origin?.ystart !== b.origin?.ystart) {
+        a = selection_map_frame(a);
+        b = selection_map_frame(b);
+    }
     const bounds = rectBounds(selectionBounds(a), selectionBounds(b));
-    const result = new ThemeroomSelection(null, a.absolute);
+    const result = new ThemeroomSelection(null, a.absolute, a.origin);
     for (let x = bounds.lx; x <= bounds.hx; ++x) {
         for (let y = bounds.ly; y <= bounds.hy; ++y) {
             result.set(x, y, selectionPoint(a, x, y) | selectionPoint(b, x, y));
@@ -72,8 +78,14 @@ export function l_selection_or(a, b) {
 export function l_selection_sub(a, b) {
     checkSelection(a);
     checkSelection(b);
+    if (a.absolute !== b.absolute
+        || a.origin?.xstart !== b.origin?.xstart
+        || a.origin?.ystart !== b.origin?.ystart) {
+        a = selection_map_frame(a);
+        b = selection_map_frame(b);
+    }
     const bounds = rectBounds(selectionBounds(a), selectionBounds(b));
-    const result = new ThemeroomSelection(null, a.absolute);
+    const result = new ThemeroomSelection(null, a.absolute, a.origin);
     for (let x = bounds.lx; x <= bounds.hx; ++x) {
         for (let y = bounds.ly; y <= bounds.hy; ++y) {
             const aPoint = selectionPoint(a, x, y);
@@ -130,9 +142,18 @@ export function l_selection_setpoint(args, env) {
         env,
     );
 
+    if (!selection.absolute && selection.origin) {
+        // A later map may put this point before the creation origin. Resolve
+        // the existing selection first so a valid map point is not clipped
+        // merely because its old relative coordinate would be negative.
+        const absolute = selection_map_frame(selection);
+        selection.points = absolute.points;
+        selection.absolute = true;
+        selection.origin = null;
+    }
     if (!selection.absolute) {
-        coordinate.x -= env.frame.xstart;
-        coordinate.y -= env.frame.ystart;
+        coordinate.x -= (selection.origin ?? env.frame).xstart;
+        coordinate.y -= (selection.origin ?? env.frame).ystart;
     }
     selection.set(coordinate.x, coordinate.y, value);
     return selection;

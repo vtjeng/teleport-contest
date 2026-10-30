@@ -17,7 +17,26 @@ import {
     W_WEST,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { game } from './gstate.js';
 import { rn2 } from './rng.js';
+
+// Pure helpers can still construct unbound relative selections outside a
+// descriptor. Live descriptor constructors snapshot its active map origin.
+function selection_origin() {
+    return Number.isInteger(game.xstart) && Number.isInteger(game.ystart)
+        ? { xstart: game.xstart, ystart: game.ystart } : null;
+}
+
+export function selection_map_frame(selection, fallback = { xstart: 0, ystart: 0 }) {
+    if (selection.absolute) return selection;
+    const origin = selection.origin ?? fallback;
+    const result = new ThemeroomSelection(null, true);
+    for (let x = 0; x < COLNO; ++x) for (let y = 0; y < ROWNO; ++y) {
+        const value = selection.points[y * COLNO + x] - 1;
+        if (value) result.set(x + origin.xstart, y + origin.ystart, value);
+    }
+    return result;
+}
 
 function inSelectionBounds(x, y) {
     return Number.isInteger(x) && Number.isInteger(y)
@@ -42,17 +61,22 @@ export class ThemeroomSelection {
     // port keeps two. The constructors that take Lua-relative coordinates
     // (selection_area(), selection_rect(), and the like) leave `absolute`
     // false and the special-level API adds frame.xstart/frame.ystart when it
-    // paints; js/bigrm.js selection_match() reads the map directly and
+    // paints using the saved construction origin. selection_match() reads
+    // the map directly and
     // constructs with `absolute` true so the API adds nothing. Every method
     // that returns a fresh selection derives it through #derived() so the
-    // frame follows the points.
+    // frame and construction origin follow the points; whole-map negation
+    // converts to the C map frame first.
     absolute = false;
 
-    constructor(points = null, absolute = false) {
+    constructor(points = null, absolute = false, origin = selection_origin()) {
         // C selvar.c stores (char)(value + 1), so zero-valued cells have byte 1.
         this.points = new Int8Array(COLNO * ROWNO);
         this.points.fill(1);
         this.absolute = absolute === true;
+        // C resolves Lua coordinates when constructing the selection, not
+        // when a later des.* call consumes it. Snapshot, never retain a frame.
+        this.origin = this.absolute || !origin ? null : { ...origin };
         if (points) {
             for (const point of points) this.set(point.x, point.y, true);
         }
@@ -64,7 +88,7 @@ export class ThemeroomSelection {
 
     // An empty selection in the receiver's coordinate frame.
     #derived() {
-        return new ThemeroomSelection(null, this.absolute);
+        return new ThemeroomSelection(null, this.absolute, this.origin);
     }
 
     clone() {
@@ -183,10 +207,11 @@ export class ThemeroomSelection {
     }
 
     negate() {
-        const result = this.#derived();
+        const source = selection_map_frame(this);
+        const result = new ThemeroomSelection(null, true);
         for (let x = 0; x < COLNO; ++x) {
             for (let y = 0; y < ROWNO; ++y)
-                result.set(x, y, !this.get(x, y));
+                result.set(x, y, !source.get(x, y));
         }
         return result;
     }
@@ -306,7 +331,7 @@ function sel_flood_havepoint(x, y, xs, ys, n) {
 // stack is bounded the way SEL_FLOOD_STACK bounds it. The points are map
 // coordinates, as every selection's are in C.
 export function selection_floodfill(ov, x, y, diagonals) {
-    const tmp = new ThemeroomSelection(null, ov.absolute);
+    const tmp = new ThemeroomSelection(null, ov.absolute, ov.origin);
     const SEL_FLOOD_STACK = COLNO * ROWNO;
     const dx = [];
     const dy = [];

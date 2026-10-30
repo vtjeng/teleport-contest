@@ -1,0 +1,21 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "source": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "supersedesLocalPartial": "fc993113ec0c6578ccff487a31051f7a710fdaf1",
+  "behavior": "Snapshot relative selection construction frame; preserve it in derived selections; normalize mixed boolean operands and whole-map negation; consume at stored origin; normalize before mutation to admit points preceding old origin.",
+  "nativeReference": "scripts/test-fixtures/recovery-selection-lifetime/provenance.json",
+  "validation": [
+    "41 focused selection/operator/constructor tests passed",
+    "139 generation/themeroom/layout interaction tests passed",
+    "focused ESLint and diff whitespace check passed; final repeat before commit",
+    "44 fixed replay exploratory pass, final exact-commit repeat pending"
+  ],
+  "limits": [
+    "No new native C execution; retained four lifetime observations and disclosed operator adapter references.",
+    "Positive explicit map origins qualified; no claim of complete negative/random coordinate or room-origin handling.",
+    "No shipped exposure or hidden-score neutrality claim.",
+    "No publication or CI; final standard Checkpoint would still be required if selected."
+  ],
+  "risk": "Constructor metadata now influences shared selection boolean/paint consumers; final fixed44 and full hosted check remain necessary.",
+  "safety": "No des.room type construction, stopped artifacts or suspect18 gameplay restoration."
+}

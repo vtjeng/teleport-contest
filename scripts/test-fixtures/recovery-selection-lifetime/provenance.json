@@ -1,0 +1,27 @@
+{
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "recordings": [
+    {
+      "file": "shift-or.recording.json",
+      "bytes": 203547,
+      "sha256": "6fc697260834cd18d33e09087ddc7cc15357c3436883f9ee05666221b19d0250"
+    },
+    {
+      "file": "shift-sub.recording.json",
+      "bytes": 204047,
+      "sha256": "363a36aa6d566769a492a628583902772009ea9ceaa9e7ccbbe88e4480ba85c6"
+    },
+    {
+      "file": "stable-or.recording.json",
+      "bytes": 200545,
+      "sha256": "55eb16c6370b1323c1299d9c15ebc659ba8bc832d10c23bb8ac61bfd4098299c"
+    },
+    {
+      "file": "stable-sub.recording.json",
+      "bytes": 201047,
+      "sha256": "72d7274b8a72891ed0c892e8ea858585cad6ff3546bd2865fc8dfe3d6c7db39b"
+    }
+  ],
+  "limits": "Four saved native descriptor lifetime observations, reused without new C execution. JS observes the supported descriptor prefix before finalization; no shipped exposure or hidden-score claim. No room-type construction."
+}
