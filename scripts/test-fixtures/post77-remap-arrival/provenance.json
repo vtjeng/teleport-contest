@@ -1,0 +1,14 @@
+{
+  "source": "0a858777abe969c404a84965138f99cf78ce9725",
+  "records": [
+    {
+      "label": "target",
+      "rawSha256": "c9fa3732406d3ee227c36a627fffb8e015aad64e7d859521fb373372a48a353f"
+    },
+    {
+      "label": "control",
+      "rawSha256": "8a4e3b263cdd0cdf246b643ff2adc3cddcfb0c72f8a7152144ab3042f7bbed06"
+    }
+  ],
+  "limits": "Original published native C recordings reused, not new C execution or retroactive build attestation. Supported wizard remap/arrival route, not object-delivery or species migration."
+}
