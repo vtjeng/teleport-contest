@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import {setup} from './native-debug-shop-setup.mjs';
+import {getlin} from '../../../js/windows.js';
+import {finishElapsedTurn} from '../../../js/allmain.js';
+import {d,rn1,rn2,rnd,rne,rnl,rnz} from '../../../js/rng.js';
+import {game} from '../../../js/gstate.js';
+import {hot_pursuit,shk_move} from '../../../js/shk.js';
+import {newcham,validspecmon} from '../../../js/mon.js';
+import {PM_SNAKE,PM_WOOD_NYMPH} from '../../../js/monsters.js';
+import {pluslvl} from '../../../js/exper.js';
+import {rloc_to} from '../../../js/teleport.js';
+import {do_improvisation} from '../../../js/music.js';
+import {mksobj} from '../../../js/obj.js';
+import {addinv} from '../../../js/invent.js';
+import {WOODEN_FLUTE,WOODEN_HARP} from '../../../js/objects.js';
+import {clearTtyMessageWindow} from '../../../js/tty_message.js';
+import {vision_recalc} from '../../../js/vision.js';
+for(const [form,near,turns] of [[null,true,6],[PM_WOOD_NYMPH,true,0],[PM_WOOD_NYMPH,true,6],[PM_WOOD_NYMPH,false,6]]) {
+ const keeper=await setup(false),messages=[];
+ const message=async s=>messages.push(s);
+ clearTtyMessageWindow(game);
+ while(game.u.ulevel<(near?26:24))await pluslvl(false,game,{message});
+ for(let i=0;i<turns;i++)await finishElapsedTurn(game,{d,rn1,rn2,rnd,rne,rnl,rnz});
+ hot_pursuit(keeper,game);
+ assert.equal(keeper.isshk,true);assert.equal(keeper.mpeaceful,false);assert.equal(keeper.mextra.eshk.following,true);
+ const before={peaceful:keeper.mpeaceful,following:keeper.mextra.eshk.following};
+ let changed=null;
+ if(form!==null){if(!validspecmon(keeper,form,game))throw Error('illegal form');for(const c of (form===PM_SNAKE?'snake\n':'wood nymph\n'))game.nhDisplay.pushKey(c.charCodeAt(0));changed=await newcham(keeper,null,{state:game,message,getlin:async(q,state)=>{const answer=await getlin(q,state);console.log(JSON.stringify({event:'actual-getlin',answer}));return answer;}});}
+ for(let i=0;i<100;i++)game.nhDisplay.pushKey(32);
+ // Both positions remain inside the keeper's home shop. No offhome departure.
+ await rloc_to(keeper,near?9:3,near?8:3,{state:game});
+ vision_recalc(0);
+ const instr=addinv(mksobj(WOODEN_HARP,false,false,{state:game}),{state:game});
+ await do_improvisation(instr,game,{message});
+ const after={moves:game.moves,followmsg:game.gf?.followmsg??0,level:game.u.ulevel,distance:(keeper.mx-game.u.ux)**2+(keeper.my-game.u.uy)**2,peaceful:keeper.mpeaceful,following:keeper.mextra.eshk.following,isshk:keeper.isshk,form:keeper.data.pmidx,customer:keeper.mextra.eshk.customer,player:game.plname};
+ let refusal=null;
+ if(after.peaceful&&near)try{await shk_move(keeper,game,{message});}catch(e){refusal=e.message;}
+ assert.equal(after.isshk,true);assert.equal(after.following,true);assert.equal(after.customer,after.player);assert.equal(after.peaceful,form===PM_WOOD_NYMPH&&near);assert.equal(after.moves,turns+1);if(form!==null)assert.equal(changed,true);if(form!==null&&near)assert.match(refusal,/shk_move following speech/);else assert.equal(refusal,null);assert.ok(messages.some(x=>x.includes('lilting melody')));
+ console.log(JSON.stringify({form,near,turns,changed,before,after,refusal,messages:messages.slice(-5)}));
+}

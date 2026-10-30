@@ -1,0 +1,74 @@
+{
+  "base": "263ffbd85688a98e3c581c8da859d5a6cd28fcd2",
+  "branch": "prepare/post53-following-frontier-20261030",
+  "status": "new native same-customer reachability evidence; no gameplay edits; tested candidate untouched",
+  "priorEvidence": {
+    "executed": "Native stock_room and hot_pursuit executed in ordinary impact witnesses: angry=true/following=true. Existing compiled oracles did not qualify peaceful-following.",
+    "sourceOnly": "tamedog/make_happy_shk clears following; restshk(true) can preserve following while pacifying different customer, but only restshk(false) production callers found; inherits can preserve following in no-inventory/insufficient-money branches but terminal/bones continuation invariant unqualified. No separate prior runtime witness for these routes located in this executor."
+  },
+  "newExecutedJS": {
+    "canonical": "qualified-native-reachability.mjs",
+    "output": "qualified-native-reachability.jsonl",
+    "cases": 4,
+    "construction": "Native stock_room; pluslvl advances hero level; native elapsed-turn owner establishes moves1/7; hot_pursuit sets customer/following/anger; public debug monpolycontrol option and actual queued wood-nymph getlin answer enter newcham(NULL); intra-home rloc_to; ordinary mksobj/addinv harp and do_improvisation. No assignment to keeper identity, following, peacefulness, customer, species, or turn count.",
+    "targets": "Adjacent nymph keeper becomes peaceful and retains following at moves1 and7; shk_move refuses following speech. moves7/followmsg0 crosses C reminder threshold.",
+    "controls": "Ordinary keeper remains angry under successful harp melody; nymph at squared distance74 remains angry under successful level24 harp melody with range72.",
+    "limits": "Native owner composition, not full command-stream game or fresh C-engine recording. XP uses source pluslvl owner; map uses GameMap/stock_room fixture. No fix, reminder output or random anger-roll behavior qualified yet."
+  },
+  "newExecutedC": {
+    "oracle": "calm-nymphs-oracle.c",
+    "output": "calm-nymphs-oracle.log",
+    "scope": "Unchanged extracted music.c calm_nymphs body; minimal list/monster/distance/visibility adapters and captured pline count. Target+range+class controls. No engine or polymorph execution."
+  },
+  "corrections": [
+    "Direct-target snake newcham initially produced target state, but public selection rejects its notake anatomy under validspecmon. Snake path is excluded from qualification; all early outputs retained as exploratory evidence only.",
+    "Initial far control distance74 was within level26 range78. Level20 control failed playing skill and did not discriminate range. Final level24 control succeeds playing and has range72<74.",
+    "Added startup wait prefixes remained at moves4, so those exploratory outputs were not used as reminder-due evidence. Final probe uses six native finishElapsedTurn calls from clean startup to reach moves7.",
+    "First native-selection process exhausted input after rejected snake answer; captured actual-getlin confirms snake was read and source validspecmon explains rejection. Final nymph input accepted."
+  ],
+  "frontier": {
+    "sameCustomer": "Not exhausted. Native route is established. Next: frozen output/RNG/cooldown controls for same-customer branch, then bounded local implementation separate from experiment candidate if pursued. Full command-path wand/polymorph and independent C-engine witness would strengthen reachability beyond owner composition.",
+    "differentCustomer": "Still unqualified under current production callers. Need supported customer-change/bones restoration entry preserving resident keeper identity, following, and subsequent live action; no synthetic name swap or manual peaceful/following fabrication.",
+    "otherPacificationSourceLeads": "Nonhuman untrap gratitude, chaotic undead turning, and blessed deadbook source paths were classified only; none executed. These would need legal special-monster form, supported action owner, and discriminating control. No excluded state construction attempted."
+  },
+  "occupiedTeleportReadOnly": {
+    "historical": "50951eb38ccd6b350e5bc58375fb2121d749a907",
+    "classification": "A bounded ordinary-occupant admission appears separable; broad deletion remains unjustified. No new teleport experiment or runtime edit performed.",
+    "candidateStructuralBounds": [
+      "retain refusal for isshk, wormno, hero ustuck/usteed attachment and special identities",
+      "no monster inventory or shop ownership effects at source/destination",
+      "no active occupation, trapped monster or region transitions",
+      "ordinary visible single-square occupant and ordinary destination terrain; existing enexto handles successful relocation versus no-space refusal"
+    ],
+    "rationale": "rloc_to_core has separate worm removal/tail placement, attached-hero handling, resident-shopkeeper anger, inventory theft accounting, occupation interruption, and trap re-entry continuations. These can be excluded before admission rather than enabled by broad guard removal.",
+    "remainingProof": "Define conservative predicate against actual source/callers, prove all allowed relocation candidates avoid excluded continuations, and freeze ordinary target/no-room/control tests. Read-only classification is not acceptance or authorization to recreate stopped shopkeeper/worm witness."
+  },
+  "cSource": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "files": {
+    "calm-nymphs-oracle.c": "1818cf3a92b846836e2cc6e52886cf7017ca09ccd64e67ef73f06a7dc07870d8",
+    "calm-nymphs-oracle.log": "4efd95cdbd6d186553cf0d502623867629844a4497b82fbc093750335997b59f",
+    "music-native-selection-probe.jsonl": "08ebde4d3794214c8eae4e73d192c2738efe5b13629d840c39558ae1d41ef5b4",
+    "music-native-selection-probe.mjs": "bc56b96bf6d6470552bc991b2a579d395ae7e48e4c2e3edac14bedf12d693c6b",
+    "music-native-selection-trace.jsonl": "f45554929ed883f76471165159bcd1d3340047e0fc7b61ebac687991cc4f795f",
+    "music-native-selection-trace.mjs": "285758fd6fca7d6dc88c224a378e2209a0a45faf8f76900b9b9f2f6d61560136",
+    "music-probe-v2.jsonl": "ccf136222e9064044b9a6180522877fd396c3f422b5bea71708aa400d30167a4",
+    "music-probe-v2.mjs": "46a53b79d0975da4789bf3923a9811d619ed72c39aa64c308e802c3026bebc43",
+    "music-probe-v3.jsonl": "d5c7c95d5256480e316e84c08e04a65fa326a112cc7050391da82af40cb8ce13",
+    "music-probe-v3.mjs": "07093afe9ebe1710aa75bf755ed118c4d95803cf0d73527c99c273c5bb969e50",
+    "music-probe.jsonl": "2459cf571f4d6c5dbee5cfe49814e8208db398086b0e19882a3e94ca94226fbb",
+    "music-probe.mjs": "c4513532bf2e71505343d82367760832a2eb4bc9ab937de13c66457cbbc40eb6",
+    "native-debug-shop-afterturns-setup.mjs": "7341a4454be241a3431baf35e4d91f92ec1554287336212f4f0d4bfaed622bb5",
+    "native-debug-shop-later-setup.mjs": "382d1f3b5156a64cb798ea0c22d9f7c4bcd5d5bd254545aa79c94e1d4ce35c04",
+    "native-debug-shop-setup.mjs": "d58bd98ac3a457bad950c622dd18f4fc00c5fdf876d105b64e67b4b3116e08ec",
+    "nymph-afterturns-probe.jsonl": "a647a397978882a0c86ade997afa8b723ef0d22f81738bd7b5d402cba72ab1e1",
+    "nymph-afterturns-probe.mjs": "8dfb0b8e88bdd14e3375af263fecd7e81200e80d9dffd630e70df1bd07ef265c",
+    "nymph-elapsed-probe.jsonl": "fb284c9c9e34961cd5d8b9126756869bae8a76eca8a02c18c8ad92ab891be43a",
+    "nymph-elapsed-probe.mjs": "0363a06401ff032edd5a018a2f0b1a2745fe10462ac2675d0808c8254459189d",
+    "nymph-later-probe.jsonl": "a647a397978882a0c86ade997afa8b723ef0d22f81738bd7b5d402cba72ab1e1",
+    "nymph-later-probe.mjs": "4be1bdb34fbc20be4d8b18b1310d849191e5f09a81b480240f699011e550a0f3",
+    "nymph-native-selection-probe.jsonl": "1808c5967e97fb1d4c969c933dd590f2972bb4711f60025eeb0a3ce997d3f6ee",
+    "nymph-native-selection-probe.mjs": "8dba930b638a552188406dba96b5cc078bc25b967c16e694b2386cad88a0e36a",
+    "qualified-native-reachability.jsonl": "6aa07a9f50d3a88143fb43288a2848111dfc6cc1cd1fb2ff30f4140ea6ade24a",
+    "qualified-native-reachability.mjs": "ef45271562ce867a5d6715a5a2e5f25461ebe04d478ec185ed74aae4f3170a8e"
+  }
+}
