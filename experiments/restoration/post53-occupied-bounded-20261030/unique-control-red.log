@@ -1,0 +1,25 @@
+✖ unique-species metadata is outside ordinary occupied admission (135.884784ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 422.856511
+
+✖ failing tests:
+
+test at scripts/occupied-fixed-teleport-unique-admission.test.mjs:12:1
+✖ unique-species metadata is outside ordinary occupied admission (135.884784ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-unique-admission.test.mjs:24:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /a monster on a teleport trap destination/,
+    operator: 'throws',
+    diff: 'simple'
+  }

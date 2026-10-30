@@ -1,0 +1,17 @@
+{
+  "previousCandidate": "e1adc283068473830ca99909bffb825e6a3551ef",
+  "originalEvidence": "manifest.json",
+  "correction": "Explicitly reject G_UNIQ species as outside ordinary occupied relocation; no unique species constructed or relocated.",
+  "discriminatingControl": "Native ordinary mold prefix, admission-only geno flag mutation. Refusal assertion failed before correction; same frozen test passes afterward with no RNG/position writes.",
+  "test": "scripts/occupied-fixed-teleport-unique-admission.test.mjs",
+  "testSha256": "d03c82caa45b24d96a15ab9d026e6714ccba7794fd20a4f7f153cef3e3ab4982",
+  "originalFrozenTestSha256": "713b992dbb7703802184a74a317ca4b75bc44aa5ca5be5d88f3243bd8f7c884d",
+  "affected": "339/339 pass",
+  "oldCheckpoint": "e1adc checkpoint cancelled during suite after scope issue found; owned process groups251506/251581 stopped, session4476 exit143; not an acceptance result.",
+  "fullGates": "corrected exact commit pending",
+  "files": {
+    "unique-control-red.log": "0df6db6194abaee37de4ed49b668f6306bccc458386e3aeddebab71e9a9f04cd",
+    "unique-control-precode.sha256": "e91f71e2b54229da26ace216b733bcf546012130dbd18e6d9eed7db2f063229c",
+    "affected-unique.log": "9f58038f3f358a89e9eea28f8462e1d1e4e5523354ac81f40fa73207e82328f6"
+  }
+}

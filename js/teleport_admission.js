@@ -6,7 +6,7 @@ import {
     INVIS, LEVITATION, NON_PM, OROOM, ROOM, ROOMOFFSET, ROWNO,
     STUNNED, TELEP_TRAP, THEMEROOM, Upolyd,
 } from './const.js';
-import { S_EEL, S_MIMIC } from './monsters.js';
+import { G_UNIQ, S_EEL, S_MIMIC } from './monsters.js';
 import { LEASH } from './objects.js';
 import { hides_under, is_hider, is_shapeshifter, nonliving } from './mondata.js';
 import { m_at } from './monst.js';
@@ -24,6 +24,7 @@ export function ordinaryFixedTrapOccupantAllowed(trap, state) {
         return false;
     const mon = m_at(x, y, state);
     if (!mon?.data || !(mon.mhp > 0) || mon.mx !== x || mon.my !== y
+        || (mon.data.geno & G_UNIQ)
         || mon.wormno || mon.isshk || mon.ispriest || mon.isgd
         || mon.isminion || mon.iswiz || mon.minvent || mon.mtrapped
         || mon.mundetected || mon.m_ap_type || mon.mappearance
