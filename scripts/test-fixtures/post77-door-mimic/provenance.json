@@ -1,0 +1,16 @@
+{
+  "source": "5d2da24962561c4e39cceaab1088da680e699bd4",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "records": [
+    {
+      "label": "control",
+      "rawSha256": "da45574d1c4329c9ebfe944da6acfa34b85e132df65f50ab5b422d7721d7bb05"
+    },
+    {
+      "label": "witness",
+      "rawSha256": "bcf81fd876a58ad62a626eae03f444b454c1f0cd1cf1bacb2e1dc57d61ee1897"
+    }
+  ],
+  "scope": "Ordinary supported D:10 wizard-level-change inputs, native C recordings from original published handoff, reused without new C execution. Historical recorder build not retroactively attested; no room-type construction or injected runtime state.",
+  "limits": "All-mimic-species-gone branch source requirement preserved but not separately dynamically witnessed."
+}
