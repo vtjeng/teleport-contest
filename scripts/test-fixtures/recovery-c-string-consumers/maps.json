@@ -1,0 +1,70 @@
+[
+  {
+    "name": "two-target",
+    "text": "...\n...\n\u0000..",
+    "kind": "target",
+    "boundary": 53,
+    "token": "MAP_PREFIX_TWO_TARGET=10,6,12,7,6",
+    "expected": [
+      10,
+      6,
+      12,
+      7,
+      6
+    ],
+    "recordingSha256": "7bf5792c31180f9d546c945b0dc9dbc88b4280a183f222b6803f2349c4d0a906",
+    "luaSha256": "7ab8d84e646756b264722958d1b2714804ec3a437d4d5ae07daa1920c9777881",
+    "recipe.jsonSha256": "b726a58d17126e2235a826997d3accaa88e262151c30bb3a9b8914ac51debf00"
+  },
+  {
+    "name": "one-target",
+    "text": "...\u0000...\n...",
+    "kind": "target",
+    "boundary": 53,
+    "token": "MAP_PREFIX_ONE_TARGET=10,6,12,6,3",
+    "expected": [
+      10,
+      6,
+      12,
+      6,
+      3
+    ],
+    "recordingSha256": "901835dcbc4cad297a8404cd3cccb2be807fcd55d8266ead484ae9b58fdeae9b",
+    "luaSha256": "89e7626888b052b49b23bc6716865b9bceb95c2e9fc56674e47071c0cea85483",
+    "recipe.jsonSha256": "b6abe021c8f22b85187af71b3c3dea00c347df65ac93f43fce714455371f2ed4"
+  },
+  {
+    "name": "two-control",
+    "text": "...\n...",
+    "kind": "control",
+    "boundary": 54,
+    "token": "MAP_PREFIX_TWO_CONTROL=10,6,12,7,6",
+    "expected": [
+      10,
+      6,
+      12,
+      7,
+      6
+    ],
+    "recordingSha256": "ca70bd3dc8661bdb7f1832dd5afb4a91f7cac51f643aa68cf59e3da1ef46e386",
+    "luaSha256": "3d2536e40f714ac8218806201d2f8fb133028e7435b9b53b7097abd648310497",
+    "recipe.jsonSha256": "559bda4578ac5a51dd2011eb4818d42604eeb9c06b708b5c9569b863fc189a28"
+  },
+  {
+    "name": "one-control",
+    "text": "...",
+    "kind": "control",
+    "boundary": 54,
+    "token": "MAP_PREFIX_ONE_CONTROL=10,6,12,6,3",
+    "expected": [
+      10,
+      6,
+      12,
+      6,
+      3
+    ],
+    "recordingSha256": "cbe1812bb8a1153a933b7b79820c5dfcad18556f06dbb15ceb822681b1b1021a",
+    "luaSha256": "3d32f941b5e1ac9f0320d6107125bedfca8e42f3bb81b1a38ac503ef426f3fea",
+    "recipe.jsonSha256": "ecff86517fed25a2f8e0b9dff6abe5f70420ea130974f0774a796ecf932b5d1c"
+  }
+]

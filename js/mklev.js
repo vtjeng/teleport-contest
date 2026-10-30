@@ -1082,6 +1082,13 @@ export function get_table_mapchr_opt(table, name, defval) {
     return defval;
 }
 
+// These descriptor consumers copy through C strlen/dupstr. Keep this local:
+// Lua strings themselves may contain NUL bytes in other supported operations.
+function cStringPrefix(text) {
+    const end = text.indexOf('\0');
+    return end < 0 ? text : text.slice(0, end);
+}
+
 // C ref: sp_lev.c mapfrag_fromstr(). Parses a mapfragment string into the
 // source's record: the digit-stripped text, the widest line, and the line
 // count. Returns null past MAP_Y_LIM lines. The text is kept as one string
@@ -1089,7 +1096,7 @@ export function get_table_mapchr_opt(table, name, defval) {
 export function mapfrag_fromstr(str) {
     const mf = {};
 
-    mf.data = stripdigits(str);
+    mf.data = stripdigits(cStringPrefix(str));
     mf.wid = str_lines_maxlen(mf.data);
     mf.hei = 0;
     let tmps = 0;
@@ -2203,7 +2210,7 @@ function create_des_coder(state, frame) {
 export function lspo_message(args, env) {
     const { state } = env;
     if (args.length < 1) throw new Error('Wrong parameters');
-    const msg = luaL_checkstring(args[0]);
+    const msg = cStringPrefix(luaL_checkstring(args[0]));
     state.gl ??= {};
     const old = state.gl.lev_message;
     state.gl.lev_message = old != null ? `${old}\n${msg}` : msg;
@@ -2743,7 +2750,7 @@ export function lspo_engraving(args, env) {
 
     const c = { x, y };
     get_location_coord(c, DRY, coder.croom, ecoord, env);
-    make_engr_at(c.x, c.y, txt, null, 0, etyp, env);
+    make_engr_at(c.x, c.y, txt == null ? null : cStringPrefix(txt), null, 0, etyp, env);
     const ep = engr_at(c.x, c.y, state);
     if (ep) {
         ep.guardobjects = Boolean(guardobjs);

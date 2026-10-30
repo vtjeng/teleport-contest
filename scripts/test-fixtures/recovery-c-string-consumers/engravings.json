@@ -1,0 +1,202 @@
+[
+  {
+    "form": 0,
+    "text": "alpha\u0000omega",
+    "kind": "target",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 6,
+      "allocation": 18,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "616c706861",
+        "616c706861",
+        "616c706861"
+      ]
+    }
+  },
+  {
+    "form": 0,
+    "text": "\u0000omega",
+    "kind": "target",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 1,
+      "allocation": 3,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "",
+        "",
+        ""
+      ]
+    }
+  },
+  {
+    "form": 0,
+    "text": "alpha",
+    "kind": "control",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 6,
+      "allocation": 18,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "616c706861",
+        "616c706861",
+        "616c706861"
+      ]
+    }
+  },
+  {
+    "form": 0,
+    "text": "",
+    "kind": "control",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 1,
+      "allocation": 3,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "",
+        "",
+        ""
+      ]
+    }
+  },
+  {
+    "form": 0,
+    "text": "caf\u00e9",
+    "kind": "control",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 6,
+      "allocation": 18,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "636166c3a9",
+        "636166c3a9",
+        "636166c3a9"
+      ]
+    }
+  },
+  {
+    "form": 1,
+    "text": "alpha\u0000omega",
+    "kind": "target",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 6,
+      "allocation": 18,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "616c706861",
+        "616c706861",
+        "616c706861"
+      ]
+    }
+  },
+  {
+    "form": 1,
+    "text": "\u0000omega",
+    "kind": "target",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 1,
+      "allocation": 3,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "",
+        "",
+        ""
+      ]
+    }
+  },
+  {
+    "form": 1,
+    "text": "alpha",
+    "kind": "control",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 6,
+      "allocation": 18,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "616c706861",
+        "616c706861",
+        "616c706861"
+      ]
+    }
+  },
+  {
+    "form": 1,
+    "text": "",
+    "kind": "control",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 1,
+      "allocation": 3,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "",
+        "",
+        ""
+      ]
+    }
+  },
+  {
+    "form": 1,
+    "text": "caf\u00e9",
+    "kind": "control",
+    "expected": {
+      "x": 3,
+      "y": 2,
+      "type": 2,
+      "time": 0,
+      "size": 6,
+      "allocation": 18,
+      "guardobjects": 0,
+      "nowipeout": 0,
+      "textHex": [
+        "636166c3a9",
+        "636166c3a9",
+        "636166c3a9"
+      ]
+    }
+  }
+]

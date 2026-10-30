@@ -1,0 +1,55 @@
+[
+  {
+    "id": "nul",
+    "kind": "target",
+    "messages": [
+      "alpha\u0000omega"
+    ],
+    "expected": "alpha"
+  },
+  {
+    "id": "nul-append",
+    "kind": "target",
+    "messages": [
+      "alpha\u0000omega",
+      "tail"
+    ],
+    "expected": "alpha\ntail"
+  },
+  {
+    "id": "leading-nul",
+    "kind": "target",
+    "messages": [
+      "\u0000omega"
+    ],
+    "expected": ""
+  },
+  {
+    "id": "leading-nul-middle",
+    "kind": "target",
+    "messages": [
+      "head",
+      "\u0000omega",
+      "tail"
+    ],
+    "expected": "head\n\ntail"
+  },
+  {
+    "id": "ordinary",
+    "kind": "control",
+    "messages": [
+      "alpha",
+      "tail"
+    ],
+    "expected": "alpha\ntail"
+  },
+  {
+    "id": "empty",
+    "kind": "control",
+    "messages": [
+      "",
+      "tail"
+    ],
+    "expected": "\ntail"
+  }
+]
