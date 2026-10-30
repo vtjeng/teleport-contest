@@ -5995,12 +5995,8 @@ function monsterDigests(species) {
 // C stores the disintegration test in gd.disintegested, a global, which
 // vamprises() reads while mondead() handles a shape-shifted vampire.
 //
-// One arm stops:
-//
-//   3414-3415  the "May <pet> rest in peace." farewell, which needs
-//              do_name.c noit_mon_nam(). Its guard is C's own `rxt`, so an
-//              ordinary pet -- one killed by neither fire, rust nor decay --
-//              passes through without it.
+// The extra farewell is restricted to a pet which completely burns, rusts
+// or rots. C names that pet even when the hero cannot see it.
 export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
     const message = requiredKillOperation(env, 'message');
     const mptr = mdef.data;
@@ -6044,9 +6040,7 @@ export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
                 : (how === AD_DCAY && completelyrots(mptr)) ? 'rot'
                     : null;
         if (rxt)
-            requiredKillOperation(env, 'unsupported')(
-                'the farewell for a destroyed pet golem',
-            );
+            await message(`May ${noit_mon_nam(mdef, state, env)} ${rxt} in peace.`, state, env);
     }
 }
 

@@ -1,0 +1,18 @@
+{
+  "sourceCommit": "325dd70469f91f4feedc42dadaccbd859016d8a3",
+  "behavior": "Print C farewell after complete destruction of a tame paper/iron/wood golem.",
+  "evidence": {
+    "before": "Three tame target errors, three untamed controls pass",
+    "executedC": "Unchanged x_monnam/mon_nam/noit_mon_nam with restricted ordinary-golem state adapters: three target names and nine naming controls. Not a C death-engine execution.",
+    "sourceDerived": "mon.c monkilled destruction guard, verbs, and placement after death/life-save check",
+    "after": "66 death/farewell/layout tests pass",
+    "nativePublicRecording": "unavailable"
+  },
+  "windowReview": "js/mon.js and js/do_name.js unchanged G to B; narrow farewell branch only.",
+  "validationNote": "Initial mon-kill suite had one ENOENT sparse input. Committed Oct18 corpse glob growth/billing test source was inspected: predates stopped unpaid shrink work, no shrink callback. Restored exact unchanged recipe from Git; full suite passes. No denied investigation executed.",
+  "limits": [
+    "API constructed state",
+    "No full native C death recording",
+    "No hosted CI or judge validation"
+  ]
+}

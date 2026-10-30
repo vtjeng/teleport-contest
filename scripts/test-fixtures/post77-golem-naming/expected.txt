@@ -1,0 +1,12 @@
+May your paper golem roast in peace.
+unseen=it
+untamed=the paper golem
+named=Ada
+May your iron golem rust in peace.
+unseen=it
+untamed=the iron golem
+named=Ada
+May your wood golem rot in peace.
+unseen=it
+untamed=the wood golem
+named=Ada

@@ -1,0 +1,18 @@
+{
+  "gitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "functions": [
+    "x_monnam",
+    "mon_nam",
+    "noit_mon_nam"
+  ],
+  "sha256": {
+    "nethack-c/upstream/src/do_name.c": "64c6cb5e7f4034e9edbd8fac983b313a7df0e029b4812bd3a9327852d12ad9d1",
+    "nethack-c/upstream/src/mon.c": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01",
+    "nethack-c/upstream/include/monsters.h": "c63db922770c96a9956d221f364ba4368a9f81f81c8d64ed28251a0506d4a906",
+    "nethack-c/upstream/include/hack.h": "2840a9bd41fb0c09384839fafdbd427a5d8705ad8d3eb5e2a0308cccea36813b"
+  },
+  "limitations": "Exact naming functions with restricted ordinary-golem state/type adapters. No death engine or full gameplay C recording. Species strings checked in native catalog; special paths abort.",
+  "oracleSha256": "2710d0f5495c7d64ff7a74dff910db5858f7c4b81f8568e9d393c5be108ec15f",
+  "adaptersSha256": "b1848a8cd58857ebc7603ce91b7190cbec113572f19279a490b227eb2cdf068e",
+  "binarySha256": "8b76585b9be77409e5fdbfc5303ccc95970cf677f366cbf5b9e2b9a0913cee88"
+}
