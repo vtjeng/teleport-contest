@@ -1,0 +1,16 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "source": "b07f50fb0f818c8ec3e86aa55966fc78dd55101b",
+  "scope": "After MMOVE_MOVED release the actual hero holder only when it is no longer adjacent; preserve owner-specific unstuck RNG and planning/live separation.",
+  "baselineEvidence": "Read-only f449 comparison (same monmove source as77) differs at native unstuck RNG index2928, step124.",
+  "after": "Complete native143screens/3083RNG match; adjacent holder, clone-only mutation and swallowed/ranged-order controls pass.",
+  "reference": "scripts/test-fixtures/post77-confused-holder/provenance.json",
+  "testReconciliation": "Existing swallowed-hero fixture receives valid adjacent hero/monster coordinates; no genuine reachability failure converted to a negative.",
+  "windowBoundary": "Earlier fatal-Medusa gameover return is the only G\u2192B monmove diff; it remains absent. This change uses pre-existing MMOVE_MOVED, m_next2u and unstuck interfaces and is qualified on the alive-hero owlbear path, not the fatal-gaze path.",
+  "safety": "No buried-zombie investigation or failed-turn input; that movement branch remains untouched.",
+  "limits": [
+    "Native data reused, no new C execution or retroactive build attestation.",
+    "Bounded alive-holder behavior and API ownership controls, not a proof of every movement interaction.",
+    "Full new combined gate and judge evidence pending; local only."
+  ]
+}
