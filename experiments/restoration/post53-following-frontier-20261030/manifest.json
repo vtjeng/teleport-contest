@@ -41,7 +41,8 @@
       "ordinary visible single-square occupant and ordinary destination terrain; existing enexto handles successful relocation versus no-space refusal"
     ],
     "rationale": "rloc_to_core has separate worm removal/tail placement, attached-hero handling, resident-shopkeeper anger, inventory theft accounting, occupation interruption, and trap re-entry continuations. These can be excluded before admission rather than enabled by broad guard removal.",
-    "remainingProof": "Define conservative predicate against actual source/callers, prove all allowed relocation candidates avoid excluded continuations, and freeze ordinary target/no-room/control tests. Read-only classification is not acceptance or authorization to recreate stopped shopkeeper/worm witness."
+    "remainingProof": "Define conservative predicate against actual source/callers, prove all allowed relocation candidates avoid excluded continuations, and freeze ordinary target/no-room/control tests. Read-only classification is not acceptance or authorization to recreate stopped shopkeeper/worm witness.",
+    "orderingConstraint": "Do not run enexto during preflight: its nearest-square shuffling consumes rn2. Structural bounds must cover every possible destination without speculative relocation; a conservative starting subset is a shop-free, region-free ordinary level, inventory-free unattached nonworm occupant, no occupation/trap/hidden-state continuations. This is classification only, not a proven predicate."
   },
   "cSource": "16ff59115315917b93185d026aeefea06db9b0f4",
   "files": {
