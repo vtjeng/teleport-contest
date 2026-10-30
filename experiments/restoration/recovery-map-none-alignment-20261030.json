@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "21271522df5e16d899498ab515c515eab0a2d753"
+  ],
+  "scope": "Normalize explicit table-map none alignment to the same sentinel as absent alignment.",
+  "dependencyReview": "Independent of lighting and one-bit storage. No original18-window gameplay imported. Uses unchanged map placement and selection APIs.",
+  "evidence": "Seven fresh native C Lua map/selection fixtures:3none targets and4omitted/center controls. Native reference resets the coordinate frame with a transparent map before iterating retained selection; JS mirrors that supported sequence. ExactH3targets fail,4controls pass.",
+  "limits": "No full JS custom-Lua-script replay, source-build attestation or shipped exposure claim. Native original binary identity retained; actual JS descriptor API final state matches reference coordinates. No hosted validation or publication."
+}
