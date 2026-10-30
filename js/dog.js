@@ -141,7 +141,6 @@ import {
     PM_RANGER,
     PM_SAMURAI,
     PM_SHOCKING_SPHERE,
-    PM_WIZARD_OF_YENDOR,
     S_LIGHT,
     S_DOG,
 } from './monsters.js';
@@ -1011,8 +1010,9 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             const trackAvailable = Array.isArray(mtmp.mtrack)
                 && mtmp.mtrack.length >= 3
                 && mtmp.mtrack.slice(0, 3).every(Boolean);
-            const ordinaryAccessible = ((mtmp.iswiz === true
-                && mtmp.data === state.mons?.[PM_WIZARD_OF_YENDOR])
+            // dog.c keys accessibility on retained Wizard identity, including
+            // forms reached through the normal newcham() transition.
+            const ordinaryAccessible = (mtmp.iswiz === true
                 || mtmp.isshk || mtmp.ispriest || mtmp.isgd)
                 && !mtmp.wormno
                 && (appearance === M_AP_NOTHING

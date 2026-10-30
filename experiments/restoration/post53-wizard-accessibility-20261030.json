@@ -1,0 +1,33 @@
+{
+  "sourceCommit": "6056fdcc3c23e9940ae8a453f80ffeb3a5822750",
+  "base": "53f76a8dd1808cde07fa17ecf6cac0d7489ecfdb",
+  "qualifiedAt": "2026-10-30T14:52:05.252393+00:00",
+  "status": "qualified-local-not-published",
+  "behavior": "Retain Wizard identity accessibility after supported newcham changes its species; ordinary rat stays on level.",
+  "scope": "Independent dog.c keep_mon_accessible / dog.js keepdogs monster path, previously expressly distinguished from denied species-marked object-delivery follow-on. No denied artifacts used.",
+  "before": {
+    "targetFailed": 1,
+    "controlsPassed": 2
+  },
+  "after": {
+    "focusedAndLayoutPassed": 12,
+    "existingNativeCRecordings": 3
+  },
+  "executedC": {
+    "source": "nethack-c/upstream/src/dog.c",
+    "sha256": "52608b20fad3e144f5580e144adf3f592cbdbdfa432116794e16bec4c5583abc",
+    "functionSha256": "7e9c4840afdd1a63373ad7ecfe73cf0f9090a6aef97c89974fca14378a6ddbcc",
+    "function": "keep_mon_accessible",
+    "limitations": "Unchanged extracted C function; minimal struct/home-level adapters, no native construction, polymorph or migration engine execution. Only identity true/false branches exercised; actual JS setup uses production constructor and newcham.",
+    "result": "original=1 transformed=1 ordinary=0",
+    "compiler": "Debian clang version 19.1.7 (3+b1)",
+    "command": "source /workspace/.setup/activate.sh; clang -std=c11 -Wall -Wextra -Werror experiments/restoration/post53-wizard-accessibility-oracle.c -o /tmp/wizard-accessibility-oracle; /tmp/wizard-accessibility-oracle"
+  },
+  "testContractCorrection": "Removed synthetic spoofed-iswiz rejection assertion: it contradicted the retained identity domain demonstrated through native construction plus newcham. Replaced by production-constructed ordinary-rat negative control; other migration assertions unchanged.",
+  "windowReview": "js/dog.js has no G-to-B changes; only the species identity restriction removed, not any window behavior. No other runtime path changed.",
+  "limits": [
+    "No new full native C polymorph/migration recording",
+    "Existing tower native recordings cover original-form regressions only",
+    "No hosted CI, publication or judge claim for this local follow-on"
+  ]
+}

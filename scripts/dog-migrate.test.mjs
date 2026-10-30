@@ -976,27 +976,6 @@ test('keepdogs still takes a follower down to its last hit point', async () => {
     assert.equal(state.gm.mydogs, pet);
 });
 
-test('keepdogs keeps a non-Wizard with a spoofed iswiz flag on its level', async () => {
-    // The marker is retained for states outside the reviewed canonical
-    // Wizard caller domain; a lone iswiz flag does not authorize migration.
-    const state = migrationState();
-    state.gm.mydogs = null;
-    state.u.uhave = { amulet: false };
-    const { monster } = onMapMonster(state, PM_SEWER_RAT);
-    monster.iswiz = true;
-    // helpless() would keep him out of the follow arm whatever the amulet
-    // term answered, which is the state that hides dog.c:812's conjunction.
-    monster.mcanmove = true;
-
-    game.unported?.delete('dog.c migrate_to_level');
-    await keepdogs(false, { newsym: () => {}, state });
-
-    assert.equal(state.gm.mydogs, null);
-    assert.equal(state.level.monlist, monster);
-    assert.equal(state.gm.migrating_mons, null);
-    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
-});
-
 test('keepdogs migrates the canonical distant Wizard through the original caller',
     async () => {
         const input = {
