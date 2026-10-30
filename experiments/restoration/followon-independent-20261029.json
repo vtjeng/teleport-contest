@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "addedSources": [
+    {
+      "sha": "c2522d435cf79e93cb685e10d5d566709422a5d4",
+      "paths": [
+        "js/trap.js"
+      ],
+      "tests": [
+        "scripts/conjoined-pit-removal.test.mjs"
+      ],
+      "reason": "The conjoined-bit unlink is independent of the omitted lava-turn code: it touches deltrap/clear_conjoined_pits only, reuses existing neighbor directions and t_at, and is inert for unjoined/non-pit traps. Native zap_dig joins the two existing pits in the target; API control passes. C expectation source-derived, no new C run."
+    },
+    {
+      "sha": "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+      "paths": [
+        "js/monmove.js"
+      ],
+      "tests": [
+        "scripts/monflee-plain-speech.test.mjs"
+      ],
+      "reason": "Only monfleeMessage bright-light speech skips location formatting. No movement or death gate changes; it does not require the omitted dochug post-move guard. Existing recorded C target/control qualify the exact formatting branch."
+    },
+    {
+      "sha": "f6988a18345ae14398fa41873c39a177b04545e3",
+      "paths": [
+        "js/allmain.js"
+      ],
+      "tests": [
+        "scripts/egg-hatch-occupation.test.mjs"
+      ],
+      "reason": "Existing run_timers/hatch_egg/makemon hook contract threads existing stop_occupation at the existing timeout position. No lava sinking call, counters or new turn advancement. Two ordinary occupation targets and unoccupied control match existing C recordings; no capacity admission or glob fixture changes."
+    },
+    {
+      "sha": "4b227e84c703872a8553f369007f177d8bbc27f5",
+      "paths": [
+        "js/options.js"
+      ],
+      "tests": [
+        "scripts/options-versinfo.test.mjs"
+      ],
+      "reason": "Independent handler uses optionMenuSelect/menuSelectionValues, flags.versinfo and opt_need_redraw already present in G. Original patch context references omitted coordinate/sort handlers; those are insertion anchors, not semantic prerequisites. The unchanged handler is transplanted before existing handler_align_misc and registered beside menu_headings; none of the omitted handlers is imported.",
+      "adaptation": "Function body and comment copied verbatim from original source; insertion/registry anchors relocated to existing G declarations."
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "scripts/conjoined-pit-removal.test.mjs",
+      "ref": "c2522d435cf79e93cb685e10d5d566709422a5d4",
+      "bytes": 1778
+    },
+    {
+      "path": "recordings/timeout.c/egg-hatch-burdened-occupied.session.json",
+      "ref": "f6988a18345ae14398fa41873c39a177b04545e3",
+      "bytes": 348210
+    },
+    {
+      "path": "recordings/timeout.c/egg-hatch-occupied.session.json",
+      "ref": "f6988a18345ae14398fa41873c39a177b04545e3",
+      "bytes": 338775
+    },
+    {
+      "path": "recordings/timeout.c/egg-hatch-unoccupied.session.json",
+      "ref": "f6988a18345ae14398fa41873c39a177b04545e3",
+      "bytes": 343745
+    },
+    {
+      "path": "scripts/egg-hatch-occupation.test.mjs",
+      "ref": "f6988a18345ae14398fa41873c39a177b04545e3",
+      "bytes": 1066
+    },
+    {
+      "path": "recordings/options.c/versinfo-handler-cancel.session.json",
+      "ref": "4b227e84c703872a8553f369007f177d8bbc27f5",
+      "bytes": 133604
+    },
+    {
+      "path": "recordings/options.c/versinfo-handler-game.session.json",
+      "ref": "4b227e84c703872a8553f369007f177d8bbc27f5",
+      "bytes": 133288
+    },
+    {
+      "path": "recordings/options.c/versinfo-handler-menu.session.json",
+      "ref": "4b227e84c703872a8553f369007f177d8bbc27f5",
+      "bytes": 132380
+    },
+    {
+      "path": "recordings/options.c/versinfo-startup-control.session.json",
+      "ref": "4b227e84c703872a8553f369007f177d8bbc27f5",
+      "bytes": 117978
+    },
+    {
+      "path": "scripts/options-versinfo.test.mjs",
+      "ref": "4b227e84c703872a8553f369007f177d8bbc27f5",
+      "bytes": 1024
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/gremlin-verbalized-fear/proof.mjs",
+      "ref": "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+      "bytes": 1208
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/gremlin-verbalized-fear/target.session.json.gz",
+      "ref": "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+      "bytes": 10323
+    },
+    {
+      "path": "diagnostics/divergence-evidence/monsters/gremlin-verbalized-fear/control.session.json.gz",
+      "ref": "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+      "bytes": 10307
+    }
+  ],
+  "qualification": {
+    "before": {
+      "cases": 11,
+      "pass": 4,
+      "fail": 7
+    },
+    "after": {
+      "cases": 11,
+      "pass": 11,
+      "fail": 0
+    },
+    "newCExecution": false
+  },
+  "publication": "NONE"
+}
