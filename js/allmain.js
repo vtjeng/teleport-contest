@@ -1267,7 +1267,7 @@ async function finishElapsedTurnAfterLevelEffects(state, { planning = false } = 
             await runUnmulAtTurnBoundary(state);
             /* if unmul caused a level change, take it now */
             if (state.u.utotype)
-                elapsedTurnBoundary('a level change deferred by unmul()');
+                await runDeferredGotoAtTurnBoundary(state);
             return { afterUnmul: true };
         }
     }

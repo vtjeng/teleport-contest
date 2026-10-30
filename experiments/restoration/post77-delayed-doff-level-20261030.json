@@ -1,0 +1,19 @@
+{
+  "sourceCommit": "5826a75fcc149b8895af22af4d38ea750bad13c8",
+  "behavior": "Finish deferred level transition after a delayed Boots_off callback reaches a trapdoor.",
+  "before": "Supported initialized hero/boots/trap API target reaches UnsupportedTurnBoundaryError; dry-floor control passes",
+  "reference": {
+    "type": "C source-derived expected behavior; no new executed C witness",
+    "path": "src/allmain.c",
+    "lines": [
+      379,
+      387
+    ],
+    "sha256": "6ce44a662ad3d180b9dcbf7660a1899b8d1356c8ef83e7787b21b39c6b2a35e4"
+  },
+  "windowReview": "Only deferred-goto call in finishElapsedTurnAfterLevelEffects; finishHeroTimeEffects and excluded lava timing untouched. Existing boundary helper reused.",
+  "limits": [
+    "Constructed supported API setup, not complete public C recording",
+    "No hosted CI or judge proof"
+  ]
+}
