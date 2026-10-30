@@ -1,0 +1,19 @@
+✔ bounded admission is repeatable and pure: brown-mold-peaceful (136.842627ms)
+✔ bounded admission is repeatable and pure: brown-mold-hostile (56.243461ms)
+✔ bounded admission is repeatable and pure: yellow-mold-peaceful (56.598913ms)
+✔ bounded admission is repeatable and pure: yellow-mold-hostile (52.613032ms)
+✔ full C command, visible grid and following turn: brown-mold-peaceful (59.606281ms)
+✔ full C command, visible grid and following turn: brown-mold-hostile (52.580234ms)
+✔ full C command, visible grid and following turn: yellow-mold-peaceful (49.362961ms)
+✔ full C command, visible grid and following turn: yellow-mold-hostile (50.559587ms)
+✔ full C command, visible grid and following turn: brown-mold-retry (56.007759ms)
+✔ full C command, visible grid and following turn: empty-control (41.138215ms)
+✔ excluded-condition controls refuse without RNG or state writes (304.411418ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1201.093291

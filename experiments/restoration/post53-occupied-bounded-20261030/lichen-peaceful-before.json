@@ -1,0 +1,47 @@
+{
+  "passed": false,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 2759,
+      "js": 2759
+    },
+    "screens": {
+      "c": 62,
+      "js": 60
+    },
+    "cursors": {
+      "c": 62,
+      "js": 60
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": null,
+  "screenMismatch": {
+    "index": 60,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 60,
+      "key": "l"
+    },
+    "kind": "js-missing"
+  },
+  "cursorMismatch": {
+    "index": 60,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 60,
+      "key": "l"
+    },
+    "cCursor": [
+      51,
+      0,
+      1
+    ]
+  },
+  "animMismatch": null,
+  "segmentMismatch": null
+}

@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {runSegment} from '../../js/jsmain.js';
+import {game} from '../../js/gstate.js';
+import {m_at} from '../../js/monst.js';
+import {t_at} from '../../js/trap.js';
+import {engr_at} from '../../js/engrave.js';
+import {cansee} from '../../js/vision.js';
+import {canseemon} from '../../js/display.js';
+import {ROOM,THEMEROOM,TELEP_TRAP,NON_PM,INVIS,DISPLACED,BLINDED,HALLUC,LEVITATION,FLYING,CONFUSION,STUNNED} from '../../js/const.js';
+import {nonliving,is_shapeshifter,is_hider,hides_under} from '../../js/mondata.js';
+import {S_EEL,S_MIMIC} from '../../js/monsters.js';
+import {LEASH} from '../../js/objects.js';
+let boundary;await runSegment(JSON.parse(readFileSync(process.argv[2])).segments[0],{onBoundary:e=>boundary=e.message});
+assert.equal(boundary,undefined);
+const trap=t_at(65,2,game),m=m_at(62,4,game),u=game.u;
+assert.equal(trap.ttyp,TELEP_TRAP);assert.equal(trap.once,false);assert.deepEqual(trap.teledest,{x:62,y:4});
+assert.ok(m&&m.mhp>0);assert.deepEqual([m.mx,m.my],[62,4]);assert.equal(m.cham,NON_PM);
+for(const k of ['wormno','isshk','ispriest','isgd','isminion','iswiz','minvent','mtrapped','mundetected','mappearance','m_ap_type','minvis','mburied','msleeping','mfrozen','mblinded','mconf','mstun'])assert.ok(!m[k],k);
+assert.ok(m.mcanmove&&m.mcansee);assert.ok(!nonliving(m.data)&&!is_shapeshifter(m.data)&&!is_hider(m.data)&&!hides_under(m.data));assert.ok(m.data.mlet!==S_EEL&&m.data.mlet!==S_MIMIC);
+assert.ok(!u.ustuck&&!u.usteed&&!u.uswallow&&!u.uinwater&&!game.uball&&!game.uchain&&!game.go?.occupation);
+for(const p of [INVIS,DISPLACED,BLINDED,HALLUC,LEVITATION,FLYING,CONFUSION,STUNNED])assert.ok(!u.uprops?.[p]?.intrinsic&&!u.uprops?.[p]?.extrinsic,`hero prop${p}`);
+for(let o=game.invent;o;o=o.nobj)assert.notEqual(o.otyp,LEASH);
+assert.equal(game.level.regions.length,0);assert.ok(game.level.rooms.every(r=>r.hx<0||r.rtype<=THEMEROOM));
+const cells=[];for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
+ const x=62+dx,y=4+dy;assert.equal(game.level.at(x,y).typ,ROOM);assert.ok(!game.level.objects[x][y]&&!t_at(x,y,game)&&!engr_at(x,y,game));assert.equal(m_at(x,y,game),dx===0&&dy===0?m:null);assert.ok(cansee(x,y,game));cells.push([x,y]);
+}
+for(const [x,y] of [[u.ux,u.uy],[trap.tx,trap.ty]])assert.ok(Math.abs(x-62)>1||Math.abs(y-4)>1);
+assert.ok(canseemon(m,game));
+console.log(JSON.stringify({qualified:true,hero:[u.ux,u.uy],source:[trap.tx,trap.ty],destination:[62,4],occupant:{species:m.mnum,peaceful:m.mpeaceful,id:m.m_id},moves:game.moves,cells}));

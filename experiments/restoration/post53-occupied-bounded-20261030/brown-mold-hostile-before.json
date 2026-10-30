@@ -1,0 +1,56 @@
+{
+  "passed": false,
+  "error": null,
+  "lengths": {
+    "rng": {
+      "c": 2822,
+      "js": 2759
+    },
+    "screens": {
+      "c": 66,
+      "js": 63
+    },
+    "cursors": {
+      "c": 66,
+      "js": 63
+    },
+    "animFrames": {
+      "c": 0,
+      "js": 0
+    }
+  },
+  "rngMismatch": {
+    "index": 2759,
+    "cEntry": "rn2(8)=5",
+    "cCaller": "collect_coords(teleport.c:700)",
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 64,
+      "key": "y"
+    }
+  },
+  "screenMismatch": {
+    "index": 63,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 63,
+      "key": "l"
+    },
+    "kind": "js-missing"
+  },
+  "cursorMismatch": {
+    "index": 63,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 63,
+      "key": "l"
+    },
+    "cCursor": [
+      51,
+      0,
+      1
+    ]
+  },
+  "animMismatch": null,
+  "segmentMismatch": null
+}

@@ -1,0 +1,9 @@
+{
+  "base": "29d82eba7c91bae191888077a2eaa33bc4a777fa",
+  "branch": "prepare/post53-occupied-bounded-20261030",
+  "Csubmodule": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "binarySha256": "febdecce8b922d116ed33111e649e281ce052f8e063516a34a1bd2dbae820602",
+  "status": "local setup only; no runtime fixture, predicate implementation or gameplay edit",
+  "prerequisite": "Full source-only reviewer report01a18e14-22c5-746e-a5ca-888b07453002 required before runtime work; no thread reader available, personal-context unavailable; requested relay from parent.",
+  "authorization": "Bounded local occupied-teleport testing approved; no broad guard deletion, no remote publication or CI for new changes; exact thirteen candidate preserved; all excluded scopes and different-customer safety stop remain."
+}

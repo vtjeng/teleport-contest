@@ -142,6 +142,7 @@ import {
     u_at,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { ordinaryFixedTrapOccupantAllowed } from './teleport_admission.js';
 import { stop_occupation } from './allmain.js';
 import { ballfall, placebc, unplacebc } from './ball.js';
 import {
@@ -4091,11 +4092,11 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== VIBRATING_SQUARE && !is_hole(trap.ttyp))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {
-        // tele_trap()'s fixed-destination arm calls settrack() before it can
-        // discover that rloc_to() has no answer for the monster in the way,
-        // so the question has to be asked here, ahead of that write.
+        // Keep the broad refusal except for the proven ordinary partition.
+        // Admission must precede settrack() and must not consume enexto RNG.
         if (!trap.once && fixed_tele_trap(trap)
-            && m_at(trap.teledest.x, trap.teledest.y, state)) {
+            && m_at(trap.teledest.x, trap.teledest.y, state)
+            && !ordinaryFixedTrapOccupantAllowed(trap, state)) {
             throw new UnsupportedHeroMoveBoundaryError(
                 'a monster on a teleport trap destination',
             );

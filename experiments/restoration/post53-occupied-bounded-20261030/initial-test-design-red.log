@@ -1,0 +1,214 @@
+✖ bounded admission is repeatable and pure: brown-mold-peaceful (132.747484ms)
+✖ bounded admission is repeatable and pure: brown-mold-hostile (53.709235ms)
+✖ bounded admission is repeatable and pure: yellow-mold-peaceful (58.450045ms)
+✖ bounded admission is repeatable and pure: yellow-mold-hostile (53.618544ms)
+✖ full C command, visible grid and following turn: brown-mold-peaceful (1.326943ms)
+✖ full C command, visible grid and following turn: brown-mold-hostile (0.539337ms)
+✖ full C command, visible grid and following turn: yellow-mold-peaceful (0.449402ms)
+✖ full C command, visible grid and following turn: yellow-mold-hostile (0.442821ms)
+✖ full C command, visible grid and following turn: brown-mold-retry (0.526698ms)
+✔ full C command, visible grid and following turn: empty-control (48.326836ms)
+✔ excluded-condition controls refuse without RNG or state writes (330.076757ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 2
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 989.133085
+
+✖ failing tests:
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:46:2
+✖ bounded admission is repeatable and pure: brown-mold-peaceful (132.747484ms)
+  AssertionError [ERR_ASSERTION]: Got unwanted exception.
+  Actual message: "unsupported hero move: a monster on a teleport trap destination"
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:30)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: UnsupportedHeroMoveBoundaryError: unsupported hero move: a monster on a teleport trap destination
+        at preflight_dotrap (file:///workspace/teleport-occupied-bounded/js/trap_effects.js:4099:19)
+        at file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:47
+        at getActual (node:assert:611:5)
+        at strict.doesNotThrow (node:assert:779:32)
+        at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:30)
+        at async Test.run (node:internal/test_runner/test:1389:7)
+        at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3),
+    expected: undefined,
+    operator: 'doesNotThrow',
+    diff: 'simple'
+  }
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:46:2
+✖ bounded admission is repeatable and pure: brown-mold-hostile (53.709235ms)
+  AssertionError [ERR_ASSERTION]: Got unwanted exception.
+  Actual message: "unsupported hero move: a monster on a teleport trap destination"
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:30)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: UnsupportedHeroMoveBoundaryError: unsupported hero move: a monster on a teleport trap destination
+        at preflight_dotrap (file:///workspace/teleport-occupied-bounded/js/trap_effects.js:4099:19)
+        at file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:47
+        at getActual (node:assert:611:5)
+        at strict.doesNotThrow (node:assert:779:32)
+        at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:30)
+        at async Test.run (node:internal/test_runner/test:1389:7)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:960:7),
+    expected: undefined,
+    operator: 'doesNotThrow',
+    diff: 'simple'
+  }
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:46:2
+✖ bounded admission is repeatable and pure: yellow-mold-peaceful (58.450045ms)
+  AssertionError [ERR_ASSERTION]: Got unwanted exception.
+  Actual message: "unsupported hero move: a monster on a teleport trap destination"
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:30)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: UnsupportedHeroMoveBoundaryError: unsupported hero move: a monster on a teleport trap destination
+        at preflight_dotrap (file:///workspace/teleport-occupied-bounded/js/trap_effects.js:4099:19)
+        at file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:47
+        at getActual (node:assert:611:5)
+        at strict.doesNotThrow (node:assert:779:32)
+        at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:30)
+        at async Test.run (node:internal/test_runner/test:1389:7)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:960:7),
+    expected: undefined,
+    operator: 'doesNotThrow',
+    diff: 'simple'
+  }
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:46:2
+✖ bounded admission is repeatable and pure: yellow-mold-hostile (53.618544ms)
+  AssertionError [ERR_ASSERTION]: Got unwanted exception.
+  Actual message: "unsupported hero move: a monster on a teleport trap destination"
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:30)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: UnsupportedHeroMoveBoundaryError: unsupported hero move: a monster on a teleport trap destination
+        at preflight_dotrap (file:///workspace/teleport-occupied-bounded/js/trap_effects.js:4099:19)
+        at file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:47
+        at getActual (node:assert:611:5)
+        at strict.doesNotThrow (node:assert:779:32)
+        at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:48:30)
+        at async Test.run (node:internal/test_runner/test:1389:7)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:960:7),
+    expected: undefined,
+    operator: 'doesNotThrow',
+    diff: 'simple'
+  }
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:53:2
+✖ full C command, visible grid and following turn: brown-mold-peaceful (1.326943ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:58:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:53:2
+✖ full C command, visible grid and following turn: brown-mold-hostile (0.539337ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:58:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:53:2
+✖ full C command, visible grid and following turn: yellow-mold-peaceful (0.449402ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:58:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:53:2
+✖ full C command, visible grid and following turn: yellow-mold-hostile (0.442821ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:58:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/occupied-fixed-teleport-bounded.test.mjs:53:2
+✖ full C command, visible grid and following turn: brown-mold-retry (0.526698ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-occupied-bounded/scripts/occupied-fixed-teleport-bounded.test.mjs:58:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

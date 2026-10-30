@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2026103516,
+      "datetime": "20320815101500",
+      "nethackrc": "OPTIONS=name:BoundedArrival,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=pettype:none,!legacy,!tutorial,!splash_screen,playmode:debug\n",
+      "moves": "#wizmap\n\u0014  lllllllllllllll.#wizgenesis\npeaceful lichen\nkllul.",
+      "comment": "Independent natural fixed-trap fixture; C/native prefix exact and all bounded conditions asserted before triggering. Peaceful lichen target with following wait turn."
+    }
+  ]
+}

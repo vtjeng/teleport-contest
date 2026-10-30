@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2026103516,
+      "datetime": "20320815101500",
+      "nethackrc": "OPTIONS=name:BoundedArrival,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=pettype:none,!legacy,!tutorial,!splash_screen,playmode:debug\n",
+      "moves": "#wizmap\n\u0014  lllllllllllllll.#wizgenesis\nhostile yellow mold\nkllu",
+      "comment": "Independent natural fixed-trap fixture with hostile yellow mold; plain approach."
+    }
+  ]
+}
