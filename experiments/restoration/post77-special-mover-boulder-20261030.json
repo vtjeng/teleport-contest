@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "128fba220b25c44e18c5907c15bab10b0e8ac918",
+  "behavior": "move_special calls and awaits the same boulder fracture helper as ordinary movement.",
+  "before": "Initialized native-map/priest/boulder API target fails missing callback; empty-square control passes",
+  "after": "205 movement and focused tests pass",
+  "reference": {
+    "kind": "C source-derived caller contract; no new C execution",
+    "path": "src/priest.c",
+    "lines": [
+      99,
+      107
+    ],
+    "sha256": "6d411a4285ba0d6d9b92de3e73f61fe4967c827642c5500de5ffbf2b7e7a8945"
+  },
+  "windowReview": "Existing helper body unchanged, export only; priest.js unchanged G-to-B. No fatal Medusa or buried-state code restored.",
+  "limits": [
+    "Constructed move_special API state, not full priest lifecycle or public-input recording",
+    "No new native C witness or score-impact claim",
+    "No hosted CI or judge validation"
+  ]
+}
