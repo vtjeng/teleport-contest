@@ -1,0 +1,14 @@
+{
+  "source": "7c9049eff68c4c56990caca777930e836d12f93e",
+  "records": [
+    {
+      "label": "target",
+      "rawSha256": "f8e75c1a3d15afee4cb2ab6e4a30fa28e04c533b352d20fcf54b81844ede4c5c"
+    },
+    {
+      "label": "control",
+      "rawSha256": "334c4c27716a439b6463c1ef9cd9f9096125610d4483b144af9b88349ce58c6c"
+    }
+  ],
+  "limits": "Original published native C data reused, no new C execution or historical binary attestation. Ordinary vault guard/search occupation inputs."
+}
