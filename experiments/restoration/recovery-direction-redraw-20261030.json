@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56",
+    "99a4de1ee181efd4959c7b078a06a5b8ca442344"
+  ],
+  "scope": "Prompted direction redraw refreshes existing glyph buffer and retries; queued directions bypass that prompt-only redraw branch. Two related paths, one dependency-closed getdir redraw family.",
+  "dependencyReview": "No cmd.js/display.js changes in excluded18 window. Historical99a4 refines5d19 redraw branch; restoring primary alone leaves queued target failing. Combined code keeps repaint separate from vision/map reconstruction and preserves existing docrt non-refresh branches.",
+  "evidence": "Four full published native C recordings: H2fail2pass; primary redraw restoration3pass1queuedfailure; combined4pass. Characterization uses ordinary supported command/bindings.",
+  "sourceHashes": {
+    "src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "src/display.c": "c40bea2174713159eb7aa7b3b443f176a48282866c31d658449a1b2092145423"
+  },
+  "limits": "No fresh C recording or historical binary build attestation. Tests target direction prompt/queue boundary and opposite controls, not every docrt caller or hidden-score behavior. No coordinate-description follow-on or failed-turn artifacts.",
+  "additionalControl": "After the native control has reached the current live level, corrupt only a terminal cell: refresh-only docrt repairs it from cached glyph without altering memory or either RNG context. First generic empty-startup attempt stopped with uz0.dlevel0 versus uz.dlevel1, so source on_level guard correctly suppresses redraw; preserved as invalid setup, not a candidate regression."
+}

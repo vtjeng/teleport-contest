@@ -4160,6 +4160,15 @@ export async function doredraw() {
     return ECMD_OK;
 }
 
+// C ref: display.c redraw_map() (1778-1810).  docrtRefresh resends the
+// transient glyph buffer without reconstructing the remembered map or
+// consuming display RNG to regenerate monster glyphs.
+async function redraw_map(cursorOnHero = false) {
+    if (!game.u?.ux || suppressMapOutput()
+        || !on_level(game.u.uz0, game.u.uz)) return;
+    await flush_screen(cursorOnHero ? 1 : 0);
+}
+
 // C ref: display.c docrt()/docrt_flags() (1703-1775). Swallowed and underwater
 // displays take precedence over the ordinary remembered-map redraw. cls()
 // flushes pending messages before clearing the transient frame. Ordinary
@@ -4171,10 +4180,14 @@ export async function docrt(options = {}) {
     game.program_state ??= {};
     game.program_state.in_docrt = true;
     try {
-        // C ref: display.c docrt_flags() (1727-1731). A swallowed hero gets
-        // the complete stomach redraw here; newsym()'s swallowed guard only
-        // protects the existing transient frame and cannot replace this arm.
-        if (game.u?.uswallow) {
+        if (options.refreshOnly) {
+            // C docrt_flags(docrtRefresh) takes this arm before the swallowed,
+            // underwater, and ordinary vision-redraw paths.
+            await redraw_map(false);
+        } else if (game.u?.uswallow) {
+            // C ref: display.c docrt_flags() (1727-1731). A swallowed hero
+            // gets the complete stomach redraw here; newsym()'s swallowed
+            // guard cannot replace this arm.
             await swallowed(true);
         } else if (game.u.uinwater && !Is_waterlevel(game.u.uz)) {
             await under_water(1);
