@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "4e235b3a65f6639110647ff395a41122caa42d08"
+  ],
+  "scope": "Extinguish artifact-owned light and complete normal slot/inventory handoff when polymorph force-drops lit Sunsword.",
+  "dependencyReview": "H already imports end_burn, objectGenerationEnv, naming, blindness and async setworn helpers. Existing polyself drop_weapon awaits uwepgone. No original18 behavior or stopped ring/glob/figurine scope imported.",
+  "evidence": "Fresh native wizard wish/wield/polyself giant-bat target and ordinary-longsword control:70/69screens,2278/2277RNG. ExactH target throws at artifact-light branch;controlmatches. Durable tests also validate completed form,floorweapon,clearedslot,lamplitfalse,no ownedlight and stop-shining message.",
+  "limits": "Formal recorder source-build attestation absent. Supported wizard path; no held-out impact claim. First ownership harness read stale destructured game before runSegment replaced it; corrected to read currentgame after call and retained invalid-harness log. No engine change for that setup error."
+}
