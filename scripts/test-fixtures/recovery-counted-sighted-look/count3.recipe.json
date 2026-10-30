@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 421051,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:CountVersion,role:Ranger,race:human,gender:male,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics\n",
+      "moves": "3::"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "publishedOrigin": "9165c047ac94be5130a7e6a4970633263d563a46",
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "recorderToolSource": "fa6ac3709a0acf413c83bd459c6772b16476343f",
+  "scope": "Fresh native ordinary sighted initial-square look through public2::/3::/::/: input; no state injection, map-symbol selection or custom-coordinate output.",
+  "limits": "Formal source-build attestation absent; no blind-count or other counted-command claim.",
+  "rows": [
+    {
+      "name": "count2",
+      "kind": "target",
+      "recordingSha256": "bde7893c29cd5bb8c573edd31fb2a01db0254d050d2305856204682a19f89ba2",
+      "recipeSha256": "c450eb7e0c700b63eb54a1fd55fee430f6b05e226a4c311d95e03720618e8203"
+    },
+    {
+      "name": "count3",
+      "kind": "target",
+      "recordingSha256": "735c8fc8af454464104d4fc5faf14b6b4b7035ecd11a599c7ffc39bfe2f9d41d",
+      "recipeSha256": "1fd68c28c76d4785e90d7442c8286350739dea09f636b6d1c2119a01555e3f1c"
+    },
+    {
+      "name": "plain2",
+      "kind": "control",
+      "recordingSha256": "3ccbefc4d30513a37039c5a9827b7b5bd31b0bcb2c02bbbf759c8be8a44d68cb",
+      "recipeSha256": "3b5241bcdbb3317f5d3e60660919d62866d0cb76309ad95179caf695abb03c08"
+    },
+    {
+      "name": "plain1",
+      "kind": "control",
+      "recordingSha256": "63ea6aa9dce40bc56983a3d9cff4700479448b94f69a6b4b441094529616cd06",
+      "recipeSha256": "10a1f48aa04d118c6d522ef8d2ff61ddeccb779831f8eeb895cc10b8639edc0a"
+    }
+  ]
+}
