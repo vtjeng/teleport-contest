@@ -1,0 +1,33 @@
+{
+  "publishedOrigin": "49626a5673d361969361e57768c75e70dbab1104",
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "recorderToolSource": "fa6ac3709a0acf413c83bd459c6772b16476343f",
+  "scope": "Fresh native ordinary initial OPTIONS and one public look. Two orderings of valid LP64 large thresholds; ordinary/single-large controls.",
+  "limits": "Pinned native LP64 range only; formal build attestation absent. No 32bit long, numeric overflow or hidden-score claim.",
+  "rows": [
+    {
+      "name": "large",
+      "kind": "target",
+      "recordingSha256": "34da8f13cc7b67cc6fb963eea82f66fe1c19c032eee8e2137d24c72b36029f2e",
+      "recipeSha256": "93f2875c59b226bea9fcc0d5288ecf2ad6787c507b237c130a60c6d1c37e537f"
+    },
+    {
+      "name": "large-reversed",
+      "kind": "target",
+      "recordingSha256": "c7fa0f607cf6493d02738b8bc17dd87c3c89f382daa2c669e2acec0fae0292d7",
+      "recipeSha256": "2f8017d15b9c7a78418b8f73564427eac551e5618d6cd09064ce9e724890b9bc"
+    },
+    {
+      "name": "ordinary",
+      "kind": "control",
+      "recordingSha256": "fba0f62f812538da1130158f91f2efb2bbbcb8f95278ad4deb7795e34862faab",
+      "recipeSha256": "0ae226c0d37a4297768a118e8f171122be77b7541ef58d151ba740a2e7f15fed"
+    },
+    {
+      "name": "one-large",
+      "kind": "control",
+      "recordingSha256": "c76d124cfe53d46f403de5b54fe71f43caf082fca2874ef34a06ed707b5c0bf2",
+      "recipeSha256": "abb1d0377fa428e54b6cf6b6f53a34b40366de643587168fdbe1e4220b0e386d"
+    }
+  ]
+}

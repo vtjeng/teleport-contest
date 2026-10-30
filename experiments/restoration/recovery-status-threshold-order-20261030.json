@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "49626a5673d361969361e57768c75e70dbab1104"
+  ],
+  "scope": "Compare decimal-string signed-long status thresholds numerically, including nearest-threshold priority and equality.",
+  "dependencyReview": "H already accepts and preserves valid large initial OPTIONS values. No option editor/menu, original18 behavior or mutable user settings required. Only scoped display.js patch imported; no historical SCORE/receipt data.",
+  "evidence": "Four fresh native C ordinary initial OPTIONS recordings. Both orderings of two valid large thresholds failH; ordinary thresholds and one-large controls pass. All replay setup public, no state injection.",
+  "limits": "Native LP64 supported-range values only; no 32bit-long or overflow claim. Formal recorder source-build attestation absent. Judge-visible status rendering; no expected-score claim."
+}
