@@ -3607,12 +3607,13 @@ function l_selection_check(value, frame) {
         throw new Error('Selection error');
     if (value.absolute)
         return value;
+    const origin = value.origin ?? frame;
     const sel = new ThemeroomSelection(null, true);
     const b = value.bounds();
     for (let x = b.lx; x <= b.hx; ++x)
         for (let y = b.ly; y <= b.hy; ++y)
             if (value.get(x, y))
-                sel.set(frame.xstart + x, frame.ystart + y, true);
+                sel.set(origin.xstart + x, origin.ystart + y, true);
     return sel;
 }
 

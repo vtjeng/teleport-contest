@@ -1,0 +1,28 @@
+{
+  "sourceCommit": "e2cd8ea2fa298c9b3a7c062c70d21999b91f06fc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "exactBodyProofs": [
+    {
+      "function": "l_selection_or",
+      "exactBodySha256": "1da13770e3f43540b80927af6bc77331dd6d9ae97f6bc87484a4eec2a7a4b3aa",
+      "source": "src/nhlsel.c"
+    },
+    {
+      "function": "l_selection_sub",
+      "exactBodySha256": "d6d7711d211283a8c4802449b88061cda572c8130021cd1cf4d3d14c6df6f5fa",
+      "source": "src/nhlsel.c"
+    },
+    {
+      "function": "selection_not",
+      "exactBodySha256": "2e0b6bb743f8a4c6dba865e4c3683c31cf4921c969adba3056702d68ef40da3d",
+      "source": "src/selvar.c"
+    },
+    {
+      "function": "selection_iterate",
+      "exactBodySha256": "6e560cc2d13f9795671a604784f2dc05cc9c20d980aa37fa2724efce06866b88",
+      "source": "src/selvar.c"
+    }
+  ],
+  "adapterLimits": "Integer 80x21 bitmap storage, fixed Lua argument shim, no-op stack removal, hand-written bounds/painting helpers; constructor postconditions seeded from source contract. Not full C Lua/userdata or constructor execution.",
+  "scope": "One unchanged active map frame; retained selections across frame changes are not qualified."
+}
