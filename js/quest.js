@@ -393,15 +393,17 @@ async function chat_with_leader(mtmp, ops) {
     }
 }
 
-// C ref: quest.c leader_speaks() (370-391). The !mpeaceful arm delivers
-// leader_last, sets pissed_off and clears STRAT_WAITMASK so that the leader
-// starts moving; that hostile leader is outside the monster-action boundary,
-// so the whole arm refuses rather than half-porting the strategy change.
+// C ref: quest.c leader_speaks() (370-391). A hostile leader gives its final
+// speech once, records the offense, and stops waiting before its next action.
 async function leader_speaks(mtmp, ops) {
     const state = ops.state;
     const qs = state.svq.quest_status;
-    if (!mtmp.mpeaceful)
-        ops.unsupported('an angry quest leader speaking');
+    if (!mtmp.mpeaceful) {
+        if (!qs.pissed_off)
+            await ops.pager('leader_last');
+        qs.pissed_off = true;
+        mtmp.mstrategy &= ~STRAT_WAITMASK;
+    }
     /* the quest leader might have passed through the portal into the
        regular dungeon; if so, mustn't perform "backwards expulsion" */
     if (!on_level(state.u.uz, state.qstart_level))
