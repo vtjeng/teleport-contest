@@ -300,8 +300,14 @@
       "includedSourceScopes": [
         "c2522d435cf79e93cb685e10d5d566709422a5d4",
         "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
-        "f6988a18345ae14398fa41873c39a177b04545e3",
-        "4b227e84c703872a8553f369007f177d8bbc27f5"
+        "f6988a18345ae14398fa41873c39a177b04545e3"
+      ],
+      "duplicateSourceScopesProvidedByOtherComponents": [
+        {
+          "source": "4b227e84c703872a8553f369007f177d8bbc27f5",
+          "provider": "options",
+          "path": "js/options.js"
+        }
       ]
     },
     {
