@@ -1,0 +1,22 @@
+{
+  "publishedOrigin": "8a98bd81c8fee108c49fcd92ef06e8a8fef1abf3",
+  "repairSource": "4e235b3a65f6639110647ff395a41122caa42d08",
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "recorderToolSource": "fa6ac3709a0acf413c83bd459c6772b16476343f",
+  "scope": "Fresh native public wizard wish,wield and polyself giantbat action; lit Sunsword forceddrop vs ordinary longsword control. No private state injection or ring/glob/figurine work.",
+  "limits": "Existing native binary formal source-build attestation absent. Source expectationwield.c uwepgone; no hidden-score claim.",
+  "rows": [
+    {
+      "name": "target",
+      "kind": "target",
+      "recordingSha256": "feb6d3ee1b1a4e0f85a795199932bc23b13e3a4cc721d802c25e1418bfc72349",
+      "recipeSha256": "7dc60aa07005404402722d54b4f1137e07e26a1079166acf9599a3c457036994"
+    },
+    {
+      "name": "control",
+      "kind": "control",
+      "recordingSha256": "50fd2d388f710d79fec9a74c644938ba29e84b3f7dda3cdd0a7b03ca5ea5c01e",
+      "recipeSha256": "e43de14f9c94279d4b9c1ab0c834935baaa6a3fa3eb9860588e0dd3767793ad5"
+    }
+  ]
+}

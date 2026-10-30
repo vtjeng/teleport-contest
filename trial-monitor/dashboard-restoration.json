@@ -63,6 +63,8 @@
     "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
     "9205e0859870d4c8967254334152b10742407260",
     "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
-    "71421a2cc835750c412e88e3692b616434d5fd2b"
-  ]
+    "71421a2cc835750c412e88e3692b616434d5fd2b",
+    "4e235b3a65f6639110647ff395a41122caa42d08"
+  ],
+  "localFollowonManifest": "experiments/restoration/recovery-artifact-forced-drop-20261030.json"
 }
