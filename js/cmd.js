@@ -250,6 +250,7 @@ import {
     strstri,
     strsubst,
     truncateByteString,
+    appendLongDigit,
     upstart,
     visctrl,
 } from './hacklib.js';
@@ -1715,7 +1716,10 @@ export async function get_count(
     state.program_state ??= {};
     const savedInputState = state.program_state.input_state;
     let key = inkey;
-    let count = 0;
+    // C uses a signed long here. Keep the decimal input exact through the
+    // LONG_MAX check and TTY echo; callers still receive Numbers for ordinary
+    // counts that JavaScript can represent exactly.
+    let count = 0n;
     let committedCount = 0;
     let first = inkey ? inkey - 0x30 : 0;
     let backspaced = false;
@@ -1726,14 +1730,10 @@ export async function get_count(
     const escape = commandBindings(state).specialKeys.escape ?? ESC;
 
     const storeCount = (value) => {
-        committedCount = value;
-        if (countOut && typeof countOut === 'object') countOut.value = value;
+        committedCount = value <= BigInt(Number.MAX_SAFE_INTEGER)
+            ? Number(value) : value;
+        if (countOut && typeof countOut === 'object') countOut.value = committedCount;
     };
-    const appendLongDigit = (value, digitValue) => {
-        const appended = value * 10 + digitValue;
-        return appended > Number.MAX_SAFE_INTEGER ? -1 : appended;
-    };
-
     for (;;) {
         if (inkey) {
             key = inkey;
@@ -1746,13 +1746,14 @@ export async function get_count(
         if (isDigit(key)) {
             const dgt = key - 0x30;
             count = appendLongDigit(count, dgt);
-            if (count < 0) count = 0;
-            else if (maxcount > 0 && count > maxcount) count = maxcount;
+            if (count < 0n) count = 0n;
+            else if (maxcount > 0 && count > BigInt(maxcount))
+                count = BigInt(maxcount);
             showzero = key === 0x30;
         } else if (key === BACKSPACE || key === DELETE) {
             if (!count && !echoalways) break;
             showzero = false;
-            count = Math.trunc(count / 10);
+            count /= 10n;
             backspaced = true;
         } else if (key === escape) {
             break;
@@ -1761,7 +1762,7 @@ export async function get_count(
             break;
         }
 
-        if (count > 9 || backspaced || echoalways) {
+        if (count > 9n || backspaced || echoalways) {
             clearTtyMessageWindow(state);
             let countMessage;
             if (backspaced && !count && !showzero) {

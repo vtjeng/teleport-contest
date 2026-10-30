@@ -3,6 +3,13 @@
 
 const utf8Encoder = new TextEncoder();
 
+// C integer.h AppendLongDigit for the recorded signed 64-bit-long profile.
+// Callers decide how to reset a count when the source reports overflow.
+export function appendLongDigit(value, digitValue) {
+    const appended = value * 10n + BigInt(digitValue);
+    return appended > 9223372036854775807n ? -1n : appended;
+}
+
 // Contest inputs are JavaScript strings which the recorder writes as UTF-8.
 export function encodeUtf8Text(value) {
     return Array.from(utf8Encoder.encode(String(value)));

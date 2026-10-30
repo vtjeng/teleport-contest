@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+    "1238115c1a1883abf1f4791b04223e5a34ae9316"
+  ],
+  "scope": "Exact nonnegative signed-64-bit count accumulation for command prompts and PICK_ANY full menus, with shared source overflow rule. Number retained for ordinary safely representable counts.",
+  "dependencies": "Second source depends on first count representation; delivered as one coherent pair. cmd.js/hacklib.js/tty_menu.js have no original18 G-to-B diff. Existing H command parser, menu selection and inventory callers reused; no excluded option-menu behavior imported.",
+  "cSource": {
+    "gitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "hashes": {
+      "include/integer.h": "e88805c10f195e6de63b8c5cb46049f466ef040de9987a6ab61c36ef977f515a",
+      "src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+      "win/tty/wintty.c": "43381180f9dfe41111b0dd34ba2ea0eb02f852b25e696810161c83e8c63745d5"
+    }
+  },
+  "profile": {
+    "binary": "/workspace/teleport-contest/nethack-c/recorder/src/nethack",
+    "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "evidenceKind": "Existing recorder ELF DWARF read-only; executable not run",
+    "longBaseType": [
+      " <1><1486>: Abbrev Number: 14 (DW_TAG_base_type)\n",
+      "    <1487>   DW_AT_name        : (indexed string: 0x2d8): long\n",
+      "    <1489>   DW_AT_encoding    : 5\t(signed)\n",
+      "    <148a>   DW_AT_byte_size   : 8\n"
+    ],
+    "bytes": 8,
+    "limit": "Confirms existing binary type width, not attestation of historical recording build."
+  },
+  "provenance": "Two historical public command C recordings and two published capacity-menu public C recordings; gzipped file digests verified against original retained manifest. No new C execution for this candidate.",
+  "limits": "Signed-64-bit-long recorder profile only; no claim about 32-bit builds. Historical recording build attestation remains unavailable. Finite public C witnesses and source-backed integer-boundary tests; no hidden-score claim."
+}
