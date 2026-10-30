@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700019,
+      "datetime": "20391127141729",
+      "nethackrc": "OPTIONS=name:FollowingProof,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug,monpolycontrol,time\n",
+      "moves": ".\u00165\n #wizmap\n",
+      "comment": "Bounded natural-level shop setup for same-customer following evidence; new seed/date, no custom room construction."
+    }
+  ]
+}

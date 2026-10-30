@@ -179,10 +179,12 @@ test('shk_move completes adjacent angry combat before returning zero', async () 
     assert.deepEqual(order, ['attack completed']);
 });
 
-test('shk_move refuses a following shopkeeper', async () => {
+test('shk_move retains the unqualified different-customer following boundary', async () => {
     // C ref: shk.c:4903-4931.  A following shopkeeper would talk to the hero
     const shkp = makeStationaryShopkeeper();
     shkp.mextra.eshk.following = true;
+    shkp.mextra.eshk.customer = 'previous-customer';
+    // Boundary-contract fixture, not a claim that this state is reachable.
     // C checks following speech only while the hero is within dist2 < 3.
     const state = makeShopState({ ux: 4, uy: 5 });
     state.level.rooms[0].resident = shkp;

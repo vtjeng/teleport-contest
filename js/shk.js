@@ -3929,9 +3929,8 @@ export async function fix_shop_damage(state = game, env = {}) {
 
 // C ref: shk.c shk_move() (4880-4993). Covers the ordinary peaceful path and
 // hands candidate selection to priest.c move_special(), which is shared by
-// both special movers. Adjacent combat awaits mattacku in C order; following
-// speech and repair still stop at
-// their source branches.
+// both special movers. Same-customer following speech runs in C order;
+// different-customer following remains a boundary.
 //
 // Return values match C: 1 = moved, 0 = didn't, -1 = let m_move do it,
 // -2 = died.
@@ -3974,8 +3973,38 @@ export async function shk_move(shkp, state, rawEnv = {}) {
                 return 0;
             })();
         }
-        if (eshkp.following)
-            throw new UnsupportedShopError('shk_move following speech');
+        if (eshkp.following) {
+            // C shk.c:4903-4931. The same-customer reminder is reachable
+            // after native polymorph and music pacification. A supported
+            // different-customer entry path remains unqualified.
+            if (truncateByteString(eshkp.customer ?? '', PL_NSIZ)
+                !== truncateByteString(state.plname ?? '', PL_NSIZ))
+                throw new UnsupportedShopError('shk_move following speech');
+            const globals = state.gf ??= {};
+            if ((state.moves ?? 0) > (globals.followmsg ?? 0) + 4) {
+                if (!heroIsDeaf(state) && !muteshk(shkp)) {
+                    set_voice(shkp, 0, 80, 0, state);
+                    await verbalize(
+                        `${Hello(state.urole, { shopkeeper: true })}, ${state.plname}!  Didn't you forget to pay?`,
+                        state, { message: env.message ?? ttyPline },
+                    );
+                } else {
+                    await (env.message ?? ttyPline)(
+                        `${Shknam(shkp, state)} holds out ${noit_mhis(shkp, { state })} upturned ${mbodypart(shkp, HAND)}.`,
+                        state, env,
+                    );
+                }
+                globals.followmsg = state.moves;
+                if (!(env.random?.rn2 ?? rn2)(9)) {
+                    await (env.message ?? ttyPline)(
+                        `${Shknam(shkp, state)} doesn't like customers who don't pay.`,
+                        state, env,
+                    );
+                    rile_shk(shkp);
+                }
+            }
+            if (udist < 2) return 0;
+        }
     }
 
     let appr = 1;

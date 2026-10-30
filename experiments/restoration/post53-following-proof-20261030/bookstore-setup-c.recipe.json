@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:FreshShop,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\nOPTIONS=monpolycontrol,time\n",
+      "moves": ".\u00165\n .#wizmap\n#wizwish\nblessed wooden harp\n#wizwish\nuncursed wand of polymorph\n#wizlevelchange\n26\n",
+      "comment": "Re-execute committed generated-bookstore setup; new subsequent inputs for following reachability. Historical seed/date reused explicitly, not an independent seed claim."
+    }
+  ]
+}

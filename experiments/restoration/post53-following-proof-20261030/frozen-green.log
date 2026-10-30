@@ -1,0 +1,14 @@
+✔ native peaceful follower before reminder threshold consumes no RNG (79.20026ms)
+✔ native same-customer reminder speaks once and preserves pursuit (41.582891ms)
+✔ native reminder cooldown uses strict four-turn threshold (20.847954ms)
+✔ native deaf follower reminder uses gesture and same RNG bound (19.196622ms)
+✔ native reminder zero roll riles keeper after speech (21.963821ms)
+✔ native settlement clears pursuit and bypasses reminder (19.150982ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 480.02111

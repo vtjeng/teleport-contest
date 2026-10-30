@@ -1,0 +1,66 @@
+✖ native peaceful follower before reminder threshold consumes no RNG (72.374278ms)
+✖ native same-customer reminder speaks once and preserves pursuit (41.737912ms)
+✖ native reminder cooldown uses strict four-turn threshold (20.968283ms)
+✖ native deaf follower reminder uses gesture and same RNG bound (15.610282ms)
+✖ native reminder zero roll riles keeper after speech (19.011898ms)
+✔ native settlement clears pursuit and bypasses reminder (19.02629ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 1
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 477.180627
+
+✖ failing tests:
+
+test at scripts/shk-following-native-recovery.test.mjs:54:1
+✖ native peaceful follower before reminder threshold consumes no RNG (72.374278ms)
+  Error [UnsupportedShopError]: shop handling requires shk_move following speech
+      at shk_move (file:///workspace/teleport-following-frontier/js/shk.js:3978:19)
+      at async TestContext.<anonymous> (file:///workspace/teleport-following-frontier/scripts/shk-following-native-recovery.test.mjs:56:18)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    branch: 'shk_move following speech'
+  }
+
+test at scripts/shk-following-native-recovery.test.mjs:60:1
+✖ native same-customer reminder speaks once and preserves pursuit (41.737912ms)
+  Error [UnsupportedShopError]: shop handling requires shk_move following speech
+      at shk_move (file:///workspace/teleport-following-frontier/js/shk.js:3978:19)
+      at async TestContext.<anonymous> (file:///workspace/teleport-following-frontier/scripts/shk-following-native-recovery.test.mjs:62:18)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    branch: 'shk_move following speech'
+  }
+
+test at scripts/shk-following-native-recovery.test.mjs:68:1
+✖ native reminder cooldown uses strict four-turn threshold (20.968283ms)
+  Error [UnsupportedShopError]: shop handling requires shk_move following speech
+      at shk_move (file:///workspace/teleport-following-frontier/js/shk.js:3978:19)
+      at async TestContext.<anonymous> (file:///workspace/teleport-following-frontier/scripts/shk-following-native-recovery.test.mjs:70:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    branch: 'shk_move following speech'
+  }
+
+test at scripts/shk-following-native-recovery.test.mjs:81:1
+✖ native deaf follower reminder uses gesture and same RNG bound (15.610282ms)
+  Error [UnsupportedShopError]: shop handling requires shk_move following speech
+      at shk_move (file:///workspace/teleport-following-frontier/js/shk.js:3978:19)
+      at async TestContext.<anonymous> (file:///workspace/teleport-following-frontier/scripts/shk-following-native-recovery.test.mjs:84:18)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    branch: 'shk_move following speech'
+  }
+
+test at scripts/shk-following-native-recovery.test.mjs:89:1
+✖ native reminder zero roll riles keeper after speech (19.011898ms)
+  Error [UnsupportedShopError]: shop handling requires shk_move following speech
+      at shk_move (file:///workspace/teleport-following-frontier/js/shk.js:3978:19)
+      at async TestContext.<anonymous> (file:///workspace/teleport-following-frontier/scripts/shk-following-native-recovery.test.mjs:91:18)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    branch: 'shk_move following speech'
+  }
