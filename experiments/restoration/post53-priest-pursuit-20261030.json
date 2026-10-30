@@ -1,0 +1,32 @@
+{
+  "historicalSource": "771fe1e57fad14a9fcff27df3737b455a9c56aec",
+  "base": "aae852b85f11122735539f30708b18be392bce4c",
+  "status": "qualified-local-not-published",
+  "qualifiedAt": "2026-10-30T15:04:08.086717+00:00",
+  "invariants": [
+    "Ordinary do_mkroom(TEMPLE) invokes priestini and creates shrine/priest; not Lua des.room",
+    "has_shrine and histemple_at pass",
+    "setmangry establishes hostility",
+    "m_canseeu checks actual clear/blocked vision; outside control has connected floor and no temple membership"
+  ],
+  "before": "Three hostile branches throw; peaceful control passes",
+  "after": "30 affected and layout tests pass; lint passes",
+  "executedC": {
+    "source": "nethack-c/upstream/src/priest.c",
+    "sourceSha256": "6d411a4285ba0d6d9b92de3e73f61fe4967c827642c5500de5ffbf2b7e7a8945",
+    "function": "pri_move unchanged extracted body",
+    "result": [
+      "hostile-visible-inside:goal12,6 avoid0",
+      "peaceful:goal7,5 avoid1",
+      "hostile-obscured:goal7,5 avoid0",
+      "hostile-outside:goal7,5 avoid1"
+    ],
+    "limits": "Minimal geometry/vision/random adapters and capture-only move_special; C movement and construction engines not executed."
+  },
+  "setupCorrection": "Initial outside fixture had disconnected floor and failed visibility invariant; corrected corridor before final baseline/after results. Not counted as game defect.",
+  "window": "priest.js unchanged G-to-B; no excluded behavior imported. Narrow pursuit arm and existing vision predicate only.",
+  "pending": [
+    "Combined follow-on source/window audit must update current-reviewed snapshot before full CI; retained recovery19 manifest remains historical",
+    "No hosted CI or remote publication authorized for this candidate"
+  ]
+}
