@@ -1,0 +1,22 @@
+{
+  "historicalSource": "55d005248dd22863a0499479769691504c8a263e",
+  "base": "7a13e7171f43177243d233360fa17a7e9da2e3c0",
+  "qualifiedAt": "2026-10-30T15:12:01.967680+00:00",
+  "status": "qualified-local-not-published",
+  "behavior": "Decrement and expire demigod countdown at elapsed-turn phase, with planned/live intervention boundary and source effect dispatch.",
+  "construction": "Production makemon_runtime and mondead establish demigod flag and50turn timer; ordinary-rat death control remains inert. No qualification test injects demigod flag/countdown.",
+  "evidence": {
+    "before": "Timer target fails50vs49; ordinary death control passes",
+    "after": "108 affected/layout tests pass including50turn expiry, ordinary command-loop planned/live cases, six dispatch arms",
+    "executedC": "Unchanged extracted allmain.c countdown block, intervention/renewal capture stubs: demigod expires once/renews123, ordinary inert50, invulnerable inert1. Not C full elapsed-turn/monster engine execution.",
+    "dispatch": "JS source-derived six-arm callback checks; message arm also runs through elapsed pipeline."
+  },
+  "dependency": "intervene helper belongs to the same historical55d005248 commit, not the bad window. Existing restored Wizard/nasty primitives are reused.",
+  "fixtureCorrection": "Existing mimic vision test set demigod flag with zero countdown. Initialize its unrelated timer to reachable200 so it continues testing both allocations and vision cleanup; no assertions removed.",
+  "windowReview": "finishHeroTimeEffects source region still exactlyG; no lava tick restored. wizard.js/sit.js/dog.js unchanged G-to-B. No window commits selected.",
+  "pending": [
+    "Combined follow-on audit manifest and full validation before any publication",
+    "No fresh full C gameplay recording for intervention expiry",
+    "No remote push or CI authorized for follow-ons"
+  ]
+}
