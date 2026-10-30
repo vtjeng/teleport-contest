@@ -852,14 +852,15 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
         cmdq_clear(CQ_CANNED, state);
         res = ESC;
         fromQueue = true;
-    } else {
+    }
+    if (!fromQueue && res === undefined) {
+        // A queued CMDQ_USER_INPUT asks for a fresh answer through the same
+        // menu-capable path as an ordinary prompt, after its marker is popped.
         const menuResult = await yn_function_menu(query, resp, def, state);
         res = menuResult === null
             ? await tty_yn_function(query, resp, def, state)
             : menuResult;
     }
-    if (!fromQueue && res === undefined)
-        res = await tty_yn_function(query, resp, def, state);
     if (addcmdq && !fromQueue) cmdq_add_key(CQ_REPEAT, res, state);
     // "in case we're called via getdir() which sets input_state".
     state.program_state.input_state = 'other';
@@ -5763,6 +5764,16 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         // ECMD reset/time tail as a directly selected extended command.
         if (queuedExtcmdEntry?.ef_funct === 'dosacrifice') {
             const res = await dosacrifice(state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        // C ref: cmd.c do_repeat() requeues the selected #pray row; rhack()
+        // invokes its function pointer just as doextcmd() does.
+        if (queuedExtcmdEntry?.ef_funct === 'dopray') {
+            const res = await dopray(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

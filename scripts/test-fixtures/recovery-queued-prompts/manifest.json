@@ -1,0 +1,47 @@
+{
+  "cases": [
+    {
+      "name": "explicit-declined-prayer",
+      "sourceCommit": "44def1e0d070baff028830a05e7da5b2125a2cec",
+      "sourcePath": "recordings/cmd.c/explicit-declined-prayer.session.json",
+      "sha256": "f5c73691b42e398cc9d0b6be1696b16a731f7bc3376c1e7db01eecdf79062d9c"
+    },
+    {
+      "name": "repeat-declined-prayer",
+      "sourceCommit": "44def1e0d070baff028830a05e7da5b2125a2cec",
+      "sourcePath": "recordings/cmd.c/repeat-declined-prayer.session.json",
+      "sha256": "b49ec0d152d5515e58b2a8949d757140a760deb8deb7801d4c4fffd73dd87541"
+    },
+    {
+      "name": "wizard-prayer-target",
+      "sourceCommit": "33d52be8af11ee5acef7a3a7e0e0a5ebd1eb03a8",
+      "sourcePath": "diagnostics/divergence-evidence/commands/wizard-prayer-repeat-confirmation/target.recording.json.gz",
+      "sha256": "2e7f1a7a4711dd48d340688a08820c948ab26cfa13414b6dd47ecc3cf63a81c0"
+    },
+    {
+      "name": "wizard-prayer-control",
+      "sourceCommit": "33d52be8af11ee5acef7a3a7e0e0a5ebd1eb03a8",
+      "sourcePath": "diagnostics/divergence-evidence/commands/wizard-prayer-repeat-confirmation/control.recording.json.gz",
+      "sha256": "ae26d18286e807b79c13cec6be236cfe4aee1ae75f46bd5c7e6554e80bfd044c"
+    },
+    {
+      "name": "query-menu-target",
+      "sourceCommit": "82925e4fff73c4662dfd4c237acb497012a3ff4b",
+      "sourcePath": "diagnostics/divergence-evidence/commands/queued-userinput-query-menu/target.recording.json.gz",
+      "sha256": "b8c8bb3c7287e59b7cad4e8479d19f9d2166db179b87d3900e24a07f302d9b69"
+    },
+    {
+      "name": "query-menu-control",
+      "sourceCommit": "82925e4fff73c4662dfd4c237acb497012a3ff4b",
+      "sourcePath": "diagnostics/divergence-evidence/commands/queued-userinput-query-menu/control.recording.json.gz",
+      "sha256": "8babb1702b06aa7336777a33b44888293c8df8dce350f00eb3cc66b59e420596"
+    },
+    {
+      "name": "query-menu-direct-control",
+      "sourceCommit": "82925e4fff73c4662dfd4c237acb497012a3ff4b",
+      "sourcePath": "diagnostics/divergence-evidence/commands/queued-userinput-query-menu/direct-control.recording.json.gz",
+      "sha256": "158635d489bfb5a2f43142322e77e9c574669cd3ab3ba36e4898bfe20e540ddf"
+    }
+  ],
+  "limit": "Published native C recordings; original source/binary provenance, no independent build attestation or new C execution. No failed-turn artifacts used."
+}

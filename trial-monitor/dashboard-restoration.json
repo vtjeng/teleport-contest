@@ -63,6 +63,10 @@
     "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
     "9205e0859870d4c8967254334152b10742407260",
     "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
-    "71421a2cc835750c412e88e3692b616434d5fd2b"
-  ]
+    "71421a2cc835750c412e88e3692b616434d5fd2b",
+    "44def1e0d070baff028830a05e7da5b2125a2cec",
+    "ee0be2269c5ed274f6e9a57b93c33ed4bc41a379",
+    "82925e4fff73c4662dfd4c237acb497012a3ff4b"
+  ],
+  "localFollowonManifest": "experiments/restoration/recovery-queued-prayer-and-prompts-20261030.json"
 }

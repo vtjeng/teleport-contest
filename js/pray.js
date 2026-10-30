@@ -166,7 +166,7 @@ import {
     setuhpmax,
     uchangealign,
 } from './attrib.js';
-import { paranoid_query, y_n } from './cmd.js';
+import { paranoid_query, y_n, yn_function } from './cmd.js';
 import { eaten_stat, floorfood } from './eat.js';
 import { newsym, shieldeff, xlev_to_rank } from './display.js';
 import { dropy, heal_legs } from './do.js';
@@ -1828,11 +1828,24 @@ export async function dopray(state = game) {
     if (!await can_pray(true, state)) return ECMD_OK;
 
     if (state.wizard && state.gp.p_type >= 0) {
-        // C ref: dopray():2233-2258. Wizard-mode shortcut that forces the
-        // gods to be pleased. in_doagain is always false in JS, so the
-        // ParanoidPray arm that clears it is a no-op; both paths use y_n.
-        const ok = (await y_n('Force the gods to be pleased?', state))
-            === 'y'.charCodeAt(0);
+        // C ref: dopray():2233-2258. With ParanoidPray, the force answer
+        // must be read afresh and excluded from the repeat queue. Restore
+        // doagain even when the prompt owner reports an error.
+        let answer;
+        if (state.flags.paranoia_bits & PARANOID_PRAY) {
+            const wasDoagain = state.in_doagain;
+            state.in_doagain = false;
+            try {
+                answer = await yn_function(
+                    'Force the gods to be pleased?', 'yn', 'n', false, state,
+                );
+            } finally {
+                state.in_doagain = wasDoagain;
+            }
+        } else {
+            answer = await y_n('Force the gods to be pleased?', state);
+        }
+        const ok = answer === 'y'.charCodeAt(0);
         if (ok) {
             state.u.ublesscnt = 0;
             if (state.u.uluck < 0) state.u.uluck = 0;
