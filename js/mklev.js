@@ -5522,10 +5522,9 @@ function walkfrom(x, y, typ, state, bounds) {
         // mz_move step 1: advance to intermediate cell and set it.
         x += dx[dir];
         y += dy[dir];
-        if (!IS_DOOR(state.level.at(x, y).typ)) {
-            state.level.at(x, y).typ = typ;
-            state.level.at(x, y).flags = 0;
-        }
+        // C guards only the starting/destination square. The intervening
+        // square is overwritten even if it was a door, without flag resets.
+        state.level.at(x, y).typ = typ;
         // mz_move step 2: advance to destination cell.
         x += dx[dir];
         y += dy[dir];

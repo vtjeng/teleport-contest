@@ -1,0 +1,10 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "source": "27c8ae6e0fed4ae144a1a194541e5d6ce31a1036",
+  "scope": "walkfrom paints intermediate cell unconditionally, preserving metadata; starting/destination door guards unchanged.",
+  "nativeSource": "nethack-c/upstream/src/mkmaze.c, non-MICRO walkfrom",
+  "referenceLimits": "Pinned C source and supported initialized JS descriptor targets/controls; no new C execution or hidden-score claim.",
+  "baseline": "On77 two intermediate-door targets fail; floor targets/controls and source contract pass.",
+  "windowBoundary": "Entire js/mklev.js unchanged G\u2192B; no suspect-window behavior imported. Existing C get-location/API and RNG retained.",
+  "publication": "Local only; no CI or remote changes."
+}
