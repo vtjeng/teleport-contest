@@ -1,0 +1,33 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "sources": [
+    "a9a6a2e65309bd56fcf9b0d88a2f35d9a18989f7",
+    "aa14c5b760757021fe2bbfe8a7f8d8bd591d71a9"
+  ],
+  "scope": [
+    "clear_level_structures derives default temperature from In_hell",
+    "lvlfill_solid clears JS ice alias alongside C shared flags word"
+  ],
+  "test": "scripts/mklev-reset-defaults.test.mjs",
+  "baseline": "On unchanged77, hellish target and both pool/moat ice targets fail; temperate control and pinned-source proof pass.",
+  "currentLocalChecks": "23 reset/special-level/layout tests plus focused ESLint/diff check pass.",
+  "windowFunctionCheck": {
+    "clear_level_structures": {
+      "G": "8c01908fef34e72ba658ff963cd33a3b6b3b33cef76c48dc63a2637405b7c2ff",
+      "B": "8c01908fef34e72ba658ff963cd33a3b6b3b33cef76c48dc63a2637405b7c2ff",
+      "unchangedAcrossWindow": true
+    },
+    "lvlfill_solid": {
+      "G": "82b3a9969cf4004a1e4e151bcf94bca605ba103fd1a44049f52e951300809161",
+      "B": "82b3a9969cf4004a1e4e151bcf94bca605ba103fd1a44049f52e951300809161",
+      "unchangedAcrossWindow": true
+    }
+  },
+  "limits": [
+    "C expectations source-derived from pinned mklev.c/sp_lev.c/rm.h; no new C execution.",
+    "No shipped exposure or hidden-score claim; JS observes supported descriptor prefixes before finalization.",
+    "No room construction or other stopped scope; no whole historical commit/report/receipt replay.",
+    "Full exact-SHA combined Checkpoint not run and not authorized for this local preparation."
+  ],
+  "publication": "Local only; Main remains77"
+}

@@ -513,7 +513,7 @@ function clear_level_structures() {
     lf.has_town = false;
     lf.wizard_bones = false;
     lf.corrmaze = false;
-    lf.temperature = 0;
+    lf.temperature = In_hell(g.u.uz, g) ? 1 : 0;
     lf.rndmongen = true;
     lf.deathdrops = true;
     lf.noautosearch = false;
@@ -1789,6 +1789,7 @@ function lvlfill_solid(filling, lit, frame, state) {
             loc.flags = 0;
             loc.wall_info = 0;
             loc.doormask = 0;
+            loc.icedpool = 0;
             loc.horizontal = false;
             loc.roomno = 0;
             loc.edge = false;
