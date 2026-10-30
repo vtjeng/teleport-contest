@@ -3592,6 +3592,12 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
         }
     }
     if (!change) return false;
+    // The clone can expel a swallowed hero while changing this monster's
+    // form.  mnexto()/spoteffects() then rebuild shared vision bookkeeping;
+    // isolate it before the planned mutation so the live pass still sees the
+    // original swallowed square when it makes the same shape decision.
+    if (normalized.planning && normalized.admitPlannedVisionChange)
+        normalized.admitPlannedVisionChange(monster.mx, monster.my, state);
     const changed = await newcham_distress(monster, target, shapeEnv);
     if (changed && is_vampshifter(monster)) {
         const species = monster.data;

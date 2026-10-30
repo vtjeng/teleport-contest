@@ -1,0 +1,8 @@
+{"kind":70,"crowded":false,"refusal":"unsupported hero move: a monster on a teleport trap destination","hero":[12,7],"monster":[11,7]}
+{"kind":70,"crowded":true,"refusal":"unsupported hero move: a monster on a teleport trap destination","hero":[5,7],"monster":[12,7]}
+{"kind":88,"crowded":false,"refusal":"unsupported hero move: a monster on a teleport trap destination","hero":[12,7],"monster":[11,8]}
+{"kind":88,"crowded":true,"refusal":"unsupported hero move: a monster on a teleport trap destination","hero":[5,7],"monster":[12,7]}
+{"kind":28,"crowded":false,"refusal":"unsupported hero move: a monster on a teleport trap destination","hero":[12,7],"monster":[12,6]}
+{"kind":28,"crowded":true,"refusal":"unsupported hero move: a monster on a teleport trap destination","hero":[5,7],"monster":[12,7]}
+{"kind":null,"crowded":false,"refusal":null,"hero":[12,7],"monster":null}
+{"kind":null,"crowded":true,"refusal":null,"hero":[12,7],"monster":null}

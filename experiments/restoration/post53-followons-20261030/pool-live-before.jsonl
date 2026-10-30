@@ -1,0 +1,4 @@
+{"planning":true,"pool":true,"error":null,"handoff":false,"hero":[44,5],"liveHero":[43,6],"hp":12,"bounds":[3,6,2,2,4],"last":"A fire giant suddenly appears next to you!"}
+{"planning":true,"pool":false,"error":null,"handoff":false,"hero":[44,5],"liveHero":[43,6],"hp":12,"bounds":[3,6,2,2,4],"last":"A fire giant suddenly appears next to you!"}
+{"planning":false,"pool":true,"error":null,"handoff":false,"hero":[45,6],"liveHero":[45,6],"hp":12,"bounds":[3,6,2,2,4],"last":"You try to crawl out of the water.  Pheew!  That was close."}
+{"planning":false,"pool":false,"error":null,"handoff":false,"hero":[44,5],"liveHero":[44,5],"hp":12,"bounds":[3,6,2,2,4],"last":"A fire giant suddenly appears next to you!"}

@@ -1,0 +1,68 @@
+{
+  "base": "68568a195075dd5f2e6b6c0c9386d6f33c9a8d25",
+  "status": "six-additional-local-candidates-not-accepted",
+  "restoredStack": "15225bdc4aad8b6b03aa2b94e2e1ae6d7ef93009",
+  "sources": [
+    "4c80e6784d04d6a3c921e1d57e8fd136c7751834",
+    "d6f7c4055ea0b603a33be07e65cf3d11a2688909",
+    "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+    "55ffbbde9ea50cb432f67ae132016603a9ffabb3",
+    "496af8bcab5ba54968fc8c418978645a1b9caff6",
+    "a5293dd49ca9d49af7105080315b466ab2beaded"
+  ],
+  "qualification": {
+    "impact": "Native stock_room keeper, setmangry, gold/dagger floor objects and actual impact_drop. Inside+angry targets fail following=false; six ordinary controls pass. Outside theft already follows via stolen_value. No unpaid glob.",
+    "dig": "Native stock_room and use_pick_axe2/dig progression from zero, pit interruption/restart, effort133. Early control effort13. Planned/live late targets fail; source-formula adapter discriminates. No injected effort230.",
+    "queued": "Native CQ_CANNED clicklook row rejects by display name; wait control succeeds. clicklook_cc remains absent; no coordinate/custom-output extension.",
+    "mounted": "Historical committed v64 input prefix establishes saddle/ride; native giant. Planned target skips dismount; live target dismounts, controls preserve ride. Newly executed JS only; no cancelled qualifier artifacts.",
+    "pool": "Independent GameMap ordinary terrain and native giant, planningState clones. Planned pool target skips handoff; live drown crawls out to45,6. Dry controls end44,5. Final witnesses use no Lua room construction. Historical committed test was inspected/executed separately but not retained as current qualification.",
+    "vampire": "Historical published wizard-command input reaches swallowed fog-cloud prefix; planned upkeep fails arrival boundary. Live command replay passes after scoped repair. Alternate seed outside swallowing controls. No new C recording."
+  },
+  "evidenceClasses": {
+    "executedJS": "25 frozen same-byte tests: before8target failures/17controls pass; after25pass. Additional affected204pass.",
+    "executedC": "Only unchanged extracted dig.c holetime pure helper with minimal occupation/state adapters; not C digging or movement engine. Initial three stack oracles rerun separately.",
+    "sourceDerived": "All other newly restored behavior expectations and source/caller attribution. Historical C recording claims are not fresh execution evidence."
+  },
+  "corrections": [
+    "Impact probe initially assumed migration-list head; native stock was present. Final fixture relocates ordinary stock through canonical objectGenerationEnv before isolating target. Empty-square assumption and wrong extraction import/adapter were fixture errors, not game defects.",
+    "Initial teleport probe used Wizard antimagic; final ordinary-occupancy probe uses Healer.",
+    "Initial queued wait control used nonexistent dowait row; final uses donull.",
+    "Removed metadata-only unported assertion from precode impact qualification and unused import; final frozen red retained.",
+    "holetime pure test found JS negative zero above threshold; normalize integer zero, preserving C division. Native runtime targets never inject these effort values."
+  ],
+  "remaining": {
+    "c6453133a27510c5a393eb474d74359703628de6": "metadata-only coordinate restriction; no implementation work",
+    "a055456935507c605949174214825c4099fd9874": "metadata-only coordinate restriction; no implementation work",
+    "8ecbdaed3ed63833785e291489828d7b0d42f362": "restshk ghostly can pacify different customer without clearing following; inherits can preserve following. Current JS restore callers invoke restshk(false), no supported ghostly production caller found. Same-customer reminder remains unqualified. No fabricated peaceful-following state used.",
+    "50951eb38ccd6b350e5bc58375fb2121d749a907": "Three native ordinary occupants plus empty/no-room controls execute existing effect correctly, while preflight rejects occupied cases. Broad guard removal remains held: rloc_to includes attached-shopkeeper/worm departure paths overlapping excluded scope; no broad restoration or denial workaround."
+  },
+  "windowReview": "All nine newly changed modules except allmain are unchanged across G..B. allmain change only supplies existing planned vision/input boundary to distress. finishHeroTimeEffects remains G; previous fatal-response/stock-room boundaries retained. Full combined manifest follows committed runtime snapshot.",
+  "fullGate": "First six-component audit checkpoint68568a failed environment dependencies/compiler/tmp-space and existing quality ownership; fixed44 exact pass. Preserved archive .git/checkpoint-results/68568a195075dd5f2e6b6c0c9386d6f33c9a8d25/run-68rnz6/summary.json. New combined full validation pending.",
+  "files": {
+    "combined-affected.log": "65ee41590402a9250ddaff716f8f5bdf3180c07ee41958512b06c09872919021",
+    "dig-regression-red.log": "22a9859a04f46b1baa080afe5ed1d450256ade2486761bb3e08868a5fda54ca6",
+    "dispatch-regression-red.log": "981c9de29851f396bea8d3e8aa92b21bde24665e5de4d7fa858b1136786113c7",
+    "holetime-oracle.c": "b2ff75953303019e721d4e67fb96f4510c0c8e78c723dbb2d244545d82697ea1",
+    "holetime-oracle.log": "07e6e555eec48ebda75c582947ea63235ab71eb658769da46ba9628e9f84df4b",
+    "impact-regression-final-red.log": "8180d50aa4a9dcadb89882575a16c355cf065b0c60a36b41e25661179d2fce2d",
+    "knockback-final-red.log": "31cf0ecd20bab959879a2f99a08b3306883e059f628d60694489f5c9ce96fe36",
+    "native-dig-controls-before.jsonl": "c4a567780f320d7e7d8035a37a31f6d26c50ea879039c7e217bf855e119033dd",
+    "native-dig-controls.mjs": "a5cf7f87546f518a35ff142d87bda14916f7d73ae9c003c1e48ed9d74a94183b",
+    "native-shop-setup.mjs": "9005df7c412246b7773ed69e58e53a260a461be75c64eecc7da9d163004a5dd8",
+    "occupied-teleport-probe.mjs": "faa8ffdb4ff4013d2bf91e9a64f0ea72ca72e5e8d7a8c66324c8123a689f5df7",
+    "occupied-teleport-v2-before.jsonl": "cf111318edaca642e5b910388959fc764d25e65794c22b35a245a1adcbfe9d91",
+    "ordinary-impact-angry-before.jsonl": "de0048902108a50011fc800a79602c089269d4eecd9b1b2a4ada22fb67fcf895",
+    "ordinary-impact-angry-probe.mjs": "b57af230ece3319ab44483009b4125151964dac8d18a79db2124f3f1e34aba69",
+    "pool-live-before.jsonl": "3a29c341aed1e96386a2acf6537556e5211fc80dd19919e2cce1ddda5cbbf8d3",
+    "pool-live-probe.mjs": "0fb20e06d68dd77728aa3ea838485f6450e888a4b1125bfb2b1e37cd0d918570",
+    "queued-dispatch-probe.mjs": "ad176596ead445f667c89e708bc06de7c6e558cd689269069d4ec8fa42e4df21",
+    "queued-dispatch-qualified-before.jsonl": "8568bd1e78e9f7202096f2903ae99b531280b2768528830fc36c418847b43749",
+    "six-followons-green.log": "e8c4e7543b25964c359ce6db0bd744d0a70c5f1eea8b8bec6fb2cd039e728e99",
+    "six-followons-precode-freeze.json": "ef7500a72e255d513cbd6269a900be73efbc1ff6ef8e058805663f22b16b082a",
+    "steed-live-before.jsonl": "8c78a1c9d21d405233bef85f636d3ec5d8f303761514b2df17d206631516524e",
+    "steed-live-probe.mjs": "d4d906bb84f9d246c095a91c7b59f8e56652f430cf0d59210953290b27893c8a",
+    "vampire-before.jsonl": "1a9116c575cd25edc630771efaaf878ce3e10b0f2e53bcdff2222dc08a70109a",
+    "vampire-probe.mjs": "90f5ef0ac13c67d171cc7b09dfcc54ed8d5fc9e5a8d9d1a4593e72943d9fd1bf",
+    "vampire-regression-red.log": "38316f9c0ca3b8e025c61f24ac083994cf7f1a0b7bad7bf6216e963cb01cb6fa"
+  }
+}

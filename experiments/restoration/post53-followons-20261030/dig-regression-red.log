@@ -1,0 +1,48 @@
+✔ native digging late=false planning=false (69.713265ms)
+✔ native digging late=false planning=true (41.625929ms)
+✖ native digging late=true planning=false (40.5998ms)
+✖ native digging late=true planning=true (69.774417ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 2
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 607.901014
+
+✖ failing tests:
+
+test at scripts/shk-native-dig-timing-recovery.test.mjs:53:2
+✖ native digging late=true planning=false (40.5998ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest/scripts/shk-native-dig-timing-recovery.test.mjs:77:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/shk-native-dig-timing-recovery.test.mjs:53:2
+✖ native digging late=true planning=true (69.774417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest/scripts/shk-native-dig-timing-recovery.test.mjs:77:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

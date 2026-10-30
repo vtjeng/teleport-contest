@@ -174,7 +174,7 @@ import {
     add_damage,
     addtobill, costly_adjacent, costly_gold, contained_gold, donate_gold, find_objowner, subfrombill,
     costly_spot, inside_shop, is_unpaid, pay_for_damage, picked_container, shop_keeper,
-    stolen_value, make_angry_shk,
+    stolen_value, make_angry_shk, hot_pursuit,
 } from './shk.js';
 import { make_happy_shk } from './shk.js';
 import { shkname, Shknam } from './shknam.js';
@@ -1696,8 +1696,7 @@ export async function impact_drop(missile, x, y, dlev, rawEnv = {}) {
                 const heard = youHear('a scream, "Thief!"', state);
                 if (heard) await message(heard, state, rawEnv);
             }
-            // C discards this void helper; its pursuit state remains unported.
-            note_unported('shk.c hot_pursuit');
+            hot_pursuit(keeper, state);
             await angry_guards(false, env);
             return;
         }

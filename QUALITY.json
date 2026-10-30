@@ -140,6 +140,8 @@
         "js/earth_level_data.js",
         "js/earth_levels.js",
         "js/extralev.js",
+        "js/fakewiz1_levels.js",
+        "js/fakewiz2_level.js",
         "js/fire_level_data.js",
         "js/fire_levels.js",
         "js/hea_goal_level_data.js",

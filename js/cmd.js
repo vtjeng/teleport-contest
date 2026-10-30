@@ -5886,8 +5886,13 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
-        if (command === 'doclicklook' || command === 'domouseaction') {
-            const result = command === 'doclicklook'
+        // Queued rows carry their display name in `command`; C dispatches
+        // the row's function pointer, so use ef_funct for this internal arm.
+        const queuedClickHandler = queuedExtcmdEntry?.ef_funct;
+        if (command === 'doclicklook' || command === 'domouseaction'
+            || queuedClickHandler === 'doclicklook'
+            || queuedClickHandler === 'domouseaction') {
+            const result = (queuedClickHandler ?? command) === 'doclicklook'
                 ? await doclicklook(state) : await domouseaction(state);
             if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((result & (ECMD_OK | ECMD_TIME)) === ECMD_OK)

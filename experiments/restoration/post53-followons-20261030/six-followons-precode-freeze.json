@@ -1,0 +1,11 @@
+{
+  "base": "68568a195075dd5f2e6b6c0c9386d6f33c9a8d25",
+  "tests": {
+    "scripts/shk-impact-pursuit-recovery.test.mjs": "2000760b3f6d37f5e8e3e3a828e3efdc71c785c54f13a78a2e9d9a53563b6c14",
+    "scripts/shk-native-dig-timing-recovery.test.mjs": "f6dd5fedc1b9fcefb8cc090daf795d09e92473879df9794234b4c2447d4c43f0",
+    "scripts/queued-clicklook-dispatch-recovery.test.mjs": "122c6e3e129b0430b2e01a65dcd18bc6ecaa61002d1aa0524fc679915a81df6c",
+    "scripts/steed-native-handoff-recovery.test.mjs": "445988a6d9e63d1f3e93340680cbfbde99dcd245cd70395c61a4c2ba22944ec2",
+    "scripts/pool-native-handoff-recovery.test.mjs": "2d44226b1c8e64b50f8b7244b8eac2183d29892384e128891651b2917205443a",
+    "scripts/vampire-native-upkeep-recovery.test.mjs": "86ce9a589bb0c6d7d5fff5f9b03d852af51292150656b07007adaebd9b4d8ec1"
+  }
+}

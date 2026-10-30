@@ -1,0 +1,52 @@
+✖ pool planning=true pool=true (73.861866ms)
+✔ pool planning=true pool=false (28.023385ms)
+✔ pool planning=false pool=true (22.65074ms)
+✔ pool planning=false pool=false (18.804861ms)
+✖ mounted planning=true knock=true (205.545066ms)
+✔ mounted planning=true knock=false (81.474304ms)
+✔ mounted planning=false knock=true (84.776695ms)
+✔ mounted planning=false knock=false (94.50672ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 740.097276
+
+✖ failing tests:
+
+test at scripts/pool-native-handoff-recovery.test.mjs:49:67
+✖ pool planning=true pool=true (73.861866ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest/scripts/pool-native-handoff-recovery.test.mjs:55:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/steed-native-handoff-recovery.test.mjs:44:68
+✖ mounted planning=true knock=true (205.545066ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest/scripts/steed-native-handoff-recovery.test.mjs:50:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

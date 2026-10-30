@@ -1,0 +1,4 @@
+{"planning":true,"knock":true,"error":null,"handoff":false,"mounted":true,"liveMounted":true,"bounds":[3,6,2,2,4],"hero":[6,16]}
+{"planning":true,"knock":false,"error":null,"handoff":false,"mounted":true,"liveMounted":true,"bounds":[3,6],"hero":[6,16]}
+{"planning":false,"knock":true,"error":null,"handoff":false,"mounted":false,"liveMounted":false,"bounds":[3,6,2,2,4],"hero":[6,17]}
+{"planning":false,"knock":false,"error":null,"handoff":false,"mounted":true,"liveMounted":true,"bounds":[3,6],"hero":[6,16]}

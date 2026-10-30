@@ -1,0 +1,33 @@
+✔ pool planning=true pool=true (68.991805ms)
+✔ pool planning=true pool=false (44.366991ms)
+✔ pool planning=false pool=true (41.164833ms)
+✔ pool planning=false pool=false (27.201282ms)
+✔ queued native handler doclicklook (70.495906ms)
+✔ queued native handler donull (25.388983ms)
+✔ ordinary impact type=438 outside=true angry=false (72.44976ms)
+✔ ordinary impact type=438 outside=true angry=true (49.656916ms)
+✔ ordinary impact type=438 outside=false angry=false (21.99792ms)
+✔ ordinary impact type=438 outside=false angry=true (28.693325ms)
+✔ ordinary impact type=34 outside=true angry=false (38.936844ms)
+✔ ordinary impact type=34 outside=true angry=true (14.13384ms)
+✔ ordinary impact type=34 outside=false angry=false (14.16681ms)
+✔ ordinary impact type=34 outside=false angry=true (19.109057ms)
+✔ native digging late=false planning=false (71.258073ms)
+✔ native digging late=false planning=true (27.23264ms)
+✔ native digging late=true planning=false (48.375802ms)
+✔ native digging late=true planning=true (14.924298ms)
+✔ mounted planning=true knock=true (238.382337ms)
+✔ mounted planning=true knock=false (117.135034ms)
+✔ mounted planning=false knock=true (91.456938ms)
+✔ mounted planning=false knock=false (90.38048ms)
+✔ vampire encounter prefix establishes swallowing through actual commands (137.27185ms)
+✔ vampire shape upkeep expels the hero through planned/live command processing (48.447792ms)
+✔ alternate-seed encounter remains outside the swallowing target (38.728718ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1302.334681

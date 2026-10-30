@@ -1,0 +1,52 @@
+✔ ordinary impact type=438 outside=true angry=false (116.316579ms)
+✔ ordinary impact type=438 outside=true angry=true (76.614096ms)
+✔ ordinary impact type=438 outside=false angry=false (26.966943ms)
+✖ ordinary impact type=438 outside=false angry=true (33.46425ms)
+✔ ordinary impact type=34 outside=true angry=false (41.604792ms)
+✔ ordinary impact type=34 outside=true angry=true (26.057698ms)
+✔ ordinary impact type=34 outside=false angry=false (17.648991ms)
+✖ ordinary impact type=34 outside=false angry=true (28.219073ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 779.91842
+
+✖ failing tests:
+
+test at scripts/shk-impact-pursuit-recovery.test.mjs:55:111
+✖ ordinary impact type=438 outside=false angry=true (33.46425ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest/scripts/shk-impact-pursuit-recovery.test.mjs:81:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/shk-impact-pursuit-recovery.test.mjs:55:111
+✖ ordinary impact type=34 outside=false angry=true (28.219073ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest/scripts/shk-impact-pursuit-recovery.test.mjs:81:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

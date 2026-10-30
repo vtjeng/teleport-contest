@@ -1,0 +1,27 @@
+✔ vampire encounter prefix establishes swallowing through actual commands (109.984094ms)
+✖ vampire shape upkeep expels the hero through planned/live command processing (32.317821ms)
+✔ alternate-seed encounter remains outside the swallowing target (35.77783ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 468.595701
+
+✖ failing tests:
+
+test at scripts/vampire-native-upkeep-recovery.test.mjs:14:1
+✖ vampire shape upkeep expels the hero through planned/live command processing (32.317821ms)
+  TypeError: planned arrival pickup requires a replay boundary
+      at spoteffects (file:///workspace/teleport-contest/js/hack.js:5557:19)
+      at expels (file:///workspace/teleport-contest/js/mhitu.js:2194:11)
+      at async decide_to_shapeshift (file:///workspace/teleport-contest/js/mon.js:3595:21)
+      at async m_calcdistress (file:///workspace/teleport-contest/js/mon.js:4365:9)
+      at async mcalcdistress (file:///workspace/teleport-contest/js/mon.js:4414:9)
+      at async finishElapsedTurn (file:///workspace/teleport-contest/js/allmain.js:817:5)
+      at async file:///workspace/teleport-contest/js/unported_monster_actions.js:1943:36
+      at async planSimpleMonsterTurn (file:///workspace/teleport-contest/js/unported_monster_actions.js:2102:13)
+      at async preflightSimpleMonsterActions (file:///workspace/teleport-contest/js/unported_monster_actions.js:1939:26)
+      at async planElapsedTurn (file:///workspace/teleport-contest/js/allmain.js:1435:21)
