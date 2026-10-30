@@ -66,7 +66,9 @@
     "71421a2cc835750c412e88e3692b616434d5fd2b",
     "2579242c67804962299920a58e3052ab3718c187",
     "f1b91b9793db21b1cff6627604cc92df95be0ab6",
-    "1c4be74beb32edbfc897de805f218e180f8c6002"
+    "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "05cb34c25a489e162cd8fa8f55b96b9ddbbb7f00",
+    "51f5686fac30306411156df215ca83ae910cf6bf"
   ],
-  "localFollowonManifest": "experiments/restoration/recovery-table-map-lighting-20261030.json"
+  "localFollowonManifest": "experiments/restoration/recovery-table-map-lighting-and-ice-20261030.json"
 }

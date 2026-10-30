@@ -40,8 +40,8 @@ test('dashboard injection embeds self-contained models and the historical notice
 
 test('applied-source notice separates frozen54 selection from its recovery chunk', () => {
   const manifest = JSON.parse(readFileSync(new URL('../experiments/restoration/later-source-selection-20261029.json', import.meta.url), 'utf8'));
-  const local = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-table-map-lighting-20261030.json', import.meta.url), 'utf8'));
-  assert.equal(context.localFollowonManifest, 'experiments/restoration/recovery-table-map-lighting-20261030.json');
+  const local = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-table-map-lighting-and-ice-20261030.json', import.meta.url), 'utf8'));
+  assert.equal(context.localFollowonManifest, 'experiments/restoration/recovery-table-map-lighting-and-ice-20261030.json');
   assert.deepEqual(context.reintroducedSources, [...manifest.includedSources, ...local.sources]);
   assert.equal(createHash('sha256').update(readFileSync(new URL('../experiments/restoration/later-source-selection-20261029.json', import.meta.url))).digest('hex'), '7c2d773a4a571b3fc1ec1bae179950e69da089aa40ed5632bac5ca01c697eaeb');
   assert.equal(new Set(context.reintroducedSources).size, context.reintroducedSources.length);
