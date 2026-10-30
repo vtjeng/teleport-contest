@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "9165c047ac94be5130a7e6a4970633263d563a46"
+  ],
+  "scope": "Admit positive-count sighted initial-square look through existing handler; retain guard for blind/timed paths.",
+  "dependencyReview": "H already implements sighted handler/resetCommandVars. Only guard exemption and existing blindness helper import added. No original18 behavior, queue/repeat implementation or coordinate-description follow-on imported.",
+  "evidence": "Four fresh native public-input C recordings:2:: and3:: targets failH,:: and:controls pass,all2549RNGcalls equal. C invent.c dolook/ look_here and cmd.c rhack invoke handler then reset no-time command count.",
+  "limits": "Formal source-build attestation absent. No blind counted-look support, all-counted-command claim or hidden-score claim. Native recorder install isolated; published original fixture provenance retained."
+}
