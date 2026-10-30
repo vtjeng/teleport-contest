@@ -1,0 +1,20 @@
+{
+  "historicalSource": "a8a6c03dff391bd51e6d659aa1549fa693ecaef3",
+  "base": "f9e4029d3252646777c06b0be8a5c2df4f4bbebb",
+  "status": "qualified-local-not-published",
+  "qualifiedAt": "2026-10-30T15:21:02.873604+00:00",
+  "setup": "Native stock_room human keeper in own shop; setmangry establishes hostility. Real STONE occlusion and vision_recalc/m_canseeu validate visible and obscured controls. Ordinary open door, no offhome departure.",
+  "before": "Two obscured planned/live targets move toward unseen hero; both visible controls pass. Initial fixture assertion corrected boolean versus numeric false before meaningful comparison.",
+  "after": "25 combined shop movement/layout tests pass; lint passes.",
+  "reference": {
+    "source": "nethack-c/upstream/src/shk.c",
+    "sha256": "b2b5b82934b15c1a4a3c9474a650ff5800a83f0b9634696fdf080d0458f16e1b",
+    "contract": "ANGRY branch pursues only when mcansee && m_canseeu; otherwise guard goal remains",
+    "kind": "source-derived; no new executed C oracle or recording"
+  },
+  "window": "shk.js unchanged G-to-B; uses existing vision predicate, no window gameplay imported",
+  "pending": [
+    "Combined source/window audit and full validation",
+    "No remote publication authorization"
+  ]
+}

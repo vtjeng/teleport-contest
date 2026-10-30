@@ -279,7 +279,7 @@ import { m_at } from './monst.js';
 import { deltrap, trapname, t_at, unconscious } from './trap.js';
 import { closed_door } from './monmove.js';
 import { picking_at } from './lock.js';
-import { block_point } from './vision.js';
+import { block_point, m_canseeu } from './vision.js';
 import { stop_occupation } from './allmain.js';
 import { placebc, unplacebc } from './ball.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -3990,7 +3990,8 @@ export async function shk_move(shkp, state, rawEnv = {}) {
         gtx = hero.ux;
         gty = hero.uy;
     } else if (!shkp.mpeaceful) {
-        if (shkp.mcansee && (env.canSeeHero?.(shkp) ?? true)) {
+        if (shkp.mcansee
+            && (env.canSeeHero?.(shkp, state) ?? m_canseeu(shkp, state))) {
             gtx = hero.ux;
             gty = hero.uy;
         }
