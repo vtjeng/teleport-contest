@@ -65,10 +65,9 @@
     "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
     "71421a2cc835750c412e88e3692b616434d5fd2b",
     "4222eaf89f2cc3b1392273b70cc27b399418c691",
-    "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+    "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "3f78593df967bfca6e6679002a2cbcaf5c8e8233",
+    "92eaeeef7e756e67f4ae59c6a1d4d93080b54d77"
   ],
-  "localFollowonManifest": "experiments/restoration/recovery-c-string-consumers-20261030.json",
-  "partialReintroducedSources": {
-    "3f78593df967bfca6e6679002a2cbcaf5c8e8233": "Table-map fragment path only. Row-array convenience counterpart remains unchanged/unresolved; C lspo_map explicitly does not accept arrays, so translated representation contract is not established by native C tests."
-  }
+  "localFollowonManifest": "experiments/restoration/recovery-row-map-contract-20261030.json"
 }

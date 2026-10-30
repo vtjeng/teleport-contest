@@ -40,8 +40,8 @@ test('dashboard injection embeds self-contained models and the historical notice
 
 test('applied-source notice separates frozen54 selection from its recovery chunk', () => {
   const manifest = JSON.parse(readFileSync(new URL('../experiments/restoration/later-source-selection-20261029.json', import.meta.url), 'utf8'));
-  const local = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-c-string-consumers-20261030.json', import.meta.url), 'utf8'));
-  assert.equal(context.localFollowonManifest, 'experiments/restoration/recovery-c-string-consumers-20261030.json');
+  const local = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-row-map-contract-20261030.json', import.meta.url), 'utf8'));
+  assert.equal(context.localFollowonManifest, 'experiments/restoration/recovery-row-map-contract-20261030.json');
   assert.deepEqual(context.reintroducedSources, [...manifest.includedSources, ...local.fullyRecoveredSources]);
   assert.equal(createHash('sha256').update(readFileSync(new URL('../experiments/restoration/later-source-selection-20261029.json', import.meta.url))).digest('hex'), '7c2d773a4a571b3fc1ec1bae179950e69da089aa40ed5632bac5ca01c697eaeb');
   assert.equal(new Set(context.reintroducedSources).size, context.reintroducedSources.length);
@@ -51,17 +51,13 @@ test('applied-source notice separates frozen54 selection from its recovery chunk
   }
 });
 
-test('partial C-string source scope does not claim row-array restoration',()=>{
-    const local=JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-c-string-consumers-20261030.json',import.meta.url),'utf8'));
-    assert.deepEqual(context.partialReintroducedSources,local.partialSourceScopes);
-    assert.deepEqual([...local.fullyRecoveredSources,...Object.keys(local.partialSourceScopes)],local.sources);
-    assert.match(Object.values(local.partialSourceScopes)[0],/unchanged\/unresolved/);
-    const notice=reportingContextNotice(context);
-    assert.ok(notice.includes('Partially restored source scopes:'));
-    assert.ok(notice.includes('Row-array'));
-    assert.ok(!context.reintroducedSources.includes(Object.keys(local.partialSourceScopes)[0]));
+test('qualified row-map contract closes the prior partial-source notice',()=>{
+    const local=JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-row-map-contract-20261030.json',import.meta.url),'utf8'));
+    assert.deepEqual(local.fullyRecoveredSources,local.sources);
+    assert.deepEqual(local.partialSourceScopes,{});
+    assert.deepEqual(context.partialReintroducedSources??{},{});
+    assert.ok(!reportingContextNotice(context).includes('Partially restored source scopes:'));
 });
-
 test('partial source notice escapes scope text and rejects a complete/partial collision',()=>{
     const sha='a'.repeat(40),local={...context,reintroducedSources:[],partialReintroducedSources:{[sha]:'<scope&"value>'}};
     const notice=reportingContextNotice(local);
