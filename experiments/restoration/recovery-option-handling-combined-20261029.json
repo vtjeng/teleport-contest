@@ -1,0 +1,101 @@
+{
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "ingredientHeads": [
+    "5db13a568f641dde84fb21455bd06c23242c5a72",
+    "ddf9a447e365e79c5a1197bbd62a521bf0d8b151"
+  ],
+  "sources": [
+    "04476af09075f3142326db6be3674ce1869dc0e7",
+    "ea75d53f11aa4cd514d3d635f4a0a15ce5d8f8fb",
+    "3359f25e9f125241258212cc23a886c4f123843f",
+    "979586cf6cceb9bd47402f0fe673c637f791c48d",
+    "639fd2aabb0da98853d10090041f2f91cafd1115",
+    "8f0fc22d3e915cda17046348eae8a5f569100ee8",
+    "ffb64f0ae9a782ec05106961c16431666df997b1",
+    "5704dd908b33d54832d204cabf698456a91ca178",
+    "d0af437ed909a8bb2e9a4a5c7c945937f12bab42",
+    "4b227e84c703872a8553f369007f177d8bbc27f5",
+    "2cc0ebdb41195463974532e39a1e54dfd47e4a5e",
+    "940b4376659b8dad2f0d5630f485ef1bde7e8544",
+    "625a7134f5ca64a3d4fd9c8cb31c571a5f74f6d2"
+  ],
+  "version": 1,
+  "scope": "Nine live option value setters and four interactive option editors; only options.js gameplay owner.",
+  "originalWindowExclusions": "No scores, pickup_types, runmode, sortloot, sortvanquished, mapfilter or getposcoords restoration. Existing G menu selection and parsing helpers are reused.",
+  "limitations": "Local validation only; no hosted Checkpoint, publication or judge measurement for this candidate.",
+  "functionalCoverage": {
+    "liveValueSetters": [
+      "pile_limit",
+      "packorder",
+      "boulder",
+      "suppress_alert",
+      "menuinvertmode",
+      "statuslines",
+      "crash_name",
+      "crash_email",
+      "crash_urlmax"
+    ],
+    "interactiveEditors": [
+      "versinfo",
+      "message types",
+      "autopickup exceptions",
+      "status condition fields"
+    ]
+  },
+  "interactionEvidence": {
+    "version": 1,
+    "captureUtc": "2026-10-29T22:02:10Z",
+    "binary": "/workspace/teleport-contest/nethack-c/recorder/install/games/lib/nethackdir/nethack",
+    "newCExecution": true,
+    "cases": [
+      {
+        "id": "invert-versinfo",
+        "files": {
+          "recipes/options.c/combined-invert-versinfo.session.json": "a31288474dc8b2233848f8e3f1606dccb120ad63de58a31782f3273ead94174d",
+          "recordings/options.c/combined-invert-versinfo.session.json": "8a3bdfc021d74b3cd273e9beb348a107ec91656c3f607c357119d0f5aa496e47"
+        }
+      },
+      {
+        "id": "statuslines-conditions",
+        "files": {
+          "recipes/options.c/combined-statuslines-conditions.session.json": "f85cb6273afe145204cb47acd5d71ae2ca4495f3b71c145b7739089b7d84140c",
+          "recordings/options.c/combined-statuslines-conditions.session.json": "b53fbf63343e9def3eb5b5d2bec1ac54ac9445939a9e0953eab2675a880efd8a"
+        }
+      },
+      {
+        "id": "packorder-exceptions",
+        "files": {
+          "recipes/options.c/combined-packorder-exceptions.session.json": "bd9204141b2cffb30a5f6be311435bae315165aa769cf64afcbd949810db0c02",
+          "recordings/options.c/combined-packorder-exceptions.session.json": "62b2bc1074cc73b942afb165a998ebf0f47fece1a5cf20b80fc44aed3c9a3d8f"
+        }
+      },
+      {
+        "id": "crash-message-rule",
+        "files": {
+          "recipes/options.c/combined-crash-message-rule.session.json": "53678665072fd94c19633bc2dbadba980175a1ef2a52cb9b6fb87ec372f9e8ab",
+          "recordings/options.c/combined-crash-message-rule.session.json": "0e93d7b5793df3d6f654a7f42cc1d629393a772502eb40178d7c66be142ba755"
+        }
+      }
+    ],
+    "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13"
+  },
+  "dependencyReview": {
+    "gameplayOwners": [
+      "js/options.js"
+    ],
+    "baselineHelpers": [
+      "optionMenuSelect",
+      "menuSelectionValues",
+      "handle_add_list_remove",
+      "parseoptions",
+      "string_for_opt",
+      "atoi",
+      "condopt",
+      "msgtype_add",
+      "add_autopickup_exception"
+    ],
+    "excludedWindowMenuBehaviorRestored": false,
+    "startupCompatibility": "change_inv_order defaults to the pre-existing configErrorAdd callback; live setter supplies its TTY error callback. Existing startup tests pass.",
+    "metadataSetters": "crash_name/email/urlmax change only in-game option state; no crash report transmission or configuration write is invoked."
+  }
+}
