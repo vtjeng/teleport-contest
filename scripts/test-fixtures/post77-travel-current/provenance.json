@@ -1,0 +1,16 @@
+{
+  "records": [
+    {
+      "label": "target",
+      "rawSha256": "2a7a738688dfb4c25bbd9df4b79649b6edafe0f9a4b826ef41fea95997be8a5d"
+    },
+    {
+      "label": "control",
+      "rawSha256": "30a8efa5e5c1cfc7fe7c39b85d8ec4fe3a94803e62b3d9c851d6d6bb080b6956"
+    }
+  ],
+  "sourceCommit": "dbe1ebeb9bb03b12aeab364ab068326c7b91598d",
+  "evidenceCommit": "9790ba2035e7213c49d7b061b0d1143536500158",
+  "scope": "Existing published current-square travel early-return mode flag, not stopped coordinate-description follow-on.",
+  "kind": "Reused original native C recordings; no new C execution."
+}

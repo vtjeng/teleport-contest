@@ -1,0 +1,14 @@
+{
+  "sourceCommit": "dbe1ebeb9bb03b12aeab364ab068326c7b91598d",
+  "evidenceCommit": "9790ba2035e7213c49d7b061b0d1143536500158",
+  "behavior": "Retain travel mode when destination is current square, as C early return does.",
+  "scopeBoundary": "Previously published PR62 eight-boundary mode/title case only; not stopped whatis_coord description follow-on.",
+  "before": "Target screen7 differs with all2973RNG matching; cancellation control matches",
+  "after": "Target/control each match2973RNG and8screens/cursors;11 travel/save/queue tests pass",
+  "reference": "Reused published native C recordings, no new C execution",
+  "windowReview": "cmd.js unchanged G-to-B; narrow early-return deletion, no option menu implementation",
+  "limits": [
+    "No full hosted CI or judge validation",
+    "Official44 result at20b5e562 precedes this one-line component"
+  ]
+}

@@ -2796,7 +2796,7 @@ async function dotravel_target(state = game) {
         await ttyPline('You are already here.', state);
         state.iflags.travelcc.x = 0;
         state.iflags.travelcc.y = 0;
-        state.iflags.getloc_travelmode = false;
+        // C returns before clearing travel mode on this current-square path.
         return ECMD_OK;
     }
 
