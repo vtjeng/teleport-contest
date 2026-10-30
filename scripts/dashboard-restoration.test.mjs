@@ -105,14 +105,15 @@ test('recovery19 separately pins its reviewed runtime and retains the window bou
   assertWindowBoundaries(currentSource);
 });
 
-test('post53 six-component review pins the current runtime without rewriting recovery19', () => {
-  const audit = JSON.parse(readFileSync(new URL('../experiments/restoration/post53-six-window-audit-20261030.json', import.meta.url), 'utf8'));
+for (const [name, current] of [['six', false], ['twelve', true]])
+test(`post53 ${name}-component review pins its runtime without rewriting history`, () => {
+  const audit = JSON.parse(readFileSync(new URL(`../experiments/restoration/post53-${name}-window-audit-20261030.json`, import.meta.url), 'utf8'));
   assert.equal(execFileSync('git', ['rev-parse', `${audit.candidate}^{tree}`], {cwd:root, encoding:'utf8'}).trim(), audit.tree);
   const changed = execFileSync('git', ['diff', '--name-only', audit.base, audit.candidate, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n').sort();
   assert.deepEqual(changed, [...audit.runtimePaths].sort());
   for (const [path, expected] of Object.entries(audit.gameplayPathHashes)) {
     assert.equal(digest(sourceAt(audit.candidate, path)), expected, `post53 reviewed ${path}`);
-    assert.equal(digest(currentSource(path)), expected, `current ${path}`);
+    if (current) assert.equal(digest(currentSource(path)), expected, `current ${path}`);
   }
   for (const path of audit.otherModulesUnchangedAcrossWindow)
     assert.equal(sourceAt(audit.goodCommit, path), sourceAt(audit.badCommit, path), path);
