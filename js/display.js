@@ -5969,13 +5969,24 @@ function _noneOfTheAbove(value) {
         || compact === 'noneoftheabovepolymorphed';
 }
 
+// options.js preserves long thresholds beyond Number.MAX_SAFE_INTEGER as
+// decimal strings.  Relational operators on two such strings compare their
+// spelling, not their numeric value; C compares the underlying long values.
+function _statusNumericOrder(left, right) {
+    const numeric = value => typeof value === 'string' && /^-?\d+$/u.test(value)
+        ? BigInt(value) : value;
+    const a = numeric(left), b = numeric(right);
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
 function _statusRelationMatches(actual, relation, threshold) {
+    const order = _statusNumericOrder(actual, threshold);
     switch (relation) {
-    case '<': return actual < threshold;
-    case '<=': return actual <= threshold;
-    case '>': return actual > threshold;
-    case '>=': return actual >= threshold;
-    default: return actual === threshold;
+    case '<': return order < 0;
+    case '<=': return order <= 0;
+    case '>': return order > 0;
+    case '>=': return order >= 0;
+    default: return order === 0;
     }
 }
 
@@ -6324,7 +6335,8 @@ function _selectStatusHilite(field, data, change = 0, state = game) {
                    || rule.behavior === 'absolute') {
             const actual = rule.behavior === 'percentage'
                 ? data.percent ?? 0 : data.value ?? 0;
-            if (rule.relation === '=' && actual === rule.value) {
+            if (rule.relation === '='
+                && _statusNumericOrder(actual, rule.value) === 0) {
                 selected = rule;
                 exact = persistent = true;
                 minimum[rule.behavior] = rule.value;
@@ -6334,12 +6346,16 @@ function _selectStatusHilite(field, data, change = 0, state = game) {
                            actual, rule.relation, rule.value,
                        )) {
                 if ((rule.relation === '<' || rule.relation === '<=')
-                    && rule.value <= minimum[rule.behavior]) {
+                    && _statusNumericOrder(
+                        rule.value, minimum[rule.behavior],
+                    ) <= 0) {
                     selected = rule;
                     minimum[rule.behavior] = rule.value;
                     persistent = true;
                 } else if ((rule.relation === '>' || rule.relation === '>=')
-                           && rule.value >= maximum[rule.behavior]) {
+                           && _statusNumericOrder(
+                               rule.value, maximum[rule.behavior],
+                           ) >= 0) {
                     selected = rule;
                     maximum[rule.behavior] = rule.value;
                     persistent = true;

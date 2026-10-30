@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 421081,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:Hilite,role:Ranger,race:human,gender:male,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics\nOPTIONS=hilite_status:gold/<900/red/<1000/blue\n",
+      "moves": ":"
+    }
+  ]
+}
