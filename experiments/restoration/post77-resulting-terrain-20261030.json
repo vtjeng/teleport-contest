@@ -1,0 +1,29 @@
+{
+  "parent": "cf002430d7759d4bd5dcbb5ef7e0eaf77f68fcbe",
+  "sourceCommit": "b95445f519c19c3cbce5be6252c18e03e77275a7",
+  "behavior": "Dispatch terrain follow-up writes on resulting map type, including AIR retaining a secret door.",
+  "reference": {
+    "gitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "path": "src/sp_lev.c",
+    "sha256": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "lines": [
+      4609,
+      4631
+    ],
+    "kind": "source-derived; no new C execution"
+  },
+  "before": "terrain-air target fails; replace-air and terrain-secret controls pass",
+  "after": {
+    "mklevTests": 113,
+    "layoutTests": 6,
+    "lint": "pass",
+    "diffCheck": "pass"
+  },
+  "windowSeparation": "Retains existing doormask-only assignment; does not restore original patch context assigning shared location.flags. No des.room construction.",
+  "limits": [
+    "Constructed production descriptor API fixture",
+    "No new C execution or full native recording",
+    "No hosted Checkpoint or judge evidence",
+    "Two new components not yet subjected to prior official44 combined replay"
+  ]
+}

@@ -1450,16 +1450,17 @@ export function mkinvk_check_wall(x, y, state = game) {
 function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
     if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
-    if (typ === SDOOR || IS_DOOR(typ)) {
-        if (typ === SDOOR) location.doormask = D_CLOSED;
+    const actualType = location.typ;
+    if (actualType === SDOOR || IS_DOOR(actualType)) {
+        if (actualType === SDOOR) location.doormask = D_CLOSED;
         const left = x > 0 ? state.level.at(x - 1, y) : null;
         if (left && (IS_WALL(left.typ) || left.horizontal))
             location.horizontal = true;
-    } else if (typ === HWALL || typ === IRONBARS) {
+    } else if (actualType === HWALL || actualType === IRONBARS) {
         location.horizontal = true;
-    } else if (frame?.splev_init_present && typ === ICE) {
+    } else if (frame?.splev_init_present && actualType === ICE) {
         location.icedpool = frame.icedpools ? ICED_POOL : ICED_MOAT;
-    } else if (typ === CLOUD) {
+    } else if (actualType === CLOUD) {
         del_engr_at(x, y, state);
     }
     return true;
