@@ -1448,10 +1448,15 @@ export function mkinvk_check_wall(x, y, state = game) {
 // records the coder's icedpools choice only while a special level is being
 // initialized. The cloud arm clears engravings after the terrain write.
 function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
+    const previous = state.level.at(x, y);
+    const wallFlags = previous && IS_WALL(previous.typ) ? previous.wall_info : null;
     if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
     const actualType = location.typ;
     if (actualType === SDOOR || IS_DOOR(actualType)) {
+        // C retains the shared wall flags as the new ordinary door mask.
+        if (actualType === DOOR && wallFlags !== null)
+            location.doormask = wallFlags;
         if (actualType === SDOOR) location.doormask = D_CLOSED;
         const left = x > 0 ? state.level.at(x - 1, y) : null;
         if (left && (IS_WALL(left.typ) || left.horizontal))

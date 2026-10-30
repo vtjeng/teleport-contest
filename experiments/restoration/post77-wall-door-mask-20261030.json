@@ -1,0 +1,38 @@
+{
+  "base": "76b9515acaff1bd7a07ef10d9da85bafb02c52a6",
+  "sourceCommit": "2d4dd0537e2da96e9957b63ed5658da009f29b62",
+  "behavior": "Retain wall_info in doormask when ordinary terrain repaint changes a wall into a door.",
+  "dependencyReview": {
+    "excludedWindow": "352dbfee403c177e71e00bf8abd042e2702f8a52 changes stock_room effective generated-door flags reads. That reader is untouched and byte-identical to G.",
+    "shknamSha256": "728cf0eb284dea61704d2aa5609fb788a15d961d54f78089c5227aacfaab5eb1",
+    "narrowing": "Do not copy original generic location.flags assignment; bridge-to-door mask retention only. Existing secret-door assignment and readers preserved.",
+    "unchangedGtoB": [
+      "js/mklev.js",
+      "js/mkmaze.js",
+      "js/dbridge.js"
+    ]
+  },
+  "executedC": {
+    "type": "portable exact-function extraction with restricted typed Lua-reader/coordinate adapters, not full Lua VM or gameplay recording",
+    "gitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "before": {
+      "targetsDiffer": 4,
+      "controlsMatch": 8
+    },
+    "after": {
+      "targetsMatch": 4,
+      "controlsMatch": 8
+    },
+    "inputProvenance": "Preserved published original source commit; not failed-turn artifacts"
+  },
+  "checks": {
+    "mklevAndLayoutTests": 131,
+    "lint": "pass",
+    "diffCheck": "pass"
+  },
+  "limits": [
+    "Construction API only; shipped exposure unknown",
+    "No broad shared-flags alias repair",
+    "No hosted Checkpoint or judge validation"
+  ]
+}
