@@ -1,0 +1,20 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "source": "69191f258f678e934f44923121d36f493cc34b7d",
+  "behavior": "Remove generic non-empty-starting-pile refusal; ordinary pickup(1) retains object admission and startup decor checks.",
+  "nativeReference": {
+    "path": "recordings/allmain.c/startup-floor-object.session.json",
+    "sha256": "6962e035289c7b0dadcd59295afc824f4cd09c3231db05980035da34755ee4ca"
+  },
+  "before": "Recorded native target fails with UnsupportedStartupBoundaryError initial floor object; nearby empty-starting-square/engraving control passes.",
+  "after": "Target matches2848RNG/2screens; control and all101 focused startup/preamble/pickup/layout tests pass.",
+  "testReconciliation": "Remove two obsolete refused-startup expectations built from bare incomplete floor-object nodes; preserve all other unsupported/non-refusal failure controls. Generic pickup preflight continues to enforce object admission.",
+  "windowBoundary": "pickup.js and moveloop_preamble.js unchanged G\u2192B; no elapsed-turn/lava behavior restored.",
+  "limits": [
+    "Original native recording reused, no new C execution or historical build attestation.",
+    "No source/heldout score claim; no full new combined gate yet.",
+    "Initial target wand remains on floor according to its ordinary pickup filters; this does not bypass object ownership or item admission."
+  ],
+  "safety": "Existing paid held-SACK regression was explicitly cleared; restored exact committed fixture after sparse omission, not unpaid-glob-shrink work.",
+  "publication": "Local only; Main remains77."
+}
