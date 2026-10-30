@@ -59,7 +59,8 @@
     "Exploratory hostile lichen C refuses ordinary rest as waiting to get hit; not counted as following-turn witness and not forced.",
     "Initial test design counted genesis plus trap shuffle; corrected before implementation and preserved initial log/hash separately. Initial inspection import typo corrected; not a production failure.",
     "Initial lichen recipe supplied dot at yes/no prompt and did not teleport; preserved as setup-only.",
-    "No historical kobold witness, stopped Lua-room/coordinate construction, excluded departure behavior or failed-thread artifacts used."
+    "No historical kobold witness, stopped Lua-room/coordinate construction, excluded departure behavior or failed-thread artifacts used.",
+    "C attitude preservation follows public creation plus ordinary relocation source; the recorder does not export an internal mpeaceful field. Native JS attitude assertions are executed."
   ],
   "files": {
     "brown-mold-hostile-approach.recipe.json": "3e73fe45fc4de3ad54c2ea096c646428c60ca88bd3f39b7a16edb00095a79eda",
@@ -156,5 +157,6 @@
     "lichen-approach-comparison.json": "0925f8d49bb740c35820c98ab5d9806b3b21e9a8ee3b0e5c1b6526a7d11fd37e",
     "qualify-approach.mjs": "779eb9967f07d4b145449da9bd3bd9afb5f060e4d04934abfaf4a6fcf185f12c",
     "first-green.log": "5747919de22485a3d87e6a25c7ada8317cb997f3d9b9dada1e81c71422d4dcad"
-  }
+  },
+  "helperReexecution": "Preserved helper source bytes use their original .cache/occupied-bounded relative imports; copy them to that location to rerun. Permanent scripts/occupied-fixed-teleport-bounded.test.mjs and recipes/recordings are directly runnable."
 }

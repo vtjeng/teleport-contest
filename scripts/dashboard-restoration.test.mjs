@@ -105,7 +105,7 @@ test('recovery19 separately pins its reviewed runtime and retains the window bou
   assertWindowBoundaries(currentSource);
 });
 
-for (const [name, current] of [['six', false], ['twelve', false], ['thirteen', true]])
+for (const [name, current] of [['six', false], ['twelve', false], ['thirteen', false], ['fourteen', true]])
 test(`post53 ${name}-component review pins its runtime without rewriting history`, () => {
   const audit = JSON.parse(readFileSync(new URL(`../experiments/restoration/post53-${name}-window-audit-20261030.json`, import.meta.url), 'utf8'));
   assert.equal(execFileSync('git', ['rev-parse', `${audit.candidate}^{tree}`], {cwd:root, encoding:'utf8'}).trim(), audit.tree);
