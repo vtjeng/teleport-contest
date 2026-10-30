@@ -1,0 +1,19 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "source": "7c9049eff68c4c56990caca777930e836d12f93e",
+  "behavior": "Forward creation hook state/message into vault occupation cancellation; stop_occupation receives its actual owner rather than a closed-over owner without message operations.",
+  "before": "Native search target truncates at63/65screens; unoccupied control matches.",
+  "after": "Both complete native recordings match;8 native/layout tests plus neighboring status-invalidation control pass.",
+  "reference": "scripts/test-fixtures/post77-vault-occupation/provenance.json",
+  "windowBoundary": {
+    "function": "finishElapsedTurnAfterHunger",
+    "GHash": "63c52d6c13858b570246fdb2b8ff2dab16b8fc6661f6361c47c35378f8911cc9",
+    "BHash": "63c52d6c13858b570246fdb2b8ff2dab16b8fc6661f6361c47c35378f8911cc9",
+    "unchanged": true,
+    "source": "Vault module unchanged G\u2192B. No changes to finishHeroTimeEffects or lava timing."
+  },
+  "limits": [
+    "Original native C data reused, not new C execution or historical recorder attestation.",
+    "No full new combined gate or hidden-score claim; local only."
+  ]
+}

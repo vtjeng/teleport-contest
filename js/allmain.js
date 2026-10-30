@@ -1220,7 +1220,9 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         random,
         message: turnMessage,
         makemon_runtime,
-        stopOccupation: () => stop_occupation(state),
+        stopOccupation: (hookEnv = { state }) => stop_occupation(
+            hookEnv.state, { ...hookEnv, message: turnMessage },
+        ),
         unmul: (msg) => unmul(msg, state),
     });
     if (state.u.uhave?.amulet)

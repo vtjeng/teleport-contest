@@ -1148,7 +1148,12 @@ export async function invault(state, env = {}) {
 
     guard = await makeMonRuntime(
         state.mons[PM_GUARD], x, y, MM_EGD | MM_NOMSG,
-        { state, random, message },
+        { state, random, message,
+            hooks: typeof env.stopOccupation === 'function'
+                ? { stopOccupation: (_monster, hookEnv) =>
+                    env.stopOccupation(hookEnv) }
+                : {},
+        },
     );
     if (!guard) return;
     guard.isgd = 1;
@@ -1234,7 +1239,7 @@ export async function invault(state, env = {}) {
         return;
     }
 
-    await env.stopOccupation?.();
+    await env.stopOccupation?.({ state, message });
     if (state.multi > 0) {
         nomul(0, state);
     }
