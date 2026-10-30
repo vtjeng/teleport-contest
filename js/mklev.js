@@ -53,7 +53,7 @@ import {
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { MAXMCLASSES } from './symbols.js';
 import { add_to_container, obj_extract_self, obfree, sobj_at } from './invent.js';
-import { UnsupportedMonsterCreationError, makemon, dmonsfree } from './makemon_create.js';
+import { UnsupportedMonsterCreationError, makemon, dmonsfree, set_mimic_sym } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
 import { mineralize } from './mineralize.js';
 import { make_grave } from './grave.js';
@@ -227,7 +227,11 @@ import {
     PM_GIANT_ZOMBIE,
     PM_ETTIN_ZOMBIE,
     PM_VAMPIRE_LEADER,
+    PM_SMALL_MIMIC,
+    PM_LARGE_MIMIC,
+    PM_GIANT_MIMIC,
     S_HUMAN,
+    S_MIMIC,
     S_LICH,
     S_MUMMY,
     S_VAMPIRE,
@@ -7228,8 +7232,12 @@ function dosdoor(x, y, aroom, type) {
         if (Is_rogue_level(game.u?.uz))
             loc.flags = D_NODOOR;
         if (loc.flags & D_TRAPPED) {
-            if (level_difficulty() >= 9 && !rn2(5)) {
+            if (level_difficulty() >= 9 && !rn2(5)
+                && !([PM_SMALL_MIMIC, PM_LARGE_MIMIC, PM_GIANT_MIMIC]
+                    .every(pm => game.mvitals[pm].mvflags & G_GONE))) {
                 loc.flags = D_NODOOR;
+                const mimic = makemon(mkclass(S_MIMIC, 0), x, y, NO_MM_FLAGS);
+                if (mimic) set_mimic_sym(mimic, { state: game });
             }
         }
     } else {

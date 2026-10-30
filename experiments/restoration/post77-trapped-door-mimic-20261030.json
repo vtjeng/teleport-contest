@@ -1,0 +1,16 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "source": "5d2da24962561c4e39cceaab1088da680e699bd4",
+  "behavior": "Preserve C three-species availability gate, create class-selected mimic for trapped ordinary door, then set its door disguise in source order.",
+  "reference": "scripts/test-fixtures/post77-door-mimic/provenance.json",
+  "before": "Native control matches4887RNG/6screens; witness matches3367/5144RNG and5/6screens.",
+  "after": "Both complete native recordings match;9 focused/layout tests and10 existing mimic-helper controls pass.",
+  "windowBoundary": "mklev.js, makemon_create.js, makemon.js and monsters.js unchanged G\u2192B; exact allowed historical runtime patch applies without window changes.",
+  "limits": [
+    "Native data reused from original published pre-stop handoff; no new C execution or retroactive recorder attestation.",
+    "All-species-gone branch retained from C source, not a separately executed native witness.",
+    "No whole old source tree, repair register or bad evidence test filename imported.",
+    "No full combined gate or hidden-score claim; local branch only."
+  ],
+  "safety": "Ordinary natural D:10 generation via supported public inputs, not des.room type construction or any failed-turn artifact."
+}
