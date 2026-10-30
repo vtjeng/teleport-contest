@@ -186,7 +186,6 @@ import {
     trap_to_glyph,
     tty_capacity_status,
     unmap_invisible,
-    UnsupportedStatusRefreshError,
     SCORER_DEC_MAP,
     weapon_status,
 } from '../js/display.js';
@@ -9743,13 +9742,12 @@ test('a turn-counter refresh clears the indent the version overwrites',
         assert.equal(timeRefresh, wholePass);
     });
 
-test('a turn-counter refresh refuses a row it would have to shrink',
+test('a turn-counter refresh restarts the status shrink ladder',
     async () => {
         // wintty.c make_things_fit() re-runs its shrink ladder on the BL_FLUSH
         // stat_update_time() sends, from the unshrunk strings the core last
-        // supplied. This port holds only the rendered row, so a refresh that
-        // needs a shorter rung than the whole-status pass chose stops the
-        // segment instead of guessing at one.
+        // supplied. The refreshed counter pushes this row one column past
+        // the limit, so C shortens the condition words before rendering.
         await timedStartup('time,showexp');
         // Flying and Levitation cannot be visible together: float_vs_flight()
         // blocks Flying while Levitation is active. Use Deaf instead of
@@ -9781,8 +9779,12 @@ test('a turn-counter refresh refuses a row it would have to shrink',
         await refreshAt(1000);
         assert.equal(statusRow().length, 79, statusRow());
 
-        // One column past it, C would abbreviate the condition words.
-        await assert.rejects(refreshAt(10000), UnsupportedStatusRefreshError);
+        // One column past it, C abbreviates the condition words and renders
+        // the refreshed row instead of leaving a partial status update.
+        await refreshAt(10000);
+        assert.equal(statusRow().length, 75, statusRow());
+        assert.ok(statusRow().includes('T:10000'), statusRow());
+        assert.ok(statusRow().endsWith('Blnd Cnf Def Fly Hal Stun'), statusRow());
     });
 
 test('timebot with the time option off only clears its own flag', async () => {
