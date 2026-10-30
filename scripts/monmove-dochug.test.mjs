@@ -22,7 +22,9 @@ import {
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { dochug } from '../js/monmove.js';
-import { monst_globals_init, PM_ASMODEUS, PM_HUMAN, PM_VROCK }
+import {
+    monst_globals_init, PM_ASMODEUS, PM_HUMAN, PM_OWLBEAR, PM_VROCK,
+}
     from '../js/monsters.js';
 import {
     AD_BLND,
@@ -1634,3 +1636,142 @@ for (const planning of [false, true]) for (const migrated of [false, true]) {
         assert.equal(events.includes('attack'), false);
     });
 }
+
+// C ref: monmove.c:934-942. A confused holder that wanders beyond m_next2u()
+// is released before helpless/ranged checks; unstuck() uses this caller's RNG.
+test('dochug releases a confused holder immediately after it wanders away',
+    async () => {
+        const state = makeState();
+        monst_globals_init(state);
+        state.u.ux = 23;
+        state.u.uy = 7;
+        const events = [];
+        const monster = makeMonster({
+            data: state.mons[PM_OWLBEAR], mconf: true,
+            mx: 24, my: 6, mspec_used: 0,
+        });
+        state.u.ustuck = monster;
+        const env = {
+            ...baseEnv(state, events),
+            random: {
+                rn2(bound) {
+                    events.push(`rn2(${bound})`);
+                    assert.equal(bound, 50);
+                    return 1;
+                },
+                rnd(bound) {
+                    events.push(`rnd(${bound})`);
+                    assert.equal(bound, 2);
+                    return 2;
+                },
+            },
+            distanceAndFear: () => ({
+                inrange: true, nearby: true, scared: false,
+            }),
+            castUndirectedSpell: () => false,
+            moveMonster(candidate) {
+                candidate.my = 5; // (24,5) is outside m_next2u() from (23,7).
+                return MMOVE_MOVED;
+            },
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.equal(state.u.ustuck, null);
+        assert.equal(monster.mspec_used, 2);
+        assert.deepEqual(events, [
+            'preflight', 'wipe', 'rn2(50)', 'apparxy', 'items', 'rnd(2)',
+        ]);
+    });
+
+test('planning dochug releases only the planning clone holder', async () => {
+    const live = makeState();
+    monst_globals_init(live);
+    live.u.ux = 23;
+    live.u.uy = 7;
+    const liveHolder = makeMonster({
+        data: live.mons[PM_OWLBEAR], mconf: true, mx: 24, my: 6,
+    });
+    live.u.ustuck = liveHolder;
+
+    const planned = makeState();
+    monst_globals_init(planned);
+    planned.u.ux = 23;
+    planned.u.uy = 7;
+    const plannedHolder = makeMonster({
+        data: planned.mons[PM_OWLBEAR], mconf: true, mx: 24, my: 6,
+    });
+    planned.u.ustuck = plannedHolder;
+    const events = [];
+
+    await dochug(plannedHolder, {
+        ...baseEnv(planned, events), planning: true,
+        random: {
+            rn2(bound) {
+                events.push(`rn2(${bound})`);
+                return 1;
+            },
+            rnd(bound) {
+                events.push(`rnd(${bound})`);
+                return 1;
+            },
+        },
+        distanceAndFear: () => ({ inrange: true, nearby: true, scared: false }),
+        castUndirectedSpell: () => false,
+        moveMonster(candidate) {
+            candidate.my = 5;
+            return MMOVE_MOVED;
+        },
+    });
+
+    assert.equal(planned.u.ustuck, null);
+    assert.equal(plannedHolder.mspec_used, 1);
+    assert.equal(live.u.ustuck, liveHolder);
+    assert.equal(liveHolder.mspec_used, undefined);
+    assert.deepEqual(events, [
+        'preflight', 'wipe', 'rn2(50)', 'apparxy', 'items', 'rnd(2)',
+    ]);
+});
+
+test('dochug retains a confused holder after an adjacent move',
+    async () => {
+        const state = makeState();
+        monst_globals_init(state);
+        state.u.ux = 23;
+        state.u.uy = 7;
+        const events = [];
+        const monster = makeMonster({
+            data: state.mons[PM_OWLBEAR], mconf: true,
+            mx: 24, my: 6, mspec_used: 0,
+        });
+        state.u.ustuck = monster;
+        const env = {
+            ...baseEnv(state, events),
+            random: {
+                rn2(bound) {
+                    events.push(`rn2(${bound})`);
+                    assert.equal(bound, 50);
+                    return 1;
+                },
+                rnd(bound) {
+                    events.push(`rnd(${bound})`);
+                    assert.equal(bound, 2);
+                    return 2;
+                },
+            },
+            distanceAndFear: () => ({
+                inrange: true, nearby: true, scared: false,
+            }),
+            castUndirectedSpell: () => false,
+            moveMonster(candidate) {
+                candidate.my = 7; // (24,7) is adjacent to the hero at (23,7).
+                return MMOVE_MOVED;
+            },
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.equal(state.u.ustuck, monster);
+        assert.equal(monster.mspec_used, 0);
+        assert.deepEqual(events, [
+            'preflight', 'wipe', 'rn2(50)', 'apparxy', 'items',
+        ]);
+    });
