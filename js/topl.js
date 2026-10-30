@@ -637,17 +637,20 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 let value = q === 0x23 ? 0 : q - 0x30;
                 let digitLength = q === 0x23 ? 0 : 1;
                 let invalid = false;
+                addtopl('#', state);
+                if (digitLength) addtopl(String.fromCharCode(q), state);
                 for (;;) {
                     const z = await readchar(state);
                     const lower = !preserveCase && z >= 0x41 && z <= 0x5A
                         ? z | 0x20 : z;
                     if (lower >= 0x30 && lower <= 0x39) {
                         value = value * 10 + lower - 0x30;
-                        digitLength++;
                         if (!Number.isSafeInteger(value)) {
                             invalid = true;
                             break;
                         }
+                        addtopl(String.fromCharCode(lower), state);
+                        digitLength++;
                     } else if (lower === 0x79
                         || quitchars.includes(String.fromCharCode(lower))) {
                         if (lower === ESC) invalid = true;
@@ -659,12 +662,14 @@ export async function tty_yn_function(query, resp, def, state = game) {
                         }
                         value = Math.trunc(value / 10);
                         digitLength--;
+                        removetopl(1, state);
                     } else {
                         invalid = true;
                         break;
                     }
                 }
                 if (invalid || value < 0) {
+                    removetopl(digitLength + 1, state); // include the leading '#'
                     q = 0;
                 } else if (value === 0) {
                     q = 0x6e; // 'n'

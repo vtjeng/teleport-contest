@@ -63,6 +63,9 @@
     "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
     "9205e0859870d4c8967254334152b10742407260",
     "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
-    "71421a2cc835750c412e88e3692b616434d5fd2b"
-  ]
+    "71421a2cc835750c412e88e3692b616434d5fd2b",
+    "8ee8b29fc610c4f5008fbe3827d917c331463f02",
+    "355b5698c9c02f0ba0ba3f607c6f768fc592d121"
+  ],
+  "localFollowonManifest": "experiments/restoration/recovery-traditional-inventory-prompts-20261030.json"
 }
