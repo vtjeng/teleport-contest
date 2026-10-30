@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "21d855ad91015a8a985f2f9036f05c3060d48cb2"
+  ],
+  "scope": "C cmd.c extcmd_via_menu group labels, description retention, wrapping and persistent menu row padding across prefix levels. One coherent formatting behavior.",
+  "implementation": "Forward function correction includes the historical grouping algorithm plus C biggest+15 padding retained across successive menus, uncovered by the expanded prefix recording.",
+  "dependencyReview": "No cmd.js change in G-to-B 18-window; C owner and existing select_menu/constants on H suffice. No option handling, command queue, coordinate-output or other stopped investigation imported.",
+  "cSource": {
+    "gitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+    "path": "src/cmd.c",
+    "sha256": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "function": "extcmd_via_menu"
+  },
+  "recordings": {
+    "witness": {
+      "origin": "original 21d855ad91015a8a985f2f9036f05c3060d48cb2",
+      "files": {
+        "recipes/cmd.c/extmenu-group-witness.session.json": "e2e38fd7084385fd1415cacfb4f23c906c8679c21fa0ebd5c36a3fa6e0f07fd4",
+        "recordings/cmd.c/extmenu-group-witness.session.json": "046768b1afb2d3839ffc1045980ec6c095c4855f0d0016fff5f6a90f4d993f2f"
+      }
+    },
+    "control": {
+      "origin": "original 21d855ad91015a8a985f2f9036f05c3060d48cb2",
+      "files": {
+        "recipes/cmd.c/extmenu-group-control.session.json": "92145134d776405496cbbb4ac741c73236ee04b4c8fb0456e286974fa477a7ad",
+        "recordings/cmd.c/extmenu-group-control.session.json": "d308ce23858ad947db4783192d72417ee91fc4eda86869248ed7158f6e19a114"
+      }
+    },
+    "prefix": {
+      "origin": "fresh existing C recorder",
+      "files": {
+        "recipes/cmd.c/extmenu-group-prefix.session.json": "4026ba92afff202f55e5947390111dc91684f13c3cfa61c90552cdc5803d569a",
+        "recordings/cmd.c/extmenu-group-prefix.session.json": "8d033e46b765dfca5731cf878bb716a23252ec92f8c6af26c787147c8fb268d1"
+      }
+    },
+    "wizard": {
+      "origin": "fresh existing C recorder",
+      "files": {
+        "recipes/cmd.c/extmenu-group-wizard.session.json": "062182bb9f5f652f1ff2d1931f1ef636d83a48d859d4ade752d63403a8d89ad9",
+        "recordings/cmd.c/extmenu-group-wizard.session.json": "051a23a286e44a5a39123404e81913f7fafd3a990978b0669db257f3542a7e9d"
+      }
+    },
+    "escape": {
+      "origin": "fresh existing C recorder",
+      "files": {
+        "recipes/cmd.c/extmenu-group-escape.session.json": "31f56dad7ab483ba1ca5928827717a988037e69313896dee1e218270ef0d50b3",
+        "recordings/cmd.c/extmenu-group-escape.session.json": "59e53ae609fa76f24d08051b0043ed132e844e2520eef12971d26efacf3ff9f2"
+      }
+    }
+  },
+  "freshCaptureBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "limits": "Two original C captures and three fresh C captures; existing recorder binary hash is identified without a new build attestation. Ordinary menu input only, no hidden-score claim. Initial new startup-only captures preserved outside passing corpus and corrected with coverage assertions."
+}
