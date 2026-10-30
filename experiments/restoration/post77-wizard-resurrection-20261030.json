@@ -1,0 +1,20 @@
+{
+  "sourceCommit": "7cdbbe313f166c28429d11024676bbbe4cdb0a49",
+  "behavior": "Wizard resurrection awaits the normal live constructor at hero coordinates with MM_NOWAIT; goto_level supplies that constructor. Constructor owns placement, birth count and appearance.",
+  "before": "Live runtime target fails set_malign initialized data check and async constructor rejection; blocked-placement control passes.",
+  "after": "231 combined Wizard, constructor, leaving-level, defensive teleport and layout tests pass; lint passes. Default resurrection constructor is exercised without injected makemon.",
+  "reference": {
+    "kind": "C source-derived constructor/caller contract; no new C execution",
+    "sources": {
+      "src/wizard.c": "65f20a287adad40f033be2b93bad8fa98abd56fb6330225547864988db993845",
+      "src/makemon.c": "04bb46b793cb7a724544ed5860f57116e4661ce5d052a1321d90dc0167d3ffc3",
+      "src/do.c": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f"
+    }
+  },
+  "windowReview": "All three changed runtime modules unchanged G-to-B. Existing runtime constructor owns Wizard count, inventory and appearance. New admission is bounded to Wizard species, hero coordinates, MM_NOWAIT and explicit resurrection caller marker; no window gameplay restored.",
+  "limits": [
+    "Initialized production API target and blocked-placement control, not full public C resurrection recording",
+    "Caller unit mock updated to C runtime call contract, not independent constructor oracle",
+    "No hosted CI, full combined 19-component regression or judge evidence"
+  ]
+}

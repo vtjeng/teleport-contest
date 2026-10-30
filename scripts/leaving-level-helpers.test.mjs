@@ -15,6 +15,7 @@ import test from 'node:test';
 import {
     IN_SIGHT,
     In_tutorial,
+    MM_NOWAIT,
     OBJ_FLOOR,
     OBJ_INVENT,
     ROOM,
@@ -132,7 +133,7 @@ test('resurrect creates the first Wizard and emits its source-order threat',
     const messages = [];
     const monster = await resurrect(state, {
         random: { rn2: () => 0 },
-        makemon: (species, x, y, flags) => {
+        makemon: async (species, x, y, flags, env) => {
             constructorCalls.push({
                 species: species.pmidx,
                 x,
@@ -140,14 +141,22 @@ test('resurrect creates the first Wizard and emits its source-order threat',
                 flags,
                 inMklev: state.in_mklev,
             });
-            return newMonster({
+            // The runtime constructor relocates the hero-square request,
+            // counts the Wizard and owns its appearance before returning.
+            state.context.no_of_wizards
+                = (state.context.no_of_wizards ?? 0) + 1;
+            const monster = newMonster({
                 data: species,
                 mhp: 20,
                 mhpmax: 20,
                 mcanmove: true,
-                mx: x,
-                my: y,
+                mx: HERO_X - 1,
+                my: HERO_Y - 1,
             });
+            monster.iswiz = true;
+            env.redraw(monster.mx, monster.my);
+            await env.norepMessage('The Wizard of Yendor suddenly appears next to you!');
+            return monster;
         },
         redraw: (x, y) => redraws.push([x, y]),
         norepMessage: async (message) => messages.push(message),
@@ -156,10 +165,10 @@ test('resurrect creates the first Wizard and emits its source-order threat',
 
     assert.deepEqual(constructorCalls, [{
         species: PM_WIZARD_OF_YENDOR,
-        x: HERO_X - 1,
-        y: HERO_Y - 1,
-        flags: 0,
-        inMklev: true,
+        x: HERO_X,
+        y: HERO_Y,
+        flags: MM_NOWAIT,
+        inMklev: undefined,
     }]);
     assert.deepEqual(redraws, [[HERO_X - 1, HERO_Y - 1]]);
     assert.deepEqual(messages, [
@@ -167,7 +176,7 @@ test('resurrect creates the first Wizard and emits its source-order threat',
         'A voice booms out...',
         '"So thou thought thou couldst kill me, fool."',
     ]);
-    assert.equal(state.in_mklev, false);
+    assert.equal(state.in_mklev, undefined);
     assert.equal(state.context.no_of_wizards, 1);
     assert.equal(monster.iswiz, true);
     assert.equal(monster.mrevived, true);
