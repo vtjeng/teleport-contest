@@ -1,0 +1,20 @@
+{
+  "sourceCommit": "0ceeca526b5b6a72cb963b7bd47aed186cf50b6b",
+  "behavior": "Defensive monster trap use delegates to the existing m_tele/mintrap path, honoring fixed destinations and occupied-destination failure.",
+  "before": "Ordinary control passes; fixed target lands at (4,4) instead of (14,6).",
+  "after": "17 focused/layout tests pass including three trap scenarios and six existing complete public teleport recordings; lint passes.",
+  "reference": {
+    "kind": "C source-derived fixed-trap contract; no newly executed C fixed-trap witness",
+    "sources": {
+      "src/muse.c": "df896ef2da5f5685353e788fad9c5d54d393927101e0053eccc269a564a99a26",
+      "src/trap.c": "1f6af30bbd0b75a2e4c043098355c1f4eff2a841de27aecdc9f47343d4d5402c",
+      "src/teleport.c": "e1d9d4255ac148caa4618dc4f275ddf5417d2a2830beca738c3821cf7678e5c8"
+    }
+  },
+  "windowReview": "muse.js unchanged G-to-B. Existing trap path uses mintrap and mtele_trap; excluded sink_into_lava addition is unrelated and not restored. No trap.js changes.",
+  "limits": [
+    "Constructed production API fixed-trap target/control, not full C gameplay witness",
+    "Six public recordings are regression controls, not fixed-destination coverage",
+    "No hosted CI, full combined 18-component validation or judge evidence"
+  ]
+}
