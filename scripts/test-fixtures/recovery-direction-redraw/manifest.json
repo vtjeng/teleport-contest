@@ -1,0 +1,29 @@
+{
+  "cases": [
+    {
+      "name": "redraw-retry",
+      "sourceCommit": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56",
+      "sourcePath": "recordings/cmd.c/getdir-redraw-retry.session.json",
+      "sha256": "12f292acf0194d3f331b5413930bea88deff777899360b5a38b8045620722fb7"
+    },
+    {
+      "name": "redraw-control",
+      "sourceCommit": "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56",
+      "sourcePath": "recordings/cmd.c/getdir-redraw-control.session.json",
+      "sha256": "0156485af96df8abbf32e6e792b8d8d8ec6614ae1fb16a3cbdbd3de5efe562a0"
+    },
+    {
+      "name": "queued-target",
+      "sourceCommit": "c6c81f1767fa2cb5a11e11e058004f2c4d152b20",
+      "sourcePath": "diagnostics/divergence-evidence/commands/queued-direction-redraw/target.recording.json.gz",
+      "sha256": "b6d81a20210afbaa53c9859bfa8963a59c5d727d11162a5390bb5e4a26f59441"
+    },
+    {
+      "name": "queued-control",
+      "sourceCommit": "c6c81f1767fa2cb5a11e11e058004f2c4d152b20",
+      "sourcePath": "diagnostics/divergence-evidence/commands/queued-direction-redraw/control.recording.json.gz",
+      "sha256": "57bdc5fddc89f7646ef71809772c8331d43e267478cabf963b69b7143e452bd2"
+    }
+  ],
+  "limit": "Published native C recordings, no fresh execution or historical build attestation. Queued target checks prompt routing, not downstream door logic."
+}
