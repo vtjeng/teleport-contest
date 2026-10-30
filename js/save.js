@@ -220,11 +220,8 @@ export function save_msghistory(state = game) {
 // seeing you..." through the exit_nhwindows path, and ends the segment.
 export async function dosave(state = game) {
     clearTtyMessageWindow(state);
-    // C ref: save.c:46, y_n("Really save?"). C's y_n() macro passes
-    // addcmdq TRUE to yn_function(), which queues the answer for #repeat.
-    // This terminal prompt does not need a repeat record: the game exits on
-    // 'y', and #repeat is unported on the declining path. Pass addcmdq FALSE.
-    if ((await yn_function('Really save?', 'yn', 'n', false, state))
+    // C y_n records its answer; declining save leaves it repeatable.
+    if ((await yn_function('Really save?', 'yn', 'n', true, state))
         === 'n'.charCodeAt(0)) {
         clearTtyMessageWindow(state);
         if ((state.multi ?? 0) > 0) nomul(0, state);

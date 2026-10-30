@@ -1,0 +1,95 @@
+[
+  {
+    "label": "named-target",
+    "error": null,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2738,
+          "js": 2738
+        },
+        "screens": {
+          "c": 19,
+          "js": 19
+        },
+        "cursors": {
+          "c": 19,
+          "js": 19
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "label": "fresh-control",
+    "error": null,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2722,
+          "js": 2722
+        },
+        "screens": {
+          "c": 10,
+          "js": 10
+        },
+        "cursors": {
+          "c": 10,
+          "js": 10
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "label": "key-repeat",
+    "error": null,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2722,
+          "js": 2722
+        },
+        "screens": {
+          "c": 11,
+          "js": 11
+        },
+        "cursors": {
+          "c": 11,
+          "js": 11
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  }
+]

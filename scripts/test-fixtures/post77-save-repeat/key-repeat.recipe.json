@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 76027184,
+      "datetime": "20431010123456",
+      "nethackrc": "OPTIONS=name:RepeatRecovery,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#save\nn\u0001. "
+    }
+  ]
+}

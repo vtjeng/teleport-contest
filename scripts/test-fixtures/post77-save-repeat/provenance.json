@@ -1,0 +1,26 @@
+{
+  "sourceCommit": "da5864d5ac0f2116b2b0850789562aba6cb11fa2",
+  "kind": "fresh executed native C recorder recordings",
+  "records": [
+    {
+      "label": "named-target",
+      "rawSha256": "a5382caef88d32655f480c6c6af11ff604c3ebe269e26088c9f16f1fbc2a6d4f"
+    },
+    {
+      "label": "fresh-control",
+      "rawSha256": "85723cc49588fcae165149f34024c38a1d68d7bbb59a33a631cc0b8d70262d71"
+    },
+    {
+      "label": "key-repeat",
+      "rawSha256": "6000390190d2228cf11e0f2c38d844a4fd4a6dd1b718f6e94b11209bb8f1a13d"
+    }
+  ],
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "sourceGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceHashes": {
+    "src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "src/save.c": "fb55bb137c931bbb2a91fb4daff28bd6944113d158c05e51cbfb64e3579a62f5",
+    "include/hack.h": "2840a9bd41fb0c09384839fafdbd427a5d8705ad8d3eb5e2a0308cccea36813b"
+  },
+  "limits": "Existing installed recorder copied to disposable /tmp install; no rebuild or fresh build attestation. All source inputs and binary identity retained; no original installation changes."
+}

@@ -1,0 +1,20 @@
+{
+  "sourceCommit": "da5864d5ac0f2116b2b0850789562aba6cb11fa2",
+  "behavior": "Clear repeat queue at named-command dispatch; record declined-save answer for direct repeat.",
+  "freshC": {
+    "seed": 76027184,
+    "datetime": "20431010123456",
+    "before": "named target differs at screen15 and RNGtail; Ctrl-A differs at screen8; fresh-command control matches",
+    "after": "All three complete native recordings match: 8182RNG,40screens and40cursors total",
+    "provenance": "scripts/test-fixtures/post77-save-repeat/provenance.json",
+    "limits": "Existing recorder binary identified, not newly rebuilt/attested. Disposable copied installation only."
+  },
+  "checks": {
+    "saveNativeLayoutTests": 14,
+    "commandQueueRepeatPrayerTests": 15,
+    "lint": "pass",
+    "diffCheck": "pass"
+  },
+  "windowReview": "js/cmd.js and js/save.js unchanged G-to-B. No option-menu window behaviors restored.",
+  "publication": "local preparation only; no hosted CI or Main change"
+}

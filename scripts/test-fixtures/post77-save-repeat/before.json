@@ -1,0 +1,182 @@
+[
+  {
+    "label": "named-target",
+    "error": null,
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2738,
+          "js": 2722
+        },
+        "screens": {
+          "c": 19,
+          "js": 19
+        },
+        "cursors": {
+          "c": 19,
+          "js": 19
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 2722,
+        "cEntry": "rn2(12)=0",
+        "cCaller": "mcalcmove(mon.c:1164)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 16,
+          "key": "n"
+        }
+      },
+      "screenMismatch": {
+        "index": 15,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 15,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "R",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 15,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 15,
+          "key": "\n"
+        },
+        "cCursor": [
+          73,
+          4,
+          1
+        ],
+        "jsCursor": [
+          22,
+          0,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "label": "fresh-control",
+    "error": null,
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2722,
+          "js": 2722
+        },
+        "screens": {
+          "c": 10,
+          "js": 10
+        },
+        "cursors": {
+          "c": 10,
+          "js": 10
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "label": "key-repeat",
+    "error": null,
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2722,
+          "js": 2722
+        },
+        "screens": {
+          "c": 11,
+          "js": 11
+        },
+        "cursors": {
+          "c": 11,
+          "js": 11
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": {
+        "index": 8,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 8,
+          "key": "\u0001"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "R",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 8,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 8,
+          "key": "\u0001"
+        },
+        "cCursor": [
+          73,
+          4,
+          1
+        ],
+        "jsCursor": [
+          22,
+          0,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  }
+]
