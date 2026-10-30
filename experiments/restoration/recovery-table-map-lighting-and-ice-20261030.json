@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "parentCandidate": "79e75e90c57fb348ef10712acb8de0dde8c856c0",
+  "sources": [
+    "2579242c67804962299920a58e3052ab3718c187",
+    "f1b91b9793db21b1cff6627604cc92df95be0ab6",
+    "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "05cb34c25a489e162cd8fa8f55b96b9ddbbb7f00",
+    "51f5686fac30306411156df215ca83ae910cf6bf"
+  ],
+  "scope": "Combined table-map lighting and initialized ICE metadata contract; preserve separate component candidates.",
+  "componentCandidates": [
+    "79e75e90c57fb348ef10712acb8de0dde8c856c0",
+    "ac9ac1d8e4064304167719735e08087506aec680"
+  ],
+  "dependencyReview": "Manually reconcile same helper with lit then frame arguments. Option-prefix and one-bit dependencies remain inherited; no original18 behavior. No standalone unconditional icedpool clear.",
+  "evidence": "Component evidence plus three fresh native C map/light/ICE observations and JS interaction cases testing both lighting and pool/moat metadata. C metadata expectation remains separately scoped exact-body oracle, not native getmap evidence.",
+  "limits": "C native getmap does not expose icedpool. No full custom-Lua JS replay, formal recorder build attestation, shipped ice exposure or hidden-score claim. No hostedCI/publication."
+}

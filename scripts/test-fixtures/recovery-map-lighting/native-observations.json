@@ -1,0 +1,132 @@
+{
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "rows": [
+    {
+      "name": "true",
+      "fg": ".",
+      "lit": true,
+      "expected": 9,
+      "kind": "target",
+      "token": "MAPLIT_NATIVE_TRUE=9/9",
+      "boundaries": [
+        43
+      ],
+      "recordingSha256": "05f95fa6f158c64e96195a11f2d5178f67fec4aad661660b6040c2a0b65a24b2",
+      "recipeSha256": "550abb94581abc84fcd8c94a14f6fc205b20685b0d489d0b897228f72fb0cde8",
+      "luaSha256": "400637967afbabf3f011d4bd9d98a4b552ebc82d3842bb63e5b68dc12a3656d5"
+    },
+    {
+      "name": "false",
+      "fg": ".",
+      "lit": false,
+      "expected": 0,
+      "kind": "control",
+      "token": "MAPLIT_NATIVE_FALSE=0/9",
+      "boundaries": [
+        44
+      ],
+      "recordingSha256": "326d063b7198caa4751f1ab0ea3ff98bcdc3a283740d1d2547a9e8fa8dae7373",
+      "recipeSha256": "86a254607c1a40c7447e8fc3350bba05ee0b75abba970794fa2d69fdc0c858af",
+      "luaSha256": "5e9acd9091f66a6f97c1a0ad26b2e462bf4e8cca27f0fc1774f55f033f309f5b"
+    },
+    {
+      "name": "yes",
+      "fg": ".",
+      "lit": "yes",
+      "expected": 0,
+      "kind": "control",
+      "token": "MAPLIT_NATIVE_YES=0/9",
+      "boundaries": [
+        42
+      ],
+      "recordingSha256": "8ea4113da7d1498d3ea493de8d22275705f5b2008d16ccba93dd4c8576e7297b",
+      "recipeSha256": "64320637334569b8a2373d3423f82f185d44fd6e82394d54d444c5e336164a62",
+      "luaSha256": "ca960db7d7b3aa9bbb6d9767f0368577cd9cb15295e5e911fb97614c4bd2b651"
+    },
+    {
+      "name": "strtrue",
+      "fg": ".",
+      "lit": "true",
+      "expected": 0,
+      "kind": "control",
+      "token": "MAPLIT_NATIVE_STRTRUE=0/9",
+      "boundaries": [
+        46
+      ],
+      "recordingSha256": "935dc9abbe749c7921d5464e2c3a6b19d37eefe0aad9a989b95a08e97b7a12a2",
+      "recipeSha256": "f25f9593d555d6f2d9ae1d05bbf6aa6f37a4b139924e1158bac96d4dc1bafaf1",
+      "luaSha256": "49a9d5492269689f63a0dad9f8ef666ae99d22e2adbb5a2874621cbec7088bdf"
+    },
+    {
+      "name": "strfalse",
+      "fg": ".",
+      "lit": "false",
+      "expected": 9,
+      "kind": "target",
+      "token": "MAPLIT_NATIVE_STRFALSE=9/9",
+      "boundaries": [
+        47
+      ],
+      "recordingSha256": "4b4e73aea05b4a5c262bfe1e8741e8b69ca8a028f9d9b807ac33515b031e5eac",
+      "recipeSha256": "f07aa639adc267add3c17c5a4be16032b8410aa950c74ef56849767020163b47",
+      "luaSha256": "53077b12bdce727a501f640aeb468f8aea7f00d5432e4c8d1f6e2d6833932fbd"
+    },
+    {
+      "name": "strnul",
+      "fg": ".",
+      "lit": "true\u0000suffix",
+      "expected": 0,
+      "kind": "control",
+      "token": "MAPLIT_NATIVE_STRNUL=0/9",
+      "boundaries": [
+        45
+      ],
+      "recordingSha256": "e41648090d4e92ceaa41cbc3d14cc313b6e4d054ed156e25b74594a3a66cab7d",
+      "recipeSha256": "29a7c94c5ea8f4fff559326c2ff0874bc7efffaa2fed2fda5a5ee64894ee6f05",
+      "luaSha256": "1f57ac88ceb1851fe8528840d51ec73eb762dbe138d912d9c197e3547274b7a4"
+    },
+    {
+      "name": "yesnul",
+      "fg": ".",
+      "lit": "yes\u0000suffix",
+      "expected": 0,
+      "kind": "control",
+      "token": "MAPLIT_NATIVE_YESNUL=0/9",
+      "boundaries": [
+        45
+      ],
+      "recordingSha256": "2e2fce9a9b8dcadcb229a0dd53d46db23bad525c01f25b8a714941b72b2e1671",
+      "recipeSha256": "5d36381e98eb673416dc7e7e9b3c58cec702491b21daeb6cbf6195b7e84bb872",
+      "luaSha256": "f96a66ec14afc1391af61e2a7e29d06718e24b94734344d41e9581aa86394ab0"
+    },
+    {
+      "name": "absent",
+      "fg": ".",
+      "lit": null,
+      "expected": 0,
+      "kind": "control",
+      "token": "MAPLIT_NATIVE_ABSENT=0/9",
+      "boundaries": [
+        45
+      ],
+      "recordingSha256": "1f9b5593ca672fcf8e92028a53b25e324f17f7021d82096834d725b4505d6b45",
+      "recipeSha256": "9db7e68574bdeb9022e1b1553dd639ccdd8c84d9601cb3bb51c9d4ac1d7b4f02",
+      "luaSha256": "c2cd08eab59a9b8bdf04f52c936e43ff8404715e2a7a5da1624b55a797087b37"
+    },
+    {
+      "name": "lava",
+      "fg": "L",
+      "lit": false,
+      "expected": 9,
+      "kind": "control",
+      "token": "MAPLIT_NATIVE_LAVA=9/9",
+      "boundaries": [
+        43
+      ],
+      "recordingSha256": "2ff48ec327821581a5922314106d2773b4fe2457b32f8b3b00fc9ccdd5d3fbff",
+      "recipeSha256": "5ee48a79d6d7367da4b21a8ebee3e7ea50238364db54499152131824a1c08cad",
+      "luaSha256": "1258db7a46450e23d0972f46b77a43b39d101849317e6e2d5d925e61260a9706"
+    }
+  ],
+  "limits": "Actual native C Lua level_init/map/getmap state capture. No full JS replay of custom scripts; JSdescriptor API compared to these counts. Existing source/binary provenance, no formal build attestation."
+}

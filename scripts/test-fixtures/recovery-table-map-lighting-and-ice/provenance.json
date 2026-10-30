@@ -1,0 +1,43 @@
+{
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "rows": [
+    {
+      "name": "true-moat",
+      "lit": true,
+      "pools": false,
+      "expected": 9,
+      "icedpool": 16,
+      "boundary": 55,
+      "token": "MAP_ICE_LIGHT_TRUE_MOAT=9/9,ICE=9/9",
+      "recordingSha256": "37678a7e8527ef7289e9feb9194f2ab186833698408d0b65c8892b1a968dbf85",
+      "luaSha256": "b3a8759b76303ad8346e165d1eaeb196823e367f7622dd0ce172f058ff9ad6f6",
+      "recipe.jsonSha256": "0f1371e52542369b183a6df33511b1c165e0fe807f2ce2eda445823058538be9"
+    },
+    {
+      "name": "true-pool",
+      "lit": true,
+      "pools": true,
+      "expected": 9,
+      "icedpool": 8,
+      "boundary": 55,
+      "token": "MAP_ICE_LIGHT_TRUE_POOL=9/9,ICE=9/9",
+      "recordingSha256": "a9ac1310a4e1cc2b0f5baf05d3488a9f4ffce947079dd7a0606f73b976f0ad77",
+      "luaSha256": "a12d8efa1ca3f6c2407cf53e8754d5af4a83a8014a2d62dbd67e917afba694c8",
+      "recipe.jsonSha256": "3ef083f02edb037e218711c234e4a5e03220b5fc7c825c7faaeb9454244b4bb5"
+    },
+    {
+      "name": "yes-moat",
+      "lit": "yes",
+      "pools": false,
+      "expected": 0,
+      "icedpool": 16,
+      "boundary": 54,
+      "token": "MAP_ICE_LIGHT_YES_MOAT=0/9,ICE=9/9",
+      "recordingSha256": "28a2bfaf6d38f88fb85d7fae9abd51dc8919f178372afe1b0c6ccaae57418235",
+      "luaSha256": "faafaca82d07608275600ad7708ac57449186df10e9b60f17aef8ddee7473601",
+      "recipe.jsonSha256": "7cd83d40ccedfeace4fc38440fac54e193ac9f6687ee7cf32ad8634c8f7b5c21"
+    }
+  ],
+  "nativeScope": "Actual C Lua API maps ICE with littrue/yes and observed nine ICE cells plus lit counts. ICE pool/moat metadata expected separately from five exact-body C oracle cases in recovery-map-ice-origin; native getmap does not expose icedpool.",
+  "limits": "No full JS custom Lua replay or source-build attestation. Initial assertion-based native attempt stopped on sandbox missing assert; preserved as invalid setup, not defect evidence."
+}

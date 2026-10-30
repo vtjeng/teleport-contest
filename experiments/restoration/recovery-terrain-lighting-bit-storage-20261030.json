@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "2579242c67804962299920a58e3052ab3718c187"
+  ],
+  "scope": "Store set_levltyp_lit result using unsigned one-bit semantics, preserving C boolean-string reader option indices, lava override and existing random/no-change branches.",
+  "relatedFamily": "Same raw-value-to-one-bit contract as locally prepared monster descriptor bit-storage candidates22b42aed/3791db98, but independent H-based terrain writer path; no dependency or automatic double-counted repair root.",
+  "dependencyReview": "No mkmaze.js changes in excluded18 window. Existing H parser accepts yes2/no3 exactly as C, so fix storage rather than changing parser truth mapping. Native C Lua confirms yes is accepted API input; no injected flags or unsupported internal state.",
+  "evidence": "32portable Ccases across release/sanity profiles:13 exact Cfunction bodies and copied Lua5.4.8 checkoption core, source rm bitfields. Profiles produce identical state and distinct expected sanity diagnostic counts. H3API targets fail/29controls pass. Three fresh native C Lua/getmap captures confirm grid counts: yes floor0/1617, boolean true1617/1617, lava yes1617/1617. All32JS API cases pass after narrow fix;64combined tests including native fixture bindings.",
+  "profile": "Actual recorder binary d0e5dceb; DWARF rm.lit1bit/flags5bits. Current installed headers select released+BITFIELDS and binary lacks optional diagnostic format. These observations are not source build attestation. Original recorder install state preserved through disposable copy.",
+  "limits": "Portable oracle uses adapters; three native fixtures separately execute real Lua API construction and getmap. No full JS replay of custom Lua scripts, shipped exposure or hidden-score claim. Original source/binary build attestation remains unavailable."
+}

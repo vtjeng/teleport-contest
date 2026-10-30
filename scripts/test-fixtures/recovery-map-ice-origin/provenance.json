@@ -1,0 +1,39 @@
+{
+  "sourceGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "publishedOrigin": "05cb34c25a489e162cd8fa8f55b96b9ddbbb7f00",
+  "oracleSha256": "6158f60567dcfcf0c9d8b1a04a31e17863a1f2d2647c127f5203b3d44038d219",
+  "profileCorrection": "INVALID_TYPE corrected -1\u2192127 to match pinned rm.h; fixed all-ICE fragments cannot reach sentinel path.",
+  "functions": [
+    {
+      "function": "set_levltyp",
+      "path": "src/mkmaze.c",
+      "bodySha256": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b",
+      "exactBody": true
+    },
+    {
+      "function": "set_levltyp_lit",
+      "path": "src/mkmaze.c",
+      "bodySha256": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d",
+      "exactBody": true
+    },
+    {
+      "function": "sel_set_ter",
+      "path": "src/sp_lev.c",
+      "bodySha256": "63ad752215977fad6413b49ba0d08c6afcc0a82cbc46a4f2409ef9f049ae451c",
+      "exactBody": true
+    },
+    {
+      "function": "lvlfill_solid",
+      "path": "src/sp_lev.c",
+      "bodySha256": "0eb3809f0e0cc79d09d8992f030ffe512566389d511cabca324f275923bd3d05",
+      "exactBody": true
+    },
+    {
+      "function": "lspo_map",
+      "path": "src/sp_lev.c",
+      "bodySha256": "40a9789ad7612ef20ea53f6616fba3d312ed09ebaabdeb26f8f3247768b2b28a",
+      "exactBody": true
+    }
+  ],
+  "limits": "Exact writer/map bodies with fixed table, map-fragment, bitmap and error adapters; no full C Lua API constructor or native gameplay. Setup flag postconditions source-derived. icedpool aliases C flags, stored separately in JS."
+}

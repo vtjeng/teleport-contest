@@ -1,0 +1,450 @@
+[
+  {
+    "fg": ".",
+    "lit": "yes",
+    "kind": "target",
+    "parsedC": 2,
+    "cells": 1617,
+    "expectedCell": [
+      25,
+      0
+    ],
+    "expectedGridSha256": "af4dc0c75e299a90a0f3a3f88e037d53799d922e3dbe708278c0c4c255fb1fa4",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 1617
+  },
+  {
+    "fg": ".",
+    "lit": "true",
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      25,
+      0
+    ],
+    "expectedGridSha256": "af4dc0c75e299a90a0f3a3f88e037d53799d922e3dbe708278c0c4c255fb1fa4",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": ".",
+    "lit": "false",
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      25,
+      1
+    ],
+    "expectedGridSha256": "89bb823b855f86680129e0e2affd1e5c8b4c845e7098edaf845eda5b843ca4f4",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": ".",
+    "lit": "no",
+    "kind": "control",
+    "parsedC": 3,
+    "cells": 1617,
+    "expectedCell": [
+      25,
+      1
+    ],
+    "expectedGridSha256": "89bb823b855f86680129e0e2affd1e5c8b4c845e7098edaf845eda5b843ca4f4",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 1617
+  },
+  {
+    "fg": ".",
+    "lit": false,
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      25,
+      0
+    ],
+    "expectedGridSha256": "af4dc0c75e299a90a0f3a3f88e037d53799d922e3dbe708278c0c4c255fb1fa4",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": ".",
+    "lit": true,
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      25,
+      1
+    ],
+    "expectedGridSha256": "89bb823b855f86680129e0e2affd1e5c8b4c845e7098edaf845eda5b843ca4f4",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": ".",
+    "lit": 0,
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      25,
+      0
+    ],
+    "expectedGridSha256": "af4dc0c75e299a90a0f3a3f88e037d53799d922e3dbe708278c0c4c255fb1fa4",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": ".",
+    "lit": 1,
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      25,
+      1
+    ],
+    "expectedGridSha256": "89bb823b855f86680129e0e2affd1e5c8b4c845e7098edaf845eda5b843ca4f4",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "#",
+    "lit": "yes",
+    "kind": "target",
+    "parsedC": 2,
+    "cells": 1617,
+    "expectedCell": [
+      24,
+      0
+    ],
+    "expectedGridSha256": "f61b6947c79d839520f3319e9cd6e0be138ef54eeaf1158866d1db06674a360b",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 1617
+  },
+  {
+    "fg": "#",
+    "lit": "true",
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      24,
+      0
+    ],
+    "expectedGridSha256": "f61b6947c79d839520f3319e9cd6e0be138ef54eeaf1158866d1db06674a360b",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "#",
+    "lit": "false",
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      24,
+      1
+    ],
+    "expectedGridSha256": "3989015cf75037ebb7302bdbfbcab43a9499050207e91a90dbdc8a98ed8dcbdf",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "#",
+    "lit": "no",
+    "kind": "control",
+    "parsedC": 3,
+    "cells": 1617,
+    "expectedCell": [
+      24,
+      1
+    ],
+    "expectedGridSha256": "3989015cf75037ebb7302bdbfbcab43a9499050207e91a90dbdc8a98ed8dcbdf",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 1617
+  },
+  {
+    "fg": "#",
+    "lit": false,
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      24,
+      0
+    ],
+    "expectedGridSha256": "f61b6947c79d839520f3319e9cd6e0be138ef54eeaf1158866d1db06674a360b",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "#",
+    "lit": true,
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      24,
+      1
+    ],
+    "expectedGridSha256": "3989015cf75037ebb7302bdbfbcab43a9499050207e91a90dbdc8a98ed8dcbdf",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "#",
+    "lit": 0,
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      24,
+      0
+    ],
+    "expectedGridSha256": "f61b6947c79d839520f3319e9cd6e0be138ef54eeaf1158866d1db06674a360b",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "#",
+    "lit": 1,
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      24,
+      1
+    ],
+    "expectedGridSha256": "3989015cf75037ebb7302bdbfbcab43a9499050207e91a90dbdc8a98ed8dcbdf",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "I",
+    "lit": "yes",
+    "kind": "target",
+    "parsedC": 2,
+    "cells": 1617,
+    "expectedCell": [
+      33,
+      0
+    ],
+    "expectedGridSha256": "1e4bf29384bffdc53f1d4a21ee754c8b611af709934d396226d5acc28cd9a91e",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 1617
+  },
+  {
+    "fg": "I",
+    "lit": "true",
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      33,
+      0
+    ],
+    "expectedGridSha256": "1e4bf29384bffdc53f1d4a21ee754c8b611af709934d396226d5acc28cd9a91e",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "I",
+    "lit": "false",
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      33,
+      1
+    ],
+    "expectedGridSha256": "31dffbeb76adae0644d8103cd2f0737e98bb265ccf7b5c865317b001f380e6cb",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "I",
+    "lit": "no",
+    "kind": "control",
+    "parsedC": 3,
+    "cells": 1617,
+    "expectedCell": [
+      33,
+      1
+    ],
+    "expectedGridSha256": "31dffbeb76adae0644d8103cd2f0737e98bb265ccf7b5c865317b001f380e6cb",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 1617
+  },
+  {
+    "fg": "I",
+    "lit": false,
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      33,
+      0
+    ],
+    "expectedGridSha256": "1e4bf29384bffdc53f1d4a21ee754c8b611af709934d396226d5acc28cd9a91e",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "I",
+    "lit": true,
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      33,
+      1
+    ],
+    "expectedGridSha256": "31dffbeb76adae0644d8103cd2f0737e98bb265ccf7b5c865317b001f380e6cb",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "I",
+    "lit": 0,
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      33,
+      0
+    ],
+    "expectedGridSha256": "1e4bf29384bffdc53f1d4a21ee754c8b611af709934d396226d5acc28cd9a91e",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "I",
+    "lit": 1,
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      33,
+      1
+    ],
+    "expectedGridSha256": "31dffbeb76adae0644d8103cd2f0737e98bb265ccf7b5c865317b001f380e6cb",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "L",
+    "lit": "yes",
+    "kind": "control",
+    "parsedC": 2,
+    "cells": 1617,
+    "expectedCell": [
+      20,
+      1
+    ],
+    "expectedGridSha256": "d2c37229c1957ff5b3324a1705ccf19127501183b2a945d761fdd22ad137ecf7",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 1617
+  },
+  {
+    "fg": "L",
+    "lit": "true",
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      20,
+      1
+    ],
+    "expectedGridSha256": "d2c37229c1957ff5b3324a1705ccf19127501183b2a945d761fdd22ad137ecf7",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "L",
+    "lit": "false",
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      20,
+      1
+    ],
+    "expectedGridSha256": "d2c37229c1957ff5b3324a1705ccf19127501183b2a945d761fdd22ad137ecf7",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "L",
+    "lit": "no",
+    "kind": "control",
+    "parsedC": 3,
+    "cells": 1617,
+    "expectedCell": [
+      20,
+      1
+    ],
+    "expectedGridSha256": "d2c37229c1957ff5b3324a1705ccf19127501183b2a945d761fdd22ad137ecf7",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 1617
+  },
+  {
+    "fg": "L",
+    "lit": false,
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      20,
+      1
+    ],
+    "expectedGridSha256": "d2c37229c1957ff5b3324a1705ccf19127501183b2a945d761fdd22ad137ecf7",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "L",
+    "lit": true,
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      20,
+      1
+    ],
+    "expectedGridSha256": "d2c37229c1957ff5b3324a1705ccf19127501183b2a945d761fdd22ad137ecf7",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "L",
+    "lit": 0,
+    "kind": "control",
+    "parsedC": 0,
+    "cells": 1617,
+    "expectedCell": [
+      20,
+      1
+    ],
+    "expectedGridSha256": "d2c37229c1957ff5b3324a1705ccf19127501183b2a945d761fdd22ad137ecf7",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  },
+  {
+    "fg": "L",
+    "lit": 1,
+    "kind": "control",
+    "parsedC": 1,
+    "cells": 1617,
+    "expectedCell": [
+      20,
+      1
+    ],
+    "expectedGridSha256": "d2c37229c1957ff5b3324a1705ccf19127501183b2a945d761fdd22ad137ecf7",
+    "releaseDiagnostics": 0,
+    "sanityDiagnostics": 0
+  }
+]

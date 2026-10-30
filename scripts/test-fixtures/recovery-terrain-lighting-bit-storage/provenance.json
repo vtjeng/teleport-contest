@@ -1,0 +1,196 @@
+{
+  "sourceCommit": "2579242c67804962299920a58e3052ab3718c187",
+  "sourceDirectory": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/",
+  "exactBodyProof": {
+    "files": [
+      {
+        "name": "oracle.c",
+        "sourceCommit": "2579242c67804962299920a58e3052ab3718c187",
+        "sourcePath": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/oracle.c",
+        "sha256": "87f7c8acaad7e5858dbd6e43e3bf1e0f417299be1d5a8952d9e9d694f62daeb3"
+      },
+      {
+        "name": "lua-checkoption.inc",
+        "sourceCommit": "2579242c67804962299920a58e3052ab3718c187",
+        "sourcePath": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-checkoption.inc",
+        "sha256": "b1b77cface9af5fb2af6472d87e4f3db24bed7c57c481395c1527d979125af2f"
+      },
+      {
+        "name": "lua-license.txt",
+        "sourceCommit": "2579242c67804962299920a58e3052ab3718c187",
+        "sourcePath": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-license.txt",
+        "sha256": "d83103413067359fa162d5c465c076d6a9a25f8d678f06b7ed2a7c9d9e4fa704"
+      },
+      {
+        "name": "lua-string-contract.txt",
+        "sourceCommit": "2579242c67804962299920a58e3052ab3718c187",
+        "sourcePath": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/lua-string-contract.txt",
+        "sha256": "145665bf8997a43a9a1d8bbd389c46e57e9c62a8a180effd6cff5730d70cf30f"
+      },
+      {
+        "name": "source-contract.json",
+        "sourceCommit": "2579242c67804962299920a58e3052ab3718c187",
+        "sourcePath": "diagnostics/divergence-evidence/levels/levels-solidfill-boolean-light-20261029/source-contract.json",
+        "sha256": "1f0ba729239151c618172498adeea8dc478da0d91e073619582019b99487cf97"
+      }
+    ],
+    "functions": [
+      {
+        "symbol": "splev_chr2typ",
+        "path": "nethack-c/upstream/src/nhlua.c",
+        "bodySha256": "dc7277c13367d885fc05a5d5533fb6e31ba22068cf04b7030f498f8297b55f8b"
+      },
+      {
+        "symbol": "check_mapchr",
+        "path": "nethack-c/upstream/src/nhlua.c",
+        "bodySha256": "c507d3461bc676350460bba8526a6ae74c6f3d3145f8ceeef754e66c17276166"
+      },
+      {
+        "symbol": "get_table_option",
+        "path": "nethack-c/upstream/src/nhlua.c",
+        "bodySha256": "59379ce04d8702a9949421afede83ba24ab2f1af0474f268440ecfdfcf253c18"
+      },
+      {
+        "symbol": "get_table_int_opt",
+        "path": "nethack-c/upstream/src/nhlua.c",
+        "bodySha256": "1d53962a72304ba16101381f58d55636cd11a940d92de0d0faaff93e54fe3a07"
+      },
+      {
+        "symbol": "get_table_str_opt",
+        "path": "nethack-c/upstream/src/nhlua.c",
+        "bodySha256": "7e69edb56631eac57a22ac1e19991922cfffd3725a954e2f425d4edcf3b6a3b2"
+      },
+      {
+        "symbol": "get_table_mapchr_opt",
+        "path": "nethack-c/upstream/src/nhlua.c",
+        "bodySha256": "283fc41df0cd98196ceba8eb17041d035a0f94c00bfbc8e0d45812d1f54075e4"
+      },
+      {
+        "symbol": "get_table_boolean",
+        "path": "nethack-c/upstream/src/nhlua.c",
+        "bodySha256": "2c3ec6cabfa0d20089eb754c01d7f17d2502451823dbc35a9a4fbcbc1e9ffd35"
+      },
+      {
+        "symbol": "get_table_boolean_opt",
+        "path": "nethack-c/upstream/src/nhlua.c",
+        "bodySha256": "8af280f75bad209d97cd460f52e1c78929c6a0d5acd623f8305a54f30b73dcc0"
+      },
+      {
+        "symbol": "set_levltyp",
+        "path": "nethack-c/upstream/src/mkmaze.c",
+        "bodySha256": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b"
+      },
+      {
+        "symbol": "set_levltyp_lit",
+        "path": "nethack-c/upstream/src/mkmaze.c",
+        "bodySha256": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d"
+      },
+      {
+        "symbol": "lvlfill_solid",
+        "path": "nethack-c/upstream/src/sp_lev.c",
+        "bodySha256": "0eb3809f0e0cc79d09d8992f030ffe512566389d511cabca324f275923bd3d05"
+      },
+      {
+        "symbol": "splev_initlev",
+        "path": "nethack-c/upstream/src/sp_lev.c",
+        "bodySha256": "4bfdf774370460e956830e3a3d825252fef166a623886fd036a7664c0b59eb60"
+      },
+      {
+        "symbol": "lspo_level_init",
+        "path": "nethack-c/upstream/src/sp_lev.c",
+        "bodySha256": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde"
+      }
+    ],
+    "limits": "Published C/Lua core bodies with fake Lua argument adapter and engine stubs, source rm bitfields. Current recorder header profile released+BITFIELDS and absent sanity diagnostic string are consistent, not binary build attestation. No C native recorder run."
+  },
+  "currentProfile": {
+    "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "containsSetTerrainSanityDiagnostic": false,
+    "limit": "String-presence check plus current header preprocessing, not binary build attestation or executed API proof."
+  },
+  "currentHeaderProfile": {
+    "NH_DEVEL_STATUS": "NH_STATUS_RELEASED",
+    "EXTRA_SANITY_CHECKS": false,
+    "BITFIELDS": true,
+    "Bitfield": "unsigned x:n"
+  },
+  "limits": "32 portable C cases use fake Lua arguments/engine helpers with exact source/Lua bodies. Separately,3 native C recordings execute actual Lua level_init/getmap on1617cells. Current header/binary metadata do not establish source build attestation. No full JS replay of custom Lua scripts or shipped exposure/hidden-score claim.",
+  "sourceHashes": {
+    "include/config.h": "cc39455c748d1d73640606d98e847b55cb09d82338edc95f4fbc8acecedc9385",
+    "include/global.h": "97bcc4fdd9c1f880dacaf1fffe0043f78874f9fc7e9d84f57aa1a1d4be811e88",
+    "include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7",
+    "include/sp_lev.h": "a48d5bd2d9a5b20b474b790d52f4f19179678c87ec0b51019e39dc6684d7a6bf",
+    "src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0",
+    "src/nhlua.c": "cf161f30beb1147102cb9a137997acea715bdec9d7b16dc44082518d5ec257e1",
+    "src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "src/pline.c": "394d4d33f3ecfa66005a0df96cacf582782c79437f34daeaaa9bf25238d857ff"
+  },
+  "nativeCases": [
+    {
+      "case": "yes",
+      "expectedLitCount": 0,
+      "total": 1617,
+      "token": "TLIT_NATIVE_GRID_YES=0/1617",
+      "boundaries": [
+        45
+      ],
+      "recordingSha256": "8abe0766fdb2150a72036583b7f91ab373baa07e1fabf9d137cf8e599eb0507f",
+      "recipeSha256": "c127893591bd506dfb202ebfe8663f7d688097430895b398dbe679bbfec05639",
+      "luaSha256": "295d90d3d52d71300dac8d6f0dbb84c1f5d07c3907a24ceb8efb475108c57151",
+      "fg": ".",
+      "lit": "yes"
+    },
+    {
+      "case": "true",
+      "expectedLitCount": 1617,
+      "total": 1617,
+      "token": "TLIT_NATIVE_GRID_TRUE=1617/1617",
+      "boundaries": [
+        46
+      ],
+      "recordingSha256": "64372f0207d3283e6a77feb192c9d391f09414f009de2669a65dff0307589b33",
+      "recipeSha256": "66a4fbd1bd9666c2aba61586806fbb7f2bd24c62eb6bbef64b0d7f88e44bd616",
+      "luaSha256": "5cdf88f2e37da846e6b034362187c6ab81e756dc16703c3e132f75ed793d0dce",
+      "fg": ".",
+      "lit": true
+    },
+    {
+      "case": "lava",
+      "expectedLitCount": 1617,
+      "total": 1617,
+      "token": "TLIT_NATIVE_GRID_LAVA=1617/1617",
+      "boundaries": [
+        46
+      ],
+      "recordingSha256": "64726355a4e9fd10baba701455800e66d3fc1ae2768d4955ff1658317211f5c6",
+      "recipeSha256": "cf00ce6ee301ce292627ebc338e293848df5d52d5d4a61afb63b824219843ff3",
+      "luaSha256": "5ac19e9fc7ed186ca81609efa9783248e89f876be77c06545ffaae15ba61cc39",
+      "fg": "L",
+      "lit": "yes"
+    }
+  ],
+  "nativeBinaryRmBitfields": {
+    "flags": {
+      "name": "flags",
+      "DW_AT_bit_size": 5,
+      "DW_AT_data_bit_offset": 48
+    },
+    "lit": {
+      "name": "lit",
+      "DW_AT_bit_size": 1,
+      "DW_AT_data_bit_offset": 54
+    },
+    "waslit": {
+      "name": "waslit",
+      "DW_AT_bit_size": 1,
+      "DW_AT_data_bit_offset": 55
+    }
+  },
+  "nativeCaptureTool": {
+    "repositoryCommit": "fa6ac3709a0acf413c83bd459c6772b16476343f",
+    "path": "scripts/record-session.mjs",
+    "sha256": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61",
+    "invocation": "NETHACK_INSTALL=<isolated copy> NETHACK_BINARY=<existing recorder> node scripts/record-session.mjs <recipe> <recording>",
+    "dataInput": "Copy native-grid-<name>.lua bytes to the /tmp path pinned by its recipe before recapture. Original install state untouched."
+  }
+}
