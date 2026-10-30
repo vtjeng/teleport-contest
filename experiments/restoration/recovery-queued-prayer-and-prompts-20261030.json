@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "44def1e0d070baff028830a05e7da5b2125a2cec",
+    "ee0be2269c5ed274f6e9a57b93c33ed4bc41a379",
+    "82925e4fff73c4662dfd4c237acb497012a3ff4b"
+  ],
+  "scope": "Queued prayer function dispatch, fresh non-recording wizard force-success confirmation under ParanoidPray, and menu-capable prompt routing after consuming CMDQ_USER_INPUT. Three branch-level behavior scopes, not generic queue completion.",
+  "dependencyReview": "Neither cmd.js nor pray.js changed in excluded18 window. Existing command-row metadata, do_repeat queue and prompt backend already H-owned. Wizard repeat cannot reach its later confirmation after missing prayer dispatch; demonstrated sequential ablation leaves only wizard target failing after first two fixes. No queued map-symbol/coordinate follow-on, getpos or other stopped investigation used.",
+  "evidence": "Seven full native C recordings: H3fail4pass; without wizard force fix after other two,6pass1fail; final7pass plus existing queue/prayer tests. Existing published case metadata/source/binary provenance retained.",
+  "sourceHashes": {
+    "src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "src/pray.c": "6d9729fb4c9e7fbed44f355f85a241ccc527e73d53913ca4efb904e23f999f03"
+  },
+  "limits": "No new C capture or independent historical binary build attestation. Wizard force evidence scoped to debug+ParanoidPray. Queued query fixture cancels before sacrifice effects. Does not establish all prayer outcomes/all queued readers or hidden-score impact."
+}

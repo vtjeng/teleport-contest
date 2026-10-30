@@ -1,0 +1,57 @@
+{
+  "caseId": "wizard-prayer-repeat-confirmation",
+  "shard": "commands",
+  "outcome": "confirmed divergence",
+  "binding": "manual/unbound",
+  "discoveredAt": "2026-10-28T19:34:52.095441+00:00",
+  "reviewedAt": "2026-10-28T19:34:52.095441+00:00",
+  "jsBase": "034443e9246cb9fc19dfba9ba2d9c2893132e84c",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "hypothesis": "Wizard force-success answer enters CQ_REPEAT despite ParanoidPray and bypasses the next force prompt during repeat.",
+  "supportedSetup": "Standard playmode:debug human Ranger, default paranoid prayer confirmation enabled. First prayer accepted and force success answered yes; dismiss exactly one More prompt; Ctrl-A, accept prayer, then answer force no. No state injection or objects.",
+  "expectedC": "Ask fresh force-success answer even during repeat, temporarily disabling in_doagain and using non-recording YN when ParanoidPray is enabled.",
+  "observedJS": "y_n records first force yes in repeat queue and consumes it during repeat; force prompt is skipped, forced success occurs and subsequent input/RNG diverges.",
+  "control": "Same setup, but second prayer entered as #pray instead of Ctrl-A; 22 screens/cursors and 2499 RNG calls match.",
+  "firstDifference": {
+    "boundaryZeroBased": 12,
+    "key": "y",
+    "C": "You begin praying to Venus.--More--",
+    "JS": "You begin praying to Venus.  You are surrounded by a shimmering light.--More--"
+  },
+  "scope": "Wizard-mode force-success prompt with ParanoidPray on. Distinct from fixed PR9 command-admission failure after declined prayer. No claim about all prayer outcomes or nonwizard repetition.",
+  "sourceLocations": [
+    "nethack-c/upstream/src/pray.c:2233-2258",
+    "js/pray.js:1835-1841",
+    "js/cmd.js:822-875"
+  ],
+  "reproduction": "node --test diagnostics/divergence-evidence/commands/wizard-prayer-repeat-confirmation/evidence.test.mjs",
+  "discardedProbe": "Initial probe inserted an extra space after More; that was an unknown command which cleared recall. It did not exercise repeat and contributes no yield. Raw probe preserved privately.",
+  "tools": {
+    "node": "v24.19.0"
+  },
+  "hashes": {
+    "js/pray.js": "4f9dab22dc4fbb6f2e8e87befaa37ca44098fd641711bfa850fe4e2248198277",
+    "js/cmd.js": "e06f0ba7702992bf37c81cc5ade0dac3bed9b393c6c0fe1c342ab175f8023f3d",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/diff-fresh-worker.mjs": "2afbbd23778aa7b2be39d8f6165d3f7af90d904f8ce6293c3852789d62cc30dc",
+    "scripts/scoring-workspace.mjs": "654d45be858cd077071d2536c363fb4b1bf75b645ddd1fbd2122ba2bc0cb9b00",
+    "nethack-c/recorder/src/pray.c": "6d9729fb4c9e7fbed44f355f85a241ccc527e73d53913ca4efb904e23f999f03",
+    "nethack-c/recorder/src/cmd.c": "a14c0fc8706bd9957f8f4aab7f9e2abbd30eb5f4e43166b90a8bfeb25094a7ce",
+    "nethack-c/recorder/include/config.h": "5585d9c88d7ea21a9a78b45616cc31ae4ea680cb7b34026f70f92b91288a499f",
+    "nethack-c/recorder/install/games/lib/nethackdir/nethack": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13"
+  },
+  "evidencePaths": [
+    "README.md",
+    "case.json",
+    "clean-base-check.json",
+    "control.js-output.json.gz",
+    "control.recipe.json",
+    "control.recording.json.gz",
+    "control.result.json",
+    "evidence.test.mjs",
+    "target.js-output.json.gz",
+    "target.recipe.json",
+    "target.recording.json.gz",
+    "target.result.json"
+  ]
+}
