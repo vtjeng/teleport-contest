@@ -63,6 +63,9 @@
     "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
     "9205e0859870d4c8967254334152b10742407260",
     "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
-    "71421a2cc835750c412e88e3692b616434d5fd2b"
-  ]
+    "71421a2cc835750c412e88e3692b616434d5fd2b",
+    "79baae3a96ec8e17e528a24997f561eaf946a9a5",
+    "8de57954a8b5d6f7942c8091a302fd99cd892b72"
+  ],
+  "localFollowonManifest": "experiments/restoration/recovery-wall-flag-reset-20261030.json"
 }

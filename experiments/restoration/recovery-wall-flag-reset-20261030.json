@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "79baae3a96ec8e17e528a24997f561eaf946a9a5",
+    "8de57954a8b5d6f7942c8091a302fd99cd892b72"
+  ],
+  "scope": "Clear separately stored JS wall_info when C map-paint and solidfill paths reset shared rm.flags. Two related reset paths, not four independent failures.",
+  "dependencyReview": "No mklev.js changes in original18 window. Existing H map and solidfill paths already reset flags/doormask; wall_info alias omitted. Transparent-map, direct-terrain and mazegrid controls preserve flags. No door-mask/window behavior imported. Corrected historical comment to identify lspo_map flags clear before sel_set_ter, rather than wrongly saying sel_set_ter clears flags.",
+  "evidence": "Two published portable C oracle harnesses:14 exact body matches across9distinct functions in sp_lev.c/mkmaze.c. Twelve raw Ccases deduplicate to10method/property cases:4Htargets fail,6controls pass; source-hash control also passes. Profile INVALID_TYPE correction -1to127 leaves all12outputs identical. No RNG draws in selected fixed paths.",
+  "limits": "C fixed Lua/state/helper adapters, miniature structs, not a full Lua VM/native recorder or full constructor execution. Known flags8/16 fit rm.flags; Cwall_info aliases flags. Shipped exposure/hidden score unknown. No room construction or failed-turn artifacts."
+}

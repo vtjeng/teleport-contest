@@ -1206,6 +1206,9 @@ function set_themeroom_map_terrain(x, y, typ, state) {
     const loc = state.level.at(x, y);
     loc.flags = 0;
     loc.doormask = 0;
+    // sp_lev.c lspo_map() clears rm.flags before calling sel_set_ter();
+    // C wall_info aliases that storage, while this port stores it apart.
+    loc.wall_info = 0;
     loc.horizontal = false;
     loc.roomno = 0;
     loc.edge = false;
@@ -1768,6 +1771,7 @@ function lvlfill_solid(filling, lit, frame, state) {
                 continue;
             const loc = state.level.at(x, y);
             loc.flags = 0;
+            loc.wall_info = 0;
             loc.doormask = 0;
             loc.horizontal = false;
             loc.roomno = 0;
