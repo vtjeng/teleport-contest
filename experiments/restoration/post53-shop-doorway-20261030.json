@@ -1,0 +1,25 @@
+{
+  "historicalSource": "73993230c21b739b6aa4a70f944672faaf40628c",
+  "base": "8359cabac24ddf1896634031508e0a34e6bd3101",
+  "status": "qualified-local-not-published",
+  "qualifiedAt": "2026-10-30T15:19:58.148738+00:00",
+  "invariants": [
+    "Production stock_room creates human keeper, home level, resident and guard position",
+    "rloc_to moves keeper within own shop; no offhome long-worm departure",
+    "Open door has equal flags and doormask; no suspect-window door reader imported",
+    "Inventory uses mksobj/addinv; no injected keeper identity"
+  ],
+  "before": "Native planned target returns 1 rather than C-derived 0; no-pick away and pick-at-door controls pass",
+  "after": "21 affected/layout tests pass, including planned and live away-door targets and controls; lint passes",
+  "reference": {
+    "source": "nethack-c/upstream/src/shk.c",
+    "sha256": "b2b5b82934b15c1a4a3c9474a650ff5800a83f0b9634696fdf080d0458f16e1b",
+    "lines": "shk_move uondoor branch: badinv FALSE away from door",
+    "kind": "source-derived; no new executed C oracle or public gameplay recording"
+  },
+  "window": "js/shk.js unchanged G-to-B; shknam.js unchanged by this component. No flags-only door handling restored.",
+  "pending": [
+    "Combined follow-on semantic/window audit and full validation",
+    "No remote publication authorization"
+  ]
+}
