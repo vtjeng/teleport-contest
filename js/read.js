@@ -1044,7 +1044,7 @@ export async function seffect_scare_monster(sobj, state = game) {
 // tameness changed. C discards tamedog()'s pointer but still performs its
 // state and message effects.
 async function maybe_tame(monster, scroll, state) {
-    const wasTame = Boolean(monster.mtame);
+    const wasTame = monster.mtame;
     const wasPeaceful = Boolean(monster.mpeaceful);
 
     if (scroll.cursed) {
@@ -1059,7 +1059,7 @@ async function maybe_tame(monster, scroll, state) {
         }
 
         if ((!wasPeaceful && monster.mpeaceful)
-            || wasTame !== Boolean(monster.mtame)) {
+            || wasTame !== monster.mtame) {
             return 1;
         }
     }

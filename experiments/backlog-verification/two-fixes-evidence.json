@@ -1,0 +1,180 @@
+{
+  "base": "f4f9c61588f86d97cc1884f15d3d797cf15f6acc",
+  "scope": [
+    "read.c maybe_tame numeric tameness comparison",
+    "eat.c use_up_tin floor extraction wiring"
+  ],
+  "CSource": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recorderSha256": "febdecce8b922d116ed33111e649e281ce052f8e063516a34a1bd2dbae820602",
+  "evidence": "Independent full-C recordings made during verification; C was not regenerated for the local fixes. Native JS state assertions qualify tameness and object removal.",
+  "runtimeChanges": [
+    "js/read.js",
+    "js/eat.js"
+  ],
+  "sourceReview": {
+    "taming": "read.c1046 saves integer mtame;1062 compares its numeric value after tamedog. Preserve Boolean peacefulness and resistance order.",
+    "tin": "eat.c1516-1526 consumes carried via useup and floor via useupf before clearing context; invent.c4760-4783 deletes floor object. Existing eatOperations provides remove_object, timers and newsym required by delobj/obj_extract_self. No inventory lifetime algorithm changed.",
+    "badWindow": "git diff G..B for read.js/eat.js/invent.js/obj.js is empty. Only two scoped callers changed; no historical behavior imported; no glob, different-customer or teleport changes."
+  },
+  "files": [
+    {
+      "path": "recipes/read/first-taming-control.session.json",
+      "sha256": "3d6c19cbabd70a0dafb66466bc87a49d8c75b7650b28f019aed53b5ce3bc797c"
+    },
+    {
+      "path": "recipes/read/tame-strengthening.session.json",
+      "sha256": "1987aeb1fa29d0b239c3bebc55c1488dcedb4000ef56dd99095c18f540d53cfd"
+    },
+    {
+      "path": "recipes/eat/empty-floor-tin.session.json",
+      "sha256": "34cdebb22751f725bfee750a477cf5ddff4089a03923a751ce629fb1d341b789"
+    },
+    {
+      "path": "recipes/eat/empty-carried-tin-control.session.json",
+      "sha256": "ed0a336436a25ae00db3257c27379b4a913f6f2ed4722d2fd3c02030636347f6"
+    },
+    {
+      "path": "recordings/read/first-taming-control.session.json",
+      "sha256": "b03c55aab9bace77b15055c95d9bc94947ef883c5474024d2d887ff97ca7230c"
+    },
+    {
+      "path": "recordings/read/tame-strengthening.session.json",
+      "sha256": "43eedd2ad1d227058b322747071e3472def7cc7245f9aed1e5993f1f16baf97d"
+    },
+    {
+      "path": "recordings/eat/empty-floor-tin.session.json",
+      "sha256": "5606192f634b87dbedd25241546a38ace2eb9f3349141437a9e9007af9e36adb"
+    },
+    {
+      "path": "recordings/eat/empty-carried-tin-control.session.json",
+      "sha256": "fb2ed087f8c9bf69cf62499863adc9c419b3d1a9a413d14e41dd0cfd86455ddf"
+    }
+  ],
+  "focusedComparisons": [
+    {
+      "case": "read/tame-strengthening",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 3185,
+            "js": 3185
+          },
+          "screens": {
+            "c": 65,
+            "js": 65
+          },
+          "cursors": {
+            "c": 65,
+            "js": 65
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      }
+    },
+    {
+      "case": "read/first-taming-control",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 3223,
+            "js": 3223
+          },
+          "screens": {
+            "c": 69,
+            "js": 69
+          },
+          "cursors": {
+            "c": 69,
+            "js": 69
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      }
+    },
+    {
+      "case": "eat/empty-floor-tin",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 3166,
+            "js": 3166
+          },
+          "screens": {
+            "c": 37,
+            "js": 37
+          },
+          "cursors": {
+            "c": 37,
+            "js": 37
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      }
+    },
+    {
+      "case": "eat/empty-carried-tin-control",
+      "result": {
+        "passed": true,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 3139,
+            "js": 3139
+          },
+          "screens": {
+            "c": 35,
+            "js": 35
+          },
+          "cursors": {
+            "c": 35,
+            "js": 35
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null
+      }
+    }
+  ],
+  "limitations": [
+    "No fixes to explosion termination, death ray continuation or mounted lava.",
+    "No remote push/publication authorized.",
+    "Full candidate checkpoint pending at report creation; results are recorded separately."
+  ]
+}

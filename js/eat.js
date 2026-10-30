@@ -990,10 +990,13 @@ function tin_variety(obj, env, displ = false) {
 // C ref: eat.c use_up_tin() (1516-1526). This resets only the tin pointer and
 // id; reqtime and usedtime belong to the same persistent svc.context.tin.
 async function use_up_tin(tin, state = game) {
+    // C's useupf reaches remove_object through delobj/obj_extract_self.
+    // Supply the same object-lifetime operations as ordinary floor meals.
+    const env = eatOperations(state);
     if (carried(tin))
-        await useup(tin, { state });
+        await useup(tin, env);
     else
-        await useupf(tin, 1, { state });
+        await useupf(tin, 1, env);
     const context = tinContext(state);
     context.tin = null;
     context.o_id = 0;

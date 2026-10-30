@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent current-Main verification using standard debug commands; no historical fixture reconstruction. Seed/date chosen before recording.",
+  "segments": [
+    {
+      "seed": 2026103107,
+      "datetime": "20331214101500",
+      "nethackrc": "OPTIONS=name:BacklogVerify,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nblessed empty tin\nee     "
+    }
+  ]
+}
