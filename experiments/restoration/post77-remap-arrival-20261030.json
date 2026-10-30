@@ -1,0 +1,18 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "sources": [
+    "0a858777abe969c404a84965138f99cf78ce9725",
+    "f1b5c013ff2d7a792a1a21af1ca449db85af97ee"
+  ],
+  "behavior": "Wizard makemap post-phase calls existing C-matched u_collide_m for an occupied hero arrival square. Export helper without changing its body; adapt its source-test locator.",
+  "before": "Target differs at u_collide_m native RNG index5956; no-collision control matches.",
+  "after": "Complete native target6055RNG/48screens and control15744RNG/48screens match; source-test locator and six layout tests pass.",
+  "reference": "scripts/test-fixtures/post77-remap-arrival/provenance.json",
+  "windowBoundary": "cmd.js and do.js unchanged G\u2192B, helper already implemented inG. No excluded window source or transitive behavior reintroduced.",
+  "limits": [
+    "Original published native data reused; no new C execution or retroactive binary attestation.",
+    "No species-marked object delivery or denied off-home long-worm investigation.",
+    "No full combined hosted gate or hidden-score claim."
+  ],
+  "localEnvironment": "Prepared in /tmp clone in the same executor; no remote operation or new environment."
+}
