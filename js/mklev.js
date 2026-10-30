@@ -1018,12 +1018,10 @@ export function select_themeroom(difficulty, random = rn2) {
     return pick;
 }
 
-// C ref: nhlua.c splev_chr2typ() (379-391). The cases below are char2typ[]
-// (340-377) entry for entry. The default arm returns MAX_TYPE (C's
-// INVALID_TYPE); selection_match and lspo_map skip those cells, while
-// get_table_mapchr_opt and nhlsel.c's selection filter raise a Lua error.
-// bigrm3 uses "[" in a mapfrag pattern, which reaches here via
-// selection_match and must return MAX_TYPE to be skipped.
+// C ref: nhlua.c splev_chr2typ()/char2typ[]. The raw port currently uses
+// MAX_TYPE for unknown characters where C returns INVALID_TYPE. Legacy
+// pattern consumers depend on that conflation; field validation below must
+// still distinguish invalid characters from the valid transparent 'x'.
 export function splev_chr2typ(char) {
     switch (char) {
     case ' ': return STONE;
@@ -1058,8 +1056,13 @@ export function splev_chr2typ(char) {
 // string; anything else is INVALID_TYPE. It lives here rather than in
 // nhlua.js because it needs splev_chr2typ() and nhlua.js imports nothing.
 export function check_mapchr(s) {
-    if (s && s.length === 1) return splev_chr2typ(s);
-    return INVALID_TYPE;
+    // C strlen() observes only the prefix of a Lua string before its NUL.
+    const prefix = typeof s === 'string' ? s.split('\0', 1)[0] : null;
+    if (!prefix || prefix.length !== 1) return INVALID_TYPE;
+    const typ = splev_chr2typ(prefix);
+    // char2typ[] assigns MAX_TYPE only to 'x'; an unknown input is invalid,
+    // even while the raw map converter retains its legacy caller semantics.
+    return typ === MAX_TYPE && prefix !== 'x' ? INVALID_TYPE : typ;
 }
 
 // C ref: nhlua.c get_table_mapchr(). A required map-character field.

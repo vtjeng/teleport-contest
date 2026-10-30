@@ -65,7 +65,8 @@
     "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
     "71421a2cc835750c412e88e3692b616434d5fd2b",
     "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
-    "6437c374e03e9178167572e662f35eb1bc8dbaac"
+    "6437c374e03e9178167572e662f35eb1bc8dbaac",
+    "868e2465451b7f319f71dc5611cc66184a212457"
   ],
-  "localFollowonManifest": "experiments/restoration/recovery-optional-string-reader-20261029.json"
+  "localFollowonManifest": "experiments/restoration/recovery-map-character-strings-20261030.json"
 }

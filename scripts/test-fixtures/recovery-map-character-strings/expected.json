@@ -1,0 +1,66 @@
+[
+  {
+    "input": null,
+    "expectedC": 127
+  },
+  {
+    "input": "",
+    "expectedC": 127
+  },
+  {
+    "input": "\u0000suffix",
+    "expectedC": 127
+  },
+  {
+    "input": "T",
+    "expectedC": 13
+  },
+  {
+    "input": "T\u0000suffix",
+    "expectedC": 13
+  },
+  {
+    "input": "TT",
+    "expectedC": 127
+  },
+  {
+    "input": "TT\u0000suffix",
+    "expectedC": 127
+  },
+  {
+    "input": ".",
+    "expectedC": 25
+  },
+  {
+    "input": ".\u0000suffix",
+    "expectedC": 25
+  },
+  {
+    "input": "#",
+    "expectedC": 24
+  },
+  {
+    "input": "#\u0000suffix",
+    "expectedC": 24
+  },
+  {
+    "input": " ",
+    "expectedC": 0
+  },
+  {
+    "input": " \u0000suffix",
+    "expectedC": 0
+  },
+  {
+    "input": "?",
+    "expectedC": 127
+  },
+  {
+    "input": "?\u0000suffix",
+    "expectedC": 127
+  },
+  {
+    "input": "x",
+    "expectedC": 37
+  }
+]

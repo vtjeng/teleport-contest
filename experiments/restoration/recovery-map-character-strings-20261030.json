@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "parentCandidate": "ae6de452caad7e79ed2594a68ca43b4e5c5b14ce",
+  "sources": [
+    "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+    "6437c374e03e9178167572e662f35eb1bc8dbaac",
+    "868e2465451b7f319f71dc5611cc66184a212457"
+  ],
+  "inheritedSources": [
+    "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+    "6437c374e03e9178167572e662f35eb1bc8dbaac"
+  ],
+  "scope": "Dependency-complete optional-string copying plus required map-character NUL-prefix validation. Existing shared reader supplies optional-empty/default normalization; no per-field duplicate prefix patches.",
+  "forwardCorrection": "Historical prefix-only check_mapchr would regress unknown-character NUL input because H/P raw splev_chr2typ conflates C INVALID_TYPE with MAX_TYPE. Validator rejects that fallback except valid transparent x. Raw converter and legacy pattern consumers remain unchanged. Supplemental strict validation was not present in P.",
+  "dependencyReview": "No original18 nhlua.js/mklev.js changes. Builds on exact ae6de452 reader candidate and retains its tests/provenance. Raw conversion callers inventoried: map loaders skip both invalid/transparent; legacy bigrm matcher uses MAX_TYPE wildcard. No global converter or matcher rewrite.",
+  "evidence": "Exact C nhlua.c char2typ/splev_chr2typ/check_mapchr and rm.h enum compiled for16string/null cases and128ASCII validator cases. C pure validator executed; table-wrapper errors/defaults additionally source-derived plus inherited scalar-reader C execution, not new C wrapper/writer execution. Baseline176assertions60pass116fail are repeated cases, not116bugs. Final232combined tests pass.",
+  "limits": "No C descriptor writer/constructor, shipped exposure or hidden-score proof. Shared helper contracts rather than every downstream field writer tested. Raw converter direct API discrepancy remains deferred. No stopped room construction or failed-turn artifacts."
+}
