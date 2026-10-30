@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b"
+  ],
+  "scope": "Direct unsigned one-bit storage for native des.monster female, peaceful, asleep fields. One storage rule across three sites.",
+  "expectation": "Pinned nhlua boolean parser returns indices 0/1/2/3; create_monster directly assigns to unsigned one-bit monst fields. Conditional cancelled path explicitly writes one and must not be masked.",
+  "profile": {
+    "evidenceKind": "Read-only existing recorder ELF DWARF; executable not run",
+    "binary": "/workspace/teleport-contest/nethack-c/recorder/src/nethack",
+    "binaryBytes": 10041816,
+    "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+    "producer": "<d>   DW_AT_producer    : (indexed string: 0): Debian clang version 19.1.7 (3+b1)",
+    "pinnedHeader": "nethack-c/upstream/include/monst.h",
+    "nativeStructFields": {
+      "female": {
+        "name": "female",
+        "attributes": [
+          "<10b0>   DW_AT_name        : (indexed string: 0x2b2): female",
+          "<10b2>   DW_AT_type        : <0x97c>",
+          "<10b6>   DW_AT_decl_file   : 11",
+          "<10b7>   DW_AT_decl_line   : 122",
+          "<10b8>   DW_AT_bit_size    : 1",
+          "<10b9>   DW_AT_data_bit_offset: 672"
+        ],
+        "declLine": 122,
+        "bitSize": 1
+      },
+      "msleeping": {
+        "name": "msleeping",
+        "attributes": [
+          "<1164>   DW_AT_name        : (indexed string: 0x2c1): msleeping",
+          "<1166>   DW_AT_type        : <0x97c>",
+          "<116a>   DW_AT_decl_file   : 11",
+          "<116b>   DW_AT_decl_line   : 142",
+          "<116c>   DW_AT_bit_size    : 1",
+          "<116d>   DW_AT_data_bit_offset: 695"
+        ],
+        "declLine": 142,
+        "bitSize": 1
+      },
+      "mpeaceful": {
+        "name": "mpeaceful",
+        "attributes": [
+          "<11ac>   DW_AT_name        : (indexed string: 0x2c7): mpeaceful",
+          "<11ae>   DW_AT_type        : <0x97c>",
+          "<11b2>   DW_AT_decl_file   : 11",
+          "<11b3>   DW_AT_decl_line   : 151",
+          "<11b4>   DW_AT_bit_size    : 1",
+          "<11b5>   DW_AT_data_bit_offset: 713"
+        ],
+        "declLine": 151,
+        "bitSize": 1
+      }
+    },
+    "buildHints": "recorder/src/Makefile CFLAGS=-g -I../include; upstream config.h enablesBITFIELDS; DUMB can disablebut actual ELF confirms1bit for these3members.",
+    "limit": "Proves installed recorder storage profile, not newly executed C constructor and not automatic attestation of historical recordings.",
+    "installedBinary": "nethack-c/recorder/install/games/lib/nethackdir/nethack",
+    "installedBinaryMatchesSourceElf": true
+  },
+  "dependencies": "Existing initialized-game native monster API and parser; no appearance change, des.room type construction, 18-window behavior or descriptor-C-string normalization imported.",
+  "validationLimits": "JS production-API tests with source/profile-derived C expectations; no new C constructor execution or newly captured C gameplay recording. Shipped exposure and hidden-score impact unknown."
+}

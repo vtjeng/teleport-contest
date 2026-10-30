@@ -777,14 +777,16 @@ function createMonsterBody(m, croom, env) {
 
     // create_monster() applies the parser-selected gender after makemon(),
     // even though makemon may have consumed its own gender draw.
-    mtmp.female = Boolean(m.female);
+    // C create_monster directly assigns these unsigned one-bit fields.
+    // Boolean-string indices 2/3 retain their low bit, not their truth value.
+    mtmp.female = Boolean(m.female & 1);
     if (m.peaceful > BOOL_RANDOM) {
-        mtmp.mpeaceful = Boolean(m.peaceful);
+        mtmp.mpeaceful = Boolean(m.peaceful & 1);
         /* changed mpeaceful again; have to reset malign */
         set_malign(mtmp, state);
     }
     if (m.asleep > BOOL_RANDOM)
-        mtmp.msleeping = Boolean(m.asleep);
+        mtmp.msleeping = Boolean(m.asleep & 1);
     if (m.seentraps)
         mtmp.mtrapseen = m.seentraps;
     if (m.cancelled)
