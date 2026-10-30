@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "3f78593df967bfca6e6679002a2cbcaf5c8e8233"
+  ],
+  "scope": "C-string prefix at level-message accumulation, both engraving forms, and table-map fragment parser. Same proven C-string family; fixtures/sites not independent roots.",
+  "dependencyReview": "Direct H-based forwardfix; no optional-owned-string-reader dependency. Running unchanged tests on ae6de andH produced same10fail/15pass, because required engraving get_table_str is distinct from optional reader. Local helper applies only three C strlen/dupstr consumers, not global Lua strings. No original18 or stoppeddes.room investigation.",
+  "partialSourceScopes": {
+    "3f78593df967bfca6e6679002a2cbcaf5c8e8233": "Table-map fragment path only. Row-array convenience counterpart remains unchanged/unresolved; C lspo_map explicitly does not accept arrays, so translated representation contract is not established by native C tests."
+  },
+  "evidence": "6message cases and10engraving cases freshly execute C oracles with6exact bodyproofs. Four fresh native C table-map Lua/selection records. Ten targetsfail onH;15controls/bindingspass. Native map counts/bounds support table input only.",
+  "limits": "Message/engraving use disclosed Lua/allocator/placement adapters, not native constructors. Native map binary formal source-build attestation absent; no full customLua JS replay. No player engraving, message delivery/finalization, shipped exposure or hidden-score claim. No row-array restoration.",
+  "fullyRecoveredSources": [
+    "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "b977a2a5f2edbfcf72a8d8d651518793fd862074"
+  ]
+}

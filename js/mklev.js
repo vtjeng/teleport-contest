@@ -1090,6 +1090,13 @@ export function get_table_mapchr_opt(table, name, defval) {
     return defval;
 }
 
+// These descriptor consumers copy through C strlen/dupstr. Keep this local:
+// Lua strings themselves may contain NUL bytes in other supported operations.
+function cStringPrefix(text) {
+    const end = text.indexOf('\0');
+    return end < 0 ? text : text.slice(0, end);
+}
+
 // C ref: sp_lev.c mapfrag_fromstr(). Parses a mapfragment string into the
 // source's record: the digit-stripped text, the widest line, and the line
 // count. Returns null past MAP_Y_LIM lines. The text is kept as one string
@@ -1097,7 +1104,7 @@ export function get_table_mapchr_opt(table, name, defval) {
 export function mapfrag_fromstr(str) {
     const mf = {};
 
-    mf.data = stripdigits(str);
+    mf.data = stripdigits(cStringPrefix(str));
     mf.wid = str_lines_maxlen(mf.data);
     mf.hei = 0;
     let tmps = 0;
@@ -2243,7 +2250,7 @@ function create_des_coder(state, frame) {
 export function lspo_message(args, env) {
     const { state } = env;
     if (args.length < 1) throw new Error('Wrong parameters');
-    const msg = luaL_checkstring(args[0]);
+    const msg = cStringPrefix(luaL_checkstring(args[0]));
     state.gl ??= {};
     const old = state.gl.lev_message;
     state.gl.lev_message = old != null ? `${old}\n${msg}` : msg;
@@ -2783,7 +2790,7 @@ export function lspo_engraving(args, env) {
 
     const c = { x, y };
     get_location_coord(c, DRY, coder.croom, ecoord, env);
-    make_engr_at(c.x, c.y, txt, null, 0, etyp, env);
+    make_engr_at(c.x, c.y, txt == null ? null : cStringPrefix(txt), null, 0, etyp, env);
     const ep = engr_at(c.x, c.y, state);
     if (ep) {
         ep.guardobjects = Boolean(guardobjs);
@@ -5009,15 +5016,27 @@ function createSpecialLevelApi(state) {
     return des;
 }
 
-// C ref: sp_lev.c lspo_map(), array form. Sets the map frame and paints
-// terrain for the main des.map([...rows]) call in a special level file.
+// JS row arrays represent C lspo_map()'s raw-string form (for example,
+// bigrm1's matching authored Lua string and JS row literal). Native Lua array
+// support is not implied. Preserve C's NUL prefix, dimensions and singleton reset.
 function mapFromRows(rows, frame, state) {
-    const height = rows.length;
-    const width = rows[0]?.length ?? 0;
-    if (!width || rows.some((row) => row.length !== width))
+    const inputWidth = rows[0]?.length ?? 0;
+    if (!inputWidth || rows.some((row) => row.length !== inputWidth))
         throw new Error('special-level map rows must have equal width');
+    const prefix = cStringPrefix(rows.join('\n'));
+    const sourceRows = (prefix.endsWith('\n') ? prefix.slice(0, -1) : prefix)
+        .split('\n');
+    const height = sourceRows.length;
+    // A NUL can shorten the final source row. C's mapfrag_get skips its
+    // missing cells rather than rejecting the otherwise valid prefix.
+    const width = Math.max(...sourceRows.map(row => row.length));
+    if (!width) throw new Error('special-level map rows must have equal width');
     frame.xsize = width;
     frame.ysize = height;
+    if (width <= 1 && height <= 1) {
+        reset_xystart_size(frame, state);
+        return { ...frame, selection: new ThemeroomSelection(null, true) };
+    }
     frame.xstart = 2 + Math.trunc(
         (frame.xMazeMax - 2 - width) / 2,
     );
@@ -5043,7 +5062,7 @@ function mapFromRows(rows, frame, state) {
         for (let x = 0; x < width; ++x) {
             const ax = frame.xstart + x;
             const ay = frame.ystart + y;
-            const mptyp = splev_chr2typ(rows[y][x]);
+            const mptyp = splev_chr2typ(sourceRows[y][x]);
             if (mptyp === INVALID_TYPE) continue;
             if (mptyp >= MAX_TYPE) continue;
             set_themeroom_map_terrain(ax, ay, mptyp, state);

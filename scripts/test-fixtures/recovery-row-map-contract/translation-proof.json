@@ -1,0 +1,10 @@
+{
+  "declaredContract": "bigrm.js declares same-sequence des API translation; bigrm1 JS row-array literal equals authored C Lua raw-string grid. mklev mapFromRows is the documented row counterpart. Native Lua arrays are not claimed supported.",
+  "jsPath": "js/bigrm.js",
+  "jsSha256": "6714d3fa682c52011b0bacfb3f1b1f8e0d77ed82565db1c5f1c02307d0f02ce4",
+  "cPath": "dat/bigrm-1.lua",
+  "cSha256": "2c6daa28df566b9855721c8e66508f31d31b575f98b4d67112b90a138924d503",
+  "matchingRows": 18,
+  "normalizedGridSha256": "54fe0d218bccd84f25710fd05c167c5f016152828982f02cbe137d6440bcfdef",
+  "limits": "Only scoped translation semantics under tests; no claim of native Lua array support or shipped NUL/singleton exposure."
+}

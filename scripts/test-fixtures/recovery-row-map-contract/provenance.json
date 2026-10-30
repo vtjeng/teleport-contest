@@ -1,0 +1,5 @@
+{
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "cMapBodySha256": "40a9789ad7612ef20ea53f6616fba3d312ed09ebaabdeb26f8f3247768b2b28a",
+  "limits": "Native C raw-string calls compared with declared JS row-array translation, not native Lua-array support. No full custom-Lua JS replay or source-build attestation. NUL/singleton shipped exposure unknown."
+}

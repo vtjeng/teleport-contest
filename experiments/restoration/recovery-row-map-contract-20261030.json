@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "sources": [
+    "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "3f78593df967bfca6e6679002a2cbcaf5c8e8233",
+    "92eaeeef7e756e67f4ae59c6a1d4d93080b54d77"
+  ],
+  "scope": "C-string consumers plus declared row-array/raw-C-string translation: NUL prefix and singleton frame reset.",
+  "dependencyReview": "Extends proven local C-string helper. Native C receives raw Lua strings, not arrays; shippedbigrm1 literal mapping and existing port API declaration establish JS surrogate contract. No original18 behavior, option reader, lighting or none-alignment prerequisite. Original input row-shape validation retained.",
+  "partialSourceScopes": {},
+  "evidence": "Inherited C-string references plus7fresh native C raw-string map/selection traces:4targets failparent and3controls pass. AuthoredC/JSbigrm1 literal equivalence bound. Historical3f+92 normalizer passes14/15 butrejects a NUL-shortened finalrow; forwardfix preservesC5selectedcells. No fullgamearrayexposure claim.",
+  "limits": "Scoped JS representation translation, not native Lua array support. Native binary source-build attestation absent. No fullcustomLuaJS replay. Shipped NUL/singleton exposure, digit-label preprocessing and other representation extensions remain unqualified. Inherited message/engraving references use disclosed C adapters; no stoppeddes.room artifacts.",
+  "fullyRecoveredSources": [
+    "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "3f78593df967bfca6e6679002a2cbcaf5c8e8233",
+    "92eaeeef7e756e67f4ae59c6a1d4d93080b54d77"
+  ],
+  "parentCandidate": "17f93b4fbdcefd74e23a91dbb4c49d361204f6f1",
+  "componentCandidates": [
+    "17f93b4fbdcefd74e23a91dbb4c49d361204f6f1"
+  ]
+}

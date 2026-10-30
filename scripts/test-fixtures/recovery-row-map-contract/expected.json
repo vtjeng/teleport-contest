@@ -1,0 +1,206 @@
+[
+  {
+    "name": "prefix-two",
+    "rows": [
+      "...",
+      "...",
+      "\u0000.."
+    ],
+    "kind": "target",
+    "boundary": 50,
+    "token": "ROW_MAP_PREFIX_TWO=39,11,41,12,6;FOLLOW=39,11,40,11,2",
+    "expected": [
+      [
+        39,
+        11,
+        41,
+        12,
+        6
+      ],
+      [
+        39,
+        11,
+        40,
+        11,
+        2
+      ]
+    ],
+    "recordingSha256": "242ef5a15e079134e9640a6b30db5b7921606387d30cfb883b8309de58edab19",
+    "luaSha256": "985e582ff8d006783bd107d48d097f84f7ddb69851b1eee90486ae14e57ed568",
+    "recipe.jsonSha256": "d81f162e90b3f95c5c51c6dcd4c6ff1ce1f7b3df317904f08d780512fcc3eaaf"
+  },
+  {
+    "name": "prefix-one",
+    "rows": [
+      "..\u0000",
+      "..."
+    ],
+    "kind": "target",
+    "boundary": 50,
+    "token": "ROW_MAP_PREFIX_ONE=39,11,40,11,2;FOLLOW=39,11,40,11,2",
+    "expected": [
+      [
+        39,
+        11,
+        40,
+        11,
+        2
+      ],
+      [
+        39,
+        11,
+        40,
+        11,
+        2
+      ]
+    ],
+    "recordingSha256": "0a2f1e6a50bed4b67b08e040fa700bdcc27d63dd8af6d7bd62b27beda980b135",
+    "luaSha256": "aecaf0729f18c4180b8b42f6be0aceb715103ac0ce6f31d31c295d238a1a8634",
+    "recipe.jsonSha256": "f883e58a35e7f55734e1f5852b9008c702123994c7ef41cfd58bcd2d9efdf615"
+  },
+  {
+    "name": "prefix-ragged",
+    "rows": [
+      "...",
+      "..\u0000",
+      "..."
+    ],
+    "kind": "target",
+    "boundary": 53,
+    "token": "ROW_MAP_PREFIX_RAGGED=39,11,41,12,5;FOLLOW=39,11,40,11,2",
+    "expected": [
+      [
+        39,
+        11,
+        41,
+        12,
+        5
+      ],
+      [
+        39,
+        11,
+        40,
+        11,
+        2
+      ]
+    ],
+    "recordingSha256": "898e21537fa1671bc23c1d421f6ecff7cacd604f4fdc152be04236d962013030",
+    "luaSha256": "43d7eabc4e47d1f19801bdb43f5004def5f4ff9e4ce192f4740230fed9b991b2",
+    "recipe.jsonSha256": "04457aadd4b25c995fe3ebce6d4bd9ee2f9dfa9f34268e6080ce3599204977e1"
+  },
+  {
+    "name": "singleton",
+    "rows": [
+      "."
+    ],
+    "kind": "target",
+    "boundary": 49,
+    "token": "ROW_MAP_SINGLETON=80,21,0,0,0;FOLLOW=1,11,2,11,2",
+    "expected": [
+      [
+        80,
+        21,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        11,
+        2,
+        11,
+        2
+      ]
+    ],
+    "recordingSha256": "783b04e7d0852d5c7682769036e8330beff8de5747464d7aabf1585f9f425350",
+    "luaSha256": "151609e4d184b6aa6a55776aeb752fe32f7944b521e22f47c95398583a6f9087",
+    "recipe.jsonSha256": "2d634b48b27288d7a079256021d81116020c2b73eb1326de4ea957d2549a3433"
+  },
+  {
+    "name": "two-cells",
+    "rows": [
+      ".."
+    ],
+    "kind": "control",
+    "boundary": 49,
+    "token": "ROW_MAP_TWO_CELLS=39,11,40,11,2;FOLLOW=39,11,40,11,2",
+    "expected": [
+      [
+        39,
+        11,
+        40,
+        11,
+        2
+      ],
+      [
+        39,
+        11,
+        40,
+        11,
+        2
+      ]
+    ],
+    "recordingSha256": "91094ffad5fb7f21107cb31d14621dd076c18fb1fed7c90bbdf4cdde5b0147a3",
+    "luaSha256": "01bed218a4b4bf4ddec8ec137586d319c8c091263a7cf447473960f84f4ba9db",
+    "recipe.jsonSha256": "a8a1137621f6705f338ddc8b36a1c33cc876acd38e6d3baf6e26722916f40fc5"
+  },
+  {
+    "name": "plain-two",
+    "rows": [
+      "...",
+      "..."
+    ],
+    "kind": "control",
+    "boundary": 49,
+    "token": "ROW_MAP_PLAIN_TWO=39,11,41,12,6;FOLLOW=39,11,40,11,2",
+    "expected": [
+      [
+        39,
+        11,
+        41,
+        12,
+        6
+      ],
+      [
+        39,
+        11,
+        40,
+        11,
+        2
+      ]
+    ],
+    "recordingSha256": "253fe121a436bd16a674eb769a0e015d23debde37b0a1c9460211743e4b9c9a0",
+    "luaSha256": "f1958a1a46857c566a3411a0f8240c3c80cbcee0cbd1698f223998899bf29ecb",
+    "recipe.jsonSha256": "0a3ddb7df5c953f5922ebe60bd2da74d79f2a89f71de63a0bdf8817b8356d66a"
+  },
+  {
+    "name": "plain-three",
+    "rows": [
+      "...",
+      "...",
+      "..."
+    ],
+    "kind": "control",
+    "boundary": 51,
+    "token": "ROW_MAP_PLAIN_THREE=39,9,41,11,9;FOLLOW=39,11,40,11,2",
+    "expected": [
+      [
+        39,
+        9,
+        41,
+        11,
+        9
+      ],
+      [
+        39,
+        11,
+        40,
+        11,
+        2
+      ]
+    ],
+    "recordingSha256": "2edc1b5e3e1882d98ee2861e699a581a74a39cec2bb58d2adaf26471135dcf6a",
+    "luaSha256": "840d7ea9033a4579b93c2e753da03c9e1f5af9fbc9f58eed8e91d96d25a9ff09",
+    "recipe.jsonSha256": "ba349f60f56bbdfef0427bf2ff1d4c9291d1686cd0cf74ceb9b3bb6608875ed3"
+  }
+]

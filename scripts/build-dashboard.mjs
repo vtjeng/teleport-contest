@@ -43,9 +43,18 @@ export function reportingContextNotice(context) {
   const sources = context.reintroducedSources ?? [];
   if (!Array.isArray(sources) || !sources.every(value => typeof value === 'string' && /^[a-f0-9]{40}$/u.test(value)))
     throw new Error('Invalid reintroduced source provenance');
+  const partial = context.partialReintroducedSources ?? {};
+  if (typeof partial !== 'object' || Array.isArray(partial)
+      || !Object.entries(partial).every(([sha, scope]) => /^[a-f0-9]{40}$/u.test(sha)
+        && typeof scope === 'string' && !sources.includes(sha)))
+    throw new Error('Invalid partial source provenance');
+  const escapeScope = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+  const partialNotice = Object.keys(partial).length
+    ? ` Partially restored source scopes: ${Object.entries(partial).map(([sha, scope]) => `${sha}: ${escapeScope(scope)}`).join('; ')}.` : '';
   const applied = sources.length ? `Explicitly reintroduced source changes: ${sources.join(', ')}.`
     : 'No post-baseline gameplay source changes are recorded in this reporting context.';
-  return `<p class="compact-note" id="reportingContext">Gameplay baseline: ${context.baselineSourceCommit} (tree ${context.baselineTree}), restored by ${context.baselineCommit}. Historical reporting snapshot: ${context.reportingSourceCommit}. Historical outcome records are not an applied-repair inventory. ${applied} Ordinary writers are held; this evidence snapshot does not refresh.</p>`;
+  return `<p class="compact-note" id="reportingContext">Gameplay baseline: ${context.baselineSourceCommit} (tree ${context.baselineTree}), restored by ${context.baselineCommit}. Historical reporting snapshot: ${context.reportingSourceCommit}. Historical outcome records are not an applied-repair inventory. ${applied}${partialNotice} Ordinary writers are held; this evidence snapshot does not refresh.</p>`;
 }
 
 export function injectDashboardData(template, data, queueData, commit, trialData = 'null', evidenceData = 'null', context = null) {
