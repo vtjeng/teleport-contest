@@ -96,13 +96,30 @@ test('recovery19 separately pins its reviewed runtime and retains the window bou
   assert.equal(execFileSync('git', ['rev-parse', `${currentAudit.candidate}^{tree}`], {cwd:root, encoding:'utf8'}).trim(), currentAudit.tree);
   for (const [path, expected] of Object.entries(currentAudit.gameplayPathHashes)) {
     assert.equal(digest(sourceAt(currentAudit.candidate, path)), expected, `reviewed ${path}`);
-    assert.equal(digest(currentSource(path)), expected, `current ${path}`);
   }
   const changed = execFileSync('git', ['diff', '--name-only', currentAudit.historicalAuditCommit, currentAudit.candidate, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n').sort();
   assert.deepEqual(changed, [...currentAudit.runtimePaths].sort());
   for (const path of currentAudit.otherModulesUnchangedAcrossWindow) {
     assert.equal(sourceAt(currentAudit.goodCommit, path), sourceAt(currentAudit.badCommit, path), path);
   }
+  assertWindowBoundaries(currentSource);
+});
+
+test('post53 six-component review pins the current runtime without rewriting recovery19', () => {
+  const audit = JSON.parse(readFileSync(new URL('../experiments/restoration/post53-six-window-audit-20261030.json', import.meta.url), 'utf8'));
+  assert.equal(execFileSync('git', ['rev-parse', `${audit.candidate}^{tree}`], {cwd:root, encoding:'utf8'}).trim(), audit.tree);
+  const changed = execFileSync('git', ['diff', '--name-only', audit.base, audit.candidate, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n').sort();
+  assert.deepEqual(changed, [...audit.runtimePaths].sort());
+  for (const [path, expected] of Object.entries(audit.gameplayPathHashes)) {
+    assert.equal(digest(sourceAt(audit.candidate, path)), expected, `post53 reviewed ${path}`);
+    assert.equal(digest(currentSource(path)), expected, `current ${path}`);
+  }
+  for (const path of audit.otherModulesUnchangedAcrossWindow)
+    assert.equal(sourceAt(audit.goodCommit, path), sourceAt(audit.badCommit, path), path);
+  const windowPaths = execFileSync('git', ['diff', '--name-only', audit.goodCommit, audit.badCommit, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n');
+  assert.deepEqual(windowPaths.filter(path => changed.includes(path)), audit.windowOverlap);
+  for (const path of windowPaths.filter(path => !audit.windowOverlap.includes(path)))
+    assert.equal(currentSource(path), sourceAt(audit.base, path), `unchanged window owner ${path}`);
   assertWindowBoundaries(currentSource);
 });
 

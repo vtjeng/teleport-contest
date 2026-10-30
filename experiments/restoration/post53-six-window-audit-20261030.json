@@ -1,0 +1,82 @@
+{
+  "candidate": "15225bdc4aad8b6b03aa2b94e2e1ae6d7ef93009",
+  "tree": "b41b7b778c020d2d86f0f344d8f44b91bee6f37e",
+  "base": "53f76a8dd1808cde07fa17ecf6cac0d7489ecfdb",
+  "historicalAudit": "experiments/restoration/recovery19-window-audit-20261030.json",
+  "goodCommit": "736b8cd0424817ab9838e29b7ffb7e04228a354b",
+  "badCommit": "15ed31f2d2a765d68c8377f8360f4475d9476ac7",
+  "runtimePaths": [
+    "js/allmain.js",
+    "js/dog.js",
+    "js/priest.js",
+    "js/shk.js",
+    "js/wizard.js"
+  ],
+  "otherModulesUnchangedAcrossWindow": [
+    "js/dog.js",
+    "js/priest.js",
+    "js/shk.js",
+    "js/wizard.js"
+  ],
+  "windowOverlap": [
+    "js/allmain.js"
+  ],
+  "review": {
+    "allmain": "Only demigod countdown/intervene dispatch and planned/live boundary plus tail extraction; finishHeroTimeEffects remains byte-equal to G, so excluded lava ticking is absent. Existing mon_arrive/catchup and rndcurse owners unchanged by stack; dog.js and sit.js are unchanged across G..B.",
+    "dog": "Only species restriction on retained iswiz identity removed; worm, appearance, track and other accessibility guards retained. No object-delivery changes.",
+    "priest": "Only existing temple membership/visibility pursuit branch; no room-type construction change.",
+    "shk": "Doorway-only badinv, actual visibility predicate, and invisible guard approach. No following speech, hole timing, offhome departure or door flag reader change.",
+    "wizard": "intervene six-arm source translation; no change to existing resurrection/nasty implementations. Source-derived dispatch controls are not full C-engine proof."
+  },
+  "boundaryChecks": {
+    "finishHeroTimeEffectsEqualsG": true,
+    "fatalResponseEqualsG": true,
+    "stockRoomEqualsG": true,
+    "otherWindowModulesUnchangedFromPublished": true
+  },
+  "gameplayPathHashes": {
+    "js/allmain.js": "135450227570dfbf152fde0fc1f7d25552a915418e3d252112708e8cfc74b8c7",
+    "js/cmd.js": "d05eb44240acb6b6103f5696d71c503ac5f675e9eb2813777922c5540cd0913f",
+    "js/display.js": "985814e50ce84c95837948b805d0bb60748864d2215133d66da6707d5d6ed783",
+    "js/do.js": "7e87c976d9b1dfa1f92c784ab8cb9be64334a06cac7b311831ba30893ab40c0a",
+    "js/dog.js": "46c2d3af034fa6c1a3a99fa4be2f9b3fc62f093bb2150cedafa4848dfd833583",
+    "js/explode.js": "da5f5b5c0a48079f1577c89351db0a4fd382516c4b1075c7e851567e96a84685",
+    "js/fakewiz1_levels.js": "28172e917874131968508bffa48040014d1bc822ef0f0f0f249b85a9bca3d8ff",
+    "js/fakewiz2_level.js": "59684c1dee6f35ce5d695d49ee7876266bb23490672346495a57aaf941d19dc0",
+    "js/hack.js": "94b2a9501b605f05c3fa4bd8919646ba0a18c4451c8e76a121cf4e9252e21f11",
+    "js/hacklib.js": "ef71524e89bc4968cfe9c220da3cde943f82c5d98afa946f9ef52fcba95bd2c1",
+    "js/jsmain.js": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+    "js/makemon_create.js": "8f31f6b9a5df3ebc5ed7ad3bacd00ccf36bb0e8f7533257fac6817f28bf80d69",
+    "js/mklev.js": "12ad6e0fd32d3bfd106fdebf79b5b6474c22f72598cd71631c9e369555b0fa70",
+    "js/mkmaze.js": "e0e411cbcdb6f1c883eb6a513c586e4eca14ef1e1e67924d7a0c3965091542c6",
+    "js/mon.js": "09bc99326050886978bf7287925bde8d638e039c71853fc341e150c5bbe1a3f1",
+    "js/monmove.js": "70889739928c3757a4f084ec776d13f567698e451bb1837df577b7933c56a746",
+    "js/muse.js": "0843b1188055f8f2ee1ee3387cd6fb4c75dd0e830b7a2b2d7a684d297c04acdb",
+    "js/nhlsel.js": "2711bd44f50233b5bbcbc4c58fc22c628df7fe27a9f559104782add053f1ded2",
+    "js/nhlua.js": "2aa293a8b38b4bb48cab2bd9eb1c0317bb955faa9e91feafe91f9f6500ec04bd",
+    "js/options.js": "b75c608340c9b2e8a901bd2390989fd11466b94cde28cbd8445eb98efb37474c",
+    "js/pickup.js": "d93768fc2cd70a64e4bd4b61066aee18634e7e745c525644bdd253fc70caf702",
+    "js/pray.js": "83700aa618cdf3575ab614b06264624159105afd3077af38827024a799a5f29b",
+    "js/priest.js": "ce334e34fcfd8bd77d018c565fce861644a8a7fb868b1a0de0abfcdfe74b9418",
+    "js/quest.js": "0232d725adba9d143a63fd1b252dfb6d1750f3a55decc1e5ae15d4f24dd88e2f",
+    "js/role_init.js": "297c8ca54ec22eaa7ee28d5449924577f7aaaac36da38c6c8c751ee64785791d",
+    "js/save.js": "9d4b9a31bc020aff387c9a5903ae72582480624eb4ae2f0360627dca01de4cbf",
+    "js/shk.js": "4283065e367ddb765a2eca2709e44f4560011b5ee09ece2da2b0cd1aae9b8269",
+    "js/shknam.js": "728cf0eb284dea61704d2aa5609fb788a15d961d54f78089c5227aacfaab5eb1",
+    "js/sounds.js": "b206e524ff71920c19087faf1c5d147ffbefb72db230a85c8f49df9fe1409e0e",
+    "js/themeroom_fill.js": "247e90b05271a4ed723c49b26877f24c93d29b824c784fa181bf4e9ec3af8cb5",
+    "js/themerooms.js": "2e3a4d4b9b3dd9bcfcedef030d2d7c428b51b1d7f860654a126449110e4d6850",
+    "js/topl.js": "4eee9aa63b9044004fa5c243bebe4806ddcc418c43dceb4f50fd97d62262810f",
+    "js/trap.js": "faf68e3431fe7df4abcd08d9e63588dfe1f29e53443bb11d9fab527aa56ea43c",
+    "js/tty_menu.js": "480b6ffc6696adc82f2d25ece2ee45789c0367c4b876a7fbb066f6c1fdda5e29",
+    "js/vault.js": "a4500c599af2dd6fbe73e2a317c5f61758a524bf1b83e134a343d537f7777e14",
+    "js/wield.js": "f0fd28a6e4d4aa479b623dca4ff099095911e3bf58c195800919ed1a0cbe6b86",
+    "js/wizard.js": "e405827ec5bcdad433dc2f543845eabacc113a2ab1394d1c1c3fef57cc4bf772",
+    "js/write.js": "7c74b10c20c1c9e44365d094571462716f2dd3932b116fd3ff2769b50d1c4e6a"
+  },
+  "limits": [
+    "Local source-scoped semantic review, not universal semantic independence or judge proof",
+    "Historical recovery19 pins remain immutable",
+    "Full combined acceptance pending; baseline report cohort is not six-component acceptance"
+  ]
+}
