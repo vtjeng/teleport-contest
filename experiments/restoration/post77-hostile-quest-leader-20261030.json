@@ -1,0 +1,32 @@
+{
+  "base": "77b39d047c1cd1b672bdd50f2bcde9398572a8ca",
+  "source": "2b32d8d5cc56cc8ce1ecbb4fe8c70a85902dd1cf",
+  "behavior": "Once-only hostile leader final speech, pissed_off state and release from STRAT_WAITMASK, preserving subsequent on-level guard.",
+  "baseline": "Control matches3602RNG/98screens; target matches only3606/3657RNG and98/110screens.",
+  "localAfter": "Both complete saved native C recordings match; once-only/state-bit control passes;19 quest/pager/layout tests pass.",
+  "inputs": [
+    {
+      "path": "recipes/quest.c/leader-angry-before-turn-control.session.json",
+      "sha256": "fa9f395f1a31334d1e171052c3af7182133365ca72f2938b154e09719fbe0b31"
+    },
+    {
+      "path": "recipes/quest.c/leader-angry-final-speech.session.json",
+      "sha256": "1c66375f68fa8a9d7c2f8596374b5024a917103dc4b419ec2adf5e9fd6e8a82b"
+    },
+    {
+      "path": "recordings/quest.c/leader-angry-before-turn-control.session.json",
+      "sha256": "097c39da8b5bf5c93fdfe9207330220765879ddccfb4d3e7b55d7142207e9068"
+    },
+    {
+      "path": "recordings/quest.c/leader-angry-final-speech.session.json",
+      "sha256": "4ddea00252f99bc65b85279206ff1be31cbf34db543b1190f60e3e382e1b4295"
+    }
+  ],
+  "windowBoundary": "js/quest.js unchanged G\u2192B, and this exact historical patch applies without current-window prerequisites.",
+  "limits": [
+    "Native recordings reused from original allowed published source, not new C execution.",
+    "No retroactive attestation of the historical recorder build.",
+    "Full combined checkpoint and hidden judge evidence still pending; local branch only."
+  ],
+  "safety": "No stopped scope or failed-turn artifact; normal supported quest audience/attack inputs retained."
+}
