@@ -1909,7 +1909,7 @@ export function end_of_input(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'prevmsg', 'versionshort',
-    'call', 'name',
+    'call', 'name', 'turn',
     'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'droptype', 'pickup', 'pay',
     'takeoff', 'takeoffall', 'remove', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
@@ -6475,6 +6475,16 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // and GENERALCMD and no movement flag.
             await dotogglepickup(state);
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'turn') {
+            // C cmd.c rhack() dispatches a directly bound extcmd row through
+            // its handler, with the same ECMD result accounting as #turn.
+            const res = await doturn(state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'wizwish') {
