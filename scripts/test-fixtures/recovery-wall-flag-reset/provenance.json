@@ -1,0 +1,126 @@
+{
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "oracleOrigins": [
+    {
+      "label": "map",
+      "sourceCommit": "79baae3a96ec8e17e528a24997f561eaf946a9a5",
+      "sourcePath": "diagnostics/divergence-evidence/levels/levels-map-wall-reset-20261028/oracle.c",
+      "sha256": "79982e2a43962b9a44b17e29552a9a14cf9fad5d204e66a2418da76afadac848"
+    },
+    {
+      "label": "solidfill",
+      "sourceCommit": "8de57954a8b5d6f7942c8091a302fd99cd892b72",
+      "sourcePath": "diagnostics/divergence-evidence/levels/levels-solidfill-wall-reset-20261028/oracle.c",
+      "sha256": "6f93fb812d75df9c800d786cce413cf2b15688721cfc682d54846fc0f184d836"
+    }
+  ],
+  "bodyProofs": [
+    {
+      "family": "map",
+      "function": "set_levltyp",
+      "source": "mkmaze.c",
+      "exactBody": true,
+      "sha256": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b"
+    },
+    {
+      "family": "map",
+      "function": "set_levltyp_lit",
+      "source": "mkmaze.c",
+      "exactBody": true,
+      "sha256": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d"
+    },
+    {
+      "family": "map",
+      "function": "sel_set_ter",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "63ad752215977fad6413b49ba0d08c6afcc0a82cbc46a4f2409ef9f049ae451c"
+    },
+    {
+      "family": "map",
+      "function": "lvlfill_solid",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "0eb3809f0e0cc79d09d8992f030ffe512566389d511cabca324f275923bd3d05"
+    },
+    {
+      "family": "map",
+      "function": "lspo_map",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "40a9789ad7612ef20ea53f6616fba3d312ed09ebaabdeb26f8f3247768b2b28a"
+    },
+    {
+      "family": "map",
+      "function": "sel_set_wall_property",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "803b6865f28b7c76e96a90b36cc731a317239a20bbba6e274d8325332ac371e2"
+    },
+    {
+      "family": "solidfill",
+      "function": "set_levltyp",
+      "source": "mkmaze.c",
+      "exactBody": true,
+      "sha256": "ede705aa5bd70b012961369cd2da8601f0deb397f228ce6cdc3b3853adf2367b"
+    },
+    {
+      "family": "solidfill",
+      "function": "set_levltyp_lit",
+      "source": "mkmaze.c",
+      "exactBody": true,
+      "sha256": "7d411c7db9e78acca616f76afe68b95fdaa84b78bf5250d3b0d756b4e63f328d"
+    },
+    {
+      "family": "solidfill",
+      "function": "sel_set_ter",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "63ad752215977fad6413b49ba0d08c6afcc0a82cbc46a4f2409ef9f049ae451c"
+    },
+    {
+      "family": "solidfill",
+      "function": "lvlfill_solid",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "0eb3809f0e0cc79d09d8992f030ffe512566389d511cabca324f275923bd3d05"
+    },
+    {
+      "family": "solidfill",
+      "function": "sel_set_wall_property",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "803b6865f28b7c76e96a90b36cc731a317239a20bbba6e274d8325332ac371e2"
+    },
+    {
+      "family": "solidfill",
+      "function": "lvlfill_maze_grid",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "6150e734499db52cda387bf5f274961f1baec1cf79073c579d2f007314292e99"
+    },
+    {
+      "family": "solidfill",
+      "function": "splev_initlev",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "4bfdf774370460e956830e3a3d825252fef166a623886fd036a7664c0b59eb60"
+    },
+    {
+      "family": "solidfill",
+      "function": "lspo_level_init",
+      "source": "sp_lev.c",
+      "exactBody": true,
+      "sha256": "ca10f59a4844afacc8683cb3a2ba1cca4229ddf1724d936181f8b211b5f27fde"
+    }
+  ],
+  "sourceHashes": {
+    "src/sp_lev.c": "91c684ab995f82d4775dcc83576abf36c25be5b2c205cddfaa46445328f4ce25",
+    "src/mkmaze.c": "a2d6341107238f6e45b9305854f5dd4a34427f381558d9ecbc91578acdfbcab0",
+    "include/rm.h": "da2ae88d704a358474c6986a3f4763e62053b96a6e60a475879029e658996af7"
+  },
+  "harness": "Published fixed Lua argument and miniature state/bitmap/helper adapters; selected unchanged function bodies, not a full Lua VM/native level recorder. No room API executed.",
+  "profileCorrection": "Published INVALID_TYPE(-1) changed only in local harness copies to pinned rm.h127. All12 outputs equal original and profile-corrected harnesses; raw executions retained.",
+  "regeneration": "git show each oracleOrigins.sourceCommit:sourcePath; replace exact #define INVALID_TYPE (-1) with127; clang -std=c99 -O2; run bit8/16 with map/transparent/terrain or solidfill/mazegrid/terrain. Two terrain duplicates agree, leaving10unique cases.",
+  "limits": "C structs/adapters are miniature representations. Selected flags8/16 fit native rm.flags and wall_info aliases flags. Not full C constructor, shipped exposure or hidden-score proof."
+}
