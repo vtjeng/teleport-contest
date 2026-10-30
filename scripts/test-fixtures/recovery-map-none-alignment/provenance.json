@@ -1,0 +1,133 @@
+{
+  "binarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "toolSource": "fa6ac3709a0acf413c83bd459c6772b16476343f",
+  "scope": "Actual native C wizard Lua map+transparent-frame reset+selection iterate. API state references, not full JS Lua script replay. No source-build attestation.",
+  "rows": [
+    {
+      "name": "both",
+      "halign": "none",
+      "valign": "none",
+      "kind": "target",
+      "boundary": 44,
+      "token": "MAPNONE_BOTH=10,6,12,8,9",
+      "expected": [
+        10,
+        6,
+        12,
+        8,
+        9
+      ],
+      "sha256": "ee57731bc634862d937c0d2951ccf5a28420a23d8c9ecf84daddf48312db8450",
+      "luaSha256": "3ea9516a00aa924928249e959717516d83ba7b8008f69d9a2b2a3a2ab1908517",
+      "recipe.jsonSha256": "4257ad113a483ced3ce753c518cb9563b9110e1405fb4376a5645214ae4b06b0"
+    },
+    {
+      "name": "horizontal",
+      "halign": "none",
+      "valign": "center",
+      "kind": "target",
+      "boundary": 50,
+      "token": "MAPNONE_HORIZONTAL=1,9,3,11,9",
+      "expected": [
+        1,
+        9,
+        3,
+        11,
+        9
+      ],
+      "sha256": "3ae236c80d297c9ce832190548df0d142610e8c4426501f4e5dd8edd8b35dc32",
+      "luaSha256": "275c8bd4a8fe617f7551f061d805b126c131511032cf4ecb90fc1d477ead03e7",
+      "recipe.jsonSha256": "688583ee6b2e772d587180617c53c87b5db251e9f224f512f139d6baf0aec02d"
+    },
+    {
+      "name": "vertical",
+      "halign": "center",
+      "valign": "none",
+      "kind": "target",
+      "boundary": 48,
+      "token": "MAPNONE_VERTICAL=39,1,41,3,9",
+      "expected": [
+        39,
+        1,
+        41,
+        3,
+        9
+      ],
+      "sha256": "7e292af169f36fd3654bd0ea570bc5d4277670219f0448f53dc3beed1545de21",
+      "luaSha256": "35ddbebfc86901a3ec16c6267efcf1e12a39b584bfba089489cfdedf2862c30e",
+      "recipe.jsonSha256": "aa84e50f241b1736a5e507bf66a880d581f22b8b9388c47571e37b5485e551b6"
+    },
+    {
+      "name": "absent",
+      "halign": "absent",
+      "valign": "absent",
+      "kind": "control",
+      "boundary": 46,
+      "token": "MAPNONE_ABSENT=10,6,12,8,9",
+      "expected": [
+        10,
+        6,
+        12,
+        8,
+        9
+      ],
+      "sha256": "135d4747b4676cfbbed3e237db5fb31155f61f880e93810d1d1c55c0f5ce37e0",
+      "luaSha256": "c3563d4c2feec9259af91bd5cbc67580282fc99c1f7bafb3a95053d361b1372c",
+      "recipe.jsonSha256": "84966a471adbac492cf5fe694cb409dbf99cdaab658f7fef881716ea101e72a9"
+    },
+    {
+      "name": "center",
+      "halign": "center",
+      "valign": "center",
+      "kind": "control",
+      "boundary": 46,
+      "token": "MAPNONE_CENTER=39,9,41,11,9",
+      "expected": [
+        39,
+        9,
+        41,
+        11,
+        9
+      ],
+      "sha256": "d1aeb1200d18c1f9ccaee78a6e0365a7b5fc238a1c6279195cbf291ef67aecb8",
+      "luaSha256": "faf0e6edf3e4ba83e26d2c6f284c6e352adbe9a94c6aa643393bc65bf43104a8",
+      "recipe.jsonSha256": "754279ecee2fe7853d8025435ad57dfa8ce326a94b3167f0d703b68ddec23234"
+    },
+    {
+      "name": "omit-h",
+      "halign": "absent",
+      "valign": "center",
+      "kind": "control",
+      "boundary": 46,
+      "token": "MAPNONE_OMIT_H=1,9,3,11,9",
+      "expected": [
+        1,
+        9,
+        3,
+        11,
+        9
+      ],
+      "sha256": "099263bc08c1ba9131533ca4d98b9090fc5f4c90a4bb64f24031b934c01b5587",
+      "luaSha256": "1fafc36bb62af5242efdd803b5f5300e5d785177968e84f77e88da8c9f5c5161",
+      "recipe.jsonSha256": "f5f4cbab43e65753d1090ef964b05f1f92c65c2d10022accf0f27d3edeb25334"
+    },
+    {
+      "name": "omit-v",
+      "halign": "center",
+      "valign": "absent",
+      "kind": "control",
+      "boundary": 46,
+      "token": "MAPNONE_OMIT_V=39,1,41,3,9",
+      "expected": [
+        39,
+        1,
+        41,
+        3,
+        9
+      ],
+      "sha256": "1c5f98a9a193d5a07b7c033cbf2ec519826650169066f9a8f63f990e05069e5a",
+      "luaSha256": "54bebc1d8974f936b870a1a22ac95804ae4a281a49a7722676ddb9656fc58f2a",
+      "recipe.jsonSha256": "4f555eb922f6129adef1a291e9baf5cc4c50bc83318a79fc47d4cfb54b97319b"
+    }
+  ]
+}
