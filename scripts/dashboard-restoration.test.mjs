@@ -40,10 +40,12 @@ test('dashboard injection embeds self-contained models and the historical notice
 
 test('applied-source notice matches only the local selected original patches', () => {
   const manifest = JSON.parse(readFileSync(new URL('../experiments/restoration/later-source-selection-20261029.json', import.meta.url), 'utf8'));
-  assert.deepEqual(context.reintroducedSources, manifest.includedSources);
+  const combined = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-broad-batch-20261030.json', import.meta.url), 'utf8'));
+  assert.deepEqual(combined.baselineIncludedSources, manifest.includedSources);
+  assert.deepEqual(context.reintroducedSources, combined.includedSources);
   assert.equal(new Set(context.reintroducedSources).size, context.reintroducedSources.length);
   for (const decision of manifest.decisions) {
-    assert.equal(context.reintroducedSources.includes(decision.sha),
+    assert.equal(manifest.includedSources.includes(decision.sha),
       decision.status === 'selected-reconciliation', decision.sha);
   }
 });

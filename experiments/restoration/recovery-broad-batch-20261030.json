@@ -1,0 +1,599 @@
+{
+  "base": "f7f09d6b6cbdac89e2435e53d474ca0fee425d24",
+  "components": [
+    {
+      "id": "options",
+      "candidate": "e06f64d0dce4e60de4bcd1ff939840c6dd3855f3",
+      "owners": [
+        "js/options.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "04476af09075f3142326db6be3674ce1869dc0e7",
+        "ea75d53f11aa4cd514d3d635f4a0a15ce5d8f8fb",
+        "3359f25e9f125241258212cc23a886c4f123843f",
+        "979586cf6cceb9bd47402f0fe673c637f791c48d",
+        "639fd2aabb0da98853d10090041f2f91cafd1115",
+        "8f0fc22d3e915cda17046348eae8a5f569100ee8",
+        "ffb64f0ae9a782ec05106961c16431666df997b1",
+        "5704dd908b33d54832d204cabf698456a91ca178",
+        "d0af437ed909a8bb2e9a4a5c7c945937f12bab42",
+        "4b227e84c703872a8553f369007f177d8bbc27f5",
+        "2cc0ebdb41195463974532e39a1e54dfd47e4a5e",
+        "940b4376659b8dad2f0d5630f485ef1bde7e8544",
+        "625a7134f5ca64a3d4fd9c8cb31c571a5f74f6d2"
+      ]
+    },
+    {
+      "id": "extmenu",
+      "candidate": "53b7ce29e3ee82cfc4fe734fc77e825535dff012",
+      "owners": [
+        "js/cmd.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "21d855ad91015a8a985f2f9036f05c3060d48cb2"
+      ]
+    },
+    {
+      "id": "direct-turn",
+      "candidate": "eb4e3acd0c79c5e9db17bd988cb045c63a3d980e",
+      "owners": [
+        "js/cmd.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "8eec78d622b3ef9cb22a54d1699aaf335e9342e9"
+      ]
+    },
+    {
+      "id": "long-count",
+      "candidate": "4ce8105cc89e31f8ccd79bfc9cd7acc0138f17a3",
+      "owners": [
+        "js/cmd.js",
+        "js/hacklib.js",
+        "js/tty_menu.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+        "1238115c1a1883abf1f4791b04223e5a34ae9316"
+      ]
+    },
+    {
+      "id": "status-fitting",
+      "candidate": "ebfa6290ce7078d9cb867bbfcd72dea7e94d9335",
+      "owners": [
+        "js/display.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "bfb69a5cc3d4d7edc654d44e91e25ee5fbc6e8cd",
+        "047103bd88541bea2cef67d5bc27a7fe73fd8f93"
+      ]
+    },
+    {
+      "id": "inventory-feedback",
+      "candidate": "fdb55dece49a550087aaa8baabf5e5ceaf34f74c",
+      "owners": [
+        "js/pickup.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "26e56ce08dd2794bde95d027d9747b9c8e1953f5",
+        "6296b084841485d9a6968a580446dfd077aef0d0",
+        "ca33ba55222335c5ab644d9249d704c70f72ccdc",
+        "1e786f87d927b72bd07122fc3eead0ecb5d8203c"
+      ]
+    },
+    {
+      "id": "traditional-prompts",
+      "candidate": "51f070f1c6cc7e5177f899f37c9f3b7710067a41",
+      "owners": [
+        "js/pickup.js",
+        "js/topl.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "8ee8b29fc610c4f5008fbe3827d917c331463f02",
+        "355b5698c9c02f0ba0ba3f607c6f768fc592d121"
+      ]
+    },
+    {
+      "id": "queued-prayer",
+      "candidate": "9669a58d1f12794e907d41ba24829ce1c93a0214",
+      "owners": [
+        "js/cmd.js",
+        "js/pray.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "44def1e0d070baff028830a05e7da5b2125a2cec",
+        "ee0be2269c5ed274f6e9a57b93c33ed4bc41a379",
+        "82925e4fff73c4662dfd4c237acb497012a3ff4b"
+      ]
+    },
+    {
+      "id": "direction-redraw",
+      "candidate": "351c403cde3b6ef83bc0eb49b1549b60fa02701e",
+      "owners": [
+        "js/cmd.js",
+        "js/display.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56",
+        "99a4de1ee181efd4959c7b078a06a5b8ca442344"
+      ]
+    },
+    {
+      "id": "counted-look",
+      "candidate": "a7f7dddcfa0fe2869b94d80b43a3de75e05678c2",
+      "owners": [
+        "js/cmd.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "9165c047ac94be5130a7e6a4970633263d563a46"
+      ]
+    },
+    {
+      "id": "status-threshold",
+      "candidate": "4f43f585646fe91f5a10b7f471be967ed4c3b4a2",
+      "owners": [
+        "js/display.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "49626a5673d361969361e57768c75e70dbab1104"
+      ]
+    },
+    {
+      "id": "artifact-drop",
+      "candidate": "9db09a0da2ff8a8e5b9c100bd3a3f4e832ce52c5",
+      "owners": [
+        "js/wield.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "4e235b3a65f6639110647ff395a41122caa42d08"
+      ]
+    },
+    {
+      "id": "monster-appearance",
+      "candidate": "95075527db6bbe1f5e2641abae17730c8adf4b46",
+      "owners": [
+        "js/mon.js",
+        "js/themeroom_fill.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+        "94fcc8aaa07e8ebeb1239b8387ef2a87fe944d03",
+        "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+        "2334ab188dce37c487e62933b30877b24673ffb5",
+        "d169996310d3a746394ec7cee4a4cc5421f9503a",
+        "1293bffbf416873f4fa5d86a73698f1124afbd04",
+        "85f53c9b9d445be9ca95f4d81c6153226549f81d",
+        "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+        "90495956e5ee776d37c0f7f6258ca43a65351070"
+      ]
+    },
+    {
+      "id": "monster-bitfields",
+      "candidate": "22b42aed699bb9530239363ff331b9e9b423aa39",
+      "owners": [
+        "js/themeroom_fill.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b"
+      ]
+    },
+    {
+      "id": "generation",
+      "candidate": "5e5c968def8bc9d73889e082e31cd8de6444f7d6",
+      "owners": [
+        "js/fakewiz1_levels.js",
+        "js/fakewiz2_level.js",
+        "js/mklev.js",
+        "js/mkmaze.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+        "acde269c6bba9ab9adb0600824f199f65ff0443a",
+        "b1b9709b30d2302b2041227e21483901665096cb"
+      ]
+    },
+    {
+      "id": "map-characters",
+      "candidate": "e64b0c3679273c9d0e47ccf8e6c934a893742dff",
+      "owners": [
+        "js/mklev.js",
+        "js/nhlua.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+        "6437c374e03e9178167572e662f35eb1bc8dbaac",
+        "868e2465451b7f319f71dc5611cc66184a212457"
+      ]
+    },
+    {
+      "id": "wall-reset",
+      "candidate": "7e191672d90dbb9aa74e57974c3cb0961cd754c8",
+      "owners": [
+        "js/mklev.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "79baae3a96ec8e17e528a24997f561eaf946a9a5",
+        "8de57954a8b5d6f7942c8091a302fd99cd892b72"
+      ]
+    },
+    {
+      "id": "map-lighting-ice",
+      "candidate": "76020a7776c65d8463ec0f1438131c990f47b125",
+      "owners": [
+        "js/mklev.js",
+        "js/mkmaze.js",
+        "js/nhlua.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "2579242c67804962299920a58e3052ab3718c187",
+        "f1b91b9793db21b1cff6627604cc92df95be0ab6",
+        "1c4be74beb32edbfc897de805f218e180f8c6002",
+        "05cb34c25a489e162cd8fa8f55b96b9ddbbb7f00"
+      ],
+      "preservedCorrectionConstraints": [
+        "51f5686fac30306411156df215ca83ae910cf6bf"
+      ]
+    },
+    {
+      "id": "none-alignment",
+      "candidate": "e8a96953214fd3c51e8a64c96b10339479e86a9f",
+      "owners": [
+        "js/mklev.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "21271522df5e16d899498ab515c515eab0a2d753"
+      ]
+    },
+    {
+      "id": "c-string-row-map",
+      "candidate": "3307a815cdcae44974ac0776a693f6e32bd4bf47",
+      "owners": [
+        "js/mklev.js"
+      ],
+      "omissions": [],
+      "includedSourceScopes": [
+        "4222eaf89f2cc3b1392273b70cc27b399418c691",
+        "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+        "3f78593df967bfca6e6679002a2cbcaf5c8e8233",
+        "92eaeeef7e756e67f4ae59c6a1d4d93080b54d77"
+      ]
+    },
+    {
+      "id": "callbacks-pit-speech",
+      "candidate": "3839f6373944ba105a13cfe3863a97472fb02e7d",
+      "owners": [
+        "js/allmain.js",
+        "js/monmove.js",
+        "js/options.js",
+        "js/trap.js"
+      ],
+      "omissions": [
+        "js/options.js duplicate versinfo already in options component",
+        {
+          "path": "js/options.js",
+          "source": "4b227e84c703872a8553f369007f177d8bbc27f5",
+          "reason": "versinfo already supplied by options component"
+        },
+        {
+          "path": "experiments/restoration/later-source-selection-20261029.json",
+          "reason": "retain original H frozen selection; track additions in this manifest"
+        }
+      ],
+      "includedSourceScopes": [
+        "c2522d435cf79e93cb685e10d5d566709422a5d4",
+        "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+        "f6988a18345ae14398fa41873c39a177b04545e3",
+        "4b227e84c703872a8553f369007f177d8bbc27f5"
+      ]
+    },
+    {
+      "id": "write-welcome",
+      "candidate": "ab74a200ef972f30cc3a876bc008bbd74db7353b",
+      "owners": [
+        "js/allmain.js",
+        "js/jsmain.js",
+        "js/role_init.js",
+        "js/write.js"
+      ],
+      "omissions": [
+        {
+          "path": "experiments/restoration/later-source-selection-20261029.json",
+          "reason": "retain original H frozen selection; track additions in this manifest"
+        }
+      ],
+      "includedSourceScopes": [
+        "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+        "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f"
+      ]
+    }
+  ],
+  "selectionLifetime": "Excluded: two freshly executed native-C shift cases fail candidate; stable controls match.",
+  "tooling": "anonymous completion-read component not included without genuine receipt writer integration",
+  "publication": "NONE",
+  "version": 1,
+  "mode": "local-combined-behavior-recovery",
+  "historicalSource": "fa6ac3709a0acf413c83bd459c6772b16476343f",
+  "includedSources": [
+    "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+    "31c06a1840696aa879ef4f13f64671231bb18459",
+    "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+    "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+    "d10c2ca001b6e37c226338c6327fe20140f67af4",
+    "24829e0c969d64aa54602a69e80e336866efef98",
+    "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+    "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+    "a417b8757506d80247d65920f56fbd80cfcb802e",
+    "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+    "362972c8776200aa1afa01b960c8d82b3f26839a",
+    "31ff0967e40690a429f0565faed1f15b18a378b8",
+    "9bedae28a45a79361b5511e550302631d19c93ad",
+    "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+    "462b798181c86d27e4b2664619c16287156784f0",
+    "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+    "ee16ba2d55e473c23a3b8622e38518fb07d6fa71",
+    "0d693cf362aab175af64b73f46e0613534ac510e",
+    "72899cc3a69cf4ec0e7d29f90b54768d5139850c",
+    "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+    "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+    "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+    "fb2b4c33aed28df36bda5d8cbeeab27894f3fd2b",
+    "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+    "3108052babe42b5b7cbd3b8656f34766a74e9314",
+    "e23c28201c58642fb5b13cd5638b5373c092cfef",
+    "81a9a34b0fc1dd692a1c594debf7a7938e5e013c",
+    "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+    "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+    "513507b6cb96460df2d20d5e42daff581265fd44",
+    "707255022097adb75759ec0e9d302e64cc8d6713",
+    "da903a3bb561b686986985d176e538fc0a211c1a",
+    "28887f127150a4e5499a41114fbea90692e991c1",
+    "fadaf1bd04e99606ac730a0a55170ba93a627157",
+    "3a541bf65a2625c705156e8cc221beed88fe94f9",
+    "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+    "f65996d10b662e3e26ce3f4cdf6e456d3576b07c",
+    "2df03d803ed259df4bc163393f65868d2700a7ec",
+    "180ab356a5256c920a3e035723ca72a1d4d84ee1",
+    "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "afc035b41e49d29bcd9e18fcc6befa63504f3233",
+    "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "91b65d284dcadcf324cb38573ec228a095db3d78",
+    "03885c5cff03d34970e3cf8fb02aa50f9fcafa3e",
+    "0328f0b4b1cce18fd8b10776f8a9e58324b1e976",
+    "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+    "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+    "5099d3bb2edb348fd076f3ebc39f28266465b700",
+    "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+    "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+    "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+    "9205e0859870d4c8967254334152b10742407260",
+    "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
+    "71421a2cc835750c412e88e3692b616434d5fd2b",
+    "04476af09075f3142326db6be3674ce1869dc0e7",
+    "ea75d53f11aa4cd514d3d635f4a0a15ce5d8f8fb",
+    "3359f25e9f125241258212cc23a886c4f123843f",
+    "979586cf6cceb9bd47402f0fe673c637f791c48d",
+    "639fd2aabb0da98853d10090041f2f91cafd1115",
+    "8f0fc22d3e915cda17046348eae8a5f569100ee8",
+    "ffb64f0ae9a782ec05106961c16431666df997b1",
+    "5704dd908b33d54832d204cabf698456a91ca178",
+    "d0af437ed909a8bb2e9a4a5c7c945937f12bab42",
+    "4b227e84c703872a8553f369007f177d8bbc27f5",
+    "2cc0ebdb41195463974532e39a1e54dfd47e4a5e",
+    "940b4376659b8dad2f0d5630f485ef1bde7e8544",
+    "625a7134f5ca64a3d4fd9c8cb31c571a5f74f6d2",
+    "21d855ad91015a8a985f2f9036f05c3060d48cb2",
+    "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+    "1238115c1a1883abf1f4791b04223e5a34ae9316",
+    "bfb69a5cc3d4d7edc654d44e91e25ee5fbc6e8cd",
+    "047103bd88541bea2cef67d5bc27a7fe73fd8f93",
+    "26e56ce08dd2794bde95d027d9747b9c8e1953f5",
+    "6296b084841485d9a6968a580446dfd077aef0d0",
+    "ca33ba55222335c5ab644d9249d704c70f72ccdc",
+    "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+    "8ee8b29fc610c4f5008fbe3827d917c331463f02",
+    "355b5698c9c02f0ba0ba3f607c6f768fc592d121",
+    "44def1e0d070baff028830a05e7da5b2125a2cec",
+    "ee0be2269c5ed274f6e9a57b93c33ed4bc41a379",
+    "82925e4fff73c4662dfd4c237acb497012a3ff4b",
+    "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56",
+    "99a4de1ee181efd4959c7b078a06a5b8ca442344",
+    "9165c047ac94be5130a7e6a4970633263d563a46",
+    "49626a5673d361969361e57768c75e70dbab1104",
+    "4e235b3a65f6639110647ff395a41122caa42d08",
+    "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+    "94fcc8aaa07e8ebeb1239b8387ef2a87fe944d03",
+    "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+    "2334ab188dce37c487e62933b30877b24673ffb5",
+    "d169996310d3a746394ec7cee4a4cc5421f9503a",
+    "1293bffbf416873f4fa5d86a73698f1124afbd04",
+    "85f53c9b9d445be9ca95f4d81c6153226549f81d",
+    "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+    "90495956e5ee776d37c0f7f6258ca43a65351070",
+    "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+    "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+    "acde269c6bba9ab9adb0600824f199f65ff0443a",
+    "b1b9709b30d2302b2041227e21483901665096cb",
+    "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+    "6437c374e03e9178167572e662f35eb1bc8dbaac",
+    "868e2465451b7f319f71dc5611cc66184a212457",
+    "79baae3a96ec8e17e528a24997f561eaf946a9a5",
+    "8de57954a8b5d6f7942c8091a302fd99cd892b72",
+    "2579242c67804962299920a58e3052ab3718c187",
+    "f1b91b9793db21b1cff6627604cc92df95be0ab6",
+    "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "05cb34c25a489e162cd8fa8f55b96b9ddbbb7f00",
+    "21271522df5e16d899498ab515c515eab0a2d753",
+    "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "3f78593df967bfca6e6679002a2cbcaf5c8e8233",
+    "92eaeeef7e756e67f4ae59c6a1d4d93080b54d77",
+    "c2522d435cf79e93cb685e10d5d566709422a5d4",
+    "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+    "f6988a18345ae14398fa41873c39a177b04545e3",
+    "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+    "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f"
+  ],
+  "baselineIncludedSources": [
+    "276b544bc83ab41acc0424c1ff57eaa3d7d2fe99",
+    "31c06a1840696aa879ef4f13f64671231bb18459",
+    "3e1ec646819a9461b8ccc0f9e7b20525167d6e9e",
+    "5a4e0cde8d413a59e55ac455cfb26a1829e45400",
+    "d10c2ca001b6e37c226338c6327fe20140f67af4",
+    "24829e0c969d64aa54602a69e80e336866efef98",
+    "5ecd89e777faaf763f8ad3e908f3a789bf91a9bc",
+    "d96e07768738bb4a9b37ea9a4c290d1baa0546c2",
+    "a417b8757506d80247d65920f56fbd80cfcb802e",
+    "277a9bdf497fb6f5e0509e30e72f8e1d0136a0dc",
+    "362972c8776200aa1afa01b960c8d82b3f26839a",
+    "31ff0967e40690a429f0565faed1f15b18a378b8",
+    "9bedae28a45a79361b5511e550302631d19c93ad",
+    "fcfecf965bd40c8533f864023b5f38a63ea20db3",
+    "462b798181c86d27e4b2664619c16287156784f0",
+    "0a47ae9d72f7fb9d67571eb5fe5a7c9f6ae7152c",
+    "ee16ba2d55e473c23a3b8622e38518fb07d6fa71",
+    "0d693cf362aab175af64b73f46e0613534ac510e",
+    "72899cc3a69cf4ec0e7d29f90b54768d5139850c",
+    "ec0e92fca67522d2de7c59fcfab4d23949fe11ab",
+    "db5b30946a3db64ec626c83074c19f74c6f1fcfd",
+    "e75cfe62fdfd26994d40c0963761c9279c24e3ac",
+    "fb2b4c33aed28df36bda5d8cbeeab27894f3fd2b",
+    "10a4b2b7cffbab53e33d25de9cb843c0ec017a9a",
+    "3108052babe42b5b7cbd3b8656f34766a74e9314",
+    "e23c28201c58642fb5b13cd5638b5373c092cfef",
+    "81a9a34b0fc1dd692a1c594debf7a7938e5e013c",
+    "759722595fa4cb6a1cca58d4b7f6ab37fc925f6b",
+    "74c5ebcf2ad08b9322cb4568bfb36de94405f57b",
+    "513507b6cb96460df2d20d5e42daff581265fd44",
+    "707255022097adb75759ec0e9d302e64cc8d6713",
+    "da903a3bb561b686986985d176e538fc0a211c1a",
+    "28887f127150a4e5499a41114fbea90692e991c1",
+    "fadaf1bd04e99606ac730a0a55170ba93a627157",
+    "3a541bf65a2625c705156e8cc221beed88fe94f9",
+    "a60d83bd3caa2d5e94a10ef8f8f849c1cd8d2d5f",
+    "f65996d10b662e3e26ce3f4cdf6e456d3576b07c",
+    "2df03d803ed259df4bc163393f65868d2700a7ec",
+    "180ab356a5256c920a3e035723ca72a1d4d84ee1",
+    "acec7a75751e61f8e6b78c2f08c1579d19a10869",
+    "afc035b41e49d29bcd9e18fcc6befa63504f3233",
+    "b313cde5b50f3c5b5e8f622ff32418cbc1ae12be",
+    "91b65d284dcadcf324cb38573ec228a095db3d78",
+    "03885c5cff03d34970e3cf8fb02aa50f9fcafa3e",
+    "0328f0b4b1cce18fd8b10776f8a9e58324b1e976",
+    "cc5a50e4e23b33f36a39ff8826a866bb7832caca",
+    "eb3fc614b51f9bfe60313d7db27a9913e9565f97",
+    "5099d3bb2edb348fd076f3ebc39f28266465b700",
+    "f3e2e6d638383a5f77f153057d0af6684ca64cfb",
+    "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+    "2cb9a55c12a2bbee4403ca48ed22f46522076eeb",
+    "9205e0859870d4c8967254334152b10742407260",
+    "3d57ecf66ab00924f4df177e0a1d1106c29a7678",
+    "71421a2cc835750c412e88e3692b616434d5fd2b"
+  ],
+  "additionalIncludedSourceScopes": [
+    "04476af09075f3142326db6be3674ce1869dc0e7",
+    "ea75d53f11aa4cd514d3d635f4a0a15ce5d8f8fb",
+    "3359f25e9f125241258212cc23a886c4f123843f",
+    "979586cf6cceb9bd47402f0fe673c637f791c48d",
+    "639fd2aabb0da98853d10090041f2f91cafd1115",
+    "8f0fc22d3e915cda17046348eae8a5f569100ee8",
+    "ffb64f0ae9a782ec05106961c16431666df997b1",
+    "5704dd908b33d54832d204cabf698456a91ca178",
+    "d0af437ed909a8bb2e9a4a5c7c945937f12bab42",
+    "4b227e84c703872a8553f369007f177d8bbc27f5",
+    "2cc0ebdb41195463974532e39a1e54dfd47e4a5e",
+    "940b4376659b8dad2f0d5630f485ef1bde7e8544",
+    "625a7134f5ca64a3d4fd9c8cb31c571a5f74f6d2",
+    "21d855ad91015a8a985f2f9036f05c3060d48cb2",
+    "8eec78d622b3ef9cb22a54d1699aaf335e9342e9",
+    "58ad57cea2dcd8b94b8d1f7644e9e21fc02c7cd1",
+    "1238115c1a1883abf1f4791b04223e5a34ae9316",
+    "bfb69a5cc3d4d7edc654d44e91e25ee5fbc6e8cd",
+    "047103bd88541bea2cef67d5bc27a7fe73fd8f93",
+    "26e56ce08dd2794bde95d027d9747b9c8e1953f5",
+    "6296b084841485d9a6968a580446dfd077aef0d0",
+    "ca33ba55222335c5ab644d9249d704c70f72ccdc",
+    "1e786f87d927b72bd07122fc3eead0ecb5d8203c",
+    "8ee8b29fc610c4f5008fbe3827d917c331463f02",
+    "355b5698c9c02f0ba0ba3f607c6f768fc592d121",
+    "44def1e0d070baff028830a05e7da5b2125a2cec",
+    "ee0be2269c5ed274f6e9a57b93c33ed4bc41a379",
+    "82925e4fff73c4662dfd4c237acb497012a3ff4b",
+    "5d19beb0fb46abc1b9883b8e31ca7f477b52cf56",
+    "99a4de1ee181efd4959c7b078a06a5b8ca442344",
+    "9165c047ac94be5130a7e6a4970633263d563a46",
+    "49626a5673d361969361e57768c75e70dbab1104",
+    "4e235b3a65f6639110647ff395a41122caa42d08",
+    "e54788a36ba58c80b94780d3f1226ccef9f9656e",
+    "94fcc8aaa07e8ebeb1239b8387ef2a87fe944d03",
+    "0d207c64b7ea5c3e4bf900c9a1e54a1b6e53347d",
+    "2334ab188dce37c487e62933b30877b24673ffb5",
+    "d169996310d3a746394ec7cee4a4cc5421f9503a",
+    "1293bffbf416873f4fa5d86a73698f1124afbd04",
+    "85f53c9b9d445be9ca95f4d81c6153226549f81d",
+    "cbf20294bc3aa43a40469b8e68786bb6e9cb0a45",
+    "90495956e5ee776d37c0f7f6258ca43a65351070",
+    "398d58c75c1d9761c3f5ff6eb084d3f8a6259f1b",
+    "fdaabdc4beefb389bf41801b3ab96c4ae60cbb76",
+    "acde269c6bba9ab9adb0600824f199f65ff0443a",
+    "b1b9709b30d2302b2041227e21483901665096cb",
+    "94e6d4a7d307a2435eb3563dbdb2d8675dceb19d",
+    "6437c374e03e9178167572e662f35eb1bc8dbaac",
+    "868e2465451b7f319f71dc5611cc66184a212457",
+    "79baae3a96ec8e17e528a24997f561eaf946a9a5",
+    "8de57954a8b5d6f7942c8091a302fd99cd892b72",
+    "2579242c67804962299920a58e3052ab3718c187",
+    "f1b91b9793db21b1cff6627604cc92df95be0ab6",
+    "1c4be74beb32edbfc897de805f218e180f8c6002",
+    "05cb34c25a489e162cd8fa8f55b96b9ddbbb7f00",
+    "21271522df5e16d899498ab515c515eab0a2d753",
+    "4222eaf89f2cc3b1392273b70cc27b399418c691",
+    "b977a2a5f2edbfcf72a8d8d651518793fd862074",
+    "3f78593df967bfca6e6679002a2cbcaf5c8e8233",
+    "92eaeeef7e756e67f4ae59c6a1d4d93080b54d77",
+    "c2522d435cf79e93cb685e10d5d566709422a5d4",
+    "1b2c0a14655ea4713bf6ea1db24dfb6a2691e2f8",
+    "f6988a18345ae14398fa41873c39a177b04545e3",
+    "2aa2ceaaf6b3a84a0372d6529cc26d476dc15a19",
+    "33fe8ab43cfea15b03fae9086e9394e8cbd44d2f"
+  ],
+  "sourceSemantics": "scope-level restored behavior provenance, not full historical commit or acceptance receipt adoption",
+  "preservedCorrectionConstraints": [
+    "51f5686fac30306411156df215ca83ae910cf6bf"
+  ],
+  "excludedOptionalComponents": [
+    {
+      "candidate": "fc993113ec0c6578ccff487a31051f7a710fdaf1",
+      "reason": "two shifted selection lifetime targets disagree with executed C; stable controls match"
+    }
+  ],
+  "limitations": [
+    "No hidden-score neutrality assertion",
+    "Monster descriptor and some generation expectations remain source-derived or historical, not fresh native constructor executions",
+    "Historical Library regression bundle unavailable and not integrated"
+  ],
+  "windowAudit": {
+    "excludedOriginalCommitCount": 18,
+    "newSourceIntersection": [],
+    "twoWindowDashboardChangesAlreadyBaseline": true,
+    "limits": "AST and manual semantic/dependency review, not historical witness replay or hidden-score neutrality proof"
+  }
+}
