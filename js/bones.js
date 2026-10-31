@@ -50,6 +50,8 @@ import {
 } from './mondata.js';
 import { m_at } from './monst.js';
 import { mongone } from './mon.js';
+import { restpriest } from './priest.js';
+import { restshk, set_residency } from './shk.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { can_carry } from './moncarry.js';
 import { the, xname } from './objnam.js';
@@ -222,6 +224,22 @@ function cloneBonesLocation(location) {
         if (key.startsWith('disp_')) delete clone[key];
     }
     return clone;
+}
+
+// C ref: mkroom.c save_room()/save_rooms() (844-871) and
+// rest_room()/rest_rooms() (875-903). C writes each mkroom struct whole,
+// resident pointer included, and rest_room() and rest_rooms() set every
+// room's and subroom's resident to Null while reading it back; getlev() then
+// lets each shopkeeper reclaim its room through set_residency() (restore.c
+// 1182-1183). The JSON snapshot cannot carry the pointer, so the clone drops
+// it on the way out instead.
+function cloneBonesRooms(rooms) {
+    if (!Array.isArray(rooms)) return rooms;
+    return rooms.map((room) => (room ? {
+        ...room,
+        resident: null,
+        sbrooms: cloneBonesRooms(room.sbrooms),
+    } : room));
 }
 
 // C ref: bones.c resetobjs() (51-193), save path only (restore=false).
@@ -727,7 +745,7 @@ function serializeBonesLevel(state) {
 
     return {
         locations,
-        rooms: level.rooms,
+        rooms: cloneBonesRooms(level.rooms),
         nroom: level.nroom,
         doors: level.doors,
         doorindex: level.doorindex,
@@ -943,6 +961,10 @@ function restoreBonesLevel(bonesData, state) {
         } else {
             m.mw = null;
         }
+        // C restore.c:446-449: a shopkeeper's and a priest's level-bound
+        // extension records point at the level the bones are loaded on.
+        if (m.isshk) restshk(m, true, state);
+        if (m.ispriest) restpriest(m, true, state);
         m.nmon = null;
         if (isok(m.mx, m.my)) monsGrid[m.mx][m.my] = m;
         if (monTail) { monTail.nmon = m; monTail = m; }
@@ -1001,6 +1023,12 @@ function restoreBonesLevel(bonesData, state) {
 
     state.level = level;
     rest_region_capacity(level);
+
+    // C restore.c getlev() (1181-1183): rest_rooms() cleared every room's
+    // resident pointer, so each shopkeeper on the restored chain reclaims
+    // its room before the level begins play.
+    for (let mtmp = level.monlist; mtmp; mtmp = mtmp.nmon)
+        if (mtmp.isshk) set_residency(mtmp, false, state);
 
     // C restore.c rest_track() restores this after the level's other
     // level-local structures and before ghostly arrival.  initrack() first

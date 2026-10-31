@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "bones.c:savebones -> save.c:savelev with a shopkeeper as a room's resident (mkroom.h struct mkroom.resident), then mkroom.c:rest_rooms clearing that pointer. A debug Valkyrie level-teleports to D:2, which has a tended shop for this seed (scan of seeds 1000-1015 with the port alone: 8 of 16 have a shop on D:2; 1002 is the first), wishes for a wand of death, zaps herself, dies, and answers yes to Save bones. Seeds and datetimes were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 1002,
+      "datetime": "20260608140000",
+      "nethackrc": "OPTIONS=name:Bonesmith,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u00162\n\u0017wand of death\nzf.  yy  y    y"
+    }
+  ]
+}
