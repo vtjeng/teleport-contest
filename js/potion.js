@@ -1432,6 +1432,8 @@ async function peffect_sickness(otmp, state = game, env = {}) {
                 KILLED_BY_AN,
                 state,
             );
+            // end.c done() is NORETURN in C.
+            if (state.program_state?.gameover) return;
         }
     } else {
         const resistant = poisonResistance(state);
@@ -1477,6 +1479,9 @@ async function peffect_sickness(otmp, state = game, env = {}) {
                     env,
                 );
             }
+            // end.c done() is NORETURN in C: a fatal dose never reaches the
+            // exercise() below, whose -rn2(2) draw would otherwise follow.
+            if (state.program_state?.gameover) return;
             await exercise(A_CON, false, state, random, { encumberMessage });
         }
     }
@@ -2138,6 +2143,9 @@ export async function dopotion(otmp, state = game, env = {}) {
 
     const retval = await peffects(otmp, state, env);
     if (retval >= 0) return retval ? ECMD_TIME : ECMD_OK;
+    // end.c done() is NORETURN in C, so a fatal potion never reaches the
+    // trycall()/useup() tail; done_object_cleanup() has already freed otmp.
+    if (state.program_state?.gameover) return ECMD_TIME;
 
     if (state.gp.potion_nothing) {
         state.gp.potion_unkn++;

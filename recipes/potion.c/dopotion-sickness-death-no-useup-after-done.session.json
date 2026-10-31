@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:dopotion() witness for a quaff that kills the hero: after one search turn (so end.c really_done() does not take its first-move branch), the debug Rogue quaffs a wished cursed potion of sickness, whose peffect_sickness() losehp(rnd(10) + 5) reaches end.c done() from 12 HP. C never returns from done(), so dopotion()'s trailing useup() and peffect_sickness()'s exercise() must not run. The debug death is accepted (Die? y), disclosure is skipped (q) and no bones are saved (n). I selected seed 5400005 with a JavaScript scan over 5400001-5400012 (12 starts replayed, 4 ran to the exit screen).",
+  "segments": [
+    {
+      "seed": 5400005,
+      "datetime": "20330815101500",
+      "nethackrc": "OPTIONS=name:SickRogue,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "s\u0017cursed potion of sickness\nqg  yqn"
+    }
+  ]
+}
