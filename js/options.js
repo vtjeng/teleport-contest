@@ -8600,6 +8600,45 @@ const OPTION_SET_HANDLERS = Object.freeze({
         }
         return accepted ? optn_ok : optn_err;
     },
+    // C ref: options.c optfn_glyph() (1815-1847), the do_set request the live
+    // editor reaches through parseoptions().  The negated arm at 1826-1830
+    // cannot run here: glyph's negateok is No, so parseoptions() has already
+    // refused a negated statement.  The glyph number the callee stores
+    // through its int pointer is never read.
+    glyph: async (state, _optidx, _negated, opts) => {
+        const op = string_for_opt(opts, true);
+        if (op === '') return optn_err; /* empty_optstr */
+        /* strip leading/trailing spaces, condense internal ones (3.6.2) */
+        const value = mungspaces(op);
+        if (!glyphrep_to_custom_map_entries(value, state)) return optn_err;
+        // glyphs.c to_custom_symset_entry_callback() (52-104) reports a
+        // Unicode or color detail that arrives while the selected set has no
+        // symset name through config_error_add(), at most once per process
+        // for each kind; its static glyphnag and colornag counters are the
+        // parser context's unicodeNagged and colorNagged.  Outside a
+        // configuration read, cfgfiles.c config_erradd() (1557-1563) prints
+        // the message with pline() and calls wait_synch().
+        const set = state.gs?.symset_which_set ?? PRIMARYSET;
+        if (!state.gs?.symset?.[set]?.name) {
+            const inspected = inspect_glyphrep(value, state);
+            const context = state.parserGlyphSetContext;
+            const nags = [
+                ['hasUnicode', 'unicodeNagged'],
+                ['hasColor', 'colorNagged'],
+            ];
+            for (const [detail, nagged] of nags) {
+                if (!inspected[detail] || context[nagged]) continue;
+                context[nagged] = true;
+                await ttyPline(
+                    'Unimplemented customization feature, ignoring for now.',
+                    state,
+                );
+                const { tty_wait_synch } = await import('./tty_rawprint.js');
+                await tty_wait_synch(state);
+            }
+        }
+        return optn_ok;
+    },
     petattr: (state, _optidx, negated, opts, helpers) => optfn_petattr(state, DO_SET, negated, opts, helpers),
     o_status_hilites: () => optn_ok,
     o_menu_colors: () => optn_ok,

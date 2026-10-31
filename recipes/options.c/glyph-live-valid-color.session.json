@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_glyph()'s do_set arm, reached from the full options menu's 'Set glyph to what?' prompt through parseoptions(). symset:DECgraphics gives the primary set a name, so glyphs.c to_custom_symset_entry_callback() stores a color detail for G_male_newt through add_custom_nhcolor_entry() without any message; two steps east then play on.",
+  "segments": [
+    {
+      "seed": 48122907,
+      "datetime": "20420921143012",
+      "nethackrc": "OPTIONS=name:Thea,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,symset:DECgraphics\n",
+      "moves": " #optionsfull\n:glyph\n\nG_male_newt/0-0-255\nll"
+    }
+  ]
+}

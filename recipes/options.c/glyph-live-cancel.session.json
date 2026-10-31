@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for the full options menu's compound-option prompt when the glyph pick is cancelled. doset() clears abuf, getlin() returns the Escape sentinel, and the pick loop continues without calling parseoptions() or optfn_glyph(); two steps east then play on.",
+  "segments": [
+    {
+      "seed": 17446081,
+      "datetime": "20550130225904",
+      "nethackrc": "OPTIONS=name:Ragna,role:Barbarian,race:orc,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:glyph\n\n\u001bll"
+    }
+  ]
+}

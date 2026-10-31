@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_glyph()'s do_set arm while no symset is named. glyphs.c to_custom_symset_entry_callback() cannot store the S_ant Unicode and color details and reports 'Unimplemented customization feature, ignoring for now' once for each kind through config_error_add(), which cfgfiles.c config_erradd() prints with pline() and wait_synch() outside a configuration read; Return dismisses the --More-- the first wait_synch() raises. A second glyph value with both kinds shows the static glyphnag and colornag counters suppress the repeat; two steps east then play on.",
+  "segments": [
+    {
+      "seed": 62009173,
+      "datetime": "20170812060722",
+      "nethackrc": "OPTIONS=name:Lirael,role:Wizard,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:glyph\n\nS_ant:U+263A/255-0-0\n\n#optionsfull\n:glyph\n\nG_female_newt:U+2603/red\nll"
+    }
+  ]
+}

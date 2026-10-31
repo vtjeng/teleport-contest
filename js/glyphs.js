@@ -403,9 +403,9 @@ function parseGlyphrepDelimiterPointers(raw) {
     return { id, unicode, color };
 }
 
-export function inspect_glyphrep(raw) {
+export function inspect_glyphrep(raw, state = game) {
     const components = parseGlyphrepDelimiterPointers(raw);
-    const glyphs = glyph_find(components.id);
+    const glyphs = glyph_find(components.id, state);
     const unicodeCh = unicodeCharacter(components.unicode);
     const parsedColor = components.color === null
         ? -1 : rgbstr_to_int32(components.color);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_glyph()'s do_set arm with a value whose glyph identifier is neither a G_ nor an S_ name. glyphs.c glyph_find_core() fails in parse_id(), optfn_glyph() answers optn_err, and doset() discards the answer silently; two steps east then play on.",
+  "segments": [
+    {
+      "seed": 90315524,
+      "datetime": "20330607081530",
+      "nethackrc": "OPTIONS=name:Ewan,role:Healer,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:glyph\n\nhbhj/255-0-0\nll"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_glyph()'s do_set arm with an empty answer. doset() hands 'glyph:' to parseoptions(), string_for_opt() answers empty_optstr, and optfn_glyph() returns optn_err before glyphrep_to_custom_map_entries() runs, without any message; two steps east then play on.",
+  "segments": [
+    {
+      "seed": 73550216,
+      "datetime": "20290304171148",
+      "nethackrc": "OPTIONS=name:Cedric,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:glyph\n\n\nll"
+    }
+  ]
+}

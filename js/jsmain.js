@@ -352,6 +352,10 @@ export class NethackGame {
         // cfgfiles.c cnf_line_MENUCOLOR() has finished prepending the
         // per-game coloratt.c list before any menu can be built.
         g.gm = { ...opts.gm };
+        // glyphs.c to_custom_symset_entry_callback() keeps its static
+        // glyphnag and colornag counters for the whole process, so the live
+        // glyph option handler shares the parser's record of them.
+        g.parserGlyphSetContext = opts.parserGlyphSetContext;
         g.options_set_window_colors_flag
             = opts.options_set_window_colors_flag;
         g.wcolors_opt = [...opts.wcolors_opt];
