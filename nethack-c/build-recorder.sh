@@ -116,6 +116,22 @@ case "$OS" in
         ;;
 esac
 sh sys/unix/setup.sh "$HINTS_FILE"
+# config.h compresses save files with /usr/bin/compress, which macOS has but
+# most Linux hosts lack.  When the program is missing, files.c
+# docompress_file() reports the failure on the tty and adds a --More-- to the
+# farewell screen of every saved game, so local recordings of a save differ
+# from the reference ones.  Use the host's gzip instead; the save file's name
+# changes, but nothing on screen does.
+if [ ! -x /usr/bin/compress ]; then
+    GZIP_PATH=$(command -v gzip)
+    echo "[step 3] /usr/bin/compress is unavailable; compressing saves with $GZIP_PATH..."
+    sed -i.bak \
+        -e "s|^#define COMPRESS \"/usr/bin/compress\".*|#define COMPRESS \"$GZIP_PATH\"|" \
+        -e 's|^#define COMPRESS_EXTENSION ".Z".*|#define COMPRESS_EXTENSION ".gz"|' \
+        include/config.h
+    grep -q "^#define COMPRESS \"$GZIP_PATH\"" include/config.h \
+        || { echo "[error] could not point COMPRESS at gzip in include/config.h" >&2; exit 1; }
+fi
 
 # --- Step 4: fetch + build Lua (NetHack 5.0 dependency) ---
 echo "[step 4] Fetching Lua..."
