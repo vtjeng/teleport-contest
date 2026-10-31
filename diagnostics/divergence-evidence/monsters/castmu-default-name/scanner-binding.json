@@ -1,0 +1,19 @@
+{
+  "originalRunSha256": "22dde96e93aafc25876762fe1e4c4be4144c28432f353c2a77a6248d11a8642e",
+  "reviewTemplate": [
+    {
+      "key": "source-audit:edge-js-helper:src/mcastu.c:castmu:capitalizedMonsterNameFallback",
+      "evidenceKey": "d39e27ef8701a6a697b269e79b66dc6e0334d0f9065a30443bf591a6e6c4bd32",
+      "runId": "601667573d5ca5a23adf",
+      "reviewFingerprint": "483dcec4dbd626692876792398cc079f052cf42ba987c4e66c5696811510a62b",
+      "status": null
+    },
+    {
+      "key": "source-audit:edge-js-helper:src/mcastu.c:m_cure_self:capitalizedMonsterNameFallback",
+      "evidenceKey": "9a8b2eb525dfaeb900b821c2fdd935641c2c94e156d29f624534d56049ba7e4e",
+      "runId": "601667573d5ca5a23adf",
+      "reviewFingerprint": "8a05a6ec5de39eba75d41a720b432e95832609d81d38666c89ca3ac4cbe04687",
+      "status": null
+    }
+  ]
+}

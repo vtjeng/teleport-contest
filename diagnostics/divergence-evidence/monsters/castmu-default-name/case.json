@@ -1,0 +1,49 @@
+{
+  "caseId": "castmu-default-name",
+  "shard": "monsters",
+  "outcome": "confirmed divergence",
+  "scope": "Default castmu production API naming only; normal monster-action adapter is correct",
+  "binding": "Exact original helper leads retained in scanner-binding.json; one semantic fallback cause; no suppression",
+  "jsBase": "32578f23091dad34635a9b4fe0bfb45ed9840e39",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T21:21:41.765297+00:00",
+  "reviewedAt": "2026-10-28T21:21:41.765307+00:00",
+  "hypothesis": "Callback-free castmu falls back to capitalized species instead of C Monnam",
+  "supportedSetup": "Initialized hero and placed native master lich, shipped magic attack, nonlethal wounded HP and valid fixed spell-selection draws; exported castmu API without optional monsterName",
+  "expectedC": "The master lich casts a spell! (fresh C recording); self-cure Monnam likewise The master lich looks better. (source-backed)",
+  "observedJS": "Master lich casts a spell! and Master lich looks better.",
+  "control": "Same API invocation with real Monnam adapter: expected messages, same HP33 and four RNG calls; separate full production recording matches C",
+  "oracleLimits": "Fresh native C recording confirms announcement, not the constructed API cure sequence; self-cure suffix and naming contract are source-backed. Normal gameplay currently supplies correct naming adapter. No assertion of public-play divergence.",
+  "sourceLocations": [
+    "src/mcastu.c:214",
+    "src/mcastu.c:308",
+    "src/do_name.c:1042",
+    "src/do_name.c:1074",
+    "js/mcastu.js:capitalizedMonsterNameFallback",
+    "js/unported_monster_actions.js:1489"
+  ],
+  "sourceSha256": {
+    "js/mcastu.js": "b8a0fff9842f78322e75054ff344babdc9a662cc62a6ae8ae087da7afd6ff9a4",
+    "js/do_name.js": "71939a7cc8aedbd82e1f346aaa7359308ffbd0a300e5deb2dffd7544300bf129",
+    "js/unported_monster_actions.js": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902",
+    "nethack-c/upstream/src/mcastu.c": "6ef69cb8689415d14488be1f78b93e593d2c2b128eda62733613533c5edeb285",
+    "nethack-c/upstream/src/do_name.c": "64c6cb5e7f4034e9edbd8fac983b313a7df0e029b4812bd3a9327852d12ad9d1",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+    "scripts/record-session.mjs": "71d9993197e9a8f374cc0a63c3c9735de63a4c1e517da34a7bfbbd230a633e61"
+  },
+  "recorderBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "tools": {
+    "node": "v24.19.0",
+    "recorderTimezone": "America/New_York"
+  },
+  "command": "node --test diagnostics/divergence-evidence/monsters/castmu-default-name/proof.mjs",
+  "evidence": [
+    "proof.mjs",
+    "recipe.json",
+    "record.mjs",
+    "c-observations.json",
+    "README.md",
+    "observations.txt",
+    "scanner-binding.json"
+  ]
+}

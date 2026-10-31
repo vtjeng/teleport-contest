@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {game} from '../../../../js/gstate.js';
+import {runSegment} from '../../../../js/jsmain.js';
+import {newMonster,place_monster} from '../../../../js/monst.js';
+import {PM_MASTER_LICH,NON_PM,AT_MAGC,AD_SPEL} from '../../../../js/monsters.js';
+import {castmu} from '../../../../js/mcastu.js';
+import {Monnam} from '../../../../js/do_name.js';
+for (const adapter of [false,true])test(`castmu default name adapter=${adapter}`,async()=>{
+ await runSegment({seed:7710046,datetime:'20261028120000',nethackrc:'OPTIONS=name:NameProof,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none\n',moves:''});
+ for(const col of game.level.monsters)col.fill(null);game.level.monlist=null;
+ const m=newMonster({data:game.mons[PM_MASTER_LICH],m_id:6003,mx:game.u.ux+1,my:game.u.uy,mux:game.u.ux,muy:game.u.uy,mhp:30,mhpmax:60,m_lev:17,cham:NON_PM,mcanmove:1,mcansee:1});
+ place_monster(m,m.mx,m.my,game);game.level.monlist=m;
+ const attack=m.data.mattk.find(a=>a.aatyp===AT_MAGC&&a.adtyp===AD_SPEL);assert.ok(attack);
+ const draws=[],messages=[];const random={rn2:n=>{draws.push(['rn2',n]);assert.ok(n===17||n===170);return n===17?1:169;},d:(n,k)=>{draws.push(['d',n,k]);return n;}};
+ const result=await castmu(m,attack,true,true,{state:game,random,message:async s=>messages.push(s),unsupported:r=>{throw Error(r);},...(adapter?{monsterName:mon=>Monnam(mon,game)}:{})});
+ console.log(JSON.stringify({adapter,result,hp:m.mhp,draws,messages}));
+ assert.equal(m.mhp,33);
+ const expected=['The master lich casts a spell!','The master lich looks better.'];
+ if(process.env.CHARACTERIZE==='1'&&!adapter)assert.deepEqual(messages,expected.map(s=>s.replace('The master','Master')));
+ else assert.deepEqual(messages,expected);
+});

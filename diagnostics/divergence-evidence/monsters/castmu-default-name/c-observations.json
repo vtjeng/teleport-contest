@@ -1,0 +1,82 @@
+{
+  "recordingSha256": "1f8fef7434cce00ae3f47ca669d0758eaec04a3a7d49a5ad465eea50caa60d8a",
+  "recordingBytes": 135582,
+  "privateRecording": "/workspace/monsters-private/castmu-v-visible/recorded.session.json",
+  "recorderIsDst": true,
+  "result": {
+    "passed": true,
+    "error": null,
+    "lengths": {
+      "rng": {
+        "c": 2792,
+        "js": 2792
+      },
+      "screens": {
+        "c": 55,
+        "js": 55
+      },
+      "cursors": {
+        "c": 55,
+        "js": 55
+      },
+      "animFrames": {
+        "c": 0,
+        "js": 0
+      }
+    },
+    "rngMismatch": null,
+    "screenMismatch": null,
+    "cursorMismatch": null,
+    "animMismatch": null,
+    "segmentMismatch": null
+  },
+  "rawToplines": [
+    {
+      "step": 34,
+      "topline": "The master lich casts a spell!--More--"
+    },
+    {
+      "step": 35,
+      "topline": "The master lich casts a spell!--More--"
+    },
+    {
+      "step": 36,
+      "topline": "The master lich casts a spell!--More--"
+    },
+    {
+      "step": 43,
+      "topline": "The master lich casts a spell!  The master lich suddenly disappears!"
+    }
+  ],
+  "firstRoute": {
+    "outcome": "coverage miss: inherited wizintrinsic i caused blindness, only Something casts was seen",
+    "recordingSha256": "06e08c4b2a88238187f2aae2d4f1a681bf65f101182bb757fa7c4b317d24f783",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2868,
+          "js": 2868
+        },
+        "screens": {
+          "c": 72,
+          "js": 72
+        },
+        "cursors": {
+          "c": 72,
+          "js": 72
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  }
+}
