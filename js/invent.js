@@ -214,7 +214,7 @@ import { hides_under, poly_when_stoned, touch_petrifies } from './mondata.js';
 import { hideunder, maybe_unhide_at } from './mon.js';
 import { newsym, obj_to_glyph, mon_to_glyph } from './display.js';
 import { livelog_printf } from './pline.js';
-import { fingers_or_gloves } from './do_wear.js';
+import { fingers_or_gloves, setwornEnv } from './do_wear.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import {
@@ -357,7 +357,7 @@ import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { record_achievement } from './insight.js';
-import { bypass_objlist, nxt_unbypassed_loot, setuqwep } from './worn.js';
+import { bypass_objlist, nxt_unbypassed_loot, setnotworn, setuqwep } from './worn.js';
 import {
     inhishop,
     inside_shop,
@@ -2699,7 +2699,7 @@ function requiredHook(env, name, obj) {
 // Merge effects: mergeWornMasks(target, obj, env). absorbGlob(target, obj, env) owns
 // mkobj.c obj_absorb(), including globby_bill_fixup(), timeout recombination,
 // target updates, and leaving obj deallocated as OBJ_DELETED or OBJ_LUAFREE.
-// inventoryComparisonDiscovered(target, env), setNotWorn(obj, env).
+// inventoryComparisonDiscovered(target, env).
 
 function suppressMapOutput(state) {
     return Boolean(state.in_mklev
@@ -3661,8 +3661,6 @@ function preflightObfree(obj, merge, env) {
         requiredHook(env, 'stopObjectTimers', obj);
     if (obj.lamplit && !merge)
         requiredHook(env, 'deleteObjectLightSource', obj);
-    if (obj.owornmask && !(merge && merge.where === OBJ_INVENT))
-        requiredHook(env, 'setNotWorn', obj);
     if (isContainer(obj)) {
         const lock = env.state.xlock ?? env.state.context?.xlock;
         if (lock?.box === obj) requiredHook(env, 'resetPick', obj);
@@ -3753,9 +3751,9 @@ export function obfree(obj, merge = null, rawEnv = {}) {
     }
 
     if (obj.owornmask) {
-        requiredHook(env, 'setNotWorn', obj)(obj, env);
-        if (obj.owornmask)
-            throw new Error('setNotWorn must clear owornmask');
+        // C's impossible() is diagnostic only and has no terminal output.
+        note_unported('pline.c impossible');
+        setnotworn(obj, setwornEnv(env.state, env));
     }
     dealloc_obj(obj, env);
 }
@@ -5129,6 +5127,9 @@ export function addToContainerRuntime(container, obj, env = {}) {
     return scan(container.cobj ?? null);
 }
 
+// C ref: invent.c useupall() (1312-1317). setnotworn() runs before freeinv()
+// whether or not the object is worn; worn.c owns the slot environment that
+// do_wear.js setwornEnv() builds for every direct caller.
 export function useupall(obj, env = {}) {
     const normalized = inventoryEnv(env);
     if (obj.where !== OBJ_INVENT)
@@ -5137,15 +5138,12 @@ export function useupall(obj, env = {}) {
     preflightFreeinvCore(obj, normalized);
     preflightObfree(obj, null, normalized);
     const afterWear = () => {
-        if (obj.owornmask)
-            throw new Error('setNotWorn must clear owornmask');
         const extracted = freeinv(obj, normalized);
         const finish = () => { obfree(obj, null, normalized); };
         return isThenable(extracted)
             ? Promise.resolve(extracted).then(finish) : finish();
     };
-    const unworn = obj.owornmask
-        ? requiredHook(normalized, 'setNotWorn', obj)(obj, normalized) : null;
+    const unworn = setnotworn(obj, setwornEnv(normalized.state, normalized));
     return isThenable(unworn) ? Promise.resolve(unworn).then(afterWear) : afterWear();
 }
 

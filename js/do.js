@@ -401,7 +401,7 @@ import { note_unported } from './unported.js';
 import { create_mplayers } from './mplayer.js';
 import { block_point, cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
 import { setuwep, welded, weldmsg } from './wield.js';
-import { bimanual, bypass_objlist, nxt_unbypassed_obj, setnotworn, setuqwep, setuswapwep } from './worn.js';
+import { bimanual, bypass_objlist, nxt_unbypassed_obj, setuqwep, setuswapwep } from './worn.js';
 import { resurrect } from './wizard.js';
 import {
     assign_graphics, S_altar, S_fountain, S_grave, S_room, S_sink, S_throne,
@@ -425,18 +425,9 @@ export class UnsupportedLevelChangeError extends Error {
 // C ref: do.c revive_corpse() (2111-2250). revive() deletes the corpse on
 // success, so its location, carrier, container, and name are saved first.
 export async function revive_corpse(corpse, state = game, rawEnv = {}) {
-    const wornHooks = setwornEnv(state).hooks;
     const env = {
         ...rawEnv, state,
-        hooks: {
-            // zap.c:revive -> invent.c:useup/obfree removes a wielded corpse
-            // through the existing worn.c owner before deallocating it.
-            setNotWorn: (obj, hookEnv) => setnotworn(obj, {
-                ...hookEnv,
-                hooks: { ...wornHooks, ...hookEnv.hooks },
-            }),
-            ...rawEnv.hooks,
-        },
+        hooks: { ...rawEnv.hooks },
     };
     const message = env.message ?? ttyPline;
     const where = corpse.where;

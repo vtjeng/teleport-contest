@@ -54,6 +54,7 @@ import {
     SATIATED,
     SICK,
     SICK_VOMITABLE,
+    TELEPAT,
     VOMITING,
     WEAK,
     W_TOOL,
@@ -133,7 +134,11 @@ function state() {
         uhunger: 900,
         uhp: 13,
         uhs: NOT_HUNGRY,
-        uprops: [],
+        // invent.c useupall() always calls worn.c setnotworn(), whose
+        // recalc_telepat_range() reads the hero's telepathy property.
+        uprops: Object.assign([], {
+            [TELEPAT]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+        }),
     };
     result.urole = { mnum: PM_HEALER, name: { m: 'Healer' } };
     result.urace = { mnum: PM_HUMAN };

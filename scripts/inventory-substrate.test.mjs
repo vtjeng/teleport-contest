@@ -152,8 +152,6 @@ import {
     PM_NEWT,
     monst_globals_init,
 } from '../js/monsters.js';
-import { setnotworn } from '../js/worn.js';
-import { setwornEnv } from '../js/do_wear.js';
 import { init_objects } from '../js/o_init.js';
 import { add_rect_to_reg, create_region } from '../js/region.js';
 import {
@@ -2231,21 +2229,11 @@ test('useupall checks permanent inventory before unwielding', () => {
     dart.owornmask = W_WEP;
     state.iflags.perm_invent = true;
 
-    let unworn = 0;
     assert.throws(
-        () => useupall(dart, {
-            state,
-            hooks: {
-                setNotWorn(obj) {
-                    ++unworn;
-                    obj.owornmask = 0;
-                },
-            },
-        }),
+        () => useupall(dart, { state }),
         (error) => error instanceof UnsupportedObjectOperationError
             && error.operation === 'updateInventory',
     );
-    assert.equal(unworn, 0);
     assert.equal(dart.owornmask, W_WEP);
     assert.equal(dart.where, OBJ_INVENT);
 });
@@ -3987,13 +3975,13 @@ test('useupall awaits artifact removal before extraction and deallocation', asyn
     state.u.uprops[HALLUC_RES].extrinsic = W_WEP;
     let release, entered;
     const messageEntered = new Promise(resolve => { entered = resolve; });
+    // useupall() hands its own env to setnotworn() through setwornEnv(), so
+    // the artifact glow's message owner arrives on that env.
     const pending = useupall(saber, {
-        state, hooks: {setNotWorn: obj => setnotworn(obj, setwornEnv(state, {
-            planning: true, redraw: () => {}, message: async () => {
-                entered();
-                await new Promise(resolve => { release = resolve; });
-            },
-        }))},
+        state, planning: true, redraw: () => {}, message: async () => {
+            entered();
+            await new Promise(resolve => { release = resolve; });
+        },
     });
     await messageEntered;
     assert.equal(saber.where, OBJ_INVENT);

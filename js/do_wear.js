@@ -1245,13 +1245,7 @@ async function Amulet_on(obj, state = game) {
         await ttyPline('The amulet disintegrates!', state);
         if (call_it)
             await trycall(state.uamul, state);
-        await useup(state.uamul, {
-            ...setwornEnv(state),
-            hooks: {
-                ...setwornEnv(state).hooks,
-                setNotWorn: (target) => setnotworn(target, setwornEnv(state)),
-            },
-        });
+        await useup(state.uamul, { state });
         break;
     }
     case AMULET_OF_STRANGULATION:

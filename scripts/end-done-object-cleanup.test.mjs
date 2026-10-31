@@ -7,6 +7,7 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     ROOM,
+    TELEPAT,
 } from '../js/const.js';
 import { done_object_cleanup } from '../js/end.js';
 import { GameMap } from '../js/game.js';
@@ -18,7 +19,12 @@ function cleanupState({ ux = 2, uy = 2, dx = 1, dy = 0 } = {}) {
     if (level.at(ux + dx, uy + dy))
         level.at(ux + dx, uy + dy).typ = ROOM;
     return {
-        u: { ux, uy, dx, dy },
+        u: {
+            ux, uy, dx, dy,
+            // invent.c useupall() always calls worn.c setnotworn(), whose
+            // recalc_telepat_range() reads the hero's telepathy property.
+            uprops: { [TELEPAT]: { intrinsic: 0, extrinsic: 0, blocked: 0 } },
+        },
         iflags: { perm_invent: true },
         invent: null,
         level,

@@ -19,6 +19,7 @@ import {
     SLIMED,
     SICK,
     STONED,
+    TELEPAT,
     TIMEOUT,
     VOMITING,
 } from '../js/const.js';
@@ -77,7 +78,14 @@ function tinOpenerState(otyp) {
         },
         iflags: { override_ID: false, pricequotes: false },
         program_state: { gameover: false, in_moveloop: false },
-        u: { umonnum: PM_HUMAN, uprops: [] },
+        u: {
+            umonnum: PM_HUMAN,
+            // invent.c useupall() always calls worn.c setnotworn(), whose
+            // recalc_telepat_range() reads the hero's telepathy property.
+            uprops: Object.assign([], {
+                [TELEPAT]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            }),
+        },
         disp: {},
     };
     objects_globals_init(state);

@@ -209,8 +209,6 @@ import { shkname, shkname_is_pname } from './shknam.js';
 import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
 import { keepdogs } from './dog.js';
-import { setwornEnv } from './do_wear.js';
-import { setnotworn } from './worn.js';
 import { make_sick, set_itimeout } from './potion.js';
 import { rn2 } from './rng.js';
 import { d } from './rng.js';
@@ -687,7 +685,6 @@ export async function done2(state = game) {
 // debug-fuzzer branch and the HANGUPHANDLING query guard reads/increments it;
 // keep the same state owner so a hangup cannot accidentally ask for input.
 //
-// useup() needs the worn-slot hooks when the life-saving amulet is consumed.
 // The optional caller hooks let a live window supply its own inventory
 // refresh; a no-op keeps this end-of-game mutation valid in the recorder TTY,
 // whose permanent inventory window is not active.
@@ -696,9 +693,6 @@ function lifeSavingInventoryEnv(state, source = {}) {
     const hooks = {
         ...sourceHooks,
         updateInventory: sourceHooks.updateInventory ?? (() => {}),
-        setNotWorn: sourceHooks.setNotWorn ?? ((obj, env) => (
-            setnotworn(obj, setwornEnv(env.state))
-        )),
     };
     return { ...source, state, hooks };
 }

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "invent.c useupall() -> worn.c setnotworn(): a debug-mode Wizard wishes for a pancake, wields it, and eats it. The two-turn meal ends in eat.c done_eating() -> useup() -> useupall(), whose unconditional setnotworn() call clears uwep before freeinv()/obfree(). The closing `i` shows the quarterstaff no longer marked as wielded and the pancake gone.",
+  "segments": [{
+    "seed": 46118207,
+    "datetime": "20440917131415",
+    "nethackrc": "OPTIONS=name:WieldPancake,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " \u0017uncursed pancake\nwoeoi"
+  }]
+}
