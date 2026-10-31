@@ -7587,12 +7587,16 @@ test('NO_MINVENT leaves migrating object queues untouched', () => {
     }
 });
 
-test('inventory-enabled creation continues past the discarded object-delivery call', () => {
+test('inventory-enabled creation leaves waiting objects without a species destination in the chain', () => {
     const state = initialLevelState();
     const tail = { nobj: null };
-    const migrating = { nobj: tail };
+    // deliver_obj_to_mon() skips a migrating object whose destination code
+    // lacks MIGR_TO_SPECIES, so a plain level-migrating object stays queued.
+    const migrating = { nobj: tail, owornmask: 0 };
     state.gm ??= {};
     state.gm.migrating_objs = migrating;
+    state.u ??= {};
+    state.u.uz ??= { dnum: 0, dlevel: 1 };
     const random = scriptedRandom([
         ...basicCreationSteps(),
         ...ordinaryInventoryTail(),
@@ -7618,7 +7622,8 @@ test('inventory-enabled creation continues past the discarded object-delivery ca
         assert.equal(state.gm.migrating_objs, migrating);
         assert.equal(migrating.nobj, tail);
         assert.equal(tail.nobj, null);
-        assert.ok(game.unported.has('dokick.c deliver_obj_to_mon'));
+        assert.equal(monster.minvent, null);
+        assert.ok(!game.unported.has('dokick.c deliver_obj_to_mon'));
     } finally {
         game.unported = previousUnported;
     }

@@ -1350,9 +1350,10 @@ test('random ghost, Rogue, coyote, and orc names preserve C draw order', () => {
     assert.equal(rndorcname(random), 'agor');
     assert.deepEqual(draws, [
         ['rn1', 2, 3], ['rn2', 2], ['rn2', 4],
-        // Sprintf's second argument is evaluated before its first by the
-        // patched C build, so chunk selection precedes hyphen selection.
-        ['rn2', 11], ['rn2', 30],
+        // The clang-built recorder evaluates Sprintf's arguments left to
+        // right, so the hyphen draw precedes the chunk selection
+        // (recordings/mkmaze.c/orcish-town-stolen-booty.session.json).
+        ['rn2', 30], ['rn2', 11],
     ]);
 });
 

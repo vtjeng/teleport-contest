@@ -88,6 +88,9 @@ import {
     MIGR_NOBREAK,
     MIGR_NOSCATTER,
     MIGR_TO_SPECIES,
+    DF_ALL,
+    DF_RANDOM,
+    NON_PM,
     P_MARTIAL_ARTS,
     PL_NSIZ,
     P_NONE,
@@ -109,6 +112,9 @@ import {
     is_hole,
     ismnum,
     something,
+    has_mgivenname,
+    has_oname,
+    In_mines,
 } from './const.js';
 import { feel_location, feel_newsym, glyph_at, glyph_is_invisible,
     map_invisible, newsym, unmap_invisible } from './display.js';
@@ -121,7 +127,7 @@ import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level, surface } from './du
 import { breaktest, breaks, hero_breaks, impact_disturbs_zombies, thitmonst, hurtle, digests } from './dothrow.js';
 import { game } from './gstate.js';
 import { sgn, upstart } from './hacklib.js';
-import { currency, delobj, money_cnt, obj_extract_self, obfree, stackobj, useup, sobj_at } from './invent.js';
+import { add_to_minv, currency, delobj, money_cnt, obj_extract_self, obfree, stackobj, useup, sobj_at } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
@@ -144,6 +150,8 @@ import {
     PM_KILLER_BEE, PM_BLACK_PUDDING, PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST, PM_SAMURAI,
     AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
+    M2_UNDEAD, M2_WERE, M2_HUMAN, M2_ELF, M2_DWARF, M2_GNOME, M2_ORC,
+    M2_DEMON, M2_GIANT,
 } from './monsters.js';
 import {
     isBox, place_object, splitobj,
@@ -206,7 +214,7 @@ import {
     attack_checks, check_caitiff, damageum, find_roll_to_hit,
     missum, mon_maybe_unparalyze, passive,
 } from './uhitm.js';
-import { a_monnam, hcolor, hliquid, Monnam, mon_nam } from './do_name.js';
+import { a_monnam, christen_orc, free_oname, hcolor, hliquid, Monnam, mon_nam } from './do_name.js';
 import { enexto, noteleport_level, goodpos, rloco } from './teleport.js';
 import { canseemon, canspotmon } from './display.js';
 import { stop_occupation } from './allmain.js';
@@ -1900,6 +1908,68 @@ export async function obj_delivery(near_hero, rawEnv = {}) {
             }
         }
         otmp = otmp2;
+    }
+}
+
+// dokick.c deliver_obj_to_mon()'s DELIVER_PM.
+const DELIVER_PM = M2_UNDEAD | M2_WERE | M2_HUMAN | M2_ELF | M2_DWARF
+    | M2_GNOME | M2_ORC | M2_DEMON | M2_GIANT;
+
+// C ref: dokick.c deliver_obj_to_mon() (1853-1904). makemon() calls it with
+// (1, DF_NONE) for every monster created with inventory while objects wait,
+// and dog.c mon_arrive() with (0, DF_ALL) for a MIGR_LEFTOVERS arrival.
+export function deliver_obj_to_mon(mtmp, cnt, deliverflags, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = { d, rn1, rn2, rnd, rne, rnl, ...(rawEnv.random ?? {}) };
+    const env = objectGenerationEnv({ ...rawEnv, state, random });
+    const at_crime_scene = In_mines(state.u.uz);
+    let maxobj;
+
+    if ((deliverflags & DF_RANDOM) && cnt > 1)
+        maxobj = random.rnd(cnt);
+    else if (deliverflags & DF_ALL)
+        maxobj = 0;
+    else
+        maxobj = 1;
+
+    cnt = 0;
+    let otmp2;
+    for (let otmp = state.gm?.migrating_objs ?? null; otmp; otmp = otmp2) {
+        otmp2 = otmp.nobj;
+        const where = Number(otmp.owornmask) & 0x7fff; // destination code
+        if ((where & MIGR_TO_SPECIES) === 0) continue;
+
+        if (otmp.migr_species !== NON_PM
+            && (mtmp.data.mflags2 & DELIVER_PM) === otmp.migr_species) {
+            obj_extract_self(otmp, env);
+            otmp.owornmask = 0;
+            otmp.ox = 0;
+            otmp.oy = 0;
+
+            // special treatment for orcs and their kind; C reads corpsenm,
+            // which migr_species aliases on a migrating object
+            if ((otmp.migr_species & M2_ORC) !== 0 && has_oname(otmp)) {
+                if (!has_mgivenname(mtmp)) {
+                    if (at_crime_scene || !random.rn2(2)) {
+                        mtmp = christen_orc(
+                            mtmp,
+                            at_crime_scene ? otmp.oextra.oname : null,
+                            // bought the stolen goods
+                            ' the Fence',
+                            { random },
+                        );
+                    }
+                }
+                free_oname(otmp);
+            }
+            otmp.migr_species = NON_PM;
+            otmp.omigr_from_dnum = 0;
+            otmp.omigr_from_dlevel = 0;
+            add_to_minv(mtmp, otmp, env);
+            cnt++;
+            if (maxobj && cnt >= maxobj) break;
+            // getting here implies DF_ALL
+        }
     }
 }
 

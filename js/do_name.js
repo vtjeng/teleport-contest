@@ -388,12 +388,10 @@ export function rndorcname(random = { rn1, rn2 }) {
     for (let i = 0; i < end; ++i) {
         vowelNext = 1 - vowelNext;
         const choices = vowelNext ? vowels : sounds;
-        // The patched C build evaluates the second Sprintf argument before
-        // the first.  Select the chunk before consuming the hyphen draw, then
-        // append them in the source's rendered order.
-        const chunk = choices[random.rn2(choices.length)];
+        // The recorder is built with clang, which evaluates Sprintf's
+        // arguments left to right: the hyphen draw precedes the chunk draw.
         if (i > 0 && !random.rn2(30)) result += '-';
-        result += chunk;
+        result += choices[random.rn2(choices.length)];
     }
     return result;
 }

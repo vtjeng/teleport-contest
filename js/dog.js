@@ -19,6 +19,7 @@ import {
     DISMOUNT_GENERIC,
     DISMOUNT_THROWN,
     EDOG,
+    DF_ALL,
     EYE,
     G_EXTINCT,
     HALLUC,
@@ -88,6 +89,7 @@ import {
     christen_monst, mon_pmname, Monnam,
 } from './do_name.js';
 import { s_suffix } from './hacklib.js';
+import { deliver_obj_to_mon } from './dokick.js';
 import { game } from './gstate.js';
 import {
     can_saddle, dismount_steed, put_saddle_on_mon,
@@ -1285,8 +1287,11 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
         break;
     }
 
-    if ((monster.migflags & MIGR_LEFTOVERS) && state.gm.migrating_objs)
-        note_unported('dokick.c deliver_obj_to_mon');
+    if ((monster.migflags & MIGR_LEFTOVERS) !== 0) {
+        // Pick up the rest of the MIGR_TO_SPECIES objects
+        if (state.gm.migrating_objs)
+            deliver_obj_to_mon(monster, 0, DF_ALL, env);
+    }
 
     if (xlocale && wander) {
         const roomNumbers = in_rooms(xlocale, ylocale, 0, state);

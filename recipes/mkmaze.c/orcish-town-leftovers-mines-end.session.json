@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7406,
+      "datetime": "20031123100000",
+      "nethackrc": "OPTIONS=name:OrcProbe,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Variation of orcish-town-stolen-booty: after the Orcish Town level teleport, a second ^V to depth 20 is clamped by get_level() to the bottom of the Gnomish Mines, where the gang leader arrives with MIGR_LEFTOVERS and dog.c mon_arrive() collects the remaining booty through deliver_obj_to_mon(0, DF_ALL).",
+      "moves": " \u0016?\n w\u001620\n"
+    }
+  ]
+}
