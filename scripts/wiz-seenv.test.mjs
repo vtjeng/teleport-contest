@@ -73,5 +73,5 @@ test('C and JS extended-command dispatch reach wiz_show_seenv', () => {
     const c = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(c, /"wizseenv", "show map locations' seen vectors",\s+wiz_show_seenv, IFBURIED \| AUTOCOMPLETE \| WIZMODECMD/u);
-    assert.match(js, /case 'wiz_show_seenv':\s+return await wiz_show_seenv\(state\);/u);
+    assert.match(js, /wiz_show_seenv: \(key, state\) => wiz_show_seenv\(state\),/u);
 });

@@ -53,7 +53,7 @@ test('C vision dispatch and constants stay aligned with the source', () => {
     const cmd = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(cmd, /"vision", "show vision array",\s+wiz_show_vision, IFBURIED \| AUTOCOMPLETE \| WIZMODECMD/u);
-    assert.match(js, /case 'wiz_show_vision':\s+return await wiz_show_vision\(state\);/u);
+    assert.match(js, /wiz_show_vision: \(key, state\) => wiz_show_vision\(state\),/u);
     const header = readFileSync(new URL('../nethack-c/upstream/include/vision.h', import.meta.url), 'utf8');
     for (const [name, value] of [['COULD_SEE', COULD_SEE], ['IN_SIGHT', IN_SIGHT], ['TEMP_LIT', TEMP_LIT]]) {
         assert.ok(header.includes('#define ' + name + ' 0x' + value.toString(16)));

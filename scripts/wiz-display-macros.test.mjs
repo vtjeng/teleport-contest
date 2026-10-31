@@ -55,5 +55,5 @@ test('diagnostic awaits its text window and uses the active development command 
     const registry = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(registry, /"wizdispmacros", "validate the display macro ranges",\s+wiz_display_macros/u);
-    assert.match(js, /case 'wiz_display_macros':\s+return await wiz_display_macros\(state\);/u);
+    assert.match(js, /wiz_display_macros: \(key, state\) => wiz_display_macros\(state\),/u);
 });

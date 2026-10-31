@@ -28,7 +28,7 @@ import {
     print_dungeon,
 } from '../js/dungeon.js';
 import { wiz_where } from '../js/wizcmds.js';
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { resetGame } from '../js/gstate.js';
@@ -325,7 +325,7 @@ test('wizwhere dispatches the non-menu dungeon report for wizard mode',
     async () => {
         const row = extcmdlist.find((entry) => entry.ef_txt === 'wizwhere');
         assert.equal(row?.ef_funct, 'wiz_where');
-        assert.ok(ADMITTED_COMMANDS.includes('wizwhere'));
+        assert.ok(DISPATCHED_COMMANDS.includes('wizwhere'));
 
         const state = printDungeonState({ nonMenu: true });
         let lines = [];

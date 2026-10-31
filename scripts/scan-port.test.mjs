@@ -74,9 +74,10 @@ test('scanSeeds counts a refused command by error class without calling keep', a
         seeds: seedRange(6600001, 6600002),
         datetime: DATETIME,
         nethackrc: NETHACKRC,
-        // cmd.c binds X to twoweapon, whose direct key is still omitted from
-        // cmd.js ADMITTED_COMMANDS. Both seeds stop at that command boundary.
-        moves: 'X',
+        // cmd.c binds X to twoweapon, a nonmovement row cmd.js rhack() will
+        // not repeat: the count leaves gm.multi above 0, so both seeds stop at
+        // the counted-command boundary on the X byte.
+        moves: '2X',
         keep: () => { keepCalls++; return true; },
     });
     assert.equal(replayed, 2);

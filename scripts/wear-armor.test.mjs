@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { ART_SUNSWORD, discover_artifact } from '../js/artifacts.js';
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     ACID_RES,
     BLINDED,
@@ -357,7 +357,7 @@ function refusal(cls, branch) {
 }
 
 test('the wear command is admitted and shares its row with dowear', () => {
-    assert.ok(ADMITTED_COMMANDS.includes('wear'));
+    assert.ok(DISPATCHED_COMMANDS.includes('wear'));
     const row = extcmdlist.find(({ ef_txt }) => ef_txt === 'wear');
     assert.ok(row, 'extcmdlist[] has a wear row');
     assert.equal(row.ef_funct, 'dowear');
@@ -1497,8 +1497,9 @@ test('the two boots C leaves bare raise state no ported reader misuses',
     assert.ok(Array.isArray(
         await enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, game),
     ));
-    assert.ok(!ADMITTED_COMMANDS.includes('jump'),
-        'the other C reader, apply.c jump(), cannot be reached at all');
+    // The other C reader of the Jumping property, apply.c jump(), is reached
+    // through the #jump row, whose dojump() the port dispatches.
+    assert.ok(DISPATCHED_COMMANDS.includes('jump'));
 
     await setup(segment, WAIT);
     const kickers = armor(KICKING_BOOTS, { dknown: 1, spe: 0, known: false });
@@ -3400,10 +3401,10 @@ async function invisibilityRingOffEvents({
 }
 
 test('the puton command is admitted and shares its row with doputon', () => {
-    // cmd.js ADMITTED_COMMANDS includes 'puton'; the extcmdlist row has P (0x50)
+    // cmd.js DISPATCHED_COMMANDS includes 'puton'; the extcmdlist row has P (0x50)
     // as its key and 'doputon' as its function name. The row has no flags, so
     // rhack() refuses an 'm' prefix rather than running the command under it.
-    assert.ok(ADMITTED_COMMANDS.includes('puton'));
+    assert.ok(DISPATCHED_COMMANDS.includes('puton'));
     const row = extcmdlist.find(({ ef_txt }) => ef_txt === 'puton');
     assert.ok(row, 'extcmdlist[] has a puton row');
     assert.equal(row.ef_funct, 'doputon');

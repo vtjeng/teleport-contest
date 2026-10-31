@@ -172,7 +172,7 @@ test('spell sorting source pins mode names, stable ties and the full retain loop
     assert.match(global,/#define strcmpi\(a, b\) strncmpi\(\(a\), \(b\), -1\)/u);
     assert.match(patch,/preserving original order[\s\S]*equal-key elements/u);
     const js=readFileSync(new URL('../js/cmd.js',import.meta.url),'utf8');
-    assert.match(js,/case 'dovspell':\s*return await runShowspellsCommand\(key, state\);/u);
+    assert.match(js,/dovspell: \(key, state\) => runShowspellsCommand\(key, state\),/u);
 });
 
 import { GameDisplay } from '../js/game_display.js';

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { ART_SUNSWORD } from '../js/artifacts.js';
@@ -9,7 +9,7 @@ import { ART_SUNSWORD } from '../js/artifacts.js';
 // cmd.c binds A to doddoremarm; source do_takeoff clears the primary through
 // setuwep before announcing empty hands and completing the occupation.
 test('takeoffall admits the production command and unwields Sunsword', async () => {
-    assert.ok(ADMITTED_COMMANDS.includes('takeoffall'));
+    assert.ok(DISPATCHED_COMMANDS.includes('takeoffall'));
     const recipe = JSON.parse(readFileSync(new URL(
         '../recipes/do_wear.c/takeoff-all-primary.recipe.session.json', import.meta.url,
     )));

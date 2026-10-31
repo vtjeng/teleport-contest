@@ -84,7 +84,7 @@ test('stats report orders every group and awaits the existing text window', asyn
     assert.equal(rows.at(-1).text, wiz.memory_stats_line('  Grand total', 0, 0));
     release(); assert.equal(await pending, ECMD_OK);
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
-    assert.match(js, /case 'wiz_show_stats':\s+return await wiz_show_stats\(state\);/u);
+    assert.match(js, /wiz_show_stats: \(key, state\) => wiz_show_stats\(state\),/u);
 });
 test('allocation helper formulas and production callers are pinned to whole C source', () => {
     const source = file => readFileSync(new URL('../nethack-c/upstream/src/' + file + '.c', import.meta.url), 'utf8');

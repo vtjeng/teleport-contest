@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     ECMD_OK,
     ECMD_TIME,
@@ -381,7 +381,7 @@ test('the production eat command consumes an admitted fire-elemental weapon',
 
 test('the eat command is admitted and shares extcmdlist row with doeat',
     () => {
-    assert.ok(ADMITTED_COMMANDS.includes('eat'));
+    assert.ok(DISPATCHED_COMMANDS.includes('eat'));
     const row = extcmdlist.find(({ ef_txt }) => ef_txt === 'eat');
     assert.ok(row, 'extcmdlist[] has an eat row');
     assert.equal(row.ef_funct, 'doeat');

@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { ADMITTED_COMMANDS, rhack } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS, rhack } from '../js/cmd.js';
 import { ECMD_OK } from '../js/const.js';
 import { AUTOCOMPLETE, IFBURIED, WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -23,9 +23,9 @@ test('UUID command matches its whole source body and wizard-only row', () => {
     assert.equal(row.flags, AUTOCOMPLETE | WIZMODECMD);
     assert.equal(row.flags & IFBURIED, 0);
     assert.match(commandSource, /"wizshownhuuid", "show NHUUID for this game",\s*wiz_show_nhuuid, AUTOCOMPLETE \| WIZMODECMD/u);
-    assert.ok(ADMITTED_COMMANDS.includes('wizshownhuuid'));
+    assert.ok(DISPATCHED_COMMANDS.includes('wizshownhuuid'));
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
-    assert.match(js, /case 'wiz_show_nhuuid':\s*return await wiz_show_nhuuid\(state\);/u);
+    assert.match(js, /wiz_show_nhuuid: \(key, state\) => wiz_show_nhuuid\(state\),/u);
     assert.match(js, /if \(command === 'wizshownhuuid'\)\s*\{[\s\S]*?await wiz_show_nhuuid\(state\);\s*resetCommandVars\(state, state\.multi < 0\);\s*return;/u);
     assert.match(js, /command !== 'wizshownhuuid'/u);
 });

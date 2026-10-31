@@ -53,5 +53,5 @@ test('object probabilities await paging and return through the canonical dispatc
     const c = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(c, /"wizobjprobs", "list object generation probabilities",\s+wiz_objprobs/u);
-    assert.match(js, /case 'wiz_objprobs':\s+return await wiz_objprobs\(state\);/u);
+    assert.match(js, /wiz_objprobs: \(key, state\) => wiz_objprobs\(state\),/u);
 });

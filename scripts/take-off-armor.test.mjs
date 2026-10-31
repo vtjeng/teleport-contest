@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     ECMD_CANCEL,
     ECMD_OK,
@@ -197,7 +197,7 @@ function refusalWitness(replay) {
 
 test('the takeoff command is admitted and shares its row with dotakeoff',
     () => {
-    assert.ok(ADMITTED_COMMANDS.includes('takeoff'));
+    assert.ok(DISPATCHED_COMMANDS.includes('takeoff'));
     const row = extcmdlist.find(({ ef_txt }) => ef_txt === 'takeoff');
     assert.ok(row, 'extcmdlist[] has a takeoff row');
     assert.equal(row.ef_funct, 'dotakeoff');

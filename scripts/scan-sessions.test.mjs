@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import {
-    ADMITTED_COMMANDS,
+    DISPATCHED_COMMANDS,
     MOVEMENT_INTENTS,
     UnsupportedHeroCommandBoundaryError,
     UnsupportedHeroCommandBranchBoundaryError,
@@ -400,29 +400,34 @@ test('an ambiguous extended prefix keeps the text that was typed', () => {
 
 test('the supported set is every command the port dispatches', () => {
     const supported = supportedCommands();
-    for (const command of ADMITTED_COMMANDS)
+    for (const command of DISPATCHED_COMMANDS)
         assert.equal(supported.has(command), true, command);
-    // Every MOVEMENT_INTENTS entry carries run mode 0, 1 or 3 today, so all 24
-    // are admitted: 8 move, 8 run and 8 rush. The run-mode filter guards a
-    // future entry rather than excluding a present one, which is why this
-    // asserts the count instead of a filtered subset.
+    assert.equal(supported.size, DISPATCHED_COMMANDS.length);
+    // The 24 movement rows are extcmdlist[] rows like any other, so the
+    // derived list carries them: 8 move, 8 run and 8 rush.
+    for (const command of Object.keys(MOVEMENT_INTENTS))
+        assert.equal(supported.has(command), true, command);
     assert.equal(Object.keys(MOVEMENT_INTENTS).length, 24);
-    assert.equal(supported.size, ADMITTED_COMMANDS.length + 24);
-    // `travel` is now admitted through its ordinary keyboard route. Its
+    // `travel` is dispatched through its ordinary keyboard route. Its
     // target-selection slice stops at findtravelpath(), so the command is
     // supported here even though later travel steps still carry debt.
     assert.equal(supported.has('travel'), true);
+    // The rows whose function the port lacks are the ones callExtcmdFunction()
+    // refuses; none of them has a default key.
+    assert.equal(supported.has('debugfuzzer'), false);
+    assert.equal(supported.has('bugreport'), false);
 });
 
 // isCommandRefusal() reads the class js/cmd.js raised and never the message,
 // so each case below carries the shortest reason that identifies the seam it
-// stands for. 0x71 is `q`, an admitted command byte, and is the same in the
+// stands for. 0x71 is `q`, a dispatched command byte, and is the same in the
 // first two cases on purpose: nothing in the recording tells them apart.
 test('isCommandRefusal separates a refused command from a refused branch',
     () => {
-    // The dispatch seam. admitParsedCommand() refuses a byte ADMITTED_COMMANDS
-    // does not admit, and supportedCommands() reads that same set, so the
-    // model derives this stop from the recording by itself.
+    // The dispatch seam. callExtcmdFunction() refuses a row whose function is
+    // absent from DISPATCHED_COMMANDS' source table, and supportedCommands()
+    // reads that same set, so the model derives this stop from the recording
+    // by itself.
     assert.equal(
         isCommandRefusal(new UnsupportedHeroCommandBoundaryError(
             'the repeated-command boundary', 0x71)),

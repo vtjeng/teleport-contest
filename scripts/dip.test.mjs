@@ -482,7 +482,7 @@ test('dodip source and JavaScript share the pool, decline and potion paths', asy
     assert.match(js, /export async function dodip\(state = game/u);
     assert.match(js, /export async function dip_into\(state = game/u);
     assert.match(js, /export async function potion_dip\(obj, potion/u);
-    assert.match(commands, /case 'dip_into':[\s\S]*?runDipIntoCommand/u);
+    assert.match(commands, /dip_into: \(key, state\) => runDipIntoCommand/u);
     assert.doesNotMatch(js + commands, /UnsupportedDipError/u);
 });
 

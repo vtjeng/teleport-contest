@@ -9,7 +9,7 @@ import {
     its_dead,
     UnsupportedApplyError,
 } from '../js/apply.js';
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     BLINDED,
     BOTH_SIDES,
@@ -575,7 +575,7 @@ test('piousness names each band of the alignment record', () => {
 
 test('the apply command is admitted and shares its extcmdlist row with doapply',
     () => {
-    assert.ok(ADMITTED_COMMANDS.includes('apply'));
+    assert.ok(DISPATCHED_COMMANDS.includes('apply'));
     const row = extcmdlist.find(({ ef_txt }) => ef_txt === 'apply');
     assert.ok(row, 'extcmdlist[] has an apply row');
     assert.equal(row.ef_funct, 'doapply');

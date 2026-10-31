@@ -9,18 +9,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { InMemoryStorage } from '../js/storage.js';
 
-test('save is in ADMITTED_COMMANDS', () => {
+test('save is in DISPATCHED_COMMANDS', () => {
     // The 'save' command must be admitted so that admitParsedCommand() does
     // not throw UnsupportedHeroCommandBoundaryError when the player presses
     // S (key 0x53, extcmdlist row "save").
     assert.ok(
-        ADMITTED_COMMANDS.includes('save'),
-        'ADMITTED_COMMANDS must include "save"',
+        DISPATCHED_COMMANDS.includes('save'),
+        'DISPATCHED_COMMANDS must include "save"',
     );
 });
 

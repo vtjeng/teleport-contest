@@ -559,10 +559,10 @@ test('a run stops in front of a boulder instead of ending the segment',
         assert.equal(refusalReason(sx, sy, 3), null);
     });
 
-// cmd.c do_rush() (1590-1601) sets svc.context.run to 2 for the 'g' prefix.
-// js/cmd.js ADMITTED_RUN_MODES (945) omits it, so no keystroke this port
-// accepts produces it, but the arm's threshold is `>= 2` rather than `> 2` and
-// the seam takes the value as an argument.
+// cmd.c do_rush() (1590-1601) sets svc.context.run to 2 for the 'g' prefix,
+// which js/cmd.js rhack()'s prefix loop dispatches. The arm's threshold is
+// `>= 2` rather than `> 2` and the seam takes the value as an argument, so
+// the prefix value is checked here beside the rush-row value.
 test('the run arm claims the g prefix value as well as the rush value',
     async () => {
         const { sx, sy, rx, ry } = await heroBesideBoulder();

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c rhack() dispatching the v key through its extcmdlist row (chronicle, insight.c do_gamelog), then ^A: do_repeat() pops the CMDQ_EXTCMD node and rhack() dispatches the same row with no key. Independent seed, date, and Knight.",
+  "segments": [
+    {
+      "seed": 731204,
+      "datetime": "20270413131500",
+      "nethackrc": "OPTIONS=name:Ren,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "v \u0001 "
+    }
+  ]
+}

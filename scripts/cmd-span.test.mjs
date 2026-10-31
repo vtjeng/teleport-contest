@@ -97,10 +97,10 @@ import { selection_new } from '../js/themerooms.js';
 test('panic retains its source wizard row and typed/direct no-time dispatch', async () => {
     const source = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
     assert.match(source, /"panic", "test panic routine \(fatal to game\)",\s*wiz_panic, IFBURIED \| AUTOCOMPLETE \| WIZMODECMD/u);
-    const { ADMITTED_COMMANDS } = await import('../js/cmd.js');
-    assert.ok(ADMITTED_COMMANDS.includes('panic'));
+    const { DISPATCHED_COMMANDS } = await import('../js/cmd.js');
+    assert.ok(DISPATCHED_COMMANDS.includes('panic'));
     const js = readFileSync('js/cmd.js', 'utf8');
-    assert.match(js, /case 'wiz_panic':\s*return await wiz_panic\(state\);/u);
+    assert.match(js, /wiz_panic: \(key, state\) => wiz_panic\(state\),/u);
     assert.match(js, /if \(command === 'panic'\)\s*\{[\s\S]*?await wiz_panic\(state\);\s*resetCommandVars\(state, state\.multi < 0\);\s*return;/u);
     assert.match(js, /command !== 'wizkill'\s*&& command !== 'panic'/u);
 });
@@ -418,12 +418,12 @@ void game;
 test('wizard smell dispatch preserves the source row and no-time results', async () => {
     const source = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
     const jsSource = readFileSync('js/cmd.js', 'utf8');
-    const { ADMITTED_COMMANDS } = await import('../js/cmd.js');
+    const { DISPATCHED_COMMANDS } = await import('../js/cmd.js');
     // cmd.c's generated row has no default key; bind_key() may install one.
     assert.match(source,
         /"wizsmell", "smell monster",\s*wiz_smell, IFBURIED \| AUTOCOMPLETE \| WIZMODECMD, NULL/u);
-    assert.ok(ADMITTED_COMMANDS.includes('wizsmell'));
-    assert.match(jsSource, /case 'wiz_smell':\s*return await runSmellCommand\(key, state\);/u);
+    assert.ok(DISPATCHED_COMMANDS.includes('wizsmell'));
+    assert.match(jsSource, /wiz_smell: \(key, state\) => runSmellCommand\(key, state\),/u);
     assert.match(jsSource,
         /if \(command === 'wizsmell'\)[\s\S]*?ECMD_CANCEL \| ECMD_FAIL[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
     const wizardSource = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
@@ -439,10 +439,10 @@ test('wizard smell dispatch preserves the source row and no-time results', async
 test('wizard kill dispatch admits the menu prefix and no-time configured key', async () => {
     const source = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
     const js = readFileSync('js/cmd.js', 'utf8');
-    const { ADMITTED_COMMANDS } = await import('../js/cmd.js');
+    const { DISPATCHED_COMMANDS } = await import('../js/cmd.js');
     assert.match(source, /"wizkill", "slay a monster",[\s\S]*?wiz_kill, \(IFBURIED \| AUTOCOMPLETE \| WIZMODECMD[\s\S]*?CMD_M_PREFIX \| NOFUZZERCMD\)/u);
-    assert.ok(ADMITTED_COMMANDS.includes('wizkill'));
-    assert.match(js, /case 'wiz_kill':\s*return await runKillCommand\(key, state\);/u);
+    assert.ok(DISPATCHED_COMMANDS.includes('wizkill'));
+    assert.match(js, /wiz_kill: \(key, state\) => runKillCommand\(key, state\),/u);
     // The selected command callback preserves C's ge.ext_tlist handoff to rhack.
     assert.match(js, /if \(command === '#'\)[\s\S]*?doextcmd\(key, state, \(entry\) =>[\s\S]*?selectedEntry = entry;[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
     assert.match(js, /if \(command === 'wizkill'\)[\s\S]*?runKillCommand\(key, state\)[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);

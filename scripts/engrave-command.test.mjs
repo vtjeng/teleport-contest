@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     AIR,
     CLOUD,
@@ -250,7 +250,7 @@ test('disturb_grave refuses a grave already marked in horizontal', async () => {
 
 test('bare fingertips write a rate-10 dust engraving in one action',
     async () => {
-        assert.ok(ADMITTED_COMMANDS.includes('engrave'));
+        assert.ok(DISPATCHED_COMMANDS.includes('engrave'));
         const recipe = loadEngraveFingertipDustRecipe();
         const baseline = {
             ...recipe.segments[0],

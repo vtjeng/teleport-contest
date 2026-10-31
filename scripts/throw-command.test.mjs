@@ -23,7 +23,7 @@ import {
     loadThrowCancelRecipe,
     loadThrowCommandRecipe,
 } from './run-throw-command.mjs';
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { SCR_IDENTIFY, SCR_MAGIC_MAPPING, YUMI } from '../js/objects.js';
 import { W_SWAPWEP, W_WEP } from '../js/const.js';
@@ -77,7 +77,7 @@ function countOnFloor(otyp) {
 
 test('the throw command is admitted and shares its extcmdlist row with '
     + 'dothrow', () => {
-    assert.ok(ADMITTED_COMMANDS.includes('throw'));
+    assert.ok(DISPATCHED_COMMANDS.includes('throw'));
     const row = extcmdlist.find(({ ef_txt }) => ef_txt === 'throw');
     assert.ok(row, 'extcmdlist[] has a throw row');
     assert.equal(row.ef_funct, 'dothrow');

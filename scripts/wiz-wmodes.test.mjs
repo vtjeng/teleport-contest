@@ -53,5 +53,5 @@ test('wall-mode command waits for dismissal and has its canonical dispatcher', a
     const c = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(c, /"wmode", "show wall modes",\s+wiz_show_wmodes, IFBURIED \| AUTOCOMPLETE \| WIZMODECMD/u);
-    assert.match(js, /case 'wiz_show_wmodes':\s+return await wiz_show_wmodes\(state\);/u);
+    assert.match(js, /wiz_show_wmodes: \(key, state\) => wiz_show_wmodes\(state\),/u);
 });

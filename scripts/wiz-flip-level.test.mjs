@@ -70,7 +70,7 @@ test('wizfliplevel production dispatcher reaches its canonical owner', () => {
     assert.match(c, /flip_level_rnd\(3, TRUE\);/u);
     assert.match(c, /flip_level\(\(int\) c, TRUE\);/u);
     const cmd = readFileSync('js/cmd.js', 'utf8');
-    assert.match(cmd, /case 'wiz_flip_level':\s*return await wiz_flip_level\(state\);/u);
+    assert.match(cmd, /wiz_flip_level: \(key, state\) => wiz_flip_level\(state\),/u);
 });
 
 test('sp_lev.c flips object indexes, context, metadata and source combined pit bits', async () => {

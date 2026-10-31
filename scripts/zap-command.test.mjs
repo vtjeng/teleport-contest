@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { ART_EXCALIBUR } from '../js/artifacts.js';
-import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
     DOOR,
     A_CHA,
@@ -495,7 +495,7 @@ test('Tobjnam prepends The and agrees the verb with the object', async () => {
 
 test('the zap command is admitted and shares its extcmdlist row with dozap',
     () => {
-    assert.ok(ADMITTED_COMMANDS.includes('zap'));
+    assert.ok(DISPATCHED_COMMANDS.includes('zap'));
     const row = extcmdlist.find(({ ef_txt }) => ef_txt === 'zap');
     assert.ok(row, 'extcmdlist[] has a zap row');
     assert.equal(row.ef_funct, 'dozap');

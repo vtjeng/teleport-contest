@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    ADMITTED_COMMANDS,
+    DISPATCHED_COMMANDS,
     failClosedCommandRefusals,
 } from '../js/cmd.js';
 import { FEMALE, IN_SIGHT, MALE, NEUTRAL } from '../js/const.js';
@@ -163,7 +163,7 @@ test('the ^G key reaches the command seam rather than the boundary', () => {
     // js/cmd.js admitParsedCommand() throws for a parsed command outside this
     // list, before rhack() dispatches anything, so the key would stop at the
     // repeated-command boundary without the row.
-    assert.ok(ADMITTED_COMMANDS.includes('wizgenesis'));
+    assert.ok(DISPATCHED_COMMANDS.includes('wizgenesis'));
 });
 
 test('the genesis command seam has no monster-creation refusal class', () => {

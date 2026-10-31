@@ -16,9 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import {
-    ADMITTED_COMMANDS,
-    ADMITTED_RUN_MODES,
-    MOVEMENT_INTENTS,
+    DISPATCHED_COMMANDS,
     UnsupportedHeroCommandBoundaryError,
     UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
@@ -268,22 +266,18 @@ export function extendedCommandAt(steps, index) {
 }
 
 /**
- * Every command the port dispatches today, named from js/cmd.js rather than
- * copied, so this scan cannot drift from the boundary it measures.
- *
- * `admitParsedCommand()` admits ADMITTED_COMMANDS, a movement command whose run
- * mode is one of ADMITTED_RUN_MODES, Escape, and a byte bound to no command.
- * The last two carry no command name and so cannot appear as debt.
+ * Every command the port dispatches today, derived in js/cmd.js from the
+ * extcmdlist[] rows whose function the port has, so this scan cannot drift
+ * from the dispatch it measures. rhack() dispatches every bound row through
+ * that table; Escape and a byte bound to no command carry no command name and
+ * so cannot appear as debt.
  *
  * It answers for the command byte alone. A command this set names is still
  * refused when the count typed ahead of it left more than one repetition, so a
  * stop on such a step reads as unreconciled rather than as debt.
  */
 export function supportedCommands() {
-    const supported = new Set(ADMITTED_COMMANDS);
-    for (const [command, intent] of Object.entries(MOVEMENT_INTENTS))
-        if (ADMITTED_RUN_MODES.includes(intent[2])) supported.add(command);
-    return supported;
+    return new Set(DISPATCHED_COMMANDS);
 }
 
 /**
@@ -359,8 +353,8 @@ export function assembleBehaviors(issued, supported, behavioral = null) {
  * Whether the port refused the COMMAND, which is the one kind of stop the
  * recorded input can name for itself.
  *
- * `supportedCommands()` resolves each recorded byte against ADMITTED_COMMANDS,
- * which admits a command by its first byte alone. A refusal at that byte is
+ * `supportedCommands()` resolves each recorded byte against DISPATCHED_COMMANDS,
+ * which names a command by its first byte alone. A refusal at that byte is
  * therefore a behavior the model derives from the recording. A refusal below it
  * is not: failClosedCommand() raises js/cmd.js
  * UnsupportedHeroCommandBranchBoundaryError inside a command the port did
@@ -783,12 +777,11 @@ async function replaySession(file, data, replaySegment) {
 /**
  * Every command the port demonstrably ran, taken from the sessions themselves.
  *
- * `supportedCommands()` reads `ADMITTED_COMMANDS`, which gates only the COMMAND
- * byte, never the count typed ahead of it. An extended command reaches its
- * handler through
- * `doextcmd()` and never appears in that list, so porting one leaves it reading
- * as debt. A command issued before the step the port stopped on is one the port
- * executed, which settles the question without a second table to maintain.
+ * `supportedCommands()` reads `DISPATCHED_COMMANDS`, which names only the
+ * COMMAND byte's row, never the count typed ahead of it, and names a row whose
+ * function is present even when a branch inside it still fails closed. A
+ * command issued before the step the port stopped on is one the port executed,
+ * which settles the question without a second table to maintain.
  *
  * `stopPointAgreement()` is what exposed the gap: porting `#ride` left both
  * ride sessions with an earliest behavior sitting 15 and 2 steps before the
@@ -823,7 +816,7 @@ export function attachBehaviors(rows) {
  */
 function isSupported(command, supported) {
     // Two spellings reach this set. `executedCommands()` adds what the report
-    // prints, `#ride`, while `ADMITTED_COMMANDS` names the command a `#` prompt
+    // prints, `#ride`, while `DISPATCHED_COMMANDS` names the command a `#` prompt
     // resolves to, `look`, without the prefix. Accept either.
     if (supported.has(command)) return true;
     if (!command.startsWith(EXTENDED_COMMAND_KEY)) return false;

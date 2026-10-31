@@ -423,7 +423,7 @@ test('wiz_makemap preserves tower snapshot, pre/generation/post order and result
 
 test('wiz_makemap has awaited interactive and queued command dispatch', () => {
     const js = readFileSync('js/cmd.js', 'utf8');
-    assert.match(js, /case 'wiz_makemap':\s*(?:\/\/[^\n]*\n\s*)*return await wiz_makemap\(state\);/u);
+    assert.match(js, /wiz_makemap: \(key, state\) => wiz_makemap\(state\),/u);
     assert.match(js, /queuedExtcmdEntry\?\.ef_funct === 'wiz_makemap'[\s\S]*?const res = await wiz_makemap\(state\);[\s\S]*?resetCommandVars\(state, state.multi < 0\);/u);
 });
 
