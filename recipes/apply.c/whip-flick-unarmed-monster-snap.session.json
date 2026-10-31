@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 73519204,
+    "datetime": "20261031093000",
+    "nethackrc": "OPTIONS=name:WhipSnap,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,!safe_wait,time,showexp\n",
+    "comment": "Independent apply.c use_whip() case for its whipattack path against a monster that wields nothing while the hero's proficiency is 0. The debug-mode Priest rolls Dx 12 at this seed, so proficient stays 0 and force_attack() is skipped. She wishes for an uncursed bullwhip (letter i), wields it, and applies it south-east at the lichen that starts beside her: C prints \"You flick your bullwhip towards the lichen.\" and then use_whip()'s msg_snap, \"Snap!\".",
+    "moves": " \u0017uncursed bullwhip\nwiain"
+  }]
+}

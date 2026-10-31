@@ -778,6 +778,12 @@ export function snickersnee_used_dist_attk(obj, state = game) {
         && state.context?.snickersnee_turn === state.moves);
 }
 
+// C ref: apply.c use_whip() declares msg_slipsfree and msg_snap as locals
+// (2961-2962) and prints them both before and after its `whipattack:` label.
+// JS splits that label into whipattack(), so the two functions share them here.
+const msgSlipsFree = 'The bullwhip slips free.';
+const msgSnap = 'Snap!';
+
 // C ref: apply.c use_whip() (2954-3271). Its petrifying-corpse snatch,
 // kick_steed(), and fire_damage() calls use their source owners.
 export async function use_whip(obj, state = game, env = {}) {
@@ -785,8 +791,6 @@ export async function use_whip(obj, state = game, env = {}) {
     let rx;
     let ry;
     let proficient = 0;
-    const msgSlipsFree = 'The bullwhip slips free.';
-    const msgSnap = 'Snap!';
     const u = state.u;
 
     if (obj !== state.uwep) {
