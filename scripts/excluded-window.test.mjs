@@ -1,7 +1,12 @@
-// Guards on the excluded gameplay window 736b8cd04..15ed31f2d and the
-// restoration audits made against it (experiments/restoration/,
-// experiments/backlog-terminal-lava/). Moved unchanged from the removed
-// dashboard-restoration.test.mjs, without its two dashboard-rendering tests;
+// Guards on the excluded gameplay window 736b8cd04..15ed31f2d.
+//
+// Vincent's rule: no code from the commits in that window may return to the
+// game, whether by cherry-picking or copying part of it. The behaviour those
+// commits changed may be ported again from the C source.
+// "game code must not copy the excluded commits" enforces the rule. The other
+// tests pin the historical restoration audits (experiments/restoration/,
+// experiments/backlog-terminal-lava/) to the commits they reviewed; they read
+// only past commits and never the current tree.
 // trial-monitor/restoration-context.json is the former
 // trial-monitor/dashboard-restoration.json.
 import assert from 'node:assert/strict';
@@ -11,10 +16,106 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 const read = path => readFileSync(new URL(`../trial-monitor/${path}`, import.meta.url), 'utf8');
 const context = JSON.parse(read('restoration-context.json'));
+const root = new URL('../', import.meta.url);
+const git = (...args) => execFileSync('git', args, {cwd:root, encoding:'utf8', maxBuffer:1 << 28});
+const sourceAt = (commit, path) => git('show', `${commit}:${path}`);
+const digest = bytes => createHash('sha256').update(bytes).digest('hex');
+const currentSource = path => readFileSync(new URL(path, root), 'utf8');
+
+// The window runs from the commit after WINDOW_BASE through WINDOW_TIP.
+const WINDOW_BASE = '736b8cd0424817ab9838e29b7ffb7e04228a354b';
+const WINDOW_TIP = '15ed31f2d2a765d68c8377f8360f4475d9476ac7';
+// Four consecutive window lines in one file count as a copy. Three-line runs
+// matched the C tables that every port writes identically (three GFILTER_*
+// rows, three GPCOORDS_* rows); the window's own tip still has 12 runs of
+// four or more, so the check still finds partial copies.
+const COPY_RUN = 4;
+
+const normalize = line => line.trim().replace(/\s+/gu, ' ');
+// Blank lines and short punctuation lines ("} else {", "});") separate no
+// runs and join none.
+const significant = line => line.length >= 8 && /[A-Za-z0-9]/u.test(line);
+
+// Lines the window added that no js/ file contained before it. A line the
+// window moved, or one the codebase already used elsewhere (menu boilerplate,
+// common calls), is not evidence of copying.
+function windowLines() {
+  const jsFiles = git('ls-tree', '-r', '--name-only', WINDOW_BASE, '--', 'js/')
+    .trim().split('\n').filter(path => path.endsWith('.js'));
+  const before = new Set(git('show', ...jsFiles.map(path => `${WINDOW_BASE}:${path}`))
+    .split('\n').map(normalize));
+  const added = new Set();
+  for (const line of git('diff', '-U0', WINDOW_BASE, WINDOW_TIP, '--', 'js/').split('\n')) {
+    if (!line.startsWith('+') || line.startsWith('+++')) continue;
+    const text = normalize(line.slice(1));
+    if (significant(text) && !before.has(text)) added.add(text);
+  }
+  return added;
+}
+
+// Runs of at least COPY_RUN consecutive significant lines that are all window
+// lines, as {path, first, last, text}. Line numbers are one-based.
+function copiedRuns(sources, added) {
+  const runs = [];
+  for (const [path, source] of sources) {
+    let run = [];
+    const flush = () => {
+      if (run.length >= COPY_RUN)
+        runs.push({path, first:run[0].number, last:run.at(-1).number, text:run.map(line => line.text).join('\n')});
+      run = [];
+    };
+    source.split('\n').forEach((raw, index) => {
+      const text = normalize(raw);
+      if (!significant(text)) return;
+      if (added.has(text)) run.push({text, number:index + 1});
+      else flush();
+    });
+    flush();
+  }
+  return runs;
+}
+
+// Runs reviewed and found to be independent ports from the C source. Each
+// entry names the file, the sha256 of the run's normalized text (as the
+// failure message prints it), and why the match is forced. Add an entry only
+// after comparing the run with the window's version and with the C source.
+const REVIEWED_RUNS = [
+];
+
+const reviewed = run => REVIEWED_RUNS.some(entry => entry.path === run.path && entry.sha256 === digest(run.text));
+const describe = run => `${run.path}:${run.first}-${run.last} sha256 ${digest(run.text)}\n${run.text}`;
+
+test('game code must not copy the excluded commits', () => {
+  const added = windowLines();
+  const paths = git('ls-files', '--', 'js/').trim().split('\n').filter(path => path.endsWith('.js'));
+  const copies = copiedRuns(paths.map(path => [path, currentSource(path)]), added).filter(run => !reviewed(run));
+  assert.deepEqual(copies.map(describe), []);
+});
+
+test('copied-run check finds the window and ignores code shared with the base', () => {
+  const added = windowLines();
+  // The window's tip holds every window line, so the check must flag it.
+  const tipPaths = git('diff', '--name-only', WINDOW_BASE, WINDOW_TIP, '--', 'js/').trim().split('\n');
+  const tipRuns = copiedRuns(tipPaths.map(path => [path, sourceAt(WINDOW_TIP, path)]), added);
+  assert.ok(tipRuns.length >= 12, `window tip runs: ${tipRuns.length}`);
+  // The base predates the window, so none of its lines are window lines.
+  assert.deepEqual(copiedRuns(tipPaths.map(path => [path, sourceAt(WINDOW_BASE, path)]), added), []);
+  // A single copied run pasted into an unrelated file is found there.
+  const [first] = tipRuns;
+  const pasted = copiedRuns([['js/example.js', `const a = 1;\n${first.text}\n`]], added);
+  assert.deepEqual(pasted.map(run => [run.first, run.text]), [[2, first.text]]);
+  // One line short of COPY_RUN is not a copy.
+  const short = first.text.split('\n').slice(0, COPY_RUN - 1).join('\n');
+  assert.deepEqual(copiedRuns([['js/example.js', short]], added), []);
+  // An unrelated line between window lines breaks the run.
+  const split = first.text.split('\n');
+  split.splice(2, 0, 'const unrelatedLineBreaksTheRun = true;');
+  assert.ok(copiedRuns([['js/example.js', split.join('\n')]], added).every(run => run.text !== first.text));
+});
 
 test('frozen evidence remains byte-pinned and historical outcomes keep source revisions', () => {
   const bytes = read('evidence.json');
-  assert.equal(createHash('sha256').update(bytes).digest('hex'), context.evidenceSha256);
+  assert.equal(digest(bytes), context.evidenceSha256);
   const evidence = JSON.parse(bytes);
   assert.ok(evidence.sources.length > 0);
   assert.ok(evidence.sources.every(source => /^[a-f0-9]{40}$/u.test(source.ref)));
@@ -36,29 +137,6 @@ test('applied-source notice matches only the local selected original patches', (
 // Historical source pins belong to their reviewed snapshot. A later, separately
 // reviewed batch must not invalidate that provenance merely by sharing a file.
 const currentAudit = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery19-window-audit-20261030.json', import.meta.url), 'utf8'));
-const root = new URL('../', import.meta.url);
-const sourceAt = (commit, path) => execFileSync('git', ['show', `${commit}:${path}`], {cwd:root, encoding:'utf8'});
-const digest = bytes => createHash('sha256').update(bytes).digest('hex');
-const currentSource = path => readFileSync(new URL(path, root), 'utf8');
-function boundedSource(source, start, end) {
-  const first = source.indexOf(start);
-  assert.ok(first >= 0, `missing start: ${start}`);
-  assert.equal(source.indexOf(start, first + start.length), -1, `ambiguous start: ${start}`);
-  const last = source.indexOf(end, first + start.length);
-  assert.ok(last > first, `missing end: ${end}`);
-  return source.slice(first, last);
-}
-function assertWindowBoundaries(readSource) {
-  const paths = [
-    ['js/allmain.js', 'export async function finishHeroTimeEffects(', '\nexport async function '],
-    ['js/monmove.js', '    await m_respond(monster, env);', '    // PHASE TWO:'],
-  ];
-  for (const [path, start, end] of paths) {
-    assert.equal(boundedSource(readSource(path), start, end),
-      boundedSource(sourceAt(currentAudit.goodCommit, path), start, end), path);
-  }
-  assert.equal(readSource('js/shknam.js'), sourceAt(currentAudit.goodCommit, 'js/shknam.js'), 'js/shknam.js');
-}
 
 test('broad recovery preserves the reviewed window exclusion boundary', () => {
   const audit = JSON.parse(readFileSync(new URL('../experiments/restoration/recovery-broad-window-audit-20261030.json', import.meta.url), 'utf8'));
@@ -73,81 +151,38 @@ test('broad recovery preserves the reviewed window exclusion boundary', () => {
   }
 });
 
-
-test('recovery19 separately pins its reviewed runtime and retains the window boundaries', () => {
-  assert.equal(execFileSync('git', ['rev-parse', `${currentAudit.candidate}^{tree}`], {cwd:root, encoding:'utf8'}).trim(), currentAudit.tree);
+test('recovery19 separately pins its reviewed runtime', () => {
+  assert.equal(git('rev-parse', `${currentAudit.candidate}^{tree}`).trim(), currentAudit.tree);
   for (const [path, expected] of Object.entries(currentAudit.gameplayPathHashes)) {
     assert.equal(digest(sourceAt(currentAudit.candidate, path)), expected, `reviewed ${path}`);
   }
-  const changed = execFileSync('git', ['diff', '--name-only', currentAudit.historicalAuditCommit, currentAudit.candidate, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n').sort();
+  const changed = git('diff', '--name-only', currentAudit.historicalAuditCommit, currentAudit.candidate, '--', 'js/').trim().split('\n').sort();
   assert.deepEqual(changed, [...currentAudit.runtimePaths].sort());
   for (const path of currentAudit.otherModulesUnchangedAcrossWindow) {
     assert.equal(sourceAt(currentAudit.goodCommit, path), sourceAt(currentAudit.badCommit, path), path);
   }
-  assertWindowBoundaries(currentSource);
 });
 
-for (const [name, current] of [['six', false], ['twelve', false], ['thirteen', false], ['fourteen', false], ['fourteen-revised', false]])
+for (const name of ['six', 'twelve', 'thirteen', 'fourteen', 'fourteen-revised'])
 test(`post53 ${name}-component review pins its runtime without rewriting history`, () => {
   const audit = JSON.parse(readFileSync(new URL(`../experiments/restoration/post53-${name}-window-audit-20261030.json`, import.meta.url), 'utf8'));
-  assert.equal(execFileSync('git', ['rev-parse', `${audit.candidate}^{tree}`], {cwd:root, encoding:'utf8'}).trim(), audit.tree);
-  const changed = execFileSync('git', ['diff', '--name-only', audit.base, audit.candidate, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n').sort();
+  assert.equal(git('rev-parse', `${audit.candidate}^{tree}`).trim(), audit.tree);
+  const changed = git('diff', '--name-only', audit.base, audit.candidate, '--', 'js/').trim().split('\n').sort();
   assert.deepEqual(changed, [...audit.runtimePaths].sort());
-  for (const [path, expected] of Object.entries(audit.gameplayPathHashes)) {
+  for (const [path, expected] of Object.entries(audit.gameplayPathHashes))
     assert.equal(digest(sourceAt(audit.candidate, path)), expected, `post53 reviewed ${path}`);
-    if (current) assert.equal(digest(currentSource(path)), expected, `current ${path}`);
-  }
   for (const path of audit.otherModulesUnchangedAcrossWindow)
     assert.equal(sourceAt(audit.goodCommit, path), sourceAt(audit.badCommit, path), path);
-  const windowPaths = execFileSync('git', ['diff', '--name-only', audit.goodCommit, audit.badCommit, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n');
+  const windowPaths = git('diff', '--name-only', audit.goodCommit, audit.badCommit, '--', 'js/').trim().split('\n');
   assert.deepEqual(windowPaths.filter(path => changed.includes(path)), audit.windowOverlap);
   for (const path of windowPaths.filter(path => !audit.windowOverlap.includes(path)))
     assert.equal(sourceAt(audit.candidate, path), sourceAt(audit.base, path), `reviewed unchanged window owner ${path}`);
-  assertWindowBoundaries(currentSource);
 });
 
-test('terminal and mounted-entry review preserves excluded window semantics', () => {
+test('terminal and mounted-entry review pins its reviewed runtime', () => {
   const audit = JSON.parse(readFileSync(new URL('../experiments/backlog-terminal-lava/window-audit.json', import.meta.url), 'utf8'));
-  for (const [path, hash] of Object.entries(audit.currentPathHashes)) {
+  for (const [path, hash] of Object.entries(audit.currentPathHashes))
     assert.equal(digest(sourceAt(audit.runtimeCommit, path)), hash, `reviewed ${path}`);
-    assert.equal(digest(currentSource(path)), hash, `current ${path}`);
-  }
-  const changed = execFileSync('git', ['diff', '--name-only', audit.base, audit.runtimeCommit, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n').sort();
+  const changed = git('diff', '--name-only', audit.base, audit.runtimeCommit, '--', 'js/').trim().split('\n').sort();
   assert.deepEqual(changed, audit.runtimePaths);
-  assertWindowBoundaries(currentSource);
-  const windowPaths = execFileSync('git', ['diff', '--name-only', currentAudit.goodCommit, currentAudit.badCommit, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n');
-  for (const path of windowPaths.filter(path => path !== 'js/explode.js'))
-    assert.equal(currentSource(path), sourceAt(audit.base, path), `unchanged excluded owner ${path}`);
-  const guard = '                    // A recursive monster explosion can end the game in\n'
-    + "                    // C's nonreturning done(); the enclosing blast stops too.\n"
-    + '                    if (state.program_state?.gameover) return;\n';
-  const checkExplosion = source => {
-    assert.equal(source.split(guard).length, 2, 'one narrowly reviewed continuation guard');
-    assert.equal(source.replace(guard, ''), sourceAt(audit.base, 'js/explode.js'));
-  };
-  checkExplosion(currentSource('js/explode.js'));
-  assert.equal(sourceAt(audit.base, 'js/explode.js'), sourceAt(currentAudit.goodCommit, 'js/explode.js'));
-  // Attribution restoration is still forbidden, even alongside the allowed guard.
-  const prior = "state.killer.name = generic ? 'explosion' : str;";
-  assert.ok(currentSource('js/explode.js').includes(prior));
-  assert.throws(() => checkExplosion(currentSource('js/explode.js').replace(prior, 'state.killer.name = str;')), {name:'AssertionError'});
-});
-
-test('window boundary controls reject changed elapsed-turn, fatal-response and shop-door owners', () => {
-  const mutations = [
-    ['js/allmain.js', 'export async function finishHeroTimeEffects(state = game, env = {}) {', 'export async function finishHeroTimeEffects(state = game, env = {}) {\n    await sink_into_lava(state);'],
-    ['js/monmove.js', '    await m_respond(monster, env);', '    await m_respond(monster, env);\n    if (state.program_state?.gameover) return 1;'],
-    ['js/shknam.js', 'doorLoc.doormask === D_NODOOR', '(doorLoc.flags || doorLoc.doormask) === D_NODOOR'],
-  ];
-  for (const [path, before, after] of mutations) {
-    assert.ok(currentSource(path).includes(before), `mutation applies: ${path}`);
-    assert.throws(() => assertWindowBoundaries(candidatePath => candidatePath === path
-      ? currentSource(path).replace(before, after) : currentSource(candidatePath)), {name:'AssertionError'});
-  }
-  // Unrelated source edits do not rewrite historical evidence; current snapshot
-  // pinning above still requires an explicit new audit before adopting them.
-  assert.doesNotThrow(() => assertWindowBoundaries(path => path === 'js/allmain.js'
-    ? `${currentSource(path)}\n// unrelated trailing comment\n` : currentSource(path)));
-  assert.throws(() => boundedSource('absent', 'start', 'end'), {name:'AssertionError'});
-  assert.throws(() => boundedSource('start start end', 'start', 'end'), {name:'AssertionError'});
 });
