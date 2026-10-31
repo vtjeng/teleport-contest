@@ -886,6 +886,9 @@ async function backfire(wand, state) {
         maybeHalfPhysical(damage, state), 'exploding wand', KILLED_BY_AN,
         state,
     );
+    // end.c done() is NORETURN in C, so a fatal explosion never reaches
+    // useupall(); done_object_cleanup() has already freed the in_use wand.
+    if (state.program_state?.gameover) return;
     await useupall(wand, { state });
 }
 
@@ -932,6 +935,9 @@ export async function dozap(state = game) {
     } else if (obj.cursed && !rn2(WAND_BACKFIRE_CHANCE)) {
         /* the wand blows up in your face! */
         await backfire(obj, state);
+        // end.c done() is NORETURN in C: a fatal backfire never reaches the
+        // exercise() below, whose -rn2(2) draw would otherwise follow.
+        if (state.program_state?.gameover) return ECMD_TIME;
         await exercise(
             A_STR, false, state, { rn2 },
             { encumberMessage: encumber_msg },
@@ -984,6 +990,9 @@ export async function dozap(state = game) {
             state.current_wand = null;
         }
     }
+    // end.c done() is NORETURN in C: a fatal self-zap or ray never reaches
+    // this tail, and done_object_cleanup() has already freed the wand.
+    if (state.program_state?.gameover) return ECMD_TIME;
     if (obj.spe < 0) {
         await ttyPline(`${Tobjnam(obj, 'turn', state)} to dust.`, state);
         await useupall(obj, { state }); /* calls freeinv() -> update_inventory() */

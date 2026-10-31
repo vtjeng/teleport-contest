@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent zap.c:backfire() witness for a cursed wand that explodes fatally: after one search turn (so end.c really_done() does not take its first-move branch), the debug Rogue zaps a wished cursed wand of light and dozap()'s !rn2(WAND_BACKFIRE_CHANCE) arm calls backfire(), whose losehp(d(spe + 2, 6)) reaches end.c done() from 12 HP. C never returns from done(), so backfire()'s trailing useupall() must not run. The debug death is accepted (Die? y), disclosure is skipped (q) and no bones are saved (n). I selected seed 8300051 with a JavaScript scan over 8300001-8300300 (300 starts replayed, 3 backfired on the first zap).",
+  "segments": [
+    {
+      "seed": 8300051,
+      "datetime": "20350711141500",
+      "nethackrc": "OPTIONS=name:BackfireRogue,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "s\u0017cursed wand of light\nzg  yqn"
+    }
+  ]
+}
