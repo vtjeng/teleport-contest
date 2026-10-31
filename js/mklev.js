@@ -6323,7 +6323,10 @@ function twin_businesses(context) {
                 if (percent(50)) return 'closed';
                 return 'open';
             };
-            const placement = placements[context.randomOneBased(8) - 1];
+            // Lua d(#placements) is nhlib.lua math.random(1, n), which
+            // nhlua.c nhl_random() evaluates as 1 + rn2(n); the one-based
+            // Lua index therefore maps to this zero-based rn2() draw.
+            const placement = placements[context.random(placements.length)];
 
             run_room_descriptor(
                 {

@@ -2452,7 +2452,9 @@ test('Twin businesses builds both source shop subrooms', async () => {
             'rn2(100)', 'rnd(2)', 'rn2(77)',
             'rnd(5)', 'rnd(5)', 'rnd(3)', 'rnd(3)',
             ...Array(13).fill('rn2(100)'),
-            'rnd(8)',
+            // d(#placements): nhlib.lua math.random(1, 8) -> nhl_random()
+            // 1 + rn2(8), so C logs the index draw as rn2(8).
+            'rn2(8)',
             'rn2(100)', 'rnd(2)', 'rn2(77)',
             'rn2(100)', 'rn2(100)', 'rn2(4)', 'rn2(3)',
             'rn2(100)', 'rnd(2)', 'rn2(77)',
@@ -2533,8 +2535,10 @@ test('Twin businesses preserves all eight placement and wall variants', async ()
         assert.equal(dispatch_themeroom(
             definitionById('twin-businesses'),
         ), true, `seed ${seed}`);
+        // The table's placementIndex is the one-based Lua index; the logged
+        // rn2(8) draw is that index minus one.
         assert.ok(
-            getRngLog().includes(`rnd(8)=${placementIndex}`),
+            getRngLog().includes(`rn2(8)=${placementIndex - 1}`),
             `seed ${seed}`,
         );
 

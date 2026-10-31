@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4100027,
+      "datetime": "20260615143000",
+      "nethackrc": "OPTIONS=name:TwinShopScan,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " \u00164\n"
+    }
+  ],
+  "comment": "Naturally selected the Twin businesses themed room while generating dungeon level 4 after a debug-mode ^V level teleport (room-selection collector ordinal 13; the first hit in seeds 4100001-4100892, which yielded six). Its placement draw dat/themerms.lua:854 d(#placements) -> nhlib.lua d() math.random(1, n) -> nhlua.c nhl_random() is 1 + rn2(n), so C logs rn2(8). Inputs were chosen independently; no THEMERM override."
+}
