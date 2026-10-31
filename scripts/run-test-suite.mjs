@@ -3,7 +3,7 @@
 import { run } from 'node:test';
 import { spec, tap } from 'node:test/reporters';
 
-import { testFilesForSuite } from './test-suites.mjs';
+import { failsSuite, testFilesForSuite } from './test-suites.mjs';
 
 const args = process.argv.slice(2);
 if (args.length !== 1 && !(args.length === 3 && args[1] === '--shard'))
@@ -24,7 +24,7 @@ if (args.length === 3) {
 process.exitCode = await new Promise((resolve, reject) => {
     let failed = false;
     run({ files, concurrency: true, shard })
-        .on('test:fail', () => { failed = true; })
+        .on('test:fail', (event) => { if (failsSuite(event)) failed = true; })
         .compose(process.stdout.isTTY ? new spec() : tap)
         .on('error', reject)
         .on('end', () => resolve(failed ? 1 : 0))

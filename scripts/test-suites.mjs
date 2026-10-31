@@ -102,3 +102,10 @@ export function testFilesForSuite(name) {
     if (!files) throw new Error(`unknown test suite '${name}'`);
     return files;
 }
+
+// node:test emits 'test:fail' for a failing todo test too, with `todo` set to
+// true or to its reason string. A todo failure is expected (see
+// scripts/known-failures.test.mjs) and must not fail the suite.
+export function failsSuite(event) {
+    return event.todo === undefined || event.todo === false;
+}

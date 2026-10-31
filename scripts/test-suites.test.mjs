@@ -7,6 +7,7 @@ import { join } from 'node:path';
 
 import {
     buildTestSuites,
+    failsSuite,
     strayTestFiles,
     testFilesForSuite,
 } from './test-suites.mjs';
@@ -113,4 +114,14 @@ test('the stray-test scan reports test files outside the discovered roots',
 test('the repository has no test file outside the discovered roots', () => {
     // A test that lives outside scripts/ belongs to no suite and never runs.
     assert.deepEqual(strayTestFiles(), []);
+});
+
+test('a failing todo test does not fail the suite', () => {
+    // node:test reports a failing todo test as 'test:fail' with todo set to
+    // true, or to the reason string when one is given.
+    assert.equal(failsSuite({ todo: true }), false);
+    assert.equal(failsSuite({ todo: 'known divergence' }), false);
+    // An ordinary failure leaves todo undefined; false is the explicit form.
+    assert.equal(failsSuite({}), true);
+    assert.equal(failsSuite({ todo: false }), true);
 });
