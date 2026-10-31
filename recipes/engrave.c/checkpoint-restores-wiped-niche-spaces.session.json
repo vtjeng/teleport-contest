@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5149,
+      "datetime": "20070314090000",
+      "nethackrc": "OPTIONS=name:NicheProbe,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "comment": "Seed 5149 (from a port scan of 5000-5700 for a vault-niche 'ad aerarium' dust engraving whose mklev.c makeniche() wipe_engr_at(5) wiped position 0 to a space) places that engraving at (29,14) with the hero starting at (60,7). Debug-mode ^T, dismissing the prompt and the first-getpos tip, moves the cursor 31 west and 7 south onto the engraving; ':' reads it. newgame()'s save_currentstate() checkpoint has reset engr_txt[actual_text] to the buffer start, so C reads \" d ?erari m\" with its leading space.",
+      "moves": "\u0014\n\nHHHhhhhhhhjjjjjjj.:\n"
+    }
+  ]
+}

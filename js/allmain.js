@@ -94,7 +94,7 @@ import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { cmdq_clear, failClosedCommandRefusals, rhack } from './cmd.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { canletgo, deferred_goto, dropx } from './do.js';
+import { canletgo, deferred_goto, dropx, save_currentstate } from './do.js';
 import { glibr } from './do_wear.js';
 import {
     domove,
@@ -316,6 +316,7 @@ export async function newgame() {
     // insight.c fmt_elapsed_time() reads for the ^X window's closing line.
     g.urealtime.realtime = 0;
     g.urealtime.start_timing = getnow(g);
+    save_currentstate(g);
 
     // C ref: allmain.c welcome(TRUE) prints the hallucination prelude first.
     const hallucinationWelcome = welcomeHallucinationMessage(g);

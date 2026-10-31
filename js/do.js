@@ -187,7 +187,7 @@ import {
     discard_migrations, keepdogs, losedogs, mon_arrive,
     mon_catchup_elapsed_time, update_mlstmv,
 } from './dog.js';
-import { can_reach_floor, engr_at } from './engrave.js';
+import { can_reach_floor, engr_at, save_engravings } from './engrave.js';
 import { make_grave } from './grave.js';
 import { fruitname, makeplural } from './fruit.js';
 import {
@@ -256,7 +256,7 @@ import {
 } from './invent.js';
 import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
-import { makemon_runtime } from './makemon_create.js';
+import { dmonsfree, makemon_runtime } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
     healmon, kill_genocided_monsters, m_in_air, m_into_limbo, mnexto, mondied, newcham, pm_to_cham, set_ustuck,
@@ -3287,6 +3287,7 @@ export async function goto_level(
     }
 
     assign_level(u.uz0, u.uz); /* reset u.uz0 */
+    save_currentstate(state);
     notice_mon_on(state);
     await notice_all_mons(true, state);
 
@@ -3310,6 +3311,20 @@ export async function goto_level(
     }
 
     await pickup(1, state);
+}
+
+// C ref: do.c save_currentstate() (INSURANCE). The checkpoint writes the
+// current level and the game state to files so a crashed game can recover.
+// This port has no files, so only the in-memory effects of savelev() in
+// WRITING mode remain: savelev_core() purges dead monsters and marks the
+// level VISITED, and save_engravings() moves each engraving's text pointer
+// back to the start of its buffer. Called from allmain.c newgame() and
+// do.c goto_level() when the `checkpoint` option (flags.ins_chkpt) is set.
+export function save_currentstate(state = game) {
+    if (!state.flags?.ins_chkpt) return;
+    if (state.iflags?.purge_monsters) dmonsfree(state);
+    level_info(ledger_no(state.u.uz, state), state).flags |= VISITED;
+    save_engravings(state);
 }
 
 // C ref: do.c u_collide_m() (1410-1445). The hero has arrived on a square a

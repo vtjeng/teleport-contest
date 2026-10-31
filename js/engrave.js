@@ -1291,9 +1291,12 @@ export async function read_engr_at(
 
     const pristine = engraving.engr_txt[2] ?? text;
     const finalCharacter = text.at(-1) ?? '';
+    // C compares against the pristine character at the same buffer position:
+    // engr_txt[actual_text] - engr_text_space(ep) plus the current length.
+    const off = engraving.actual_text_offset ?? 0;
     const hasOriginalPunctuation = text.length >= 2
         && '.!?'.includes(finalCharacter)
-        && pristine.at(-1) === finalCharacter;
+        && pristine[off + text.length - 1] === finalCharacter;
     await pline(
         `You ${blind ? 'feel the words' : 'read'}: "${text}"${hasOriginalPunctuation ? '' : '.'}`,
         state,
@@ -1388,15 +1391,30 @@ export function wipe_engr_at(x, y, count, magical = false, env = {}) {
         count = random.rn2(bound) ? 0 : 1;
     }
 
-    engraving.engr_txt[0] = wipeout_text(
-        engraving.engr_txt[0],
-        count,
-        0,
-        normalized,
-    ).replace(/^ +/u, '');
+    const wiped = wipeout_text(engraving.engr_txt[0], count, 0, normalized);
+    // C advances the engr_txt[actual_text] pointer past leading spaces; the
+    // buffer keeps them, and save_engravings() moves the pointer back.
+    const text = wiped.replace(/^ +/u, '');
+    engraving.actual_text_offset = (engraving.actual_text_offset ?? 0)
+        + (wiped.length - text.length);
+    engraving.engr_txt[0] = text;
     if (!engraving.engr_txt[0])
         del_engr_at(x, y, state);
     return engr_at(x, y, state);
+}
+
+// C ref: engrave.c save_engravings() (1551-1580) in WRITING mode, which
+// do.c save_currentstate() reaches for the insurance checkpoint. Writing
+// resets every non-empty engraving's engr_txt[actual_text] to the start of
+// its text buffer, so the leading spaces that wipe_engr_at() skipped become
+// part of the text again. Nothing is written here: the port keeps the level
+// in memory, and FREEING-mode teardown lives in save.js.
+export function save_engravings(state = game) {
+    for (let ep = state.head_engr ?? null; ep; ep = ep.nxt_engr) {
+        if (!ep.engr_txt[0] || !ep.actual_text_offset) continue;
+        ep.engr_txt[0] = ' '.repeat(ep.actual_text_offset) + ep.engr_txt[0];
+        ep.actual_text_offset = 0;
+    }
 }
 
 // C ref: engrave.c rloc_engr() (1667-1681). The caller refreshes the old square;

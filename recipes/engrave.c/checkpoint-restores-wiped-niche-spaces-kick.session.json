@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5149,
+      "datetime": "20070314090000",
+      "nethackrc": "OPTIONS=name:NicheProbe,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "comment": "Variation of checkpoint-restores-wiped-niche-spaces: after reading the restored \" d ?erari m\", a kick (dokick.c u_wipe_engr(2)) wipes the engraving again and wipe_engr_at() strips the leading space once more, so the second ':' reads the text without it.",
+      "moves": "\u0014\n\nHHHhhhhhhhjjjjjjj.\n:\n\u0004h:\n\n"
+    }
+  ]
+}
