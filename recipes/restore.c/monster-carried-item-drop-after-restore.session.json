@@ -1,0 +1,17 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7001,
+      "datetime": "20260604101500",
+      "nethackrc": "OPTIONS=name:Keeper,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0007hobbit\nSy"
+    },
+    {
+      "seed": 7002,
+      "datetime": "20260604113000",
+      "nethackrc": "OPTIONS=name:Keeper,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\nn#wizkill\n  m.\u001b"
+    }
+  ]
+}

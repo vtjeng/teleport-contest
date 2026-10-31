@@ -491,7 +491,10 @@ const OBJ_ALIAS_DESCRIPTORS = Object.fromEntries(Object.entries({
     set(value) { this[source] = value; },
 }]));
 
-function defineObjAliases(obj) {
+// Installed by newObject() on every new object, and by restore.c restobj()'s
+// port on every object read back from a save snapshot, which keeps the
+// backing fields but not these non-enumerable accessors.
+export function defineObjAliases(obj) {
     return Object.defineProperties(obj, OBJ_ALIAS_DESCRIPTORS);
 }
 

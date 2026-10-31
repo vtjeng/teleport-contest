@@ -1,0 +1,17 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7101,
+      "datetime": "20260711084500",
+      "nethackrc": "OPTIONS=name:Warden,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0007dwarf\nSy"
+    },
+    {
+      "seed": 7102,
+      "datetime": "20260711101500",
+      "nethackrc": "OPTIONS=name:Warden,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\nn#wizkill\n  m.\u001b"
+    }
+  ]
+}

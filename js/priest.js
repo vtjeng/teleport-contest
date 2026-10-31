@@ -143,6 +143,16 @@ export function mon_aligntyp(monster) {
     return alignment;
 }
 
+// C ref: priest.c restpriest() (933-939), called by restore.c restmonchn()
+// for each restored priest. Only a bones-file restore (ghostly) moves the
+// shrine level to the level being loaded; a saved game keeps it.
+export function restpriest(mtmp, ghostly, state = game) {
+    if (state.u.uz.dlevel) {
+        if (ghostly)
+            assign_level(mtmp.mextra.epri.shrlevel, state.u.uz);
+    }
+}
+
 // C ref: priest.c reset_hostility(). Astral arrival makes minions whose
 // alignment differs from the hero hostile, then redraws each eligible square.
 export function reset_hostility(roamer, state = game) {

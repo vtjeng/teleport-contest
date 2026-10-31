@@ -1,12 +1,14 @@
 // restore.js -- Restore a saved game.
-// C refs: restore.c dorecover(), restgamestate().
+// C refs: restore.c restobj(), restobjchn(), restmon(), restmonchn(),
+//         restgamestate(), dorecover(), getlev().
 //
 // The JS port serializes game state as JSON via save.js dosave0(). This
-// module reads that JSON back, applies it to the live game object, and
-// reconstructs computed state that is not in the snapshot: the monster
-// linked list, equipment pointers, dungeon-level aliases, youmonst, and
-// hero_seq. Display reconstruction (docrt, bot) and the welcome-back
-// message follow in the caller (jsmain.js).
+// module reads that JSON back, applies it to the live game object, walks the
+// restored object and monster chains as C's restobjchn() and restmonchn() do,
+// and reconstructs computed state that is not in the snapshot: equipment
+// pointers, dungeon-level aliases, youmonst, and hero_seq. Display
+// reconstruction (docrt, bot) and the welcome-back message follow in the
+// caller (jsmain.js).
 
 import { rest_region_capacity } from './region.js';
 import { mon_catchup_elapsed_time } from './dog.js';
@@ -42,7 +44,9 @@ import { hideunder, restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
+import { defineObjAliases } from './obj.js';
 import { defineObjclassAliases, GRAPPLING_HOOK, PICK_AXE } from './objects.js';
+import { restpriest } from './priest.js';
 import { setuwep } from './wield.js';
 import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
@@ -191,7 +195,10 @@ export async function dorestore(state = game) {
     }
 
     // Inventory and objects
-    state.invent = snapshot.invent;
+    // C ref: restore.c restgamestate():681 gi.invent = restobjchn(nhfp, FALSE).
+    // The dangling ball-and-chain, gm.migrating_objs and gm.migrating_mons
+    // chains that follow it in C (684-696) are not in the snapshot.
+    state.invent = restobjchn(snapshot.invent, state);
     if (snapshot.lastinvnr != null) state.lastinvnr = snapshot.lastinvnr;
     if (snapshot.head_engr != null) state.head_engr = snapshot.head_engr;
 
@@ -320,19 +327,18 @@ export async function dorestore(state = game) {
     // max_rank_sz computes gm.mrank_sz from the role's rank table.
     _uInitInternals.max_rank_sz(state);
 
-    // Rebuild the canonical monster list from its grid and C's saved order.
-    rebuildMonsterList(state);
+    // C ref: restore.c getlev():1137 fmon = restmonchn(nhfp). The snapshot
+    // keeps the chain in C's order, including a steed that is on the chain
+    // but off the map (getlev():1183-1186), so walk it rather than deriving
+    // it from level.monsters.
+    state.level.monlist = restmonchn(state.level.monlist, state);
 
-    // C ref: restore.c restmonchn() calls restshk() while rebuilding each
-    // shopkeeper's extension. The JSON restore has already rebuilt the chain,
-    // so apply the same shopkeeper-specific pointer fix now.
-    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
-        if (mtmp.isshk)
-            restshk(mtmp, false, state);
-    }
-
-    // Rebuild floor-object linked list from the level.objects grid.
-    rebuildObjectList(state);
+    // C ref: restore.c getlev():1158-1164 fobj = restobjchn(nhfp, FALSE),
+    // find_lev_obj(), then the buried chain. The snapshot keeps level.objects
+    // and every nexthere link, so find_lev_obj()'s grid rebuild has no work.
+    // gb.billobjs (1165) is not in the snapshot.
+    state.level.objlist = restobjchn(state.level.objlist, state);
+    state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
 
     // C ref: restore.c:684 defers monster repaint until allmain.c:92-94.
     state.gd ??= {};
@@ -369,65 +375,88 @@ export async function dorestore(state = game) {
     return true;
 }
 
-// Rebuild state.level.monlist from the level.monsters grid. The grid maps
-// coordinates to monsters; the linked list threads them together via .nmon.
-// This also repairs the chain for snapshots written before reference support.
-//
-// C's restmonchn() preserves the original linked-list order (creation time,
-// newest first). A naive grid scan produces column-major positional order,
-// which differs from C and causes mcalcmove / movemon to consume RNG values
-// in the wrong monster order. Sort by the saved _monlistOrder.
-function rebuildMonsterList(state) {
-    const grid = state.level?.monsters;
-    if (!grid) return;
-
-    // Collect all monsters from the grid.
-    const monsters = [];
-    for (let x = 0; x < grid.length; x++) {
-        if (!grid[x]) continue;
-        for (let y = 0; y < grid[x].length; y++) {
-            const monster = grid[x][y];
-            if (!monster) continue;
-            // Ensure grid coordinates are set.
-            monster.mx = x;
-            monster.my = y;
-            // Resolve the monster's permonst data from the catalog.
-            if (state.mons && monster.mnum != null) {
-                monster.data = state.mons[monster.mnum] ?? monster.data;
-            }
-            monsters.push(monster);
-        }
-    }
-
-    // Restore the original linked-list order if dosave0() saved it.
-    const savedOrder = state.level._monlistOrder;
-    if (savedOrder) {
-        const orderMap = new Map();
-        for (let i = 0; i < savedOrder.length; i++) {
-            orderMap.set(savedOrder[i], i);
-        }
-        // Monsters whose m_id is in the saved order sort by that order;
-        // any new monsters (not in the saved list) go to the end.
-        monsters.sort((a, b) => {
-            const ai = orderMap.has(a.m_id) ? orderMap.get(a.m_id) : savedOrder.length;
-            const bi = orderMap.has(b.m_id) ? orderMap.get(b.m_id) : savedOrder.length;
-            return ai - bi;
-        });
-        delete state.level._monlistOrder;
-    }
-
-    // Build the chain in reverse so the first element becomes the head.
-    let head = null;
-    for (let i = monsters.length - 1; i >= 0; i--) {
-        monsters[i].nmon = head;
-        head = monsters[i];
-    }
-    state.level.monlist = head;
+// C ref: restore.c restobj() (183-228). C reads the saved bytes into a struct
+// that newobj() allocated, so every restored object has struct obj's union
+// accessors (nexthere, ocontainer and ocarry over `v`) and its bit-field
+// aliases (opoisoned, on_ice, ...). The snapshot keeps the backing fields but
+// not the non-enumerable accessors newObject() installs; reinstall them. The
+// nobj and nexthere links survive the snapshot as graph references, so C's
+// reset of both (192) ahead of restobjchn()'s relink has no counterpart, and
+// the oextra records are kept as saved. A corpse or statue's omonst goes
+// through restmon() as in C (209).
+function restobj(otmp, state) {
+    defineObjAliases(otmp);
+    if (otmp.oextra?.omonst) restmon(otmp.oextra.omonst, state);
 }
 
-// Rebuild state.level.objlist from the level.objects grid. Each grid cell
-// holds an object chain (via .nexthere); the level-wide list threads them
-// all via .nobj. Use the saved object-ID order C's restobjchn() preserves.
+// C ref: restore.c restobjchn() (231-304), the saved-game branches; bones
+// levels restore through js/bones.js. The snapshot keeps every nobj link, so
+// the chain is walked rather than rebuilt. Container contents recurse and
+// get their ocontainer back pointer (272-278), and bypass is cleared
+// (280-281). The victual, tin and spellbook context pointers (283-290) are
+// graph references that parseSnapshot() already resolved to these objects.
+export function restobjchn(first, state) {
+    for (let otmp = first; otmp; otmp = otmp.nobj) {
+        restobj(otmp, state);
+        if (otmp.cobj) {
+            otmp.cobj = restobjchn(otmp.cobj, state);
+            for (let otmp3 = otmp.cobj; otmp3; otmp3 = otmp3.nobj)
+                otmp3.ocontainer = otmp;
+        }
+        if (otmp.bypass) otmp.bypass = false;
+    }
+    return first;
+}
+
+// C ref: restore.c restmon() (307-373). The snapshot keeps nmon and every
+// mextra record, so the struct read and the mextra reconstruction have no
+// work here. A pet's droptime and hungrytime are saved relative to the clock
+// and converted back (355-356), which leaves the snapshot's absolute values
+// unchanged; what remains is the apport floor that prevents rn2(0) (357-360).
+function restmon(mtmp, _state) {
+    const edog = mtmp.mextra?.edog;
+    if (edog && edog.apport <= 0) edog.apport = 1;
+}
+
+// C ref: restore.c restmonchn() (376-465), the saved-game branches. The
+// snapshot keeps every nmon link, each monster's minvent chain and its mw
+// pointer as graph references, so the chain is walked rather than rebuilt.
+// Each monster's species pointer is resolved from the catalog (415-416), its
+// inventory goes through restobjchn() and gets ocarry back pointers
+// (419-429), the wielded-weapon pointer is re-derived from owornmask
+// (432-444), and shopkeepers and priests get their extension fixups
+// (446-449). polearm.hitmon (452-453) is a graph reference that
+// parseSnapshot() already resolved.
+export function restmonchn(first, state) {
+    for (let mtmp = first; mtmp; mtmp = mtmp.nmon) {
+        restmon(mtmp, state);
+        mtmp.data = state.mons[mtmp.mnum];
+        if (mtmp.minvent) {
+            mtmp.minvent = restobjchn(mtmp.minvent, state);
+            for (let obj = mtmp.minvent; obj; obj = obj.nobj)
+                obj.ocarry = mtmp;
+        }
+        if (mtmp.mw) {
+            let obj;
+            for (obj = mtmp.minvent; obj; obj = obj.nobj)
+                if (obj.owornmask & W_WEP)
+                    break;
+            // The miss arm is C's MON_NOWEP(mtmp) plus an impossible()
+            // report; the pointer reset is the state change.
+            mtmp.mw = obj ?? null;
+        }
+        if (mtmp.isshk)
+            restshk(mtmp, false, state);
+        if (mtmp.ispriest)
+            restpriest(mtmp, false, state);
+    }
+    return first;
+}
+
+// Rebuild state.level.objlist from the level.objects grid when getlev()
+// returns to a level savelev() kept in memory. Each grid cell holds an object
+// chain (via .nexthere); the level-wide list threads them all via .nobj. Use
+// the object-ID order savelev() captured, which C's restobjchn() preserves.
 function rebuildObjectList(state) {
     const grid = state.level?.objects;
     if (!grid) return;

@@ -292,10 +292,9 @@ export function dosave0(state = game) {
     //
     // Game state has shared references as well as cycles. The snapshot
     // serializer preserves those links so a saved floor object remains the
-    // same object in every chain and map cell that points to it.
-    captureMonlistOrder(state.level);
-    captureObjlistOrder(state.level);
-
+    // same object in every chain and map cell that points to it, and the
+    // monster and object chains keep C's order through their nmon and nobj
+    // links.
     const snapshot = serializeGameState(state);
     vfsWriteFile(SAVE_FILE_PATH, serializeSnapshot(snapshot));
 
@@ -478,21 +477,10 @@ function serializeSpecialLevels(levels) {
     });
 }
 
-// Save the monlist traversal order on the level object as an array of m_id
-// values. rebuildMonsterList() uses it when deriving the list from the grid,
-// and older snapshots retain this fallback ordering.
-function captureMonlistOrder(level) {
-    if (!level) return;
-    const order = [];
-    for (let m = level.monlist; m; m = m.nmon) {
-        if (m.m_id != null) order.push(m.m_id);
-    }
-    if (order.length) level._monlistOrder = order;
-}
-
-// Save the fobj traversal order on the level object for the grid-derived
-// rebuildObjectList() path and older snapshots. This matches C's restobjchn()
-// ordering and keeps routines such as dog_goal() deterministic.
+// Save the fobj traversal order on the level object for getlev()'s
+// grid-derived rebuildObjectList() when the hero returns to a level kept in
+// memory. This matches C's restobjchn() ordering and keeps routines such as
+// dog_goal() deterministic.
 function captureObjlistOrder(level) {
     if (!level) return;
     const order = [];
