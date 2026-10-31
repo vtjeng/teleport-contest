@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:handler_whatis_filter(), reached through optfn_whatis_filter()'s do_handler arm from the full options menu. 'no filtering' is preselected; the handler menu takes 'v' (in view only), then a farlook asks for the next monster, which the view filter reports as none in sight, and Escape leaves getpos.",
+  "segments": [
+    {
+      "seed": 61728394,
+      "datetime": "20591230235959",
+      "nethackrc": "OPTIONS=name:Vane,role:Rogue,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": " #optionsfull\n:whatis_filter\n\nv;m\u001b"
+    }
+  ]
+}

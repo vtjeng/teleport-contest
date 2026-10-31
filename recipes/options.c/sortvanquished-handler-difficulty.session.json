@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_sortvanquished()'s do_handler arm, which runs insight.c set_vanq_order(TRUE) and reports the result. The first visit picks 'd' and reports 'changed to'; the second commits the preselected row with Return and reports 'not changed, still'.",
+  "segments": [
+    {
+      "seed": 55910273,
+      "datetime": "20600901063359",
+      "nethackrc": "OPTIONS=name:Carter,role:Archeologist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:sortvanquished\n\nd#optionsfull\n:sortvanquished\n\n\n"
+    }
+  ]
+}

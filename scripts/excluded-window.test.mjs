@@ -80,6 +80,16 @@ function copiedRuns(sources, added) {
 // failure message prints it), and why the match is forced. Add an entry only
 // after comparing the run with the window's version and with the C source.
 const REVIEWED_RUNS = [
+  {
+    // OPTION_HANDLERS rows "sortloot: handler_sortloot," through
+    // "whatis_filter: handler_whatis_filter,". Each row pairs an option name
+    // with the handler named after its options.c function, as AGENTS.md
+    // requires. Ported fresh from options.c 6124-6319 in alphabetical
+    // order with sortdiscoveries between them; the window put whatis_filter
+    // before whatis_coord elsewhere in the table. Reviewed 2026-10-31.
+    path:'js/options.js',
+    sha256:'34fd4717288eb9bac53a1f29d5e79788bd99ca6cfe0a0acc8c8d72db720f1ac6',
+  },
 ];
 
 const reviewed = run => REVIEWED_RUNS.some(entry => entry.path === run.path && entry.sha256 === digest(run.text));
