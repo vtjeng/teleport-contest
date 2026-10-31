@@ -1479,6 +1479,9 @@ export async function doread(state = game) {
     }
 
     const consumedByEffect = await seffects(scroll, state);
+    // end.c done() is NORETURN in C, so a fatal scroll never reaches the
+    // learnscroll()/useup() tail; done_object_cleanup() has already freed it.
+    if (state.program_state?.gameover) return ECMD_TIME;
     if (!consumedByEffect) {
         if (!objectType(scroll, state).oc_name_known) {
             if (state.gk.known) {

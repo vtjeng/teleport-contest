@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent read.c:doread() witness for a scroll whose effect kills the hero: after one search turn (so end.c really_done() does not take its first-move branch), the debug Rogue reads a wished uncursed scroll of earth and seffect_earth()'s drop_boulder_on_player() losehp() reaches end.c done(). C never returns from done(), so doread()'s trailing useup() must not run. The debug death is accepted (Die? y), disclosure is skipped (q) and no bones are saved (n). I selected seed 8200002 with a JavaScript scan over 8200001-8200040 (40 starts replayed, 10 died from the boulder).",
+  "segments": [
+    {
+      "seed": 8200002,
+      "datetime": "20350711141500",
+      "nethackrc": "OPTIONS=name:EarthRogue,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017uncursed scroll of earth\nsrg   yqn"
+    }
+  ]
+}
