@@ -180,7 +180,7 @@ import {
     x_monnam,
 } from './do_name.js';
 import { dobjsfree, isContainer, UnsupportedObjectOperationError } from './obj.js';
-import { doloot, dotip, UnsupportedPickupError } from './pickup.js';
+import { doloot, dotip, encumber_msg, UnsupportedPickupError } from './pickup.js';
 import {
     dodrink,
     dodip,
@@ -3273,7 +3273,16 @@ async function runEngraveCommand(key, state) {
             }),
         yesNo: yn_function,
         monName: mon_nam,
-        inventoryHooks: { updateInventory: () => bot() },
+        // engrave.c engrave() hands the dulled dagger split off a stack to
+        // hold_another_object(), whose addinv() reaches pickup.c
+        // encumber_msg() and invent.c:941's comparison discovery message.
+        inventoryHooks: {
+            updateInventory: () => bot(),
+            encumberMessage: encumber_msg,
+            inventoryComparisonDiscovered: () => ttyPline(
+                'You learn more about your items by comparing them.', state,
+            ),
+        },
         ECMD_CANCEL,
         ECMD_OK,
         ECMD_FAIL,

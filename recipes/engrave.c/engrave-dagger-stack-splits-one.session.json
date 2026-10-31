@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent engrave.c:engrave() witness for the dulling_wep stack branch: a Rogue engraves with the starting stack of daggers, so stylus->quan > 1 and the occupation calls mkobj.c:splitobj() to dull one dagger. Seed, clock, name and inputs were chosen for this recording; the Rogue role is the natural source of a blade stack, so no debug mode is needed.",
+  "segments": [
+    {
+      "seed": 7321994,
+      "datetime": "20330605143000",
+      "nethackrc": "OPTIONS=name:DullDagger,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "Eb x\n"
+    }
+  ]
+}

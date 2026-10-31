@@ -705,10 +705,13 @@ export async function engrave(state = game, env = {}) {
         let dulled = false;
         if (stylus.quan > 1) {
             if (firsttime) await say(`One of ${yname(stylus, state)} gets dull.`);
+            // The command caller injects only engraving's rn2/rnd pair, and
+            // mkobj.c splitobj() draws nothing. Leave the random source to
+            // js/obj.js, which uses the shared RNG module when none is given,
+            // as C's splitobj() uses the global RNG.
             stylus = context.stylus = splitobj(stylus, 1, {
                 state,
                 hooks: env.objectHooks ?? {},
-                random: env.random,
             });
             stylus.owornmask = 0;
             splitstack = true;
