@@ -225,7 +225,7 @@ test('one report push records publication for every accepted Prep task and retri
     f.git('remote', 'add', 'origin', join(f.root, '.cache/remote.git'));
     const dependencies = {checkCI: () => ({failed: false, pending: []})};
     const result = publishPrepGroup(f.options, f.root, dependencies);
-    assert.equal(f.git('rev-list', '--count', `${group.commit}..${result.commit}`), '1', 'one shared report commit');
+    assert.equal(result.commit, group.commit, 'with no closure reports to commit, the integration itself is pushed');
     assert.equal(f.git('ls-remote', 'origin', 'refs/heads/main').split(/\s/u)[0], result.commit);
     for (const task of group.tasks) {
         const delivery = f.state().deliveries[f.state().tasks[task].deliveries.at(-1)];

@@ -12,7 +12,6 @@ import { git, isAncestor, verifyPublicationChanges } from './worker-delivery.mjs
 import { BOOKKEEPING_FILES } from './checkpoint-reuse.mjs';
 import { admittedBatchIds } from './challenge-results.mjs';
 import { reviewTask } from './task-verdict.mjs';
-import { writeDashboardSnapshot } from './dashboard-snapshot.mjs';
 import { checkPublishedCI } from './check-published-ci.mjs';
 import { readRows } from './score-log.mjs';
 
@@ -27,7 +26,7 @@ admitted batches use their first complete recorded baseline when absent from
 that commit. A targeted fix must improve its assigned session without regressions.
 accept enforces the saved verdict and returns the worker handoff; review is optional.
 Worker notifications follow .agents/loop.md, "Notifications"; this tool sends no messages.
-publish generates the dashboard snapshot, commits only closure reports, checks
+publish commits only closure reports, checks
 publication changes, pushes accepted Main, records publication, checks CI once,
 and returns the next-work summary. No force push, game replay, or CI watch occurs.
 Retry an interrupted phase; publish reuses a committed report descendant. A later
@@ -92,17 +91,9 @@ function publishTaskOwned(options, root = process.cwd(), { checkCI = (args, cwd)
                 throw new Error(`uncommitted file outside publication: ${path}`);
             return path;
         });
-        // Reuse only a packet whose committed snapshot includes this acceptance.
-        // An earlier manual closure commit still needs its dashboard snapshot.
-        const snapshot = git(ctx.root, 'ls-tree', head, '--', 'dashboard-snapshot.json')
-            ? JSON.parse(git(ctx.root, 'show', `${head}:dashboard-snapshot.json`)) : null;
-        const captured = snapshot?.development?.executionCommit === summary.executionCommit
-            && snapshot.activity?.events.some(event => event.runId === ctx.state.runId
-                && event.type === 'accepted' && event.task === options.task);
-        if (!captured || paths.length) {
-            writeDashboardSnapshot({ ledger: ctx.ledgerPath, checkpoint: ctx.delivery.checkpoint,
-                output: 'dashboard-snapshot.json' }, ctx.root);
-            git(ctx.root, 'add', '--', ...new Set([...paths, 'dashboard-snapshot.json']));
+        // A retry with no uncommitted reports reuses the committed packet at HEAD.
+        if (paths.length) {
+            git(ctx.root, 'add', '--', ...paths);
             if (git(ctx.root, 'diff', '--cached', '--name-only'))
                 git(ctx.root, 'commit', '-m', `Record ${options.task} acceptance`, '--trailer', 'Assisted-by: Codex');
         }

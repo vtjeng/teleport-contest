@@ -1,4 +1,4 @@
-// One conservative reuse class: every tracked input except these five
+// One conservative reuse class: every tracked input except these four
 // bookkeeping files must match. This is not a per-test dependency cache.
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -7,7 +7,7 @@ import { release } from 'node:os';
 import { join } from 'node:path';
 
 export const BOOKKEEPING_FILES = ['GOALS.json', 'SCORE.tsv',
-    'QUALITY.json', 'QUALITY-evidence.json', 'dashboard-snapshot.json'];
+    'QUALITY.json', 'QUALITY-evidence.json'];
 export const REUSE_VERSION = 1;
 
 export function digest(value) {

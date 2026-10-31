@@ -73,7 +73,7 @@ export function handoffFixture(t, { preparation = false, acceptance = false, fix
             status: 'complete', scorerSha256: digest('same fixture scorer'),
             manifestSha256: corpusDigest(cases), inputsSha256: challengeInputSnapshot(root, 'v1').sha256,
             cases, totals: totalsFor(cases) });
-        // The dashboard requires the actual 44-session shape and matching hash,
+        // task-verdict requires the actual 44-session shape and matching hash,
         // not just aggregate counts. Each fixture session has one of two matches.
         const results = { results: Array.from({ length: 44 }, (_, index) => ({ session: `fixture-${index}.session.json`,
             passed: fixedTarget && index === 0 && matched === 2,

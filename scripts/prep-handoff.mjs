@@ -21,7 +21,7 @@ or in the group. integrate freezes that list, cherry-picks only its submitted
 commits, preflights every packet, and records one shared integration. Run one hosted
 checkpoint at the returned commit; accept consumes its saved result for all tasks.
 Then admit and baseline all accepted batches with the hosted admission procedure.
-publish uses one report commit and push for the group. No local scorer, replay,
+publish commits any closure reports once and pushes the group once. No local scorer, replay,
 source audit, worker message, or CI watch occurs. Retry after a crash; an unfinished
 Git cherry-pick needs explicit resolution before retrying.`;
 

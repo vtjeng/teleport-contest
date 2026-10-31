@@ -5,19 +5,19 @@
 <title>C explorer pilot</title>
 <style>
 :root {
-  /* Exact dark palette from scripts/dashboard.template.html. */
-  --dashboard-ground: #0e1117;
-  --dashboard-surface: #161b22;
-  --dashboard-ink: #e6e4df;
-  --dashboard-secondary: #c3c2b7;
-  --dashboard-rule: #2c2c2a;
-  --dashboard-blue: #3987e5;
+  /* Dark palette. */
+  --monitor-ground: #0e1117;
+  --monitor-surface: #161b22;
+  --monitor-ink: #e6e4df;
+  --monitor-secondary: #c3c2b7;
+  --monitor-rule: #2c2c2a;
+  --monitor-blue: #3987e5;
   --terminal-black: #000000;
   --terminal-white: #c0c0c0;
   color-scheme: dark;
   font-family: ui-sans-serif, sans-serif;
-  color: var(--dashboard-ink);
-  background: var(--dashboard-ground);
+  color: var(--monitor-ink);
+  background: var(--monitor-ground);
   font-variant-numeric: tabular-nums;
 }
 * { box-sizing: border-box; }
@@ -25,38 +25,38 @@ body { margin: 0; padding: clamp(16px, 3vw, 40px); }
 main { max-width: 110rem; margin: auto; }
 header { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; align-items: baseline; }
 h1 { font-size: 30px; line-height: 1.15; font-weight: 500; margin: 0 0 12px; letter-spacing: -.03em; }
-header p, .muted { color: var(--dashboard-secondary); }
+header p, .muted { color: var(--monitor-secondary); }
 header p { margin: 0; }
 #connection { font-size: 14px; min-height: 20px; }
 #runs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 39rem), 1fr)); gap: 32px; margin-top: 12px; }
-.run { min-width: 0; container-type: inline-size; border-top: 2px solid var(--dashboard-rule); padding-top: 16px; }
-.run[data-status="running"] { border-color: var(--dashboard-blue); }
+.run { min-width: 0; container-type: inline-size; border-top: 2px solid var(--monitor-rule); padding-top: 16px; }
+.run[data-status="running"] { border-color: var(--monitor-blue); }
 .run-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
 h2 { font-size: 22px; font-weight: 500; margin: 0; }
 .status { font-size: 14px; text-transform: uppercase; letter-spacing: .07em; }
 .mission { line-height: 1.55; margin: 12px 0; min-height: 3.1em; }
-.metrics { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--dashboard-secondary); margin: 0 0 12px; }
+.metrics { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--monitor-secondary); margin: 0 0 12px; }
 .terminal-wrap { overflow-x: auto; background: var(--terminal-black); padding: 12px; }
 .terminal { font-family: 'DejaVu Sans Mono', 'Liberation Mono', monospace; font-size: clamp(10px, 1.84cqw, 14px); line-height: 1.2; width: 80ch; margin: 0; color: var(--terminal-white); }
 .terminal span { display: inline; }
 .cursor { outline: 1px solid var(--terminal-white); outline-offset: -1px; }
 .intent { min-height: 3.2em; margin: 16px 0 8px; line-height: 1.6; }
 .intent strong { font-weight: 600; }
-.updated { font-size: 13px; color: var(--dashboard-secondary); margin: 0 0 16px; }
-details { border-top: 1px solid var(--dashboard-rule); padding-top: 14px; }
+.updated { font-size: 13px; color: var(--monitor-secondary); margin: 0 0 16px; }
+details { border-top: 1px solid var(--monitor-rule); padding-top: 14px; }
 summary { cursor: pointer; font-size: 15px; }
 .actions { padding: 0; list-style: none; margin-bottom: 8px; }
-.actions li { border-bottom: 1px solid var(--dashboard-rule); padding: 12px 0; }
-.action-time { font-size: 12px; color: var(--dashboard-secondary); margin-right: 12px; }
+.actions li { border-bottom: 1px solid var(--monitor-rule); padding: 12px 0; }
+.action-time { font-size: 12px; color: var(--monitor-secondary); margin-right: 12px; }
 .action-intent { font-size: 14px; line-height: 1.5; }
-.keys { font-family: 'DejaVu Sans Mono', monospace; font-size: 12px; overflow-wrap: anywhere; color: var(--dashboard-secondary); margin: 6px 0 0; white-space: pre-wrap; }
+.keys { font-family: 'DejaVu Sans Mono', monospace; font-size: 12px; overflow-wrap: anywhere; color: var(--monitor-secondary); margin: 6px 0 0; white-space: pre-wrap; }
 .outcome { font-size: 13px; line-height: 1.5; margin: 6px 0 0; white-space: pre-wrap; }
 .artifacts { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 16px; font-size: 14px; }
-a { color: var(--dashboard-blue); text-underline-offset: 3px; }
+a { color: var(--monitor-blue); text-underline-offset: 3px; }
 #empty { margin-top: 32px; line-height: 1.6; }
 #errors { height: 1.6em; overflow: auto; margin-top: 16px; line-height: 1.6; }
 #errors p { margin: 0; }
-footer { margin-top: 32px; border-top: 1px solid var(--dashboard-rule); padding-top: 16px; color: var(--dashboard-secondary); font-size: 13px; line-height: 1.6; }
+footer { margin-top: 32px; border-top: 1px solid var(--monitor-rule); padding-top: 16px; color: var(--monitor-secondary); font-size: 13px; line-height: 1.6; }
 </style>
 <main>
   <header>

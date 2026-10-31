@@ -58,7 +58,7 @@ by this command, not the caller. Required fields by type:
   connect: worker, handle (worker tests its connection to the shared inbox)
   connected: worker, handle (coordinator acknowledges that connection)
   turn: worker, state (active, idle or blocked), reason (text or null), processes
-        optional summary (public dashboard explanation; omit private paths and handles)
+        optional summary (public explanation; omit private paths and handles)
   prep-probe: task (parent Prep task), probe (unique id), worker (Prep-1..Prep-6),
         state (active, idle, blocked or done), summary (public), processes, recording (boolean)
         first event also needs worktree, branch, handle and source (C target)
@@ -799,7 +799,7 @@ export function nextActions(state, admittedBatches = [], queue = null) {
             allocation: assignments, admission: available.admission} : available,
         ...(assignments ? {assignments} : {}),
         pendingMainWork: { ...pending,
-            // Keep routine coordination compact; status and the dashboard retain reasons.
+            // Keep routine coordination compact; status retains reasons.
             parkedTasks: pending.parkedTasks.map(({ task, worker, since }) => ({ task, worker, since })) },
     };
 }

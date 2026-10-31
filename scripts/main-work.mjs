@@ -1,29 +1,20 @@
 #!/usr/bin/env node
 // Cooperative ownership of the entire WL Main boundary, including manual
-// tooling validation/publication. This lock is shared by every worktree and
-// the refresh tick. No PID/timeout automatically steals an existing lease.
+// tooling validation/publication. This lock is shared by every worktree.
+// No PID/timeout automatically steals an existing lease.
 import {execFileSync} from 'node:child_process';
 import {closeSync, existsSync, fsyncSync, openSync, readFileSync, unlinkSync, writeFileSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
-import {dirname, join, resolve} from 'node:path';
+import {join, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 
-export const mainWorkLock = root => join(execFileSync('git',
-    ['rev-parse','--path-format=absolute','--git-common-dir'],{cwd:root,encoding:'utf8'}).trim(),'dashboard-refresh.lock');
+const mainWorkLock = root => join(execFileSync('git',
+    ['rev-parse','--path-format=absolute','--git-common-dir'],{cwd:root,encoding:'utf8'}).trim(),'main-work.lock');
 const read = file => JSON.parse(readFileSync(file));
-function requireReconciled(root) {
-    const journal=join(dirname(mainWorkLock(root)),'dashboard-refresh','state.json');
-    if(existsSync(journal) && read(journal).proposal)
-        throw new Error('Pending snapshot proposal owns Main; resume exact refresh recovery before other Main work');
-}
 function acquire(root, reason, mode, open = openSync) {
-    requireReconciled(root);
     const path = mainWorkLock(root), fd=open(path,'wx',0o600);
     const lease={kind:'main-work',mode,token:randomUUID(),pid:process.pid,owner:'Work lead',reason,startedAt:new Date().toISOString()};
     try {
-        // A refresh may have left a pending journal between the first read and
-        // our exclusive acquisition. Recheck while ownership is now stable.
-        requireReconciled(root);
         writeFileSync(fd,JSON.stringify(lease));fsyncSync(fd);
     } catch(error) {unlinkSync(path);throw error;} finally {closeSync(fd);}
     return {path,...lease};
@@ -50,7 +41,7 @@ export function withMainWork(root, action, {open = openSync} = {}) {
 }
 export function requireMainWorkAccess(root) {
     const path=mainWorkLock(root);
-    if(!existsSync(path)) {requireReconciled(root);return;}
+    if(!existsSync(path)) return;
     const lease=read(path);
     if(lease.kind!=='main-work' || lease.token!==process.env.TELEPORT_MAIN_WORK_TOKEN)
         throw new Error('Main publication owned; defer integration/admission until its shared lease is released');

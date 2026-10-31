@@ -33,7 +33,7 @@ test('the checkpoint surfaces the review gate without gating on it', () => {
     // checkpoint only surfaces the debt, so it must not fail a checkpoint.
     assert.equal(gate.informational, true);
     assert.deepEqual(gate.args, ['scripts/quality-status.mjs', '--check']);
-    // The detail is the dashboard's own Review line, the one number agents
+    // The detail is the quality report's own Review line, the one number agents
     // otherwise only see by running npm run quality themselves.
     assert.equal(
         summarizeReviewGate({
@@ -47,7 +47,7 @@ test('the checkpoint surfaces the review gate without gating on it', () => {
     // while the informational flag keeps the checkpoint itself green.
     assert.equal(summarizeReviewGate({ stdout: '', status: 1 }).passed, false);
     // An unassigned js/ file blocks the gate silently unless the summary
-    // names it: the dashboard's own line rides along after the Review line,
+    // names it: the quality report's own line rides along after the Review line,
     // so the worker's checkpoint states which file needs
     // `npm run quality -- assign`.
     assert.equal(

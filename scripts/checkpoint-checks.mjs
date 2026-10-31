@@ -208,7 +208,7 @@ export function bookkeepingCommands() {
     return [{ label: 'bookkeeping tests', command: process.execPath,
         args: ['--test', 'scripts/goal-log.test.mjs', 'scripts/goal-log-cli.test.mjs',
             'scripts/score-log.test.mjs', 'scripts/quality-status.test.mjs',
-            'scripts/dashboard-data.test.mjs', 'scripts/checkpoint-bookkeeping.test.mjs'] },
+            'scripts/checkpoint-bookkeeping.test.mjs'] },
     ...commands.filter(({ label }) => ['review gate', 'session scan',
         'end-of-input over-read'].includes(label))];
 }
@@ -288,7 +288,7 @@ export function runCheckpointChecks(commands, {
 /**
  * Read the review gate's state for the checkpoint summary.
  *
- * The detail carries the dashboard's Review line and, when one prints, its
+ * The detail carries the quality report's Review line and, when one prints, its
  * Unassigned js/ files line, so the checkpoint a worker already runs names
  * the file it forgot to assign with `npm run quality -- assign`.
  */
