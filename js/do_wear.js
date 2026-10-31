@@ -1770,8 +1770,9 @@ async function Armor_gone(state, rawEnv = {}) {
 // JUMPING_BOOTS has an oc_oprop of JUMPING (objects.h:712-714), so worn.c
 // setworn() raises EJumping one statement before this callback runs. C reads
 // that extrinsic in two places: apply.c jump() (1895, 1993-2001) and
-// insight.c:1683. Neither can diverge here. `jump` is absent from js/cmd.js
-// ADMITTED_COMMANDS, so the command cannot start; and insight.c runs
+// insight.c:1683. Neither can diverge here. js/apply.js jump() reads the same
+// u.uprops[JUMPING].extrinsic that setworn() raised when the #jump command
+// later runs; and insight.c runs
 // attributes_enlightenment() only under MAGICENLIGHTENMENT, where
 // js/insight.js holds a JUMPING row that stops the window by name rather than
 // dropping C's line.

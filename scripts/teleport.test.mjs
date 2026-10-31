@@ -189,7 +189,7 @@ test('dotelecmd and dotele preserve the whole C dispatch and result order', () =
     );
     assert.match(cCommand, /dotelecmd, IFBURIED \| CMD_M_PREFIX/u);
     assert.match(JS_CMD_SOURCE,
-        /case 'dotelecmd':[\s\S]*return await dotelecmd\(state\)/u);
+        /dotelecmd: \(key, state\) => dotelecmd\(state\)/u);
     assert.match(JS_CMD_SOURCE,
         /if \(command === 'teleport'\)[\s\S]*await dotelecmd\(state\)/u);
 });

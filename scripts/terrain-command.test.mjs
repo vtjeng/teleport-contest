@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { TIP_GETPOS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -22,7 +22,7 @@ test('terrain recipe is a fresh witness with no recorded answers', () => {
 });
 
 test('DEL browses TER_MAP and restores the live map without time', async () => {
-    assert.ok(ADMITTED_COMMANDS.includes('terrain'));
+    assert.ok(DISPATCHED_COMMANDS.includes('terrain'));
     const storage = new InMemoryStorage();
     let boundary = null;
     const result = await runSegment({ ...recipe.segments[0], storage }, {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c commands_init() binds u to untrap for number_pad; rhack() dispatches trap.c dountrap(), which asks a direction, answered with the number_pad west key. Independent seed, date, and Rogue.",
+  "segments": [
+    {
+      "seed": 272727,
+      "datetime": "20310808101010",
+      "nethackrc": "OPTIONS=name:Nia,role:Rogue,race:human,gender:female,align:chaotic,number_pad:1,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "u4"
+    }
+  ]
+}

@@ -3391,19 +3391,18 @@ test('C and Meta-N direct bindings reach docallcmd from rhack', async () => {
     }
 });
 
-test('a count ahead of an unadmitted command byte is refused after parse()',
+test('a count ahead of a command this port will not repeat is refused after parse()',
     async () => {
     // cmd.c parse() (5096-5151) runs to completion before rhack() looks at the
-    // byte it returned, so a command this port will not dispatch is refused at
+    // byte it returned, so a command this port will not repeat is refused at
     // the command byte and never at a count digit: get_count() has already
     // consumed and echoed the digits, parse():5142-5144 has already committed
     // gm.multi, and parse():5147's clear_nhwindow(WIN_MESSAGE) has already
-    // cleared the row. 'X' is the twoweapon row (cmd.c:1913), which
-    // ADMITTED_COMMANDS omits, so it is refused whether or not a count precedes
-    // it -- and the counted form has to cost the two extra key reads, not stop
-    // at the first digit.
+    // cleared the row. 'X' is the twoweapon row (cmd.c:1913), a nonmovement
+    // row rhack()'s counted-command boundary refuses once a count leaves
+    // gm.multi above 0 -- and the counted form has to cost the two extra key
+    // reads, not stop at the first digit.
     for (const [typed, screens, count] of [
-        [' X', 2, 0],
         [' 12X', 4, 12],
     ]) {
         const replay = await runSegment({
@@ -5396,5 +5395,5 @@ test('#timeout extcmd dispatch resolves to the source-owned diagnostic', () => {
     );
     assert.match(doextcmd, /func = extcmdlist\[idx\]\.ef_funct;[\s\S]*retval = \(\*func\)\(\);/u);
     assert.equal(extcmdRow('timeout').ef_funct, 'wiz_timeout_queue');
-    assert.match(js, /case 'wiz_timeout_queue':[\s\S]*?await import\('\.\/timeout\.js'\)[\s\S]*?await wiz_timeout_queue\(state\)/u);
+    assert.match(js, /wiz_timeout_queue: async \(key, state\) => \{[\s\S]*?await import\('\.\/timeout\.js'\)[\s\S]*?await wiz_timeout_queue\(state\)/u);
 });

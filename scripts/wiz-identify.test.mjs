@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { PICK_ANY } from '../js/const.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
@@ -61,7 +61,7 @@ test('wiz_identify is admitted as an extended wizard command', async () => {
     const entry = extcmdlist.find((candidate) => candidate.ef_txt === 'wizidentify');
     assert.ok(entry, 'the source extcmdlist row is present');
     assert.equal(entry.ef_funct, 'wiz_identify');
-    assert.ok(ADMITTED_COMMANDS.includes('wizidentify'));
+    assert.ok(DISPATCHED_COMMANDS.includes('wizidentify'));
     assert.equal(typeof wiz_identify, 'function');
 
     // Seed 7704501 independently reaches the zero-unidentified-item menu

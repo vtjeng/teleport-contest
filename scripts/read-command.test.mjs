@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    ADMITTED_COMMANDS,
+    DISPATCHED_COMMANDS,
     cmdq_clear,
     cmdq_peek,
 } from '../js/cmd.js';
@@ -266,7 +266,7 @@ test('read ? returns the sole suggested object through the message menu',
 
 test('read reports silly selectable objects after clearing pickup_prev',
     async () => {
-    assert.ok(ADMITTED_COMMANDS.includes('read'));
+    assert.ok(DISPATCHED_COMMANDS.includes('read'));
 
     // read.c:doread() clears pickup_prev before rejecting non-scrolls and
     // non-spellbooks with the ordinary silly-thing message.

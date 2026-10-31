@@ -397,6 +397,7 @@ import {
 import { tty_wait_synch } from './tty_rawprint.js';
 import { do_write_config_file } from './cfgfiles.js';
 import { note_unported } from './unported.js';
+import { dosh } from './unixunix.js';
 import {
     selection_floodfill,
     selection_new,
@@ -445,7 +446,7 @@ export class UnsupportedHeroCommandBoundaryError extends Error {
 //
 // The distinction has one consumer, scripts/scan-sessions.mjs, and it is not
 // cosmetic there. That scan models what a session still owes the port by
-// resolving the recorded bytes against ADMITTED_COMMANDS, which admits a
+// resolving the recorded bytes against DISPATCHED_COMMANDS, which names a
 // command by its command byte alone. So the recorded input can name a command
 // the port refuses to dispatch, and can never name a branch below one it
 // dispatches: a stop here has to carry the port's own message as the
@@ -983,11 +984,12 @@ export async function dosuspend_core(state = game) {
     return ECMD_OK;
 }
 
-// C ref: cmd.c dosh_core(). The subprocess is outside the browser runtime;
-// keep the elapsed-time boundaries and record the discarded dosh() call.
+// C ref: cmd.c dosh_core() (5682-5696), compiled with SHELL defined. The
+// elapsed-time accounting brackets the dosh() call, which js/unixunix.js owns.
 export async function dosh_core(state = game) {
     externalCommandStarted(state);
-    note_unported('sys/unix/unixunix.c dosh');
+    /* access restrictions, if any, are handled in port code */
+    await dosh(state);
     state.urealtime.start_timing = getnow(state);
     return ECMD_OK;
 }
@@ -1888,50 +1890,6 @@ export function end_of_input(state = game) {
     return ECMD_OK;
 }
 
-// Every command this seam dispatches from the key bound to it, named once so
-// the comment above admitParsedCommand(), both boundary messages, and the
-// admission test cannot drift apart as more commands land. '#' opens the
-// extended-command prompt, through which every other name in the list is also
-// reachable; every other extended command stops inside doextcmd() instead,
-// after the prompt has painted the frames the reference program painted for
-// the same keystrokes.
-//
-// 'fight', 'reqmenu', 'rush', and 'run' are the PREFIXCMD rows this seam
-// admits. Each
-// modifies the command typed after it, which rhack() reads without consulting
-// this list; a prefixed command the port does not own stops at its own arm
-// below, exactly as the same key does unprefixed.
-//
-// The direct C and Meta-N rows are admitted here and dispatch docallcmd() in
-// rhack() below, as well as remaining available by their typed #call/#name
-// names. Three other doextcmd() entries stay deliberately absent: '#ride',
-// whose own key is M-R (cmd.c:1833); '#twoweapon', whose own key is 'X'
-// (cmd.c:1913) and which commands_init() binds a second time to M-2
-// (cmd.c:2776); and '#chat', whose own key is M-c (cmd.c:1691). Reaching
-// doride(), dotwoweapon() or dotalk() from any of those four keystrokes still
-// needs rhack()'s arm for each as well as admission, and nothing in the
-// current goal drives them, so those four keys stay on the refusing side
-// while the typed names work.
-export const ADMITTED_COMMANDS = Object.freeze([
-    'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'prevmsg', 'versionshort',
-    'call', 'name', 'turn',
-    'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'droptype', 'pickup', 'pay',
-    'takeoff', 'takeoffall', 'remove', 'wear',
-    'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
-    'options', 'autopickup',
-    'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'wizsmell', 'wizkill', 'fire', 'throw',
-    'swap', 'kick', 'panic', 'wizshownhuuid', 'lightsources',
-    '?', 'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', 'showtrap', '#', 'loot', 'force', 'tip',
-    'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
-    'seeall', 'seetools', 'teleport',
-    'overview', 'chronicle', 'conduct', 'vanquished', 'genocided',
-    'inventtype', 'adjust', 'altadjust',
-    'terrain', 'redraw', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
-]);
-const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
-    + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
-    + 'run, a ctrl-direction rush, or a byte bound to no command';
 // Movement counts use the implemented MOVEMENTCMD dispatch and movement
 // repetition in allmain.c moveloop_core(). Keep other counted command paths
 // behind their existing boundary until their handler/re-entry contracts are
@@ -1940,50 +1898,27 @@ const COUNTED_BOUNDARY = 'cmd.c parse() committed a count leaving gm.multi '
     + 'above 0 before a nonmovement row this port will not repeat, which '
     + 'allmain.c moveloop_core():515-531 turns into a repeat of the command; '
     + 'that nonmovement command path remains unsupported';
-// context.run values this boundary dispatches. cmd.c set_move_cmd() takes the
-// value from the command the key is bound to: 0 for do_move_<dir>, 1 for
-// do_run_<dir>, which the shift-direction keys use, and 3 for do_rush_<dir>
-// at cmd.c:1461-1512, which the ctrl-direction keys use.
+const EMPTY_KEY_BOUNDARY = 'cmd.c rhack():3660-3671 answers a NUL or 0377 '
+    + 'command byte with nhbell(), which is not ported';
+
+// C has no admission step: rhack() dispatches whatever row the key is bound
+// to, and callExtcmdFunction() refuses a row whose function this port lacks
+// when the dispatch reaches it. A byte bound to no row takes the bad-command
+// path, which this file owns. parse() has already run when this is called, so
+// the byte classified here is the command byte parse() returned, never a
+// count digit get_count() consumed ahead of it.
 //
-// Two values are not movement-row values: 2, which do_rush() sets behind the
-// `g` prefix, and 8, which dotravel_target() sets.
-export const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
-
-// A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
-// bad-command path, which this file owns: it prints "Unknown command" at
-// cmd.c:3834, clears the canned and repeat queues at 3835-3836, and zeroes
-// gm.multi at 3841. A count parsed ahead of such a byte therefore needs
-// nothing beyond what is already ported, which is why the count refusal below
-// spares it.
-function unboundCommandKey(key, command) {
-    if (command !== null) return false;
-    // Escape is admitted by its own test below: it never reaches the
-    // bad-command path, because rhack() returns at its empty-key test before
-    // looking a command up. The two empty-key values stay refused; C rings the
-    // bell for them and nhbell() is not ported. Only 0377 can arrive at this
-    // test, because js/input.js nhgetch() substitutes ESC for NUL below
-    // readchar(), as win/tty/wintty.c tty_nhgetch():4093-4098 does; the other
-    // half is written out because rhack():3661 tests it.
-    return Boolean(key) && key !== 0xFF;
-}
-
-// ADMITTED_COMMANDS above lists what the port dispatches; a one-square walk
-// and a byte bound to no command join them here. parse() has already run when
-// this is called, so the byte classified here is the command byte parse()
-// returned, never a count digit get_count() consumed ahead of it.
+// parse() answers Escape by clearing the message window and zeroing both
+// count fields, which finishCommandParse() already does, and rhack() then
+// returns without a message or a turn. The two empty-key values stay refused:
+// C rings the bell for them and nhbell() is not ported. Only 0377 can arrive
+// here, because js/input.js nhgetch() substitutes ESC for NUL below
+// readchar(), as win/tty/wintty.c tty_nhgetch():4093-4098 does; the other half
+// is written out because rhack():3661 tests it.
 function admitParsedCommand(key, state) {
-    const command = commandForKey(commandBindings(state), key);
-    const movement = MOVEMENT_INTENTS[command];
-    // parse() answers Escape by clearing the message window and zeroing both
-    // count fields, which finishCommandParse() already does, and rhack() then
-    // returns without a message or a turn.
-    const admitted = key === ESC
-        || ADMITTED_COMMANDS.includes(command)
-        || (movement && ADMITTED_RUN_MODES.includes(movement[2]))
-        || unboundCommandKey(key, command);
-    if (!admitted) {
+    if (!key || key === 0xFF) {
         resetCommandVars(state);
-        throw new UnsupportedHeroCommandBoundaryError(ADMITTED_BOUNDARY, key);
+        throw new UnsupportedHeroCommandBoundaryError(EMPTY_KEY_BOUNDARY, key);
     }
 }
 
@@ -3090,9 +3025,9 @@ function commandTookTime(state) {
 // A command whose port is complete except for branches that are not, such as
 // an object name doname() cannot format yet. Those throw their owner's error;
 // converting it here keeps the segment's supported prefix and leaves the
-// keystroke retryable, the same contract the admission seam provides. The
-// branch subclass records which of the two seams stopped the command, for the
-// reason its declaration gives.
+// keystroke retryable, the same contract callExtcmdFunction()'s refusal of an
+// unported function provides. The branch subclass records which of the two
+// seams stopped the command, for the reason its declaration gives.
 async function failClosedCommand(key, state, run) {
     try {
         return await run();
@@ -5017,7 +4952,7 @@ export function extcmdRow(name) {
 // cmdbind_get() answers no row for an unbound byte and C skips the call for
 // it. `null` is this port's spelling of that; so is a name with no row, which
 // only an OPTIONS `bind` to a command C's bind_key() would have rejected can
-// produce, and which rhack()'s unported-command arm below already refuses.
+// produce, and which rhack()'s no-row arm below refuses.
 async function rhackCanDoExtcmd(command, state) {
     const entry = EXTCMD_BY_NAME.get(command);
     if (entry && !await can_do_extcmd(entry, state)) {
@@ -5062,6 +4997,294 @@ async function prefixRefusedCommand(prefixCommand, entry, wasMPrefix, state) {
     );
 }
 
+// C ref: cmd.c rhack():3727 `func = tlist->ef_funct` and doextcmd():510
+// `retval = (*func)()`. extcmdlist_data.js carries each row's handler as the
+// name of its C function; this table maps those names to the ported
+// functions, and callExtcmdFunction() below is the call through the pointer.
+// rhack() and doextcmd() both dispatch here, so a key bound to a row and the
+// row's typed `#name` reach the same function, as the one C pointer does. A
+// name absent from the table is a function the port has not implemented, and
+// DISPATCHED_COMMANDS below lists the rows whose function is present.
+//
+// Each function takes the key rhack() read, which the fail-closed wrappers
+// report, and the game state; both are ignored by functions that need neither.
+const EXTCMD_FUNCTIONS = new Map(Object.entries({
+    do_fight: (key, state) => do_fight(state),
+    do_reqmenu: (key, state) => do_reqmenu(state),
+    doclose: (key, state) => doclose(state),
+    dofire: (key, state) => dofire(state),
+    dothrow: (key, state) => dothrow(state),
+    dowield: (key, state) => dowield(state),
+    // C ref: end.c done2(), the #quit handler. Its accepted path calls
+    // done(QUIT), while the cancellation path returns ECMD_OK after it
+    // restores the command loop.
+    done2: (key, state) => done2(state),
+    wiz_timeout_queue: async (key, state) => {
+        const { wiz_timeout_queue } = await import('./timeout.js');
+        return await wiz_timeout_queue(state);
+    },
+    wiz_debug_cmd_bury: async (key, state) => {
+        const { wiz_debug_cmd_bury } = await import('./dig.js');
+        return await wiz_debug_cmd_bury(state);
+    },
+    // C ref: teleport.c dotelecmd(), registered for both C('t') and
+    // the `#teleport` extended-command row.
+    dotelecmd: (key, state) => dotelecmd(state),
+    // C ref: cmd.c doextcmd() dispatches the `#travel` extcmd through
+    // its ef_funct pointer to dotravel().
+    dotravel: (key, state) => dotravel(state),
+    // C ref: cmd.c doextcmd() calls the selected extcmdlist function
+    // pointer; #retravel returns dotravel_target()'s ECMD result.
+    dotravel_target: (key, state) => dotravel_target(state),
+    doprev_message: (key, state) => doprev_message(state),
+    enter_explore_mode: (key, state) => enter_explore_mode(state),
+    dolookaround: (key, state) => dolookaround(state),
+    doherecmdmenu: (key, state) => doherecmdmenu(state),
+    dotherecmdmenu: (key, state) => dotherecmdmenu(state),
+    dotoggleoption: (key, state) => dotoggleoption(state),
+    do_move_west: (key, state) => do_move_west(state),
+    do_move_northwest: (key, state) => do_move_northwest(state),
+    do_move_north: (key, state) => do_move_north(state),
+    do_move_northeast: (key, state) => do_move_northeast(state),
+    do_move_east: (key, state) => do_move_east(state),
+    do_move_southeast: (key, state) => do_move_southeast(state),
+    do_move_south: (key, state) => do_move_south(state),
+    do_move_southwest: (key, state) => do_move_southwest(state),
+    do_rush_west: (key, state) => do_rush_west(state),
+    do_rush_northwest: (key, state) => do_rush_northwest(state),
+    do_rush_north: (key, state) => do_rush_north(state),
+    do_rush_northeast: (key, state) => do_rush_northeast(state),
+    do_rush_east: (key, state) => do_rush_east(state),
+    do_rush_southeast: (key, state) => do_rush_southeast(state),
+    do_rush_south: (key, state) => do_rush_south(state),
+    do_rush_southwest: (key, state) => do_rush_southwest(state),
+    do_run_west: (key, state) => do_run_west(state),
+    do_run_northwest: (key, state) => do_run_northwest(state),
+    do_run_north: (key, state) => do_run_north(state),
+    do_run_northeast: (key, state) => do_run_northeast(state),
+    do_run_east: (key, state) => do_run_east(state),
+    do_run_southeast: (key, state) => do_run_southeast(state),
+    do_run_south: (key, state) => do_run_south(state),
+    do_run_southwest: (key, state) => do_run_southwest(state),
+    do_rush: (key, state) => do_rush(state),
+    do_run: (key, state) => do_run(state),
+    do_repeat: (key, state) => do_repeat(state),
+    dosh_core: (key, state) => dosh_core(state),
+    dosuspend_core: (key, state) => dosuspend_core(state),
+    donull: async (key, state) => (await donull(state) ? ECMD_TIME : ECMD_OK),
+    doredraw: (key, state) => doredraw(),
+    dolook: async (key, state) => (await runLookCommand(key, state) ? ECMD_TIME : ECMD_OK),
+    doattributes: async (key, state) => (await runAttributesCommand(key, state) ? ECMD_TIME : ECMD_OK),
+    // C ref: dungeon.c dooverview(), which returns ECMD_OK after the
+    // overview menu has been dismissed.
+    dooverview: (key, state) => dooverview(state),
+    ddoinv: async (key, state) => (await runInventoryCommand(key, state) ? ECMD_TIME : ECMD_OK),
+    dotypeinv: (key, state) => failClosedCommand(key, state, () => dotypeinv(state)),
+    doorganize: (key, state) => failClosedCommand(key, state, () => doorganize(state)),
+    adjust_split: (key, state) => failClosedCommand(key, state, () => adjust_split(state)),
+    doperminv: (key, state) => doperminv(state),
+    dovspell: (key, state) => runShowspellsCommand(key, state),
+    dodiscovered: async (key, state) => (await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK),
+    doclassdisco: (key, state) => runKnownClassCommand(key, state),
+    dosearch: (key, state) => runSearchCommand(key, state),
+    doterrain: (key, state) => runTerrainCommand(key, state),
+    doeat: (key, state) => runEatCommand(key, state),
+    doengrave: (key, state) => runEngraveCommand(key, state),
+    dohelp: (key, state) => runHelpCommand(key, state),
+    dohistory: (key, state) => dohistory(state),
+    dowhatdoes: (key, state) => dowhatdoes(state),
+    doset: (key, state) => runOptionsCommand(key, state, doset),
+    // C ref: options.c doset_simple(), the #options handler. The
+    // shared wrapper supplies the same menu and option seams used
+    // by the bound O command and #optionsfull.
+    doset_simple: (key, state) => runOptionsCommand(key, state, doset_simple),
+    dowhatis: (key, state) => runWhatisCommand(key, state),
+    doidtrap: (key, state) => doidtrap(state),
+    doquickwhatis: (key, state) => runGlanceCommand(key, state),
+    doprgold: async (key, state) => {
+        await failClosedCommand(key, state, () => doprgold(state));
+        return ECMD_OK;
+    },
+    doprwep: async (key, state) => {
+        await failClosedCommand(key, state, () => doprwep(state, inventoryMenuHooks(state)));
+        return ECMD_OK;
+    },
+    doprarm: async (key, state) => {
+        await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
+        return ECMD_OK;
+    },
+    doprinuse: async (key, state) => {
+        await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
+        return ECMD_OK;
+    },
+    doprring: async (key, state) => {
+        await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
+        return ECMD_OK;
+    },
+    doprtool: async (key, state) => {
+        await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
+        return ECMD_OK;
+    },
+    dopramulet: async (key, state) => {
+        await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
+        return ECMD_OK;
+    },
+    doread: (key, state) => runReadCommand(key, state),
+    dodrink: (key, state) => runQuaffCommand(key, state),
+    dowieldquiver: (key, state) => failClosedCommand(
+        key, state, () => dowieldquiver(state),
+    ),
+    doapply: (key, state) => runApplyCommand(key, state),
+    dorub: (key, state) => runRubCommand(key, state),
+    dojump: (key, state) => dojump(state),
+    dozap: (key, state) => runZapCommand(key, state),
+    docast: (key, state) => runCastCommand(key, state),
+    dowizcast: (key, state) => runWizCastCommand(key, state),
+    dodown: (key, state) => runDownCommand(key, state),
+    doup: (key, state) => runUpCommand(key, state),
+    dodrop: (key, state) => runDropCommand(key, state),
+    doddrop: (key, state) => failClosedCommand(key, state, () => doddrop(state)),
+    dopickup: (key, state) => runPickupCommand(key, state),
+    dopay: (key, state) => failClosedCommand(key, state, () => dopay(state)),
+    doloot: (key, state) => runLootCommand(key, state),
+    doopen: (key, state) => runOpenCommand(key, state),
+    dotogglepickup: async (key, state) => {
+        await dotogglepickup(state);
+        return ECMD_OK;
+    },
+    doddoremarm: (key, state) => doddoremarm(state),
+    dotakeoff: (key, state) => runTakeOffCommand(key, state),
+    doremring: (key, state) => runRemoveCommand(key, state),
+    dowear: (key, state) => runWearCommand(key, state),
+    doputon: (key, state) => runPutonCommand(key, state),
+    // C ref: steed.c doride(), which returns its own ECMD_* result.
+    doride: (key, state) => doride(state),
+    // C ref: pray.c dopray(), which returns its own ECMD_* result.
+    dopray: (key, state) => dopray(state),
+    // C ref: pray.c dosacrifice(), which returns ECMD_OK for its refusal
+    // guards and ECMD_TIME after a selected offering.
+    dosacrifice: (key, state) => dosacrifice(state),
+    // C ref: insight.c do_gamelog(), reached from the #chronicle row.
+    // show_gamelog owns the text-window wait and returns ECMD_OK.
+    do_gamelog: (key, state) => do_gamelog(state, {
+        displayTextWindow: displayTtyTextWindow,
+    }),
+    // C ref: insight.c doconduct(), reached from the #conduct row.
+    // show_conduct owns the voluntary-challenges text window and wait.
+    doconduct: (key, state) => doconduct(state),
+    // C ref: insight.c dovanquished(), reached from the #vanquished row.
+    // list_vanquished owns sort selection, list formatting, and its wait.
+    dovanquished: (key, state) => dovanquished(state),
+    // C ref: insight.c dogenocided(), reached from the #genocided row.
+    // list_genocided owns the species filtering, sort selection, and wait.
+    dogenocided: (key, state) => dogenocided(state),
+    // C ref: version.c doextversion(), reached from cmd.c's #version row.
+    doextversion: (key, state) => doextversion(state, {
+        displayTextWindow: displayTtyTextWindow,
+        random: rn2,
+    }),
+    // C ref: version.c doversion(), reached from cmd.c's #versionshort row.
+    doversion: (key, state) => doversion(state, {
+        pline: ttyPline,
+        displayTextWindow: displayTtyTextWindow,
+        random: rn2,
+    }),
+    // C ref: pray.c doturn(), which returns its own ECMD_* result.
+    doturn: (key, state) => doturn(state),
+    // C ref: sit.c dosit(), which returns its own ECMD_* result.
+    dosit: (key, state) => dosit(state),
+    dowipe: (key, state) => failClosedCommand(key, state, () => dowipe(state)),
+    dokick: (key, state) => runKickCommand(key, state),
+    dotwoweapon: (key, state) => runTwoWeaponCommand(key, state),
+    dotalk: (key, state) => runChatCommand(key, state),
+    // C ref: do_name.c docallcmd(), which returns its own ECMD_* result.
+    docallcmd: (key, state) => docallcmd(state),
+    enhance_weapon_skill: (key, state) => runEnhanceCommand(key, state),
+    wiz_level_change: (key, state) => runLevelChangeCommand(key, state),
+    wiz_level_tele: (key, state) => runLevelTeleCommand(key, state),
+    wiz_load_splua: (key, state) => wiz_load_splua(state),
+    wiz_load_lua: (key, state) => wiz_load_lua(state),
+    wiz_wish: (key, state) => runWishCommand(key, state),
+    wiz_identify: (key, state) => runIdentifyCommand(key, state),
+    wiz_genesis: (key, state) => runGenesisCommand(key, state),
+    wiz_map: (key, state) => runMapCommand(key, state),
+    wiz_makemap: (key, state) => wiz_makemap(state),
+    wiz_detect: (key, state) => runDetectCommand(key, state),
+    wiz_where: (key, state) => runWhereCommand(key, state),
+    wiz_flip_level: (key, state) => wiz_flip_level(state),
+    wiz_kill: (key, state) => runKillCommand(key, state),
+    wiz_panic: (key, state) => wiz_panic(state),
+    wiz_show_nhuuid: (key, state) => wiz_show_nhuuid(state),
+    wiz_migrate_mons: (key, state) => wiz_migrate_mons(state),
+    wiz_light_sources: async (key, state) => {
+        const { wiz_light_sources } = await import('./light.js');
+        return await wiz_light_sources(state);
+    },
+    wiz_rumor_check: (key, state) => wiz_rumor_check(state),
+    doborn: (key, state) => doborn(state),
+    wiz_smell: (key, state) => runSmellCommand(key, state),
+    wiz_display_macros: (key, state) => wiz_display_macros(state),
+    wiz_mon_diff: (key, state) => wiz_mon_diff(state),
+    wiz_custom: (key, state) => wiz_custom(state),
+    wiz_telekinesis: (key, state) => wiz_telekinesis(state),
+    wiz_objprobs: (key, state) => wiz_objprobs(state),
+    wiz_show_wmodes: (key, state) => wiz_show_wmodes(state),
+    wiz_show_stats: (key, state) => wiz_show_stats(state),
+    wiz_show_seenv: (key, state) => wiz_show_seenv(state),
+    wiz_show_vision: (key, state) => wiz_show_vision(state),
+    wiz_intrinsic: (key, state) => runIntrinsicCommand(key, state),
+    wiz_polyself: (key, state) => runPolyselfCommand(key, state),
+    domonability: (key, state) => runMonsterCommand(key, state),
+    // C ref: save.c dosave(), which always returns ECMD_OK.
+    dosave: (key, state) => dosave(state),
+    // C ref: cfgfiles.c do_write_config_file(), which returns ECMD_OK
+    // after the overwrite query and its file-write attempt.
+    do_write_config_file: (key, state) => do_write_config_file(state, {
+        message: ttyPline,
+        wait: tty_wait_synch,
+        query: paranoid_query,
+    }),
+    // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
+    doforce: (key, state) => doforce(state),
+    // C ref: wield.c doswapweapon(), the #swap command.
+    doswapweapon: (key, state) => failClosedCommand(
+        key, state, () => doswapweapon(state),
+    ),
+    // C ref: pickup.c dotip(), which returns its own ECMD_* result.
+    dotip: (key, state) => failClosedCommand(key, state, () => dotip(state)),
+    // C ref: potion.c dodip(), which returns its own ECMD_* result.
+    dodip: (key, state) => runDipCommand(key, state),
+    // C ref: potion.c dip_into(), queued by itemactions.c IA_DIP_OBJ.
+    dip_into: (key, state) => runDipIntoCommand(key, state),
+    // C ref: dungeon.c donamelevel(), which returns ECMD_OK.
+    donamelevel: (key, state) => donamelevel(state),
+    // C ref: artifact.c doinvoke(), which returns its own ECMD_* result.
+    doinvoke: (key, state) => failClosedCommand(key, state, () => doinvoke(state)),
+    // C ref: trap.c dountrap(), which returns ECMD_OK or ECMD_TIME.
+    dountrap: (key, state) => dountrap(state),
+}));
+
+// Every extcmdlist[] name whose function the port dispatches, for callers
+// that classify a recorded command byte rather than dispatch it.
+export const DISPATCHED_COMMANDS = Object.freeze(
+    extcmdlist.filter((entry) => EXTCMD_FUNCTIONS.has(entry.ef_funct))
+        .map((entry) => entry.ef_txt),
+);
+
+// C ref: the `(*func)()` call in rhack() and doextcmd(), for one extcmdlist[]
+// row. The refusal stands where C would call into a function this port lacks.
+async function callExtcmdFunction(entry, key, state) {
+    const func = EXTCMD_FUNCTIONS.get(entry.ef_funct);
+    if (!func) {
+        resetCommandVars(state);
+        throw new UnsupportedHeroCommandBoundaryError(
+            `${entry.ef_funct}() for the extended command '${entry.ef_txt}' is not ported`,
+            key,
+        );
+    }
+    return await func(key, state);
+}
+
 // C ref: cmd.c doextcmd() (493-519). Only doextlist repeats the
 // extended-command prompt; every other handler returns its ECMD result.
 async function doextcmd(key, state, onSelectedEntry = null) {
@@ -5090,424 +5313,23 @@ async function doextcmd(key, state, onSelectedEntry = null) {
         if (onSelectedEntry) onSelectedEntry(entry);
         // ge.ext_tlist tells rhack() which row actually ran. It matters only for
         // the repeat queue and for rhack()'s PREFIXCMD and MOVEMENTCMD tests.
-        switch (entry.ef_funct) {
-        case 'doextlist':
+        if (entry.ef_funct === 'doextlist') {
             await doextlist(state);
             continue; // cmd.c517 retries only after the list handler
-        case 'doextcmd':
-            // '#' names itself, so '##' opens a second prompt. C recurses through
-            // `retval = (*func)()`; the do/while around it repeats only for
-            // doextlist.
+        }
+        // '#' names itself, so '##' opens a second prompt. C recurses through
+        // `retval = (*func)()`; the do/while around it repeats only for
+        // doextlist.
+        if (entry.ef_funct === 'doextcmd')
             return doextcmd(key, state, onSelectedEntry);
-        case 'do_fight':
-            return await do_fight(state);
-        case 'do_reqmenu':
-            return await do_reqmenu(state);
-        case 'doclose':
-            return await doclose(state);
-        case 'dofire':
-            return await dofire(state);
-        case 'dothrow':
-            return await dothrow(state);
-        case 'dowield':
-            return await dowield(state);
-        case 'done2':
-            // C ref: end.c done2(), the #quit handler. Its accepted path calls
-            // done(QUIT), while the cancellation path returns ECMD_OK after it
-            // restores the command loop.
-            return await done2(state);
-        case 'wiz_timeout_queue': {
-            const { wiz_timeout_queue } = await import('./timeout.js');
-            return await wiz_timeout_queue(state);
-        }
-        case 'wiz_debug_cmd_bury': {
-            const { wiz_debug_cmd_bury } = await import('./dig.js');
-            return await wiz_debug_cmd_bury(state);
-        }
-        case 'dotelecmd':
-            // C ref: teleport.c dotelecmd(), registered for both C('t') and
-            // the `#teleport` extended-command row.
-            return await dotelecmd(state);
-        case 'dotravel':
-            // C ref: cmd.c doextcmd() dispatches the `#travel` extcmd through
-            // its ef_funct pointer to dotravel().
-            return await dotravel(state);
-        case 'dotravel_target':
-            // C ref: cmd.c doextcmd() calls the selected extcmdlist function
-            // pointer; #retravel returns dotravel_target()'s ECMD result.
-            return await dotravel_target(state);
-        case 'doprev_message':
-            return doprev_message(state);
-        case 'enter_explore_mode':
-            return await enter_explore_mode(state);
-        case 'dolookaround':
-            return await dolookaround(state);
-        case 'doherecmdmenu':
-            return await doherecmdmenu(state);
-        case 'dotherecmdmenu':
-            return await dotherecmdmenu(state);
-        case 'dotoggleoption':
-            return await dotoggleoption(state);
-        case 'do_move_west':
-            return do_move_west(state);
-        case 'do_move_northwest':
-            return do_move_northwest(state);
-        case 'do_move_north':
-            return do_move_north(state);
-        case 'do_move_northeast':
-            return do_move_northeast(state);
-        case 'do_move_east':
-            return do_move_east(state);
-        case 'do_move_southeast':
-            return do_move_southeast(state);
-        case 'do_move_south':
-            return do_move_south(state);
-        case 'do_move_southwest':
-            return do_move_southwest(state);
-        case 'do_rush_west':
-            return do_rush_west(state);
-        case 'do_rush_northwest':
-            return do_rush_northwest(state);
-        case 'do_rush_north':
-            return do_rush_north(state);
-        case 'do_rush_northeast':
-            return do_rush_northeast(state);
-        case 'do_rush_east':
-            return do_rush_east(state);
-        case 'do_rush_southeast':
-            return do_rush_southeast(state);
-        case 'do_rush_south':
-            return do_rush_south(state);
-        case 'do_rush_southwest':
-            return do_rush_southwest(state);
-        case 'do_run_west':
-            return do_run_west(state);
-        case 'do_run_northwest':
-            return do_run_northwest(state);
-        case 'do_run_north':
-            return do_run_north(state);
-        case 'do_run_northeast':
-            return do_run_northeast(state);
-        case 'do_run_east':
-            return do_run_east(state);
-        case 'do_run_southeast':
-            return do_run_southeast(state);
-        case 'do_run_south':
-            return do_run_south(state);
-        case 'do_run_southwest':
-            return do_run_southwest(state);
-        case 'do_rush':
-            return do_rush(state);
-        case 'do_run':
-            return do_run(state);
-        case 'do_repeat':
-            return do_repeat(state);
-        case 'dosh_core':
-            return await dosh_core(state);
-        case 'dosuspend_core':
-            return await dosuspend_core(state);
-        case 'donull':
-            return await donull(state) ? ECMD_TIME : ECMD_OK;
-        case 'doredraw':
-            return await doredraw();
-        case 'dolook':
-            return await runLookCommand(key, state) ? ECMD_TIME : ECMD_OK;
-        case 'doattributes':
-            return await runAttributesCommand(key, state) ? ECMD_TIME : ECMD_OK;
-        case 'dooverview':
-            // C ref: dungeon.c dooverview(), which returns ECMD_OK after the
-            // overview menu has been dismissed.
-            return await dooverview(state);
-        case 'ddoinv':
-            return await runInventoryCommand(key, state) ? ECMD_TIME : ECMD_OK;
-        case 'dotypeinv':
-            return await failClosedCommand(key, state, () => dotypeinv(state));
-        case 'doorganize':
-            return await failClosedCommand(key, state, () => doorganize(state));
-        case 'adjust_split':
-            return await failClosedCommand(key, state, () => adjust_split(state));
-        case 'doperminv':
-            return await doperminv(state);
-        case 'dovspell':
-            return await runShowspellsCommand(key, state);
-        case 'dodiscovered':
-            return await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK;
-        case 'doclassdisco':
-            return await runKnownClassCommand(key, state);
-        case 'dosearch':
-            return await runSearchCommand(key, state);
-        case 'doterrain':
-            return await runTerrainCommand(key, state);
-        case 'doeat':
-            return await runEatCommand(key, state);
-        case 'doengrave':
-            return await runEngraveCommand(key, state);
-        case 'dohelp':
-            return await runHelpCommand(key, state);
-        case 'dohistory':
-            return await dohistory(state);
-        case 'dowhatdoes':
-            return await dowhatdoes(state);
-        case 'doset':
-            return await runOptionsCommand(key, state, doset);
-        case 'doset_simple':
-            // C ref: options.c doset_simple(), the #options handler. The
-            // shared wrapper supplies the same menu and option seams used
-            // by the bound O command and #optionsfull.
-            return await runOptionsCommand(key, state, doset_simple);
-        case 'dowhatis':
-            return await runWhatisCommand(key, state);
-        case 'doidtrap':
-            return await doidtrap(state);
-        case 'doquickwhatis':
-            return await runGlanceCommand(key, state);
-        case 'doprgold':
-            await failClosedCommand(key, state, () => doprgold(state));
-            return ECMD_OK;
-        case 'doprwep':
-            await failClosedCommand(key, state, () => doprwep(state, inventoryMenuHooks(state)));
-            return ECMD_OK;
-        case 'doprarm':
-            await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
-            return ECMD_OK;
-        case 'doprinuse':
-            await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
-            return ECMD_OK;
-        case 'doprring':
-            await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
-            return ECMD_OK;
-        case 'doprtool':
-            await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
-            return ECMD_OK;
-        case 'dopramulet':
-            await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
-            return ECMD_OK;
-        case 'doread':
-            return await runReadCommand(key, state);
-        case 'dodrink':
-            return await runQuaffCommand(key, state);
-        case 'dowieldquiver':
-            return await failClosedCommand(
-                key, state, () => dowieldquiver(state),
-            );
-        case 'doapply':
-            return await runApplyCommand(key, state);
-        case 'dorub':
-            return await runRubCommand(key, state);
-        case 'dojump':
-            return await dojump(state);
-        case 'dozap':
-            return await runZapCommand(key, state);
-        case 'docast':
-            return await runCastCommand(key, state);
-        case 'dowizcast':
-            return await runWizCastCommand(key, state);
-        case 'dodown':
-            return await runDownCommand(key, state);
-        case 'doup':
-            return await runUpCommand(key, state);
-        case 'dodrop':
-            return await runDropCommand(key, state);
-        case 'doddrop':
-            return await failClosedCommand(key, state, () => doddrop(state));
-        case 'dopickup':
-            return await runPickupCommand(key, state);
-        case 'dopay':
-            return await failClosedCommand(key, state, () => dopay(state));
-        case 'doloot':
-            return await runLootCommand(key, state);
-        case 'doopen':
-            return await runOpenCommand(key, state);
-        case 'dotogglepickup':
-            await dotogglepickup(state);
-            return ECMD_OK;
-        case 'doddoremarm':
-            return doddoremarm(state);
-        case 'dotakeoff':
-            return await runTakeOffCommand(key, state);
-        case 'doremring':
-            return await runRemoveCommand(key, state);
-        case 'dowear':
-            return await runWearCommand(key, state);
-        case 'doputon':
-            return await runPutonCommand(key, state);
-        case 'doride':
-            // C ref: steed.c doride(), which returns its own ECMD_* result.
-            return await doride(state);
-        case 'dopray':
-            // C ref: pray.c dopray(), which returns its own ECMD_* result.
-            return await dopray(state);
-        case 'dosacrifice':
-            // C ref: pray.c dosacrifice(), which returns ECMD_OK for its refusal
-            // guards and ECMD_TIME after a selected offering.
-            return await dosacrifice(state);
-        case 'do_gamelog':
-            // C ref: insight.c do_gamelog(), reached from the #chronicle row.
-            // show_gamelog owns the text-window wait and returns ECMD_OK.
-            return await do_gamelog(state, {
-                displayTextWindow: displayTtyTextWindow,
-            });
-        case 'doconduct':
-            // C ref: insight.c doconduct(), reached from the #conduct row.
-            // show_conduct owns the voluntary-challenges text window and wait.
-            return await doconduct(state);
-        case 'dovanquished':
-            // C ref: insight.c dovanquished(), reached from the #vanquished row.
-            // list_vanquished owns sort selection, list formatting, and its wait.
-            return await dovanquished(state);
-        case 'dogenocided':
-            // C ref: insight.c dogenocided(), reached from the #genocided row.
-            // list_genocided owns the species filtering, sort selection, and wait.
-            return await dogenocided(state);
-        case 'doextversion':
-            // C ref: version.c doextversion(), reached from cmd.c's #version row.
-            return await doextversion(state, {
-                displayTextWindow: displayTtyTextWindow,
-                random: rn2,
-            });
-        case 'doversion':
-            // C ref: version.c doversion(), reached from cmd.c's #versionshort row.
-            return await doversion(state, {
-                pline: ttyPline,
-                displayTextWindow: displayTtyTextWindow,
-                random: rn2,
-            });
-        case 'doturn':
-            // C ref: pray.c doturn(), which returns its own ECMD_* result.
-            return await doturn(state);
-        case 'dosit':
-            // C ref: sit.c dosit(), which returns its own ECMD_* result.
-            return await dosit(state);
-        case 'dowipe':
-            return await failClosedCommand(key, state, () => dowipe(state));
-        case 'dokick':
-            return await runKickCommand(key, state);
-        case 'dotwoweapon':
-            return await runTwoWeaponCommand(key, state);
-        case 'dotalk':
-            return await runChatCommand(key, state);
-        case 'docallcmd':
-            // C ref: do_name.c docallcmd(), which returns its own ECMD_* result.
-            return await docallcmd(state);
-        case 'enhance_weapon_skill':
-            return await runEnhanceCommand(key, state);
-        case 'wiz_level_change':
-            return await runLevelChangeCommand(key, state);
-        case 'wiz_level_tele':
-            return await runLevelTeleCommand(key, state);
-        case 'wiz_load_splua':
-            return await wiz_load_splua(state);
-        case 'wiz_load_lua':
-            return await wiz_load_lua(state);
-        case 'wiz_wish':
-            return await runWishCommand(key, state);
-        case 'wiz_identify':
-            return await runIdentifyCommand(key, state);
-        case 'wiz_genesis':
-            return await runGenesisCommand(key, state);
-        case 'wiz_map':
-            return await runMapCommand(key, state);
-        case 'wiz_makemap':
-            return await wiz_makemap(state);
-        case 'wiz_detect':
-            return await runDetectCommand(key, state);
-        case 'wiz_where':
-            return await runWhereCommand(key, state);
-        case 'wiz_flip_level':
-            return await wiz_flip_level(state);
-        case 'wiz_kill':
-            return await runKillCommand(key, state);
-        case 'wiz_panic':
-            return await wiz_panic(state);
-        case 'wiz_show_nhuuid':
-            return await wiz_show_nhuuid(state);
-        case 'wiz_migrate_mons':
-            return await wiz_migrate_mons(state);
-        case 'wiz_light_sources': {
-            const { wiz_light_sources } = await import('./light.js');
-            return await wiz_light_sources(state);
-        }
-        case 'wiz_rumor_check':
-            return await wiz_rumor_check(state);
-        case 'doborn':
-            return await doborn(state);
-        case 'wiz_smell':
-            return await runSmellCommand(key, state);
-        case 'wiz_display_macros':
-            return await wiz_display_macros(state);
-        case 'wiz_mon_diff':
-            return await wiz_mon_diff(state);
-        case 'wiz_custom':
-            return await wiz_custom(state);
-        case 'wiz_telekinesis':
-            return await wiz_telekinesis(state);
-        case 'wiz_objprobs':
-            return await wiz_objprobs(state);
-        case 'wiz_show_wmodes':
-            return await wiz_show_wmodes(state);
-        case 'wiz_show_stats':
-            return await wiz_show_stats(state);
-        case 'wiz_show_seenv':
-            return await wiz_show_seenv(state);
-        case 'wiz_show_vision':
-            return await wiz_show_vision(state);
-        case 'wiz_intrinsic':
-            return await runIntrinsicCommand(key, state);
-        case 'wiz_polyself':
-            return await runPolyselfCommand(key, state);
-        case 'domonability':
-            return await runMonsterCommand(key, state);
-        case 'dosave':
-            // C ref: save.c dosave(), which always returns ECMD_OK.
-            return await dosave(state);
-        case 'do_write_config_file':
-            // C ref: cfgfiles.c do_write_config_file(), which returns ECMD_OK
-            // after the overwrite query and its file-write attempt.
-            return await do_write_config_file(state, {
-                message: ttyPline,
-                wait: tty_wait_synch,
-                query: paranoid_query,
-            });
-        case 'doforce':
-            // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
-            return await doforce(state);
-        case 'doswapweapon':
-            // C ref: wield.c doswapweapon(), the #swap command.
-            return await failClosedCommand(
-                key, state, () => doswapweapon(state),
-            );
-        case 'dotip':
-            // C ref: pickup.c dotip(), which returns its own ECMD_* result.
-            return await failClosedCommand(key, state, () => dotip(state));
-        case 'dodip':
-            // C ref: potion.c dodip(), which returns its own ECMD_* result.
-            return await runDipCommand(key, state);
-        case 'dip_into':
-            // C ref: potion.c dip_into(), queued by itemactions.c IA_DIP_OBJ.
-            return await runDipIntoCommand(key, state);
-        case 'donamelevel':
-            // C ref: dungeon.c donamelevel(), which returns ECMD_OK.
-            return await donamelevel(state);
-        case 'doinvoke':
-            // C ref: artifact.c doinvoke(), which returns its own ECMD_* result.
-            return await failClosedCommand(key, state, () => doinvoke(state));
-        case 'dountrap':
-            // C ref: trap.c dountrap(), which returns ECMD_OK or ECMD_TIME.
-            return await dountrap(state);
-        default:
-            resetCommandVars(state);
-            throw new UnsupportedHeroCommandBoundaryError(
-                `${entry.ef_funct}() for the extended command '${entry.ef_txt}' is not ported`,
-                key,
-            );
-        }
+        return await callExtcmdFunction(entry, key, state);
     }
 }
 
 // C ref: rhack():3727's `func = tlist->ef_funct`, resolved for the rows that
 // can reach set_occupation(). C hands set_occupation() the same pointer the
 // dispatch below calls; this port names its handlers instead, so the row's
-// ef_funct is what maps one to the other, as doextcmd()'s switch above does.
+// ef_funct is what maps one to the other, as EXTCMD_FUNCTIONS above does.
 //
 // Only a row carrying occupation text arrives here, and extcmdlist[] gives
 // exactly two rows one: 's'/dosearch at cmd.c:1846-1847 and '.'/donull at
@@ -5528,14 +5350,15 @@ function timedOccupationFunction(row, key, state) {
     }
 }
 
-// C ref: cmd.c rhack(). Only the source handlers the port owns are dispatched
-// here. On a fresh read parse() always runs to completion first, so a byte the
-// port will not dispatch is refused only after get_count() has consumed and
-// echoed its digits and parse()'s closing clear_nhwindow(WIN_MESSAGE) has
-// cleared the row: admission happens at the command byte and never at a count
-// digit, and the refusal is retryable. A supplied nonzero key (normally cmdKey
-// during a repeat) is already logical input and retains the unknown-command
-// diagnostic until that handler is ported. key === 0 normally reads a fresh
+// C ref: cmd.c rhack(). Every bound row is dispatched here, through the arm
+// that names it or through EXTCMD_FUNCTIONS; a row whose function the port
+// lacks is refused by callExtcmdFunction(). On a fresh read parse() always
+// runs to completion first, so such a refusal comes only after get_count() has
+// consumed and echoed its digits and parse()'s closing
+// clear_nhwindow(WIN_MESSAGE) has cleared the row: it happens at the command
+// byte and never at a count digit, and it is retryable. A supplied nonzero key
+// (normally cmdKey during a repeat) is already logical input and retains the
+// unknown-command diagnostic. key === 0 normally reads a fresh
 // command, except that pendingCommand restores the last parsed one first; it
 // has one shape only, captureParsedCommand()'s, which carries the parsed count
 // so that no keystroke is ever replayed. rhack() has no command-result return;
@@ -5788,8 +5611,8 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         }
         // C ref: cmd.c act_on_act() queues dosit's function pointer for
         // MCMD_SIT, and rhack() dispatches that pointer before reading another
-        // key. The queued row's ef_txt is "sit", so dispatch by its source
-        // function instead of sending it through the unported generic arm.
+        // key. The queued row's ef_txt is "sit"; this arm dispatches it by its
+        // source function ahead of the command-name arms below.
         if (queuedExtcmdEntry?.ef_funct === 'dosit') {
             const res = await dosit(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
@@ -6769,16 +6592,33 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             await executeMovement(command, key, firstTime, state);
             return;
         }
+        if (row) {
+            // C ref: rhack():3727 `func = tlist->ef_funct` and :3752
+            // `res = (*func)()`, for every row no arm above names: the key
+            // bound to a row and the row's typed `#name` run the same ported
+            // function, through the table doextcmd() also calls. The result
+            // tail is rhack():3808-3825. A cancelled or failed command resets;
+            // ECMD_OK alone resets unless a negative count holds; ECMD_TIME
+            // takes the turn and, for every function but dokick(), clears the
+            // kicked location so pets stop avoiding it.
+            const res = await callExtcmdFunction(row, key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) {
+                state.context.move = 1;
+                if (row.ef_funct !== 'dokick') clear_kickedloc(state);
+            }
+            return;
+        }
         if (command !== null) {
-            // A bound command whose handler the port excludes. Two routes
-            // reach here. A repeat can supply it as logical input, and a
-            // prefix can: only a command's first byte passes the fresh-read
-            // seam above, so `FG` and `mG` read `G`, pass the PREFIXCMD
-            // exemption, and arrive with no MOVEMENT_INTENTS row. This arm is
-            // what keeps `run` and `rush` out of the port on that route.
+            // A key an OPTIONS `bind` tied to a name extcmdlist[] lacks. C's
+            // bind_key() rejects that line and the key keeps its earlier
+            // binding; this port stores the name and cannot recover what C
+            // kept, so the byte is refused rather than guessed at.
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
-                ADMITTED_BOUNDARY,
+                `'${command}' names no extcmdlist[] row`,
                 key,
             );
         }

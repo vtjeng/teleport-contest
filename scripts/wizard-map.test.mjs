@@ -5,7 +5,7 @@ import test from 'node:test';
 
 import { readFileSync } from 'node:fs';
 
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { CONFUSION, HALLUC } from '../js/const.js';
 import {
     extcmdlist,
@@ -26,7 +26,7 @@ test('wizmap is admitted and retains cmd.c row metadata', () => {
     assert.equal(row.key, DIRECT_KEY.charCodeAt(0));
     assert.equal(row.ef_funct, 'wiz_map');
     assert.equal(row.flags, IFBURIED | WIZMODECMD);
-    assert.ok(ADMITTED_COMMANDS.includes('wizmap'));
+    assert.ok(DISPATCHED_COMMANDS.includes('wizmap'));
 });
 
 test('wiz_map marks traps and restores temporary confusion properties', async () => {

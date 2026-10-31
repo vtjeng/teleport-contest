@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c commands_init() binds l to loot for number_pad; reset_commands() leaves that binding when number_pad is on, so rhack() dispatches pickup.c doloot() on a square with nothing to loot. Independent seed, date, and orcish Barbarian.",
+  "segments": [
+    {
+      "seed": 150915,
+      "datetime": "20300101120000",
+      "nethackrc": "OPTIONS=name:Bok,role:Barbarian,race:orc,gender:male,align:chaotic,number_pad:1,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "l"
+    }
+  ]
+}

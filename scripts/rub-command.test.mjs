@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    ADMITTED_COMMANDS,
+    DISPATCHED_COMMANDS,
     failClosedCommandRefusals,
 } from '../js/cmd.js';
 import {
@@ -490,7 +490,7 @@ test('rub is admitted when dorub queues its own continuation', () => {
     // apply.c:1808 queues dorub itself rather than a command key. rhack()
     // dispatches that extcmdlist row on the following turn, so the temporary
     // JS command-admission boundary must admit the row's public name.
-    assert.ok(ADMITTED_COMMANDS.includes('rub'));
+    assert.ok(DISPATCHED_COMMANDS.includes('rub'));
 });
 
 for (const {

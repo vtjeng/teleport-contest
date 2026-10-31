@@ -50,5 +50,5 @@ test('wizard difficulty command awaits dismissal through its canonical dispatche
     const registry = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(registry, /"wizmondiff", "validate the difficulty ratings of monsters",\s+wiz_mon_diff/u);
-    assert.match(js, /case 'wiz_mon_diff':\s+return await wiz_mon_diff\(state\);/u);
+    assert.match(js, /wiz_mon_diff: \(key, state\) => wiz_mon_diff\(state\),/u);
 });

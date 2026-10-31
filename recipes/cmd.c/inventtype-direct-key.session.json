@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c rhack() dispatching the I key through its extcmdlist row (inventtype, invent.c dotypeinv): class prompt, potion class, Escape from the menu. Independent seed, date, and Priestess.",
+  "segments": [
+    {
+      "seed": 882113,
+      "datetime": "20291203081010",
+      "nethackrc": "OPTIONS=name:Ida,role:Priest,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "I!\u001b"
+    }
+  ]
+}

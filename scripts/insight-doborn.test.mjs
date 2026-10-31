@@ -75,5 +75,5 @@ test('the production wizard-only extcmd row dispatches the awaited canonical dob
     const c = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(c, /"wizborn",[^\n]*\n\s+doborn, IFBURIED \| WIZMODECMD/u);
-    assert.match(js, /case 'doborn':\s+return await doborn\(state\);/u);
+    assert.match(js, /doborn: \(key, state\) => doborn\(state\),/u);
 });

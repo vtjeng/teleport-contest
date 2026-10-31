@@ -80,5 +80,5 @@ test('source cancellation gates and monster on hero square retain the assigned m
     assert.match(c, /hurtle\(u\.dx, u\.dy, 6, FALSE\)/u);
     assert.match(c, /while \(u\.utotype == UTOTYPE_NONE\)/u);
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
-    assert.match(js, /case 'wiz_telekinesis':\s+return await wiz_telekinesis\(state\);/u);
+    assert.match(js, /wiz_telekinesis: \(key, state\) => wiz_telekinesis\(state\),/u);
 });

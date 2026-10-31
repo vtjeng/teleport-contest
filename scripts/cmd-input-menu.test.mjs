@@ -121,7 +121,10 @@ test('external command cores preserve time state and record only platform gaps',
 
     state.urealtime.start_timing = 0;
     assert.equal(await dosh_core(state), ECMD_OK);
-    assert.ok(game.unported.has('sys/unix/unixunix.c dosh'));
+    // unixunix.c dosh() (344-365): the recorder's sysconf sets no SHELLERS,
+    // so the command reports itself unavailable and records no platform gap.
+    assert.match(state.nhDisplay.toplines, /Unavailable command '!'\./u);
+    assert.equal(game.unported.has('sys/unix/unixunix.c dosh'), false);
     assert.equal(
         state.urealtime.start_timing,
         // getnow() reads the fixed recorder time, so dosh_core() restarts its

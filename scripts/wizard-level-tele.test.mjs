@@ -15,7 +15,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    ADMITTED_COMMANDS, failClosedCommandRefusals,
+    DISPATCHED_COMMANDS, failClosedCommandRefusals,
 } from '../js/cmd.js';
 import {
     commandForKey, createCommandBindingModel,
@@ -185,7 +185,7 @@ test('the command table binds C(v) to the row wiz_level_tele() serves', () => {
     );
     // admitParsedCommand() refuses every command outside this list before any
     // handler runs, so the key reaches rhack()'s arm only once it is here.
-    assert.ok(ADMITTED_COMMANDS.includes('wizlevelport'));
+    assert.ok(DISPATCHED_COMMANDS.includes('wizlevelport'));
 });
 
 test('the level-teleport refusal converts at the command seam', () => {
