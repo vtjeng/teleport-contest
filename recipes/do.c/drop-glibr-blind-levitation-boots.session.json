@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of drop-glibr-blind-levitation-ring: a debug-mode Samurai levitates by wearing wished levitation boots instead of a cursed ring, applies a wished blindfold, then greases his fingers. glibr() -> dropx() -> dropz() drops the wielded katana (is_sword, so the message names a 'sword') while Blind and Levitation, and the step east shows the remembered ')' left by map_object(obj, 0). Seed and clock chosen fresh for this recipe.",
+  "segments": [
+    {
+      "seed": 31102026,
+      "datetime": "20261031101500",
+      "nethackrc": "OPTIONS=name:Ukikaze,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017levitation boots\nWf\u0017blindfold\nag\u0017can of grease\nah-l"
+    }
+  ]
+}

@@ -118,6 +118,7 @@ import {
     bot,
     flush_screen,
     map_invisible,
+    map_object,
     newsym,
     see_monsters,
     see_objects,
@@ -902,7 +903,12 @@ export async function finishElapsedTurn(
 
     // C ref: allmain.c moveloop_core() calls glibr() after the once-per-turn
     // hook and before nh_timeout(). The planning copy mutates only its cloned
-    // game state and suppresses display hooks until the live replay.
+    // game state and suppresses display hooks until the live replay. do.c
+    // dropz() reaches two of those hooks: newsym() on the landing square and,
+    // while Blind and Levitation, map_object(obj, 0) just before it. Both
+    // paint the module-global game whatever state they are handed, and
+    // map_object() refuses the clone outright, so the dry run binds both to
+    // no-ops.
     if (Glib(state)) {
         const silentDisplay = async () => {};
         const turnMessage = planning ? silentDisplay : ttyPline;
@@ -918,6 +924,7 @@ export async function finishElapsedTurn(
                     ),
                     extractExternalObject: remove_object,
                     newsym: planning ? () => {} : newsym,
+                    mapObject: planning ? () => {} : map_object,
                 },
             }),
         });

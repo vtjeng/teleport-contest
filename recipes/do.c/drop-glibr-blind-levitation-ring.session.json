@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c dropz() Blind && Levitation witness. A debug-mode Valkyrie wishes for and puts on a cursed ring of levitation (cursed so do_wear.c glibr() leaves it on), applies a wished blindfold, then greases her fingers. The elapsed turn's allmain.c moveloop_core() -> glibr() -> dropx() -> dropz() drops the wielded spear while Blind and Levitation, so dropz() pre-maps it with map_object(obj, 0) before newsym(); the final step east shows the remembered ')' on the vacated square. Seed and clock chosen fresh for this recipe.",
+  "segments": [
+    {
+      "seed": 20261031,
+      "datetime": "20261031093000",
+      "nethackrc": "OPTIONS=name:Slipfloat,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017cursed ring of levitation\nPer \u0017blindfold\naf\u0017can of grease\nag-l"
+    }
+  ]
+}

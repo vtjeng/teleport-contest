@@ -1528,7 +1528,10 @@ test('direct dropx owns no floor-reach gate and dropz maps blind levitation afte
     const js = readFileSync('js/do.js', 'utf8');
     const preflight = js.slice(js.indexOf('export function preflight_dropx'), js.indexOf('function consumeDropAdmission'));
     assert.ok(!preflight.includes('!can_reach_floor'));
-    assert.match(js, /stackobj\(obj, normalized\);\s*if \(heroIsBlind\(normalized\.state\) && Levitation\(normalized\.state\)\) \{\s*map_object\(obj, 0, normalized\.state\);[\s\S]*requiredDropHook\(normalized, 'newsym'\)/);
+    // The map runs through an injected operation so the once-per-turn planning
+    // clone can bind it to a no-op (js/allmain.js finishElapsedTurn()); live
+    // callers fall back to display.c map_object() itself.
+    assert.match(js, /stackobj\(obj, normalized\);\s*if \(heroIsBlind\(normalized\.state\) && Levitation\(normalized\.state\)\) \{[^}]*\(normalized\.hooks\.mapObject \?\? map_object\)\(obj, 0, normalized\.state\);[\s\S]*requiredDropHook\(normalized, 'newsym'\)/);
 });
 
 // The boulder pit/hole arm precedes the hero pit-edge/shaft arm in C.

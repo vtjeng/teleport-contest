@@ -2232,7 +2232,13 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
     }
     stackobj(obj, normalized);
     if (heroIsBlind(normalized.state) && Levitation(normalized.state)) {
-        map_object(obj, 0, normalized.state);
+        // display.c map_object() refuses any state but the module-global
+        // game, because its draw half paints that game whatever state it is
+        // handed. The once-per-turn planning clone therefore binds this
+        // operation to a no-op beside newsym below (js/allmain.js
+        // finishElapsedTurn()); every live caller takes map_object() itself,
+        // so only a dry run needs to supply the hook.
+        (normalized.hooks.mapObject ?? map_object)(obj, 0, normalized.state);
     }
     requiredDropHook(normalized, 'newsym')(
         normalized.state.u.ux,
