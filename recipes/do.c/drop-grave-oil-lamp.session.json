@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary drop onto a GRAVE, varying race and object class. Unsearched seed 60917343 and clock 20611207141600; l steps off the upstairs before the wizard wish for a grave, a wished oil lamp arrives as e, and de drops it. do.c flooreffects has no grave arm, so dropz places the tool on the grave; the closing : look confirms the headstone and the object. No admitted inputs copied.",
+  "segments": [
+    {
+      "seed": 60917343,
+      "datetime": "20611207141600",
+      "nethackrc": "OPTIONS=name:GraveLamp,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " l\u0017grave\n   \u0017oil lamp\n   de  :    "
+    }
+  ]
+}

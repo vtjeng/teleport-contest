@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary drop onto a TREE, a terrain the drop preflight used to refuse alongside graves and ice. Unsearched seed 60917346 and clock 20611207141730; h steps off the upstairs before the wizard wish for a tree at the hero's square, a wished ruby arrives as e, and de drops it. do.c flooreffects has no tree arm, so dropz places the gem; the closing : look confirms the tree and the object. No admitted inputs copied.",
+  "segments": [
+    {
+      "seed": 60917346,
+      "datetime": "20611207141730",
+      "nethackrc": "OPTIONS=name:TreeGem,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " h\u0017tree\n   \u0017ruby\n   de  :    "
+    }
+  ]
+}

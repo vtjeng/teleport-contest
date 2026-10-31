@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary drop onto a GRAVE. Seed 60917348 and clock 20611207141530 (seeds 60917342 and 60917347 were tried first and rejected because a jackal stood west of the upstairs); l steps off the upstairs onto room floor before the wizard wish for a grave (objnam.c wizterrainwish -> engrave.c make_grave), then d drops the starting food ration d. do.c flooreffects has no grave arm, so dropz places the ration on the grave; the closing : look confirms the headstone and the object. No admitted inputs copied.",
+  "segments": [
+    {
+      "seed": 60917348,
+      "datetime": "20611207141530",
+      "nethackrc": "OPTIONS=name:GraveFloor,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " l\u0017grave\n   dd  :    "
+    }
+  ]
+}

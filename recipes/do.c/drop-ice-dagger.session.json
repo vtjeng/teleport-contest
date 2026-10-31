@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary drop onto ICE, varying race and object class. Unsearched seed 60917345 and clock 20611207141700; l steps off the upstairs before the wizard wish for ice, then db drops the starting dagger b. do.c flooreffects has no ice arm, so dropz places the untimed weapon on the ice; the closing : look confirms the ice and the object. No admitted inputs copied.",
+  "segments": [
+    {
+      "seed": 60917345,
+      "datetime": "20611207141700",
+      "nethackrc": "OPTIONS=name:IceDagger,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " l\u0017ice\n   db  :    "
+    }
+  ]
+}

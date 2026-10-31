@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary drop onto ICE. Unsearched seed 60917344 and clock 20611207141630; h steps off the upstairs before the wizard wish for ice (objnam.c wizterrainwish sets ICE with icedpool), a wished lichen corpse arrives as e, and de drops it. do.c flooreffects has no ice arm, so dropz reaches mkobj.c place_object, whose obj_timer_checks marks the timed corpse on_ice; the closing : look confirms the ice and the object. No admitted inputs copied.",
+  "segments": [
+    {
+      "seed": 60917344,
+      "datetime": "20611207141630",
+      "nethackrc": "OPTIONS=name:IceCorpse,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " h\u0017ice\n   \u0017lichen corpse\n   de  :    "
+    }
+  ]
+}

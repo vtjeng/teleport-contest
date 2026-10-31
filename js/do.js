@@ -30,20 +30,17 @@ import {
     ACH_MINE,
     ACH_SOKO,
     A_DEX,
-    AIR,
     ALTAR,
     AM_NONE,
     Align2amask,
     BOTH_SIDES,
     BLINDED,
-    CLOUD,
     COLNO,
     DEAF,
     CORR,
     DIR_DOWN,
     DIR_UP,
     DISMOUNT_FELL,
-    DOOR,
     DRAWBRIDGE_UP,
     DB_FLOOR,
     DB_UNDER,
@@ -64,7 +61,6 @@ import {
     HAND,
     HALF_PHDAM,
     IS_ALTAR,
-    IS_STWALL,
     IS_WATERWALL,
     IS_SINK,
     Is_airlevel,
@@ -1979,11 +1975,6 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('an unpaid object');
 
     const { ux: x, uy: y } = u;
-    const location = state.level?.at(x, y);
-    if (!location)
-        throw new UnsupportedDropError('non-ordinary terrain');
-    // A down gate is handled by dropx() before the ordinary floor tail.
-    const stway = stairway_at(x, y, state);
     // shk.c:sellobj() owns its shop checks after floor placement, including
     // the costly-spot test this preflight used to reject.
     // The remaining square effects are reached from dropz()'s flooreffects().
@@ -2012,18 +2003,12 @@ export function preflight_dropx(obj, env = {}) {
     if ((pool || lava) && !ordinaryLiquid && !submergedWaterBoulder)
         throw new UnsupportedDropError('liquid terrain');
     // do.c:flooreffects leaves a boulder intact on dry terrain without a
-    // pit or hole. The trap and liquid guards above bound this floor path.
-    // Doorways, thrones and stairways add no flooreffects() branch when
-    // shipping leaves the object on this level. Neither do stone and walls:
-    // a wall-passing hero can drop there through drop() or hold_another_object().
-    if (location.typ !== ROOM && location.typ !== CORR
-        && location.typ !== DOOR && location.typ !== SINK
-        && location.typ !== THRONE && location.typ !== FOUNTAIN
-        && !IS_ALTAR(location.typ) && !IS_STWALL(location.typ) && !stway
-        && location.typ !== AIR && location.typ !== CLOUD
-        && !ordinaryLiquid && !submergedWaterBoulder) {
-        throw new UnsupportedDropError('non-ordinary terrain');
-    }
+    // pit or hole, and has no arm for the dry square type itself: room,
+    // corridor, doorway, stairs, furniture, grave, ice, tree, iron bars,
+    // stone and walls (a wall-passing hero can drop there through drop() or
+    // hold_another_object()) all fall through to mkobj.c place_object(),
+    // whose obj_timer_checks() re-times a timed object landing on ice. The
+    // trap and liquid guards above bound this floor path.
     // do.c:dropx/dropz/flooreffects adds no effect for an engraving on dry
     // floor. Keep its text intact and let the ordinary placement/redraw run.
     // A visible region affects the canonical redraw, not floor placement.
