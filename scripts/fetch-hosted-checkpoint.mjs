@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
 import { checkpointResultsDirectory } from './checkpoint-results.mjs';
+import { formatCheckpointReport, loadCheckpoint } from './checkpoint-report.mjs';
 import { BOOKKEEPING_FILES, digest } from './checkpoint-reuse.mjs';
 import {materializeEvidence, readHostedEvidence} from './hosted-evidence.mjs';
 import {readChallengeBatches} from './challenge-results.mjs';
@@ -147,6 +148,12 @@ export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh, tra
         const destination = `challenges/evaluations/hosted-${run.id}-${run.attempt}-${batch}.json`;
         console.log(`Copy ${join(savedSynthetic, name)} to ${destination}`);
         console.log(`node scripts/score-challenges.mjs --record ${destination}`);
+    }
+    // The report is a convenience; it must never fail an import.
+    try {
+        console.log(`\n${formatCheckpointReport(loadCheckpoint(commit, root))}`);
+    } catch (error) {
+        console.warn(`Report unavailable: ${error.message}`);
     }
     return result;
 }
