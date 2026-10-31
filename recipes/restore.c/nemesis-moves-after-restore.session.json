@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "restore.c:restgamestate -> role_init() and Sfi_q_score(svq.quest_status). A debug Valkyrie creates her quest nemesis (Lord Surtur, fixed gender, so role_init draws no random number on restore) next to her and saves. The second segment restores, declines to keep the save file, and waits two turns so the nemesis acts: monmove.c:dochug -> quest.c:quest_stat_check reads svq.quest_status after the restore. Seeds and datetimes were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4151,
+      "datetime": "20260608081500",
+      "nethackrc": "OPTIONS=name:Restorer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0007Lord Surtur\nySy"
+    },
+    {
+      "seed": 4152,
+      "datetime": "20260608093000",
+      "nethackrc": "OPTIONS=name:Restorer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\nnmsms"
+    }
+  ]
+}

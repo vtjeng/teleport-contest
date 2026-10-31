@@ -52,6 +52,7 @@ import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
 import { parseSnapshot, SAVE_FILE_PATH } from './save.js';
 import { restore_oracles } from './rumors.js';
+import { role_init } from './role_init.js';
 import { set_residency, restshk } from './shk.js';
 import { vfsReadFile, vfsDeleteFile, vfsListFiles } from './storage.js';
 import { initrack } from './track.js';
@@ -155,6 +156,13 @@ export async function dorestore(state = game) {
     state.moves = snapshot.moves;
     state.hero_seq = snapshot.hero_seq ?? (snapshot.moves * 8);
     state.flags = snapshot.flags;
+    // C ref: restore.c restgamestate():596 role_init(), right after the
+    // saved flags are read and before the hero struct. The permonst changes
+    // for the quest leader, guardians and nemesis do not survive a save, and
+    // a leader or nemesis without a fixed gender draws rn2(100) again here
+    // (role.c 2036-2060). Sfi_q_score() below then replaces the quest status
+    // this call initializes with the saved one.
+    role_init(state);
     state.u = snapshot.u;
     // iflags from the save carries option state but not display handles.
     // Merge onto the live iflags so cbreak and window_inited survive.
@@ -246,11 +254,9 @@ export async function dorestore(state = game) {
         state.svm ??= {};
         state.svm.mapseenchn = snapshot.mapseenchn;
     }
-    if (snapshot.quest_status != null) {
-        state.quest_status = snapshot.quest_status;
-        state.svq ??= {};
-        state.svq.quest_status = snapshot.quest_status;
-    }
+    // C ref: restore.c restgamestate():706 Sfi_q_score(&svq.quest_status)
+    // replaces the struct role_init() initialized above with the saved one.
+    state.svq.quest_status = snapshot.quest_status;
 
     // Hero identity and timing
     if (snapshot.wizard != null) state.wizard = snapshot.wizard;

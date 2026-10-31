@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "restore.c:restgamestate -> role.c:role_init() on restore. A debug Wizard's nemesis, the Dark One, has no M2_MALE/M2_FEMALE/M2_NEUTER flag, so role_init() draws rn2(100) for svq.quest_status.nemgend on every restore (role.c:2059). The first segment creates the Dark One next to the hero and saves; the second restores, declines to keep the save file, and waits two turns so monmove.c:dochug -> quest.c:quest_stat_check runs for the nemesis. Seeds and datetimes were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4161,
+      "datetime": "20260608101500",
+      "nethackrc": "OPTIONS=name:Restorer,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0007Dark One\nySy"
+    },
+    {
+      "seed": 4162,
+      "datetime": "20260608113000",
+      "nethackrc": "OPTIONS=name:Restorer,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\nnmsms"
+    }
+  ]
+}

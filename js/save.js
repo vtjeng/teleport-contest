@@ -475,7 +475,8 @@ function serializeGameState(state) {
         // saved objects so callbacks such as end_burn() find their source.
         timer_base: state.gt?.timer_base,
         light_base: state.gl?.light_base,
-        quest_status: state.quest_status,
+        // C ref: save.c savegamestate():316 Sfo_q_score(&svq.quest_status).
+        quest_status: state.svq.quest_status,
         // Hero identity and timing
         wizard: state.wizard,
         discover: state.discover,
