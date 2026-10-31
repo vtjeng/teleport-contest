@@ -424,7 +424,7 @@ import { encumber_msg } from './pickup.js';
 import { verbalize } from './pline.js';
 import { body_part, polymon } from './polyself.js';
 import { makeplural } from './fruit.js';
-import { d, rn1, rn2, rnl, rnd, rne } from './rng.js';
+import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import {
     autoreturn_weapon, dmgval, dry_a_towel, hitval, skill_name, weapon_descr,
     weapon_hit_bonus,
@@ -2973,7 +2973,12 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
 // hmon() return handling, and the caller's object lifecycle remain coupled.
 export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { rn1, rn2, rnd };
+    // thitmonst() itself draws rnd(20) and rnd(25), but it hands this set to
+    // hmon(), whose kill path reaches mon.c xkilled()'s treasure drop and
+    // mkobj.c mkobj(). C draws all of those from the one global RNG, so the
+    // default is the complete module family rather than this function's own
+    // three operations.
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
     const message = env.message ?? (env.planning ? async () => {} : ttyPline);
     // Existing partial owners may still report an unported discarded or
     // impossible branch. Keep this source function running so such a gap

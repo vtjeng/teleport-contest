@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dothrow.c:thitmonst() witness for a thrown kill whose mon.c:xkilled() treasure drop (the !rn2(6) arm) calls mkobj.c:mkobj(): the debug Rogue creates a newt with ^G and throws one starting dagger east at it. I selected seed 7400102 with a JavaScript scan over 7400001-7400500 (500 starts replayed; this one put the newt east, killed it with the dagger and rolled the drop).",
+  "segments": [
+    {
+      "seed": 7400102,
+      "datetime": "20350711141500",
+      "nethackrc": "OPTIONS=name:NewtThrower,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0007newt\ntbl"
+    }
+  ]
+}
