@@ -463,6 +463,7 @@ import {
     can_touch_safely,
     mon_wield_item,
     mwepgone,
+    select_rwep,
 } from './weapon.js';
 import { mwelded } from './wield.js';
 import { extract_from_minvent, is_pole, which_armor } from './worn.js';

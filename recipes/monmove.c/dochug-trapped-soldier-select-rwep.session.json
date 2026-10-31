@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 27315590,
+    "datetime": "20261031091500",
+    "nethackrc": "OPTIONS=name:TrapWield,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,!safe_wait,time,showexp\n",
+    "comment": "Independent monmove.c dochug() case for its wield check `!(mtmp->mtrapped && !nearby && select_rwep(mtmp))`, which calls weapon.c select_rwep() only for a trapped monster that is not adjacent to the hero. The debug-mode Valkyrie steps two squares south off the upstair, wishes for a bear trap (letter e) and arms it under herself, then creates a soldier beside her; at this seed it appears west of her carrying a spear. Two steps east take her two squares from the trap square along the soldier's straight-line approach, so the soldier walks onto the trap and is caught at distance 2. Its following moves run dochug()'s wield check with mtrapped set and nearby false, reaching select_rwep(), and the rests at the end give it those moves.",
+    "moves": " jj\u0017beartrap\nae#wizgenesis\nsoldier\nll..."
+  }]
+}
