@@ -424,7 +424,7 @@ probes need only the C observation specified in `.agents/selection.md`. The
 worker compares included replayed cases with JavaScript locally. The
 work lead verifies those checks, then runs the combined checkpoint before
 accepting the case files. Prepared cases do not enter synthetic evaluations
-or dashboard totals until the work lead admits a manifest and saves its
+until the work lead admits a manifest and saves its
 first evaluation. Create independent matching recipes and recordings only for
 source-port paths that lack verified synthetic coverage.
 

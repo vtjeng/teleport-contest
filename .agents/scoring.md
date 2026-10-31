@@ -109,23 +109,10 @@ denominators. Use
 with full measured SHAs and saved evaluation directories. Select an accepted
 baseline explicitly for a diagnostic comparison. Normal acceptance performs
 this comparison itself; no separate review command is required. The command does not
-replay games or record scores. Dashboard builds read saved evidence; they do not run challenge
-evaluations. A failed or older measurement retains its failure status or
+replay games or record scores. A failed or older measurement retains its failure status or
 measured commit age. Synthetic failures retain their own diagnostic corpus and never enter the
 fixed mismatch list or its score denominator. Both diagnostic corpora feed
-the single assignment queue under `.agents/architecture.md`. Publish
-batch identity, current investigations, and remaining synthetic screens on the
-dashboard so an empty fixed queue does not imply that the loop is finished.
-Keep earlier batch results visible after admitting another batch.
-
-The dashboard shows one combined Development set measure: it sums the
-historical public-development and local-holdout measurements, carrying the
-latest holdout measurement forward after the holdout is first recorded. It
-shows the synthetic local challenge set separately (the historical display
-label is Synthetic local holdout). Each card includes the age of its
-measured commit. Challenge details follow Work by source file; per-case
-accounting remains in the saved evidence. Historical missing session/cursor
-counts remain unknown. Dashboard metrics cover the local measures; the remote
+the single assignment queue under `.agents/architecture.md`. The remote
 competition score is external to this workspace.
 
 ## Reading the log

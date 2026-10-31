@@ -168,10 +168,9 @@ reviewed migration, preserving useful history in Git and the tracked
 investigations.
 
 **Scope and cost.** A targeted writer change and migration, with checks that
-goal lifecycle, completion evidence, and dashboard data remain unchanged.
+goal lifecycle and completion evidence remain unchanged.
 At `9ac68b8a`, omitting embedded investigations saves 712,997 bytes (22.2% of
-`GOALS.json`); the generated dashboard data and template rendering are
-identical. The dashboard continues to read current tracked investigations.
+`GOALS.json`).
 
 **What it leaves unfixed.** Investigation prose still needs the writing rules
 in `.agents/selection.md`. Record size alone does not justify discarding

@@ -64,8 +64,8 @@ Commit only new case recipes and C recordings under
 `challenges/cases/<batch>/`. Put the prepared manifest and its case hashes in
 the immutable delivery packet, outside `challenges/manifests/`. Preserve the
 C replay commands and logs with the delivery. Do not commit a versioned
-manifest, run aggregate scoring, append `SCORE.tsv`, edit `GOALS.json`, or
-update the dashboard. The work lead validates the cases and later admits
+manifest, run aggregate scoring, append `SCORE.tsv`, or edit `GOALS.json`.
+The work lead validates the cases and later admits
 the batch under `.agents/selection.md` and `.agents/validation.md`.
 
 Finish the C recorder and replay commands before submitting, so the recorded

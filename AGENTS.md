@@ -1,28 +1,25 @@
 # Teleport agent instructions
 
-## Temporary single-agent operating mode
+## Current operating mode
 
-Vincent directed this workflow change on 2026-10-19. It overrides the agent
-topology, dispatch, and continuous-loop instructions below until Vincent
-explicitly changes the mode:
+Vincent directed this mode on 2026-10-31. It overrides the agent topology,
+dispatch, and continuous-loop instructions below until Vincent changes it:
 
-- Vincent is the human project owner. dot is Vincent’s supervising assistant.
-  This Codex session is the sole hands-on Teleport executor, managed by dot.
-  It performs source inspection, setup, implementation, review, and validation
-  sequentially in this workspace.
-- Do not delegate, claim work for another agent, respawn a lead or worker, or
-  run automated dispatch, polling, or dashboard-refresh loops. The historical
-  role and queue procedures below remain reference material, not active
-  execution routing.
-- Preserve existing commits, results, queue history, and partial evidence.
-  Reconcile saved ownership and any in-flight command before starting related
-  work; do not duplicate or erase prior work.
-- Keep the existing source-tracing, test, validation, acceptance, scoring, and
-  publication requirements. Single-agent mode changes who performs the steps,
-  not the evidence or correctness gates.
-- On restart, resume in this single-agent mode and consult the current
-  continuation state before acting. Keep this mode until Vincent explicitly
-  changes it.
+- One Claude Code session leads the work. It may delegate investigation and
+  implementation to subagents, each in its own worktree, and verifies their
+  results itself before integrating them.
+- Do not run the multi-agent queue, automated dispatch, or polling loops. The
+  role and queue procedures below remain historical reference.
+- Keep the source-tracing, test, validation, and correctness gates. A passing
+  hosted Checkpoint run on the exact candidate commit is the full validation
+  gate; `node scripts/checkpoint-report.mjs <commit>` summarizes it.
+- Push `integration-checkpoint/*` branches for hosted validation without
+  asking. Publish a candidate to `main`, without force, once hosted
+  Checkpoint passes on that exact commit.
+- Never cherry-pick, copy, or depend on code from commits
+  `736b8cd0424817ab9838e29b7ffb7e04228a354b..15ed31f2d2a765d68c8377f8360f4475d9476ac7`.
+  Behavior those commits touched may be reimplemented from the C source.
+- Keep a work log Vincent can read instead of the chat.
 
 ## Goal and authoritative sources
 
@@ -79,10 +76,7 @@ workload as a regression check. The current `challenges/manifest.json` remains
 frozen as batch `v1`; new batches use new versioned manifests and retain every
 previous batch and its evaluation history. Synthetic results remain separate
 from fixed-development scores and remote competition evidence. Preserve
-historical Development, Local holdout, and Challenges rows and labels; the dashboard combines the historical Development
-and Local holdout measures into one Development set series and keeps the
-synthetic local challenge measure separate (the dashboard may retain its
-historical “Synthetic local holdout” label).
+historical Development, Local holdout, and Challenges rows and labels.
 
 `node scripts/scan-sessions.mjs --json` diagnoses the fixed 44-session
 workload. `score-development.mjs` is its aggregate scorer. The separate
@@ -135,17 +129,13 @@ use the supported enable/migration commands without discarding legacy work.
 The user authorizes normal pushes to `vtjeng/teleport-contest` for hosted
 candidate validation and accepted publication. On 2026-10-17, Vincent reaffirmed
 standing approval for normal pushes to this repository, including candidate
-case files, manifests, baseline evaluations, SCORE and dashboard reports.
+case files, manifests, baseline evaluations, and SCORE reports.
 A new branch or commit alone does not require renewed approval. This scope
 applies to `https://github.com/vtjeng/teleport-contest.git` only.
 Keep unaccepted candidates on
 `integration-checkpoint/*` branches; publish only accepted work to `main`.
 Do not force-push or delete refs. Existing validation and publication checks
 still apply.
-
-Accepted pushes to `main` also authorize the normal Dashboard workflow's public
-deployment to `https://vtjeng.com/teleport-contest/`. No separate confirmation
-is needed for each deployment through that tested publication workflow.
 
 For a standalone push, use
 `git push -- https://github.com/vtjeng/teleport-contest.git <refspec>`. The trusted project
@@ -369,16 +359,6 @@ required shape.
 
 Create or update a note, report, or permanent record only when
 `.agents/loop.md` or `.agents/review.md` requires it.
-
-### Dashboard previews
-
-For dashboard previews, update the existing private preview Site rather than
-creating a new one. Use localhost if hosted preview is unavailable.
-
-The preview is a fixed snapshot, separate from live dashboard publication:
-
-- URL: https://teleport-dashboard-preview-oct8.jocund-rice-0231.chatgpt.site
-- Site ID: `appgprj_6ac86601734c8191b034c533c692565b`
 
 ### Check out the C source in a new worktree
 

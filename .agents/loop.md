@@ -16,7 +16,7 @@ support; `.agents/scoring.md` owns measurement and historical comparisons.
 An empty fixed-workload queue does not mean there is no implementation work.
 
 Agent hierarchy, the single queue, claim-time priority, rework, worktrees,
-and dashboard identities are defined once in `.agents/architecture.md`.
+and role identities are defined once in `.agents/architecture.md`.
 Read its tooling transition before starting or migrating a loop. Workers
 follow `.claude/agents/queue-worker.md` plus the guide for their assignment.
 
@@ -73,10 +73,9 @@ do not change ownership or satisfy validation gates.
 On an idle or blocked `turn`, workers include a public `summary` explaining
 the missing dependency or next action and its owner. Keep private paths,
 process handles, and internal notes in `reason`, which is not published.
-Update the turn when work resumes. The dashboard distinguishes these reported
-waits from unrecorded time; neither assignment nor a blank interval measures
-CPU use. Track Challenge lead planning and assembly separately from worker execution;
-legacy snapshots retain their existing role records.
+Update the turn when work resumes. Neither assignment nor a blank interval
+measures CPU use. Track Challenge lead planning and assembly separately from
+worker execution.
 
 Use `next` for routine coordination, including pending deliveries, parked
 tasks, and ready batches awaiting admission. Use `status` when the full ownership
@@ -138,8 +137,7 @@ next action. Read the referenced evidence needed for your decision; do not
 repeat a full ledger dump or recap unchanged history in each role's reply.
 Independent source review and all validation requirements still apply. Open
 the canonical queue when ownership, readiness or a material state change needs
-reconciliation; a dashboard snapshot is dated evidence, not a live connection
-check.
+reconciliation.
 
 At startup and after a delivery, correction, acceptance, or batch baseline,
 use `worker-state.mjs next` or the publication helper's next-work summary.
@@ -210,21 +208,7 @@ or amend submitted delivery commits.
 
 ## Integration and publication
 
-### Local exploration snapshot refresh
-
-Vincent approved the checked WL-local 15-minute coalescer on 2026-10-16.
-`node scripts/dashboard-refresh.mjs --ledger <absolute-ledger> --watch`
-checks once a minute while this environment and its owned process remain running.
-Changes to closed independent discovery records (including retrospective
-classification/qualification), or completed/blocked Worker 1..3 exploration
-assignments with a recorded queue claim, create a pending watermark. The latter
-includes Main support and linked exploration follow-ups without changing the
-independent discovery yield denominator. Claims alone, turn/connection chatter,
-the publisher's own events and capture time do not. Changes
-coalesce for 15 minutes from first observation; active integration, ready
-implementation/deliveries, review/admission, dirty or off-Main work, and pending
-or failed publication CI defer publication. This is a snapshot, not a live feed
-or hosted cron job; the displayed capture timestamp is authoritative.
+### Main ownership
 
 **One Main owner.** Before any manual WL review/integration, standalone tooling
 checkpoint, admission or publication boundary, run
@@ -235,36 +219,9 @@ ordinary exact standalone Git push. Release with `main-work.mjs release --token
 <token>` only after owned commands have finished and accepted Main/publication
 CI have been reconciled. Supported integrate/accept/admit/publish helpers also
 take the same whole-operation lock and allow token-bound nested commands.
-Never start manual Git work during a refresh lease. A competing owner defers;
-neither an age limit nor an apparently dead PID steals a lock. After a crash,
-confirm its actual owner stopped before explicitly removing its lock. The
-observer's separate `.owner` file also prevents duplicate watchers.
-
-The separate `snapshot-published` observation requires latest accepted anchor A,
-its original imported passing execution checkpoint P, P ancestor A ancestor R,
-and identical execution trees P/A/R. Every commit A→R may change only the
-regular non-executable `dashboard-snapshot.json`; other bookkeeping is rejected.
-The verifier binds read-only captured ledger-prefix bytes to actual history,
-then regenerates the complete public projection at its stated capture time.
-Privacy/schema, original 44-session development evidence and exact local/remote
-Main identities remain checked. It never calls the old measurements a new score.
-The existing `tooling-published` gate is unchanged.
-
-Checked reports advance the observed accepted Main, while the execution queue
-base stays unchanged. Only verified snapshot-only report chains are equivalent
-assignment bases. A supported `work-queue next` read verifies eligibility; pending
-plans and live claims are not rebased or reassessed for a report-only change.
-Execution/tooling changes still require normal refresh and reassessment.
-
-The private shared Git-dir journal retains the exact proposed commit, immutable
-captured prefix/snapshot and a receipt. A crash after push resumes that same
-proposal, event, CI registration and queue observation; never regenerate it or
-acknowledge arrivals beyond its captured prefix. Publication uses compare-and-set
-local Main and an ordinary non-forced push after rechecking remote identity.
-Only normal Lint and Dashboard run per report. Observe them with the existing
-CI checker; do not rerun Checkpoint, Score, Coverage or gameplay for a report.
-Errors preserve the journal for owner inspection. `--observe` cannot push or
-recover a pending proposal; it reports pending recovery honestly.
+A competing owner defers; neither an age limit nor an apparently dead PID
+steals a lock. After a crash, confirm its actual owner stopped before
+explicitly removing its lock.
 
 
 Build implementation groups on candidate branches; keep local `main` at its
@@ -378,12 +335,11 @@ successful CI checks locally.
    Refresh the saved combined queue after score import, before publication.
    Use the group's publication command under `.agents/validation.md`;
    `task-handoff.mjs publish` remains available for other accepted deliveries.
-   It generates the dashboard snapshot, commits closure reports by name,
-   verifies their contents, pushes the exact report commit, records
-   publication, checks CI once, and returns the next-work summary. Retry after
-   an interruption; a committed report packet is reused rather than regenerated.
-   It sends no worker messages and does not admit batches. The snapshot captures
-   activity through acceptance; publication enters the next snapshot.
+   It commits any uncommitted closure reports by name, verifies their
+   contents, pushes the exact commit, records publication, checks CI once,
+   and returns the next-work summary. Retry after an interruption; a committed
+   report packet is reused. It sends no worker messages and does not admit
+   batches.
    Pending CI stays in `.cache/loop-ci-pending.json` until all relevant runs pass.
    The helper checks pending CI before another push and stops on known failures.
    Do not block the next
@@ -454,8 +410,6 @@ findings at the next safe record boundary. A parked investigation may hand off
 its report without an implementation delivery; the next owner reuses its
 evidence. Do not let a late result overwrite a newer diagnosis. Worker activity
 alone does not require an investigation edit or publication commit.
-Treat a successful `Dashboard` workflow run as confirmation of deployment.
-Inspect the live page only for a reported problem or a change to its presentation.
 
 ## Workflow friction
 

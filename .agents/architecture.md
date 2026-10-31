@@ -1,7 +1,7 @@
 # Agent architecture and shared work queue
 
 This is the authority for agent hierarchy, queue ownership, scheduling,
-rework, worktrees, and dashboard identities. Other guides supply source,
+rework, worktrees, and role identities. Other guides supply source,
 evidence, batch-admission, and publication requirements; they do not define
 additional queues or independent dispatch policies. See "Tooling transition"
 below before enabling it on an existing ledger.
@@ -26,7 +26,7 @@ The Work lead, Challenge lead, and Process analyst are siblings and message
 one another directly. The Coordinator stays available for user requests,
 priorities, and decisions; it does not relay routine task traffic. The Work lead owns dispatch,
 integration, validation, acceptance, admission, central records, and
-publication. The dashboard uses the same role names irrespective of agent parentage.
+publication.
 
 Before ending an authorized continuous run while the queue is empty, the
 Coordinator verifies that a live lead owns the next productive investigation,
@@ -88,8 +88,7 @@ unavailable requested model or effort rather than silently substituting it.
 Existing ledger records and command fields retain `Main` for the Work lead
 and `Prep` for the Challenge lead. The ledger's `coordinatorRoot` belongs to
 the Work lead's checkout, not the conversation Coordinator. These are stored
-protocol identities, not extra agents. The dashboard displays the current
-role names without rewriting events. Existing helper names and flags such as
+protocol identities, not extra agents. Existing helper names and flags such as
 `prep-handoff.mjs` and `--prep` remain supported; new profiles have no aliases.
 
 The queue is shared state and tooling, not an agent. It stores executable
@@ -212,7 +211,7 @@ Dependencies and oldest-ready time order otherwise comparable tasks. Preserve
 the original ready time through retries and reassess older tasks at handoff
 boundaries so lower-priority work does not disappear indefinitely. Unknown or
 stale queue evidence is not a count of zero. Refresh it before applying the
-threshold. Record the count and selection reason for dashboard explanations.
+threshold. Record the count and selection reason.
 Seed continuation is only a tie-breaker within this policy.
 
 ## Batches and admission
@@ -290,30 +289,17 @@ branch, preserving exact worker result references. Process analyst edits only it
 assigned tooling/instruction scope. Work lead integrates exact submitted revisions
 and retains the existing single-candidate validation/publication gates.
 
-## Dashboard and recovery
-
-Show stable Worker 1..3 lanes and label each assignment Exploration,
-Implementation, or Rework. Show Challenge lead's planning/assembly and Work lead's delivery,
-validation, admission, and publication activity separately. Show ready task
-counts, the implementation-session count, blocked reasons, and the dispatch
-reason. Do not infer CPU use or idleness from elapsed ownership or silence.
+## History and recovery
 
 Preserve legacy A/B/C and Prep-1..Prep-6 history without relabeling past events.
-A completed assignment must not accumulate ongoing worker utilization while
-its deliverable awaits acceptance. Rework links back to the rejected revision;
-it does not reopen the completed assignment. Publish no private paths,
-process handles, credentials, or private reasoning in dashboard summaries.
+Rework links back to the rejected revision; it does not reopen the completed
+assignment. Keep private paths, process handles, credentials, and private
+reasoning out of public `summary` fields.
 
 ## Tooling transition and commands
 
-Snapshot-only reports use a separate verified `snapshot-published` observation;
-they are not implementation acceptance or standalone tooling validation. The
-latest observed Main can advance through these reports while the execution
-queue base and live assignment bases stay unchanged. Only the verified
-snapshot-only chain supplies equivalent assignment bases. See
-[local exploration snapshot refresh](loop.md#local-exploration-snapshot-refresh)
-for the WL-local coalescer, shared Main lease, proof and recovery rules. Other
-tooling/game changes retain ordinary queue refresh and reassessment requirements.
+Older ledgers contain `snapshot-published` events from the removed dashboard;
+`worker-state.mjs` still reads them and rejects new ones.
 
 `worker-state.mjs` remains the one atomic event ledger. Its `queue-*` events
 own dispatch and execution under `state.queue.tasks`; `state.tasks` and

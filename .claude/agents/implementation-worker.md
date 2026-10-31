@@ -111,8 +111,8 @@ Use the work lead's absolute shared-ledger path with
 syntax. Record your connection, turn state, task, scope changes, and delivery
 as they happen; do not edit the ledger JSON by hand.
 When unassigned, idle or blocked turns include a public `summary` naming the dependency
-or next action and its owner. Keep private details in `reason`; the dashboard
-publishes only `summary`. Record an active turn when work resumes.
+or next action and its owner. Keep private details in `reason`.
+Record an active turn when work resumes.
 For a blocked claimed assignment, preserve its recovery commit and use
 `work-queue.mjs block` before reporting an unassigned turn.
 

@@ -347,9 +347,8 @@ overlapping C probes outside the prepared manifest with their C observation
 and the earlier case they duplicate. They do not need independent replay unless
 needed to establish a blocker. During the existing pre-admission review,
 recheck overlap against current saved evidence; require a corrected delivery
-for overlapping cases or unrequested matching controls. Until admission, the cases do not enter synthetic scoring,
-the mismatch queue, or the dashboard's scored batch charts. The dashboard lists
-ready batches awaiting admission separately.
+for overlapping cases or unrequested matching controls. Until admission, the cases do not enter synthetic scoring
+or the mismatch queue.
 
 At each safe integration boundary, admit all valid, accepted batches available
 then, in version order. Do not wait for worker starvation, an empty delivery
@@ -388,7 +387,7 @@ screens as fixes.
 
 ## Tooling support
 
-The combined work queue, goal-selection checks, scorer, and dashboard retain
+The combined work queue, goal-selection checks, and scorer retain
 batch-qualified identities and immutable recording hashes. Synthetic case IDs
 are `synthetic/<batch>/<case-id>`; keep that full ID in `--sessions` or
 `--session`, worker context, and `investigations/<session>.json`. `v1` remains
@@ -397,8 +396,6 @@ at `challenges/manifest.json`; later manifests live at
 versioned manifests are admitted batches.
 
 Use current saved evaluations for every admitted batch before selecting work.
-The dashboard reads those evaluations and shows each batch’s history
-separately, so adding a batch does not look like implementation progress.
 
 Do not pass a challenge evaluation as `--development-scan`, move challenges
 into `sessions/`, or overwrite `v1` to satisfy a fixed-workload interface.
@@ -432,7 +429,7 @@ Store each session's source investigation in
 `investigations/<session>.json`, using the queue's canonical session ID.
 Preserve the `holdout/` prefix as a subdirectory and give synthetic cases a
 separate batch-qualified namespace. This tracked cache supplies
-both worker handoffs and the CI-built dashboard. The work lead commits
+worker handoffs. The work lead commits
 completed and partial results by explicit path at the next commit boundary
 that preserves checkpoint ownership, then pushes them. Uncommitted results
 are not published. Follow `.agents/validation.md`, "Routine validation", to
@@ -452,7 +449,7 @@ Each JSON object contains:
 - `commit` and `mismatch`: the full examined commit SHA and original session
   queue entry, retained as provenance. Omit its `investigation` field to avoid
   copying earlier cached results into later ones.
-- `summary`: the current source-backed finding for the dashboard, including
+- `summary`: the current source-backed finding, including
   the unresolved behavior or blocker. For a partial result, state what is
   known and what remains unresolved. Keep worker activity out of this field.
 - `source`: an object with `file` and `branch` strings, plus `functions`,
@@ -476,13 +473,11 @@ versions. Do not append worker activity checks, submission acknowledgements,
 correction scheduling, or repeated checkpoint totals to `evidence`; those
 belong in the runtime ledger, delivery packet, or saved validation result.
 
-The dashboard reads investigation status, summary, and source names. Keep
-those fields current when publishing a changed finding, and retain the
-source detail workers need even when the dashboard does not display it.
-Changes to record writers or schemas must preserve the dashboard's goal
-history, score attribution, parked-work reasons, source coverage, and
-investigation states. Check the affected dashboard data and rendering when
-changing that contract; routine finding updates do not require a new replay.
+Keep investigation status, summary, and source names current when
+publishing a changed finding, and retain the source detail workers need.
+Changes to record writers or schemas must preserve goal history, score
+attribution, parked-work reasons, source coverage, and investigation states;
+routine finding updates do not require a new replay.
 
 After each current scan or evaluation, compare each fixed session’s
 `remainingScreensUpperBound` or synthetic case’s `remainingScreens` with its
@@ -506,7 +501,7 @@ The current scan checks an investigation's count for new task selection.
 Submission instead checks historical counts against their cited saved evidence;
 an accepted fix need not rewrite its original diagnosis.
 
-The queue and dashboard distinguish `complete`, `partial`, `missing`, `stale`
+The queue distinguishes `complete`, `partial`, `missing`, `stale`
 (count changed), and `invalid` (unreadable or malformed file) results. Only a
 `complete` result qualifies for selection. Repair malformed files without
 discarding their source findings. CI reads the tracked investigation files;
