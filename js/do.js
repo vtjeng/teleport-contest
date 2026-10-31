@@ -289,7 +289,7 @@ import {
 } from './monsters.js';
 import {
     free_omid, free_omonst, is_pick, isCandle, obj_meld, obj_nexto_xy, objectType, place_object,
-    pudding_merge_message, remove_object, set_bknown, set_corpsenm, splitobj, weight,
+    pudding_merge_message, set_bknown, set_corpsenm, splitobj, weight,
 } from './obj.js';
 import { oinit } from './o_init.js';
 import {
@@ -1583,11 +1583,9 @@ function requiredDropHook(env, name) {
     return hook;
 }
 
-// The three operations the dropz() tail needs. C calls newsym() and
-// encumber_msg() from inside dropz() itself, at do.c:840 and :842, and reaches
-// remove_object() through stackobj() -> merged() -> obj_extract_self() when
-// the landing object absorbs a pile member. All three are injected because
-// display.c, pickup.c and mkobj.c own them.
+// The two operations the dropz() tail needs. C calls newsym() and
+// encumber_msg() from inside dropz() itself, at do.c:840 and :842. Both are
+// injected because display.c and pickup.c own them.
 export function dropCommandEnv(state, env = {}) {
     const dropState = env.state ?? state;
     return {
@@ -1596,7 +1594,6 @@ export function dropCommandEnv(state, env = {}) {
         hooks: {
             ...setwornEnv(dropState).hooks,
             encumberMessage: encumber_msg,
-            extractExternalObject: remove_object,
             newsym,
             ...env.hooks,
         },
@@ -2065,11 +2062,6 @@ export function preflight_dropx(obj, env = {}) {
     preflight_update_inventory(normalized);
     requiredDropHook(normalized, 'newsym');
     requiredDropHook(normalized, 'encumberMessage');
-    // stackobj() reaches obj_extract_self() for the pile member it absorbs,
-    // and that member is on the floor. Required unconditionally rather than
-    // only for a non-empty pile, so that admitting the drop does not depend on
-    // what another object happens to be lying there.
-    requiredDropHook(normalized, 'extractExternalObject');
     return {
         consumed: false,
         initialWhere: obj.where,

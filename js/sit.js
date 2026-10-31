@@ -96,7 +96,7 @@ import {
     PM_TRAPPER,
     S_DRAGON,
 } from './monsters.js';
-import { curse, isBox, mksobj, newObject, objectType, remove_object, set_corpsenm, unbless, weight } from './obj.js';
+import { curse, isBox, mksobj, newObject, objectType, set_corpsenm, unbless, weight } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
 import { makeplural } from './fruit.js';
@@ -751,7 +751,6 @@ export async function lay_an_egg(state = game, rawEnv = {}) {
         state,
         hooks: {
             encumberMessage: encumber_msg,
-            extractExternalObject: remove_object,
             newsym,
         },
     };
@@ -854,10 +853,7 @@ export async function dosit(state = game, rawEnv = {}) {
             } else if (obj.otyp === CREAM_PIE) {
                 if (!Deaf(state)) await message('Squelch!', state);
                 const { useupf } = await import('./invent.js');
-                await useupf(obj, obj.quan, {
-                    state,
-                    hooks: { extractExternalObject: remove_object },
-                });
+                await useupf(obj, obj.quan, { state });
             } else if (!(isBox(obj)
                          || objectType(obj, state).oc_material === CLOTH)) {
                 await message("It's not very comfortable...", state);

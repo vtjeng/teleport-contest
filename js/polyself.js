@@ -196,7 +196,7 @@ import { _doWearInternals } from './do_wear.js';
 import { setnotworn, setworn } from './worn.js';
 import {
     Is_dragon_armor, WrappingAllowed, is_flimsy, is_sword, maybe_adjust_light,
-    mksobj, remove_object,
+    mksobj,
 } from './obj.js';
 import { artifact_light, retouch_equipment } from './artifacts.js';
 import { makeplural } from './fruit.js';
@@ -696,7 +696,6 @@ async function dropp(obj, state, rawEnv = {}) {
                 hooks: {
                     newsym: (x, y) => redraw(x, y, state),
                     encumberMessage: (target) => encumber_msg(target, { message }),
-                    extractExternalObject: remove_object,
                 },
             });
             break;
@@ -956,7 +955,6 @@ async function drop_weapon(alone, state, rawEnv = {}) {
                         hooks: {
                             newsym: (x, y) => redraw(x, y, state),
                             encumberMessage: (target) => encumber_msg(target, { message }),
-                            extractExternalObject: remove_object,
                         },
                     });
             }
@@ -971,7 +969,6 @@ async function drop_weapon(alone, state, rawEnv = {}) {
                     hooks: {
                         newsym: (x, y) => redraw(x, y, state),
                         encumberMessage: (target) => encumber_msg(target, { message }),
-                        extractExternalObject: remove_object,
                     },
                 });
             if (updateinv)

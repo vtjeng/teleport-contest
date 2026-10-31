@@ -361,7 +361,6 @@ import {
     splitobj,
     unsplitobj,
     mksobj,
-    remove_object,
     weight,
 } from './obj.js';
 import {
@@ -997,9 +996,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                             if (state.program_state?.gameover) return ECMD_TIME;
                             // A life-saving amulet returns here. C removes
                             // the corpse from the floor before holding it.
-                            obj_extract_self(object, { state, hooks: {
-                                extractExternalObject: remove_object,
-                            } });
+                            obj_extract_self(object, { state });
                         }
                     }
                     await hold_another_object(
@@ -1828,8 +1825,6 @@ async function use_tinning_kit(obj, state = game, env = {}) {
         state,
         hooks: {
             ...env.hooks,
-            extractExternalObject:
-                env.hooks?.extractExternalObject ?? remove_object,
             stopObjectTimers: env.hooks?.stopObjectTimers
                 ?? ((target, hookEnv) => obj_stop_timers(
                     target,
@@ -3694,10 +3689,6 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
 // only after every named case has failed to match.
 function figurineObjectEnv(state, env = {}) {
     const hooks = { ...(env.hooks ?? {}) };
-    hooks.extractExternalObject ??= (obj, hookEnv) => remove_object(obj, {
-        ...hookEnv,
-        state: hookEnv.state ?? state,
-    });
     hooks.stopFigurineTimer ??= (obj, hookEnv) => stop_timer(
         FIG_TRANSFORM, obj, hookEnv.state ?? state, hookEnv,
     );
@@ -5146,8 +5137,6 @@ export async function doapply(state = game, env = {}) {
                         ?? ((targetState) => encumber_msg(targetState, {
                             message: env.planning ? async () => {} : ttyPline,
                         })),
-                    extractExternalObject:
-                        env.hooks?.extractExternalObject ?? remove_object,
                     newsym: env.hooks?.newsym
                         ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
                 },
@@ -5266,8 +5255,6 @@ export async function flip_coin(obj, state = game, env = {}) {
                     ?? ((targetState) => encumber_msg(targetState, {
                         message: env.planning ? async () => {} : ttyPline,
                     })),
-                extractExternalObject:
-                    env.hooks?.extractExternalObject ?? remove_object,
                 newsym: env.hooks?.newsym
                     ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
             },

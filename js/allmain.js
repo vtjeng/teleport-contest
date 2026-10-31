@@ -68,7 +68,7 @@ import {
 } from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
-import { remove_object, UnsupportedObjectOperationError } from './obj.js';
+import { UnsupportedObjectOperationError } from './obj.js';
 import { polyself } from './polyself.js';
 import { you_were } from './were.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
@@ -922,7 +922,6 @@ export async function finishElapsedTurn(
                         targetState,
                         { message: turnMessage },
                     ),
-                    extractExternalObject: remove_object,
                     newsym: planning ? () => {} : newsym,
                     mapObject: planning ? () => {} : map_object,
                 },

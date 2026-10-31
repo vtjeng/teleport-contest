@@ -182,7 +182,6 @@ import {
     isContainer,
     objectType,
     place_object,
-    remove_object,
     splitobj,
     unbless,
     unknow_object,
@@ -1743,14 +1742,13 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} yanks ${the_weapon} to the ${surface(state.u.ux, state.u.uy, state)}!`,
                 state);
-            // do.c dropz() always redraws the landing square, updates burden,
-            // and may extract a floor pile member while stacking. These are
-            // the same caller-owned hooks as pickup.c tipcontainer().
+            // do.c dropz() always redraws the landing square and updates
+            // burden. These are the same caller-owned hooks as pickup.c
+            // tipcontainer().
             await dropy(obj, {
                 state,
                 hooks: {
                     encumberMessage: encumber_msg,
-                    extractExternalObject: remove_object,
                     newsym,
                 },
             });

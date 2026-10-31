@@ -196,7 +196,7 @@ import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf, make_glib, make_hallucinated, make_sick, make_slimed, make_stoned, make_stunned, make_vomiting, self_invis_message, set_itimeout, } from './potion.js';
 import { delayed_killer, done } from './end.js';
 import {
-    carried, costly_alteration, bcsign, is_flammable, isMetallic, isRustprone, is_rottable, objectType, peek_at_iced_corpse_age, remove_object, set_bknown, splitobj, weight, g_at, mksobj, } from './obj.js';
+    carried, costly_alteration, bcsign, is_flammable, isMetallic, isRustprone, is_rottable, objectType, peek_at_iced_corpse_age, set_bknown, splitobj, weight, g_at, mksobj, } from './obj.js';
 import {
     Tobjnam, an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname, otense, safe_qbuf, singular, the, the_unique_pm, xnameFresh, yobjnam, } from './objnam.js';
 import {
@@ -3458,17 +3458,14 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
     return {
         state,
         // C ref: mkobj.c weight()'s partly-eaten arms, which reach eat.c
-        // eaten_stat() through this port's object env; mkobj.c
-        // remove_object(), which done_eating() reaches through useupf() ->
-        // delobj() -> delobj_core() -> obj_extract_self() for a meal the hero
-        // ate off the floor; and timeout.c obj_stop_timers(), which
-        // done_eating() reaches through useup() -> obfree() for a corpse,
-        // whose ROT_CORPSE timer mkobj.c start_corpse_timeout() hung on it.
+        // eaten_stat() through this port's object env, and timeout.c
+        // obj_stop_timers(), which done_eating() reaches through useup() ->
+        // obfree() for a corpse, whose ROT_CORPSE timer mkobj.c
+        // start_corpse_timeout() hung on it.
         // Billing a bite is a discarded-return mkobj.c call; the direct
         // costly_alteration() call owns its output and billing continuation.
         hooks: {
             eatenStat: eaten_stat,
-            extractExternalObject: remove_object,
             stopObjectTimers: (obj, hookEnv) => {
                 obj_stop_timers(obj, hookEnv.state, hookEnv);
             },
@@ -3753,7 +3750,6 @@ export async function floorfood(verb, corpsecheck, state = game) {
                             hooks: {
                                 ...objectEnv.hooks,
                                 encumberMessage: encumber_msg,
-                                extractExternalObject: remove_object,
                                 newsym,
                             },
                         });
@@ -4385,7 +4381,6 @@ export async function doeat(state = game, env = {}) {
                     hooks: {
                         ...eatEnv.hooks,
                         encumberMessage: encumber_msg,
-                        extractExternalObject: remove_object,
                         newsym,
                     },
                 });

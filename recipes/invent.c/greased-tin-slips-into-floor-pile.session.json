@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "invent.c stackobj() -> merged() -> mkobj.c obj_extract_self() -> remove_object() for a floor pile member. A debug-mode Valkyrie wields nothing (so timeout.c glibr() has no weapon to drop), coats her fingers with a wished can of grease, drops two wished tins of spinach, and eats one off the floor: eat.c start_tin() prints `The tin slips from your fingers.`, splits one tin off the floor stack, and stackobj() merges the remaining tin back into it. The closing `:` shows a single stack of 2 tins.",
+  "segments": [{
+    "seed": 61504873,
+    "datetime": "20471105212223",
+    "nethackrc": "OPTIONS=name:GreasyTins,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " \u0017uncursed can of grease\n\u00172 uncursed tins of spinach\nw-ae-dfey:"
+  }]
+}

@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { OBJ_DELETED, OBJ_FREE, OBJ_FLOOR, W_BALL, W_CHAIN } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { remove_object, newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/obj.js';
 import { HEAVY_IRON_BALL, IRON_CHAIN, TOOL_CLASS } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 import { unpunish } from '../js/read.js';
@@ -72,15 +72,6 @@ test('unpunish clears the chain slot, deletes it, then clears the ball slot',
                 },
             },
             hooks: {
-                extractExternalObject(obj, env) {
-                    events.push([
-                        'extract',
-                        obj === chain,
-                        game.uchain,
-                        game.uball,
-                    ]);
-                    return remove_object(obj, env);
-                },
                 newsym(px, py) {
                     events.push(['redraw', px, py, game.uchain, game.uball]);
                 },
@@ -88,9 +79,7 @@ test('unpunish clears the chain slot, deletes it, then clears the ball slot',
         });
 
         assert.deepEqual(draws, [100]);
-        assert.equal(events.length, 2);
-        assert.deepEqual(events[0], ['extract', true, null, ball]);
-        assert.deepEqual(events[1], ['redraw', x, y, null, ball]);
+        assert.deepEqual(events, [['redraw', x, y, null, ball]]);
         assert.equal(game.uchain, null);
         assert.equal(game.uball, null);
         assert.equal(chain.where, OBJ_DELETED);

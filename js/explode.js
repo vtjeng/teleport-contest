@@ -168,7 +168,6 @@ import {
 } from './invent.js';
 import {
     place_object,
-    remove_object,
     splitobj,
     objectType,
 } from './obj.js';
@@ -917,8 +916,6 @@ export async function scatter(
         random,
         hooks: {
             ...env.hooks,
-            extractExternalObject: env.hooks?.extractExternalObject
-                ?? ((object, operationEnv) => remove_object(object, operationEnv)),
             // remove_object() and place_object() require the corresponding
             // boulder vision hooks. Ordinary scatter callers never need this
             // hook, but keeping it in the composed environment prevents a

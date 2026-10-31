@@ -2229,7 +2229,7 @@ export function item_on_ice(item, state = game) {
 // missed firings after returning to a level.
 //
 // env carries: state, message (pline function), newsym, and hooks including
-// extractExternalObject for floor-object removal and stopObjectTimers.
+// stopObjectTimers.
 export async function shrink_glob(obj, expire_time, env = {}) {
     const state = env.state ?? game;
     const message = env.message ?? (async () => {});

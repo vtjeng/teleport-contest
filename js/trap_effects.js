@@ -313,7 +313,6 @@ import {
     newObject,
     objectType,
     place_object,
-    remove_object,
     splitobj,
     stone_missile,
     weight,
@@ -2661,8 +2660,6 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 oy,
                 actionEnv?.state ?? state,
             )),
-        extractExternalObject: env.hooks?.extractExternalObject
-            ?? ((object, actionEnv) => remove_object(object, actionEnv)),
         recalcBlockPoint: env.hooks?.recalcBlockPoint
             ?? ((ox, oy, actionEnv) => recalc_block_point(
                 ox,
@@ -2823,7 +2820,6 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         hooks: {
                             ...(env.hooks ?? {}),
                             blockPoint: objectHooks.blockPoint,
-                            extractExternalObject: objectHooks.extractExternalObject,
                             recalcBlockPoint: objectHooks.recalcBlockPoint,
                         },
                     };
@@ -2857,14 +2853,12 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         hooks: {
                             ...(actionEnv.hooks ?? {}),
                             blockPoint: objectHooks.blockPoint,
-                            extractExternalObject: objectHooks.extractExternalObject,
                             recalcBlockPoint: objectHooks.recalcBlockPoint,
                         },
                     })),
                 hooks: {
                     ...(env.hooks ?? {}),
                     blockPoint: objectHooks.blockPoint,
-                    extractExternalObject: objectHooks.extractExternalObject,
                     recalcBlockPoint: objectHooks.recalcBlockPoint,
                 },
             };

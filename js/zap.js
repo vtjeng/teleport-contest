@@ -1996,10 +1996,6 @@ export async function makewish(state = game) {
             // addinv() handles the wish. Reuse the canonical object-generation
             // adapter instead of letting that source branch hit a missing hook.
             isReviver: objectGenerationEnv({ state }).hooks.isReviver,
-            // do.c dropz() -> stackobj() -> invent.c merged() reaches
-            // mkobj.c obj_extract_self() for the pile member the landing
-            // object absorbs, and that member is on the floor.
-            extractExternalObject: remove_object,
             // invent.c merged():933-942.  A wished-for object that merges
             // into a stack the hero already carries settles any known,
             // rknown or bknown the two disagreed on, and says so.  Only a
@@ -5086,11 +5082,6 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
                 ...env,
                 hooks: {
                     ...env.hooks,
-                    // C obj_extract_self() unlinks the floor boulder
-                    // directly; this module's canonical adapter performs
-                    // that same external floor-chain write.
-                    extractExternalObject:
-                        env.hooks?.extractExternalObject ?? remove_object,
                     // mkobj.c remove_object() must update vision's
                     // boulder-block map after unlinking this floor item.
                     recalcBlockPoint:
@@ -6489,11 +6480,7 @@ export async function zap_updown(obj, state = game,
             );
             if (rock) {
                 xname(rock, state);
-                stackobj(rock, {
-                    state,
-                    random,
-                    hooks: { extractExternalObject: remove_object },
-                });
+                stackobj(rock, { state, random });
             }
             newsym(x, y);
         } else if (state.u.dz > 0 && trap) {

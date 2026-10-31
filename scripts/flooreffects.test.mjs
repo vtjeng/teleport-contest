@@ -498,8 +498,13 @@ test('pushing pool boulders uses !Blind for both source sink messages', async ()
             nobj: null,
             nexthere: null,
         });
+        // useupf() -> delobj() -> obj_extract_self() -> mkobj.c remove_object()
+        // unlinks the boulder from both floor chains, so it must be on both.
         state.level.objects[DROP_X][DROP_Y] = boulder;
+        state.level.objlist = boulder;
         const messages = [];
+
+        const recalcs = [];
 
         await boulder_hits_pool(boulder, DROP_X, DROP_Y, true, {
             state,
@@ -508,16 +513,20 @@ test('pushing pool boulders uses !Blind for both source sink messages', async ()
             newsym: () => {},
             wakeNear: async () => {},
             hooks: {
-                extractExternalObject(obj) {
-                    assert.equal(state.level.objects[DROP_X][DROP_Y], obj);
-                    state.level.objects[DROP_X][DROP_Y] = null;
-                    obj.where = OBJ_FREE;
+                // remove_object() asks its boulder vision owner to refresh
+                // the square once both floor chains have let go of it.
+                recalcBlockPoint(x, y) {
+                    assert.equal(state.level.objects[DROP_X][DROP_Y], null);
+                    recalcs.push([x, y]);
                 },
             },
         });
 
         assert.equal(messages.some((text) => text === 'It sinks without a trace!'),
             expectsSink);
+        assert.equal(state.level.objects[DROP_X][DROP_Y], null);
+        assert.equal(state.level.objlist, null);
+        assert.deepEqual(recalcs, [[DROP_X, DROP_Y]]);
     }
 });
 

@@ -320,7 +320,6 @@ import {
     objectType,
     isCrackable,
     place_object,
-    remove_object,
     splitobj,
     stone_missile,
     uslinging,
@@ -2960,7 +2959,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
     if ((state.u.ushops?.[0] || obj.unpaid) && obj !== state.uball)
         await check_shop_obj(obj, bx, by, false, state);
-    stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
+    stackobj(obj, { state });
     if (obj === state.uball)
         await drop_ball(bx, by, state);
     if (cansee(bx, by, state)) newsym(bx, by);
@@ -3475,10 +3474,7 @@ async function throw_gold(obj, state = game) {
        stands in; sellobj() owns all further shop checks. */
     if (u.ushops?.[0])
         await sellobj(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, state);
-    /* stackobj() merges the landing gold into a compatible floor pile, which
-       extracts the object it merged with; invent.c obj_extract_self() takes
-       that operation from its caller, as throwit() above does. */
-    stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
+    stackobj(obj, { state });
     newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
     return ECMD_TIME;
 }

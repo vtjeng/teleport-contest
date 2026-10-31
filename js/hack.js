@@ -1913,7 +1913,6 @@ function boulderVisionEnv(state) {
             blockPoint: (x, y, env) => block_point(x, y, env.state),
             recalcBlockPoint:
                 (x, y, env) => recalc_block_point(x, y, env.state),
-            extractExternalObject: remove_object,
         },
     };
 }
@@ -2689,10 +2688,6 @@ async function moverock_core(sx, sy, state, env) {
                 hooks: {
                     ...boulderVisionEnv(state).hooks,
                     ...env.hooks,
-                    // useupf() reaches obj_extract_self() for this floor
-                    // boulder; C's remove_object() unlinks both floor lists.
-                    extractExternalObject:
-                        env.hooks?.extractExternalObject ?? remove_object,
                 },
             };
             if (await boulder_hits_pool(otmp, rx, ry, true, helperEnv))

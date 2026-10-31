@@ -13,7 +13,7 @@ import { oname } from './do_name.js';
 import { del_light_source } from './light.js';
 import { is_reviver } from './mondata.js';
 import { monsterObject } from './monster_object.js';
-import { obj_no_longer_held, remove_object } from './obj.js';
+import { obj_no_longer_held } from './obj.js';
 import { obj_stop_timers } from './timeout.js';
 import { block_point } from './vision.js';
 
@@ -38,7 +38,6 @@ export function objectGenerationHooks(overrides = {}) {
         isPermanentlyPoisoned,
         makeArtifact,
         monsterObject,
-        extractExternalObject: (obj, env) => remove_object(obj, env),
         isReviver: (mnum, env) => {
             const monster = env.state.mons?.[mnum];
             if (!monster) {

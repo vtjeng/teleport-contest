@@ -831,19 +831,14 @@ test('stackobj transfers live merge state before deleting the older pile', () =>
     assert.equal(stackobj(newer, {
         state,
         hooks: {
-            extractExternalObject(obj) {
-                events.push(['extract', obj]);
+            deleteObjectLightSource(obj) {
+                events.push(['light', obj, newer]);
+                // C merged extracted the absorbed stack through
+                // obj_extract_self() -> remove_object() before end_burn;
+                // stop_timer unlinks its only timer before cleanup_burn.
                 assert.equal(newer.quan, 5);
                 assert.equal(state.level.objects[10][5], newer);
                 assert.equal(state.level.objlist, newer);
-                assert.equal(newer.nobj, older);
-                assert.equal(newer.nexthere, older);
-                remove_object(obj, { state });
-            },
-            deleteObjectLightSource(obj) {
-                events.push(['light', obj, newer]);
-                // C merged extracted the absorbed stack before end_burn;
-                // stop_timer unlinks its only timer before cleanup_burn.
                 assert.equal(obj.where, OBJ_FREE);
                 assert.equal(obj.nobj, null);
                 assert.equal(obj.nexthere, null);
@@ -858,7 +853,6 @@ test('stackobj transfers live merge state before deleting the older pile', () =>
     }), newer);
 
     assert.deepEqual(events, [
-        ['extract', older],
         ['light', older, newer],
     ]);
     assert.equal(state.level.objects[10][5], newer);
@@ -1177,82 +1171,48 @@ test('merge visibility uses canonical Blind and Hallucination properties', () =>
     assert.equal(mergable(first, second, { state }), true);
 });
 
-test('external object extraction uses the floor integration seam', () => {
+// C ref: mkobj.c obj_extract_self() OBJ_FLOOR arm calls remove_object(), which
+// unlinks the object from both the square's nexthere pile and the level's
+// nobj list. Two apples on one square give both chains a second member.
+test('obj_extract_self unlinks a floor object from both floor chains', () => {
     const state = initializedState();
-    const staleFloorLink = {};
-    const floorObject = instance(APPLE, state, {
-        nexthere: staleFloorLink,
-        where: OBJ_FLOOR,
-    });
-    let extracted = false;
-    obj_extract_self(floorObject, {
-        state,
-        hooks: {
-            extractExternalObject(obj) {
-                extracted = true;
-                obj.where = OBJ_FREE;
-                obj.nobj = null;
-                obj.nexthere = null;
-            },
-        },
-    });
-    assert.equal(extracted, true);
-    assert.equal(floorObject.where, OBJ_FREE);
-    assert.equal(floorObject.nexthere, null);
+    state.level = new GameMap();
+    const older = instance(APPLE, state);
+    const newer = instance(APPLE, state);
+    place_object(older, 10, 5, { state });
+    place_object(newer, 10, 5, { state });
+    assert.equal(state.level.objects[10][5], newer);
+    assert.equal(newer.nexthere, older);
+    assert.equal(newer.nobj, older);
+
+    assert.equal(obj_extract_self(older, { state }), older);
+    assert.equal(older.where, OBJ_FREE);
+    assert.equal(older.nobj, null);
+    assert.equal(older.nexthere, null);
+    assert.equal(state.level.objects[10][5], newer);
+    assert.equal(newer.nexthere, null);
+    assert.equal(state.level.objlist, newer);
+    assert.equal(newer.nobj, null);
 });
 
-test('external extraction must unlink both owning chains', () => {
+// C ref: invent.c merged() calls mkobj.c obj_extract_self() on the absorbed
+// object, whose OBJ_FLOOR arm is remove_object(); no caller supplies it.
+test('merged extracts an absorbed floor object through remove_object', () => {
     const state = initializedState();
-    const floorObject = instance(APPLE, state, {
-        nexthere: {},
-        nobj: {},
-        where: OBJ_FLOOR,
-    });
-    assert.throws(
-        () => obj_extract_self(floorObject, {
-            state,
-            hooks: {
-                extractExternalObject(obj) {
-                    obj.where = OBJ_FREE;
-                },
-            },
-        }),
-        /must clear object chain links/,
-    );
-});
+    state.level = new GameMap();
+    const target = instance(APPLE, state, { quan: 1 });
+    const incoming = instance(APPLE, state, { quan: 1 });
+    place_object(target, 10, 5, { state });
+    place_object(incoming, 10, 5, { state });
+    assert.equal(state.level.objects[10][5], incoming);
 
-test('external merge seams are checked before stack mutation', () => {
-    const state = initializedState();
-    const target = instance(APPLE, state, {
-        quan: 1,
-        where: OBJ_FLOOR,
-    });
-    const incoming = instance(APPLE, state, {
-        nexthere: {},
-        nobj: {},
-        quan: 1,
-        where: OBJ_FLOOR,
-    });
-    assert.throws(
-        () => merged(target, incoming, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'extractExternalObject',
-    );
-    assert.equal(target.quan, 1);
-    assert.equal(incoming.where, OBJ_FLOOR);
-
-    assert.equal(merged(target, incoming, {
-        state,
-        hooks: {
-            extractExternalObject(obj) {
-                obj.nobj = null;
-                obj.nexthere = null;
-                obj.where = OBJ_FREE;
-            },
-        },
-    }), true);
+    assert.equal(merged(target, incoming, { state }), true);
     assert.equal(target.quan, 2);
     assert.equal(incoming.where, OBJ_DELETED);
+    assert.equal(state.level.objects[10][5], target);
+    assert.equal(target.nexthere, null);
+    assert.equal(state.level.objlist, target);
+    assert.equal(target.nobj, null);
 });
 
 test('contained merges preflight the outer container weight chain', () => {

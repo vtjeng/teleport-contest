@@ -3236,10 +3236,7 @@ async function in_container(obj, state) {
             await useupf(
                 state.gc.current_container,
                 state.gc.current_container.quan,
-                {
-                    state,
-                    hooks: { extractExternalObject: remove_object },
-                },
+                { state },
             );
         } else {
             throw new Error('in_container: bag not found');
@@ -4093,7 +4090,6 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
                     state,
                     hooks: {
                         encumberMessage: encumber_msg,
-                        extractExternalObject: remove_object,
                         newsym,
                     },
                 }))

@@ -143,8 +143,7 @@ import {
     carrying, currency, display_inventory, money_cnt, obfree, sortloot, stackobj, update_inventory,
     useup,
 } from './invent.js';
-import { bless, isContainer, mksobj, place_object, remove_object }
-    from './obj.js';
+import { bless, isContainer, mksobj, place_object } from './obj.js';
 import { discover_object } from './o_init.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -1036,12 +1035,7 @@ export async function done_object_cleanup(state) {
     const placeFreeTransitObject = (obj, groups) => {
         if (!obj || obj.where !== OBJ_FREE) return;
         place_object(obj, ox, oy, { state });
-        stackobj(obj, {
-            state,
-            // stackobj() may merge an existing floor object. C's
-            // obj_extract_self() can remove that floor member here.
-            hooks: { extractExternalObject: remove_object },
-        });
+        stackobj(obj, { state });
         for (const [container, field] of groups) {
             if (container?.[field] === obj) container[field] = null;
         }

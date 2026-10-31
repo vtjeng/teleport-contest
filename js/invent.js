@@ -321,6 +321,7 @@ import {
     objectType,
     place_object,
     preflightWeight,
+    remove_object,
     splitobj,
     unsplitobj,
     carried,
@@ -2689,8 +2690,7 @@ function requiredHook(env, name, obj) {
 // updateInventory(state).
 // attachFigurineTimer(obj, env) and stopFigurineTimer(obj, env) own both the
 // external timer queue and obj.timed, as NetHack's timer subsystem does.
-// Ownership/lifetime: extractExternalObject(obj, env),
-// objectNoLongerHeld(obj, env), stopObjectTimers(obj, env),
+// Ownership/lifetime: objectNoLongerHeld(obj, env), stopObjectTimers(obj, env),
 // deleteObjectLightSource(obj, env), unleashObject(obj, env),
 // resetPick(obj, env). obfreeShopBill(obj, merge, env) returns 'retained' when
 // the shop moves obj to OBJ_ONBILL, 'billed' when it merged an existing bill
@@ -3249,9 +3249,6 @@ export function freeinv(obj, env = {}) {
     return isThenable(effects) ? Promise.resolve(effects).then(finish) : finish();
 }
 
-// Floor/migration owners stay outside this first substrate. A future level
-// module supplies extractExternalObject; inventory, container, and monster
-// chains are handled here without an adapter.
 function projectedContents(head, replacedObject, replacement) {
     let projectedHead = null;
     let projectedTail = null;
@@ -3316,9 +3313,6 @@ function preflightObjectExtraction(obj, env) {
         requireInventoryRefresh(env);
         preflightFreeinvCore(obj, env);
         break;
-    case OBJ_FLOOR:
-        requiredHook(env, 'extractExternalObject', obj);
-        break;
     case OBJ_ONBILL:
         break; // obj_extract_self owns the gb.billobjs chain below.
     case OBJ_BURIED:
@@ -3364,14 +3358,7 @@ export function obj_extract_self(obj, env = {}) {
         );
         return obj;
     case OBJ_FLOOR:
-        requiredHook(normalized, 'extractExternalObject', obj)(obj, normalized);
-        if (obj.where !== OBJ_FREE)
-            throw new Error('extractExternalObject must leave object OBJ_FREE');
-        if (obj.nobj || obj.nexthere) {
-            throw new Error(
-                'extractExternalObject must clear object chain links',
-            );
-        }
+        remove_object(obj, normalized);
         return obj;
     case OBJ_MIGRATING:
         // C ref: mkobj.c obj_extract_self():2581-2583. Migration follows

@@ -98,7 +98,6 @@ import {
     is_weptool,
     objectType,
     place_object,
-    remove_object,
 } from './obj.js';
 import {
     CHEST,
@@ -393,10 +392,7 @@ export async function breakchestlock(box, destroyit, state = game) {
             );
             if (placement && typeof placement.then === 'function')
                 await placement;
-            stackobj(otmp, {
-                state,
-                hooks: { extractExternalObject: remove_object },
-            });
+            stackobj(otmp, { state });
         }
         if (costly)
             loss += await stolen_value(
@@ -411,7 +407,6 @@ export async function breakchestlock(box, destroyit, state = game) {
             state,
             random: { rn2 },
             hooks: {
-                extractExternalObject: remove_object,
                 resetPick: (_obj, env) => reset_pick(env.state),
             },
         });

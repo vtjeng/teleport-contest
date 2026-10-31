@@ -229,7 +229,6 @@ import {
     objectType,
     obj_ice_effects,
     place_object,
-    remove_object,
     rnd_treefruit_at,
 } from './obj.js';
 import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
@@ -1864,8 +1863,6 @@ export async function dighole(
             recalcBlockPoint: rawEnv.hooks?.recalcBlockPoint
                 ?? ((bx, by, hookEnv) =>
                     recalc_block_point(bx, by, hookEnv.state)),
-            extractExternalObject: rawEnv.hooks?.extractExternalObject
-                ?? remove_object,
         };
         delobj(boulder, { ...rawEnv, state, hooks: deletionHooks });
     } else if (IS_GRAVE(oldType)) {
@@ -2448,7 +2445,6 @@ function rotEnv(env) {
         ...env,
         state: env.state ?? game,
         hooks: {
-            extractExternalObject: remove_object,
             stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
                 obj, hookEnv.state, hookEnv,
             ),
