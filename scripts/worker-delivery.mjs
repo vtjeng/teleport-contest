@@ -15,7 +15,7 @@ import { normalizeSession } from '../frozen/session_loader.mjs';
 import { readAdmissionReceipt } from './admission-proof.mjs';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { acceptedMain } from './worker-backlog.mjs';
-import {requireNoSnapshotRefresh, verifySnapshotPublication} from './snapshot-publication.mjs';
+import { requireMainWorkAccess } from './main-work.mjs';
 
 const INVESTIGATION_PATH = /^investigations\/((?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*))\.json$/u;
 
@@ -535,8 +535,10 @@ export function verifyEvent(root, state, input) {
     const task = state.tasks[event.task];
     const delivery = task && state.deliveries[task.deliveries.at(-1)];
     if (['integrating','prep-integrating','implementation-integrating','tooling-published'].includes(event.type)
-        || (event.type === 'activity' && ['review','admission','baseline'].includes(event.phase))) requireNoSnapshotRefresh(root);
-    if (event.type === 'snapshot-published') verifySnapshotPublication(root, state, event, {published:true});
+        || (event.type === 'activity' && ['review','admission','baseline'].includes(event.phase))) requireMainWorkAccess(root);
+    // The ledger still replays historical snapshot-published events, but no
+    // snapshot is published any more, so a new one cannot be verified.
+    check(event.type !== 'snapshot-published', 'snapshot publication was removed; record no new snapshot-published event');
     if (event.type === 'tooling-published') verifyToolingPublication(root, state, event);
     if (event.type === 'prep-probe' && !state.probes[event.probe]) {
         check(git(event.worktree, 'rev-parse', '--path-format=absolute', '--git-common-dir')

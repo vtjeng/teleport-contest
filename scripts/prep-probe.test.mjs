@@ -6,8 +6,6 @@ import {join} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 import {createLedger, nextActions, recordEvent, summarizeLedger} from './worker-state.mjs';
-import {activityFromLedger} from './dashboard-snapshot.mjs';
-import {activityTimeline, activityUtilization, integrationDurations} from './dashboard-activity.mjs';
 
 const ROOT = '/tmp/prep-probe-fixture';
 const BASE = 'a'.repeat(40); // Synthetic transport commit, not gameplay data.
@@ -82,33 +80,18 @@ test('probe ownership, target and outcome cannot silently change', () => {
   f.send(f.probe(1, {probe: 'next-probe'})); // A persistent lane can take another target.
 });
 
-test('dashboard exposes separate Prep histories, blocks and outcomes without private data or fake CI', () => {
+test('two Prep lanes record a block and separate outcomes', () => {
   const f = fixture();
   f.send(f.probe(1), 1); f.send(f.probe(2), 1);
   f.send(f.probe(1, {state: 'blocked', summary: 'Waiting for source clarification.'}), 2);
   f.send(f.probe(1, {summary: 'Source clarification received.'}), 4);
   f.send(f.probe(1, {state: 'done', outcome: 'failure', summary: 'First mismatch traced to fixture.c.'}), 5);
   f.send(f.probe(2, {state: 'done', outcome: 'match', summary: 'Matched; evidence retained outside manifest.'}), 5);
-  const activity = activityFromLedger(f.ledger());
-  assert.doesNotMatch(JSON.stringify(activity), /private-|worktree|processes|recording|branch/u);
-  const timeline = activityTimeline(activity, at(6));
-  const child = timeline.tasks.find(row => row.label === 'v83-probe-1');
-  assert.equal(child.batch, 'v83'); assert.equal(child.source, 'fixture.c:target1');
-  assert.equal(child.parentTask, 'loop-20261015/Prep47'); assert.equal(child.outcome, 'failure');
-  const stages = timeline.stages.filter(row => row.lane === 'Prep-1');
-  assert.deepEqual(stages.map(row => row.phase), ['working', 'blocked', 'working']);
-  assert.equal(stages[1].reason, 'Waiting for source clarification.');
-  assert.ok(stages.every(row => row.parentTask === child.parentTask));
-  assert.deepEqual(integrationDurations(timeline), {implementation: [], preparation: []});
-  const utilization = activityUtilization(timeline.stages, Date.parse(at(0)), Date.parse(at(6)));
-  assert.equal(utilization.find(row => row.role === 'Challenge lead').total, 6 * 60000); // Lead only.
-  const lanes = utilization.find(row => row.role === 'Prep lanes');
-  assert.equal(lanes.total, 8 * 60000); // Two distinct workers, each observed for four minutes.
-  assert.equal(lanes.work, 6 * 60000); assert.equal(lanes.blocked, 2 * 60000);
-  assert.equal(lanes.utilization, 0.75);
+  const {probes} = f.state();
+  assert.deepEqual(['v83-probe-1', 'v83-probe-2'].map(id => probes[id].outcome), ['failure', 'match']);
 });
 
-test('a shared thread moves from parked implementation to Prep and back without double-counting dashboard time', () => {
+test('a shared thread moves from parked implementation to Prep and back', () => {
   const f = fixture();
   f.send({type: 'assign', task: 'A-fix', worker: 'A', kind: 'implementation', goal: 'fixture-port',
     seed: 'independent-case', base: BASE, reservations: ['source:fixture.c:fix'],
@@ -127,22 +110,6 @@ test('a shared thread moves from parked implementation to Prep and back without 
   assert.equal(state.tasks['A-fix'].worker, 'A');
   assert.equal(state.probes['v83-probe-1'].outcome, 'failure');
   assert.equal(state.workers.A.worktree, `${ROOT}/A`);
-
-  const activity = activityFromLedger(f.ledger());
-  assert.doesNotMatch(JSON.stringify(activity), /private-|worktree|processes|branch/u);
-  const timeline = activityTimeline(activity, at(7));
-  assert.ok(timeline.segments.some(row => row.lane === 'A' && row.phase === 'parked'
-    && row.start === at(2) && row.end === at(3))); // Role occupancy ends at release.
-  assert.ok(activity.events.some(row => row.type === 'park' && row.task === 'A-fix' && row.at === at(2)));
-  assert.ok(activity.events.some(row => row.type === 'resume' && row.task === 'A-fix' && row.at === at(5)));
-  const aStages = timeline.stages.filter(row => row.lane === 'A');
-  assert.ok(aStages.some(row => row.phase === 'working' && row.start === at(5)));
-  assert.ok(aStages.every(row => row.end <= at(3) || row.start >= at(5)));
-  assert.ok(timeline.stages.some(row => row.lane === 'Prep-1'
-    && row.start === at(3) && row.end === at(5)));
-  const utilization = activityUtilization(timeline.stages, Date.parse(at(0)), Date.parse(at(7)));
-  assert.equal(utilization.find(row => row.role === 'A/B/C').total, 5 * 60000);
-  assert.equal(utilization.find(row => row.role === 'Prep lanes').total, 2 * 60000);
 });
 
 test('actual CLI allows the Prep lead and assigned lane but rejects sibling worktrees and fake ownership', t => {

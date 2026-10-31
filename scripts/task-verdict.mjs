@@ -1,4 +1,5 @@
 // Decide from saved checkpoint artifacts, without replay or source certification.
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
@@ -8,9 +9,49 @@ import { git, isAncestor, validateHistoricalEvaluation, verifyToolingPublication
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { evaluationBatch, readChallengeBatches, readEvaluation } from './challenge-results.mjs';
 import { loadEvaluationDirectory, compareChallengeBatches } from './compare-challenge-evaluations.mjs';
-import { developmentFromCheckpoint } from './dashboard-snapshot.mjs';
 import { sessionIdentifier } from './goal-log.mjs';
 import { readRows } from './score-log.mjs';
+
+// Per-session fixed-workload metrics, bound to the checkpoint's own artifact hash.
+export function developmentFromCheckpoint(summary, results, resultBytes) {
+    if (!summary?.allPassed || !/^[a-f0-9]{40}$/u.test(summary.executionCommit ?? '')) {
+        throw new Error('expected a passing accepted checkpoint with an execution commit');
+    }
+    const digest = createHash('sha256').update(resultBytes).digest('hex');
+    if (summary.artifactHashes?.['session-results.json'] !== digest) {
+        throw new Error('session results do not belong to the checkpoint');
+    }
+    if (!Array.isArray(results?.results) || results.results.length !== 44) {
+        throw new Error('expected 44 development session results');
+    }
+    const sessions = results.results.map(entry => {
+        const metrics = Object.fromEntries(['screens', 'rngCalls', 'cursors'].map(key => {
+            const value = entry.metrics?.[key];
+            if (!Number.isSafeInteger(value?.matched) || !Number.isSafeInteger(value?.total)) {
+                throw new Error(`missing ${key} score for ${entry.session}`);
+            }
+            return [key === 'rngCalls' ? 'rng' : key,
+                { matched: value.matched, total: value.total }];
+        }));
+        const session = entry.session.startsWith('holdout--')
+            ? `holdout/${entry.session.slice('holdout--'.length)}` : entry.session;
+        return { session: session.replace(/\.session\.json$/u, ''), passed: entry.passed,
+            error: entry.error ?? null, metrics };
+    });
+    if (new Set(sessions.map(row => row.session)).size !== 44) {
+        throw new Error('duplicate development session');
+    }
+    for (const [key, scoreKey] of [
+        ['screens', 'screensMatched'], ['rng', 'rngMatched'], ['cursors', 'cursorsMatched'],
+    ]) {
+        const matched = sessions.reduce((sum, row) => sum + row.metrics[key].matched, 0);
+        if (matched !== summary.score?.[scoreKey]) {
+            throw new Error(`development ${key} totals do not match the checkpoint`);
+        }
+    }
+    return { executionCommit: summary.executionCommit, measuredAt: summary.timestamp,
+        sessions: sessions.sort((a, b) => a.session.localeCompare(b.session)) };
+}
 
 function development(summary) {
     const bytes = readFileSync(join(summary.artifacts, 'session-results.json'));
