@@ -31,7 +31,7 @@ import { choose_classes_menu } from '../js/windows.js';
 import {
     COULD_SEE, ECMD_OK, FOUNTAIN, IN_SIGHT, OBJ_FLOOR,
     H_UTF8, MENU_COMBINATION, MENU_TRADITIONAL, PICK_ANY, PRIMARYSET,
-    SYM_NOTHING,
+    RUN_CRAWL, RUN_LEAP, SYM_NOTHING,
 } from '../js/const.js';
 import {
     ARROW, FOOD_CLASS, RING_CLASS, ROCK, ROCK_CLASS, WAND_CLASS, WEAPON_CLASS,
@@ -802,7 +802,7 @@ test('doset() applies its picks in menu order and answers ECMD_OK',
         assert.match(status, /Xp:1\/0 T:1$/u);
     });
 
-test('doset() handles help, cancelled values, and unsupported handlers', async () => {
+test('doset() handles help, cancelled values, and handler menus', async () => {
     const state = await startStockGame();
     // HELP_IDX is SIZE(allopt), and the '?' entry's a_int is one more again.
     const menus = [];
@@ -838,14 +838,21 @@ test('doset() handles help, cancelled values, and unsupported handlers', async (
         ])),
         ECMD_OK,
     );
-    // 'runmode' is a compound option with a handler this port has not written.
+    // 'runmode' is a compound option with a handler: options.c
+    // handler_runmode() opens its own PICK_ONE menu, whose 'c' row is
+    // "crawl" (runmodes[3], so RUN_CRAWL), rather than prompting with
+    // getlin().  initoptions_init() starts the flag at RUN_LEAP.
     assert.equal(allopt[optionIndex('runmode')].has_handler, true);
-    await assert.rejects(
-        doset(state, menuHelpers([
+    assert.equal(state.flags.runmode, RUN_LEAP);
+    state.nhDisplay.pushKey('c'.charCodeAt(0));
+    assert.equal(
+        await doset(state, menuHelpers([
             { value: menuValue('runmode'), count: -1 },
         ])),
-        (error) => error.what === "optfn_runmode()'s do_handler request",
+        ECMD_OK,
     );
+    assert.equal(state.flags.runmode, RUN_CRAWL);
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
 });
 
 test('doset() applies other picks selected with help without a second menu',

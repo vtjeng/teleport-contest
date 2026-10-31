@@ -91,6 +91,7 @@ import {
     PRIMARYSET,
     QBUFSZ,
     ROGUESET,
+    ROWNO,
     RUN_CRAWL,
     RUN_LEAP,
     RUN_STEP,
@@ -203,6 +204,7 @@ import {
     count_status_hilites, status_hilite_menu, s_to_anything, status_hilite_add_threshold,
     status_initialize,
 } from './display.js';
+import { set_vanq_order } from './insight.js';
 import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
 import { STATUS_CONDITIONS, STATUS_FIELDS } from './status_field_data.js';
@@ -4162,6 +4164,135 @@ export async function handler_pickup_burden(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c handler_runmode() (6124-6150).  No row is preselected, so
+// a committed empty PICK_ONE fails C's `> 0` test and leaves flags.runmode
+// alone.
+async function handler_runmode(state, helpers) {
+    const items = runmodes.map((mode_name, i) => ({
+        value: i + 1,
+        selector: mode_name[0],
+        text: mode_name,
+    }));
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Select run/travel display mode:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length > 0) state.flags.runmode = values[0] - 1;
+    return optn_ok;
+}
+
+// C ref: options.c handler_sortloot() (6167-6204).  The current type is
+// preselected and C's PICK_ONE keeps that row selected when another is
+// picked, which is what the `n > 1` correction skips over.  The item value
+// is the type's letter, as C's anything.a_char is.
+async function handler_sortloot(state, helpers) {
+    const items = sortltype.map((sortl_name) => ({
+        value: sortl_name[0],
+        selector: sortl_name[0],
+        text: sortl_name,
+        selected: state.flags.sortloot === sortl_name[0],
+    }));
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Select loot sorting type:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length > 0) {
+        let c = values[0];
+        if (values.length > 1 && c === state.flags.sortloot) c = values[1];
+        state.flags.sortloot = c;
+        /* changing to or from 'f' affects persistent inventory display */
+        if (state.iflags.perm_invent) update_inventory({ state });
+    }
+    return optn_ok;
+}
+
+// C ref: options.c handler_whatis_coord() (6206-6277).  The item values are
+// the GPCOORDS_* letters themselves, which also serve as the selectors.
+// windowprocs.name is "tty" here, so the non-tty screen-offset note is not
+// added; COLNO is 80, so COL80ARG is the verbose column-80 note.
+async function handler_whatis_coord(state, helpers) {
+    const gpc = state.iflags.getpos_coords;
+    const items = [
+        [GPCOORDS_COMPASS, "compass ('east' or '3s' or '2n,4w')"],
+        [GPCOORDS_COMFULL,
+            "full compass ('east' or '3south' or '2north,4west')"],
+        [GPCOORDS_MAP, 'map <x,y>'],
+        [GPCOORDS_SCREEN, 'screen [row,column]'],
+        [GPCOORDS_NONE, 'none (no coordinates displayed)'],
+    ].map(([value, text]) => ({
+        value,
+        selector: value,
+        text,
+        selected: gpc === value,
+    }));
+    items.push({ text: '' });
+    items.push({
+        text: `map: upper-left: <1,0>, lower-right: <${COLNO - 1},${ROWNO - 1}>`
+            + (state.flags.verbose ? '; column 0 unused, off left edge' : ''),
+    });
+    // C formats the constant corner 0 + 2, 1 with "%02d".
+    items.push({
+        text: 'screen: upper-left: [02,01], '
+            + `lower-right: [${ROWNO - 1 + 2},${COLNO - 1}]`
+            + (state.flags.verbose ? '; column 80 is not used' : ''),
+    });
+    items.push({ text: '' });
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Select coordinate display when auto-describing a map position:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length > 0) {
+        state.iflags.getpos_coords = values[0];
+        /* PICK_ONE doesn't unselect preselected entry when
+           selecting another one */
+        if (values.length > 1 && state.iflags.getpos_coords === gpc)
+            state.iflags.getpos_coords = values[1];
+    }
+    return optn_ok;
+}
+
+// C ref: options.c handler_whatis_filter() (6279-6319).  C stores
+// GFILTER_* + 1 in anything.a_char so that GFILTER_NONE is not read back as
+// an empty selection; the pick subtracts the 1 off again.
+async function handler_whatis_filter(state, helpers) {
+    const gfilt = state.iflags.getloc_filter;
+    const items = [
+        [GFILTER_NONE, 'n', 'no filtering'],
+        [GFILTER_VIEW, 'v', 'in view only'],
+        [GFILTER_AREA, 'a', 'in same area'],
+    ].map(([filter, selector, text]) => ({
+        value: filter + 1,
+        selector,
+        text,
+        selected: gfilt === filter,
+    }));
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Select location filtering when going for next/previous map'
+            + ' position:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length > 0) {
+        state.iflags.getloc_filter = values[0] - 1;
+        /* PICK_ONE doesn't unselect preselected entry when
+           selecting another one */
+        if (values.length > 1 && state.iflags.getloc_filter === gfilt)
+            state.iflags.getloc_filter = values[1] - 1;
+    }
+    return optn_ok;
+}
+
 // C ref: options.c can_set_perm_invent() (5488-5530).  This TTY build does
 // not advertise WC_PERM_INVENT, and TTY_PERM_INVENT is not compiled, so the
 // capability check is the only reachable arm.  Keep the mode update for a
@@ -5660,6 +5791,23 @@ function optfn_sortvanquished(result, statement, negated) {
             );
         }
     }
+}
+
+// C ref: options.c optfn_sortvanquished() (3958-4009), its do_handler arm.
+// C leaves a `handler_sortvanquished()` call commented out and instead runs
+// insight.c set_vanq_order(TRUE) inline, discarding its count, then reports
+// whether the mode changed from vanqorders[][0] and [][1], the letter and
+// short-description columns this file's table keeps.
+async function handler_sortvanquished(state) {
+    const prev_sortmode = state.flags.vanq_sortmode;
+    await set_vanq_order(true, state);
+    const [letter, description] = vanqorders[state.flags.vanq_sortmode];
+    await ttyPline(
+        `'sortvanquished' ${state.flags.vanq_sortmode === prev_sortmode
+            ? 'not changed, still' : 'changed to'} "${letter}: ${description}".`,
+        state,
+    );
+    return optn_ok;
 }
 
 // C ref: options.c feature_alert_opts(), startup branch. The parsed
@@ -8618,7 +8766,12 @@ const OPTION_HANDLERS = Object.freeze({
     paranoid_confirmation: handler_paranoid_confirmation,
     perminv_mode: handler_perminv_mode,
     pickup_burden: handler_pickup_burden,
+    runmode: handler_runmode,
     sortdiscoveries: handler_sortdiscoveries,
+    sortloot: handler_sortloot,
+    sortvanquished: handler_sortvanquished,
+    whatis_coord: handler_whatis_coord,
+    whatis_filter: handler_whatis_filter,
     symset: (state, helpers) => handler_symset(state, 'symset', helpers),
     roguesymset: (state, helpers) => handler_symset(
         state, 'roguesymset', helpers,
@@ -8703,7 +8856,12 @@ export async function reset_needed_visuals(state) {
 // which doset_simple_menu() refuses before calling this.  C's
 // `allopt[k].has_handler && allopt[k].optfn` needs the second test because
 // optlist.h leaves a handler-less entry's optfn null; every allopt[] entry this
-// port generates carries one, so has_handler decides alone.
+// port generates carries one, so has_handler decides alone.  Every
+// has_handler entry either menu can offer -- setwhere set_in_game or the
+// wizard-mode passes, and no window capability this tty build lacks -- has a
+// handler here or in cmd.js's optionHandlers; the three without one
+// (altkeyhandling: set_in_config outside WIN32; windowborders: WC2 bit absent
+// from tty_procs.wincap2; cond_: set_hidden prefix) are never listed.
 async function applyOptionMenuPick(state, option, helpers) {
     if (option.opttyp === 'BoolOpt') {
         /* boolean option */
@@ -8714,11 +8872,6 @@ async function applyOptionMenuPick(state, option, helpers) {
         /* compound option */
         const handler = OPTION_HANDLERS[option.optfn]
             ?? helpers?.optionHandlers?.[option.optfn];
-        if (!handler) {
-            throw new UnsupportedOptionMenuError(
-                `optfn_${option.optfn}()'s do_handler request`,
-            );
-        }
         await handler(state, helpers);
         // `opt_set_in_config[k] = TRUE` follows a successful handler in both
         // menus.  Its only reader is #saveoptions, which this port does not

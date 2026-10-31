@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:handler_runmode(), reached through optfn_runmode()'s do_handler arm from the full options menu. The search picks runmode, the handler menu takes 'c' (crawl), two steps east play on, and a second visit shows the value column reading [crawl] before Escape cancels.",
+  "segments": [
+    {
+      "seed": 73015842,
+      "datetime": "20610314083045",
+      "nethackrc": "OPTIONS=name:Hanzo,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:runmode\n\ncll#optionsfull\n:runmode\n\u001b"
+    }
+  ]
+}

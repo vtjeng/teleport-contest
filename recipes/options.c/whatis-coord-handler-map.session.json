@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:handler_whatis_coord(), reached through optfn_whatis_coord()'s do_handler arm from the full options menu. 'none' is preselected; the handler menu takes 'm' (map), then a farlook moves the cursor one step east so autodescribe shows the <x,y> coordinates, and '.' picks that spot.",
+  "segments": [
+    {
+      "seed": 8873421,
+      "datetime": "20570618201500",
+      "nethackrc": "OPTIONS=name:Ilse,role:Priest,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": " #optionsfull\n:whatis_coord\n\nm;l. "
+    }
+  ]
+}
