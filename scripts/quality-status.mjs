@@ -1243,7 +1243,7 @@ function preparePass(kind, options) {
   if (options['dry-run']) {
     console.log('Dry run: QUALITY.json was not changed.');
   } else {
-    console.log('Commit QUALITY.json as tracker metadata after checking the dashboard.');
+    console.log('Commit QUALITY.json as tracker metadata after checking `npm run quality`.');
   }
 }
 

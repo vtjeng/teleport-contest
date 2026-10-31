@@ -7,7 +7,7 @@ import { COLUMNS, readRows } from './score-log.mjs';
 import { digest, readChallengeBatches, challengeInputSnapshot, totalsFor } from './challenge-results.mjs';
 import { scorerIdentity } from './score-challenges.mjs';
 import { recordPublishedSynthetic } from './record-published-synthetic.mjs';
-import { readPublishedScore, publishedScoreView, syntheticPublicationStatus } from './published-synthetic.mjs';
+import { readPublishedScore, publishedScoreView } from './published-synthetic.mjs';
 const sha = 'b'.repeat(40), base = 'a'.repeat(40), time = '2026-10-22T07:00:00Z';
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'published-synthetic-'));
@@ -85,10 +85,8 @@ test('dataset and input changes retain clearly labelled earlier aggregate; corru
   const f = fixture(t); f.record();
   const changed = readPublishedScore(f.root, { ...f.view, batches: f.view.batches.slice(0, 1) });
   assert.equal(changed.publication.datasetMatches, false); assert.equal(changed.totals.sessions.total, 2);
-  assert.match(syntheticPublicationStatus(changed.publication), /Previous dataset/);
   const stale = readPublishedScore(f.root, { ...f.view, batches: f.view.batches.map(b => ({ ...b, freshness: { expected: digest('new game') } })) });
   assert.equal(stale.status, 'stale'); assert.equal(stale.publication.measuredThrough, time);
-  assert.match(syntheticPublicationStatus(stale.publication), /unknown/);
   const receipt = JSON.parse(readFileSync(join(f.root, 'challenges/published.json')));
   writeFileSync(join(f.root, receipt.entries[0].path), '{}');
   assert.equal(readPublishedScore(f.root, f.view).status, 'unknown');
@@ -102,19 +100,6 @@ test('timestamp provenance and complete cohort membership are checked even on di
   assert.throws(() => publishedScoreView(f.view, receipt, values.slice(1)), /Incomplete/);
   assert.ok(existsSync(join(f.root, 'challenges/published.json')));
 });
-test('only verified exact-candidate API states announce updating, failure or completed validation', () => {
-  const publication = { sha: base, fresh: true, datasetMatches: true, batches: 98 };
-  const view = { api: { status: 'fresh' }, currentCandidate: { sha, gates: { Checkpoint: { run: { sha, status: 'in_progress', conclusion: null } } } } };
-  assert.match(syntheticPublicationStatus(publication, view), /^Updating/);
-  view.currentCandidate.gates.Checkpoint.run = { sha, status: 'completed', conclusion: 'failure' };
-  assert.match(syntheticPublicationStatus(publication, view), /failed/);
-  view.currentCandidate.gates.Checkpoint.run.conclusion = 'success';
-  assert.match(syntheticPublicationStatus(publication, view), /awaits accepted publication/);
-  view.api.status = 'stale'; assert.equal(syntheticPublicationStatus(publication, view), 'Complete · 98 batches');
-  view.api.status = 'fresh'; view.currentCandidate.gates.Checkpoint.run.sha = base;
-  assert.equal(syntheticPublicationStatus(publication, view), 'Complete · 98 batches');
-});
-
 test('unsuccessful checkpoint or publication never creates a first score pointer', t => {
   const f = fixture(t);
   f.summaries[sha].allPassed = false;

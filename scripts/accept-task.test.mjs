@@ -136,8 +136,8 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     assert.equal(readFileSync(join(root, options.ledger), 'utf8'), originalLedger);
     assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
     write('js/fixture.js', 'export const fixture = true;\n');
-    // Review and dashboard records do not change the already tested execution inputs.
-    for (const path of ['QUALITY.json', 'QUALITY-evidence.json', 'dashboard-snapshot.json'])
+    // Review records do not change the already tested execution inputs.
+    for (const path of ['QUALITY.json', 'QUALITY-evidence.json'])
         json(path, {});
     rmSync(join(root, 'QUALITY.json'));
     symlinkSync('GOALS.json', join(root, 'QUALITY.json'));
@@ -253,7 +253,7 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     assert.deepEqual(JSON.parse(readFileSync(join(root, '.cache/ledger.json'), 'utf8')), accepted);
 
     // Reuse this disposable repository for preparation; no extra Git history is needed.
-    for (const path of ['QUALITY.json', 'QUALITY-evidence.json', 'dashboard-snapshot.json'])
+    for (const path of ['QUALITY.json', 'QUALITY-evidence.json'])
         rmSync(join(root, path)); // Remove this test's implementation closure reports.
     rmSync(join(root, 'challenges/evaluations/saved-before-closure.json'));
     write('GOALS.json', originalGoals);

@@ -30,8 +30,8 @@ test('missing runs remain pending; all automatic workflows must succeed', () => 
     }
 });
 
-test('only Lint and Dashboard run automatically; manual reports do not gate publication', () => {
-    assert.deepEqual(PUBLICATION_WORKFLOWS, ['lint.yml', 'dashboard.yml']
+test('only Lint runs automatically; manual reports do not gate publication', () => {
+    assert.deepEqual(PUBLICATION_WORKFLOWS, ['lint.yml']
         .map(name => `.github/workflows/${name}`));
     for (const name of ['score.yml', 'coverage.yml']) {
         const workflow = readFileSync(new URL(`../.github/workflows/${name}`, import.meta.url), 'utf8');

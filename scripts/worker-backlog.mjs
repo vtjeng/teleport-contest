@@ -1,4 +1,4 @@
-// Read-only coordination and dashboard lists derived from the worker ledger.
+// Read-only coordination lists derived from the worker ledger.
 export function acceptedMain(state) {
     const candidates = Object.values(state.deliveries).filter(delivery => delivery.acceptedAt)
         .map(delivery => ({task: delivery.task, commit: delivery.publishedCommit ?? delivery.integration,

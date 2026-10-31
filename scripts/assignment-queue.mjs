@@ -413,18 +413,3 @@ export function authorizeQueueEvent(state, root, event) {
     ensure(['queue-claim', 'queue-processes', 'queue-result', 'queue-block'].includes(event.type),
         'workers may only claim and report their own execution');
 }
-
-export function publicQueue(state) {
-    const view = queueWork(state);
-    if (!view) return null;
-    return {...view, blocked: view.blocked.map(row => ({task: row.task, reason: 'Waiting for producer or dependencies.'})),
-        workers: Object.values(state.workers).filter(worker => workerIds.has(worker.worker))
-            .map(worker => ({worker: worker.worker, assignment: worker.assignment ?? null,
-                state: worker.assignment ? 'active' : worker.handle ? 'idle' : 'offline'})),
-        tasks: Object.values(state.queue.tasks).map(task => ({id: task.id, type: task.type, output: task.output,
-            status: view.blocked.some(row => row.task === task.id) ? 'blocked' : task.status,
-            producer: task.producer, recipient: task.recipient,
-            sessions: task.sessions, batch: task.batch ?? null, worker: task.worker ?? null,
-            target: task.target ?? null, readyAt: task.readyAt, claimedAt: task.claimedAt ?? null,
-            completedAt: task.completedAt ?? null}))};
-}

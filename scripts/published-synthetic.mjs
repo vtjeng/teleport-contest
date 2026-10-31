@@ -63,21 +63,3 @@ export function readPublishedScore(root, view) {
     return { ...view, totals: null, status: 'unknown', error: 'Published score evidence unavailable.' };
   }
 }
-
-// Also embedded in the page. A public CI observation annotates the last score;
-// it cannot replace it or turn its measurement timestamp into a refresh time.
-export function syntheticPublicationStatus(publication, view) {
-  if (!publication) return 'Published score status unknown';
-  if (!publication.datasetMatches) return 'Previous dataset — current dataset has no complete published score';
-  const candidate = view?.currentCandidate;
-  const run = candidate?.gates?.Checkpoint?.run;
-  if (view?.api?.status === 'fresh' && candidate?.sha !== publication.sha && run?.sha === candidate?.sha) {
-    if (['queued', 'in_progress'].includes(run.status)) return 'Updating — showing last completed score';
-    if (run.status === 'completed' && run.conclusion !== 'success')
-      return 'Latest validation failed — showing last completed score';
-    if (run.status === 'completed' && run.conclusion === 'success')
-      return 'Validation complete — newer score awaits accepted publication';
-  }
-  return publication.fresh ? 'Complete · ' + publication.batches + ' batches'
-    : 'Earlier measurement — newer evaluation status unknown';
-}

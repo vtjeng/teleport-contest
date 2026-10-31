@@ -1,9 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {createLedger, nextActions, recordEvent, summarizeLedger} from './worker-state.mjs';
-import {authorizeQueueEvent, publicQueue, queueWork} from './assignment-queue.mjs';
-import {activityFromLedger} from './dashboard-snapshot.mjs';
-import {activityTimeline, activityUtilization} from './dashboard-activity.mjs';
+import {authorizeQueueEvent, queueWork} from './assignment-queue.mjs';
 import {SOURCE_TRIAL, SOURCE_TRIAL_PATHS, SOURCE_TRIAL_UNITS} from './port-evidence.mjs';
 import {SOURCE_PARITY_BASIS, sourceParityDigest} from './source-parity.mjs';
 
@@ -298,9 +296,9 @@ test('admission creates blocked implementation work until a current accepted-bas
     assert.equal(Object.values(f.state().queue.tasks)[0].status, 'superseded');
 });
 
-test('dashboard keeps one stable worker lane across exploration and implementation and closes execution on submission', () => {
+test('one worker runs exploration then implementation and submission closes its execution', () => {
     const f = fixture();
-    f.enqueue('explore', 'exploration', {question: 'Private source plan /private/worktree'});
+    f.enqueue('explore', 'exploration');
     f.claim('explore'); f.result('explore');
     f.refresh(['case']);
     f.enqueue('case', 'implementation', {goal: 'fixture-port', allowedPaths: ['js/fixture.js'],
@@ -309,17 +307,7 @@ test('dashboard keeps one stable worker lane across exploration and implementati
     const revision = 'd'.repeat(40);
     f.send({type: 'ready', task: 'delivery:case', delivery: revision, base: BASE, commits: [revision],
         paths: ['js/fixture.js'], evidence: '/private/packet.json', dependencies: []});
-    const snapshot = publicQueue(f.state()), activity = activityFromLedger(f.ledger());
-    assert.doesNotMatch(JSON.stringify({snapshot, activity}), /private-|\/private\/|worktree|processes/u);
-    const timeline = activityTimeline(activity, '2026-10-15T12:02:00.000Z');
-    const execution = timeline.tasks.filter(task => task.kind === 'queue-execution');
-    assert.deepEqual(execution.map(task => task.assignmentType), ['exploration', 'implementation']);
-    assert.ok(execution.every(task => task.status === 'completed'));
-    const work = timeline.stages.filter(stage => stage.lane === 'Worker-1' && stage.phase === 'working');
-    assert.deepEqual(new Set(work.filter(stage => stage.end > stage.start).map(stage => stage.assignmentType)),
-        new Set(['exploration', 'implementation']));
-    assert.ok(work.every(stage => !stage.ongoing || stage.start === stage.end));
-    assert.equal(snapshot.workers.find(worker => worker.worker === 'Worker-1').assignment, null);
-    assert.ok(activityUtilization(timeline.stages, Date.parse('2026-10-15T12:00:00.000Z'),
-        Date.parse('2026-10-15T12:02:00.000Z')).some(row => row.role === 'Workers' && row.work > 0));
+    const state = f.state();
+    assert.deepEqual(['explore', 'case'].map(id => state.queue.tasks[id].worker), ['Worker-1', 'Worker-1']);
+    assert.equal(state.workers['Worker-1'].assignment ?? null, null);
 });

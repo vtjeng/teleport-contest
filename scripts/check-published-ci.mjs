@@ -9,7 +9,7 @@ import { recordPublishedSynthetic } from './record-published-synthetic.mjs';
 
 // These are the workflows triggered by a publication to main, not the separate
 // pre-acceptance Checkpoint workflow. Missing runs must remain pending discovery.
-export const PUBLICATION_WORKFLOWS = ['lint.yml', 'dashboard.yml']
+export const PUBLICATION_WORKFLOWS = ['lint.yml']
     .map(name => `.github/workflows/${name}`);
 const SHA = /^[a-f0-9]{40}$/;
 const succeeded = run => run.status === 'completed' && run.conclusion === 'success';

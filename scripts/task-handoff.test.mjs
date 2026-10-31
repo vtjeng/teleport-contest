@@ -10,7 +10,6 @@ import { acceptTask } from './accept-task.mjs';
 import { completedSourceUnits } from './port-evidence.mjs';
 import { appendRow } from './score-log.mjs';
 import { recordEvaluation } from './score-challenges.mjs';
-import { writeDashboardSnapshot } from './dashboard-snapshot.mjs';
 
 import { handoffFixture as fixture } from './test-fixtures/task-handoff.mjs';
 
@@ -211,9 +210,8 @@ test('publication generates reports, checks them before push, records exact remo
     assert.equal(f.state().deliveries[f.baseline].publicationKnownBy,
         f.state().deliveries[f.candidate].publishedAt);
     assert.equal(report.next.workers[0].action, 'wait', 'publication alone does not establish new worker work');
-    const snapshot = JSON.parse(readFileSync(join(f.root, 'dashboard-snapshot.json'), 'utf8'));
-    assert.equal(snapshot.development.executionCommit, f.candidate);
-    assert.ok(snapshot.activity.events.some(event => event.type === 'accepted' && event.task === 'A1'));
+    assert.equal(f.git('show', '--format=', '--name-only', report.commit), 'QUALITY.json',
+        'the publication commit holds only the uncommitted closure report');
     assert.match(f.git('show', '-s', '--format=%B', report.commit), /Assisted-by: Codex/);
     const count = f.git('rev-list', '--count', 'HEAD');
     publishTask(f.options, f.root, f); // Published retries only check CI and summarize next work.
@@ -274,9 +272,7 @@ test('dirty implementation and unsafe report contents never reach remote Main', 
 test('publication resumes after the report commit and after a successful push with no ledger event', t => {
     const f = fixture(t); f.accept();
     f.json('QUALITY.json', {});
-    writeDashboardSnapshot({ ledger: f.options.ledger, checkpoint: f.candidateCheckpoint,
-        output: 'dashboard-snapshot.json' }, f.root);
-    f.git('add', 'QUALITY.json', 'dashboard-snapshot.json'); f.git('commit', '-qm', 'Interrupted report packet');
+    f.git('add', 'QUALITY.json'); f.git('commit', '-qm', 'Interrupted report packet');
     const packet = f.git('rev-parse', 'HEAD');
     f.git('push', '-q', 'origin', 'main'); // Simulate an interruption between push and publication event.
     const report = publishTask(f.options, f.root, f);
@@ -284,13 +280,13 @@ test('publication resumes after the report commit and after a successful push wi
     assert.equal(f.state().deliveries[f.candidate].publishedCommit, packet);
 });
 
-test('a manual closure commit still receives a snapshot and unvalidated committed code cannot publish', t => {
+test('a manual closure commit publishes unchanged and unvalidated committed code cannot publish', t => {
     const f = fixture(t); f.accept();
     f.json('QUALITY.json', {});
-    f.git('add', 'QUALITY.json'); f.git('commit', '-qm', 'Manual closure without snapshot');
+    f.git('add', 'QUALITY.json'); f.git('commit', '-qm', 'Manual closure');
     const manual = f.git('rev-parse', 'HEAD');
     const result = publishTask(f.options, f.root, f);
-    assert.notEqual(result.commit, manual, 'publication adds the missing accepted snapshot');
+    assert.equal(result.commit, manual, 'a clean tree publishes the committed closure as is');
     const g = fixture(t); g.accept();
     g.write('js/fixture.js', 'unvalidated committed code\n');
     g.git('add', 'js/fixture.js'); g.git('commit', '-qm', 'Unvalidated descendant');

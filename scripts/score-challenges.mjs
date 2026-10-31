@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Evaluate the frozen synthetic local challenge cases at committed HEAD, then explicitly record
-// the immutable artifact in SCORE.tsv. Dashboard builds never invoke this tool.
+// the immutable artifact in SCORE.tsv.
 import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
