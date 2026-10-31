@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5180233,
+      "datetime": "20060308154521",
+      "nethackrc": "OPTIONS=name:LookOnceA,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": " //   ;s",
+      "comment": "Independent once-pick farlook: the whatis menu's map choice, the cursor prompt and first-use tip, then getpos.c's ';' pick (LOOK_ONCE) describes the hero's own square, skips checkfile(), and ends pager.c do_look()'s loop so the following search is read as a command."
+    }
+  ]
+}

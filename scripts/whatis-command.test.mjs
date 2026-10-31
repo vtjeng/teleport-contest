@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -7,6 +8,7 @@ import {
     BLINDED,
     BUFSZ,
     COULD_SEE,
+    CQ_CANNED,
     DART_TRAP,
     D_BROKEN,
     DB_ICE,
@@ -15,6 +17,7 @@ import {
     D_TRAPPED,
     DOOR,
     DRAWBRIDGE_UP,
+    ECMD_OK,
     GRAVE,
     GPCOORDS_NONE,
     GPCOORDS_MAP,
@@ -42,6 +45,7 @@ import {
     TT_BURIEDBALL,
     WATER,
 } from '../js/const.js';
+import { cmdq_add_key } from '../js/cmd.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
 import { trapped_chest_at } from '../js/detect.js';
 import { GameMap } from '../js/game.js';
@@ -84,6 +88,7 @@ import {
 } from '../js/glyph_offsets.js';
 import {
     NUMMONS,
+    PM_HILL_ORC,
     PM_SAMURAI,
     PM_PLAINS_CENTAUR,
     monst_globals_init,
@@ -104,6 +109,8 @@ import {
     do_screen_description,
     append_str,
     add_quoted_engraving,
+    do_look,
+    do_supplemental_info,
     doquickwhatis,
     look_all,
     look_engrs,
@@ -1758,4 +1765,126 @@ test('look_all hides an unsensed invisible hero and names your position', async 
     assert.equal(rows[0], 'Monsters currently shown near your position:');
     assert.ok(rows.every(row => !row.includes('human wizard called')));
     assert.match(rows[2], /unknown creature causing you concern$/u);
+});
+
+// The Healer of this recipe carries a stethoscope at inventory letter c, as
+// its recording under recordings/pager.c/ shows. The single space is the
+// same setup key the tests above use: an unbound command that leaves her at
+// the command prompt, with an empty canned queue and the "Unknown command"
+// message still unacknowledged on the top line.
+function loadItemActionsLookupSegment() {
+    const recipe = JSON.parse(readFileSync(
+        new URL('../recipes/pager.c/item-actions-lookup-independent.session.json', import.meta.url),
+        'utf8',
+    ));
+    return { ...recipe.segments[0], moves: WHATIS_SETUP };
+}
+
+test('do_look reads the item-actions canned keys as characters and looks the item up',
+    async () => {
+        // iactions.c itemactions_pushkeys() IA_WHATIS_OBJ queues dowhatis,
+        // 'i' and the inventory letter; js/iactions.js pushes both keys as
+        // one-character strings. pager.c do_look()'s 'i' arm reads the letter
+        // through display_inventory() and checkfile()s singular(xname) of the
+        // item, whose data.base text is pinned from the C source here.
+        await runSegment(loadItemActionsLookupSegment());
+        const dataBase = readFileSync(
+            new URL('../nethack-c/upstream/dat/data.base', import.meta.url), 'utf8',
+        ).split('\n');
+        const firstLine = dataBase[dataBase.indexOf('stethoscope') + 1].replace(/^\t/u, '');
+        cmdq_add_key(CQ_CANNED, 'i', game);
+        cmdq_add_key(CQ_CANNED, 'c', game);
+        let rows = [];
+        game._preNhgetchHook = () => {
+            rows = game.nhDisplay.grid.map(row => row.map(cell => cell.ch).join('').trimEnd());
+        };
+        // The text window first flushes the unacknowledged top line with a
+        // More prompt (wintty.c tty_display_nhwindow); the second space
+        // dismisses the data.base text window itself.
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        assert.equal(await do_look(0, null, game), ECMD_OK);
+        assert.ok(rows.some(row => row.includes(firstLine)), rows.join('\n'));
+        assert.equal(game.command_queue[CQ_CANNED].length, 0);
+        assert.equal(game.nhDisplay.inputQueueLength, 0);
+    });
+
+test('a queued y answer takes the screen arm of do_look', async () => {
+    // pager.c do_look() `case 'y': case '/':` keeps the old y|n question's
+    // yes answer. No C case records it: the only queued key a C producer
+    // hands do_look() is iactions.c's 'i', and getpos.c adds its keys to
+    // CQ_REPEAT only when iflags.remember_getpos is set, which nothing in
+    // src/*.c sets. The constructed queue pins the arm instead.
+    await runSegment(loadItemActionsLookupSegment());
+    // Skip the first-use getpos tip, and with !verbose do_look() asks the
+    // short "Pick ..." question while getpos.c omits its instructions line,
+    // so the pushed keys below reach getpos() itself.
+    game.flags.tips = false;
+    game.flags.verbose = false;
+    cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), game);
+    // The short "Pick" question fits beside the unacknowledged top line, so
+    // wintty.c update_topl() appends it without a More prompt. getpos.c's
+    // ';' pick is LOOK_ONCE: it describes the hero's own square and ends
+    // do_look()'s loop without checkfile()'s More-info question.
+    game.nhDisplay.pushKey(';'.charCodeAt(0));
+    assert.equal(await do_look(0, null, game), ECMD_OK);
+    assert.match(game._ttyToplines, /^@ .*human healer called ItemLookupA\)$/u);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+});
+
+test('any other queued key returns from do_look without a look', async () => {
+    // pager.c do_look() `default: case 'q': return ECMD_OK;`. The keys below
+    // cover the code form, the one-character string form this port's
+    // producers also use, and the NUL that a non-key node leaves in C's `i`.
+    await runSegment(loadItemActionsLookupSegment());
+    const toplines = game._ttyToplines;
+    for (const key of ['q', 'l'.charCodeAt(0), 0]) {
+        cmdq_add_key(CQ_CANNED, key, game);
+        assert.equal(await do_look(0, null, game), ECMD_OK, String(key));
+        assert.equal(game.command_queue[CQ_CANNED].length, 0, String(key));
+    }
+    assert.equal(game._ttyToplines, toplines);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+});
+
+test('do_supplemental_info tells the Orc Town story for a named horde orc', async () => {
+    // pager.c do_supplemental_info() (2253-2318): an orc whose name has
+    // " of " belongs to the horde that sacked Orc Town and " the Fence" is
+    // its receiver; the text follows a y_n question, and without_asking (a
+    // verbose pick) never sets yes_to_moreinfo, so it shows nothing. Named
+    // orcs appear only in the Orc Town variant of Minetown, which no cheap
+    // recipe reaches, so this constructed call pins the branch.
+    await runSegment(loadItemActionsLookupSegment());
+    const hillOrc = game.mons[PM_HILL_ORC];
+    const source = readFileSync(
+        new URL('../nethack-c/upstream/src/pager.c', import.meta.url), 'utf8',
+    );
+    const suptext1 = [...source.match(/suptext1\[\] = \{([^}]*)\}/u)[1]
+        .matchAll(/"([^"]*)"/gu)].map((match) => match[1]);
+    assert.equal(suptext1.length, 8);
+    const toplines = game._ttyToplines;
+    let rows = [];
+    game._preNhgetchHook = () => {
+        rows = game.nhDisplay.grid.map(row => row.map(cell => cell.ch).join('').trimEnd());
+    };
+
+    // Not an orc, or an orc without a horde name: no question, no key read.
+    await do_supplemental_info('Grund of the Hill Orcs', game.mons[PM_SAMURAI], false, game);
+    await do_supplemental_info('Grund', hillOrc, false, game);
+    // without_asking: the C quirk shows nothing even for a horde orc.
+    await do_supplemental_info('Grund of the Hill Orcs', hillOrc, true, game);
+    assert.equal(game._ttyToplines, toplines);
+    assert.deepEqual(rows, []);
+
+    // wintty.c tty_yn_function() first flushes the unacknowledged top line
+    // with a More prompt, then reads the answer; the last space dismisses
+    // the horde text, whose first "%s" is the orc and second the horde.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await do_supplemental_info('Grund of the Hill Orcs', hillOrc, false, game);
+    assert.match(game._ttyToplines, /More info about "Grund of the Hill Orcs"\?/u);
+    assert.ok(rows.some(row => row.includes(suptext1[0].replace('%s', 'Grund of the Hill Orcs'))), rows.join('\n'));
+    assert.ok(rows.some(row => row.includes(suptext1[7].replace('%s', 'the Hill Orcs'))), rows.join('\n'));
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
 });

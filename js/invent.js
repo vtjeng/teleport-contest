@@ -171,8 +171,8 @@ import {
 } from './artifacts.js';
 import { obj_resists } from './bury.js';
 import {
-    cmdq_add_int, cmdq_add_key, cmdq_clear, cmdq_pop, get_count, readchar,
-    yn_function,
+    cmdq_add_int, cmdq_add_key, cmdq_clear, cmdq_key_char, cmdq_pop,
+    get_count, readchar, yn_function,
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
@@ -1028,8 +1028,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
     }
     if (queued) {
         if (queued.typ === CMDQ_KEY) {
-            const key = typeof queued.key === 'number'
-                ? String.fromCharCode(queued.key) : queued.key;
+            const key = cmdq_key_char(queued);
             if (key === HANDS_SYM) {
                 const suitability = await obj_ok(null, state);
                 if (suitability === GETOBJ_SUGGEST
@@ -2108,7 +2107,7 @@ export async function display_inventory(lets, want_reply, state = game, hooks = 
     const queued = cmdq_pop(state);
     if (queued) {
         if (queued.typ === CMDQ_KEY) {
-            const key = String.fromCharCode(queued.key);
+            const key = cmdq_key_char(queued);
             for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
                 const symbol = String.fromCharCode(
                     DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + otmp.oclass],

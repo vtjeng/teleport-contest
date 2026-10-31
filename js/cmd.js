@@ -1982,6 +1982,14 @@ export function cmdq_add_key(q, key, state = game) {
     commandQueue(state)[q].push({ typ: CMDQ_KEY, key });
 }
 
+// C ref: cmd.c _cmd_queue.key is a char. Producers in this port push either
+// that key code or a one-character string (an inventory letter), so a reader
+// that compares the key with characters takes it from here and sees one form.
+export function cmdq_key_char(node) {
+    return typeof node.key === 'number'
+        ? String.fromCharCode(node.key) : node.key;
+}
+
 // C ref: cmd.c cmdq_add_dir() (294-315). The direction fields are kept as
 // three separate values because getdir() can queue a vertical direction too.
 export function cmdq_add_dir(q, dx, dy, dz, state = game) {

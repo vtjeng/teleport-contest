@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5180232,
+      "datetime": "20050923071045",
+      "nethackrc": "OPTIONS=name:ItemLookupB,role:Caveman,race:dwarf,gender:female,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": "ic/ s",
+      "comment": "Variation of item-actions-lookup-independent: a gem-class stack (flint stones, quan > 1) takes the 'these' label in iactions.c itemactions() and singular() in pager.c do_look()'s 'i' arm looks up the data.base 'flint*' entry."
+    }
+  ]
+}

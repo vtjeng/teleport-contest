@@ -10,6 +10,7 @@ import {
     BLINDED,
     BOLT_LIM,
     BUFSZ,
+    QBUFSZ,
     COLNO,
     MAXTCHARS,
     NO_TRAP,
@@ -158,11 +159,13 @@ import {
 import { DATA_BASE_ENTRIES } from './data_base_data.js';
 import { engr_at } from './engrave.js';
 import { fruit_from_name, makeplural, makesingular } from './fruit.js';
-import { LOOK_ONCE, LOOK_TRADITIONAL, coord_desc, getpos } from './getpos.js';
+import {
+    LOOK_ONCE, LOOK_QUICK, LOOK_VERBOSE, coord_desc, getpos,
+} from './getpos.js';
 import { game } from './gstate.js';
 import { createCommandBindingModel, keyForCommand } from './command_bindings.js';
 import { visible_region_at } from './region.js';
-import { dist2, mungspaces, visctrl } from './hacklib.js';
+import { dist2, mungspaces, strstri, visctrl } from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
 import { currency, display_inventory, sobj_at } from './invent.js';
 import { tty_yn_function } from './topl.js';
@@ -257,6 +260,7 @@ import {
     is_clinger,
     is_flyer,
     is_hider,
+    is_orc,
     sticks,
 } from './mondata.js';
 import { digests } from './dothrow.js';
@@ -276,7 +280,9 @@ import {
 import { cansee, couldsee, howmonseen } from './vision.js';
 import { spot_time_left } from './timeout.js';
 import { getlin, select_menu } from './windows.js';
-import { getdir, key2extcmddesc, key2txt, yn_function } from './cmd.js';
+import {
+    cmdq_key_char, getdir, key2extcmddesc, key2txt, yn_function,
+} from './cmd.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -1874,13 +1880,28 @@ export function dataBaseEntry(term) {
 // C ref: pager.c checkfile() (830-1129). This port covers every generated
 // key and text entry, the user-typed and no-question flags used by do_look(),
 // and the ordinary question used by map lookup.
-export async function checkfile(input, pm = null, chkflags = 0, state = game) {
+// `supplemental`, when given, stands for C's supplemental_name buffer: the
+// text after " called " in the name looked up, which do_look() hands on to
+// do_supplemental_info().
+export async function checkfile(
+    input, pm = null, chkflags = 0, state = game, supplemental = null,
+) {
     const userTyped = (chkflags & CHKFIL_USR_TYPED) !== 0;
     const dontAsk = (chkflags & CHKFIL_DONT_ASK) !== 0;
     const iaChecking = (chkflags & CHKFIL_IA_CHECK) !== 0;
     const source = pm && !userTyped
         ? pm.pmnames?.[NEUTRAL] ?? input
         : input;
+    if (supplemental && source) {
+        // C ref: pager.c checkfile() (949-958). A " named " suffix makes the
+        // rest an alternate name; otherwise the text after " called " in the
+        // caller's string is copied into supplemental_name.
+        if (strstri(source, ' named ') < 0 && strstri(source, ' called ') >= 0) {
+            const sp = strstri(input, ' called ');
+            if (sp >= 0)
+                supplemental.name = input.slice(sp + 8, sp + 8 + BUFSZ - 1);
+        }
+    }
     const { base, alt } = normalizeDataBaseLookup(source, state);
     if (!base) return false;
 
@@ -1932,7 +1953,7 @@ export async function do_look(mode, clickCc = null, state = game) {
     const hasQueued = queued !== null;
     if (queued) {
         if (queued.typ === CMDQ_KEY) {
-            queuedChoice = String.fromCharCode(queued.key);
+            queuedChoice = cmdq_key_char(queued);
         } else {
             const { cmdq_clear } = await import('./cmd.js');
             cmdq_clear(CQ_CANNED, state);
@@ -2016,13 +2037,21 @@ export async function do_look(mode, clickCc = null, state = game) {
             );
             if (description.found) {
                 await ttyPutmixed(description.out, description.out[0], state);
+                // pager.c do_look() 1941-1954 with ans still 0: checkfile()
+                // gets the null pm, and the monster lookat() reported (never
+                // one here, since the typed symbol is described at 0,0) would
+                // go on to do_supplemental_info().
                 if (description.found === 1 && state.flags?.help) {
+                    const supplemental = { name: '' };
                     await checkfile(
-                        description.firstmatch,
-                        description.supplement ?? null,
-                        0,
-                        state,
+                        description.firstmatch, null, 0, state, supplemental,
                     );
+                    if (description.supplement) {
+                        await do_supplemental_info(
+                            supplemental.name, description.supplement,
+                            false, state,
+                        );
+                    }
                 }
             } else {
                 await ttyPline("I've never heard of such things.", state);
@@ -2048,8 +2077,10 @@ export async function do_look(mode, clickCc = null, state = game) {
         await look_engrs(choice === 'e', state);
         return ECMD_OK;
     }
-    if (choice !== '/')
-        throw new UnsupportedWhatisError(`menu choice ${JSON.stringify(choice)}`);
+    // pager.c do_look() switch (i): 'y', the pre-menu yes answer that a
+    // queued key can still supply, shares the '/' screen arm; 'q' and every
+    // other key take the switch default and return without a look.
+    if (choice !== '/' && choice !== 'y') return ECMD_OK;
 
     const savedVerbose = state.flags.verbose;
     state.flags.verbose = Boolean(savedVerbose && !quick);
@@ -2081,19 +2112,89 @@ export async function do_look(mode, clickCc = null, state = game) {
             } else {
                 await ttyPline(description.out, state);
             }
+            // pager.c do_look() 1941-1954: a quick or once pick never reads
+            // the data file; a verbose pick reads it without asking, and the
+            // traditional pick asks only when flags.help is set. checkfile()
+            // gets the null pm; the monster lookat() reported goes on to
+            // do_supplemental_info().
             if (description.found === 1
-                && answer === LOOK_TRADITIONAL
-                && !quick
-                && !clicklook
-                && state.flags.help) {
-                await checkfile(description.firstmatch, description.supplement ?? null, 0, state);
+                && answer !== LOOK_QUICK && answer !== LOOK_ONCE
+                && (answer === LOOK_VERBOSE || (state.flags.help && !quick))
+                && !clicklook) {
+                const supplemental = { name: '' };
+                await checkfile(
+                    description.firstmatch, null,
+                    answer === LOOK_VERBOSE ? CHKFIL_DONT_ASK : 0,
+                    state, supplemental,
+                );
+                if (description.supplement) {
+                    await do_supplemental_info(
+                        supplemental.name, description.supplement,
+                        answer === LOOK_VERBOSE, state,
+                    );
+                }
             }
-            if (quick || clicklook) break;
+            // `while (from_screen && !quick && ans != LOOK_ONCE && !clicklook)`
+            if (quick || clicklook || answer === LOOK_ONCE) break;
         }
     } finally {
         state.flags.verbose = savedVerbose;
     }
     return ECMD_OK;
+}
+
+// C ref: pager.c suptext1[] and suptext2[] (2230-2252).
+const suptext1 = [
+    '%s is a member of a marauding horde of orcs',
+    'rumored to have brutally attacked and plundered',
+    'the ordinarily sheltered town that is located ',
+    'deep within The Gnomish Mines.',
+    '',
+    'The members of that vicious horde proudly and ',
+    'defiantly acclaim their allegiance to their',
+    'leader %s in their names.',
+];
+const suptext2 = [
+    '"%s" is the common dungeon name of',
+    'a nefarious orc who is known to acquire property',
+    'from thieves and sell it off for profit.',
+    '',
+    'The perpetrator was last seen hanging around the',
+    'stairs leading to the Gnomish Mines.',
+];
+
+// C ref: pager.c do_supplemental_info() (2253-2318). In-game mythology that
+// data.base lacks: an orc named "<name> of <horde>" belongs to the horde that
+// sacked Orc Town, and "the Fence" is its receiver of stolen goods.
+export async function do_supplemental_info(name, pm, withoutAsking, state = game) {
+    if (!is_orc(pm) || name.length >= BUFSZ - 1) return;
+    const bp = strstri(name, ' of ');
+    const bp2 = strstri(name, ' the Fence');
+    if (bp < 0 && bp2 < 0) return;
+
+    // C sets yes_to_moreinfo only from the question's answer, so a caller
+    // that passes without_asking (a verbose pick) never sees the text.
+    let yesToMoreinfo = false;
+    if (!withoutAsking) {
+        // copynchars() leaves room for the closing quote and question mark
+        // in the QBUFSZ question buffer.
+        const prefix = 'More info about "';
+        const room = QBUFSZ - 1 - (prefix.length + 2);
+        const question = `${prefix}${name.slice(0, room)}"?`;
+        if (await yn_function(question, 'yn', 'n', true, state)
+            === 'y'.charCodeAt(0))
+            yesToMoreinfo = true;
+    }
+    if (!yesToMoreinfo) return;
+
+    // The first "%s" names the orc; a later one names the horde after " of ".
+    const textp = bp >= 0 ? suptext1 : suptext2;
+    const gang = bp >= 0 ? name.slice(bp + 4) : '';
+    let subs = 0;
+    const lines = textp.map((text) => (text.includes('%s')
+        ? text.replace('%s', subs++ ? gang : name)
+        : text));
+    await displayTtyMenuTextWindow(state, lines.map((text) => ({ text })));
 }
 
 export async function dowhatis(state = game) {

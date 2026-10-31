@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5180231,
+      "datetime": "20040611142233",
+      "nethackrc": "OPTIONS=name:ItemLookupA,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": "ic/ s",
+      "comment": "Independent item-actions lookup: the inventory menu picks the stethoscope, its item-actions menu's '/' queues dowhatis with the canned keys 'i' and 'c' (iactions.c itemactions_pushkeys), and pager.c do_look()'s 'i' arm reads both through display_inventory() and shows the data.base entry; the search afterwards shows the canned queue is spent."
+    }
+  ]
+}

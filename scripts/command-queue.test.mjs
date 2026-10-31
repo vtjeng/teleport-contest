@@ -13,6 +13,8 @@ import test from 'node:test';
 import { CQ_CANNED, CQ_REPEAT, CMDQ_EXTCMD } from '../js/const.js';
 import {
     cmdq_add_ec,
+    cmdq_add_key,
+    cmdq_key_char,
     cmdq_peek,
     cmdq_pop,
     extcmdRow,
@@ -31,6 +33,19 @@ function makeState() {
         flags: {},
     };
 }
+
+test('cmdq_key_char() reads a queued key as one character in either form', () => {
+    // cmd.c keeps _cmd_queue.key as a char. This port's producers push that
+    // char either as its code (yn_function(), getpos()) or as a one-character
+    // string (iactions.c itemactions_pushkeys() pushes 'i' and an inventory
+    // letter), and pager.c do_look() and invent.c display_inventory() compare
+    // the key with characters, so both forms must read back as the same one.
+    const state = makeState();
+    cmdq_add_key(CQ_CANNED, 'i'.charCodeAt(0), state);
+    cmdq_add_key(CQ_CANNED, 'i', state);
+    assert.equal(cmdq_key_char(cmdq_pop(state)), 'i');
+    assert.equal(cmdq_key_char(cmdq_pop(state)), 'i');
+});
 
 test('cmdq_add_ec() appends at the tail and cmdq_pop() takes the head', () => {
     // cmd.c:263-269 walks to the end of the list before linking the new node,

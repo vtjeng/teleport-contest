@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5180234,
+      "datetime": "20070719083356",
+      "nethackrc": "OPTIONS=name:LookVerboseB,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": " //   :  \u001bs",
+      "comment": "Variation of look-once-pick-independent: getpos.c's ':' pick (LOOK_VERBOSE) describes the hero's own square and pager.c do_look() shows the data.base entry without the More-info question (chkfilDontAsk); the two spaces acknowledge the description and dismiss the entry, the loop then asks for another location, which Escape ends before the search."
+    }
+  ]
+}

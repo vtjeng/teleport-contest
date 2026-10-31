@@ -617,14 +617,12 @@ export async function do_mgivenname(state = game) {
 export async function docallcmd(state) {
     // A canned key bypasses menu creation, exactly as cmdq_pop()'s early arm
     // does in C. Importing here keeps the existing cmd/do_name cycle lazy.
-    const { cmdq_clear, cmdq_pop } = await import('./cmd.js');
+    const { cmdq_clear, cmdq_key_char, cmdq_pop } = await import('./cmd.js');
     const queued = cmdq_pop(state);
     let queuedChoice = null;
     if (queued) {
         if (queued.typ === CMDQ_KEY) {
-            queuedChoice = typeof queued.key === 'number'
-                ? String.fromCharCode(queued.key)
-                : String(queued.key);
+            queuedChoice = cmdq_key_char(queued);
         } else {
             cmdq_clear(CQ_CANNED, state);
         }

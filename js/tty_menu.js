@@ -459,15 +459,15 @@ export async function displayTtyMenuTextWindow(
     // a corner menu. The latter clears an already acknowledged top line too;
     // only the full-screen branch's term_clear_screen() can provide that
     // clearing without this message-window operation.
-    if (display.toplin === TOPLINE_NEED_MORE)
+    if (display.toplin === TOPLINE_NEED_MORE) {
         await dismissPendingTtyMessage(state);
-    if (display.toplin !== TOPLINE_EMPTY) {
         // dismissPendingTtyMessage() leaves TOPLINE_EMPTY after its More
         // response. Restore NEED_MORE so clearTtyMessageWindow() follows the
-        // source's `more(); toplin = NEED_MORE; tty_clear_nhwindow()` order.
+        // source's `more(); toplin = NEED_MORE; tty_clear_nhwindow()` order
+        // and clears the physical top line the message still occupies.
         display.toplin = TOPLINE_NEED_MORE;
-        clearTtyMessageWindow(state);
     }
+    if (display.toplin !== TOPLINE_EMPTY) clearTtyMessageWindow(state);
 
     const layout = ttyMenuTextLayout(
         display,
