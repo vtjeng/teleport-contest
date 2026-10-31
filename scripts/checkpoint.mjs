@@ -10,6 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { localTmpdir } from './local-tmpdir.mjs';
 import { checkpointResultsDirectory } from './checkpoint-results.mjs';
 import { digest, readReusableResult, reuseKey } from './checkpoint-reuse.mjs';
+import { formatCheckpointReport, summarizeCheckpoint } from './checkpoint-report.mjs';
 
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const C_PATH = 'nethack-c/upstream';
@@ -197,6 +198,12 @@ export async function runCheckpoint({ root = PROJECT_ROOT, revision = 'HEAD', ve
             console.warn(`Results are saved, but local cache refresh failed: ${error.message}`);
         }
         console.log(`${summary.allPassed ? 'PASS' : 'FAIL'} checkpoint for ${commit}`);
+        // The report is a convenience; it must never change the verdict.
+        try {
+            console.log(formatCheckpointReport(summarizeCheckpoint(summary, [])));
+        } catch (error) {
+            console.warn(`Report unavailable: ${error.message}`);
+        }
         // The caller may have kept working. That changes freshness, not verdict.
         try {
             const head = git(root, ['rev-parse', 'HEAD']);
