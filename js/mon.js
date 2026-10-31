@@ -6251,7 +6251,12 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                 }
             }
             /* "corpse--none if hero was inside the monster" */
-            if (!wasinside && await corpse_chance(mtmp, null, false, state, env)) {
+            const leavesCorpse = !wasinside
+                && await corpse_chance(mtmp, null, false, state, env);
+            // C corpse_chance can recursively explode a gas spore and reach
+            // nonreturning done(). Do not award experience or redraw afterward.
+            if (state.program_state?.gameover) return;
+            if (leavesCorpse) {
                 /* gz.zombify decides whether mkobj.c start_corpse_timeout()
                    turns the corpse into a zombie; js/corpstat.js and
                    js/timeout.js read it and this is its only writer. */

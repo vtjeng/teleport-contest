@@ -5998,6 +5998,9 @@ export async function dobuzz(
                     mon, type, nd, fltyp, damgtype, spellType,
                     sayhit, saymiss, forcemiss, state, random, env,
                 );
+                // A killed gas spore can terminate the hero inside xkilled.
+                // C never resumes the ray or its animation after final done().
+                if (state.program_state?.gameover) return;
                 if (monsterResult.stop)
                     break;
                 if (monsterResult.reflected) {

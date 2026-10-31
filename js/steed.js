@@ -1078,18 +1078,22 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
             /* Keep steed here, move the player to the landing spot;
              * teleds() clears u.utrap.
              */
-            state.in_steed_dismounting = 1;
-            await teleds(
-                have_spot.x, have_spot.y, TELEDS_ALLOW_DRAG, state,
-                { redraw: newsym },
-            );
-            if (sobj_at(BOULDER, have_spot.x, have_spot.y, state))
-                sokoban_guilt(state);
-            state.in_steed_dismounting = 0;
+            // C steed.c checks DEADMONSTER again after the liquid can kill
+            // the mount. A dead mount leaves the hero here for float_down().
+            if (!(mtmp.mhp < 1)) {
+                state.in_steed_dismounting = 1;
+                await teleds(
+                    have_spot.x, have_spot.y, TELEDS_ALLOW_DRAG, state,
+                    { redraw: newsym },
+                );
+                if (sobj_at(BOULDER, have_spot.x, have_spot.y, state))
+                    sokoban_guilt(state);
+                state.in_steed_dismounting = 0;
 
-            /* Put your steed in your trap */
-            if (save_utrap)
-                await mintrap(mtmp, NO_TRAP_FLAGS, positionEnv);
+                /* Put your steed in your trap */
+                if (save_utrap)
+                    await mintrap(mtmp, NO_TRAP_FLAGS, positionEnv);
+            }
         } else {
             // C steed.c:777-793 leaves the hero in place and removes a steed
             // that has no adjacent destination after an engulfed dismount.

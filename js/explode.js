@@ -669,6 +669,9 @@ export async function explode(
                         if (xkillFlags) adtyp = AD_PHYS;
                         await monkilled(monster, '', adtyp, state, env);
                     }
+                    // A recursive monster explosion can end the game in
+                    // C's nonreturning done(); the enclosing blast stops too.
+                    if (state.program_state?.gameover) return;
                 } else if (!state.context?.mon_moving) {
                     await setmangry(monster, true, env);
                 }
