@@ -393,7 +393,9 @@ test('a grounded steed drowns and costs alignment on a pool square',
         assert.ok(state.u.ualign.record < alignRecord);
         assert.ok(state.u.ualign.abuse > alignAbuse);
         // The kill report follows the fall message in the same output flow.
-        assert.match(toplines(), /kill the poor saddled pony/u);
+        const history = state.wintty.wins[state.wintty.messageWindow].data.filter(Boolean).join('  ');
+    assert.match(`${history}  ${toplines()}`, /kill the poor saddled pony/u);
+    assert.match(toplines(), /crawl out of the water/u);
     });
 
 test('a lava-loving grounded steed survives a lava square', async () => {

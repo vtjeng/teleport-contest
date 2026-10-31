@@ -1,0 +1,62 @@
+[
+  {
+    "name": "mounted-lava-entry",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2778,
+          "js": 2778
+        },
+        "screens": {
+          "c": 91,
+          "js": 91
+        },
+        "cursors": {
+          "c": 91,
+          "js": 91
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "name": "mounted-ground-dismount",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2782,
+          "js": 2782
+        },
+        "screens": {
+          "c": 91,
+          "js": 91
+        },
+        "cursors": {
+          "c": 91,
+          "js": 91
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  }
+]

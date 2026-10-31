@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9102677,
+      "datetime": "20360913131500",
+      "nethackrc": "OPTIONS=name:SporeBlastProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  \u0017uncursed blindfold\nPe\u00073 gas spore\n   \u0007flaming sphere\n   m.m.m.  y        "
+    }
+  ],
+  "comment": "E3 mixed elemental sphere plus gas spores: oracle must establish recursive chain and terminal damage source before coverage claim."
+}

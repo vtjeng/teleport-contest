@@ -1,0 +1,478 @@
+[
+  {
+    "path": "recordings/explode/spore-visible-chain-fatal.session.json",
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3445,
+          "js": 3447
+        },
+        "screens": {
+          "c": 45,
+          "js": 46
+        },
+        "cursors": {
+          "c": 45,
+          "js": 46
+        },
+        "animFrames": {
+          "c": 12,
+          "js": 12
+        }
+      },
+      "rngMismatch": {
+        "index": 3445,
+        "cCaller": null,
+        "jsEntry": "rn2(5)=2"
+      },
+      "screenMismatch": {
+        "index": 44,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 44,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 45,
+        "jsCursor": [
+          0,
+          2,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "path": "recordings/explode/spore-three-fatal.session.json",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3123,
+          "js": 3123
+        },
+        "screens": {
+          "c": 35,
+          "js": 35
+        },
+        "cursors": {
+          "c": 35,
+          "js": 35
+        },
+        "animFrames": {
+          "c": 2,
+          "js": 2
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "path": "recordings/explode/spore-four-north-fatal.session.json",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3181,
+          "js": 3181
+        },
+        "screens": {
+          "c": 38,
+          "js": 38
+        },
+        "cursors": {
+          "c": 38,
+          "js": 38
+        },
+        "animFrames": {
+          "c": 4,
+          "js": 4
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "path": "recordings/zap/lava-spore-wand-fatal.session.json",
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2838,
+          "js": 2839
+        },
+        "screens": {
+          "c": 91,
+          "js": 92
+        },
+        "cursors": {
+          "c": 91,
+          "js": 92
+        },
+        "animFrames": {
+          "c": 3,
+          "js": 29
+        }
+      },
+      "rngMismatch": {
+        "index": 2838,
+        "cCaller": null,
+        "jsEntry": "rn2(20)=8"
+      },
+      "screenMismatch": {
+        "index": 90,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 90,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 91,
+        "jsCursor": [
+          0,
+          2,
+          1
+        ]
+      },
+      "animMismatch": {
+        "index": 90,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 90,
+          "key": " "
+        },
+        "kind": "count",
+        "cCount": 0,
+        "jsCount": 26
+      },
+      "segmentMismatch": null
+    }
+  },
+  {
+    "path": "recordings/zap/lava-spore-wand-attack.session.json",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2850,
+          "js": 2850
+        },
+        "screens": {
+          "c": 105,
+          "js": 105
+        },
+        "cursors": {
+          "c": 105,
+          "js": 105
+        },
+        "animFrames": {
+          "c": 29,
+          "js": 29
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "path": "recordings/steed/mounted-lava-entry.session.json",
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2778,
+          "js": 2767
+        },
+        "screens": {
+          "c": 91,
+          "js": 91
+        },
+        "cursors": {
+          "c": 91,
+          "js": 91
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 2767,
+        "cEntry": "d(6,6)=22",
+        "cCaller": "lava_effects(trap.c:6800)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 82,
+          "key": " "
+        }
+      },
+      "screenMismatch": {
+        "index": 82,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 82,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 48,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 82,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 82,
+          "key": " "
+        },
+        "cCursor": [
+          56,
+          0,
+          1
+        ],
+        "jsCursor": [
+          23,
+          8,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "path": "recordings/steed/mounted-ground-dismount.session.json",
+    "result": {
+      "passed": true,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2782,
+          "js": 2782
+        },
+        "screens": {
+          "c": 91,
+          "js": 91
+        },
+        "cursors": {
+          "c": 91,
+          "js": 91
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": null,
+      "cursorMismatch": null,
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "path": "experiments/backlog-terminal-lava/recordings/mixed-fire-blind-fatal.session.json",
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3205,
+          "js": 3211
+        },
+        "screens": {
+          "c": 77,
+          "js": 78
+        },
+        "cursors": {
+          "c": 77,
+          "js": 78
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 3205,
+        "cCaller": null,
+        "jsEntry": "rn2(5)=0"
+      },
+      "screenMismatch": {
+        "index": 74,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 74,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 9,
+        "column": 20,
+        "cCell": {
+          "ch": "k",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 77,
+        "jsCursor": [
+          0,
+          2,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  {
+    "path": "experiments/backlog-terminal-lava/recordings/lava-mounted-terrain.session.json",
+    "result": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2800,
+          "js": 2791
+        },
+        "screens": {
+          "c": 101,
+          "js": 101
+        },
+        "cursors": {
+          "c": 101,
+          "js": 101
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 2767,
+        "cEntry": "d(6,6)=22",
+        "cCaller": "lava_effects(trap.c:6800)",
+        "jsEntry": "rn2(5)=4",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 82,
+          "key": " "
+        }
+      },
+      "screenMismatch": {
+        "index": 82,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 82,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 48,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 82,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 82,
+          "key": " "
+        },
+        "cCursor": [
+          56,
+          0,
+          1
+        ],
+        "jsCursor": [
+          23,
+          8,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  }
+]

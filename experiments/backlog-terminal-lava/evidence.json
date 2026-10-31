@@ -1,0 +1,48 @@
+{
+  "base": "08ada8590a3f086a3d4c0fcce8f35be2a3db354a",
+  "runtimeCommit": "3e01a48b43066c6d01472cb5c4deccfd1eebae0c",
+  "publishedMain": "f4f9c61588f86d97cc1884f15d3d797cf15f6acc",
+  "cSource": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "historicalEvidenceCommit": "86a40b58bff32714ae1415060d08dbe82fb47409",
+  "historicalRecorderSha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "evidence": "Five unchanged successful historical C recordings plus two fresh full-engine C recordings are passing regression inputs. Two longer failing historical witnesses remain separately under experiments, not the passing corpus. before08 and after3e01 contain exact comparisons, not source-only expectations.",
+  "sourceReview": {
+    "mon.c:xkilled": "corpse_chance can recursively call explode and nonreturning done before XP or corpse creation. Return locally after final gameover only; debug refusal/lifesaving continue.",
+    "explode.c:explode": "Nested monster death can terminate done; enclosing blast must not resume. No killer attribution change.",
+    "zap.c:dobuzz": "buzzmonst can kill a gas spore and terminate via xkilled; ray must not resume.",
+    "steed.c:dismount_steed": "Second DEADMONSTER check after minliquid precedes hero relocation; dead mount leaves hero for float_down."
+  },
+  "residualFailingTests": [
+    {
+      "case": "mixed-fire-blind-fatal",
+      "status": "Full comparison still fails on runtimeCommit: tombstone screen attribution, while exact RNG/cursor/animation and lengths pass.",
+      "blockedScope": "Excluded bad-window explosion killer attribution; not implemented."
+    },
+    {
+      "case": "lava-mounted-terrain",
+      "status": "Full comparison still fails on runtimeCommit at step92, C rnd(4) in sink_into_lava. Initial entry now matches; separate fresh entry-only recording passes.",
+      "blockedScope": "Excluded elapsed-turn lava sinking; not implemented."
+    }
+  ],
+  "controlLimit": "Original historical mounted-lava witness had no complete passing control. Fresh ground dismount control and fresh entry-only full C recording now pass; this does not certify later sinking.",
+  "fixtureSha256": {
+    "recipes/explode/spore-visible-chain-fatal.session.json": "2725df83b58da3e96b987fe908443be416a889f8d3a8d970ee643ff0213a288a",
+    "recipes/explode/spore-three-fatal.session.json": "bccb8c6d1b6af4f90d24dbff6b6851dedd37e087001b88afea24468c111a118d",
+    "recipes/explode/spore-four-north-fatal.session.json": "9a67469a0b640e2286c70206463c2b5e6b2329788c7f5fbcbf33bb32268fb569",
+    "recordings/explode/spore-visible-chain-fatal.session.json": "7f62ec98c24bd45adc355bbb779aceac5a6283db39c358b9a5b3c84d19c13f46",
+    "recordings/explode/spore-three-fatal.session.json": "3811b4a78ad0dff34a2acf4092452977ea2559f41d50e9d08c15fc0f6f463046",
+    "recordings/explode/spore-four-north-fatal.session.json": "8d6715cbd97d1a32ec3dfef7277f42ca9bcfb5b9b54dd1cf850d94453ac8d1aa",
+    "recipes/zap/lava-spore-wand-attack.session.json": "65a4507237ce3b041348813b2ae90b3fb2f0a2353b0c037fe76636d23d5b3c41",
+    "recipes/zap/lava-spore-wand-fatal.session.json": "fa6dd8b9bc2981117f8ca869a9e9cca191f7e15402273c98ea6e8b9a1425201d",
+    "recordings/zap/lava-spore-wand-attack.session.json": "bf6ac9dbf2a437c2c6b01b554085f7dbeb5620eb75da6c78b7e77ccd26ca452b",
+    "recordings/zap/lava-spore-wand-fatal.session.json": "29d3af15b7c28e57dd4607611c7744ec86726008390de7c11106af2f3de05b65",
+    "recipes/steed/mounted-ground-dismount.session.json": "b0153c36d839b8e0df38256b51678c7f90330074ad03743fe5749c8a780b2c5a",
+    "recipes/steed/mounted-lava-entry.session.json": "cf18e44620c34f01b3c86ca36b6fc9296cbabb000fcc8e4fed3618730e71ba37",
+    "recordings/steed/mounted-ground-dismount.session.json": "0296f290393521ddebf37d46550d16576ebbcf2cdf28766e8e695bacf31228c8",
+    "recordings/steed/mounted-lava-entry.session.json": "4190b8c89a167cf5f9fb79caad2e7625084f90b78ebc3ac16c103d5012077ad4",
+    "experiments/backlog-terminal-lava/recipes/mixed-fire-blind-fatal.session.json": "2473946214d409d8d83ee3b5f2c5cace1f0c025a6d577c1f98ae518c10173f51",
+    "experiments/backlog-terminal-lava/recipes/lava-mounted-terrain.session.json": "695178c908e8f7f92083b5434ad999d7b93c781596966ff47669e44841a4e33d",
+    "experiments/backlog-terminal-lava/recordings/mixed-fire-blind-fatal.session.json": "63e7ac22b6669309cf844fb84ff9b3b80a61d5eca083d81505064ec54e5f25c3",
+    "experiments/backlog-terminal-lava/recordings/lava-mounted-terrain.session.json": "2cb3e852330db0d843139dd4f2b5814e6790b295ee61c79594007172fb89fc0f"
+  }
+}

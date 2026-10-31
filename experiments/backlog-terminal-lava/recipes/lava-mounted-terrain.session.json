@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "L4 mounted lava setup via supported wizard creature creation; ordinary tame saddled pony, no shop or room construction.",
+  "segments": [
+    {
+      "seed": 9701162,
+      "datetime": "20490417141500",
+      "nethackrc": "OPTIONS=name:LavaMoveProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=runmode:teleport\n",
+      "moves": " l\u0017uncursed ring of fire resistance\n Pnr\u0007tame saddled pony\n#ride\nn        \u0017lava\n          m.m.      "
+    }
+  ]
+}

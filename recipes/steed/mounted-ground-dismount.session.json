@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Ordinary mounted dismount on dry ground; control for preserving live-mount relocation.",
+  "segments": [
+    {
+      "seed": 9701162,
+      "datetime": "20490417141500",
+      "nethackrc": "OPTIONS=name:LavaMoveProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=runmode:teleport\n",
+      "moves": " l\u0017uncursed ring of fire resistance\n Pnr\u0007tame saddled pony\n#ride\nn        #ride\n          "
+    }
+  ]
+}

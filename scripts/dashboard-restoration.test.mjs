@@ -105,7 +105,7 @@ test('recovery19 separately pins its reviewed runtime and retains the window bou
   assertWindowBoundaries(currentSource);
 });
 
-for (const [name, current] of [['six', false], ['twelve', false], ['thirteen', false], ['fourteen', false], ['fourteen-revised', true]])
+for (const [name, current] of [['six', false], ['twelve', false], ['thirteen', false], ['fourteen', false], ['fourteen-revised', false]])
 test(`post53 ${name}-component review pins its runtime without rewriting history`, () => {
   const audit = JSON.parse(readFileSync(new URL(`../experiments/restoration/post53-${name}-window-audit-20261030.json`, import.meta.url), 'utf8'));
   assert.equal(execFileSync('git', ['rev-parse', `${audit.candidate}^{tree}`], {cwd:root, encoding:'utf8'}).trim(), audit.tree);
@@ -120,8 +120,35 @@ test(`post53 ${name}-component review pins its runtime without rewriting history
   const windowPaths = execFileSync('git', ['diff', '--name-only', audit.goodCommit, audit.badCommit, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n');
   assert.deepEqual(windowPaths.filter(path => changed.includes(path)), audit.windowOverlap);
   for (const path of windowPaths.filter(path => !audit.windowOverlap.includes(path)))
-    assert.equal(currentSource(path), sourceAt(audit.base, path), `unchanged window owner ${path}`);
+    assert.equal(sourceAt(audit.candidate, path), sourceAt(audit.base, path), `reviewed unchanged window owner ${path}`);
   assertWindowBoundaries(currentSource);
+});
+
+test('terminal and mounted-entry review preserves excluded window semantics', () => {
+  const audit = JSON.parse(readFileSync(new URL('../experiments/backlog-terminal-lava/window-audit.json', import.meta.url), 'utf8'));
+  for (const [path, hash] of Object.entries(audit.currentPathHashes)) {
+    assert.equal(digest(sourceAt(audit.runtimeCommit, path)), hash, `reviewed ${path}`);
+    assert.equal(digest(currentSource(path)), hash, `current ${path}`);
+  }
+  const changed = execFileSync('git', ['diff', '--name-only', audit.base, audit.runtimeCommit, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n').sort();
+  assert.deepEqual(changed, audit.runtimePaths);
+  assertWindowBoundaries(currentSource);
+  const windowPaths = execFileSync('git', ['diff', '--name-only', currentAudit.goodCommit, currentAudit.badCommit, '--', 'js/'], {cwd:root, encoding:'utf8'}).trim().split('\n');
+  for (const path of windowPaths.filter(path => path !== 'js/explode.js'))
+    assert.equal(currentSource(path), sourceAt(audit.base, path), `unchanged excluded owner ${path}`);
+  const guard = '                    // A recursive monster explosion can end the game in\n'
+    + "                    // C's nonreturning done(); the enclosing blast stops too.\n"
+    + '                    if (state.program_state?.gameover) return;\n';
+  const checkExplosion = source => {
+    assert.equal(source.split(guard).length, 2, 'one narrowly reviewed continuation guard');
+    assert.equal(source.replace(guard, ''), sourceAt(audit.base, 'js/explode.js'));
+  };
+  checkExplosion(currentSource('js/explode.js'));
+  assert.equal(sourceAt(audit.base, 'js/explode.js'), sourceAt(currentAudit.goodCommit, 'js/explode.js'));
+  // Attribution restoration is still forbidden, even alongside the allowed guard.
+  const prior = "state.killer.name = generic ? 'explosion' : str;";
+  assert.ok(currentSource('js/explode.js').includes(prior));
+  assert.throws(() => checkExplosion(currentSource('js/explode.js').replace(prior, 'state.killer.name = str;')), {name:'AssertionError'});
 });
 
 test('window boundary controls reject changed elapsed-turn, fatal-response and shop-door owners', () => {

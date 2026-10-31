@@ -1,0 +1,38 @@
+{
+  "base": "08ada8590a3f086a3d4c0fcce8f35be2a3db354a",
+  "runtimeCommit": "3e01a48b43066c6d01472cb5c4deccfd1eebae0c",
+  "runtimePaths": [
+    "js/explode.js",
+    "js/mon.js",
+    "js/steed.js",
+    "js/zap.js"
+  ],
+  "currentPathHashes": {
+    "js/allmain.js": "72b1af24f1829a54858b523479f6b198fe3d553b2446ac5e442423a2b995a1c5",
+    "js/cmd.js": "4966e7cf827798aedc4822853738b7db23c9a24e5446c256a2b9a0f69222c620",
+    "js/dig.js": "e2de631011cd400ab50c81fdbb5ad64902cd9f3baa003b01f9ebd0ccf878475f",
+    "js/dog.js": "46c2d3af034fa6c1a3a99fa4be2f9b3fc62f093bb2150cedafa4848dfd833583",
+    "js/dokick.js": "d1d869f9654a70aa9638a3ca73a473fd4d1d11805e3676fb08a3fc2f915bcdbc",
+    "js/dothrow.js": "945422de53752849c9a33ed640b0634abcab6c7cc4b7a346bb94aec38591174a",
+    "js/eat.js": "3c48c069ce9b89611f838745a337fb942bbe5fff38cd683ac71a13cffd68ef97",
+    "js/explode.js": "72286462a6f7dd43f92e017ff1fd9619b6e0f010d8817fec24c6198520d938ee",
+    "js/mon.js": "7c155df58a5b6d7a891a2cd5599abb902b4eb605c45eb7a908f944c1458e29e8",
+    "js/priest.js": "ce334e34fcfd8bd77d018c565fce861644a8a7fb868b1a0de0abfcdfe74b9418",
+    "js/read.js": "8c49c3d5b614bf847b2f490e00cf45285579129562a92f15f35bcd784cecfdda",
+    "js/shk.js": "a48508adb9fd6a1e1ab4bd0c621e9fcc85db00e131e29f7b3b571fddd9a3e7b3",
+    "js/steed.js": "8199ad5aad631a00397869fbb5df1295420a5a3425cc06b0b1345125a3c0d4a4",
+    "js/teleport_admission.js": "afd10d43d66560bcf8428fc95fca6a408168dde70396e4fcfee4b0fb2aadf728",
+    "js/trap_effects.js": "e50bc24f88d13bd955f220785edfae2d366f05c3b9eea86d8d8b13529131a8a3",
+    "js/uhitm.js": "37710daedb5f7fe65dfb226f67ade99b15fb7756604a9182d382a4b40d002813",
+    "js/unported_monster_actions.js": "1143c1290388ec0ff4ecafa5fcba2ed5f3d58ed9cf115d257f68a17860693499",
+    "js/wizard.js": "e405827ec5bcdad433dc2f543845eabacc113a2ab1394d1c1c3fef57cc4bf772",
+    "js/zap.js": "395ec17e50b3f3d55f57445c0592ee7b8069e1588d3568bc0aae356bba6a4405"
+  },
+  "review": {
+    "explode": "Only enclosing-explosion return after fatal recursive monster death; entire remainder equals08 and G. Killer attribution and hallucination changes excluded.",
+    "mon": "After corpse_chance gas-spore explosion terminates, stop xkilled cleanup/XP. No global death exception or m_respond change.",
+    "zap": "After ordinary buzzmonst kills hero via gas-spore explosion, return from ray without remaining draws/animation. Medusa response untouched.",
+    "steed": "C steed.c756 second DEADMONSTER check prevents teleds/mintrap for mount killed by liquid; existing float_down lava entry remains. No elapsed-turn sinking implementation.",
+    "residuals": "Mixed tombstone attribution at74 and mounted sinking at92 remain failing comparisons; implementing them would cross explicit bad-window exclusion."
+  }
+}

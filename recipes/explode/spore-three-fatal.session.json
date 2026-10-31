@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9102677,
+      "datetime": "20360913131500",
+      "nethackrc": "OPTIONS=name:SporeBlastProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  \u00073 gas spore\nnnnnnnnn  y        "
+    }
+  ],
+  "comment": "E1 bounded change from public gas-spore fixture: two adjacent spore creation or verbosity disabled. Confirm actual chain in C before asserting coverage."
+}
