@@ -98,6 +98,43 @@ function captureLocalLights(state) {
     return captured.length ? captured : null;
 }
 
+// C ref: save.c saveobjchn() (762-800), the release_data() branch (776-795)
+// only. Before an object is freed with the level it belongs to, a svc.context
+// pointer that names it -- victual.piece, tin.tin or spbook.book -- is set
+// to Null and its o_id kept, so that restobjchn() can recover the pointer
+// when the level is read back (restore.c 283-290). Container contents
+// recurse first (774-775). The write and the free have no counterpart: the
+// port keeps the objects alive in the level snapshot, and nothing walks them
+// from another level.
+function saveobjchn(first, state) {
+    const context = state.context;
+    for (let otmp = first; otmp; otmp = otmp.nobj) {
+        if (otmp.cobj) saveobjchn(otmp.cobj, state);
+        if (context?.victual?.piece === otmp) {
+            context.victual.o_id = otmp.o_id;
+            context.victual.piece = null;
+        }
+        if (context?.tin?.tin === otmp) {
+            context.tin.o_id = otmp.o_id;
+            context.tin.tin = null;
+        }
+        if (context?.spbook?.book === otmp) {
+            context.spbook.o_id = otmp.o_id;
+            context.spbook.book = null;
+        }
+    }
+}
+
+// C ref: save.c savemonchn() (884-915), the inventory pass (897-898) only:
+// each monster's inventory goes through saveobjchn(). The polearm.hitmon
+// reset (900-902) has nothing left to do because do.c goto_level() (1607)
+// has already cleared that pointer, and the ustuck and usteed ids (903-906)
+// serve the saved-game path, which this port restores as an object graph.
+function savemonchn(first, state) {
+    for (let mtmp = first; mtmp; mtmp = mtmp.nmon)
+        if (mtmp.minvent) saveobjchn(mtmp.minvent, state);
+}
+
 // C ref: save.c savelev()/savelev_core(), called from do.c goto_level() with
 // mode `WRITING | FREEING` or `FREEING`. `ledger` is C's `lev`, the ledger
 // number of the level being left. The `FREEING` mode is used when entering the
@@ -156,6 +193,14 @@ export function savelev(ledger, state = game, options = {}) {
     const levelLights = allLightsBefore
         ? allLightsBefore.filter((l) => !survivingLights.has(l))
         : [];
+
+    // C ref: save.c:542-547 savemonchn(fmon), then saveobjchn() for fobj and
+    // the buried list, in both the WRITING | FREEING and the FREEING mode.
+    // Only their svc.context pointer invalidation remains; see saveobjchn()
+    // above. gb.billobjs (547) is not level-local in this port.
+    savemonchn(state.level?.monlist, state);
+    saveobjchn(state.level?.objlist, state);
+    saveobjchn(state.level?.buriedobjlist, state);
     const waterlevel = save_waterlevel(null, state, true);
 
     if (!freeing) {

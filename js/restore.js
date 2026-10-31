@@ -392,10 +392,14 @@ function restobj(otmp, state) {
 // C ref: restore.c restobjchn() (231-304), the saved-game branches; bones
 // levels restore through js/bones.js. The snapshot keeps every nobj link, so
 // the chain is walked rather than rebuilt. Container contents recurse and
-// get their ocontainer back pointer (272-278), and bypass is cleared
-// (280-281). The victual, tin and spellbook context pointers (283-290) are
-// graph references that parseSnapshot() already resolved to these objects.
+// get their ocontainer back pointer (272-278), bypass is cleared (280-281),
+// and the object whose o_id saveobjchn() kept when it set victual.piece,
+// tin.tin or spbook.book to Null (save.c 783-795) takes that pointer back
+// (283-290). getlev() runs this over the chains of a level the hero returns
+// to, as C's getlev() does; in dorestore() the snapshot keeps the pointers
+// as graph references, so the recovery finds them already set.
 export function restobjchn(first, state) {
+    const context = state.context;
     for (let otmp = first; otmp; otmp = otmp.nobj) {
         restobj(otmp, state);
         if (otmp.cobj) {
@@ -404,6 +408,12 @@ export function restobjchn(first, state) {
                 otmp3.ocontainer = otmp;
         }
         if (otmp.bypass) otmp.bypass = false;
+        if (context?.victual && otmp.o_id === context.victual.o_id)
+            context.victual.piece = otmp;
+        if (context?.tin && otmp.o_id === context.tin.o_id)
+            context.tin.tin = otmp;
+        if (context?.spbook && otmp.o_id === context.spbook.o_id)
+            context.spbook.book = otmp;
     }
     return first;
 }
@@ -606,6 +616,17 @@ export async function getlev(ledger, state = game) {
     // the grid here: a column-major scan changes the order in which mcalcmove
     // and movemon consume RNG values.
     rebuildObjectList(state);
+
+    // C ref: restore.c getlev() 1146 restmonchn(), whose inventory pass
+    // reads each monster's objects through restobjchn() (419-429), then 1166
+    // and 1172 restobjchn() for fobj and the buried list. The snapshot keeps
+    // the chains and the live monsters keep the fields restmonchn() would
+    // otherwise rebuild, so only restobjchn()'s per-object work runs here;
+    // gb.billobjs (1173) is not level-local in this port.
+    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon)
+        if (mtmp.minvent) mtmp.minvent = restobjchn(mtmp.minvent, state);
+    state.level.objlist = restobjchn(state.level.objlist, state);
+    state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
 
     for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
         // Skip dead monsters (C does the same by purging them first).

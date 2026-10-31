@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recipe for save.c saveobjchn() and restore.c restobjchn() handling of svc.context.victual.piece. Wizard-mode map and teleport put the hero on the down staircase, where she drops a wished lichen corpse and starts eating it from the floor. A hostile grid bug created next to her interrupts the meal, leaving victual.piece on a floor object. Descending saves the level, which nulls the pointer; ascending restores it by o_id, so eating the corpse again resumes the meal.",
+  "segments": [
+    {
+      "seed": 71830452,
+      "datetime": "20261031120000",
+      "nethackrc": "OPTIONS=name:FloorMealReturn,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0006\u0014  >.\u0017lichen corpse\nde\u0007hostile grid bug\ney > <  ey "
+    }
+  ]
+}
