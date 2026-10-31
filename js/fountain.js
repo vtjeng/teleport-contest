@@ -97,7 +97,7 @@ import {
 import { bless, curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class } from './obj.js';
 import { observe_object } from './o_init.js';
 import { body_part, mbodypart, polyself } from './polyself.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { set_levltyp } from './terrain.js';
 import { rloc } from './teleport.js';
 import {
@@ -187,7 +187,9 @@ export async function floating_above(what, state = game, env = {}) {
 // levels the demon may grant a wish instead of attacking.
 async function dowaterdemon(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    // The default covers trap.c mintrap()'s rnl(5) for a demon that lands
+    // on a trap, which C draws from the same global RNG.
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
     const makeMonster = env.makeMonster ?? makemon_runtime;
 
     if (!(state.mvitals[PM_WATER_DEMON].mvflags & G_GONE)) {
@@ -243,7 +245,9 @@ async function dowaterdemon(state = game, env = {}) {
 // by the recorder's no-sound backend; You_hear() still owns the blind message.
 async function dowatersnakes(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    // The default covers trap.c mintrap()'s rnl(5) for a snake that lands
+    // on a trap, which C draws from the same global RNG.
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
     const makeMonster = env.makeMonster ?? makemon_runtime;
     const number = random.rn1(5, 2);
 
@@ -289,7 +293,9 @@ async function dowatersnakes(state = game, env = {}) {
 // blind and deaf paths (You_hear / Soundeffect) remain fail-closed.
 export async function dowaternymph(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    // The default covers trap.c mintrap()'s rnl(5) for a nymph that lands
+    // on a trap, which C draws from the same global RNG.
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
     const makeMonster = env.makeMonster ?? makemon_runtime;
 
     if (!(state.mvitals[PM_WATER_NYMPH].mvflags & G_GONE)) {

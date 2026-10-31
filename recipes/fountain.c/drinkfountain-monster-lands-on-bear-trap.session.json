@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent fountain.c witness for the trap.c:mintrap() calls in dowatersnakes()/dowaterdemon()/dowaternymph(): the debug Valkyrie steps off the stairs, sets the wished bear trap under herself (apply.c:set_trap), steps east, wishes a fountain there and quaffs, so a fountain monster created by makemon() at the hero's square can land on the adjacent bear trap. I selected seed 6100088 with a JavaScript scan over 6100001-6100400 (400 starts replayed, 6 reached the mintrap call); the date was chosen so the welcome message has no moon-phase --More--.",
+  "segments": [
+    {
+      "seed": 6100088,
+      "datetime": "20340312103000",
+      "nethackrc": "OPTIONS=name:TrapFountain,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "l\u0017beartrap\nafl\u0017fountain\nqy"
+    }
+  ]
+}
