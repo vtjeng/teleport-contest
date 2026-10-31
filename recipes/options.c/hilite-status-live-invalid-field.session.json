@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_hilite_status()'s do_set arm with an unknown status field. botl.c parse_status_hl2() reports \"Unknown status field 'bogus'\" through config_error_add(), which cfgfiles.c config_erradd() prints with pline() and wait_synch() outside a configuration read, and optfn_hilite_status() answers optn_err; two steps east then play on.",
+  "segments": [
+    {
+      "seed": 58219306,
+      "datetime": "20440105191208",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:dwarf,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:hilite_status\n\nbogus/up/red\nll"
+    }
+  ]
+}

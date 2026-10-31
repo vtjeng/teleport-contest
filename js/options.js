@@ -202,6 +202,7 @@ import {
     flush_screen,
     reglyph_darkroom,
     count_status_hilites, status_hilite_menu, s_to_anything, status_hilite_add_threshold,
+    reset_status_hilites,
     status_initialize,
 } from './display.js';
 import { set_vanq_order } from './insight.js';
@@ -777,9 +778,36 @@ function optionError(lineNumber, message) {
 
 // C ref: pline.c config_error_add(), reached from an option handler.
 // parseoptions() carries on with the rest of the statement and the rest of the
-// file afterwards, and js/jsmain.js prints what accumulated.
+// file afterwards, and js/jsmain.js prints what accumulated.  During a
+// configuration read `result` is the parser's result and carries its error
+// frame.  The live option editor's handlers in OPTION_SET_HANDLERS hand a
+// parser a view of the game state with a `liveConfigErrors` array instead:
+// outside a configuration read, cfgfiles.c config_erradd() (1557-1563) prints
+// each message with pline() and wait_synch(), which plineConfigErrors() does
+// once the synchronous parse returns; the parse writes nothing else to the
+// screen in between.
 function configErrorAdd(result, message) {
+    if (result.liveConfigErrors) {
+        result.liveConfigErrors.push(message);
+        return;
+    }
     config_error_add(result.configErrorFrame, message);
+}
+
+// C ref: cfgfiles.c config_erradd() (1543-1563) with
+// program_state.config_error_ready FALSE: iflags.window_inited is TRUE once
+// the 'O' command can run, so the message carries no "config_error_add: "
+// prefix, gains a period unless it already ends in one of the three
+// punctuation marks, and is followed by wait_synch().
+async function plineConfigErrors(state, messages) {
+    if (!messages.length) return;
+    const { tty_wait_synch } = await import('./tty_rawprint.js');
+    for (const message of messages) {
+        const buf = message || 'Unknown error';
+        const punct = '.!?'.includes(buf.at(-1)) ? '' : '.';
+        await ttyPline(`${buf}${punct}`, state);
+        await tty_wait_synch(state);
+    }
 }
 
 // The recorder's C locale treats only the six ASCII bytes below as
@@ -8590,14 +8618,7 @@ const OPTION_SET_HANDLERS = Object.freeze({
         const accepted = change_inv_order(
             state, value, (_result, message) => errors.push(message),
         );
-        if (errors.length) {
-            const { tty_wait_synch } = await import('./tty_rawprint.js');
-            for (const message of errors) {
-                const punct = '.!?'.includes(message.at(-1)) ? '' : '.';
-                await ttyPline(`${message}${punct}`, state);
-                await tty_wait_synch(state);
-            }
-        }
+        await plineConfigErrors(state, errors);
         return accepted ? optn_ok : optn_err;
     },
     // C ref: options.c optfn_glyph() (1815-1847), the do_set request the live
@@ -8622,21 +8643,51 @@ const OPTION_SET_HANDLERS = Object.freeze({
         if (!state.gs?.symset?.[set]?.name) {
             const inspected = inspect_glyphrep(value, state);
             const context = state.parserGlyphSetContext;
-            const nags = [
+            const nags = [];
+            for (const [detail, nagged] of [
                 ['hasUnicode', 'unicodeNagged'],
                 ['hasColor', 'colorNagged'],
-            ];
-            for (const [detail, nagged] of nags) {
+            ]) {
                 if (!inspected[detail] || context[nagged]) continue;
                 context[nagged] = true;
-                await ttyPline(
-                    'Unimplemented customization feature, ignoring for now.',
-                    state,
+                nags.push(
+                    'Unimplemented customization feature, ignoring for now',
                 );
-                const { tty_wait_synch } = await import('./tty_rawprint.js');
-                await tty_wait_synch(state);
             }
+            await plineConfigErrors(state, nags);
         }
+        return optn_ok;
+    },
+    // C ref: options.c optfn_hilite_status() (1851-1893), the do_set request
+    // the live editor reaches through parseoptions(); STATUS_HILITES is
+    // defined.  go.opt_from_file is FALSE here, and botl.c parse_status_hl1()
+    // and parse_status_hl2() only pass that flag to each other.
+    hilite_status: async (state, _optidx, negated, opts) => {
+        const op = string_for_opt(opts, true);
+        if (op !== '' && negated) {
+            clear_status_hilites(state);
+            return optn_ok;
+        }
+        const liveConfigErrors = [];
+        // The parser writes iflags.hilite_delta and the threshold list, and
+        // reports through configErrorAdd(); see that function.
+        const view = { iflags: state.iflags, liveConfigErrors };
+        let result = optn_ok;
+        if (op === '') {
+            configErrorAdd(view, 'Value is mandatory for hilite_status');
+            result = optn_err;
+        } else if (!parse_status_hl1(view, op)) {
+            result = optn_err;
+        }
+        await plineConfigErrors(state, liveConfigErrors);
+        return result;
+    },
+    // C ref: options.c optfn_statushilites() (4013-4043), the do_set request
+    // the live editor reaches through parseoptions(); STATUS_HILITES is
+    // defined and go.opt_from_file is FALSE, so reset_status_hilites() runs.
+    statushilites: (state, _optidx, negated, opts) => {
+        setStatusHiliteDuration(state, string_for_opt(opts, true), negated);
+        reset_status_hilites(state);
         return optn_ok;
     },
     petattr: (state, _optidx, negated, opts, helpers) => optfn_petattr(state, DO_SET, negated, opts, helpers),
@@ -8748,15 +8799,13 @@ export async function parseoptions(
         return false;
     }
 
+    // Every boolean option and every compound option doset() lists without a
+    // handler has an entry here.  mouse_support, the one set_in_game compound
+    // option without one, is a WC option whose WC_MOUSE_SUPPORT bit
+    // tty_procs.wincap carries only under WIN32CON, so neither menu lists it.
+    // opt_set_in_config[matchidx], which options.c:640 sets after a
+    // successful handler call, feeds #saveoptions alone and has no port.
     const optfn = OPTION_SET_HANDLERS[allopt[matchidx].optfn];
-    if (!optfn) {
-        // opt_set_in_config[matchidx], which options.c:640 sets after a
-        // successful handler call, feeds #saveoptions alone and has no port.
-        const prefix = allopt[matchidx].pfx ? 'pfxfn' : 'optfn';
-        throw new UnsupportedOptionMenuError(
-            `${prefix}_${allopt[matchidx].optfn}()'s do_set request`,
-        );
-    }
     const optresult = await optfn(state, matchidx, negated, opts, helpers);
 
     // options.c:670-681.  Every remaining arm reports a configuration error

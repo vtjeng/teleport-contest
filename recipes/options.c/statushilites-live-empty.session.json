@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_statushilites()'s do_set arm with an empty answer. string_for_opt() answers empty_optstr, so iflags.hilite_delta becomes the default 3 and botl.c reset_status_hilites() runs without any message; two steps east then play on.",
+  "segments": [
+    {
+      "seed": 46198720,
+      "datetime": "20510829140933",
+      "nethackrc": "OPTIONS=name:Vex,role:Rogue,race:orc,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:statushilites\n\n\nll"
+    }
+  ]
+}

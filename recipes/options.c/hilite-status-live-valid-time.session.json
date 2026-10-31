@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_hilite_status()'s do_set arm, reached from the full options menu's 'Set hilite_status to what?' prompt through parseoptions(). botl.c parse_status_hl1() accepts 'time/always/inverse' silently; with the time option on, the T: field changes on each of the two steps east, so the new rule shows on the status line.",
+  "segments": [
+    {
+      "seed": 31774109,
+      "datetime": "20380722113355",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " #optionsfull\n:hilite_status\n\ntime/always/inverse\nll"
+    }
+  ]
+}

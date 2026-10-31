@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:optfn_statushilites()'s do_set arm, reached from the full options menu's 'Set statushilites to what?' prompt through parseoptions(). The answer 5 sets iflags.hilite_delta and, because go.opt_from_file is FALSE, botl.c reset_status_hilites() clears both banks' timers and requests a full status repaint. A second visit rebuilds the menu, whose statushilites row reads its value through get_val, searches for the option and cancels with Escape; two steps east then play on.",
+  "segments": [
+    {
+      "seed": 84406152,
+      "datetime": "20260211234510",
+      "nethackrc": "OPTIONS=name:Elowen,role:Priest,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:statushilites\n\n5\n#optionsfull\n:statushilites\n\u001bll"
+    }
+  ]
+}
