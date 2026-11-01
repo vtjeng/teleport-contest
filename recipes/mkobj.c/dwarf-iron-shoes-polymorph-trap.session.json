@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6630031,
+      "datetime": "20280928163000",
+      "nethackrc": "OPTIONS=name:Warper,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "l\u0017polymorph trap\n\u0007hostile dwarf\nhhhms\u001bms\u001bms\u001bms\u001b"
+    }
+  ],
+  "comment": "Independent witness for mkobj.c obj_extract_self() on a freed object reached from trap.c trapeffect_poly_trap(). A wished polymorph trap lies beside the Priest; the dwarf wearing iron shoes follows the hero across it, so zap.c poly_obj() turns the shoes into kicking boots, and mkobj.c replace_object() leaves the old shoes free with a stale ocarry, the union member that nexthere aliases, before delobj() frees them."
+}

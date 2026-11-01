@@ -3327,7 +3327,10 @@ export function obj_extract_self(obj, env = {}) {
     preflightObjectExtraction(obj, normalized);
     switch (obj.where) {
     case OBJ_FREE:
-        if (obj.nobj || obj.nexthere)
+        // C does nothing here. Only nobj is checked: nexthere aliases ocarry
+        // and ocontainer in C's union, and mkobj.c replace_object() leaves
+        // that back-link stale on the object poly_obj() is about to delete.
+        if (obj.nobj)
             throw new Error('obj_extract_self: free object retains a chain link');
         return obj;
     case OBJ_LUAFREE:
