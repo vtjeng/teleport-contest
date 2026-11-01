@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Debug-created Uruk-hai carry always-poisoned orcish arrows (makemon.c m_initthrow). A debug teleport back to the up stairs puts them at range, and each arrow that hits the hero reaches mthrowu.c m_throw() -> attrib.c poisoned() and its hack.c losehp() HP-loss arm.",
+  "segments": [
+    {
+      "seed": 8103,
+      "datetime": "20261101143000",
+      "nethackrc": "OPTIONS=name:Archer,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!autopickup,!tips\n",
+      "moves": " llllllll\u0007Uruk-hai\n\u0007Uruk-hai\n\u0007Uruk-hai\n\u0007Uruk-hai\n\u0007Uruk-hai\n\u0014 <.s s s s s s s s s s s s "
+    }
+  ]
+}

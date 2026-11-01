@@ -1099,13 +1099,14 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             if (hit && singleobj.opoisoned
                 && isPoisonable(singleobj, state)) {
                 if (typeof env.poisoned === 'function') {
+                    // The bound operation takes poisoned()'s arguments with the
+                    // environment last, as uhitm.c mhitm_ad_drst() calls it.
                     await env.poisoned(
                         xnameFresh(singleobj, state),
                         A_STR,
                         killer_xname(singleobj, state),
                         (state.u.umortality ?? 0) > (oldumort ?? 0) ? 0 : 10,
                         true,
-                        state,
                         env,
                     );
                 } else if (typeof env.message === 'function'
