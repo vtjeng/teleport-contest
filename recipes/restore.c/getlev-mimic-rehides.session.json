@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: restore.c getlev() -> mon.c hide_monst() -> restrap() -> makemon.c set_mimic_sym(). A debug-created small mimic is found by searching, so it loses its disguise; the hero level-teleports away, waits past the rnd(10) catch-up test, and returns. restrap() disguises the mimic on its first 1/3 chance, which must stop hide_monst()'s retry. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 29514063,
+      "datetime": "20490917061254",
+      "nethackrc": "OPTIONS=name:Odile,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0007small mimic\nss\u00162\n12s\u00161\nss"
+    }
+  ]
+}

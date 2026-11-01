@@ -50,10 +50,11 @@ import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
 import { defineObjAliases } from './obj.js';
 import { defineObjclassAliases, GRAPPLING_HOOK, PICK_AXE } from './objects.js';
+import { set_mimic_sym } from './makemon_create.js';
 import { restpriest } from './priest.js';
 import { setuwep } from './wield.js';
 import { getnow } from './calendar.js';
-import { rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import {
     parseSnapshot, SAVE_FILE_PATH, savemonchn, saveobjchn,
 } from './save.js';
@@ -814,9 +815,13 @@ export async function getlev(ledger, state = game) {
 // calls restrap() for ceiling hiders, retries for mimics, restores vision,
 // and calls hideunder() for under-hiders.
 //
-// The restrap env needs setMimicSym for mimics; getlev supplies a stub that
-// defers mimic disguise selection to the first turn that processes the monster.
+// restrap() disguises a mimic through makemon.c set_mimic_sym(), whose
+// M_AP_TYPE result decides whether the mimic gets its second try.
 function hide_monst(mon, state = game) {
+    const setMimicSym = (mimic) => set_mimic_sym(mimic, {
+        state,
+        random: { rn1, rn2, rnd },
+    });
     const hider_under = hides_under(mon.data) || mon.data?.mlet === S_EEL;
 
     if ((is_hider(mon.data) || hider_under)
@@ -831,14 +836,14 @@ function hide_monst(mon, state = game) {
         if (is_hider(mon.data)) {
             restrap(mon, {
                 state,
-                setMimicSym: deferredSetMimicSym,
+                setMimicSym,
             });
         }
         // Retry for a mimic that missed its 1/3 chance.
         if (mon.data?.mlet === S_MIMIC && !M_AP_TYPE(mon)) {
             restrap(mon, {
                 state,
-                setMimicSym: deferredSetMimicSym,
+                setMimicSym,
             });
         }
         // Restore vision.
@@ -853,9 +858,3 @@ function hide_monst(mon, state = game) {
     }
 }
 
-// A stub for setMimicSym that defers mimic disguise selection. getlev()
-// does not need to assign disguises immediately; movemon() will handle
-// mimics on their next turn.
-function deferredSetMimicSym(_monster, _env) {
-    // No-op: the mimic will pick a disguise on its next move.
-}
