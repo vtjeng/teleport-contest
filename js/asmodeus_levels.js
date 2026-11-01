@@ -5,6 +5,7 @@
 
 import { selection_match } from './bigrm.js';
 import { depth } from './dungeon.js';
+import { l_selection_randline } from './nhlsel.js';
 import { rn2 } from './rng.js';
 import {
     W_NORTH,
@@ -94,43 +95,6 @@ function randomPointSelection(des, random = rn2) {
     return result;
 }
 
-function randline(x1, y1, x2, y2, rough, rec, result, random = rn2) {
-    if (rec < 1 || (x2 === x1 && y2 === y1)) return;
-    if (rough > Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)))
-        rough = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
-
-    let mx, my;
-    if (rough < 2) {
-        mx = Math.trunc((x1 + x2) / 2);
-        my = Math.trunc((y1 + y2) / 2);
-    } else {
-        do {
-            mx = Math.trunc((x1 + x2) / 2)
-                + random(rough) - Math.trunc(rough / 2);
-            my = Math.trunc((y1 + y2) / 2)
-                + random(rough) - Math.trunc(rough / 2);
-        } while (mx < 0 || mx > 79 || my < 0 || my > 20);
-    }
-
-    if (!result.get(mx, my)) result.set(mx, my);
-    rough = Math.trunc((rough * 2) / 3);
-    randline(x1, y1, mx, my, rough, rec - 1, result, random);
-    randline(mx, my, x2, y2, rough, rec - 1, result, random);
-    result.set(x2, y2);
-}
-
-function selectionRandline(x1, y1, x2, y2, roughness, frame, random = rn2) {
-    const result = new ThemeroomSelection(null, true);
-    // l_selection_rndcoord() returns coordinates relative to the current
-    // level frame; l_selection_randline() resolves them back to map space.
-    randline(
-        x1 + frame.xstart, y1 + frame.ystart,
-        x2 + frame.xstart, y2 + frame.ystart,
-        roughness, 12, result, random,
-    );
-    return result;
-}
-
 function randomDirectionSelection(selection, direction, random = rn2) {
     const directions = {
         north: W_NORTH,
@@ -216,8 +180,8 @@ export async function hellTweaks(des, protectedArea, state, random = rn2) {
             const b = floor.rndcoord(false, random, {
                 x: frame.xstart, y: frame.ystart,
             });
-            let river = selectionRandline(
-                a.x, a.y, b.x, b.y, 10, frame, random,
+            let river = l_selection_randline(
+                a.x, a.y, b.x, b.y, 10, { frame }, random,
             );
             if (random(100) < 50) river = river.grow(W_NORTH, random);
             if (random(100) < 50) river = river.grow(W_WEST, random);

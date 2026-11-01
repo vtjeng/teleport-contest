@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent selvar.c selection_do_randline() witness through dat/Bar-strt.lua's selection.randline(selection.new(), 37,7, 62,02, 7). nhlsel.c l_selection_randline() passes both endpoints through get_location_coord(), so the midpoints are map coordinates (this map's ystart is 1). This seed draws a midpoint on map row 0, which C accepts; a Lua-relative midpoint would be row -1 and repeat the retry loop. Seed chosen by recording seeds 4410021-4410090 and keeping the one whose path reaches row 0. #wizloaddes loads the level; #wizmap shows it.",
+  "segments": [
+    {
+      "seed": 4410072,
+      "datetime": "20670314082211",
+      "nethackrc": "OPTIONS=name:Brakka,role:Barbarian,race:orc,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "   #wizloaddes\nBar-strt.lua\n      #wizmap\n      "
+    }
+  ]
+}

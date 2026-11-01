@@ -2,15 +2,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { PM_BUGBEAR, PM_HILL_GIANT, S_HUMANOID } from '../js/monsters.js';
-import { QUEST_LEVEL_LOADERS, selection_randline } from '../js/quest_levels.js';
+import { l_selection_randline } from '../js/nhlsel.js';
+import { QUEST_LEVEL_LOADERS } from '../js/quest_levels.js';
 
 test('randline narrows the public roughness integer at the C schar boundary', () => {
     // Pinned C nhlsel.c passes an int to selvar.c's signed schar parameter.
     // These values become -128, -1 and 0, so no RNG is needed.
-    const baseline = selection_randline(20, 8, 30, 12, 0).points;
+    // A zero frame keeps the endpoints at (20,8) and (30,12) on the map.
+    const env = { frame: { xstart: 0, ystart: 0, xsize: 80, ysize: 21 } };
+    const baseline = l_selection_randline(20, 8, 30, 12, 0, env).points;
     assert.equal(baseline.filter(value => value > 1).length, 11);
     for (const roughness of [128, 255, 256])
-        assert.deepEqual(selection_randline(20, 8, 30, 12, roughness).points, baseline);
+        assert.deepEqual(l_selection_randline(20, 8, 30, 12, roughness, env).points, baseline);
 });
 
 test('Rogue quest filler b loads the same rooms as filler a', async () => {

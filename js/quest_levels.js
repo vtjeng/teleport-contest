@@ -119,7 +119,7 @@ import {
 } from './rog_strt_level_data.js';
 import { ROG_LOCA_LEVEL_MAP } from './rog_loca_level_data.js';
 import { TOU_LOCA_DOORS, TOU_LOCA_LEVEL_MAP } from './tou_loca_level_data.js';
-import { l_selection_or, l_selection_sub } from './nhlsel.js';
+import { l_selection_or, l_selection_randline, l_selection_sub } from './nhlsel.js';
 import { SAM_LOCA_LEVEL_MAP, SAM_LOCA_LEVEL_DOORS,
     SAM_LOCA_LEVEL_OBJECTS, SAM_LOCA_LEVEL_MONSTERS } from './sam_loca_level_data.js';
 import { SAM_FILB_LEVEL_MAP } from './sam_filb_level_data.js';
@@ -131,81 +131,44 @@ import {
     WIZ_GOAL_LEVEL_OBJECTS, WIZ_GOAL_RANDOM_TRAP_COUNT,
 } from './wiz_goal_level_data.js';
 
-// C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
-// that draws a random zig-zag path from (x1,y1) to (x2,y2).
-function selection_do_randline(x1, y1, x2, y2, rough, rec, sel) {
-    if (rec < 1 || (x2 === x1 && y2 === y1))
-        return;
-
-    if (rough > Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)))
-        rough = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
-
-    let mx, my;
-    if (rough < 2) {
-        mx = Math.trunc((x1 + x2) / 2);
-        my = Math.trunc((y1 + y2) / 2);
-    } else {
-        do {
-            const dx = rn2(rough) - Math.trunc(rough / 2);
-            const dy = rn2(rough) - Math.trunc(rough / 2);
-            mx = Math.trunc((x1 + x2) / 2) + dx;
-            my = Math.trunc((y1 + y2) / 2) + dy;
-        } while (mx > COLNO - 1 || mx < 0 || my < 0 || my > ROWNO - 1);
-    }
-
-    if (!sel.get(mx, my)) {
-        sel.set(mx, my);
-    }
-
-    rough = Math.trunc((rough * 2) / 3);
-    rec--;
-
-    selection_do_randline(x1, y1, mx, my, rough, rec, sel);
-    selection_do_randline(mx, my, x2, y2, rough, rec, sel);
-
-    sel.set(x2, y2);
-}
-
-// C ref: nhlsel.c l_selection_randline(). Creates a random path between
-// two points with given roughness. Recursion depth fixed at 12.
-export function selection_randline(x1, y1, x2, y2, roughness) {
-    const sel = new ThemeroomSelection();
-    // nhlsel.c accepts an int, but selvar.c takes a signed schar argument.
-    // The pinned Clang recorder narrows that argument to eight bits here.
-    const cRoughness = new Int8Array([roughness])[0];
-    selection_do_randline(x1, y1, x2, y2, cRoughness, 12, sel);
-    return sel;
-}
-
-// C ref: selvar.c selection_floodfill(). Flood-fills from (x,y) to all
-// connected cells with the same terrain type. Coordinates are map-relative;
-// frame converts them to absolute for state.level.at() lookups.
+// C ref: selvar.c selection_floodfill(), as nhlsel.c l_selection_flood()
+// calls it: flood-fills from (x,y) to all orthogonally connected squares of
+// the start square's terrain type. Coordinates are map-relative; frame
+// converts them to map coordinates for state.level.at() lookups. The fill
+// runs over map coordinates, so it may cross the frame's edge where a
+// des.terrain() call left matching terrain outside the map fragment. This
+// relative selection cannot hold a square left of or above the frame; the
+// callers intersect the result with an area inside the frame or draw from
+// squares inside it. C's SEL_FLOOD_CHKDIR() also stops at isok(), which
+// rejects column 0. This fill accepts column 0, which no map frame covers
+// and which stays stone, so the two differ only for a fill that starts on
+// stone.
 export function selection_floodfill(x, y, state, frame) {
     const ox = frame?.xstart ?? 0;
     const oy = frame?.ystart ?? 0;
     const sel = new ThemeroomSelection();
+    const onMap = (ax, ay) => ax >= 0 && ax < COLNO && ay >= 0 && ay < ROWNO;
+    if (!onMap(ox + x, oy + y)) return sel;
     const startTyp = state.level.at(ox + x, oy + y)?.typ;
     if (startTyp == null) return sel;
 
-    const stack = [{ x, y }];
-    const visited = new ThemeroomSelection();
+    const stack = [{ x: ox + x, y: oy + y }];
+    const visited = new ThemeroomSelection(null, true);
 
     while (stack.length > 0) {
-        const { x: cx, y: cy } = stack.pop();
-        const ax = ox + cx;
-        const ay = oy + cy;
-        if (ax < 0 || ax >= COLNO || ay < 0 || ay >= ROWNO) continue;
-        if (visited.get(cx, cy)) continue;
-        visited.set(cx, cy);
+        const { x: ax, y: ay } = stack.pop();
+        if (!onMap(ax, ay)) continue;
+        if (visited.get(ax, ay)) continue;
+        visited.set(ax, ay);
 
         const loc = state.level.at(ax, ay);
         if (!loc || loc.typ !== startTyp) continue;
 
-        sel.set(cx, cy);
-        stack.push({ x: cx + 1, y: cy });
-        stack.push({ x: cx - 1, y: cy });
-        stack.push({ x: cx, y: cy + 1 });
-        stack.push({ x: cx, y: cy - 1 });
+        if (ax >= ox && ay >= oy) sel.set(ax - ox, ay - oy);
+        stack.push({ x: ax + 1, y: ay });
+        stack.push({ x: ax - 1, y: ay });
+        stack.push({ x: ax, y: ay + 1 });
+        stack.push({ x: ax, y: ay - 1 });
     }
     return sel;
 }
@@ -272,7 +235,7 @@ async function barStrt(des, state) {
     });
 
     // guarantee a path and free spot for the portal
-    await des.terrain(selection_randline(37, 7, 62, 2, 7), '.');
+    await des.terrain(l_selection_randline(37, 7, 62, 2, 7, { frame }), '.');
     await des.terrain(62, 2, '.');
 
     // Dungeon Description

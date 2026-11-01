@@ -1,5 +1,6 @@
 // Selection operations ported from src/nhlsel.c:
-// l_selection_or(), l_selection_sub(), and l_selection_setpoint().
+// l_selection_or(), l_selection_sub(), l_selection_setpoint(), and
+// l_selection_randline().
 import {
     ANY_LOC,
     COLNO,
@@ -9,6 +10,8 @@ import {
 } from './const.js';
 import { get_location_coord } from './room_coordinates.js';
 import { luaL_checkinteger } from './nhlua.js';
+import { rn2 } from './rng.js';
+import { selection_do_randline } from './selvar.js';
 import { selection_map_frame, selection_new, ThemeroomSelection } from './themerooms.js';
 
 function checkSelection(selection) {
@@ -157,4 +160,28 @@ export function l_selection_setpoint(args, env) {
     }
     selection.set(coordinate.x, coordinate.y, value);
     return selection;
+}
+
+// C nhlsel.c l_selection_randline(), for its selection.randline(sel, x1, y1,
+// x2, y2, roughness) and selection.randline(x1, y1, x2, y2, roughness)
+// forms. Both endpoints pass through get_location_coord(), so Lua-relative
+// coordinates become map coordinates before selection_do_randline() checks
+// its midpoints against the map edges. The C selection argument is always a
+// fresh selection.new() at the call sites, and C draws into a clone of it, so
+// this returns a fresh map-coordinate selection. `env` carries the active
+// frame and coder, as for l_selection_setpoint(). C passes the int roughness
+// to selvar.c's schar parameter, which the pinned Clang recorder narrows to
+// eight bits.
+export function l_selection_randline(x1, y1, x2, y2, roughness, env, random = rn2) {
+    const croom = env.coder?.croom ?? null;
+    const start = get_location_coord(
+        { x: x1, y: y1 }, ANY_LOC, croom, SP_COORD_PACK(x1, y1), env,
+    );
+    const end = get_location_coord(
+        { x: x2, y: y2 }, ANY_LOC, croom, SP_COORD_PACK(x2, y2), env,
+    );
+    const sel = new ThemeroomSelection(null, true);
+    const rough = new Int8Array([roughness])[0];
+    selection_do_randline(start.x, start.y, end.x, end.y, rough, 12, sel, random);
+    return sel;
 }
