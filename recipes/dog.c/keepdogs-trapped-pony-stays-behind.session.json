@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dog.c witness for the mintrap() call that keepdogs() makes for a trapped follower (dog.c:826): the debug Knight steps off the up stairs, wishes an armed bear trap there (objnam.c wizterrainwish(), 'trapped bear trap'), returns to the stairs and rests until her pony walks into the unseen trap, then teleports to level 2 with ^V. keepdogs() calls mintrap(), which draws rn2(40) at trap.c:3751; the pony does not escape and stays behind ('The saddled pony is still trapped.'). The seed, date and keys were chosen for this case.",
+  "segments": [
+    {
+      "seed": 7720154,
+      "datetime": "20350922161000",
+      "nethackrc": "OPTIONS=name:TrapPony,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "j \u0017trapped bear trap\n k . . . \u00162\n "
+    }
+  ]
+}
