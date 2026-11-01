@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: trap.c mintrap() -> mondata.c mons_see_trap() -> m_cansee() (vision.c clear_path()), then trapeffect_rolling_boulder_trap() -> launch_obj(). The boulder blocks the line from a kobold behind it to the rolling boulder trap, so in C that kobold never learns the trap and later counts the trap square among its mfndpos() moves. A dry-run launch must not leave the boulder's square unblocked in the shared vision index. The hero wishes for the trap, creates hobbits and kobolds beyond the boulder, and teleports to the far side of the trap. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 38270615,
+      "datetime": "20420804102233",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0017rolling boulder trap\n\u0014 \nllllll.\u0007hobbit\n\u0007hobbit\n\u0007hobbit\n\u0007kobold\n\u0007kobold\n\u0014hhhhhhh.ms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001b"
+    }
+  ]
+}
