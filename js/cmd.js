@@ -1253,7 +1253,8 @@ function keylist_putcmds(lines, docount, inclFlags, exclFlags, keysUsed,
 }
 
 // C ref: cmd.c dokeylist() (2859-3013). This slice admits the recorder's
-// default non-number-pad, no-rest-on-space, non-debug binding set. The data
+// default no-rest-on-space, non-debug binding set, with number_pad on or
+// off; number_pad selects the running-help text and the count key. The data
 // flow remains source-shaped so the complete 256-byte traversal and category
 // ordering stay visible beside extcmdlist_data.js.
 export function keyBindingLines(state = game) {
@@ -1294,13 +1295,20 @@ export function keyBindingLines(state = game) {
     lines.push({ text: '' });
     lines.push({ text: 'Directional keys:' });
     show_direction_keys(lines, '.', false, state);
-    lines.push({ text: '' });
+    let runPrefix;
+    if (!model.numPad) {
+        lines.push({ text: '' });
+        lines.push({
+            text: 'Ctrl+<direction> will run in specified direction until something very',
+        });
+        lines.push({ text: '        interesting is seen.' });
+        runPrefix = 'Shift';
+    } else {
+        lines.push({ text: '' });
+        runPrefix = 'Meta';
+    }
     lines.push({
-        text: 'Ctrl+<direction> will run in specified direction until something very',
-    });
-    lines.push({ text: '        interesting is seen.' });
-    lines.push({
-        text: 'Shift+<direction> will run in specified direction until you encounter',
+        text: `${runPrefix}+<direction> will run in specified direction until you encounter`,
     });
     lines.push({ text: '        an obstacle.' });
 

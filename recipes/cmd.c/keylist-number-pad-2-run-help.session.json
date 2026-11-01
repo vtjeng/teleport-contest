@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of keylist-number-pad-run-help with number_pad:2, another character and another date. number_pad:2 also sets num_pad, so dokeylist() takes the same 'Meta+<direction>' branch; the variation covers that mode's different direction and count bindings in the same list.",
+  "segments": [
+    {
+      "seed": 5520417,
+      "datetime": "20670803064522",
+      "nethackrc": "OPTIONS=name:Fizzwick,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,number_pad:2\n",
+      "moves": "   ?j                    \u001b"
+    }
+  ]
+}

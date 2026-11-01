@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cmd.c dokeylist() witness with number_pad:1. With number_pad on, C prints no Ctrl+<direction> paragraph and starts the running help with 'Meta+<direction>' (the !iflags.num_pad else branch). '?j' opens the full key list; spaces page through it and Escape returns to the map.",
+  "segments": [
+    {
+      "seed": 5520301,
+      "datetime": "20670522191407",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,number_pad:1\n",
+      "moves": "   ?j                    \u001b"
+    }
+  ]
+}
