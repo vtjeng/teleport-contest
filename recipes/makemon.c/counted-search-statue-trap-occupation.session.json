@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: makemon.c makemon() tail (1502-1504) under an occupation. A debug-mode terrain wish places an unseen statue trap; after stepping off it, a counted search runs as the 'searching' occupation, detect.c dosearch0() finds the trap and trap.c activate_statue_trap() animates the statue through makemon(), whose dochugw() check reaches allmain.c stop_occupation(). Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 51840281,
+      "datetime": "20480512143005",
+      "nethackrc": "OPTIONS=name:Kenta,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "\nh\u0017statue trap\nl40s...."
+    }
+  ]
+}

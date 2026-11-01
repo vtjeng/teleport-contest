@@ -600,19 +600,7 @@ export function courtmon(state = game, random = SOURCE_RANDOM) {
 // its floor corpse. A successful revival consumes that attempt's creation.
 export async function mkundead(mm, reviveCorpses, mmFlags, state = game, rawEnv = {}) {
     const random = { ...SOURCE_RANDOM, ...(rawEnv.random ?? {}) };
-    let env = { ...rawEnv, state, random };
-    // makemon's runtime suffix may interrupt an occupation after creation.
-    // Supply its existing owner to both the Bell and Book call paths.
-    if (state.go?.occupation && !env.hooks?.stopOccupation) {
-        const { stop_occupation } = await import('./allmain.js');
-        env = {
-            ...env,
-            hooks: {
-                ...(env.hooks ?? {}),
-                stopOccupation: (_monster, hookEnv) => stop_occupation(state, hookEnv),
-            },
-        };
-    }
+    const env = { ...rawEnv, state, random };
     let count = Math.trunc((level_difficulty(state) + 1) / 10) + random.rnd(5);
     while (count-- > 0) {
         const species = morguemon(state, random);

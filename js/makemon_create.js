@@ -1549,12 +1549,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'runtime creation without its async tail owner',
         );
     }
-    if (runtimeCall && !revivalCall && !cloneWizardCall && state.go?.occupation
-        && typeof normalized.hooks?.stopOccupation !== 'function') {
-        throw new UnsupportedMonsterCreationError(
-            'runtime creation while an occupation lacks stopOccupation',
-        );
-    }
     const shopkeeperCall = ((state.in_mklev || specialRoomCall)
         && ptr?.pmidx === PM_SHOPKEEPER
         && !randomCoordinates
@@ -2998,18 +2992,33 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
     if (appearance) {
         await normalized.norepMessage(appearance, state, normalized);
     }
-    if (state.go?.occupation) {
-        await dochugw(monster, false, {
-            ...normalized,
-            state,
-            canSpotMonster: (subject) => canspotmon(subject, state),
-            couldSee: (x, y) => couldsee(x, y, state),
-            stopOccupation: () => normalized.hooks.stopOccupation(
-                monster,
-                normalized,
-            ),
-        });
-    }
+    await makemonOccupationCheck(monster, normalized);
+}
+
+// C ref: makemon.c makemon() (1502-1504), outside mklev: "if discernable and
+// a threat, stop fiddling while Rome burns".  dochugw() calls allmain.c
+// stop_occupation() directly; a caller's hook stands in for it only when the
+// caller supplies one.
+async function makemonOccupationCheck(monster, normalized) {
+    const { state } = normalized;
+    if (!state.go?.occupation) return;
+    const stopOccupation = typeof normalized.hooks?.stopOccupation
+        === 'function'
+        ? normalized.hooks.stopOccupation
+        : async (_monster, hookEnv) => {
+            const { stop_occupation } = await import('./allmain.js');
+            await stop_occupation(state, {
+                ...hookEnv,
+                message: hookEnv.message ?? ttyPline,
+            });
+        };
+    await dochugw(monster, false, {
+        ...normalized,
+        state,
+        canSpotMonster: (subject) => canspotmon(subject, state),
+        couldSee: (x, y) => couldsee(x, y, state),
+        stopOccupation: () => stopOccupation(monster, normalized),
+    });
 }
 
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square
@@ -3472,6 +3481,12 @@ export function makemon_revival(ptr, x, y, mmflags, rawEnv = {}) {
             normalized,
         );
         redrawSquare(monster.mx, monster.my, normalized);
+        // Every revival caller passes MM_NOMSG, so makemon()'s appearance
+        // message never applies; its occupation check still does.
+        if (state.go?.occupation) {
+            return makemonOccupationCheck(monster, normalized)
+                .then(() => monster);
+        }
         return monster;
     };
     const maybeMonster = makemon(ptr, x, y, mmflags, normalized);

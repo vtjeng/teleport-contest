@@ -1325,15 +1325,6 @@ export async function bagotricks(bag, tipping, state = game) {
 export async function summon_furies(limit, state = game, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, message };
-    if (state.go?.occupation && !rawEnv.hooks?.stopOccupation) {
-        const { stop_occupation } = await import('./allmain.js');
-        env.hooks = {
-            ...(rawEnv.hooks ?? {}),
-            stopOccupation: (_monster, hookEnv) => stop_occupation(
-                hookEnv.state, { ...hookEnv, message },
-            ),
-        };
-    }
     let i = 0;
     while (mk_gen_ok(PM_ERINYS, G_GONE, 0, state)
         && (i < limit || !limit)) {

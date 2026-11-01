@@ -731,7 +731,7 @@ async function deadbook(book, state = game, env = {}) {
 async function raise_dead(state, env) {
     const { random, message } = env;
     await message('You raised the dead!', state, env);
-    const creationEnv = await deadbookMakemonEnv(state, random, env);
+    const creationEnv = deadbookMakemonEnv(state, random, env);
     if (!random.rn2(3)) {
         let monster = await makemon_runtime(
             state.mons[PM_MASTER_LICH],
@@ -759,15 +759,7 @@ async function raise_dead(state, env) {
         NO_MINVENT, state, creationEnv);
 }
 
-async function deadbookMakemonEnv(state, random, env) {
-    let stopOccupation = env.hooks?.stopOccupation;
-    if (state.go?.occupation && !stopOccupation) {
-        const { stop_occupation } = await import('./allmain.js');
-        stopOccupation = (_monster, hookEnv) => stop_occupation(
-            hookEnv.state,
-            hookEnv,
-        );
-    }
+function deadbookMakemonEnv(state, random, env) {
     return {
         ...env,
         state,
@@ -778,10 +770,6 @@ async function deadbookMakemonEnv(state, random, env) {
         // the ordinary live Norep owner rather than the Book's pline sink.
         norepMessage: env.norepMessage
             ?? (env.message === ttyPline ? ttyNorep : env.message),
-        hooks: {
-            ...(env.hooks ?? {}),
-            ...(stopOccupation ? { stopOccupation } : {}),
-        },
     };
 }
 
