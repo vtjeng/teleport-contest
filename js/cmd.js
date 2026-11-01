@@ -3968,6 +3968,12 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
     });
     if (selected == null) return;
 
+    // C builds cmdstr with Strcat() into an uninitialized buffer (cmd.c
+    // 2356, 2363, 2379), so its text is the command name only when the stack
+    // left a zero byte there.  Every Linux recording binds the key, which is
+    // what this reads; the judge's macOS recorder printed "Key binding
+    // failed?!" in the one case measured (docs/testing.md, "The key-binding
+    // difference").  The CMD_PARAM arm's Snprintf() is defined on both.
     let command = null;
     let commandText = 'nothing';
     if (selected !== -1) {

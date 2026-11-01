@@ -17,7 +17,10 @@ export const RECORDER_SEGMENT_LIMIT = 10;
 // version.c's "Unix"/"MacOS" banner, mdlib.c's /dev/urandom). A matrix that
 // reaches one lists [hostText, judgeText] pairs; on a host other than the
 // judge's, substituteHostStrings() rewrites those pairs in every recorded
-// screen before comparison and leaves everything else strict.
+// screen before comparison and leaves everything else strict. A Linux
+// recorder built with nethack-c/host-profiles/linux-macos-output.patch
+// already prints the judge's text, so for its recordings this finds nothing
+// to replace; it stays for recorders built before that profile.
 export const RECORDER_HOST_IS_JUDGE = process.platform === 'darwin';
 
 export function substituteHostStrings(

@@ -74,25 +74,30 @@ Update this table in the commit that fixes or adds a known failure.
 Read this section before comparing the port with a recording you made
 locally. The judge's reference recordings were made by a recorder built and
 run on macOS (`docs/recording-environment.md`). Local recordings come from
-the same patched source built on Linux. A few strings in NetHack are chosen
-when the program is compiled or depend on the environment it runs in, so a
-Linux recording can show a screen the judge's recording does not, although
+the same patched source, usually built on Linux. A few strings in NetHack
+are chosen when the program is compiled or depend on the environment it
+runs in, so a recording can show text that depends on its host, although
 the game, its RNG calls and the rest of its screens are the same. The port
-prints the judge's macOS text, so it does not match these Linux screens.
+prints the judge's macOS text. The recorder now prints that text too: on
+Linux, `nethack-c/build-recorder.sh` applies a macOS-output profile (see
+"Linux output profile"), and on every host the recorder prints the judge's
+`HOME` (patch 008). One measured difference remains, a key binding that
+depends on uninitialized memory.
 
 ### Known differences
 
 These differ for host reasons. The first three are compile-time choices:
 `include/config1.h:43-44` defines `MACOS` when the compiler defines
 `__APPLE__` and `__MACH__`, and the C source picks a different branch for it.
+The last column says what a recorder built from this repository prints.
 
-| Where it shows | macOS (judge) | Linux (local) | Source |
-| --- | --- | --- | --- |
-| The `v` and `#version` text | `MacOS NetHack Version 5.0.0 ...` | `Unix NetHack Version 5.0.0 ...` | `PORT_ID` in `include/global.h:191-193` (`__APPLE__`) and `:217-219` (`UNIX`), put into the version string by `src/mdlib.c:341` |
-| Eating an apple | `Delicious!  Must be a Macintosh!` | `Core dumped.` | `src/eat.c:2179-2185`, `fprefx()`: the `MACOS` branch comes before the `UNIX` one. A pear prints `Core dumped.` on both hosts. |
-| The build options in `#version` | `strong PRNG seed from /dev/random` | `strong PRNG seed from /dev/urandom` | `DEV_RANDOM` in `include/unixconf.h:424-430`, printed by `src/mdlib.c:511-513`. The extra letter can move a line break in the paragraph that follows. |
-| Binding a key from the options menu | `Key binding failed?!` after the first letter of the command name | Reads the whole command name | Not yet traced; seen in one game (`g04439`), see below |
-| The options help text (`Set options as OPTIONS=<options> in ...`) | The judge's `HOME`, given in `docs/recording-environment.md` | `/tmp/nh-rec-XXXXXX/home` | `src/options.c:9471` prints `get_configfile()`, which is `$HOME/.nethackrc`. `scripts/record-session.mjs` sets `HOME` to a directory it creates with `mkdtemp()`. The path's length decides how many lines the help text takes, and so which lines fall on each page of the pager. |
+| Where it shows | macOS (judge) | Linux, upstream build | Source | This repository's recorder |
+| --- | --- | --- | --- | --- |
+| The `v` and `#version` text | `MacOS NetHack Version 5.0.0 ...` | `Unix NetHack Version 5.0.0 ...` | `PORT_ID` in `include/global.h:191-193` (`__APPLE__`) and `:217-219` (`UNIX`), put into the version string by `src/mdlib.c:341` | macOS text on both hosts (Linux profile) |
+| Eating an apple | `Delicious!  Must be a Macintosh!` | `Core dumped.` | `src/eat.c:2179-2185`, `fprefx()`: the `MACOS` branch comes before the `UNIX` one. A pear prints `Core dumped.` on both hosts. | macOS text on both hosts (Linux profile) |
+| The build options in `#version` | `strong PRNG seed from /dev/random` | `strong PRNG seed from /dev/urandom` | `DEV_RANDOM` in `include/unixconf.h:424-430`, printed by `src/mdlib.c:511-513`. The extra letter can move a line break in the paragraph that follows. | macOS text on both hosts (Linux profile) |
+| Binding a key to a command from the options menu | `Key binding failed?!` in the one recorded case | The key is bound | `handler_rebind_keys_add()` in `src/cmd.c` appends the command name to an uninitialized buffer, so the result depends on stack contents; see below | Differs: Linux binds the key, and so does the port |
+| The options help text (`Set options as OPTIONS=<options> in ...`) and other messages that name the config file | The judge's `HOME`, given in `docs/recording-environment.md` | The `HOME` the game runs with | `src/options.c:9471` prints `get_configfile()`, which is `$HOME/.nethackrc`. The path's length decides how many lines the help text takes, and so which lines fall on each page of the pager. | The judge's path on every host (patch 008) |
 
 Save files are compressed with `/usr/bin/compress`, as on macOS
 (`COMPRESS` in `include/config.h`). Most Linux hosts lack that program;
@@ -103,9 +108,27 @@ rather than `.Z`; no recorded screen has shown that name. On Debian or
 Ubuntu, `sudo apt install ncompress` provides `/usr/bin/compress`, and
 the next build uses it.
 
-The `HOME` difference comes from `record-session.mjs`, not from the host,
-so the macOS workflow below records with the same `/tmp/nh-rec-XXXXXX/home`
-as a local run and does not measure it.
+### The judge's HOME
+
+`scripts/record-session.mjs` runs each game with `HOME` set to a directory
+it creates with `mkdtemp()`, and writes the segment's `nethackrc` there.
+NetHack would print that path, `/tmp/nh-rec-XXXXXX/home/.nethackrc`,
+wherever it names its config file. Patch 008
+(`nethack-c/patches/008-shown-config-home.patch`) adds
+`shown_configfile()` to `src/cfgfiles.c`: once `fopen_config_file()` has
+opened `$HOME/.nethackrc`, it stores the file's name as
+`$NETHACK_SHOWN_HOME/.nethackrc`. The game still reads the local file.
+`record-session.mjs` sets `NETHACK_SHOWN_HOME` to `RECORDER_HOME` from
+`js/cfgfiles.js`, the value the port prints, so C prints the judge's path
+and the two cannot drift apart. `#saveoptions` writes to the stored name,
+as the judge's recorder did; where that directory does not exist, its
+`fopen()` fails without a message.
+
+The macOS measurement below predates patch 008, so its recordings show
+the temporary `HOME`. Re-run the macOS workflow after this change reaches
+`main` to measure the patch on macOS.
+
+### Measurements
 
 The macOS workflow below measured the differences on 1 November 2026
 (run [41280653286](https://github.com/vtjeng/teleport-contest/actions/runs/41280653286),
@@ -119,27 +142,65 @@ time:
   recipes) and `MacOS` (192, the same `#version` and banner screens), the
   apple message (33), and one key-binding difference (1, below). In one
   apple game (`g00203`) the RNG log also diverges from the step where the
-  apple is eaten.
+  apple is eaten: the longer macOS message takes its own `--More--`
+  before the rest of that turn's RNG calls.
 - `CRASHREPORT` and `PANICTRACE` do not differ:
   `include/config.h:244-285` defines both for `MACOS` and for
   `__linux__`.
 - No other compile-time branch or C library difference appeared in this
   sample. A difference in code the sample does not reach would not show.
 
-The key-binding difference: in `g04439` the player binds a key from the
-options menu. At `Bind 'o' to what command?`, the macOS recorder prints
-`Key binding failed?!--More--` after the first letter of the command
-name, while the Linux recorder goes on reading the name; the RNG log
-diverges later in the same game. The cause has not been traced. The port
-matches neither recording at that step.
+The same 500 recipes, recorded on Linux with the profile and patch 008 and
+compared with the same macOS recordings, also in standard time:
 
-The same recordings also measure the port against macOS directly, with no
-substitution: replayed with `node .cache/tools/replay-check.mjs`, 390 of
-the 500 match. All 159 sample games that matched Linux also match macOS,
-and 175 of the 232 host-affected games match macOS outright, which
-confirms that the port prints the judge's macOS text. 51 of the 110
-failures differ only in the `HOME` path, because the workflow records with
-the local `/tmp/nh-rec-XXXXXX/home` while the port prints the judge's.
+- The RNG logs were identical in 499 of the 500 recipes; `g04439` is the
+  exception. Screens differed in 52.
+- None of the three compile-time kinds remain.
+- 51 recipes differ in the options help, because the macOS recordings show
+  the temporary `HOME` and the Linux ones the judge's. The change of path
+  also moves the help text's line breaks and pages, which the comparison
+  reports as many small kinds.
+- `g04439` still differs at the key binding.
+
+`experiments/host-parity/README.md`, "Results", gives the counts and the
+replays of both sets with the port.
+
+### The key-binding difference
+
+In `g04439` the player opens the options menu, chooses `bind keys`, then
+`a - bind key to a command`, presses `o`, and at `Bind 'o' to what
+command?` picks `r - down`. The macOS recorder prints `Key binding
+failed?!`; the Linux recorder binds `o` to `down` and returns to the `Do
+what?` menu, and the later keys play differently, so the RNG logs diverge
+from step 396.
+
+`handler_rebind_keys_add()` in `src/cmd.c` declares `char
+cmdstr[BUFSZ];` without initializing it (line 2356), then builds the
+command name with `Strcat(cmdstr, ec->ef_txt)` (line 2379), or
+`Strcat(cmdstr, "nothing")` for unbinding (line 2363). `strcat()` appends
+after the first zero byte, so the result is the command name only when
+the buffer happens to start with a zero. Otherwise `bind_key()` finds no
+command of that name and the menu prints `Key binding failed?!`. The
+buffer holds whatever earlier calls left at that place on the stack. That
+depends on the compiler and on the C library's own use of the stack, so
+it can differ between macOS and Linux even though `strcat()` behaves the
+same on both. This has not been confirmed on macOS beyond the one case.
+A command that takes a parameter, such as `toggle`, writes the buffer
+whole with `Snprintf()` (line 2376) and is unaffected;
+`recordings/cmd.c/toggle-bound-param-menu` records that path.
+
+Every Linux recording that reaches this code binds the key, so its
+buffer started with a zero. That includes the committed
+`recordings/cmd.c/bind-new-key-live`, `bind-existing-key-live` and
+`unbind-key-live`. The port follows that reading: it replays the
+Linux `g04439` recording completely. The one macOS case fails. The port
+should print what the judge's recorder prints, but one case does not
+show whether macOS fails on every path through this code. The next macOS
+run should therefore record probes of each path
+(`experiments/host-parity/README.md` lists them). If macOS fails on every path that uses `Strcat()` and
+binds on the parameter path, a line-preserving edit to the Linux profile
+can start `cmdstr` with a nonzero byte, the port can fail the same way,
+and the three committed recordings above need recording again.
 
 ### Private installs
 
@@ -214,10 +275,13 @@ from a branch that GitHub has seen, such as `main`.
    experiments/host-parity/record-sample.sh .cache/host-parity/linux
    ```
 
-   Both hosts use this script. It sets `TMPDIR=/tmp`, so the `HOME` that
-   NetHack prints has the same length on both hosts. Record during the
-   same daylight-time period as the macOS run (see "Daylight time and
-   recordings").
+   Both hosts use this script. A Linux build applies the macOS-output
+   profile, so every kind the comparison still reports is a difference
+   the profile does not cover. The script sets `TMPDIR=/tmp` so that both
+   hosts record alike; a recorder built before patch 008 prints the
+   temporary `HOME`, whose length is then the same on both hosts. Record
+   during the same daylight-time period as the macOS run (see "Daylight
+   time and recordings").
 
 4. Compare the two sets:
 
@@ -238,15 +302,39 @@ of words that moved; the example step of each kind shows where to look.
 
 ### Linux output profile
 
-A later change will add a Linux output profile: a way to make the Linux
-recorder print the judge's macOS text, so local recordings can be compared
-with the port directly. It will be checked against the list of kinds the
-macOS comparison measures, not only the known differences above. Until
-then, the comparison tools substitute the known host strings in the Linux
-recordings before they compare: `substituteHostStrings()` in
-`scripts/fresh-matrix.mjs` for the matrix runners, and the untracked
-tooling under `.cache/c-diff/tools/` (`js-replay.mjs`), which also replaces
-the local `HOME` path with the judge's.
+`nethack-c/host-profiles/linux-macos-output.patch` makes a Linux build of
+the recorder print the judge's macOS text for the three compile-time
+differences above. `nethack-c/build-recorder.sh` applies it after the
+`nethack-c/patches/` series whenever it builds on Linux; a macOS build
+does not need it. Its three edits add `__linux__` to the condition that
+chooses `PORT_ID "MacOS"` (`include/global.h`) and the apple message
+(`src/eat.c`), and set `DEV_RANDOM` to `/dev/random` for Linux
+(`include/unixconf.h`). It does not define `MACOS`, which would also
+compile macOS-only code. The patch file's header explains each edit and
+gives the measurement behind it.
+
+The profile covers the measured list only. A compile-time difference in
+code the 500-recipe sample does not reach would not have been measured;
+when the macOS comparison reports a new kind, trace it in the C source
+and add an edit to the profile.
+
+Every edit to the profile, and patch 008, keeps the line numbers of the
+upstream file it changes. The RNG log names the C file and line of every
+call (patch 003), so an added line in `eat.c` or `cfgfiles.c` would change
+the logged line of every later call and committed recordings would no
+longer record again identically. `scripts/linux-macos-profile.test.mjs`
+and `scripts/shown-config-home-patch.test.mjs` fail when a hunk moves a
+line (`scripts/recorder-patch-lines.mjs`).
+
+Recordings made with the profile and patch 008 need no host substitution
+before they are compared with the port. Older Linux recordings still do:
+`substituteHostStrings()` in `scripts/fresh-matrix.mjs`, which the matrix
+runners `scripts/run-eat-one-turn.mjs` and
+`scripts/run-help-version-information.mjs` apply, and the untracked
+tooling under `.cache/c-diff/tools/` (`js-replay.mjs`), which also
+replaces the temporary `HOME` path with the judge's. On a recording made
+with the profile these substitutions find nothing to replace, so they are
+left in place.
 
 ## Other workflows and scripts
 

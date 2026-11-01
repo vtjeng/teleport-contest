@@ -95,3 +95,76 @@ substitution):
 (`/tmp/nh-rec-XXXXXX/home`) in the options help, where the port prints
 the judge's. `docs/testing.md`, "Local recordings and the judge's host",
 interprets these results.
+
+### Linux with the macOS-output profile
+
+On 1 November 2026, at the commit that added the Linux macOS-output
+profile (`nethack-c/host-profiles/linux-macos-output.patch`) and patch 008
+(the judge's `HOME`), the 500 recipes were recorded again on Linux, in
+standard time, and compared with the macOS recordings of run 41280653286:
+
+| Measure | Plain Linux | Linux with profile |
+| --- | --- | --- |
+| RNG logs identical | 498 of 500 | 499 of 500 |
+| Recipes with differing screens | 223 | 52 |
+| Kind: `/dev/random` versus `/dev/urandom` | 192 recipes | none |
+| Kind: `MacOS` versus `Unix` | 192 recipes | none |
+| Kind: apple message | 33 recipes | none |
+| Kind: key binding (`g04439`) | 1 recipe | 1 recipe |
+| Options help: temporary versus judge's `HOME` | not measured | 51 recipes |
+
+The 51 options-help recipes differ because the macOS recordings predate
+patch 008 and show the temporary `HOME`, while the new Linux ones show the
+judge's. The new path also moves the help text's line breaks and pages,
+which `compare-host-recordings.mjs` reports as 71 further small kinds
+in the same 51 recipes. Re-run the macOS workflow once patch 008 is on
+`main`; these recipes should then match.
+
+Replaying the new Linux recordings with the JavaScript port, again with no
+substitution:
+
+| Sample group | Match macOS | Match Linux with profile |
+| --- | --- | --- |
+| `pass` (159) | 159 | 159 |
+| `host` (232) | 175 | 224 |
+| `fail` (109) | 56 | 57 |
+| All (500) | 390 | 440 |
+
+Every recording that matched on macOS also matches on Linux. The 50 that
+match only on Linux are 49 of the 51 options-help recipes and `g04439`,
+where the port binds the key as the Linux recorder does. The other two
+options-help recipes, `g01125` and `g04257`, differ from the port at
+another step.
+
+### Key-binding probes for the next macOS run
+
+`g04439` is the only recorded case of the key-binding difference, and its
+cause is undefined behavior (`docs/testing.md`, "The key-binding
+difference"). Before the port or the profile changes, record these probes
+on macOS as well as on Linux. Each is one segment with seed `7310442`,
+`datetime` `20261115143000` and this `nethackrc`:
+
+```
+OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral
+OPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none
+```
+
+The moves all start with `#optionsfull\n      h\n`, which pages to the
+`h - bind keys` row and opens the `Do what?` menu (written in JSON string
+escapes):
+
+| Probe | Moves after the prefix | Path in `handler_rebind_keys_add()` | Linux result |
+| --- | --- | --- | --- |
+| `bind-key-first` | `a~:apply\n\u001b~\u001b` | Key first, `Strcat(cmdstr, "apply")` | `Bound key '~' to "apply".` |
+| `bind-command-first` | `b:apply\n~\u001b~\u001b` | Command first, then the key | `Bound key '~' to "apply".` |
+| `unbind-key` | `aKa\u001bK` | `Strcat(cmdstr, "nothing")` | `Changed key 'K' from "runnorth" to "nothing".` |
+| `bind-param` | `a~:toggle:\nautopickup\n\u001b\u001b~` | `Snprintf()` of `toggle(autopickup)` | `Bound key '~' to "toggle(autopickup)".` |
+| `bind-twice` | ``a~:apply\n\u001ba`:pray\n\u001b\u001b~\u001b`\u001b`` | A second bind in the same menu | Both keys bound |
+
+The `bind-param` probe is the committed recipe
+`recipes/cmd.c/toggle-bound-param-menu.session.json`; the other four are
+not committed.
+
+If macOS prints `Key binding failed?!` for the four probes that use
+`Strcat()` and binds the `bind-param` key, the judge's behavior is
+consistent enough to port.
