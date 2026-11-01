@@ -537,12 +537,16 @@ function itemLine(item) {
     if (typeof item === 'string')
         return { text: item, attr: 0, styleStart: 0, item: null };
     if (!Object.hasOwn(item, 'value')) {
+        // C ref: wintty.c tty_add_menu() (2594-2614). An entry added with a
+        // zero identifier is drawn without the "x - " prefix, but its
+        // selector is stored all the same; visiblePickOneChoice() reads it.
         return {
             text: item.text ?? item.label ?? '',
             attr: item.attr ?? 0,
             color: item.color,
             styleStart: 0,
             item: null,
+            ...(item.selector ? { zeroIdentifierSelector: item.selector } : {}),
         };
     }
 
@@ -1100,11 +1104,24 @@ function pickOneGroupChoices(spec) {
     )));
 }
 
+// C ref: wintty.c process_menu_window(). resp[] collects the selector of
+// every entry on the current page, selectable or not, and the default arm
+// toggles the first entry whose selector matches; for PICK_ONE that ends the
+// menu. An entry with a zero identifier comes back from tty_select_menu()
+// as one selected item whose identifier is zero, which this port returns as
+// 0, the zeroany a_int its only caller (dungeon.c tport_menu()) reads.
 function visiblePickOneChoice(rendered, spec, groupChoices, ch) {
-    const explicitItem = visibleItems(rendered).find(
-        (item) => item.selector === ch,
-    );
-    if (explicitItem) return { found: true, value: explicitItem.value };
+    const explicitLine = rendered.layout.lines.find((line) => (
+        line.item
+            ? line.item.selector === ch
+            : line.zeroIdentifierSelector === ch
+    ));
+    if (explicitLine) {
+        return {
+            found: true,
+            value: explicitLine.item ? explicitLine.item.value : 0,
+        };
+    }
 
     if (!spec.items) {
         const choices = spec.choices ?? new Map();

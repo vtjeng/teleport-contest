@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61094,
+      "datetime": "20330219174208",
+      "nethackrc": "OPTIONS=name:Planes,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0016?\n  N      \u001b\u001bm\u0016f:\u001b"
+    }
+  ],
+  "comment": "Blocked by dungeon.c print_dungeon(): the same unreachable dummy-letter choice as levtele-menu-endgame-dummy-letter, but reached through the m-prefixed ^V that skips getlin(). The zero identifier makes print_dungeon() read lchoices.playerlev[-1], an uninitialized stack byte. After the getlin() prompt the reference build reads 0 and level_tele() returns silently; without the prompt it reads a nonzero value here, and C prints \"You can't get there from here.\" The port models the 0 case only, so this case does not match."
+}

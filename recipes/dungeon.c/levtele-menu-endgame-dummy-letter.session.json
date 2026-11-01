@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61094,
+      "datetime": "20330219174208",
+      "nethackrc": "OPTIONS=name:Planes,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0016?\n  N      \u001b\u001b\u0016?\nf:\u001b"
+    }
+  ],
+  "comment": "Independent wizard-mode ^V ? menu travel to the Plane of Earth (page 3, N), with the arrival messages and the Amulet wish dismissed. In the endgame the single-page menu lists only the Elemental Planes, and the dummy level is unreachable (dungeon.c unreachable_level()) but keeps letter f. Pressing f ends the menu with nothing done and a blank message line; ':' follows."
+}

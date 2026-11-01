@@ -759,17 +759,19 @@ test('unplaced_floater: genuine floater makes levels unreachable', async () => {
     state.nhDisplay.onEmptyQueue = () => {
         throw new Error('unexpected key read');
     };
-    // Try selecting 'a' -- if knox is unreachable, 'a' won't match any
-    // selectable item, and the menu will wait for more input. Push Escape
-    // afterward so the test does not hang.
+    // Press 'a', the letter tport_menu() still gives the unreachable knox
+    // entry. wintty.c process_menu_window() accepts it and ends the PICK_ONE
+    // menu with the entry's zero identifier, so print_dungeon() reads no
+    // destination (C returns 0) and the Escape pushed after it stays unread.
+    // A reachable knox would instead return its level.
     state.nhDisplay.pushKey('a'.charCodeAt(0));
     state.nhDisplay.pushKey(0x1b);
 
     const result = await print_dungeon(state);
-    // If the floater made it unreachable, pressing 'a' did nothing and
-    // Escape cancelled.
     assert.equal(result, null,
-        'floater level should be unreachable and selection should cancel');
+        'floater level should be unreachable and yield no destination');
+    assert.equal(state.nhDisplay.inputQueueLength, 1,
+        "the unreachable entry's letter ends the menu before Escape");
 });
 
 // unreachable_level: when unplaced is true, the level is unreachable.
@@ -979,15 +981,17 @@ test('unreachable_level: dummy level is not selectable via menu', async () => {
     state.nhDisplay.onEmptyQueue = () => {
         throw new Error('unexpected key read');
     };
-    // Try to select 'a' (the dummy level). Since it is unreachable,
-    // 'a' is not a valid selector and the menu ignores it. Then Escape
-    // to cancel.
+    // Press 'a', the dummy level's letter. It is unreachable, so the entry
+    // has a zero identifier: the tty menu still ends on its letter, and
+    // print_dungeon() yields no destination. The Escape stays unread.
     state.nhDisplay.pushKey('a'.charCodeAt(0));
     state.nhDisplay.pushKey(0x1b);
 
     const result = await print_dungeon(state);
     assert.equal(result, null,
-        'dummy level should be unreachable and selection cancels');
+        'dummy level should be unreachable and yield no destination');
+    assert.equal(state.nhDisplay.inputQueueLength, 1,
+        "the unreachable entry's letter ends the menu before Escape");
 });
 
 // add_menu_heading heading flag: mutant changes heading:true to heading:false.

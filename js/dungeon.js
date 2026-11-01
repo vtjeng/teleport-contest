@@ -1484,7 +1484,9 @@ function tport_menu(items, entry, lchoices, lvl_p, cannotreach, state) {
     lchoices.playerlev[lchoices.idx] = depth(lvl_p, state);
     if (cannotreach) {
         // Not selectable: prepend padding in place of missing selector.
-        items.push({ text: `    ${entry}` });
+        // add_menu() still receives lchoices->menuletter with the zero
+        // identifier, and the tty menu accepts that letter as a choice.
+        items.push({ text: `    ${entry}`, selector: lchoices.menuletter });
     } else {
         items.push({
             selector: lchoices.menuletter,
@@ -1684,6 +1686,12 @@ export async function print_dungeon(state = game, { bymenu = true } = {}) {
 
     if (selected != null) {
         const idx = selected - 1;  // C: idx = selected[0].item.a_int - 1
+        // Choosing an unreachable entry's letter returns its zero identifier,
+        // so C reads lchoices.playerlev[-1], which is lev[MAXLINFO - 1] of the
+        // same uninitialized struct; tport_menu() never writes that slot.
+        // The reference build reads 0 there, and level_tele()'s
+        // `if (!newlev) return;` then leaves without a message.
+        if (idx < 0) return null;
         return {
             playerlev: lchoices.playerlev[idx],
             dlevel: lchoices.lev[idx],
