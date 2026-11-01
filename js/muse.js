@@ -2285,6 +2285,10 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
                     ...rawEnv,
                     fromMonster: true,
                 });
+                // end.c done() does not return once the wand kills the
+                // hero, so C never reaches the discovery below or the rest
+                // of mbhit()'s beam.
+                if (state.program_state?.gameover) return 0;
                 learnit = true;
             } else {
                 await message('The wand misses you.', state);
@@ -2432,6 +2436,8 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
         }
         if (u_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
             await fhitm(state.youmonst, obj, state, rawEnv);
+            // A beam that killed the hero ended the game inside done().
+            if (state.program_state?.gameover) return;
             range -= 3;
         } else {
             const mtmp = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);

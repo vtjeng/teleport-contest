@@ -1140,6 +1140,9 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
                 state,
                 env,
             );
+            // end.c done() does not return once the rock kills the hero,
+            // so C never reaches the strength exercise.
+            if (state.program_state?.gameover) return Trap_Effect_Finished;
             await exercise(A_STR, false, state, random, {
                 encumberMessage: (subject) => encumber_msg(subject),
             });

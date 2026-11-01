@@ -1988,6 +1988,9 @@ async function do_loot_cont(cobj, cindex, ccount, state) {
             KILLED_BY_AN,
             state,
         );
+        // end.c done() does not return once the bite kills the hero, so C
+        // never reaches makeknown() and its wisdom exercise.
+        if (state.program_state?.gameover) return ECMD_TIME;
         discover_object(BAG_OF_TRICKS, true, true, true, state);
         state.ga.abort_looting = true;
         return ECMD_TIME;
@@ -3681,7 +3684,7 @@ async function doloot_core(state) {
                     timepassed |= await do_loot_cont(
                         cobj, i + 1, n, state,
                     );
-                    if (state.ga.abort_looting) {
+                    if (state.ga.abort_looting || state.program_state?.gameover) {
                         return timepassed ? ECMD_TIME : ECMD_OK;
                     }
                 }
@@ -3697,7 +3700,7 @@ async function doloot_core(state) {
                     timepassed |= await do_loot_cont(
                         cobj, 1, 1, state,
                     );
-                    if (state.ga?.abort_looting)
+                    if (state.ga?.abort_looting || state.program_state?.gameover)
                         return timepassed ? ECMD_TIME : ECMD_OK;
                 }
             }
@@ -3745,7 +3748,7 @@ async function doloot_core_lootmon(
                     timepassed |= await do_loot_cont(
                         cobj, 1, 1, state,
                     );
-                    if (state.ga?.abort_looting)
+                    if (state.ga?.abort_looting || state.program_state?.gameover)
                         return timepassed ? ECMD_TIME : ECMD_OK;
                 }
             }

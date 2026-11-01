@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Exercises pickup.c do_loot_cont()'s bag of tricks arm when the bite kills the hero. A debug wish supplies an unidentified bag of tricks, which is dropped and looted after one search. The bite ends the game inside losehp() and end.c done(), which does not return, so C never reaches makeknown() and its exercise(A_WIS) draw. Answering the debug Die? prompt and the disclosure prompt plays the game to its end.",
+  "segments": [
+    {
+      "seed": 2290415,
+      "datetime": "20360723201000",
+      "nethackrc": "OPTIONS=name:Rummager,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "  #wizwish\nbag of tricks\ndks#loot\n   yq "
+    }
+  ]
+}
