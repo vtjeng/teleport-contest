@@ -47,7 +47,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES, A_INT, A_STR, A_DEX, A_CHA, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, PASSES_WALLS, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_RING, W_RINGL, W_QUIVER, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CHA, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_ROOM, IS_SINK, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, PICK_ONE, MENU_BEHAVE_STANDARD, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, PASSES_WALLS, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_RING, W_RINGL, W_QUIVER, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, adjalign, exercise, poisoned } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -70,7 +70,7 @@ import {
     ceiling, Invocation_lev, on_level, surface, surface_typ, update_mapseen_for, } from './dungeon.js';
 import { done } from './end.js';
 import { losexp, more_experienced, newexplevel } from './exper.js';
-import { getlin } from './windows.js';
+import { getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { game } from './gstate.js';
 import { ENGRAVE, FACE, FOOT, HEAD, HOLE, TRAPDOOR } from './const.js';
@@ -82,8 +82,8 @@ import { find_ac } from './u_init_inventory_attrs.js';
 import {
     check_capacity, HeroDeathPlanningError, losehp, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
 import {
-    dist2, encodeUtf8ByteString, lcase, mungspaces, s_suffix, strsubst,
-    truncateByteString, upstart,
+    dist2, encodeUtf8ByteString, lcase, mungspaces, s_suffix, strncmpi,
+    strsubst, truncateByteString, upstart,
 } from './hacklib.js';
 import {
     getobj,
@@ -1898,6 +1898,72 @@ async function wishcmdassist(triesleft, state = game) {
     await displayTtyTextWindow(state, lines.map(text => ({ text })));
 }
 
+// C ref: zap.c MAX_WISH_HISTORY, wish_history[] and wish_history_idx
+// (6220-6222). include/patchlevel.h:35-37 defines DEBUG unconditionally, so
+// the history code inside `#ifdef DEBUG` is compiled in. The two C statics
+// live on state.wish_history and state.wish_history_idx, created on first
+// use. save.c savegamestate() does not write them and freedynamicdata()
+// empties them through wish_history_flush() when the program exits, so a
+// restored game starts with no history; js/save.js serializeGameState()
+// leaves both fields out, and resetGame() builds each segment's state
+// without them, which is the flush.
+const MAX_WISH_HISTORY = 20;
+
+// C ref: zap.c wish_history_add() (6224-6253). A line is skipped when it
+// begins, ignoring ASCII case, with a line already in the history.
+export function wish_history_add(buf, state = game) {
+    if (!state.wizard) return;
+    state.wish_history ??= new Array(MAX_WISH_HISTORY).fill(null);
+    state.wish_history_idx ??= 0;
+    const history = state.wish_history;
+
+    let i;
+    for (i = 0; i < MAX_WISH_HISTORY; i++) {
+        const idx = (state.wish_history_idx + i) % MAX_WISH_HISTORY;
+
+        if (!history[idx]) continue;
+        if (!strncmpi(history[idx], buf, history[idx].length)) break;
+    }
+
+    if (i === MAX_WISH_HISTORY) {
+        const idx = (state.wish_history_idx + i) % MAX_WISH_HISTORY;
+
+        history[idx] = buf;
+        state.wish_history_idx = (state.wish_history_idx + 1) % MAX_WISH_HISTORY;
+    }
+}
+
+// C ref: zap.c wish_history_menu() (6270-6307). Lists the history newest
+// first with tty-assigned selectors. C copies the chosen line into the
+// caller's buf and leaves buf alone otherwise; makewish() reaches this only
+// while buf is still empty (its DUMMY initializer, or the help arm's reset),
+// so the empty string stands for the unmodified buffer.
+async function wish_history_menu(state = game) {
+    const history = state.wish_history;
+    const items = [];
+
+    for (let i = MAX_WISH_HISTORY - 1; i >= 0; i--) {
+        const idx = (state.wish_history_idx + i) % MAX_WISH_HISTORY;
+        if (history[idx]) {
+            items.push({ value: i + 1, label: history[idx] });
+        }
+    }
+
+    const picked = await select_menu(state, {
+        title: 'Wish what?',
+        items,
+        how: PICK_ONE,
+        cancelValue: null,
+        behavior: MENU_BEHAVE_STANDARD,
+    });
+    if (picked > 0) {
+        const idx = (state.wish_history_idx + picked - 1) % MAX_WISH_HISTORY;
+
+        if (history[idx]) return history[idx];
+    }
+    return '';
+}
+
 export async function makewish(state = game) {
     state.u.uconduct ??= {};
     state.context ??= {};
@@ -1908,21 +1974,16 @@ export async function makewish(state = game) {
     if (state.flags?.verbose)
         await ttyPline('You may wish for an object.', state);
 
-    // 6334's `iflags.menu_requested && wish_history[0] && (tries == 0)` picks
-    // the history menu over getlin(). wish_history[] is written only by
-    // wish_history_add(), which sits inside `#ifdef DEBUG` at zap.c:6229;
-    // include/config.h defines only DEBUG_MIGRATING_MONS and no patch under
-    // nethack-c/patches/ defines DEBUG, so wish_history[0] is permanently
-    // NULL. The `m` prefix therefore reaches getlin() like every other wish.
     /*
      *  Note: if they wished for and got a non-object successfully,
      *  otmp == &hands_obj.  That includes an artifact which has been
      *  denied.  Wishing for "nothing" requires a separate value to remain
      *  distinct.
      */
-    // C's bufcpy holds the typed line for wish_history_add(), which is
-    // compile-time DEBUG-only here; the three livelog strings are retained in
-    // the in-memory chronicle by pline.js.
+    // C's bufcpy holds the munged line for wish_history_add(); readobjnam()
+    // takes a JavaScript string and cannot alter it, so buf serves as both.
+    // The three livelog strings are retained in the in-memory chronicle by
+    // pline.js.
     // C's `struct obj nothing` is a stack object whose address alone matters.
     const nothing = Object.freeze({});
     // readobjnam()'s typfnd: tail calls mksobj(), which reaches the same
@@ -1940,7 +2001,12 @@ export async function makewish(state = game) {
             + (state.iflags?.cmdassist && tries > 0
                 ? " (enter 'help' for assistance)" : '')
             + '?';
-        const answer = await getlin(promptbuf, state);
+        // 6334: the `m` prefix opens the history menu on the first try once
+        // a wish has been recorded; wish_history[0] is the first slot filled.
+        const answer = state.iflags?.menu_requested
+            && state.wish_history?.[0] && tries === 0
+            ? await wish_history_menu(state)
+            : await getlin(promptbuf, state);
 
         if (state.iflags?.term_gone) {
             // win/tty/getline.c:87 raises this flag for the EOF byte.
@@ -1984,12 +2050,12 @@ export async function makewish(state = game) {
         return;
     }
     if (otmp === hands_obj) {
-        // zap.c:6374-6377 records debug-only wish history, then returns for
-        // wizard-mode terrain wishes without livelogging or spending conduct.
+        // zap.c:6374-6377 records the wish, then returns for wizard-mode
+        // terrain wishes without livelogging or spending conduct.
+        wish_history_add(buf, state);
         return;
     }
-    // wish_history_add() sits inside `#ifdef DEBUG` at zap.c:6229, and no
-    // patch under nethack-c/patches/ defines DEBUG.
+    wish_history_add(buf, state);
     if (otmp.oartifact) {
         /* update artifact bookkeeping; doesn't produce a livelog event */
         artifact_origin(otmp, ONAME_WISH | ONAME_KNOW_ARTI, state);

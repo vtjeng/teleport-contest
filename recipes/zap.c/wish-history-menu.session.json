@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "zap.c makewish() with the `m` prefix (6334), wish_history_add() (6224-6253) and wish_history_menu() (6270-6307). Four wishes fill the history: an object, a terrain wish (the hands_obj arm, 6374-6377), an upper-case repeat that strncmpi() matches and so skips, and a second object. The first `m` ^W picks the oldest entry from the newest-first menu; the second cancels with Escape, which leaves the line empty so readobjnam() picks a random object.",
+  "segments": [{
+    "seed": 71530219,
+    "datetime": "20250614093012",
+    "nethackrc": "OPTIONS=name:Wishlist,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+    "moves": " \u0017food ration\n\u0017fountain\n\u0017FOOD RATION\n\u0017blindfold\nm\u0017cm\u0017\u001bi"
+  }]
+}
