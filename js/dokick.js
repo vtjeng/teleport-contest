@@ -99,6 +99,7 @@ import {
     SCORR,
     SDOOR,
     SHOPBASE,
+    SHOP_DOOR_COST,
     SLT_ENCUMBER,
     STAIRS,
     T_LOOTED,
