@@ -78,7 +78,7 @@ import {
 import { SHTYPES } from './shtypes_data.js';
 // js/display.js imports update_lastseentyp() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
-import { describe_level, see_nearby_objects } from './display.js';
+import { describe_level, map_location, see_nearby_objects } from './display.js';
 import { hliquid } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { switch_terrain } from './hack.js';
@@ -1183,20 +1183,12 @@ export function u_on_newpos(
         hero.ux0 = x;
         hero.uy0 = y;
 
-        // dungeon.c:u_on_newpos() calls map_location(FALSE). Preserve its
-        // independent lastseentyp[x][y] write here; the [x][y] matrix lives
-        // with the fresh GameMap so a new level starts cleared. The current
-        // display layer does not yet map objects, seen traps, or revealed
-        // engravings, so it remains responsible for replacing this seam with
-        // map_location's remembered-glyph priority once those layers exist.
-        const level = state.level;
-        if (level) {
-            level.lastseentyp ??= Array.from(
-                { length: COLNO },
-                () => new Array(ROWNO).fill(0),
-            );
-            level.lastseentyp[x][y] = level.at(x, y)?.typ ?? STONE;
-        }
+        // sets lastseentyp[u.ux][u.uy]; needed for switch_terrain()
+        // somewhere back up the call chain. map_location() also writes the
+        // square's map memory; while hallucinating, an object there draws
+        // its random glyph from the display RNG here, before the arrival
+        // docrt() draws it again.
+        map_location(x, y, false, state);
         state.iflags ??= {};
         state.iflags.terrain_typ = MAX_TYPE;
     } else if (!heroBlind(state)

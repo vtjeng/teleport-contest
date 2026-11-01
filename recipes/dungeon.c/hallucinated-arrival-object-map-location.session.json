@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61850227,
+      "datetime": "20380203081500",
+      "nethackrc": "OPTIONS=name:Returner,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!tips,pettype:none\n",
+      "comment": "Independent dungeon.c u_on_newpos() and do.c goto_level() witness: a debug Valkyrie maps level 1, teleports onto its down stairs and descends, drops wished gold on the level-2 up stairs and rocks beside them, climbs back up, becomes hallucinated through #wizintrinsic, and descends again. On arrival u_on_newpos() calls map_location(), which draws the hallucinated gold's random glyph from the display RNG; goto_level() then calls docrt() alone. The rocks in view show any shift in that stream. The seed and clock were chosen independently of the example games.",
+      "moves": " \u0006\u0014>.> \u001710 gold pieces\nd$l\u00172 rocks\ndeh< #wizintrinsic\nh\n > ssss"
+    }
+  ]
+}

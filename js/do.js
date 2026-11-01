@@ -3122,17 +3122,13 @@ export async function goto_level(
     // it rather than keeping the table, and Is_rogue_level is false either
     // side of this descent, so the table it would rebuild is unchanged.
     notice_mon_off(state);
-    // display.c docrt() brackets its repaint with vision_recalc(2) and
-    // vision_recalc(0); js/display.js docrt() leaves both to its callers, as
-    // allmain.c newgame() and moveloop() already do here. This is the pair
-    // that gives the hero a map of a level she has never seen.
-    vision_recalc(2, { state });
+    // do.c:1837 calls docrt() alone. display.c docrt_flags() brackets the
+    // remembered-map pass with vision_recalc(2) and vision_recalc(0) before
+    // see_monsters(), and js/display.js docrt() makes the same two calls.
+    // Each vision_recalc() ends with newsym(u.ux, u.uy), which draws from the
+    // display RNG for a hallucinated object under the hero, so an extra call
+    // here would shift every later hallucinated glyph.
     await docrt(); /* does a full vision recalc */
-    // docrt() has painted the destination's remembered glyphs and overlaid
-    // monsters. Recalculate afterward so visible Air cells are redrawn from
-    // their live AIR/CLOUD terrain, matching display.c docrt_flags(), which
-    // calls vision_recalc(0) between those two phases.
-    vision_recalc(0, { state });
     await flush_screen(-1);
 
     if (state.gd?.dfr_post_msg)
