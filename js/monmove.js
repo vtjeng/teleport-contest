@@ -1677,7 +1677,7 @@ async function leppie_stash(mtmp, env = {}) {
 // with ranged attacks prefer to keep their distance.
 // Returns oldappr unchanged, -1 to retreat, or -2 to maintain a preferred
 // range (setting *pdistmin and *pdistmax via the returned object).
-function m_balks_at_approaching(oldappr, mtmp, state = game) {
+function m_balks_at_approaching(oldappr, mtmp, state = game, random = { rn2 }) {
     const mwep = mtmp.mw; /* MON_WEP() */
     const x = mtmp.mx, y = mtmp.my, ux = mtmp.mux, uy = mtmp.muy;
     const edist = dist2(x, y, ux, uy);
@@ -1707,7 +1707,7 @@ function m_balks_at_approaching(oldappr, mtmp, state = game) {
     }
 
     /* can attack from distance, and hp loss or attack not used */
-    if (ranged_attk_available(mtmp, { state })
+    if (ranged_attk_available(mtmp, { state, random })
         && (mtmp.mhp < Math.trunc((mtmp.mhpmax + 1) / 3)
             || !mtmp.mspec_used))
         return { appr: -1, distmin: 0, distmax: 0 };
@@ -4030,7 +4030,9 @@ export async function m_move(monster, rawEnv = {}) {
 
         // C ref: monmove.c:1878. Hostiles with ranged weapon or attack try to
         // stay away. The returned object carries appr and the preferred range.
-        const balks = m_balks_at_approaching(approach, monster, state);
+        const balks = m_balks_at_approaching(
+            approach, monster, state, random,
+        );
         approach = balks.appr;
         preferredrange_min = balks.distmin;
         preferredrange_max = balks.distmax;

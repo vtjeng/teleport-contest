@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: monmove.c m_move() -> m_balks_at_approaching() -> mhitu.c ranged_attk_available() -> mondata.c get_atkdam_type(), whose AD_RBRE arm draws rn2(8) for each Chromatic Dragon breath check. A debug-created Chromatic Dragon starts next to the hero, who steps away so the dragon moves from a distance it can breathe from. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 47120958,
+      "datetime": "20530405120321",
+      "nethackrc": "OPTIONS=name:Bram,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0007Chromatic Dragon\nyllll"
+    }
+  ]
+}
