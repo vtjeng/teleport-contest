@@ -8561,9 +8561,31 @@ test('makemon admits migratemons random-coordinate MM_NOMSG calls on tutorial le
         random.calls.length = 0;
         await assert.rejects(makemon_runtime(state.mons[PM_NEWT], 0, 0,
             MM_NOMSG | MM_NOCOUNTBIRTH, { state, random: random.random }),
-        /unsupported tutorial monster creation/u);
-        assert.deepEqual(random.calls, [], 'other flag shapes retain tutorial refusal before RNG');
+        /random coordinates outside mklev/u);
+        assert.deepEqual(random.calls, [], 'other flag shapes keep the general refusal before RNG');
     }
+});
+
+// tut-1.lua and tut-2.lua set the nomongen level flag, which sp_lev.c turns
+// into level.flags.rndmongen = 0. allmain.c maybe_generate_rnd_mon() still
+// calls makemon(NULL, 0, 0, NO_MM_FLAGS) after its rn2() draw, and makemon.c
+// returns before placement. makemon.c has no tutorial branch of its own.
+test('makemon returns null for random generation on a nomongen tutorial level', async () => {
+    assert.match(MAKEMON_C_SOURCE, /if \(iflags\.debug_mongen \|\| \(!svl\.level\.flags\.rndmongen && !ptr\)\)\s*return \(struct monst \*\) 0;/u);
+    assert.doesNotMatch(MAKEMON_C_SOURCE, /tutorial/u);
+    const state = initialLevelState();
+    state.in_mklev = false;
+    // Dungeon number 2 is arbitrary; only its match with tutorial_dnum
+    // matters, as In_tutorial() compares dnum alone.
+    state.tutorial_dnum = 2;
+    state.u.uz = { dnum: state.tutorial_dnum, dlevel: 1 };
+    state.dungeons[state.tutorial_dnum] = { ...state.dungeons[0] };
+    state.level.flags.rndmongen = false;
+    const random = recordingRandom();
+    const monster = await makemon_runtime(null, 0, 0, NO_MM_FLAGS,
+        { state, random: random.random, message: async () => {}, norepMessage: async () => {} });
+    assert.equal(monster, null);
+    assert.deepEqual(random.calls, [], 'the rndmongen return precedes every draw');
 });
 
 // C mon.c mondead() uses an explicit species at (0,0) with NO_MM_FLAGS.

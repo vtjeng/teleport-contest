@@ -765,11 +765,6 @@ function isMainDungeonLevel(state) {
     return state.u?.uz?.dnum === 0;
 }
 
-function isTutorialLevel(state) {
-    return state.u?.uz?.dnum === state.tutorial_dnum
-        && state.u.uz.dlevel === 1;
-}
-
 function isArmed(species) {
     return species.mattk.some((attack) => attack.aatyp === AT_WEAP);
 }
@@ -1262,7 +1257,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         );
     }
     const mainDungeonLevel = isMainDungeonLevel(state);
-    const tutorialLevel = isTutorialLevel(state);
     // sp_lev.c's lspo_finalize_level() calls level_finalize_topology() before
     // filling special rooms.  That source path clears in_mklev, but its
     // fill_zoo() makemon calls are still level-generation calls, so admit the
@@ -1389,21 +1383,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && Boolean(mmflags & MM_NOMSG)
         && !(mmflags & ~(MM_NOMSG | MM_ANGRY | MM_MALE | MM_FEMALE));
-    if (tutorialLevel && !runtimeRandomNoMsgCall
-        && !runtimeExplicitRandomCall && !runtimeGroupCall
-        && !wereSummonCall && !cloneWizardCall && !furiesCall
-        && !explicitCoordinateNoFlagsRuntimeCall
-        && !explicitCoordinateNoMinventRuntimeCall
-        && !explicitInventorylessHeroCall && !hatchEggCall
-        && !explicitCoordinateRuntimeCall
-        && (!state.in_mklev
-            || randomCoordinates
-            || !ptr
-            || !TUTORIAL_LEVEL_MONSTERS.has(ptr.pmidx))) {
-        throw new UnsupportedMonsterCreationError(
-            'unsupported tutorial monster creation',
-        );
-    }
     if (randomCoordinates && !state.in_mklev && !runtimeRandomCall
         && !runtimeRandomNoMsgCall
         && !statueInventoryCall) {

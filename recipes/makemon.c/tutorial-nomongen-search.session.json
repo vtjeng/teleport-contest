@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48213,
+      "datetime": "20310922184500",
+      "nethackrc": "OPTIONS=name:Akemi,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none,time\n",
+      "moves": " y   99s60s"
+    }
+  ],
+  "comment": "Accepts the startup tutorial and searches for about 160 turns on tut-1. Each turn allmain.c maybe_generate_rnd_mon() draws rn2(70); on a zero draw makemon.c makemon(NULL, 0, 0, NO_MM_FLAGS) returns at once because tut-1.lua sets nomongen, so level.flags.rndmongen is 0."
+}
