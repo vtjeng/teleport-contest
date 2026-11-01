@@ -42,6 +42,8 @@ import {
     LL_CONDUCT,
     MM_EPRI,
     MM_NOMSG,
+    MMOVE_DIED,
+    MMOVE_DONE,
     N_DIRS,
     NOTONL,
     RLOC_NOMSG,
@@ -90,7 +92,9 @@ import {
     passes_walls,
     resist_conflict,
 } from './mondata.js';
-import { m_break_boulder, mfndpos, monnear } from './monmove.js';
+import {
+    m_break_boulder, m_move_aggress, mfndpos, monnear,
+} from './monmove.js';
 import {
     AD_ELEC,
     PM_ALIGNED_CLERIC,
@@ -672,9 +676,15 @@ export async function move_special(
             return 1;
         }
         if (ninfo & ALLOW_M) {
-            if (typeof env.aggress !== 'function')
-                throw new Error('move_special: aggression requires aggress');
-            return env.aggress(mtmp, nix, niy, env);
+            // priest.c:108-118. mtmp attacks the monster on that square;
+            // m_move_aggress()'s results are translated, and any other
+            // result falls through to the occupied-square test below.
+            switch (await m_move_aggress(mtmp, nix, niy, env)) {
+            case MMOVE_DIED:
+                return -2; /* died making the attack */
+            case MMOVE_DONE:
+                return 1; /* attacked and spent this move */
+            }
         }
 
         if (m_at(nix, niy, state) || u_at(nix, niy, state))

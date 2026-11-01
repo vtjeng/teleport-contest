@@ -4311,7 +4311,7 @@ export async function m_move(monster, rawEnv = {}) {
 // C ref: monmove.c m_move_aggress() (2088-2120). A monster attacks another
 // monster. Returns MMOVE_DIED if the aggressor died, MMOVE_DONE otherwise.
 // The defender may also counterattack if conditions are met.
-async function m_move_aggress(mtmp, x, y, env = {}) {
+export async function m_move_aggress(mtmp, x, y, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
     let mstatus = 0; /* M_ATTK_MISS */
