@@ -120,8 +120,10 @@ test('restored region capacity shrinks both allocation levels before future grow
     assert.equal(level.regions[0].max_monst, 2);
     region.add_mon_to_reg(level.regions[0], { m_id: 3 });
     assert.equal(level.regions[0].max_monst, 7); // C adds five to restored capacity, without rounding to a multiple.
-    for (const file of ['restore', 'bones']) {
-        const js = readFileSync(new URL('../js/' + file + '.js', import.meta.url), 'utf8');
-        assert.match(js, /rest_region_capacity\((?:state\.level|level)\)/u);
-    }
+    const source = file => readFileSync(new URL('../js/' + file + '.js', import.meta.url), 'utf8');
+    // bones.js shrinks capacity directly. restore.js reaches it through
+    // region.c rest_regions(), which shrinks capacity before aging regions.
+    assert.match(source('bones'), /rest_region_capacity\((?:state\.level|level)\)/u);
+    assert.match(source('restore'), /\brest_regions\(/u);
+    assert.match(source('region'), /export function rest_regions\([^)]*\) \{\n    rest_region_capacity\(state\.level\);/u);
 });

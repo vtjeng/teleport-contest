@@ -126,6 +126,31 @@ import {
 
 // dat/dungeon.lua's first two dungeons: "The Dungeons of Doom" builds down
 // from level one, "The Gnomish Mines" branches off it.
+// dungeon.c recalc_mapseen() asks at_dgn_entrance("The Quest") on every
+// call, and dungeon_branch() panics when no branch leads there, so the
+// room-entry tests that reach room_discovered() add the Quest to
+// dungeonState()'s list. The entrance on level 11 is arbitrary; it only has
+// to differ from the hero's level 1, so the quest summons annotation stays
+// off. dungeonState() itself keeps two dungeons for the tests that check an
+// unknown dungeon name.
+function addQuestEntrance(state) {
+    state.dungeons.push({
+        dname: 'The Quest',
+        depth_start: 11,
+        ledger_start: 37,
+        num_dunlevs: 5,
+        entry_lev: 1,
+        dunlev_ureached: 0,
+        flags: {},
+    });
+    state.n_dgns = state.dungeons.length;
+    state.branches.push({
+        end1: { dnum: 0, dlevel: 11 },
+        end2: { dnum: state.dungeons.length - 1, dlevel: 1 },
+        end1_up: false,
+    });
+}
+
 function dungeonState() {
     const state = resetGame();
     state.dungeons = [
@@ -523,6 +548,7 @@ test('do_mkroom takes the room the level would gain', () => {
 test('check_special_room handles Court and Morgue and stops later families',
     async () => {
     const state = dungeonState();
+    addQuestEntrance(state);
     roomLevel(state, { lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7 });
     state.level.at(20, 10).typ = STONE;
     // The hero stands inside the room; move_update(FALSE) records it as newly
@@ -771,6 +797,7 @@ test('check_special_room handles Court and Morgue and stops later families',
 
 test('check_special_room completes the remaining C room-entry arms', async () => {
     const state = dungeonState();
+    addQuestEntrance(state);
     roomLevel(state, { lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7 });
     state.u.ux = 12;
     state.u.uy = 7;
