@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71832,
+      "datetime": "20291203154530",
+      "nethackrc": "OPTIONS=name:DelphiProbe,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u00165\n#wizmap\n#overview\n\u001b"
+    }
+  ],
+  "comment": "mklev.c level_finalize_topology() copies rtype into orig_rtype for every slot of svr.rooms[], including the subrooms. The Oracle's Delphi is a subroom of oracle.lua's centre room, and dungeon.c recalc_mapseen() reads its orig_rtype to add 'Oracle of Delphi.' to #overview. A debug-mode Valkyrie level-teleports to depth 5, where seed 71832 places the Oracle, maps the level with #wizmap so room_discovered() marks the Delphi seen, then opens #overview. The seed, clock and character were chosen for this case."
+}

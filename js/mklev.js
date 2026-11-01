@@ -8301,9 +8301,10 @@ function level_finalize_topology() {
             topologize(game.level.rooms?.[i]);
     }
     set_wall_state();
-    const rooms = game.level?.rooms ?? [];
-    for (let i = 0; i < rooms.length; i++) {
-        const rm = rooms[i];
+    // C's loop covers SIZE(svr.rooms), whose second half holds the
+    // subrooms; JS keeps those in game.subrooms. The Oracle's Delphi is a
+    // subroom, and its orig_rtype feeds the #overview annotation.
+    for (const rm of [...(game.level?.rooms ?? []), ...(game.subrooms ?? [])]) {
         if (rm && rm.rtype != null) rm.orig_rtype = rm.rtype;
     }
 }
