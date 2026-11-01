@@ -82,6 +82,7 @@ import {
     ledger_to_dlev,
     ledger_to_dnum,
     builds_up,
+    mapseen_room,
 } from './dungeon.js';
 import { newsym } from './display.js';
 import { m_unleash } from './apply.js';
@@ -1299,7 +1300,10 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
     if (xlocale && wander) {
         const roomNumbers = in_rooms(xlocale, ylocale, 0, state);
         if (roomNumbers.length) {
-            const room = state.level.rooms?.[roomNumbers[0] - ROOMOFFSET];
+            // C indexes svr.rooms[*r - ROOMOFFSET], where subrooms follow
+            // the top-level rooms; level.rooms holds only the top level, so
+            // a subroom (a Minetown shop door, say) needs mapseen_room().
+            const room = mapseen_room(roomNumbers[0] - ROOMOFFSET, state);
             const coordinate = {};
             if (room && somexy(room, coordinate, env)) {
                 xlocale = coordinate.x;
