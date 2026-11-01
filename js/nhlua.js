@@ -197,12 +197,16 @@ async function restore_gamestate(state, modules) {
 // moves to gmst_invent in reverse order; each object's owornmask stays set
 // as the flag that re-wears it when the state is restored.
 export async function nhl_gamestate(reststate, state = game) {
+    const modules = await gamestateModules();
     if (reststate !== Boolean(state.gmst_stored)) {
         // C calls impossible() for a save while stored or a restore with
-        // nothing stored; neither tutorial transition reaches it.
-        throw new Error('nhl_gamestate: inconsistent state');
+        // nothing stored, then still runs update_inventory().
+        note_unported('pline.c impossible');
+        modules.update_inventory({
+            state, hooks: tutorialInventoryHooks(modules),
+        });
+        return;
     }
-    const modules = await gamestateModules();
     if (reststate) {
         await restore_gamestate(state, modules);
         return;
