@@ -77,7 +77,8 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { cansee } from './vision.js';
-import { canseemon, canspotmon } from './display.js';
+import { canseemon, canspotmon, glyph_is_monster } from './display.js';
+import { GLYPH_NOTHING_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import {
     do_screen_description,
     mhidden_description,
@@ -302,6 +303,14 @@ export function messageAt(text, x, y, state, forceLocation = false) {
 
 function sameGlyphIdentity(left, right) {
     if (!left || !right) return left === right;
+    // Glyph-update metadata is attached only while glyph_updates is on, so a
+    // cell drawn before the option was set, or by hero_glyph_info(), carries
+    // the glyph number alone. C's gbuf always holds that number, and
+    // show_glyph() compares nothing else, so compare it whenever one side
+    // lacks the metadata.
+    if ((left.a11yIdentity == null || right.a11yIdentity == null)
+        && Number.isInteger(left.glyph) && Number.isInteger(right.glyph))
+        return left.glyph === right.glyph;
     if (left.a11yIdentity != null || right.a11yIdentity != null)
         return left.a11yIdentity === right.a11yIdentity;
     // Hand-authored presentations have no source glyph number. Matching
@@ -508,6 +517,18 @@ export function noteGlyphBufferMutation(x, y, state) {
     );
 }
 
+// display.c show_glyph() classifies the old glyph only through
+// glyph_is_nothing(), glyph_is_unexplored(), and glyph_is_monster(). A
+// presentation without glyph-update metadata still carries its glyph number;
+// the hero's own glyph from hero_glyph_info() is a monster glyph.
+function glyphNumberKind(glyph) {
+    if (!Number.isInteger(glyph)) return null;
+    if (glyph === GLYPH_NOTHING_OFF) return 'nothing';
+    if (glyph === GLYPH_UNEXPLORED_OFF) return 'unexplored';
+    if (glyph_is_monster(glyph)) return 'monster';
+    return null;
+}
+
 // C ref: display.c show_glyph(). The caller invokes this after installing the
 // presentation, matching show_glyph()'s gbuf update before
 // do_screen_description() and pline_xy(). The first notice saves one complete
@@ -533,6 +554,7 @@ export function queueGlyphUpdateNotice(
     }
 
     const oldKind = previous?.a11yKind
+        ?? glyphNumberKind(previous?.glyph)
         ?? (previous ? 'other' : 'unexplored');
     const newKind = current?.a11yKind ?? 'other';
     const eligible = oldKind === 'nothing'

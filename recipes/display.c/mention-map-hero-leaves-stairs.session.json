@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises display.c show_glyph():2011-2027 with mention_map (a11y.glyph_updates) on. The Valkyrie steps off and back onto the up staircase and later reveals corridor squares. When newsym() redraws the staircase she left, the old glyph is her own monster glyph, so glyph_is_monster(oldglyph) suppresses the notice; the newly seen corridors still give one.",
+  "segments": [
+    {
+      "seed": 6620411,
+      "datetime": "20261103141500",
+      "nethackrc": "OPTIONS=name:Mapper,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,mention_map,terrainstatus,time\n",
+      "moves": "\u001b\u001b\u001blhlhjkjkyunb.."
+    }
+  ]
+}

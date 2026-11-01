@@ -2197,7 +2197,10 @@ test('movement glyph notices precede later first-turn region messages',
         });
         // This seed supplies an unobstructed east step. From the new square,
         // the branch staircase is west and the newly revealed disguised
-        // monster is southeast.
+        // monster is southeast. The staircase gives no notice: the hero's
+        // glyph was on that square, and display.c show_glyph()'s
+        // glyph_is_monster(oldglyph) test (2021) skips it, as the C recording
+        // recordings/display.c/mention-map-hero-leaves-stairs shows.
         // Stop at the first command boundary so this test can install a
         // source-reachable reveal immediately before parse() reads movement.
         input.moves = '';
@@ -2276,10 +2279,7 @@ test('movement glyph notices precede later first-turn region messages',
             [oldHero.x + 1, oldHero.y],
         );
         assert.equal(cansee(target.x, target.y), true);
-        assert.equal(
-            game._pending_message,
-            '(west): branch staircase up.  (southeast): goblin.',
-        );
+        assert.equal(game._pending_message, '(southeast): goblin.');
         assert.equal(game._glyphUpdateNotices.length, 0);
         // display.c installs and flushes the transient disguise for
         // show_glyph()'s pline_xy(), then leaves the real monster in gbuf.
@@ -2289,16 +2289,17 @@ test('movement glyph notices precede later first-turn region messages',
         );
         assert.equal(targetLocation.disp_ch, 'i');
         // C ref: display.c show_glyph() reaches pline_xy(), then topl.c
-        // update_topl()/addtopl() leaves the cursor after the 50-byte
-        // same-line notice, not at the map cursor used by pline_xy().
+        // update_topl()/addtopl() leaves the cursor after the 20-byte
+        // notice, not at the map cursor used by pline_xy().
         assert.deepEqual(
             [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
-            [50, 0],
+            [20, 0],
         );
 
         // C ref: allmain.c moveloop_core() runs region expiry after movement
-        // allocation on the next elapsed turn. Its ordinary pline first
-        // exposes the source-earlier glyph notice at a More boundary.
+        // allocation on the next elapsed turn. Its ordinary pline follows the
+        // source-earlier glyph notice; both fit on one tty line, so topl.c
+        // update_topl() joins them without a More boundary.
         const cloud = create_region([{
             lx: oldHero.x,
             ly: oldHero.y,
@@ -2312,7 +2313,6 @@ test('movement glyph notices precede later first-turn region messages',
             arg: 0,
         });
         game.level.regions.push(cloud);
-        game.nhDisplay.pushKey(' '.charCodeAt(0));
         await assert.rejects(
             moveloop_core(),
             /Input queue empty/u,
@@ -2321,7 +2321,7 @@ test('movement glyph notices precede later first-turn region messages',
         assert.equal(game.level.regions.includes(cloud), false);
         assert.equal(
             game._pending_message,
-            'You see a gas cloud dissipate.',
+            '(southeast): goblin.  You see a gas cloud dissipate.',
         );
         assert.equal(targetLocation.disp_ch, 'i');
         assert.deepEqual(
@@ -2337,22 +2337,15 @@ test('movement glyph notices precede later first-turn region messages',
                     cursor: [oldHero.x - 1, oldHero.y + 1],
                 },
                 {
-                    message: '(west): branch staircase up.  '
-                        + '(southeast): goblin.--More--',
-                    target: 'i',
-                    // The 50-byte notice plus the eight-byte --More-- prompt
-                    // leaves the tty cursor at column 58.
-                    cursor: [58, 0],
-                },
-                {
-                    message: 'You see a gas cloud dissipate.',
+                    message: '(southeast): goblin.  '
+                        + 'You see a gas cloud dissipate.',
                     target: 'i',
                     cursor: [game.u.ux - 1, game.u.uy + 1],
                 },
             ],
         );
         assert.deepEqual(
-            replay.getCursors().slice(-3),
+            replay.getCursors().slice(-2),
             inputFrames.map(({ cursor }) => [...cursor, 1]),
         );
     });
