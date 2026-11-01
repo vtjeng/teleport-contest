@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4410022,
+      "datetime": "20391108143000",
+      "nethackrc": "OPTIONS=name:Kicker,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00163\n\u0014  HHHHhhhhh.\u0004h\u0004h  ",
+      "comment": "Penniless variation of kick-shop-door-pay-damage-5520005: an independent seed found by scanning seeds 4410000-4410029 with the port for a D:3 shop whose door is closed. A Valkyrie starts with no gold. After the wizard-mode level teleport, Ctrl-T places the hero at (10,16), east of the closed door at (9,16). The second kick west lets kick_door() succeed: the door crashes open, add_damage() bills SHOP_DOOR_COST, and pay_for_damage() brings the shopkeeper to the door. The hero cannot pay 400 zorkmids, so getcad() angers the shopkeeper, who zaps a wand and misses."
+    }
+  ]
+}
