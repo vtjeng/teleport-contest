@@ -460,6 +460,11 @@ function serializeGameState(state) {
         tune: state.tune,
         // Inventory and objects
         invent: state.invent,
+        // C ref: save.c savegamestate():306-307 saveobjchn(gm.migrating_objs)
+        // and savemonchn(gm.migrating_mons), right after the inventory and
+        // any dangling ball and chain.
+        migrating_objs: state.gm?.migrating_objs ?? null,
+        migrating_mons: state.gm?.migrating_mons ?? null,
         // Equipment state: setworn() sets these game-level pointers; the
         // restore path scans owornmask to rebuild them, but unweapon has no
         // per-object representation. head_engr is the engraving chain on

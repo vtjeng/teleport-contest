@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: save.c savegamestate():306-307 and restore.c restgamestate():671-672, the gm.migrating_objs and gm.migrating_mons chains. Segment 1 creates the Wizard of Yendor in debug mode and level-teleports away; dog.c keepdogs() puts the Wizard on gm.migrating_mons for his own level (MIGR_EXACT_XY), and the game is saved. Segment 2 restores and level-teleports back, where dog.c losedogs() must find him. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 83306142,
+      "datetime": "20520614201133",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0007Wizard of Yendor\ny\u00163\nSy"
+    },
+    {
+      "seed": 83306142,
+      "datetime": "20520614201133",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\n\u00161\nmsmsms"
+    }
+  ]
+}

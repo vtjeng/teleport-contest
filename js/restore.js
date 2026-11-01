@@ -244,10 +244,15 @@ export async function dorestore(state = game) {
     }
 
     // Inventory and objects
-    // C ref: restore.c restgamestate():681 gi.invent = restobjchn(nhfp, FALSE).
-    // The dangling ball-and-chain, gm.migrating_objs and gm.migrating_mons
-    // chains that follow it in C (684-696) are not in the snapshot.
+    // C ref: restore.c restgamestate():657 gi.invent = restobjchn(nhfp, FALSE).
+    // The dangling ball-and-chain that follows it in C is not in the
+    // snapshot; restgamestate():671-672 then restores the migrating chains.
     state.invent = restobjchn(snapshot.invent, state);
+    state.gm ??= {};
+    state.gm.migrating_objs = restobjchn(snapshot.migrating_objs ?? null,
+        state);
+    state.gm.migrating_mons = restmonchn(snapshot.migrating_mons ?? null,
+        state);
     if (snapshot.head_engr != null) state.head_engr = snapshot.head_engr;
 
     // C has a static artifact catalog; JS rebuilds its per-game catalog
