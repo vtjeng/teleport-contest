@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkobj.c start_corpse_timeout() during mkmaze.c populate_maze(): a corpse made while a maze level is filled (here inside a random ice box) still draws rnd.c rnz(), and C logs the rnz() result after its rn2() and rne() draws. A debug elven Priestess level-teleports to Dlvl 22, 23 and 24; Dlvl 24 is a maze whose random objects include corpses. The seed was found by running the port alone over fresh seeds and keeping the first one whose maze fill made a corpse; it and the date were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 9130030,
+      "datetime": "20301122161000",
+      "nethackrc": "OPTIONS=name:Mazer,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup\n",
+      "moves": "\u001622\n\u001b\u001b\u001b\u001623\n\u001b\u001b\u001624\n\u001b\u001b"
+    }
+  ]
+}

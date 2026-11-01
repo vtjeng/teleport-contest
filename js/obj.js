@@ -622,13 +622,18 @@ function sourceRandom(env) {
         const random = Object.fromEntries(
             names.map((name) => [name, injected[name]]),
         );
+        // C ref: rnd.c rnz(). Callers such as mkmaze.c populate_maze() inject
+        // the logging rn2() and rne() without rnz(); C's rnz() logs its own
+        // result after those draws, so this composition must too.
         random.rnz = typeof injected.rnz === 'function'
             ? injected.rnz
             : (value) => {
                 const scale = (1000 + random.rn2(1000)) * random.rne(4);
-                return random.rn2(2)
+                const result = random.rn2(2)
                     ? Math.trunc(value * scale / 1000)
                     : Math.trunc(value * 1000 / scale);
+                pushRngLogEntry(`rnz(${value})=${result}`);
+                return result;
             };
         return random;
     }
