@@ -742,7 +742,13 @@ test('a same-line append preserves a pending DEC mixed first cell', async () => 
     assert.equal(state._ttyMixedFirstCell, undefined);
 });
 
-test('STOP Space clears suppression set by a prior Escape', async () => {
+// The Escape answers the --More-- that update_topl() raises for "halt", so
+// topl.c still redraws "halt" with skip already computed as FALSE. vpline()'s
+// MSGTYP_STOP display_nhwindow(WIN_MESSAGE, TRUE) then returns at once:
+// wintty.h gives WIN_CANCELLED and WIN_STOP the same bit. "after" takes the
+// suppressed same-line arm. recordings/pline.c/msgtype-stop-after-escape
+// shows the patched C program skipping that second --More--.
+test('STOP after an Escaped More neither waits nor clears suppression', async () => {
     const state = messageState('MSGTYPE=stop "halt"\n', '\x1b X');
     const boundaries = [];
     state._preNhgetchHook = () => boundaries.push({
@@ -751,6 +757,7 @@ test('STOP Space clears suppression set by a prior Escape', async () => {
         cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
         toplines: state._ttyToplines,
     });
+    // 68 characters leave no room for "halt" on the same line (CO - 8).
     await ttyPline('P'.repeat(68), state);
     await ttyPline('halt', state);
     await ttyPline('after', state);
@@ -761,18 +768,15 @@ test('STOP Space clears suppression set by a prior Escape', async () => {
             cursor: [76, 0],
             toplines: 'P'.repeat(68),
         },
-        {
-            row: 'halt--More--',
-            cursor: [12, 0],
-            toplines: 'halt',
-        },
     ]);
-    assert.equal(state._ttyMessageStopped, false);
+    assert.equal(state.nhDisplay.grid[0].map((cell) => cell.ch)
+        .join('').trimEnd(), 'halt');
+    assert.equal(state._ttyMessageStopped, true);
     assert.equal(state._ttyPreviousMessage, 'after');
-    assert.equal(state._ttyToplines, 'after');
-    assert.equal(state._pending_message, 'after');
-    assert.equal(state.nhDisplay.topMessage, 'after');
-    assert.equal(await nhgetch(state), 'X'.charCodeAt(0));
+    assert.equal(state._ttyToplines, 'halt  after');
+    // tty_nhgetch() clears WIN_STOP before reading the next key.
+    assert.equal(await nhgetch(state), ' '.charCodeAt(0));
+    assert.equal(state._ttyMessageStopped, false);
 });
 
 test('sequential runSegment calls discard the prior MSGTYPE list', async () => {

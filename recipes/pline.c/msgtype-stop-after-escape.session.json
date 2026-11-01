@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 29514,
+      "datetime": "20250129213000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Ranger,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"Be careful!  New moon tonight.\"\n",
+      "moves": "\u001b ns"
+    }
+  ],
+  "comment": "Escape answers the --More-- that the new-moon message forces on the welcome message. The moon message has MSGTYPE=stop, so pline.c vpline() calls display_nhwindow(WIN_MESSAGE, TRUE), which returns at once because WIN_STOP shares WIN_CANCELLED's bit; the tutorial menu follows with no second --More--. The space is ignored by the menu and n declines."
+}
