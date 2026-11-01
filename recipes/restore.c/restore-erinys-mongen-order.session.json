@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: restore.c restgamestate():727 adj_erinys(u.ualign.abuse) and makemon.c init_mongen_order()/mkclass_aligned(). Segment 1 kills the starting kitten with a debug-wished wand of death (attrib.c adjalign(-15) raises alignment abuse to 15, so mon.c adj_erinys() sets the erinys difficulty to 15) and saves. Segment 2 restores in a fresh process, which must replay adj_erinys() before its first mkclass(S_DEMON) sorts mongen_order; four wizard-mode create-monster requests for the demon class then exercise that order. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 40917726,
+      "datetime": "20470203110517",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:cat,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "\n\u0017wand of death\nsFl\n\nSy"
+    },
+    {
+      "seed": 40917726,
+      "datetime": "20470203110517",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:cat,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "\n\n\u0007&\n\u0007&\n\u0007&\n\u0007&\n"
+    }
+  ]
+}

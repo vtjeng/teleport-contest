@@ -44,7 +44,7 @@ import { ledger_no, level_info, set_dungeon_topology } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
 import { restore_waterlevel } from './mkmaze.js';
-import { hideunder, restrap, restore_cham } from './mon.js';
+import { adj_erinys, hideunder, restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
@@ -358,6 +358,12 @@ export async function dorestore(state = game) {
     // through l_nhcore_init(), which also sets state.splev_align for any
     // future level generation in this game.
     l_nhcore_init(state);
+
+    // C ref: restgamestate():727 adj_erinys(u.ualign.abuse). The erinys
+    // catalog rewrite is not saved, so restore replays it before anything
+    // reads mons[PM_ERINYS], including makemon.c init_mongen_order(), whose
+    // difficulty sort a fresh process runs on its first mkclass().
+    adj_erinys(state.u.ualign.abuse, state);
 
     // C ref: dorecover():825 init_oclass_probs(). Recompute object-class
     // probability totals from the restored objects table.

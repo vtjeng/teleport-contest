@@ -6906,17 +6906,14 @@ export function maybe_unhide_at(x, y, state = game, rawEnv = {}) {
 // C ref: mon.c adj_erinys() (5921-5966), "make erinyes more dangerous based on
 // your alignment abuse". Nine thresholds rewrite mons[PM_ERINYS] in place, and
 // the level and difficulty at the end are recomputed from u.ualign.abuse on
-// every call rather than from the argument. attrib.c adjalign() is one of its
-// two callers and the only one this port has; the other is restore.c:727, which
-// replays the whole rewrite after a restore because none of it is saved.
+// every call rather than from the argument. Its two callers are attrib.c
+// adjalign() and restore.c:727 (js/restore.js dorestore()), which replays the
+// whole rewrite after a restore because none of it is saved.
 //
 // The rewrite is a game-state change rather than a pure calculation, so it
 // belongs to whichever game owns the catalog: monsters.js monst_globals_init()
 // gives each game its own deep copy of the frozen templates, which is what
 // makes a write here as private to one game as C's mons[] is to one process.
-// The port has no save or restore -- js/save.js is savelev() alone, and
-// dorecover() has no port -- so restore.c:727 has no owner to disagree with
-// yet. When restore lands it has to call this after the monsters are restored.
 export function adj_erinys(abuse, state = game) {
     const pm = state.mons[PM_ERINYS];
 
