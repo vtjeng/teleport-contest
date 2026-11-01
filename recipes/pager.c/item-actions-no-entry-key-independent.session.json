@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7302215,
+      "datetime": "20190308174512",
+      "nethackrc": "OPTIONS=name:KeyLookup,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "  #wizwish\nskeleton key\nii\u001bie\u001b",
+      "comment": "Independent item-actions menu for an object data.base does not describe: the wished skeleton key is named \"key\" by xname(), so pager.c ia_checkfile() finds no entry and iactions.c itemactions() (691-696) leaves out '/ - Look up information'. The clove of garlic afterwards matches '*garlic' and keeps the '/' choice."
+    }
+  ]
+}

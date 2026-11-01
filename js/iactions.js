@@ -119,9 +119,12 @@ import {
     cxname,
     is_plural,
     simpleonames,
+    singular,
     the,
     the_unique_obj,
+    xnameFresh,
 } from './objnam.js';
+import { CHKFIL_DONT_ASK, CHKFIL_IA_CHECK, checkfile } from './pager.js';
 import { makeplural } from './fruit.js';
 import { body_part } from './polyself.js';
 import { surface } from './dungeon.js';
@@ -371,13 +374,12 @@ function itemactions_pushkeys(otmp, act, state) {
     }
 }
 
-// C ref: pager.c ia_checkfile() (807-815). Checks whether data.base has an
-// entry for the object's singular xname. The JS port has no data.base file,
-// but data.base has 951 entries with wildcards (scroll *, wand *, ring of *,
-// armor*, etc.) covering every named item a session can interact with.
-// Returning true unconditionally matches C for every reachable case.
-function ia_checkfile(_otmp) {
-    return true;
+// C ref: pager.c ia_checkfile() (807-815). Decides whether the item-actions
+// menu offers "/ - Look up information": data.base must have an entry for
+// singular(otmp, xname), which is what "/i" would look up.
+async function ia_checkfile(otmp, state) {
+    const itemnam = singular(otmp, xnameFresh, state);
+    return checkfile(itemnam, null, CHKFIL_IA_CHECK | CHKFIL_DONT_ASK, state);
 }
 
 // C ref: iactions.c itemactions() (278-714). Shows a menu of possible
@@ -746,7 +748,7 @@ export async function itemactions(otmp, state = game, hooks = {}) {
             'Zap this wand to release its magic');
 
     // /: look up in database (C:691-696)
-    if (ia_checkfile(otmp)) {
+    if (await ia_checkfile(otmp, state)) {
         ia_addmenu(items, IA_WHATIS_OBJ, '/',
             `Look up information about ${otmp.quan > 1 ? 'these' : 'this'}`);
     }

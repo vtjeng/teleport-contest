@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7302216,
+      "datetime": "20221117091503",
+      "nethackrc": "OPTIONS=name:LeafLookup,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "  #wizwish\n3 eucalyptus leaves\nie\u001b",
+      "comment": "Variation of item-actions-no-entry-key-independent: a stack of eucalyptus leaves (quan > 1) is looked up through singular(otmp, xname) as \"eucalyptus leaf\", which pager.c ia_checkfile() does not find in data.base, so iactions.c itemactions() offers no '/' choice."
+    }
+  ]
+}
