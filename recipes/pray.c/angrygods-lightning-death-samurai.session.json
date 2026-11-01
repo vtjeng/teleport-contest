@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pray.c recipe: a lawful Samurai prays three times without trouble. The third angrygods() roll selects god_zaps_you(), whose fry_by_god() done(DIED) ends the game, so C never draws angrygods()'s rnz(300) prayer timeout.",
+  "segments": [
+    {
+      "seed": 58031701,
+      "datetime": "20580317101500",
+      "nethackrc": "OPTIONS=name:Smitten,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "#pray\ny        #pray\ny        #pray\ny     "
+    }
+  ]
+}

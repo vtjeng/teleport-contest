@@ -3074,6 +3074,9 @@ export async function angrygods(resp_god, state = game) {
     default:
         await godvoice(resp_god, 'Thou hast angered me.', state);
         await god_zaps_you(resp_god, state);
+        // fry_by_god()'s done(DIED) does not return in C unless the hero
+        // survived, so the prayer timeout below is never drawn after death.
+        if (state.program_state?.gameover) return;
         break;
     }
     /* even though this might not be in response to prayer, set pray timer */
