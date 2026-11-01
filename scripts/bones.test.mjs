@@ -362,6 +362,13 @@ test('savebones removes numeric quest leaders and nemeses before serialization',
         assert.equal(game.level.monsters[leader.mx][leader.my], leader);
         assert.equal(game.level.monsters[nemesis.mx][nemesis.my], nemesis);
 
+        // mongone() and dmonsfree() deallocate the removed monsters, which
+        // resets their fields, so record what identifies them beforehand.
+        const actors = [leader, nemesis].map(monster => ({
+            m_id: monster.m_id, mnum: monster.mnum,
+            msound: monster.data.msound, mhp: monster.mhp,
+            mx: monster.mx, my: monster.my, minvent: monster.minvent,
+        }));
         const path = `bones_D${game.u.uz.dnum}.${game.u.uz.dlevel}`;
         assert.equal(vfsReadFile(path), null);
         await savebones(DIED, getnow(game), null, game);
@@ -369,17 +376,13 @@ test('savebones removes numeric quest leaders and nemeses before serialization',
         assert.equal(typeof savedText, 'string');
         const saved = JSON.parse(savedText);
         const savedIds = new Set(saved.monsters.map(monster => monster.m_id));
-        const state = [savedIds.has(leader.m_id), savedIds.has(nemesis.m_id),
+        const state = [savedIds.has(actors[0].m_id), savedIds.has(actors[1].m_id),
             saved.monsters.some(monster => monster.mnum === PM_GHOST)];
         console.log(`BONES_QUEST_FILTER_RECEIPT ${jsonWithBigInts({
             phase: 'after actual savebones', seed: 2026101804,
             datetime: '20261018071700', flags,
             roleLeader: game.urole.ldrnum,
-            actors: [leader, nemesis].map(monster => ({
-                m_id: monster.m_id, mnum: monster.mnum,
-                msound: monster.data.msound, mhp: monster.mhp,
-                mx: monster.mx, my: monster.my, minvent: monster.minvent,
-            })),
+            actors,
             serialized: { path, bytes: savedText.length,
                 monsterCount: saved.monsters.length,
                 actors: saved.monsters.map(monster => ({

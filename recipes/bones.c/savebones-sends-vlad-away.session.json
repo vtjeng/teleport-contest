@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises bones.c savebones() -> remove_mon_from_bones() on a level holding Vlad the Impaler. A Tourist in debug mode forces a wizard-mode Vlad beside her, accepts the death he deals and saves bones. is_Vlad() sends him away through mon.c mongone(), whose steal.c mdrop_special_objs() calls zap.c obj_resists() for each item he carries before the hero's corpse monster is made.",
+  "segments": [
+    {
+      "seed": 6620419,
+      "datetime": "20560314083021",
+      "nethackrc": "OPTIONS=name:Mirela,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "#wizgenesis\nVlad the Impaler\nym. m. m. yqy"
+    }
+  ]
+}

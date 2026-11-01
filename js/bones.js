@@ -5,14 +5,18 @@ import { rest_region_capacity } from './region.js';
 import {
     COLNO,
     DEFUNCT_MONSTER,
+    DELPHI,
     EBONES,
     HOLE,
     LEAVESTATUE,
+    Is_oracle_level,
     LOST_NONE,
     MAGIC_PORTAL,
+    MAXNROFROOMS,
     MM_NONAME,
     NON_PM,
     NO_MINVENT,
+    ROOMOFFSET,
     ROWNO,
     RIGHT_HANDED,
     W_WEP,
@@ -37,6 +41,7 @@ import {
     dunlevs_in_dungeon,
     ledger_no,
     load_exclusions,
+    mapseen_room,
     maxledgerno,
     save_exclusions,
 } from './dungeon.js';
@@ -58,7 +63,10 @@ import {
     likes_gold, likes_gems, likes_objs, likes_magic, monsndx,
 } from './mondata.js';
 import { m_at } from './monst.js';
-import { m_carrying, mongone, restore_cham } from './mon.js';
+import {
+    is_Vlad, iter_mons_async, m_carrying, mongone, restore_cham,
+} from './mon.js';
+import { enexto, rloc_to } from './teleport.js';
 import { restpriest } from './priest.js';
 import { restshk, set_residency } from './shk.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
@@ -97,6 +105,8 @@ import {
     MS_LEADER,
     MS_NEMESIS,
     PM_GHOST,
+    PM_MEDUSA,
+    PM_ORACLE,
     SPECIAL_PM,
     S_MUMMY,
 } from './monsters.js';
@@ -380,16 +390,52 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
     if (cont) cont.owt = weight(cont, bonesObjectEnv(state));
 }
 
-// C ref: bones.c remove_mon_from_bones() (389-399). Removes certain special
-// monsters (wizard, Medusa, quest leaders/nemeses, Vlad, Oracle on wrong
-// level) before saving bones.
-function remove_mon_from_bones(mtmp, mongone_fn) {
-    const mptr = mtmp.data;
-    if (mtmp.iswiz || mptr?.msound === MS_NEMESIS
-        || mptr?.msound === MS_LEADER) {
-        mongone_fn(mtmp);
+// C ref: bones.c fixuporacle() (305-352). Answers false when the Oracle is
+// off her own level and should be removed; otherwise she is made peaceful and,
+// if she has left her chamber, moved back and the chamber's type restored.
+function fixuporacle(oracle, state) {
+    if (!Is_oracle_level(state.u.uz))
+        return false;
+
+    oracle.mpeaceful = 1;
+    const roomAt = (x, y) => state.level.at(x, y).roomno - ROOMOFFSET;
+    let o_ridx = roomAt(oracle.mx, oracle.my);
+    if (o_ridx >= 0 && mapseen_room(o_ridx, state)?.rtype === DELPHI)
+        return true;
+
+    // C scans every slot of svr.rooms[], which holds the subrooms after the
+    // MAXNROFROOMS + 1 top-level slots.
+    const nslots = (MAXNROFROOMS + 1) * 2;
+    let ridx;
+    for (ridx = 0; ridx < nslots; ++ridx)
+        if (mapseen_room(ridx, state)?.orig_rtype === DELPHI)
+            break;
+
+    if (o_ridx !== ridx && ridx < nslots) {
+        const room = mapseen_room(ridx, state);
+        const cx = Math.trunc((room.lx + room.hx) / 2);
+        const cy = Math.trunc((room.ly + room.hy) / 2);
+        const cc = enexto(cx, cy, oracle.data, { state });
+        if (cc) {
+            rloc_to(oracle, cc.x, cc.y, { state });
+            o_ridx = roomAt(oracle.mx, oracle.my);
+        }
     }
-    // Oracle fixup and other special monsters are simplified for now.
+    if (ridx === o_ridx)
+        mapseen_room(ridx, state).rtype = DELPHI;
+    return true;
+}
+
+// C ref: bones.c remove_mon_from_bones() (387-399). Sends unique and
+// role-specific monsters away before the level is saved as bones; mongone()
+// drops the Amulet, invocation tools and the hero's quest artifact first.
+async function remove_mon_from_bones(mtmp, state) {
+    const mptr = mtmp.data;
+    if (mtmp.iswiz || mptr === state.mons[PM_MEDUSA]
+        || mptr.msound === MS_NEMESIS || mptr.msound === MS_LEADER
+        || is_Vlad(mtmp)
+        || (mptr === state.mons[PM_ORACLE] && !fixuporacle(mtmp, state)))
+        await mongone(mtmp, { state });
 }
 
 // C ref: bones.c newebones() (818-829). Creates an ebones structure on a
@@ -452,34 +498,8 @@ export async function savebones(how, when, corpse, state) {
     // C: if (u.usteed) dismount_steed(DISMOUNT_BONES);
     // The port has no mount state in the exercised path; skip.
 
-    // C: iter_mons(remove_mon_from_bones) + dmonsfree()
-    // Remove special monsters and discard dead/gone ones.
-    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
-        if (mtmp.mhp <= 0) continue; // DEADMONSTER
-        remove_mon_from_bones(mtmp, (m) => {
-            // Simplified mongone: mark as dead for dmonsfree.
-            m.mhp = 0;
-        });
-    }
-    // dmonsfree: remove dead monsters from the chain.
-    if (state.level) {
-        let prev = null;
-        let curr = state.level.monlist;
-        while (curr) {
-            const next = curr.nmon;
-            if (curr.mhp <= 0) {
-                if (prev) prev.nmon = next;
-                else state.level.monlist = next;
-                // Clear from monsters grid
-                if (state.level.monsters?.[curr.mx]?.[curr.my] === curr) {
-                    state.level.monsters[curr.mx][curr.my] = null;
-                }
-            } else {
-                prev = curr;
-            }
-            curr = next;
-        }
-    }
+    await iter_mons_async((mtmp) => remove_mon_from_bones(mtmp, state), state);
+    dmonsfree(state);
 
     // C: forget_engravings() -- clear erevealed/eread on all engravings.
     for (let ep = state.head_engr; ep; ep = ep.nxt_engr) {
