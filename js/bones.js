@@ -12,6 +12,7 @@ import {
     MAGIC_PORTAL,
     MM_NONAME,
     NON_PM,
+    NO_MINVENT,
     ROWNO,
     RIGHT_HANDED,
     W_WEP,
@@ -21,6 +22,11 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { christen_monst } from './do_name.js';
+import { mk_named_object } from './corpstat.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { eaten_stat } from './eat.js';
+import { newsym } from './display.js';
+import { m_dowear } from './worn.js';
 import {
     In_hell,
     Is_botlevel,
@@ -44,14 +50,15 @@ import {
     add_to_container,
 } from './invent.js';
 import { y_n } from './cmd.js';
-import { dmonsfree, makemon } from './makemon_create.js';
+import { dmonsfree, makemon, mongets } from './makemon_create.js';
 import {
+    give_u_to_m_resistances,
     is_unicorn,
     is_undead,
     likes_gold, likes_gems, likes_objs, likes_magic, monsndx,
 } from './mondata.js';
 import { m_at } from './monst.js';
-import { mongone, restore_cham } from './mon.js';
+import { m_carrying, mongone, restore_cham } from './mon.js';
 import { restpriest } from './priest.js';
 import { restshk, set_residency } from './shk.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
@@ -78,6 +85,7 @@ import {
     BOOMERANG,
     CORPSE,
     EGG,
+    MUMMY_WRAPPING,
     AMULET_OF_YENDOR,
     FAKE_AMULET_OF_YENDOR,
     SLIME_MOLD,
@@ -90,6 +98,7 @@ import {
     MS_NEMESIS,
     PM_GHOST,
     SPECIAL_PM,
+    S_MUMMY,
 } from './monsters.js';
 import { peace_minded, propagate, set_malign } from './makemon.js';
 import { rn2 } from './rng.js';
@@ -324,6 +333,14 @@ function give_to_nearby_mon(otmp, x, y, state) {
     }
 }
 
+// Object hooks for the possessions savebones() moves. mkobj.c
+// add_to_container() calls obj_no_longer_held() again for a container outside
+// any inventory, such as the hero's statue, and a partly eaten food item in
+// its contents needs eat.c eaten_stat() for the statue's weight.
+function bonesObjectEnv(state) {
+    return objectGenerationEnv({ state, hooks: { eatenStat: eaten_stat } });
+}
+
 // C ref: bones.c drop_upon_death() (259-303). Drops all hero inventory,
 // usually cursing items. If mtmp is non-null, items go to that monster.
 // If cont is non-null, items go into that container. Otherwise items are
@@ -353,14 +370,14 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
         if (mtmp) {
             add_to_minv(mtmp, otmp);
         } else if (cont) {
-            await add_to_container(cont, otmp);
+            await add_to_container(cont, otmp, bonesObjectEnv(state));
         } else if (!rn2(8)) {
             give_to_nearby_mon(otmp, x, y, state);
         } else {
             place_object(otmp, x, y);
         }
     }
-    if (cont) cont.owt = weight(cont);
+    if (cont) cont.owt = weight(cont, bonesObjectEnv(state));
 }
 
 // C ref: bones.c remove_mon_from_bones() (389-399). Removes certain special
@@ -481,15 +498,34 @@ export async function savebones(how, when, corpse, state) {
     // hero becomes, or drop inventory for a ghost.
     let mtmp = null;
     if (ismnum(state.u.ugrave_arise)) {
-        // Hero rises as a specific monster -- not exercised in this session.
-        // Simplified: fall through to the ghost path.
-        await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
-        state.u.ugrave_arise = NON_PM;
-        return;
+        // bones.c:458-479. The monster the hero becomes is made on the
+        // hero's square without inventory and receives the possessions.
+        state.in_mklev = true;
+        mtmp = makemon(state.mons[state.u.ugrave_arise], state.u.ux,
+            state.u.uy, NO_MINVENT);
+        state.in_mklev = false;
+        if (!mtmp) { /* arise-type might have been genocided */
+            await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
+            state.u.ugrave_arise = NON_PM;
+            return;
+        }
+        give_u_to_m_resistances(mtmp, state);
+        mtmp = christen_monst(mtmp, state.plname);
+        newsym(state.u.ux, state.u.uy);
+        await drop_upon_death(mtmp, null, state.u.ux, state.u.uy, state);
+        if (mtmp.data.mlet === S_MUMMY
+            && !m_carrying(mtmp, MUMMY_WRAPPING, state))
+            mongets(mtmp, MUMMY_WRAPPING, bonesObjectEnv(state));
+        m_dowear(mtmp, true, { state });
     } else if (state.u.ugrave_arise === LEAVESTATUE) {
-        // Hero becomes a statue -- not exercised.
-        await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
-        return;
+        // bones.c:480-489. The possessions are embedded in a statue of the
+        // hero's current form.
+        const otmp = mk_named_object(STATUE, state.mons[state.u.umonnum],
+            state.u.ux, state.u.uy, state.plname,
+            bonesObjectEnv(state));
+        await drop_upon_death(null, otmp, state.u.ux, state.u.uy, state);
+        if (!otmp) return; /* couldn't make statue */
+        mtmp = null;
     } else {
         // u.ugrave_arise < LEAVESTATUE: drop everything, create a ghost.
         await drop_upon_death(null, null, state.u.ux, state.u.uy, state);

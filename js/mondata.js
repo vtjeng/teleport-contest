@@ -19,6 +19,7 @@ import {
     G_GENOD,
     HALLUC,
     HALLUC_RES,
+    INTRINSIC,
     M_SEEN_ACID,
     M_SEEN_COLD,
     M_SEEN_DISINT,
@@ -2070,6 +2071,16 @@ export function monstunseesu(seenres, state = game) {
         if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
         if (m_canseeu(mtmp, state))
             mtmp.seen_resistance &= ~seenres; /* m_clearseenres() */
+    }
+}
+
+// C ref: mondata.c give_u_to_m_resistances() (1584-1598). Each of the hero's
+// FIRE_RES..STONE_RES properties held as an intrinsic becomes the matching
+// monster resistance; prop.h res_to_mr() maps property r to bit 1 << (r - 1).
+export function give_u_to_m_resistances(mtmp, state = game) {
+    for (let intr = FIRE_RES; intr <= STONE_RES; intr++) {
+        if ((state.u.uprops[intr].intrinsic & INTRINSIC) !== 0)
+            mtmp.mintrinsics = (mtmp.mintrinsics ?? 0) | (1 << (intr - 1));
     }
 }
 

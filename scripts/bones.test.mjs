@@ -92,7 +92,7 @@ test('drop_upon_death awaits container insertion before updating container weigh
     assert.match(cFunction,
         /else if \(cont\)\s*\(void\) add_to_container\(cont, otmp\);[\s\S]*?cont->owt = weight\(cont\);/u);
     assert.match(jsFunction,
-        /else if \(cont\)\s*\{\s*await add_to_container\(cont, otmp\);\s*\}[\s\S]*?if \(cont\) cont\.owt = weight\(cont/u);
+        /else if \(cont\)\s*\{\s*await add_to_container\(cont, otmp(?:, bonesObjectEnv\(state\))?\);\s*\}[\s\S]*?if \(cont\) cont\.owt = weight\(cont/u);
 });
 
 test('ghostly restoration recomputes monster attitude for the new hero', async () => {

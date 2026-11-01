@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 161803,
+      "datetime": "20321112174500",
+      "nethackrc": "OPTIONS=name:Brannoc,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,time\n",
+      "moves": " \u00163\n\u0017cockatrice corpse\nel y qy",
+      "comment": "Independent wizard-mode death by eating a wished-for cockatrice corpse on a new level 3, answering yes to Save bones. Stoning sets u.ugrave_arise to LEAVESTATUE, so bones.c savebones() makes a statue of the hero (mkobj.c mk_named_object()) and drop_upon_death() puts the possessions, including the partly eaten corpse, inside it (mkobj.c add_to_container()). A second game on a new seed and clock goes to level 3 and loads that bones file (bones.c getbones()), so the statue and its contents round-trip. The seeds, clocks, character, and input were chosen for this path."
+    },
+    {
+      "seed": 161804,
+      "datetime": "20321113090000",
+      "nethackrc": "OPTIONS=name:Brannoc,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,time\n",
+      "moves": "\u00163\nyysss"
+    }
+  ]
+}

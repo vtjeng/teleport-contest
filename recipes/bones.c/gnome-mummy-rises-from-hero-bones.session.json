@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 314159,
+      "datetime": "20330823061500",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,time\n",
+      "moves": " \u00163\n\u0007kobold mummy\nmsmsmsmsmsmsms  yqy",
+      "comment": "Independent wizard-mode death to a kobold mummy on a new level 3, answering yes to Save bones. A variation on the ghoul recipe: a gnome killed by a mummy rises as a gnome mummy, so bones.c savebones() also reaches its mummy-wrapping branch (makemon.c mongets()) before worn.c m_dowear() dresses the new mummy. A second game on a new seed and clock goes to level 3 and loads that bones file (bones.c getbones()), so the risen mummy and its inventory round-trip. The seeds, clocks, character, and input were chosen for this path."
+    },
+    {
+      "seed": 314160,
+      "datetime": "20330828070000",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,time\n",
+      "moves": " \u00163\nyysss"
+    }
+  ]
+}

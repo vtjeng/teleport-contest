@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 271828,
+      "datetime": "20340412203000",
+      "nethackrc": "OPTIONS=name:Hollis,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,time\n",
+      "moves": "\u00163\n\u0007ghoul\nmsmsmsmsmsms  yqy",
+      "comment": "Independent wizard-mode death to a ghoul on a new level 3, answering yes to Save bones. end.c done_in_by() sets u.ugrave_arise to the ghoul, and bones.c savebones() makes the ghoul the hero becomes on the hero's square (makemon() with NO_MINVENT), gives it the hero's resistances (mondata.c give_u_to_m_resistances()), drops the hero's possessions into its inventory (drop_upon_death()), and has it wear them (worn.c m_dowear()). The seed, clock, character, and input were chosen for this path."
+    }
+  ]
+}
