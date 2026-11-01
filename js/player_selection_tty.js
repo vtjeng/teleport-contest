@@ -538,6 +538,8 @@ export async function ttyPlayerSelectionImpl(state = game, random) {
                 );
             } else if (context.status === 'rename') {
                 context = await renamePlayer(state, context);
+                // tty_askname() may have bailed out of the program.
+                if (state.program_state?.gameover) return false;
             } else if (context.status === 'complete') {
                 return true;
             } else if (context.status === 'quit') {

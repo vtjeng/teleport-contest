@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52211,
+      "datetime": "20300305081530",
+      "nethackrc": "OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Ab\rya\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b\u001b"
+    }
+  ],
+  "comment": "Reaches the same tty_askname() bail() from role.c genl_player_setup()'s \"Not yet; choose another name\" choice: after an initial name and a random role, the rename prompt receives ten Escapes, and tty_player_selection() must not bail a second time."
+}

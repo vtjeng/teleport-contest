@@ -504,6 +504,9 @@ export class NethackGame {
         // C filters generic Unix usernames, prompts when necessary, then
         // strips any role/race/gender/alignment suffix before selection.
         await ttyPlayerNameAndSuffix(g);
+        // wintty.c tty_askname() bails out of the program after ten empty
+        // answers, or on the saved-game menu's quit choice.
+        if (g.program_state?.gameover) return false;
 
         // C ref: unixmain.c nethack_main() calls
         // init_sound_disp_gamewindows() after plnamesuffix() and before

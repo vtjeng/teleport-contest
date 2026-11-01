@@ -24,6 +24,7 @@ import {
     ttyAsknameImpl,
 } from './tty_startup.js';
 import { NO_COLOR } from './terminal.js';
+import { tty_raw_print } from './tty_rawprint.js';
 
 const MAX_STATUS_ROWS = 3;
 
@@ -218,10 +219,32 @@ function callTerminalOperation(state, operation, gap, args = []) {
     return undefined;
 }
 
+// C ref: wintty.c tty_suspend_nhwindows() (784-790).  term_curs_set(1) only
+// changes cursor visibility, which the recorder does not capture.  settty()
+// (sys/share/unixtty.c 233-248) leaves the alternate screen and raw-prints a
+// non-null farewell; the terminal-mode ioctls have no browser counterpart.
+// The null case's tty_raw_print("") runs while ttyDisplay is still alive, and
+// recorder patch 006 nomux_raw_emit() skips an empty string at that point, so
+// it leaves the captured screen unchanged.
+export function tty_suspend_nhwindows(str, state = game) {
+    if (str) tty_raw_print(state, str);
+}
+
+// C ref: wintty.c tty_exit_nhwindows() (810-845).  After the farewell, C
+// frees every tty window and the pickinv cache and shuts the terminal down;
+// the segment ends there, so the observable result is the farewell screen
+// and window_inited, which tty_init_nhwindows() set.
+export function tty_exit_nhwindows(str, state = game) {
+    tty_suspend_nhwindows(str, state);
+    state.iflags ??= {};
+    state.iflags.window_inited = false;
+}
+
 // wintty.c:344-360.  The C path removes lock files, tears down tty windows,
 // and exits the process.  The browser runner has no files or process to
 // release; record those calls and expose nh_terminate()'s observable result
-// through the existing gameover state.
+// through the existing gameover state.  bail() does not return in C, so each
+// JavaScript caller stops once gameover is set.
 export function bail(mesg, state = game, env = {}) {
     callTerminalOperation(
         state,
@@ -229,12 +252,7 @@ export function bail(mesg, state = game, env = {}) {
         'files.c clearlocks',
         [state],
     );
-    callTerminalOperation(
-        state,
-        env.tty_exit_nhwindows,
-        'wintty.c tty_exit_nhwindows',
-        [mesg, state],
-    );
+    tty_exit_nhwindows(mesg, state);
     callTerminalOperation(
         state,
         env.nh_terminate,
@@ -553,7 +571,8 @@ export function tty_preference_update(pref, state = game) {
 export async function tty_player_selection(state = game, random) {
     const { ttyPlayerSelectionImpl } = await import('./player_selection_tty.js');
     if (await ttyPlayerSelectionImpl(state, random)) return true;
-    bail(null, state);
+    // A rename's tty_askname() may already have bailed.
+    if (!state.program_state?.gameover) bail(null, state);
     return false;
 }
 

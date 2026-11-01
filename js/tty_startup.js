@@ -90,7 +90,13 @@ export async function ttyAsknameImpl(state = game) {
     let tryct = 0;
     for (;;) {
         tryct++;
-        if (tryct > 10) throw new Error('Giving up after 10 tries.');
+        if (tryct > 10) {
+            // wintty.c:673-674 bail() does not return; callers stop on the
+            // gameover state it sets.
+            const { bail } = await import('./wintty.js');
+            bail('Giving up after 10 tries.\n', state);
+            return null;
+        }
 
         if (tryct > 1) {
             display.setCursor(0, promptRow - 1);
@@ -160,6 +166,7 @@ export async function ensureTtyPlayerName(state = game) {
     if (!state.plname) {
         const { tty_askname } = await import('./wintty.js');
         await tty_askname(state);
+        if (state.program_state?.gameover) return null;
         if (state.gp) state.gp.plnamelen = 0;
     }
     return state.plname;
@@ -176,6 +183,7 @@ export { tty_askname as ttyAskname } from './wintty.js';
 export async function ttyPlayerNameAndSuffix(state = game) {
     do {
         await ensureTtyPlayerName(state);
+        if (state.program_state?.gameover) return null;
         plnamesuffix(state);
     } while (!state.plname);
     return state.plname;

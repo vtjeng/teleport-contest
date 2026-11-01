@@ -300,7 +300,6 @@ test('bail records unavailable cleanup and exposes C termination state', () => {
 
     assert.deepEqual([...state.unported], [
         'files.c clearlocks',
-        'wintty.c tty_exit_nhwindows',
         'end.c nh_terminate',
     ]);
     assert.deepEqual(state.program_state, {
@@ -308,6 +307,8 @@ test('bail records unavailable cleanup and exposes C termination state', () => {
         exiting: 1,
         gameover: true,
     });
+    // tty_exit_nhwindows() closes the windows tty_init_nhwindows() opened.
+    assert.equal(state.iflags.window_inited, false);
 });
 
 test('winch_handler increments pending work and services a waiting resize', () => {
