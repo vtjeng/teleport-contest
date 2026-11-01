@@ -179,9 +179,9 @@ function createStorageHandle() {
     };
 }
 
-// The port emits one screen per input boundary, in the same order the recorder
-// captured its steps, so the count of screens a segment emitted indexes the
-// recorded step whose keystroke the port never consumed.
+// The port records one RNG slice per input boundary, in the same order the
+// recorder captured its steps, so the count of boundaries a segment emitted
+// indexes the recorded step whose keystroke the port never consumed.
 export function stopStepIndex(screensEmitted) {
     return screensEmitted;
 }
@@ -636,7 +636,10 @@ async function replaySession(file, data, replaySegment) {
             { onBoundary: (error) => { boundary ??= error; } },
         );
         const segmentScreenList = segmentGame.getScreens?.() ?? [];
-        const segmentScreens = segmentScreenList.length;
+        // getScreens() leaves out a blank boundary, as the judge does for the
+        // recorded steps; getRngSlices() keeps one entry per input boundary.
+        const segmentScreens = segmentGame.getRngSlices?.().length
+            ?? segmentScreenList.length;
         const segmentUnported = segmentGame.getUnported?.() ?? [];
         for (const fn of segmentUnported) unported.add(fn);
         const comparison = compareSessionOutputs(
