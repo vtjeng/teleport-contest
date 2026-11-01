@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c savegamestate() writes flags but never iflags, so iflags.travelcc, the cached travel destination, starts at 0,0 in the restoring process. An Archeologist travels toward a distant point she cannot reach, which leaves travelcc set, and saves. The second segment restores and opens the travel prompt, where cmd.c dotravel() starts the cursor on the hero because travelcc is unset; Escape cancels. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 909341,
+      "datetime": "20290122174500",
+      "nethackrc": "OPTIONS=name:Wayfarer,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " _YYYY.Sy"
+    },
+    {
+      "seed": 909342,
+      "datetime": "20290122183000",
+      "nethackrc": "OPTIONS=name:Wayfarer,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " _\u001b"
+    }
+  ]
+}

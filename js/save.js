@@ -427,7 +427,6 @@ function serializeGameState(state) {
         hero_seq: state.hero_seq,
         flags: state.flags,
         u: state.u,
-        iflags: serializeIflags(state.iflags),
         context: state.context,
         plname: state.plname,
         pl_character: state.pl_character,
@@ -505,16 +504,6 @@ function serializeGameState(state) {
     // save.c savegamestate():321 saves Oracle count/offsets after artifacts.
     save_oracles(snapshot, state);
     return snapshot;
-}
-
-// Serialize iflags, excluding display handles and functions that cannot
-// survive a JSON round-trip.
-function serializeIflags(iflags) {
-    if (!iflags) return null;
-    const copy = { ...iflags };
-    // tty display state is rebuilt at restore, not serialized.
-    delete copy.window_inited;
-    return copy;
 }
 
 // Serialize the special-level chain as the JS array representation. Restore

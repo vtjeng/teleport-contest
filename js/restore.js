@@ -184,11 +184,6 @@ export async function dorestore(state = game) {
     // this call initializes with the saved one.
     role_init(state);
     state.u = snapshot.u;
-    // iflags from the save carries option state but not display handles.
-    // Merge onto the live iflags so cbreak and window_inited survive.
-    if (snapshot.iflags) {
-        Object.assign(state.iflags, snapshot.iflags);
-    }
     state.context = snapshot.context;
     state.plname = snapshot.plname;
     state.pl_character = snapshot.pl_character;
