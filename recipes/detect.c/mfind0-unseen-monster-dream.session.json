@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c mfind0() reports a found monster the hero cannot spot through pline.c You_feel(), which says \"You dream that you feel\" while the hero is Unaware. The hero puts on a wished ring of warning and a blindfold, creates an iron piercer (level 5, so warning_of() holds), and drinks a potion of sleeping. The blind hero lets the piercer hide, allmain.c warnreveal() finds it through mfind0(via_warning) while the hero sleeps, and the line reads \"You dream that you feel an unseen monster!\". After waking, explicit searches reach the same branch through dosearch0() and read \"You feel an unseen monster!\".",
+  "segments": [
+    {
+      "seed": 31877,
+      "datetime": "20300611083000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017ring of warning\n\u0017blindfold\n\u0017potion of sleeping\nPirPj\u0007iron piercer\nqk          ssss"
+    }
+  ]
+}

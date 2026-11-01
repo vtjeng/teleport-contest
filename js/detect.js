@@ -174,6 +174,7 @@ import { consume_obj_charge, currency, money_cnt, useup, sobj_at } from './inven
 import { findgold } from './steal.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
+import { youFeel } from './pline.js';
 import { note_unported } from './unported.js';
 import { isBox, objectType } from './obj.js';
 import {
@@ -2375,7 +2376,7 @@ async function mfind0(monster, via_warning, env) {
     await env.exerciseWisdom(env);
     if (!spotted) {
         await env.mapInvisible(x, y, env);
-        await env.message('You feel an unseen monster!', x, y, env);
+        await env.message(youFeel('an unseen monster!', state), x, y, env);
     } else if (!sensemon(monster, state)) {
         const name = monster.mtame
             ? y_monnam(monster, state, env)
