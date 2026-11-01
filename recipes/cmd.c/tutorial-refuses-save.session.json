@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31877,
+      "datetime": "20310922184510",
+      "nethackrc": "OPTIONS=name:Tutee,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\n",
+      "moves": " y   Syl#save\nyj"
+    }
+  ],
+  "comment": "dat/nhlib.lua tutorial_enter() registers tutorial_cmd_before() as the NHCB_CMD_BEFORE callback, and cmd.c can_do_extcmd() lets it refuse the blacklisted save command silently, both for the S key through rhack() and for #save through doextcmd(). Each following y or l is then an ordinary move."
+}

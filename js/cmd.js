@@ -4924,14 +4924,23 @@ async function runLookCommand(key, state) {
     }));
 }
 
-// C ref: cmd.c can_do_extcmd(). The Lua NHCB_CMD_BEFORE arm needs a callback
-// registered by a level script, which no recorded game installs, and
-// iflags.debug_fuzzer is never set. The extended-command prompt cannot reach
-// the WIZMODECMD arm, because extcmds_match() has already dropped every
-// WIZMODECMD row for a hero who is not in debug mode; rhack()'s own
-// can_do_extcmd() call below is what reaches it, for a hero who presses the
-// key such a row is bound to.
+// C ref: dat/nhlib.lua tutorial_blacklist_commands, the extended commands
+// tutorial_cmd_before() refuses.
+const TUTORIAL_BLACKLIST_COMMANDS = new Set(['save']);
+
+// C ref: cmd.c can_do_extcmd(). The only NHCB_CMD_BEFORE callback is
+// nhlib.lua tutorial_cmd_before(), which tutorial_enter() registers and
+// tutorial_leave() removes; state.tutorialCallbacks.cmd_before records that
+// registration. The callback returns false, with no message, for a
+// blacklisted command. iflags.debug_fuzzer is never set. The extended-command
+// prompt cannot reach the WIZMODECMD arm, because extcmds_match() has already
+// dropped every WIZMODECMD row for a hero who is not in debug mode; rhack()'s
+// own can_do_extcmd() call below is what reaches it, for a hero who presses
+// the key such a row is bound to.
 async function can_do_extcmd(entry, state) {
+    if (state.tutorialCallbacks?.cmd_before
+        && TUTORIAL_BLACKLIST_COMMANDS.has(entry.ef_txt))
+        return false;
     if (!state.wizard && (entry.flags & WIZMODECMD)) {
         await ttyPline(`Unavailable command '${entry.ef_txt}'.`, state);
         return false;
