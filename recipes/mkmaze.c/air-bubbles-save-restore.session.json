@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "mkmaze.c save_waterlevel() and restore_waterlevel() through save.c savelev_core() and restore.c getlev() for the hero's level. A debug Priest level-teleports to the Plane of Air with the wizard-mode menu, declines the Amulet's wish, waits and saves; the second segment restores the game and waits, so movebubbles() needs the restored clouds. Seeds and dates were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 55661,
+      "datetime": "20300810123000",
+      "nethackrc": "OPTIONS=name:Planar,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup\n",
+      "moves": "\u0016?\r>>M      \u001b ssSy"
+    },
+    {
+      "seed": 55662,
+      "datetime": "20300810133000",
+      "nethackrc": "OPTIONS=name:Planar,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup\n",
+      "moves": "  nssss"
+    }
+  ]
+}

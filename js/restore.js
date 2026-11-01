@@ -421,6 +421,12 @@ export async function dorestore(state = game) {
     state.level.objlist = restobjchn(state.level.objlist, state);
     state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
 
+    // C ref: restore.c getlev():1226 rest_bubbles(), after the hero's
+    // level's monsters and regions, rebuilds the Plane of Water's or Air's
+    // bubbles through mkmaze.c restore_waterlevel(); the snapshot has none
+    // on any other level.
+    if (snapshot.waterlevel) restore_waterlevel(snapshot.waterlevel, state);
+
     // C ref: restore.c:684 defers monster repaint until allmain.c:92-94.
     state.gd ??= {};
     state.gd.defer_see_monsters = true;

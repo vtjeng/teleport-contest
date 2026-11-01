@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Variation of air-bubbles-save-restore on the Plane of Water with a Samurai and new seeds: save_waterlevel() and restore_waterlevel() carry the air bubbles, and the restored hero's bubble is collected and moved by movebubbles() on the next turns.",
+  "segments": [
+    {
+      "seed": 55671,
+      "datetime": "20300810123000",
+      "nethackrc": "OPTIONS=name:Planar,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup\n",
+      "moves": "\u0016?\r>>K      \u001b ssSy"
+    },
+    {
+      "seed": 55672,
+      "datetime": "20300810133000",
+      "nethackrc": "OPTIONS=name:Planar,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup\n",
+      "moves": "  nssss"
+    }
+  ]
+}

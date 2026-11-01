@@ -447,6 +447,10 @@ function serializeGameState(state) {
         // svd.dndest right after the stairs.
         updest: state.updest ?? {},
         dndest: state.dndest ?? {},
+        // C ref: save.c savelev_core():612 save_waterlevel() writes the
+        // Plane of Water's or Air's bubbles with the hero's level; it is an
+        // empty marker everywhere else.
+        waterlevel: save_waterlevel(null, state),
         dungeon_topology: state.dungeon_topology,
         n_dgns: state.n_dgns,
         dungeons: state.dungeons,
