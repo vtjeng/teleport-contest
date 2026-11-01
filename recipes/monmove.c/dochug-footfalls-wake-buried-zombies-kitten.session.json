@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7700360,
+      "datetime": "20260301120000",
+      "nethackrc": "OPTIONS=name:Digger,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!safe_wait\n",
+      "moves": "lllluukkkkykkussssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+    }
+  ],
+  "comment": "monmove.c dochug() MMOVE_MOVED: a grounded monster's step calls disturb_buried_zombies(). Seed 7700360 (found by scanning 7700001-7700600 for a D:1 'Buried zombies' theme room; 4 of 600 had one) puts the room two squares east of the corridor at (15,8). The hero walks there in 14 keys and waits with 's' (!safe_wait keeps waiting legal beside a hostile newt) while her kitten roams the room; its footfalls cut each nearby corpse's ZOMBIFY_MON timer to two thirds until an orc zombie claws itself out at about turn 40. The hero never stands within one square of a corpse, so hack.c:2947's hero-step disturbance plays no part."
+}
