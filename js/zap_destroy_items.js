@@ -325,7 +325,20 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     if (chargeIt) {
         // C only calls read.c:recharge() for the hero; monster-carried charged
         // rings still take the same early return without a recharge call.
-        if (u_carry) await recharge(obj, 0, state);
+        if (u_carry) {
+            // recharge() draws from the live RNG and writes messages and
+            // inventory directly, so a planning clone stops at this boundary
+            // and leaves the call to the live pass.
+            if (env.planning) {
+                if (typeof env.requestPlanningInput !== 'function') {
+                    throw new TypeError(
+                        'planned read.c recharge requires a planning boundary',
+                    );
+                }
+                env.requestPlanningInput('read.c recharge');
+            }
+            await recharge(obj, 0, state);
+        }
         return dmg;
     }
 
