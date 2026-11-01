@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c look_engrs() writes \", obscured by \" and an encglyph() of the map glyph; windows.c decode_mixed() turns it into the glyph's DECgraphics byte, and wintty.c process_text_window() sends that high-bit byte through putchar(), which recorder patch 006's nomux_putch() does not capture, so the cell stays blank. A debug Samurai with symset:DECgraphics writes Elbereth twice in the dust, wishes for an altar on the same square (spot_shows_engravings() then shows the altar glyph instead of the engraving), steps south and lists every seen engraving with / E. Seed and date were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4417730,
+      "datetime": "20301215084500",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup,symset:DECgraphics\n",
+      "moves": "E- Elbereth Elbereth\n#wizwish\nlawful altar\nj/E \u001b"
+    }
+  ]
+}

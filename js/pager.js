@@ -918,7 +918,9 @@ export async function look_all(nearby, doMons, state = game) {
             const symbol = encodedGlyphCharacter(glyph, state);
             lines.push({
                 text: `${prefix}${symbol}  ${description}`,
-                glyphCells: [{ column: prefix.length, ch: symbol }],
+                glyphCells: [
+                    textWindowGlyphCell(prefix.length, glyph, symbol, state),
+                ],
             });
         }
     }
@@ -971,6 +973,18 @@ function encodedGlyphCharacter(glyph, state) {
     return visibleGlyphCharacter(map_glyphinfo(glyph, state));
 }
 
+// C ref: windows.c decode_mixed() turns an encglyph() sequence into the byte
+// gs.showsyms[] holds for the glyph, and wintty.c process_text_window() sends
+// every byte after a line's first through putchar(). Recorder patch 006's
+// nomux_putch() ignores a byte with its high bit set, such as a DECgraphics
+// line-drawing or room symbol, so that glyph's cell keeps the blank cl_end()
+// wrote. `ch` is null for such a cell, which displayTtyTextWindow() skips.
+function textWindowGlyphCell(column, glyph, ch, state) {
+    const byte = map_glyphinfo(glyph, state).ttychar;
+    const dropped = column > 0 && Number.isInteger(byte) && (byte & 0x80) !== 0;
+    return { column, ch: dropped ? null : ch };
+}
+
 function displayedGlyphCharacter(glyph, x, y, state) {
     const location = state.level?.at(x, y);
     if (location?.disp_browser_ch) return location.disp_browser_ch;
@@ -992,6 +1006,7 @@ export async function look_traps(nearby, state = game) {
             let glyph = glyph_at(x, y, state);
             let description = '';
             let obscuring = '';
+            let obscuringGlyph = null;
             if (glyph_is_trap(glyph)) {
                 description = trap_description(
                     glyph_to_trap(glyph), x, y, state,
@@ -1005,6 +1020,7 @@ export async function look_traps(nearby, state = game) {
                     obscuring = displayedGlyphCharacter(
                         glyph, x, y, state,
                     );
+                    obscuringGlyph = glyph;
                     description = `${trapname(trap.ttyp)}, obscured by `
                         + obscuring;
                     glyph = trap_to_glyph(trap, state);
@@ -1026,12 +1042,14 @@ export async function look_traps(nearby, state = game) {
                     mode === GPCOORDS_MAP ? 8 : 12,
                 );
             const text = `${coordinate}  ${symbol}  ${description}`;
-            const glyphCells = [{ column: coordinate.length + 2, ch: symbol }];
+            const glyphCells = [textWindowGlyphCell(
+                coordinate.length + 2, glyph, symbol, state,
+            )];
             if (obscuring) {
-                glyphCells.push({
-                    column: text.length - obscuring.length,
-                    ch: obscuring,
-                });
+                glyphCells.push(textWindowGlyphCell(
+                    text.length - obscuring.length, obscuringGlyph,
+                    obscuring, state,
+                ));
             }
             lines.push({ text, glyphCells });
         }
@@ -1080,10 +1098,12 @@ export async function look_engrs(nearby, state = game) {
             const symbol = glyph_is_cmap(glyph)
                 ? glyph_to_cmap(glyph) : null;
             let obscuring = '';
+            let obscuringGlyph = null;
             if (!isCmapEngraving(symbol) && symbol !== S_grave) {
                 obscuring = displayedGlyphCharacter(
                     glyph, x, y, state,
                 );
+                obscuringGlyph = glyph;
                 description += `, obscured by ${obscuring}`;
                 glyph = headstone
                     ? cmap_to_glyph(S_grave, state)
@@ -1100,12 +1120,14 @@ export async function look_engrs(nearby, state = game) {
             const renderedSymbol = encodedGlyphCharacter(glyph, state);
             const prefix = trapOrEngravingMapCoordinate(x, y);
             const text = `${prefix}  ${renderedSymbol} ${description}`;
-            const glyphCells = [{ column: 10, ch: renderedSymbol }];
+            const glyphCells = [
+                textWindowGlyphCell(10, glyph, renderedSymbol, state),
+            ];
             if (obscuring) {
-                glyphCells.push({
-                    column: text.length - obscuring.length,
-                    ch: obscuring,
-                });
+                glyphCells.push(textWindowGlyphCell(
+                    text.length - obscuring.length, obscuringGlyph,
+                    obscuring, state,
+                ));
             }
             lines.push({ text, glyphCells });
         }

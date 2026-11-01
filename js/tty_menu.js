@@ -966,9 +966,14 @@ export async function displayTtyTextWindow(state = game, lines) {
         // wintty.c process_text_window() sends putmixed() lines through
         // decode_mixed(). A decoded glyph can use a rendered DEC character
         // that writeStyledText() deliberately drops as a non-ASCII byte, so
-        // callers identify those physical cells for direct substitution.
+        // callers identify those physical cells for direct substitution. A
+        // cell whose `ch` is null held a high-bit byte that the recorder's
+        // capture ignores, so it keeps the blank clearRow() wrote.
         for (const cell of line.glyphCells ?? []) {
-            if (cell.column < display.cols - 1) {
+            if (cell.column >= display.cols - 1) continue;
+            if (cell.ch == null) {
+                display.setCell(cell.column, n, ' ', NO_COLOR, 0);
+            } else {
                 display.setCell(
                     cell.column,
                     n,

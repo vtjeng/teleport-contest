@@ -1362,11 +1362,15 @@ test('trap lists keep visible and obscured traps in map order', async () => {
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     await look_traps(true, game);
 
+    // The DECgraphics S_room byte is 0xFE. process_text_window() sends it
+    // through putchar(), which recorder patch 006 does not capture, so the
+    // cell after "obscured by " stays blank; recordings/pager.c/
+    // engraving-list-altar-decgraphics.session.json shows the same rule.
     assert.deepEqual(rows.slice(0, 5), [
         'Nearby seen or remembered traps:',
         '',
         `${`<${visibleX},${y}>`.padStart(8)}  ^  arrow trap`,
-        `${`<${obscuredX},${y}>`.padStart(8)}  ^  bear trap, obscured by ·`,
+        `${`<${obscuredX},${y}>`.padStart(8)}  ^  bear trap, obscured by`,
         '',
     ]);
 });
@@ -1448,10 +1452,13 @@ test('engraving lists use remembered grave terrain for obscured headstones',
         game.nhDisplay.pushKey(' '.charCodeAt(0));
         await look_engrs(true, game);
 
+        // The obscuring DECgraphics S_room byte (0xFE) is not captured, as
+        // recordings/pager.c/engraving-list-altar-decgraphics.session.json
+        // shows, so the line ends after "obscured by ".
         assert.deepEqual(rows.slice(0, 4), [
             'Nearby seen or remembered engravings:',
             '',
-            `${`<${x},${y}>`.padStart(8)}  |  headstone reading: "Rest in peace", obscured by ·`,
+            `${`<${x},${y}>`.padStart(8)}  |  headstone reading: "Rest in peace", obscured by`,
             '',
         ]);
     });
