@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "A Priest quits with #quit and answers Escape at end.c really_done()'s disclosure prompt, so the game ends on the blank terminal nh_terminate() leaves, which the recorder saves as an empty screen and the judge skips. The second segment starts a new game, whose legacy text from quest.lua must be the next scored screen. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 730115,
+      "datetime": "20280704160000",
+      "nethackrc": "OPTIONS=name:Leaver,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": " #quit\ny\u001b"
+    },
+    {
+      "seed": 730116,
+      "datetime": "20280704163000",
+      "nethackrc": "OPTIONS=name:Leaver,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "  s"
+    }
+  ]
+}

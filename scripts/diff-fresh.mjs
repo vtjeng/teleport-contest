@@ -375,18 +375,18 @@ function recordedSegmentTrace(segment, segmentIndex) {
         if (step.screen) {
             screens.push({ screen: step.screen, location });
             cursors.push(Array.isArray(step.cursor) ? step.cursor : null);
-            // The recorder writes one entry per KIND=anim marker, which its
-            // patched nh_delay_output() emits. getAnimationFramesByStep()
-            // produces one array per input boundary, so both streams are
-            // indexed by the steps that carry a screen.
-            animFrames.push({
-                frames: (Array.isArray(step.animation_frames)
-                    ? step.animation_frames
-                    : []
-                ).map((frame) => frame?.screen ?? ''),
-                location,
-            });
         }
+        // The recorder writes one entry per KIND=anim marker, which its
+        // patched nh_delay_output() emits. getAnimationFramesByStep()
+        // produces one array per input boundary, and the scorer's
+        // cAnimByStep keeps every step, including one whose screen is empty.
+        animFrames.push({
+            frames: (Array.isArray(step.animation_frames)
+                ? step.animation_frames
+                : []
+            ).map((frame) => frame?.screen ?? ''),
+            location,
+        });
     }
     return { rng, screens, cursors, animFrames };
 }

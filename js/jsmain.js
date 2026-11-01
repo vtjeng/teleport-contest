@@ -251,8 +251,10 @@ export class NethackGame {
         this._screens = [];
         this._cursors = [];
         this._rngSlices = [];
-        // Animation frames captured during each step.  Outer index
-        // matches _screens (one entry per input boundary); inner array
+        // Animation frames captured during each step.  Outer index is
+        // one entry per input boundary, as frozen/ps_test_runner.mjs
+        // indexes its C-side frames (_screens and _cursors skip a blank
+        // boundary; see _installCaptureHook()); inner array
         // is the frames that fired between this boundary and the
         // previous one, in emit order.  Populated by animationFrame()
         // calls; committed at each input boundary.
@@ -648,16 +650,25 @@ export class NethackGame {
             // each getScreens() string and compares it with the C session's
             // recorded screen; GameDisplay.serialize() says why this does not
             // call the frozen Terminal's serialize().
+            // The judge keeps a recorded screen and its cursor only when the
+            // screen is non-empty (frozen/ps_test_runner.mjs `if
+            // (step.screen)`), but keeps every JS screen. The recorder saves
+            // an all-blank terminal, such as the one nh_terminate() leaves
+            // after a quit, as "", so a blank boundary is left out of both
+            // streams here too; otherwise a blank that ends one segment would
+            // shift every screen of the next.
             const disp = game?.nhDisplay;
-            nhGame._screens.push(disp ? disp.serialize() : '');
+            const screen = disp ? disp.serialize() : '';
             nhGame._rngSlices.push(slice);
 
             // Recorder patch 006 reads the cursor through nomux_get_cursor(),
             // which answers with its raw-print row and column once
             // tty_raw_print() has been used -- and nothing turns that back off
             // for the rest of the segment.
-            const cursor = disp ? [...nomux_get_cursor(disp), 1] : null;
-            nhGame._cursors.push(cursor);
+            if (screen) {
+                nhGame._screens.push(screen);
+                nhGame._cursors.push(disp ? [...nomux_get_cursor(disp), 1] : null);
+            }
 
             // Commit animation frames accumulated since the previous
             // input boundary as belonging to this step.  Frames are
