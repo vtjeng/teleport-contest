@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shknam.c stock_room(): the first shop door keeps the doormask that mklev.c dosdoor() wrote to rm.flags. A debug Healer level-teleports to Dlvl 3, whose armor shop has a closed first door at <69,7>, and maps the level with ^F (detect.c do_mapping), which shows the door closed (+). Before the fix stock_room() read an empty doormask copy and opened the door. The seed was found with scripts/scan-port.mjs scanSeeds() over seeds 830001-830200 (Dlvl 3 shop with a closed or locked first door; 30 of 200 kept) and was not taken from a recorded session.",
+  "segments": [
+    {
+      "seed": 830154,
+      "datetime": "20270402091500",
+      "nethackrc": "OPTIONS=name:Scan,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u00163\n\u0006"
+    }
+  ]
+}

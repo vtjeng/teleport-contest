@@ -5,7 +5,6 @@
 
 import {
     CORR,
-    DOOR,
     DUST,
     D_ISOPEN,
     D_LOCKED,
@@ -25,6 +24,7 @@ import {
     ismnum,
 } from './const.js';
 import { depth, Is_special, ledger_no, on_level } from './dungeon.js';
+import { cvt_sdoor_to_door } from './detect.js';
 import { in_town } from './hack.js';
 import { noit_mon_nam } from './do_name.js';
 import { set_tin_variety, vegetarian } from './eat.js';
@@ -538,21 +538,27 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
 
         const firstDoor = state.level.doors[sroom.fdoor];
         const doorLoc = state.level.at(firstDoor.x, firstDoor.y);
-        if (doorLoc.doormask === D_NODOOR) {
+        // C rm.doormask is rm.flags. mklev.c dosdoor() writes the door
+        // state to flags, so read it there, as display.js does, and keep
+        // both fields equal on every write.
+        const doorMask = () => doorLoc.flags || doorLoc.doormask || 0;
+        if (doorMask() === D_NODOOR) {
             doorLoc.doormask = D_ISOPEN;
             doorLoc.flags = D_ISOPEN;
             redrawDoor(firstDoor.x, firstDoor.y, normalized);
         }
         if (doorLoc.typ === SDOOR) {
-            doorLoc.typ = DOOR;
+            // C: cvt_sdoor_to_door() closes the exposed door unless it is
+            // locked (or makes a doorway on the Rogue level).
+            cvt_sdoor_to_door(doorLoc, state);
             redrawDoor(firstDoor.x, firstDoor.y, normalized);
         }
-        if (doorLoc.doormask & D_TRAPPED) {
+        if (doorMask() & D_TRAPPED) {
             doorLoc.doormask = D_LOCKED;
             doorLoc.flags = D_LOCKED;
         }
 
-        if (doorLoc.doormask === D_LOCKED) {
+        if (doorMask() === D_LOCKED) {
             let x = firstDoor.x;
             let y = firstDoor.y;
             if (insideShop(sroom, x + 1, y)) --x;

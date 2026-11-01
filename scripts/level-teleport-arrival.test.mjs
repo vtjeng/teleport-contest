@@ -1758,8 +1758,12 @@ test('empty-shop suppression resets with each recorder segment', async () => {
 
 test('shop-edge should_block runs one real direct keeper action before return',
     async () => {
+        // Seed 7621002 is the first seed after 7621001 whose Dlvl 5 shop has
+        // an open first door. Seed 7621001's door is closed in C (a ^F map
+        // of the same inputs shows '+'); it looked open only while
+        // stock_room() read an empty doormask copy.
         await runSegment({
-            seed: 7621001,
+            seed: 7621002,
             datetime: '20310417113000',
             nethackrc: [
                 'OPTIONS=name:Shop,role:Wizard,race:human,gender:male,align:neutral',
