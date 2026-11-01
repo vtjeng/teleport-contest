@@ -567,13 +567,25 @@ export class NethackGame {
                     `You're back, but you still feel ${udeadinside(g)} inside.`,
                     g,
                 );
-            else
+            else {
                 await ttyPline(welcomeBackMessage(g), g);
+                // C ref: allmain.c welcome(FALSE) 922-927: the Gehennom
+                // smoke message and the level annotation, as goto_level()
+                // gives them on arrival.
+                const { hellish_smoke_mesg } = await import('./do.js');
+                const { print_level_annotation } = await import('./dungeon.js');
+                await hellish_smoke_mesg(g);
+                await print_level_annotation(g);
+            }
 
             // C ref: restore.c:dorecover() calls check_special_room(FALSE)
             // immediately after welcome(FALSE) on a successful restore.
             const { check_special_room } = await import('./rooms.js');
             await check_special_room(false, g);
+
+            // C ref: unixmain.c:265 wd_message() after a successful
+            // dorecover(), before the keep-save question.
+            await wd_message(g);
 
             // C ref: unixmain.c:266-272. Debug/explore restores ask whether
             // to retain the save. VFS needs no chmod or compression operation.

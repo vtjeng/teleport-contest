@@ -3353,24 +3353,30 @@ export async function u_collide_m(mtmp, state = game) {
     }
 }
 
-// C ref: do.c hellish_smoke_mesg() and temperature_change_msg(). The Fire
-// level is the first loaded level in this port whose Lua temperature flag is
-// nonzero, so keep the message boundary source-shaped as well.
-async function temperature_change_msg(prev_temperature, state = game) {
+// C ref: do.c hellish_smoke_mesg() (2002-2012). Called from
+// temperature_change_msg() and from allmain.c welcome(FALSE) on a restore.
+export async function hellish_smoke_mesg(state = game) {
     const temperature = state.level.flags.temperature;
-    if (prev_temperature === temperature) return;
     if (temperature) {
         await ttyPline(
             `It is ${temperature > 0 ? 'hot' : 'cold'} here.`,
             state,
         );
-        if (In_hell(state.u.uz, state)
-            && temperature > 0) {
-            await ttyPline(
-                `You ${olfaction(state.youmonst?.data) ? 'smell' : 'sense'} smoke...`,
-                state,
-            );
-        }
+    }
+    if (In_hell(state.u.uz, state) && temperature > 0) {
+        await ttyPline(
+            `You ${olfaction(state.youmonst?.data) ? 'smell' : 'sense'} smoke...`,
+            state,
+        );
+    }
+}
+
+// C ref: do.c temperature_change_msg() (2014-2028).
+async function temperature_change_msg(prev_temperature, state = game) {
+    const temperature = state.level.flags.temperature;
+    if (prev_temperature === temperature) return;
+    if (temperature) {
+        await hellish_smoke_mesg(state);
     } else if (prev_temperature > 0) {
         await ttyPline(
             `The heat ${In_hell(state.u.uz0, state) ? 'and smoke are' : 'is'} gone.`,

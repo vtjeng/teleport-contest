@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52317,
+      "datetime": "20340306141522",
+      "nethackrc": "OPTIONS=name:Ostler,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=playmode:explore,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "  #annotate\ncamp by the fountain\nSy"
+    },
+    {
+      "seed": 52318,
+      "datetime": "20340306150907",
+      "nethackrc": "OPTIONS=name:Ostler,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=playmode:explore,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "   nss"
+    }
+  ],
+  "comment": "sys/unix/unixmain.c restores an explore-mode game, then calls wd_message(), which prints \"You are in non-scoring explore/discovery mode.\" before y_n(\"Do you want to keep the save file?\"). Before that, restore.c dorecover() calls allmain.c welcome(FALSE), which prints the welcome-back line, do.c hellish_smoke_mesg() (silent on level 1) and dungeon.c print_level_annotation() for the #annotate note made in the first segment. n deletes the save, and two searches follow."
+}
