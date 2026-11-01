@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: save.c dosave0() other-level loop -> restore.c getlev() -> region.c rest_regions(), then savelev() -> save_regions(). A debug-created fog cloud leaves harmless vapor (monmove.c m_everyturn_effect() -> region.c create_gas_cloud()); the hero level-teleports away and waits longer than the vapor's ttl, then saves. The save loop ages and removes the expired vapor, so after the restore and the return the fog cloud makes fresh vapor. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 66820374,
+      "datetime": "20460728154407",
+      "nethackrc": "OPTIONS=name:Rowan,role:Monk,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0007fog cloud\nms\u00162\nmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsmsSy"
+    },
+    {
+      "seed": 66820374,
+      "datetime": "20460728154407",
+      "nethackrc": "OPTIONS=name:Rowan,role:Monk,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\n\u00161\nmsmsms"
+    }
+  ]
+}

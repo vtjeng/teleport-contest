@@ -51,6 +51,7 @@ import { vfsWriteFile } from './storage.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { save_waterlevel } from './mkmaze.js';
+import { rest_saved_level_regions } from './region.js';
 import { save_oracles } from './rumors.js';
 import { tty_getmsghistory } from './topl.js';
 
@@ -556,6 +557,7 @@ function save_other_levels(state) {
         // snapshot together, so a missing one is a port defect.
         if (!saved)
             throw new Error(`dosave0: no saved level for ledger ${ltmp}`);
+        rest_saved_level_regions(saved.level, saved.omoves, state.moves);
         levels.push({ ledger: ltmp, ...saved, omoves: state.moves });
     }
     return levels;

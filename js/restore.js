@@ -10,7 +10,7 @@
 // reconstruction (docrt, bot) and the welcome-back message follow in the
 // caller (jsmain.js).
 
-import { rest_regions } from './region.js';
+import { rest_regions, rest_saved_level_regions } from './region.js';
 import { newsym } from './display.js';
 import { cansee, does_block, unblock_point } from './vision.js';
 import { mon_catchup_elapsed_time } from './dog.js';
@@ -485,6 +485,7 @@ function rest_other_levels(levels, state) {
         savemonchn(level.monlist, state);
         saveobjchn(level.objlist, state);
         saveobjchn(level.buriedobjlist, state);
+        rest_saved_level_regions(level, saved.omoves, state.moves);
         level_info(ledger, state).flags |= VISITED | LFILE_EXISTS;
         state._savedLevels[ledger] = { ...saved, omoves: state.moves };
     }
