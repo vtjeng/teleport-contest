@@ -174,7 +174,9 @@ import {
     cloak_simple_name, cxname, helm_simple_name, otense, simpleonames, an, the, vtense, yname, the_unique_pm, } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { max_rank_sz } from './u_init.js';
-import { bot, newsym, rank_of, see_monsters, set_mimic_blocking } from './display.js';
+import {
+    bot, newsym, rank_of, see_monsters, set_mimic_blocking, status_initialize,
+} from './display.js';
 import { encumber_msg } from './pickup.js';
 import { useup, update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
@@ -576,6 +578,11 @@ export function set_uasmon(state = game) {
     if (!state.program_state?.restoring)
         float_vs_flight(state);
     polysense(state);
+
+    // C's STATUS_HILITES block: VIA_WINDOWPORT() is true for the tty, so the
+    // field set (BL_HD versus BL_XP/BL_EXP) is reassessed and every field is
+    // sent to the window port again on the next bot().
+    status_initialize(state);
 
     // we can reset this now
     state.gw ??= {};

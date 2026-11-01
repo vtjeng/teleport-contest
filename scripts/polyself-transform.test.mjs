@@ -95,6 +95,9 @@ function minimalState(mnum = PM_GNOME) {
         uamul: null,
         uskin: null,
         disp: {},
+        // allmain.c's status_initialize(FALSE) runs before any polymorph, and
+        // set_uasmon()'s status_initialize(REASSESS_ONLY) requires it.
+        gb: { blinit: true },
         gw: { were_changes: 0 },
         context: { warntype: { speciesidx: -1, species: null, polyd: 0, obj: 0 } },
         svm: { mvitals: new Array(NUMMONS).fill(0).map(() => ({ mvflags: 0 })) },

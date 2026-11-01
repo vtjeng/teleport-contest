@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent polyself.c set_uasmon() witness for its status_initialize(REASSESS_ONLY) call. A debug Samurai with the wintty.c BL_CAP blank of status-capacity-blank (here created at T:1) polymorphs into a dwarf with #polyself. The reassessment sets gu.update_all, so botl.c resends every field: BL_CAP drops the blank, and BL_HP is sent with chg 0, so hilite_status:hitpoints/down/red does not colour the lower dwarf hit points.",
+  "segments": [
+    {
+      "seed": 7306214,
+      "datetime": "20261104091500",
+      "nethackrc": "OPTIONS=name:Polyblank,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time,showexp,color,statushilites:10,hilite_status:hitpoints/down/red\n",
+      "moves": "#levelchange\n30\n\u001b\u001710000 gold pieces\n\u001b#wizintrinsic\n40f40g40h40i15j40q\n\u001bssssssssssssssssssss#polyself\ndwarf\n\u001bssss"
+    }
+  ]
+}
