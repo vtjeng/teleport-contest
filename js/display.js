@@ -3797,11 +3797,6 @@ export function newsym(x, y) {
     const monsterDirectlyVisible = Boolean(
         monster && mon_visible(monster, game),
     );
-    if (visible) {
-        update_lastseentyp(x, y, game, {
-            canSeeMonster: (subject) => mon_visible(subject, game),
-        });
-    }
     const sensedWithoutDetection = Boolean(
         monster && sensemonWithoutDetection(monster, game),
     );
@@ -3824,6 +3819,18 @@ export function newsym(x, y) {
         && y === monster.my
         && monsterWarnsHero(monster, game),
     );
+    // newsym()'s warning arm (display.c:1029-1030): a visible monster that
+    // is neither seen nor detected but warns the hero. m_at() answers null on
+    // the hero's own square, so this never applies there.
+    const warningOnly = Boolean(
+        visible && monsterWarning
+        && !(seeIt || (!wormTail && detectMonsters)),
+    );
+    if (visible && !warningOnly) {
+        update_lastseentyp(x, y, game, {
+            canSeeMonster: (subject) => mon_visible(subject, game),
+        });
+    }
     if (region && (ACCESSIBLE(loc.typ)
         || (region.visible && is_pool_or_lava(x, y, game)))) {
         const adjacentVisibleMonster = monster
@@ -3881,6 +3888,17 @@ export function newsym(x, y) {
         && !(game.u?.ux === x && game.u?.uy === y)
         && glyph_is_invisible(loc.remembered_glyph?.glyph)) {
         map_invisible(x, y, game);
+        return;
+    }
+
+    // display.c:1029-1030, `else if (mon && mon_warning(mon) && !worm_tail)
+    // display_warning(mon);`, the second arm of the same chain. It too skips
+    // _map_location(): a square seen only under a warning glyph keeps its
+    // old memory, its lastseentyp, and its objects' unobserved state, so the
+    // hero leaving and returning finds it as it was before. The lastseentyp
+    // write above is gated on this arm for the same reason.
+    if (warningOnly) {
+        display_warning(monster, game);
         return;
     }
 
@@ -3984,8 +4002,6 @@ export function newsym(x, y) {
                 detectedOnly ? DISPLAY_DETECTED : DISPLAY_PHYSICALLY_SEEN,
                 wormTail,
             );
-        } else if (monsterWarning) {
-            display_warning(monster, game);
         } else {
             show_glyph_cell(x, y, underlying);
         }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Exercises display.c newsym()'s warning arm, which calls display_warning() without _map_location(). A debug #wizintrinsic blinds the hero and grants Warning; a failed controlled teleport lands the blind hero in an unseen lit room, and #wizgenesis hides a trapper on a square the hero has never seen. Sight returns two squares away, so that square is seen only under its warning glyph. Blinding the hero again and teleporting out of warning range redraws the square from memory, which C leaves unexplored.",
+  "segments": [
+    {
+      "seed": 5530182,
+      "datetime": "20340912163000",
+      "nethackrc": "OPTIONS=name:Lookout,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "  #wizintrinsic\n5i>500v\n\u001b\u0014 KK.\u001b\u001b#wizgenesis\nhidden trapper\n\u001b\u001bkkkl#wizintrinsic\n5i\n\u001b\u0014 KK.\u001b\u001b"
+    }
+  ]
+}
