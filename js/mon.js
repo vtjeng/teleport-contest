@@ -7129,7 +7129,7 @@ export async function angry_guards(silent = false, rawEnv = {}) {
         } else {
             const possessive = count === 1 ? "a guard's" : "guards'";
             const heard = youHear(
-                `the shrill sound of ${possessive} whistle${plur(count)}`,
+                `the shrill sound of ${possessive} whistle${plur(count)}.`,
                 state,
             );
             if (heard) await message(heard, state, rawEnv);

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "mon.c angry_guards() (5711-5767), the arm for guards the hero cannot spot: You_hear(\"the shrill sound of %s whistle%s.\"). The hero level-teleports to Minetown, wishes for a fountain underfoot, puts on a blindfold and quaffs. fountain.c dryup() first warns (\"The flow reduces to a trickle.\"), then the next quaff dries the fountain in town and calls angry_guards(FALSE).",
+  "segments": [{
+    "seed": 52816437,
+    "datetime": "20250923161544",
+    "nethackrc": "OPTIONS=name:Whistler,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+    "moves": " \u0016?\n>w\u0017fountain\n\u0017blindfold\nPeqyqyqyqy y "
+  }]
+}
