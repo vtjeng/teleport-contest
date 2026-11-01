@@ -6,6 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import {
+    clearLockFiles,
     copyInstall,
     installDirTooLong,
     isPerGameFile,
@@ -68,6 +69,28 @@ test('the private install copy leaves out every per-game file', () => {
     for (const name of ['nethack', 'sysconf', 'perm', 'opthelp',
         'data', 'wizard1.lua', 'minetn-1.lua']) {
         assert.equal(isPerGameFile(name), false, name);
+    }
+});
+
+test('clearLockFiles removes the previous segment lock files and keeps saves', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'record-session-test-'));
+    try {
+        await mkdir(path.join(root, 'save'));
+        // Left by a segment killed at a live prompt: the lock (level 0) and
+        // a level-1 file for player "wizard", a numbered alock.1 lock, and a
+        // record_lock from a score update.
+        const locks = ['1000wizard.0', '1000wizard.1', 'alock.1', 'record_lock'];
+        // Kept: a save for a restore segment, the score file, a bones file
+        // (its name ends in a level number like a level file's), installed
+        // data, and a Lua level file.
+        const kept = ['record', 'bonD0.4', 'sysconf', 'perm', 'wizard1.lua'];
+        for (const name of [...locks, ...kept]) await writeFile(path.join(root, name), '');
+        await writeFile(path.join(root, 'save', '1000wizard.gz'), 'save');
+        await clearLockFiles(root);
+        assert.deepEqual((await readdir(root)).sort(), [...kept, 'save'].sort());
+        assert.deepEqual(await readdir(path.join(root, 'save')), ['1000wizard.gz']);
+    } finally {
+        await rm(root, { recursive: true, force: true });
     }
 });
 

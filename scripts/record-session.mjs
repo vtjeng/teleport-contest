@@ -58,8 +58,37 @@ export function isPerGameFile(relativePath) {
     if (lower.endsWith('.lua')) return false;
     return ['record', 'xlogfile', 'logfile', 'paniclog'].includes(lower)
         || lower.startsWith('bon')
-        || lower.includes('lock')
-        || /\.\d+$/u.test(lower);
+        || isLockFile(lower);
+}
+
+// A game's lock and level files: files.c set_levelfile_name() appends
+// .<level> to the lock name, and level 0 is the lock file itself
+// (<uid><name>.0, or alock.<n> when sysconf MAXPLAYERS numbers the games).
+// files.c make_lockname() names the lock taken while a shared file such as
+// record is updated <file>_lock. Bones files (bon<dungeon>.<level>) also end
+// in a number but are not locks.
+export function isLockFile(name) {
+    const lower = name.toLowerCase();
+    if (lower.endsWith('.lua') || lower.startsWith('bon')) return false;
+    return lower.includes('lock') || /\.\d+$/u.test(lower);
+}
+
+// Before every segment after the first, delete the lock and level files the
+// previous segment left behind and keep save/. A segment that stops at a
+// live prompt (as recipes do, for example at "Die? [yn] (n)") is killed with
+// its lock still in place, and the next segment's NetHack then asks "There
+// is already a game in progress under your name. Destroy old game?" and
+// exits. The judge's recordings start such a segment as a new game without
+// that question (sessions/seed5002-wizard-coverage-pair, segment 1), so its
+// recorder cleared the locks too. A segment that saved has no level files
+// left (dosave0() deletes them), and its save file in save/ is kept for the
+// restore.
+export async function clearLockFiles(installDir) {
+    let entries = [];
+    try { entries = await fs.readdir(installDir, { withFileTypes: true }); } catch {}
+    await Promise.all(entries
+        .filter((e) => e.isFile() && isLockFile(e.name))
+        .map((e) => fs.unlink(path.join(installDir, e.name)).catch(() => {})));
 }
 
 export async function copyInstall(installDir, privateDir) {
@@ -519,12 +548,14 @@ export async function recordSegment({
     await fs.writeFile(path.join(homeDir, '.nethackrc'), seg.nethackrc || '');
     // Reset rng log
     await fs.writeFile(rngLogPath, '');
-    // Only wipe state on the first segment.  A multi-segment session
+    // Wipe all state only on the first segment.  A multi-segment session
     // can be a save/restore pair: seg 0 ends with save+quit, seg 1
     // restarts NetHack and restores from the save file in
-    // <install>/save/.  Clearing between segments would destroy that
-    // save file and turn the restore into a fresh game.
+    // <install>/save/.  Clearing save/ between segments would destroy that
+    // save file and turn the restore into a fresh game, so later segments
+    // remove only the previous segment's lock files (clearLockFiles()).
     if (isFirstSegment) await clearStaleState(installDir);
+    else await clearLockFiles(installDir);
 
     const playerName = parseNethackrcName(seg.nethackrc) ?? '';
     const args = ['-u', playerName];
