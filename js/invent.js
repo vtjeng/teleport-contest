@@ -5515,6 +5515,7 @@ export async function dotypeinv(state = game, hooks = {}) {
         (obj) => this_type_only(obj, state),
         state,
         state.gt.this_title ?? null,
+        PICK_ONE,
     );
     if (result.n > 0) {
         const object = result.pick_list[0]?.obj;

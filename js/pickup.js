@@ -768,6 +768,9 @@ export async function query_objlist(
         ...menuTitleStyle(state),
         items,
         how,
+        // C's select_menu() fills pick_list for every mode; PICK_ONE answers
+        // the same { value, count } rows as PICK_ANY.
+        returnSelections: true,
         cancelValue: null,
         overlay: state.iflags?.menu_overlay !== false,
     });

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 271828,
+    "datetime": "20290611143005",
+    "nethackrc": "OPTIONS=name:Probe,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+    "moves": "\u001bIf.,@e\u001b",
+    "comment": "invent.c dotypeinv() passes PICK_ONE to query_objlist(); in that menu wintty.c process_menu_window() ignores the select-all '.', select-page ',' and invert-all '@' keys, so the potion rows keep their '-' markers; the item letter 'e' then picks one potion for itemactions(), which Escape leaves."
+  }]
+}
