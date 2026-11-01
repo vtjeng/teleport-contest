@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52617,
+      "datetime": "20280703091522",
+      "nethackrc": "OPTIONS=name:Ludios,role:Priest,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0016?\nF F:\u001b"
+    }
+  ],
+  "comment": "Independent wizard-mode ^V ? menu. On page 1, F is not a current-page selector, so the menu waits; Space shows page 2, where the unplaced Fort Ludios entry was added with a zero identifier but kept menu letter F (dungeon.c tport_menu()). Pressing F there ends the PICK_ONE menu (wintty.c process_menu_window()), print_dungeon() returns 0, and level_tele() returns with a blank message line; ':' then shows that the hero has not moved."
+}

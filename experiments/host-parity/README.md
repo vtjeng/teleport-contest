@@ -177,3 +177,15 @@ experiments/host-parity/record-sample.sh .cache/host-parity/linux-probes 5 exper
 If macOS prints `Key binding failed?!` for the four probes that use
 `Strcat()` and binds the `bind-param` key, the judge's behavior is
 consistent enough to port.
+
+### Level-teleport menu probes
+
+`levtele-menu-unreachable-knox-letter` and `levtele-menu-endgame-dummy-letter`
+are copies of the recipes of the same names under `recipes/dungeon.c/`. In
+both, the player presses the letter that `dungeon.c tport_menu()` gives an
+unreachable level. `tty_select_menu()` then returns identifier 0, and
+`print_dungeon()` reads `lchoices.playerlev[-1]`, one place before the start
+of the array: undefined behaviour, like the key-binding case. On Linux the
+byte read is 0, so `level_tele()` returns silently, and the port now does the
+same. The macOS workflow records these two probes so that the next run shows
+whether the judge's build also reads 0.
