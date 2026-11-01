@@ -834,7 +834,9 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
 // already discovered takes observe_object() alone, which is the arm the Healer
 // takes, because u_init.c ini_inv_use_obj() discovered her wand of sleep as it
 // handed the wand over.
-export function learnwand(obj, state = game) {
+// `env.random` carries a planning caller's cloned stream to the Wisdom
+// exercise that discover_object() draws for a newly learned wand.
+export function learnwand(obj, state = game, env = {}) {
     if (obj.oclass !== SPBOOK_CLASS) {
         /* if type already discovered, treat this item has having been seen
            even if hero is currently blinded (skips redundant makeknown) */
@@ -849,7 +851,7 @@ export function learnwand(obj, state = game) {
                 observe_object(obj, state);
             /* make the discovery iff we know what we're manipulating */
             if (obj.dknown)
-                discover_object(obj.otyp, true, true, true, state);
+                discover_object(obj.otyp, true, true, true, state, env);
         }
         update_inventory({ state });
     }
@@ -3325,7 +3327,7 @@ export async function bhito(obj, wand, state = game,
             break;
         }
     }
-    if (learn_it) learnwand(wand, state);
+    if (learn_it) learnwand(wand, state, { random });
     return res;
 }
 
@@ -3846,7 +3848,7 @@ export async function bhitm(monster, wand, state = game,
         && cansee(hitpos.x, hitpos.y, state)
         && !canspotmon(monster, state))
         map_invisible(hitpos.x, hitpos.y, state);
-    if (learn_it) learnwand(wand, state);
+    if (learn_it) learnwand(wand, state, { random });
     return ret;
 }
 
