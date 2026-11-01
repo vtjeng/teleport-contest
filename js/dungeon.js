@@ -622,10 +622,10 @@ export function find_hell(level, state = game) {
 // (1922-1940). The first asks whether the level holds the Wizard's tower, the
 // second whether a square is inside it.
 //
-// dat/dungeon.lua puts wizard1, wizard2 and wizard3 in Gehennom, so both stay
-// false everywhere this port can reach. They are ported rather than assumed
-// because do.c goto_level() reads In_W_tower() before it can know where it is
-// going, and a Gehennom arrival would otherwise pick the answer up silently.
+// The tower's boundary is the exclusion area of the level's
+// des.teleport_region(), which mkmaze.c fixup_special() stores in svd.dndest.
+// savelev() and getlev() carry dndest with the level, including a bones
+// level, so a tower level always has it in C.
 export function On_W_tower_level(level, state = game) {
     return Boolean(on_level(level, state.wiz1_level)
         || on_level(level, state.wiz2_level)
@@ -638,7 +638,9 @@ export function In_W_tower(x, y, level, state = game) {
     const dndest = state.dndest ?? {};
     if (!dndest.nlx) {
         // C's impossible("No boundary for Wizard's Tower?") reports a level
-        // that claims the tower without carrying its exclusion region.
+        // that claims the tower without carrying its exclusion region. The
+        // port reaching this means its level state lost dndest; impossible()
+        // is async and every caller here is synchronous, so fail closed.
         throw new Error("No boundary for Wizard's Tower?");
     }
     /*

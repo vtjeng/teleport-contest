@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "bones.c savebones() and getbones() on the wizard2 level, whose des.teleport_region() leaves the Wizard's Tower boundary in svd.dndest. A debug Wizard level-teleports to wizard2 (not a branch level for seed 81234), wishes for a wand of death, zaps himself and saves bones. A debug Valkyrie with seed 81239, where wizard2 is again not a branch level, teleports there, gets and unlinks the bones, waits, and level-teleports away, so restore.c getlev() must restore dndest for do.c goto_level()'s In_W_tower() check, and its ghostly monster loop must run restore_cham() and hide_monst() per monster. Seeds and dates were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 81234,
+      "datetime": "20300611140000",
+      "nethackrc": "OPTIONS=name:Tower,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup\n",
+      "moves": "\u0016?\rq #wizwish\rwand of death\rzp.  yy  y    y"
+    },
+    {
+      "seed": 81239,
+      "datetime": "20300612090000",
+      "nethackrc": "OPTIONS=name:Climber,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup\n",
+      "moves": "\u0016?\rqy   sss\u00161\r  "
+    }
+  ]
+}

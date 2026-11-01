@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { can_make_bones, resetGhostlyMonsterAttitudes, savebones } from '../js/bones.js';
+import { can_make_bones, ghostly_getlev_monsters, savebones } from '../js/bones.js';
 import {
     DIED, HOLE, KILLED_BY_AN, MM_ADJACENTOK, MM_NOMSG, NO_MINVENT,
     NON_PM, OBJ_FLOOR,
@@ -95,7 +95,7 @@ test('drop_upon_death awaits container insertion before updating container weigh
         /else if \(cont\)\s*\{\s*await add_to_container\(cont, otmp\);\s*\}[\s\S]*?if \(cont\) cont\.owt = weight\(cont/u);
 });
 
-test('ghostly restoration recomputes monster attitude for the new hero', () => {
+test('ghostly restoration recomputes monster attitude for the new hero', async () => {
     // restore.c:getlev() resets peacefulness after loading a bones level. A
     // dwarf that was peaceful for a lawful dead hero is hostile to this
     // neutral human, and its malign value must follow the new attitude.
@@ -112,7 +112,7 @@ test('ghostly restoration recomputes monster attitude for the new hero', () => {
     });
     state.level.monlist = dwarf;
 
-    resetGhostlyMonsterAttitudes(state);
+    await ghostly_getlev_monsters(state);
 
     assert.equal(dwarf.mpeaceful, false);
     assert.equal(dwarf.malign, Math.abs(dwarf.data.maligntyp));

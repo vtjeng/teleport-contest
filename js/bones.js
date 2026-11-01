@@ -49,7 +49,7 @@ import {
     likes_gold, likes_gems, likes_objs, likes_magic, monsndx,
 } from './mondata.js';
 import { m_at } from './monst.js';
-import { mongone } from './mon.js';
+import { mongone, restore_cham } from './mon.js';
 import { restpriest } from './priest.js';
 import { restshk, set_residency } from './shk.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
@@ -753,6 +753,10 @@ function serializeBonesLevel(state) {
         dnstair: level.dnstair,
         upstair: level.upstair,
         stairs,
+        // C ref: save.c savelev_core():515-516 writes svu.updest and
+        // svd.dndest right after the stairs; a bones file is a savelev() too.
+        updest: state.updest ? { ...state.updest } : {},
+        dndest: state.dndest ? { ...state.dndest } : {},
         lastseentyp: level.lastseentyp,
         bonesinfo: level.bonesinfo,
         regions: level.regions,
@@ -809,13 +813,17 @@ function purgeDefunctBonesMonsters(state) {
     dmonsfree(state);
 }
 
-// C ref: restore.c getlev() (1199-1210).  A bones level is loaded for a new
-// character, so every non-shopkeeper monster's attitude must be recomputed
-// against that character before the restored level begins play.  In
-// particular, a peaceful monster from the dead character's game can become
-// hostile to the new character.  Keep this before purgeDefunctBonesMonsters
-// to preserve C's random-call order for monsters rejected by propagate().
-export function resetGhostlyMonsterAttitudes(state) {
+// C ref: restore.c getlev() (1199-1220), the ghostly arm of its monster
+// loop.  A bones level is loaded for a new character, so every
+// non-shopkeeper monster's attitude is recomputed against that character; a
+// peaceful monster from the dead character's game can become hostile to the
+// new one.  Each monster then has its shape-changing updated and, because the
+// level is ghostly, gets hide_monst()'s chance to hide, in the same pass, so
+// the random calls interleave per monster as in C.  Keep this before
+// purgeDefunctBonesMonsters to preserve C's random-call order for monsters
+// rejected by propagate().
+export async function ghostly_getlev_monsters(state) {
+    const { hide_monst } = await import('./restore.js');
     for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
         if (!mtmp.isshk) {
             mtmp.mpeaceful = (is_unicorn(mtmp.data)
@@ -825,6 +833,8 @@ export function resetGhostlyMonsterAttitudes(state) {
                 : peace_minded(mtmp.data, { state });
         }
         set_malign(mtmp, state);
+        await restore_cham(mtmp, state);
+        hide_monst(mtmp, state);
     }
 }
 
@@ -856,7 +866,7 @@ export async function getbones(state = game) {
 
     // C ref: restore.c getlev() resets peaceful/malign relative to the new
     // character while walking the restored monster chain.
-    resetGhostlyMonsterAttitudes(state);
+    await ghostly_getlev_monsters(state);
 
     // Process defunct monsters and surviving inventories for the restore path.
     purgeDefunctBonesMonsters(state);
@@ -994,6 +1004,11 @@ function restoreBonesLevel(bonesData, state) {
         stairTail = stair;
     }
     state.stairs = stairHead;
+    // C ref: restore.c getlev():1114-1115 reads svu.updest and svd.dndest
+    // right after the stairs. The Wizard's Tower levels keep their tower
+    // boundary in dndest, which dungeon.c In_W_tower() requires.
+    state.updest = bonesData.updest ? { ...bonesData.updest } : {};
+    state.dndest = bonesData.dndest ? { ...bonesData.dndest } : {};
 
     // Rebuild floor objects: place in the per-location .objects chains, the
     // per-location grid (level.objects), and the flat objlist chain.

@@ -827,7 +827,7 @@ export async function getlev(ledger, state = game) {
 //
 // restrap() disguises a mimic through makemon.c set_mimic_sym(), whose
 // M_AP_TYPE result decides whether the mimic gets its second try.
-function hide_monst(mon, state = game) {
+export function hide_monst(mon, state = game) {
     const setMimicSym = (mimic) => set_mimic_sym(mimic, {
         state,
         random: { rn1, rn2, rnd },
