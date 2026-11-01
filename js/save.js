@@ -438,6 +438,10 @@ function serializeGameState(state) {
         // level's gs.stairs list, head first, after the map. rest_stairs()
         // in js/restore.js reads it back.
         stairs: state.stairs,
+        // C ref: save.c savelev_core():515-516 writes svu.updest and
+        // svd.dndest right after the stairs.
+        updest: state.updest ?? {},
+        dndest: state.dndest ?? {},
         dungeon_topology: state.dungeon_topology,
         n_dgns: state.n_dgns,
         dungeons: state.dungeons,

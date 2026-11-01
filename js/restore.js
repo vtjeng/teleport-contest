@@ -199,6 +199,10 @@ export async function dorestore(state = game) {
     // C ref: restore.c getlev():1113 rest_stairs(), which dorecover() reaches
     // through getlev() for the hero's level.
     rest_stairs(snapshot.stairs, state);
+    // C ref: restore.c getlev():1114-1115 reads svu.updest and svd.dndest
+    // right after the stairs.
+    state.updest = snapshot.updest ?? {};
+    state.dndest = snapshot.dndest ?? {};
     // C ref: dungeon.c restore_dungeon():222 reads svd.dungeon_topology
     // whole; dorecover() does not rerun fixup_level_locations(), whose x-
     // proto renames, Fort Ludios branch insertion and dummy-level

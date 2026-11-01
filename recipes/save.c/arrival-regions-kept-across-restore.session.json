@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 418807,
+      "datetime": "20330925081147",
+      "nethackrc": "OPTIONS=name:Cartier,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": " \u001645\n\u001bSy"
+    },
+    {
+      "seed": 418808,
+      "datetime": "20330925094630",
+      "nethackrc": "OPTIONS=name:Cartier,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": " n\u00165\n\u001645\n\u001bs"
+    }
+  ],
+  "comment": "save.c savelev_core() writes svu.updest and svd.dndest for the hero's level, and restore.c getlev() reads them back. The first segment level-teleports into the Valley of the Dead, whose valley.lua teleport regions set both areas, and saves there. After the restore, ^V5 builds a new Dlvl 5, which saves the Valley with the restored areas, and ^V45 returns to the Valley: u_on_rndspot() places the hero with place_lregion() inside the Valley's down-teleport region instead of anywhere on the map."
+}
