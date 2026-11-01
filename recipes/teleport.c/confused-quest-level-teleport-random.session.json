@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 640517,
+      "datetime": "20360318091500",
+      "nethackrc": "OPTIONS=name:Lirael,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0016?\n>z\n\n\u0017potion of confusion\nqjs\u00161\n\n\n\n",
+      "comment": "Independent wizard-mode level teleport from the Quest locate level while confused. teleport.c level_tele() reads the typed level, rnl(5) says \"Oops...\", and the goto to random_levtport takes random_teleport_level()'s absolute depth without the Quest \"Home N\" adjustment at teleport.c:1290-1291. The seed, clock, character, and input were chosen for this path."
+    }
+  ]
+}

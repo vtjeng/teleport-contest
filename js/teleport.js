@@ -2409,53 +2409,61 @@ export async function level_tele(state = game) {
                 && trycnt < 10);
         }
 
+        // teleport.c:1214-1217 and 1255-1256 jump to the random_levtport
+        // label in the involuntary branch, which skips the Knox and Quest
+        // adjustments below: random_teleport_level() already returns an
+        // absolute depth.
         if (random_levtport || (!force_dest && trycnt >= 10 && !newlev)) {
             newlev = random_teleport_level(state);
             if (newlev === depth(u.uz, state)) {
                 await ttyPline('You shudder for a moment.', state);
                 return;
             }
-        } else if (!force_dest && newlev === 0) {
-            // teleport.c:1253-1272. The C confirmation and death call are
-            // retained; end.c owns the final death decision.
-            const { ynq } = await import('./lock.js');
-            if (await ynq('Go to Nowhere.  Are you sure?', state) !== 'y')
-                return;
-            const silent = is_silent(state.youmonst?.data);
-            await ttyPline(
-                `${silent ? 'You writhe' : 'You scream'} in agony as your body begins to warp...`,
-                state,
-            );
-            note_unported('window.c display_nhwindow');
-            await ttyPline('You cease to exist.', state);
-            if (state.gi?.invent || state.invent) {
+        } else {
+            if (!force_dest && newlev === 0) {
+                // teleport.c:1253-1272. The C confirmation and death call are
+                // retained; end.c owns the final death decision.
+                const { ynq } = await import('./lock.js');
+                if (await ynq('Go to Nowhere.  Are you sure?', state) !== 'y')
+                    return;
+                const silent = is_silent(state.youmonst?.data);
                 await ttyPline(
-                    `Your possessions land on the ${surface(u.ux, u.uy, state)} with a thud.`,
+                    `${silent ? 'You writhe' : 'You scream'} in agony as your body begins to warp...`,
                     state,
                 );
+                note_unported('window.c display_nhwindow');
+                await ttyPline('You cease to exist.', state);
+                if (state.gi?.invent || state.invent) {
+                    await ttyPline(
+                        `Your possessions land on the ${surface(u.ux, u.uy, state)} with a thud.`,
+                        state,
+                    );
+                }
+                killer.format = NO_KILLER_PREFIX;
+                killer.name = 'committed suicide';
+                const { done } = await import('./end.js');
+                await done(DIED, state);
+                // A "Die?" answer of 'y' ends the program inside done(); this
+                // port marks that with gameover instead of exiting.
+                if (state.program_state?.gameover) return;
+                await ttyPline('An energized cloud of dust begins to coalesce.', state);
+                await ttyPline(
+                    `Your body rematerializes${state.gi?.invent || state.invent
+                        ? ', and you gather up all your possessions' : ''}.`,
+                    state,
+                );
+                return;
             }
-            killer.format = NO_KILLER_PREFIX;
-            killer.name = 'committed suicide';
-            const { done } = await import('./end.js');
-            await done(DIED, state);
-            // A "Die?" answer of 'y' ends the program inside done(); this
-            // port marks that with gameover instead of exiting.
-            if (state.program_state?.gameover) return;
-            await ttyPline('An energized cloud of dust begins to coalesce.', state);
-            await ttyPline(
-                `Your body rematerializes${state.gi?.invent || state.invent
-                    ? ', and you gather up all your possessions' : ''}.`,
-                state,
-            );
-            return;
-        }
 
-        if (!force_dest && newlev > 0 && single_level_branch(u.uz, state)) {
-            await ttyPline('You shudder for a moment.', state);
-            return;
-        }
-        if (!force_dest && levelInQuest(u.uz, state) && newlev > 0) {
-            newlev += state.dungeons[u.uz.dnum].depth_start - 1;
+            if (!force_dest && newlev > 0 && single_level_branch(u.uz, state)) {
+                await ttyPline('You shudder for a moment.', state);
+                return;
+            }
+            // teleport.c:1290-1291. The status line shows "Home N", so a
+            // typed Quest level is relative to the Quest dungeon.
+            if (levelInQuest(u.uz, state) && newlev > 0) {
+                newlev += state.dungeons[u.uz.dnum].depth_start - 1;
+            }
         }
     }
 
