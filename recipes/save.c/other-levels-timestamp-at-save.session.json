@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 551938,
+      "datetime": "20360702220518",
+      "nethackrc": "OPTIONS=name:Ledgerer,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": "\u00166\n\u00162\n30s\u001bSy"
+    },
+    {
+      "seed": 551939,
+      "datetime": "20360703011207",
+      "nethackrc": "OPTIONS=name:Ledgerer,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": " n\u00166\n\u001bsss"
+    }
+  ],
+  "comment": "save.c dosave0() reads each other level back and writes it again with savelev(), whose timestamp is svm.moves at the save (save.c:512-513), not the turn the hero left it. The first segment builds Dlvl 6, leaves it for Dlvl 2, searches there and saves. After the restore, ^V6 returns at once, so getlev() finds no elapsed time: restore.c 1212-1220 skips mon_catchup_elapsed_time() and the rnd(10) hiding test for every monster, and the next call is u_on_rndspot()'s place_lregion()."
+}

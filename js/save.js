@@ -44,7 +44,7 @@ import { nomul } from './hack.js';
 import { save_light_sources } from './light.js';
 import { dmonsfree } from './makemon_create.js';
 import { change_luck } from './moveloop_preamble.js';
-import { level_info } from './dungeon.js';
+import { ledger_no, level_info, maxledgerno } from './dungeon.js';
 import { save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import { vfsWriteFile } from './storage.js';
@@ -106,7 +106,7 @@ function captureLocalLights(state) {
 // recurse first (774-775). The write and the free have no counterpart: the
 // port keeps the objects alive in the level snapshot, and nothing walks them
 // from another level.
-function saveobjchn(first, state) {
+export function saveobjchn(first, state) {
     const context = state.context;
     for (let otmp = first; otmp; otmp = otmp.nobj) {
         if (otmp.cobj) saveobjchn(otmp.cobj, state);
@@ -130,7 +130,7 @@ function saveobjchn(first, state) {
 // reset (900-902) has nothing left to do because do.c goto_level() (1607)
 // has already cleared that pointer, and the ustuck and usteed ids (903-906)
 // serve the saved-game path, which this port restores as an object graph.
-function savemonchn(first, state) {
+export function savemonchn(first, state) {
     for (let mtmp = first; mtmp; mtmp = mtmp.nmon)
         if (mtmp.minvent) saveobjchn(mtmp.minvent, state);
 }
@@ -312,7 +312,6 @@ export async function dosave(state = game) {
 //   - program_state.something_worth_saving — always true in the port
 //   - opening/closing the binary save file — replaced by vfsWriteFile()
 //   - store_version/store_plname — part of the JSON snapshot
-//   - multi-level save loop — the port keeps one level in game.level
 //   - set_ustuck(0), u.usteed = 0 — post-serialization cleanup only
 export function dosave0(state = game) {
     // C ref: save.c:142-145. Undo date-dependent luck adjustments made at
@@ -329,6 +328,11 @@ export function dosave0(state = game) {
     // C ref: save.c:147: retire Saving before serializing the game.
     // This command runs after the TTY message window is initialized.
     clearTtyMessageWindow(state);
+
+    // C ref: save.c:168 savelev(nhfp, ledger_no(&u.uz)). Of its writes,
+    // only the VISITED mark (savelev_core():493-494) reaches state that
+    // savegamestate() then saves, through save_dungeon()'s level_info.
+    level_info(ledger_no(state.u.uz, state), state).flags |= VISITED;
 
     // C ref: save.c:168-169 savelev() + savegamestate(). The port serializes
     // the game state as a JSON snapshot to VFS storage. The binary format
@@ -446,6 +450,11 @@ function serializeGameState(state) {
         n_dgns: state.n_dgns,
         dungeons: state.dungeons,
         branches: serializeBranches(state.branches),
+        // C ref: dungeon.c save_dungeon():172-177 writes svl.level_info for
+        // ledgers 0 to maxledgerno() - 1, so the last ledger's entry is not
+        // in the file, and then svi.inv_pos.
+        level_info: save_level_info(state),
+        inv_pos: state.inv_pos,
         specialLevels: serializeSpecialLevels(state.specialLevels),
         smeq: state.smeq,
         tune: state.tune,
@@ -507,7 +516,44 @@ function serializeGameState(state) {
     };
     // save.c savegamestate():321 saves Oracle count/offsets after artifacts.
     save_oracles(snapshot, state);
+    // C ref: save.c dosave0():190-218, after savegamestate(): every other
+    // level whose file exists is read with getlev() and written back after
+    // its ledger number.
+    snapshot.otherLevels = save_other_levels(state);
     return snapshot;
+}
+
+// C ref: dungeon.c save_dungeon():172-176. `count = maxledgerno()` and the
+// loop's `i < count` leave out the entry for ledger maxledgerno() itself.
+function save_level_info(state) {
+    const count = maxledgerno(state);
+    const saved = [];
+    for (let i = 0; i < count; i++)
+        saved.push({ flags: state.svl?.level_info?.[i]?.flags ?? 0 });
+    return saved;
+}
+
+// C ref: save.c dosave0():190-218. u.uz is zeroed for the loop, so the
+// getlev() of each level runs no elapsed-time catch-up (restore.c
+// 1200-1201) and only reads the level back; savelev() then writes it with
+// svm.moves as its timestamp (save.c:512-513), so a saved level's omoves
+// becomes the turn of the save. The level snapshot that savelev() kept when
+// the hero left (`state._savedLevels`) is this port's level file.
+function save_other_levels(state) {
+    const current = ledger_no(state.u.uz, state);
+    const levels = [];
+    for (let ltmp = 1; ltmp <= maxledgerno(state); ltmp++) {
+        if (ltmp === current) continue;
+        if (!(level_info(ltmp, state).flags & LFILE_EXISTS)) continue;
+        const saved = state._savedLevels?.[ltmp];
+        // dosave0() gives up the save with done(TRICKED) when a level file
+        // will not open (save.c:202-210); the port keeps the flag and the
+        // snapshot together, so a missing one is a port defect.
+        if (!saved)
+            throw new Error(`dosave0: no saved level for ledger ${ltmp}`);
+        levels.push({ ledger: ltmp, ...saved, omoves: state.moves });
+    }
+    return levels;
 }
 
 // Serialize the special-level chain as the JS array representation. Restore

@@ -18,8 +18,10 @@ import {
     COLNO,
     COULD_SEE,
     IN_SIGHT,
+    LFILE_EXISTS,
     M_AP_TYPE,
     ROWNO,
+    VISITED,
     W_AMUL,
     W_ARM,
     W_ARMC,
@@ -38,7 +40,7 @@ import {
     W_WEP,
 } from './const.js';
 import { init_artifacts, restore_artifacts } from './artifacts.js';
-import { set_dungeon_topology } from './dungeon.js';
+import { ledger_no, level_info, set_dungeon_topology } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
 import { restore_waterlevel } from './mkmaze.js';
@@ -52,7 +54,9 @@ import { restpriest } from './priest.js';
 import { setuwep } from './wield.js';
 import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
-import { parseSnapshot, SAVE_FILE_PATH } from './save.js';
+import {
+    parseSnapshot, SAVE_FILE_PATH, savemonchn, saveobjchn,
+} from './save.js';
 import { restore_oracles } from './rumors.js';
 import { role_init } from './role_init.js';
 import { set_residency, restshk } from './shk.js';
@@ -211,6 +215,14 @@ export async function dorestore(state = game) {
     state.n_dgns = snapshot.n_dgns;
     state.dungeons = snapshot.dungeons;
     if (snapshot.branches) state.branches = snapshot.branches;
+    // C ref: dungeon.c restore_dungeon():240-247 reads svl.level_info for
+    // the ledgers save_dungeon() wrote, then svi.inv_pos.
+    if (Array.isArray(snapshot.level_info)) {
+        snapshot.level_info.forEach((saved, ledger) => {
+            level_info(ledger, state).flags = saved?.flags ?? 0;
+        });
+    }
+    if (snapshot.inv_pos) state.inv_pos = snapshot.inv_pos;
     if (snapshot.specialLevels) state.specialLevels = snapshot.specialLevels;
     if (snapshot.smeq) state.smeq = snapshot.smeq;
     if (snapshot.tune != null) {
@@ -372,6 +384,17 @@ export async function dorestore(state = game) {
     // max_rank_sz computes gm.mrank_sz from the role's rank table.
     _uInitInternals.max_rank_sz(state);
 
+    // C ref: restore.c dorecover():831 restlevelfile(ledger_no(&u.uz))
+    // writes the hero's level to its level file through savelev(), which
+    // marks it VISITED; create_levelfile() sets LFILE_EXISTS.
+    level_info(ledger_no(state.u.uz, state), state).flags
+        |= VISITED | LFILE_EXISTS;
+
+    // C ref: restore.c dorecover():840-877. Each other level in the save
+    // file is read with getlev() under REST_LEVELS and written to its level
+    // file by restlevelfile(), before getlev() reads the hero's level again.
+    rest_other_levels(snapshot.otherLevels, state);
+
     // C ref: restore.c getlev():1137 fmon = restmonchn(nhfp). The snapshot
     // keeps the chain in C's order, including a steed that is on the chain
     // but off the map (getlev():1183-1186), so walk it rather than deriving
@@ -418,6 +441,41 @@ export async function dorestore(state = game) {
 
     restore_msghistory(snapshot.msghistory, state);
     return true;
+}
+
+// C ref: restore.c dorecover():859-877 with getlev() (1046-1311) under
+// REST_LEVELS and restlevelfile() (755-771). getlev() rebuilds each
+// monster's species pointer and inventory through restmonchn() and the floor
+// and buried chains through restobjchn(); `program_state.restoring ==
+// REST_LEVELS` skips the elapsed-time catch-up, restore_cham() and
+// hide_monst() (1200-1201). restlevelfile() then writes the level with
+// savelev(), which marks it VISITED (save.c:493-494), gives it a file
+// (files.c create_levelfile() sets LFILE_EXISTS), stamps it with svm.moves,
+// which restgamestate() has just restored to the turn of the save, and frees
+// it: saveobjchn() and savemonchn() hand back any svc.context pointer that
+// restobjchn() pointed at one of its objects. The saved-level snapshot, kept
+// in `state._savedLevels` until goto_level() returns to it, is this port's
+// level file.
+function rest_other_levels(levels, state) {
+    state._savedLevels = {};
+    if (!Array.isArray(levels)) return;
+    for (const { ledger, ...saved } of levels) {
+        const level = saved.level;
+        if (level && typeof level.at !== 'function') {
+            level.at = function at(x, y) {
+                if (x < 0 || x >= COLNO || y < 0 || y >= ROWNO) return null;
+                return this.locations[x]?.[y] || null;
+            };
+        }
+        level.monlist = restmonchn(level.monlist, state);
+        level.objlist = restobjchn(level.objlist, state);
+        level.buriedobjlist = restobjchn(level.buriedobjlist, state);
+        savemonchn(level.monlist, state);
+        saveobjchn(level.objlist, state);
+        saveobjchn(level.buriedobjlist, state);
+        level_info(ledger, state).flags |= VISITED | LFILE_EXISTS;
+        state._savedLevels[ledger] = { ...saved, omoves: state.moves };
+    }
 }
 
 // C ref: restore.c restobj() (183-228). C reads the saved bytes into a struct

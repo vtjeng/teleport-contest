@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730214,
+      "datetime": "20350419163402",
+      "nethackrc": "OPTIONS=name:Keeper,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": "\u00163\n\u001640\n\u001bSy"
+    },
+    {
+      "seed": 730215,
+      "datetime": "20350419171945",
+      "nethackrc": "OPTIONS=name:Keeper,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": " n\u00163\n\u001640\n\u001bss"
+    }
+  ],
+  "comment": "save.c dosave0() writes every other level whose file exists after savegamestate(), and save_dungeon() writes svl.level_info; restore.c dorecover() reads each one back with getlev() and restlevelfile(). The first segment visits Dlvl 3, then level-teleports into the Valley of the Dead and saves there. After the restore, ^V3 returns to the Dlvl 3 that already exists, so goto_level() takes getlev() and u_on_rndspot() rather than mklev(), and ^V40 returns to the Valley through its saved arrival region."
+}
