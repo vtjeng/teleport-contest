@@ -60,14 +60,48 @@ checks on 2026-10-12, and it may fail there because the new worktree has no
 
 ## Known failures
 
+A known failure is either a port defect, where the port does not yet
+reproduce a correct recording, or an invalid reference, where the recording
+itself is wrong.
+
+### Port defects
+
 | Case | Observed failing on | First difference | Cause |
 | --- | --- | --- | --- |
 | `experiments/backlog-terminal-lava/recordings/mixed-fire-blind-fatal.session.json` | `3e01a48b4`, `ee49a85f0` | Tombstone screen, step 75, row 10. RNG, cursors and lengths match. | Killer attribution in `explode.c` `explode()` |
 | `experiments/backlog-terminal-lava/recordings/lava-mounted-terrain.session.json` | `3e01a48b4`, `ee49a85f0` | RNG call 2,792 (step 93): C calls `rnd(4)` in `sink_into_lava()`, JS calls `rn2(12)` | `trap.c` `sink_into_lava()` while mounted |
-| Synthetic `v32-version-build-options` (32/33 screens), `v35-version-feature-report` (35/36), `v48-short-version-command-attempt1` (1/2) | `d6c01204a` | The version text | The Linux recorder's Unix `VERSION_ID` differs from the macOS judge profile in `js/version.js` (`version.c` `getversionstring()`). Left unresolved on purpose; see `investigations/synthetic/`. |
-| Synthetic `v35-gehennom-juiblex` (100/109 screens; RNG matches) | `d6c01204a` | Screens and cursors | A screen-buffer overflow in recorder patch 006 corrupted the recording. Not a JavaScript defect; see `investigations/synthetic/v35/v35-gehennom-juiblex.json`. |
 
 Update this table in the commit that fixes or adds a known failure.
+
+### Invalid references
+
+`challenges/invalid-references.json` lists the admitted synthetic cases whose
+recording is wrong. Each entry gives the case, its batch, the cause, the
+evidence files and the exact screen, RNG and cursor counts the case is
+expected to produce. `scripts/checkpoint-report.mjs`, the summary that
+`scripts/fetch-hosted-checkpoint.mjs` prints and the Checkpoint workflow's
+**Checkpoint report** job read that file. They report a listed case on an
+`INVALID` line, apart from port failures, and compute the `Synthetic:`
+headline over the remaining cases. The `Synthetic, all admitted cases:` line
+and `--json` keep the raw totals. Neither the Checkpoint verdict nor any
+score uses the list.
+
+| Case | Cause |
+| --- | --- |
+| `v32-version-build-options`, `v35-version-feature-report`, `v48-short-version-command-attempt1` | Recorded on the Linux recorder, so the version text shows `Unix` and `/dev/urandom` where the judge's macOS recorder and the port show `MacOS` and `/dev/random`. See "Local recordings and the judge's host". |
+| `v35-gehennom-juiblex` | A screen-buffer overflow in recorder patch 006 overwrote nine recorded cursor positions. All RNG calls match. |
+
+A listed case is set apart only while its counts equal the entry's expected
+counts and its replay raises no error. The report prints a `CHECK` line under
+"Invalid-reference list needs attention" when a listed case matches, when its
+counts change (for example, a new RNG mismatch) or when no evaluation holds
+it. A case that changed stays an ordinary `FAIL`.
+
+Add an entry only with evidence that the reference, not the port, is wrong:
+an investigation under `investigations/synthetic/` or a measured host
+difference. Remove an entry when its case matches. When a case's counts
+change for a reason that leaves the reference invalid, update `expected` in
+the same commit as that reason.
 
 ## Local recordings and the judge's host
 
