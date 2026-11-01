@@ -6328,11 +6328,11 @@ test('can_hide_under_obj answers for the pile it is handed', () => {
 });
 
 // --- find_pmmonst ---
-// Pure function: searches fmon linked list for a living monster of a given
-// species. Pins behavior to C monmove.c find_pmmonst() lines 375-391.
+// Pure function: searches the level monster list (C fmon) for a living
+// monster of a given species. Pins behavior to C monmove.c find_pmmonst() lines 375-391.
 test('find_pmmonst returns null on an empty level', () => {
     const { state } = makeState();
-    state.fmon = null;
+    state.level.monlist = null;
     // No monsters on the level, so nothing to find.
     assert.equal(find_pmmonst(PM_QUEEN_BEE, state), null);
 });
@@ -6345,7 +6345,7 @@ test('find_pmmonst returns null when species is genocided', () => {
         mhp: 10,
         nmon: null,
     });
-    state.fmon = queen;
+    state.level.monlist = queen;
     // Mark queen bees as genocided; C checks mvitals[pm].mvflags & G_GENOD
     // before walking the chain.
     state.mvitals[PM_QUEEN_BEE].mvflags |= G_GENOD;
@@ -6366,7 +6366,7 @@ test('find_pmmonst finds a living monster of the given species', () => {
         mhp: 10,
         nmon: rat,
     });
-    state.fmon = queen;
+    state.level.monlist = queen;
     // The queen is the first (and only) monster of that species on the level.
     assert.equal(find_pmmonst(PM_QUEEN_BEE, state), queen);
     // A rat is also present and findable.
@@ -6382,7 +6382,7 @@ test('find_pmmonst skips dead monsters', () => {
         mhp: 0,
         nmon: null,
     });
-    state.fmon = deadQueen;
+    state.level.monlist = deadQueen;
     // The queen exists but is dead, so find_pmmonst must skip her.
     assert.equal(find_pmmonst(PM_QUEEN_BEE, state), null);
 });
@@ -6395,7 +6395,7 @@ test('find_pmmonst returns null when no monster of that species exists', () => {
         mhp: 5,
         nmon: null,
     });
-    state.fmon = rat;
+    state.level.monlist = rat;
     // Only a rat is on the level; no queen bee exists.
     assert.equal(find_pmmonst(PM_QUEEN_BEE, state), null);
 });

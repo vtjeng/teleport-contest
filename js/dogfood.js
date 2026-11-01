@@ -8,7 +8,6 @@ import {
     APPORT,
     CADAVER,
     DOGFOOD,
-    G_GENOD,
     MANFOOD,
     POISON,
     POISON_RES,
@@ -56,6 +55,7 @@ import {
     S_ORC,
     S_YETI,
 } from './monsters.js';
+import { find_pmmonst } from './monmove.js';
 import { objectType } from './obj.js';
 import {
     AMULET_OF_STRANGULATION,
@@ -111,18 +111,6 @@ function polymorphFood(obj, species) {
 function isQuestArtifact(obj, state) {
     return Boolean(obj.oartifact
         && obj.oartifact === state.urole?.questarti);
-}
-
-function queenBeeOnLevel(state) {
-    if ((state.mvitals?.[PM_QUEEN_BEE]?.mvflags ?? 0) & G_GENOD)
-        return false;
-    for (let monster = state.level?.monlist ?? null;
-        monster;
-        monster = monster.nmon) {
-        if (monster.data?.pmidx === PM_QUEEN_BEE && monster.mhp > 0)
-            return true;
-    }
-    return false;
 }
 
 function isOrganic(obj, state) {
@@ -189,7 +177,7 @@ function dogfoodAfterObjectResistance(monster, obj, env) {
         }
         if (obj.otyp === LUMP_OF_ROYAL_JELLY
             && species?.pmidx === PM_KILLER_BEE) {
-            return queenBeeOnLevel(state) ? TABU : DOGFOOD;
+            return !find_pmmonst(PM_QUEEN_BEE, state) ? DOGFOOD : TABU;
         }
         if (!carnivore && !herbivore)
             return obj.cursed ? UNDEF : APPORT;

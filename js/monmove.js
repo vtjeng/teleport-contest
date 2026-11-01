@@ -1927,10 +1927,11 @@ async function release_hero(mon, env = {}) {
 
 // C ref: monmove.c find_pmmonst() (375-391). Find a living monster of a
 // given species index on the current level. Returns the monster or null.
+// C walks fmon, which is `state.level.monlist` here.
 // Pure lookup: no RNG, no message, no state change.
 export function find_pmmonst(pm, state = game) {
     if ((state.mvitals?.[pm]?.mvflags ?? 0) & G_GENOD) return null;
-    for (let mtmp = state.fmon; mtmp; mtmp = mtmp.nmon) {
+    for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.mhp < 1) continue; /* DEADMONSTER */
         if (mtmp.data === state.mons?.[pm]) return mtmp;
     }
