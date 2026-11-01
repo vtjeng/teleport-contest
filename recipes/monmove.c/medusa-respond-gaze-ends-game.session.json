@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: monmove.c dochug():754 m_respond() -> mon.c m_respond_medusa() -> mhitu.c gazemu() AD_STON -> end.c done(STONING), which does not return. A debug-created Medusa (forced past the doppelganger substitution) next to the hero stones her on Medusa's first turn; the hero answers yes to Die?, so the game ends inside Medusa's dochug() and no later draw (distfleeck(), m_move()) follows. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 83160427,
+      "datetime": "20410917071512",
+      "nethackrc": "OPTIONS=name:Ilse,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0007Medusa\nymsms\ny\nq\n"
+    }
+  ]
+}
