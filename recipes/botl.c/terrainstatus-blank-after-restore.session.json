@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "_comment": "Exercises botl.c bot_via_windowport():1261-1273 for the terrain status after a restore. The first segment shows Stairs and then Floor and saves. iflags.terrain_typ is not saved and the restore sets no MAX_TYPE, so the restored status shows no terrain until hack.c switch_terrain() reclassifies on the step onto the staircase.",
+  "segments": [
+    {
+      "seed": 6620421,
+      "datetime": "20261103150000",
+      "nethackrc": "OPTIONS=name:Terrain,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,terrainstatus,time\n",
+      "moves": "\u001bjjSy"
+    },
+    {
+      "seed": 6620422,
+      "datetime": "20261103153000",
+      "nethackrc": "OPTIONS=name:Terrain,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,terrainstatus,time\n",
+      "moves": "\u001bkhlkkkllllhhhh"
+    }
+  ]
+}

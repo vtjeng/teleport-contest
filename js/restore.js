@@ -38,6 +38,7 @@ import {
     W_SWAPWEP,
     W_TOOL,
     W_WEP,
+    STONE,
 } from './const.js';
 import { init_artifacts, restore_artifacts } from './artifacts.js';
 import { ledger_no, level_info, set_dungeon_topology } from './dungeon.js';
@@ -440,6 +441,14 @@ export async function dorestore(state = game) {
 
     // C ref: dorecover():928 vision_full_recalc = 1.
     state.vision_full_recalc = 1;
+
+    // hack.c classify_terrain()'s iflags.terrain_typ is not saved, and the
+    // restore never passes the level-arrival assignment of MAX_TYPE in
+    // dungeon.c u_on_newpos(), so the restored process keeps the static zero
+    // (STONE). botl.c then leaves the terrain status blank until
+    // switch_terrain() reclassifies (js/display.js _terrainStatus()).
+    state.iflags ??= {};
+    state.iflags.terrain_typ = STONE;
 
     // C ref: dorecover():901 program_state.something_worth_saving = 1.
     state.program_state ??= {};

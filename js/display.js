@@ -76,7 +76,7 @@ import {
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER, SDOOR,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
     IRONBARS, TREE, ALTAR, GRAVE, THRONE, SINK, FOUNTAIN,
-    POOL, MOAT, ICE, LAVAPOOL, LAVAWALL, AIR, CLOUD, WATER,
+    POOL, MOAT, ICE, LAVAPOOL, LAVAWALL, AIR, CLOUD, WATER, MAX_TYPE,
     DBWALL, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN,
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
@@ -4675,9 +4675,30 @@ export function classify_terrain(state = game) {
     return typ;
 }
 
+// C ref: botl.c bot_via_windowport() (1261-1273). The status reads the
+// cached iflags.terrain_typ and classifies afresh only for MAX_TYPE, which a
+// level arrival requests. blstats[][BL_TERRAIN] keeps its text until a_int
+// differs from that index. Neither iflags nor blstats is saved: a restored
+// game starts with the static zeros, so terrain_typ 0 (STONE) matches a_int 0
+// and the field stays blank until the hero steps onto a different terrain
+// type and switch_terrain() reclassifies it. C keeps two alternating blstats
+// copies; their texts can differ only when terrain_typ returns to 0 before
+// both copies were refreshed, so one cache serves here.
 function _terrainStatus(state = game) {
-    const typ = classify_terrain(state);
-    return TERRAIN_DESCRIPTIONS[typ] ?? '';
+    state.iflags ??= {};
+    // A new game's level arrival sets MAX_TYPE and js/restore.js sets the
+    // static zero a restored process keeps; a state that reached neither has
+    // no value yet, so classify it as an arrival would.
+    if (state.iflags.terrain_typ === undefined
+        || state.iflags.terrain_typ === MAX_TYPE)
+        classify_terrain(state);
+    const typ = state.iflags.terrain_typ;
+    const cache = state.bl_terrain ??= { a_int: STONE, val: '' };
+    if (cache.a_int !== typ) {
+        cache.val = TERRAIN_DESCRIPTIONS[typ] ?? '';
+        cache.a_int = typ;
+    }
+    return cache.val;
 }
 
 function _optionalStatusEntries() {
@@ -4690,6 +4711,9 @@ function _optionalStatusEntries() {
     }
     if (game.flags?.terrainstatus) {
         fields.push({ field: 'terrain', text: _terrainStatus(game) });
+    } else {
+        // botl.c:1270-1272: clear the text and mark "none of the above".
+        game.bl_terrain = { a_int: MAX_TYPE, val: '' };
     }
     return fields;
 }
