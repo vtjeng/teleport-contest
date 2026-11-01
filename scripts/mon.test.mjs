@@ -2728,11 +2728,15 @@ test('movemon stops the scan after the monster that killed the hero',
             ...schedulerOperations({ moveSingleMonster }),
         });
         assert.deepEqual(visited, ['killer']);
-        // The scan's terminal cleanup still runs: the objsplit reset is
-        // clear_splitobjs()'s, at movemon()'s tail.
+        // Nor does movemon()'s tail run. In C the death ends in end.c
+        // really_done() -> nh_terminate(), which is NORETURN, so mon.c:1337
+        // clear_splitobjs() and mon.c:1340 dmonsfree() are never reached;
+        // running dmonsfree() over monsters savebones() had already freed
+        // is what crashed recordings/mthrowu.c/breath-kills-hero-ends-game.
+        // The fixture's objsplit (7, 8) therefore stays as it was.
         assert.deepEqual(dying.context.objsplit, {
-            parent_oid: 0,
-            child_oid: 0,
+            parent_oid: 7,
+            child_oid: 8,
         });
 
         // The same chain with no death visits both.
