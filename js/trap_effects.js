@@ -2690,8 +2690,12 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     }
 
     let singleobj;
+    // The vision hooks read objectEnv.planning: a planned launch must borrow
+    // the module-wide transparency index (admitPlannedVisionChange) before
+    // lifting the boulder, or the live pass inherits the unblocked square.
     const objectEnv = {
         state,
+        planning,
         hooks: objectHooks,
     };
     if (otmp.quan === 1) {
