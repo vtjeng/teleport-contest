@@ -1,0 +1,50 @@
+name: macOS recorder
+on:
+  workflow_dispatch:
+
+# The judge's reference recordings were made on macOS; local recordings are
+# made on Linux. This workflow builds the C recorder on macOS, records the
+# host-parity sample (experiments/host-parity/recipes/) and uploads the
+# recordings, so scripts/compare-host-recordings.mjs can list every screen
+# that differs between the two hosts. docs/testing.md, "Local recordings and
+# the judge's host", gives the whole procedure.
+
+jobs:
+  record:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # nethack-c/build-recorder.sh builds from the NetHack source in
+          # the nethack-c/upstream submodule.
+          submodules: true
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Build the recorder
+        run: bash nethack-c/build-recorder.sh
+
+      - name: Describe the host
+        run: |
+          mkdir -p macos-recordings
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            sw_vers
+            uname -a
+            clang --version | head -n 1
+            node --version
+          } | tee macos-recordings/host.txt
+
+      - name: Record the sample
+        run: experiments/host-parity/record-sample.sh macos-recordings
+
+      - name: Upload recordings
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-recordings
+          path: macos-recordings/
+          if-no-files-found: error
