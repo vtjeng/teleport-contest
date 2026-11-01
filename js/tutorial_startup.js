@@ -2,30 +2,16 @@
 // C refs: options.c ask_do_tutorial() and allmain.c maybe_do_tutorial().
 
 import { get_configfile } from './cfgfiles.js';
-import { LR_DOWNTELE, PICK_ONE } from './const.js';
-import { find_level } from './dungeon.js';
+import { PICK_ONE, UTOTYPE_NONE } from './const.js';
+import { assign_level, find_level } from './dungeon.js';
 import { nh_basename } from './files.js';
-import { bot, docrt, flush_screen } from './display.js';
-import { updateDunlevReached } from './do.js';
-import { read_engr_at } from './engrave.js';
+import { docrt } from './display.js';
+import { deferred_goto, schedule_goto } from './do.js';
 import { game } from './gstate.js';
-import {
-    freeinv,
-    INVLET_BASIC,
-    update_inventory,
-} from './invent.js';
-import { mklev } from './mklev.js';
-import { place_lregion } from './mkmaze.js';
-import { objectGenerationHooks } from './object_generation.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
-import {
-    dismissPendingTtyMessage,
-    ttyPline,
-} from './tty_message.js';
-import { loadTutorialLevel } from './tutorial_level.js';
-import { vision_recalc, vision_reset } from './vision.js';
-import { setnotworn } from './worn.js';
+import { dismissPendingTtyMessage } from './tty_message.js';
+import { vision_recalc } from './vision.js';
 
 const REPROMPT = Symbol('tutorial menu needs an explicit choice');
 
@@ -92,146 +78,23 @@ export async function ask_do_tutorial(state = game) {
     }
 }
 
-// This is the source boundary immediately before assign_level(&u.ucamefrom,
-// &u.uz), schedule_goto(), and deferred_goto().  The transition itself needs
-// the complete tutorial special-level loader and is deliberately left to its
-// owning subsystem rather than approximated with the ordinary dungeon level.
+
+// C ref: allmain.c maybe_do_tutorial(). do.c goto_level() makes tut-1,
+// runs nhlua.c tutorial(TRUE), and reads the arrival engraving through
+// pickup(1); the final docrt()'s cls() resolves that message.
 export async function maybe_do_tutorial(state = game) {
-    const specialLevel = find_level('tut-1', state);
-    if (!specialLevel) {
-        return { action: 'skip', reason: 'level-unavailable' };
-    }
-    if (!await ask_do_tutorial(state)) {
-        return { action: 'skip', reason: 'declined' };
-    }
-    return {
-        action: 'enter',
-        level: { ...specialLevel.dlevel },
-        proto: specialLevel.proto,
-    };
-}
+    const sp = find_level('tut-1', state);
+    if (!sp) return;
 
-function tutorialInventoryHooks() {
-    return objectGenerationHooks({
-        // New-game inventory cannot have an active doff operation. The old
-        // level's monster visibility state is discarded by goto_level().
-        cancelDoff() {},
-        monsterUnseesProperty() {},
-        // Permanent-inventory rendering is a window-port concern. Supplying
-        // its live hook preserves update_inventory()'s source boundary while
-        // the subsequent full redraw owns the gameplay terminal.
-        updateInventory() {},
-    });
-}
-
-function zeroSpellbook(spellbook) {
-    return spellbook.map((spell) => Object.fromEntries(
-        Object.keys(spell ?? {}).map((field) => [field, 0]),
-    ));
-}
-
-// C ref: nhlua.c nhl_gamestate(FALSE), reached from nhlib.lua
-// tutorial_enter(). Inventory order and its temporary owornmask marker are
-// intentionally preserved for a future source-shaped tutorial exit.
-export function save_tutorial_gamestate(state = game) {
-    if (state.gmst_stored)
-        throw new Error('tutorial game state is already stored');
-
-    const hooks = tutorialInventoryHooks();
-    state.gmst_moves = state.moves;
-    state.gmst_invent = null;
-    while (state.invent) {
-        const obj = state.invent;
-        const wornmask = obj.owornmask;
-        setnotworn(obj, { state, hooks });
-        freeinv(obj, { state, hooks });
-        obj.owornmask = wornmask;
-        obj.nobj = state.gmst_invent;
-        state.gmst_invent = obj;
-    }
-    state.lastinvnr = INVLET_BASIC - 1;
-    state.gmst_ubak = structuredClone(state.u);
-    state.gmst_disco = structuredClone(state.svd?.disco ?? []);
-    state.gmst_mvitals = structuredClone(
-        state.svm?.mvitals ?? state.mvitals ?? [],
-    );
-    const spellbook = state.svs?.spl_book ?? [];
-    state.gmst_spl_book = structuredClone(spellbook);
-    state.svs ??= {};
-    state.svs.spl_book = zeroSpellbook(spellbook);
-    state.gmst_stored = true;
-    update_inventory({ state, hooks });
-    return state;
-}
-
-// C refs: allmain.c maybe_do_tutorial(), do.c goto_level(), and
-// nhlib.lua tutorial_enter(). This is intentionally limited to the new-game
-// transition into tut-1 and stops at the ordinary first-command boundary.
-export async function enter_tutorial(target, state = game) {
-    if (target?.proto !== 'tut-1')
-        throw new Error(`unsupported tutorial level ${target?.proto ?? ''}`);
-
-    const oldLevel = { ...state.u.uz };
-    state.u.ucamefrom = { ...oldLevel };
-    state.iflags ??= {};
-    state.iflags.nofollowers = true;
-    try {
-        // deferred_goto() emits its pre-message before tutorial(TRUE).
-        await ttyPline('Entering the tutorial.', state);
-        state.tutorialCallbacks = {
-            cmd_before: true,
-            end_turn: true,
-        };
-        save_tutorial_gamestate(state);
-
-        state.u.uz0 = { ...oldLevel };
-        state.u.uz = { ...target.level };
-        state.u.utolev = { ...target.level };
-        state.u.utotype = 0;
-        updateDunlevReached(state.u.uz, state);
-        state.updest = {};
-        state.dndest = {};
-        await mklev({ specialLevelLoader: loadTutorialLevel });
-
-        // goto_level() postpones the new map flush until the pending arrival
-        // message has passed through tty More on the old physical screen.
-        vision_reset();
-        state.vision_full_recalc = 0;
-        const destination = state.dndest;
-        await place_lregion(
-            destination.lx,
-            destination.ly,
-            destination.hx,
-            destination.hy,
-            destination.nlx,
-            destination.nly,
-            destination.nhx,
-            destination.nhy,
-            LR_DOWNTELE,
-            null,
-            state,
-        );
-        await dismissPendingTtyMessage(state);
-
-        vision_reset();
+    if (await ask_do_tutorial(state)) {
+        assign_level(state.u.ucamefrom, state.u.uz);
+        state.iflags ??= {};
+        state.iflags.nofollowers = true;
+        schedule_goto(sp.dlevel, UTOTYPE_NONE, 'Entering the tutorial.',
+            null, state);
+        await deferred_goto(state);
         vision_recalc(0);
         await docrt();
-        state.u.uz0 = { ...state.u.uz };
-        await read_engr_at(state.u.ux, state.u.uy, state, {
-            pline: ttyPline,
-            // A newly created hero entering tut-1 is neither swallowed nor
-            // levitating and can reach the engraving underfoot.
-            canReachFloor: () => true,
-        });
-
-        // maybe_do_tutorial() performs one final redraw after deferred_goto;
-        // its cls() resolves pickup()'s pending engraving text.
-        vision_recalc(0);
-        await docrt();
-        await bot();
-        await flush_screen(1);
-    } finally {
         state.iflags.nofollowers = false;
     }
-    return state;
 }

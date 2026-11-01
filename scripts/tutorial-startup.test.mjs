@@ -268,32 +268,23 @@ test('configured tutorial true and false suppress the query', async () => {
     }
 });
 
-test('maybe_do_tutorial exposes the transition target without mutating state', async () => {
+// allmain.c maybe_do_tutorial() returns before ask_do_tutorial() when
+// find_level("tut-1") fails, and does nothing after a refusal. Accepting
+// the tutorial runs deferred_goto(); recordings under recordings/ cover it.
+test('maybe_do_tutorial leaves state alone when declined or tut-1 is absent', async () => {
     const state = tutorialState('', {
         tutorial_set_in_config: true,
-        flags: { tutorial: true },
+        flags: { tutorial: false },
     });
     const before = structuredClone({ u: state.u, iflags: state.iflags });
 
-    assert.deepEqual(await maybe_do_tutorial(state), {
-        action: 'enter',
-        level: { dnum: 8, dlevel: 1 },
-        proto: 'tut-1',
-    });
+    assert.equal(await maybe_do_tutorial(state), undefined);
     assert.deepEqual({ u: state.u, iflags: state.iflags }, before);
-
-    state.flags.tutorial = false;
-    assert.deepEqual(await maybe_do_tutorial(state), {
-        action: 'skip',
-        reason: 'declined',
-    });
 
     state.specialLevels = [];
     state.flags.tutorial = true;
-    assert.deepEqual(await maybe_do_tutorial(state), {
-        action: 'skip',
-        reason: 'level-unavailable',
-    });
+    assert.equal(await maybe_do_tutorial(state), undefined);
+    assert.deepEqual({ u: state.u, iflags: state.iflags }, before);
 });
 
 test('tutorial entry records the reached level before dungeon overview', () => {

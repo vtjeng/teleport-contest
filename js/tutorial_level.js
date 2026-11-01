@@ -534,8 +534,8 @@ export function loadTutorialLevel(des, state) {
     });
 }
 
-// Port of dat/tut-2.lua. The level uses the normal special-level registry,
-// unlike tut-1.lua, which is loaded directly during tutorial startup.
+// Port of dat/tut-2.lua. Both tutorial levels use the normal special-level
+// registry below, which do.c goto_level() reaches through mklev().
 export function loadTutorialSecondLevel(des, state) {
     des.level_init({ style: 'solidfill', fg: ' ' });
     des.level_flags(
@@ -560,5 +560,6 @@ export function loadTutorialSecondLevel(des, state) {
 }
 
 export const TUTORIAL_LEVEL_LOADERS = Object.freeze({
+    'tut-1': loadTutorialLevel,
     'tut-2': loadTutorialSecondLevel,
 });

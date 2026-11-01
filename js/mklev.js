@@ -714,7 +714,7 @@ async function makelevel(specialLevelLoader = null) {
 
     // C ref: mklev.c:1267-1270. Check for a special level and dispatch
     // through makemaz() when one exists. This takes priority over both the
-    // explicit specialLevelLoader (tutorial) and the regular room path.
+    // explicit specialLevelLoader (tests) and the regular room path.
     // Only dispatch when the port has a loader for this level's proto;
     // unported special levels fall through to regular generation, which
     // is wrong but preserves the session's later matched screens.
@@ -1955,9 +1955,8 @@ export function l_push_mkroom_table(tmpr) {
 }
 
 // C ref: sp_lev.c, the lspo_* handlers a des-file calls. makelevel() builds one
-// of these only when mklev() was given a specialLevelLoader; the special-level
-// loaders (js/tutorial_level.js loadTutorialLevel() for dat/tut-1.lua among
-// them) call its methods the way the Lua files call des.*.
+// of these only when mklev() was given a specialLevelLoader, as tests do; the
+// loader calls its methods the way the Lua files call des.*.
 //
 // scripts/tutorial-startup.test.mjs replays the tutorial loader against a
 // recording stub and pins the level_init styles, level_flags names, and door

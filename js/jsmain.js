@@ -46,10 +46,7 @@ import { timeout_globals_init } from './timeout.js';
 import {
     ttyPlayerNameAndSuffix,
 } from './tty_startup.js';
-import {
-    enter_tutorial,
-    maybe_do_tutorial,
-} from './tutorial_startup.js';
+import { maybe_do_tutorial } from './tutorial_startup.js';
 import {
     runMoveloopPreambleAtStartupBoundary,
 } from './moveloop_preamble.js';
@@ -618,8 +615,7 @@ export class NethackGame {
         await runMoveloopPreambleAtStartupBoundary(false, g, {
             hooks: TTY_WINDOW_HOOKS,
         });
-        const tutorial = await maybe_do_tutorial(g);
-        if (tutorial.action === 'enter') await enter_tutorial(tutorial, g);
+        await maybe_do_tutorial(g);
         return true;
     }
 

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61822,
+      "datetime": "20330217153000",
+      "nethackrc": "OPTIONS=name:Odile,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none,showexp\n",
+      "moves": " y   #chronicle\n "
+    }
+  ],
+  "comment": "Accepts the startup tutorial as a Tourist, then lists #chronicle. allmain.c maybe_do_tutorial() reaches tut-1 through schedule_goto() and deferred_goto(), so do.c goto_level() logs \"entered level 1, the Tutorial\" and pays the Tourist's more_experienced() for the new level."
+}

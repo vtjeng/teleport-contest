@@ -255,9 +255,11 @@ test('combined full moon and Friday messages precede RNG and tutorial', async ()
 
     await ttyPline(welcome, state);
     await moveloop_preamble(false, state);
-    assert.deepEqual(await maybe_do_tutorial(state), {
-        action: 'skip', reason: 'declined',
-    });
+    // The n answer declines; C's void maybe_do_tutorial() then leaves the
+    // hero on the starting level.
+    const startLevel = { ...state.u.uz };
+    assert.equal(await maybe_do_tutorial(state), undefined);
+    assert.deepEqual(state.u.uz, startLevel);
 
     assert.equal(boundaries.length, 4);
     assert.equal(boundaries[0].rows[0], welcome);

@@ -2737,9 +2737,9 @@ export async function goto_level(
         } else if (In_tutorial(newlevel)) {
             // nhlua.c tutorial() calls the optional Lua transition callback;
             // the callback result is discarded by C.
-            tutorial(true, state);
+            await tutorial(true, state);
         } else if (In_tutorial(u.uz)) {
-            tutorial(false, state);
+            await tutorial(false, state);
             up = false;
             leaving_tutorial = true;
         }
