@@ -1172,11 +1172,12 @@ test('known liquid warning passes the walking seam and stops before arrival',
         );
         assert.deepEqual([state.u.ux, state.u.uy], [10, 10]);
 
-        // teleport.c teleds() does not call swim_move_danger(), so its use of
-        // the shared destination seam must continue to reject the pool.
-        assert.throws(
+        // teleport.c teleds() does not call swim_move_danger(); its arrival
+        // on the pool goes straight to spoteffects(), as the independent C
+        // recording recordings/teleport.c/dragon-teleports-onto-pool shows,
+        // so the shared seam admits it for that caller too.
+        assert.doesNotThrow(
             () => requireSimpleHeroDestination(11, 10, state),
-            /door or special terrain movement/u,
         );
     });
 

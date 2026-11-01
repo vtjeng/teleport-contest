@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c domove_swap_with_pet() onto the Plane of Air's open sky. A neutral human Valkyrie puts on a wished ring of levitation (so the Plane of Air does not scramble her steps), level-teleports in debug mode to the Plane of Air with her kitten beside her, declines the Amulet's wish, and swaps places with the kitten north of her, which stands on AIR. Her next step south lets the Wizard of Yendor close in and attack. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 551821,
+      "datetime": "20541120163000",
+      "nethackrc": "OPTIONS=name:Skyward,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:cat,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizwish\nring of levitation\n Per #wizlevelport\n?\n>>M      nothing\n k j "
+    }
+  ]
+}

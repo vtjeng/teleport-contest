@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "teleport.c teleds() arrival in rock. A dwarven Archeologist polymorphs into a xorn (Passes_walls), uses the debug-mode ^T controlled teleport to land in solid stone three squares north of her, then teleports into the room's top wall, and walks back into the room. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 260917,
+      "datetime": "20541112201500",
+      "nethackrc": "OPTIONS=name:Phaser,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #polyself\nxorn\n  \u0014kkk.  \u0014jj.  j"
+    }
+  ]
+}

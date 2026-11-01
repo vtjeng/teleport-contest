@@ -62,11 +62,11 @@ for (const hallu of [false,true]) for (const blind of [false,true]) {
             const copy = planningState(game);
             const cloneBefore = structuredClone({u:copy.u, context:copy.context,
                 world:copy.level.locations, invent:copy.invent});
-            for (const state of [copy,game]) {
-                if (water) assert.doesNotThrow(()=>requireSimpleHeroDestination(6,7,state));
-                else assert.throws(()=>requireSimpleHeroDestination(6,7,state),
-                    /door or special terrain movement/u);
-            }
+            // teleds() admits a pool, moat or Water square on any level; the
+            // off-Water-level arrival is pinned by the independent C recording
+            // recordings/teleport.c/dragon-teleports-onto-pool.session.json.
+            for (const state of [copy,game])
+                assert.doesNotThrow(()=>requireSimpleHeroDestination(6,7,state));
             assert.deepEqual(snapshot(),before);
             assert.deepEqual({u:copy.u,context:copy.context,world:copy.level.locations,
                 invent:copy.invent},cloneBefore);

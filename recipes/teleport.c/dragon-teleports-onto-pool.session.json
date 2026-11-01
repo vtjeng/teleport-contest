@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "teleport.c teleds() arrival on a pool. A dwarven Archeologist polymorphs into a blue dragon (Flying), steps south, wishes a pool onto that square in debug mode, steps south again, and uses ^T to teleport back onto the pool; Flying keeps spoteffects() from drowning her. Variation of xorn-teleports-into-rock. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 260917,
+      "datetime": "20541112201500",
+      "nethackrc": "OPTIONS=name:Phaser,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #polyself\nblue dragon\n  j#wizwish\npool\n  j\u0014k.  "
+    }
+  ]
+}

@@ -41,13 +41,14 @@ import {
     CQ_REPEAT,
     D_CLOSED,
     CROSSWALL,
+    DB_FLOOR,
     DBWALL,
+    DRAWBRIDGE_UP,
     DO_MOVE,
     DOMOVE_WALK,
     D_BROKEN,
     D_ISOPEN,
     D_NODOOR,
-    D_TRAPPED,
     DOOR,
     FAST,
     TELEP_TRAP,
@@ -1433,34 +1434,25 @@ test('live !safe_pet collision can decline the attack without a PRNG draw',
 
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
-        // A doorless, broken, or open doorway is an admitted destination
-        // (hack.c test_move() reaches only its testdiag arm for those), and so
-        // are the two masks closed_door() answers TRUE for: autoopen pulls at
-        // a plain D_CLOSED door and names a plain D_LOCKED one. The masks
-        // below are the ones left. The D_TRAPPED closed-door success tail
-        // belongs to doopen_indir() and is covered at its direct test_move()
-        // dependency boundary, not by this retry snapshot.
+        // Every door state is now an admitted walking destination: hack.c
+        // test_move() decides a doorway through testdiag and a closed door
+        // through its own arm, and the arrival path reads no door bit beyond
+        // what dfeature_at() and describe_decor() handle. The span of a
+        // raised drawbridge over plain floor (DB_FLOOR, so neither pool nor
+        // lava) is still refused by the walking destination seam, so it
+        // stands in as the retry fixture.
         ...[
             [
-                'trapped broken door',
-                D_BROKEN | D_TRAPPED,
+                'raised drawbridge over floor',
+                DRAWBRIDGE_UP,
+                DB_FLOOR,
                 'test_move() door or special terrain movement',
             ],
-            [
-                'trapped open door',
-                D_ISOPEN | D_TRAPPED,
-                'test_move() door or special terrain movement',
-            ],
-            // D_LOCKED | D_TRAPPED is deliberately absent: lock.c:855 tests
-            // only D_CLOSED, so 0x18 takes the message switch and returns
-            // before the b_trapped() tail, and the port serves it. The
-            // The omitted D_CLOSED | D_TRAPPED mask reaches that same partial
-            // doopen_indir() tail only when its success roll fires.
-        ].map(([name, mask, reason]) => ({
+        ].map(([name, typ, mask, reason]) => ({
             name,
             reason,
             install: ({ destination }) => {
-                destination.typ = DOOR;
+                destination.typ = typ;
                 destination.flags = destination.doormask = mask;
             },
             remove: ({ destination }) => {

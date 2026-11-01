@@ -1533,11 +1533,13 @@ export function requireSimpleHeroDestination(
     const walkingLiquid = pushesBoulder
         && is_pool_or_lava(x, y, state);
     // C teleport.c teleds() does not call test_move() or the walking danger
-    // warning. Water-level pool arrivals reach its ordinary spoteffects()
-    // owner; other non-walking liquid destinations retain this boundary.
+    // warning; its callers chose the square through teleok() or a wizard-mode
+    // request. A pool or moat arrival reaches spoteffects()'s ordinary
+    // pooleffects() owner, and rock reached by a hero who Passes_walls has no
+    // arrival effect beyond switch_terrain(), both of which are ported. Lava
+    // arrival by teleport has no matching C recording yet and stays refused.
     const teleportWater = !pushesBoulder
-        && on_level(state.u?.uz, state.water_level)
-        && is_pool(x, y, state);
+        && (is_pool(x, y, state) || IS_OBSTRUCTED(location?.typ));
     // hack.c domove_core():2843-2856 admits liquid through test_move(), then
     // asks swim_move_danger() before moving the hero or applying any arrival
     // effect.  A warning which is certain to stop the step therefore needs no
@@ -1563,14 +1565,25 @@ export function requireSimpleHeroDestination(
     // arm, which refuses a diagonal entry and allows an orthogonal one; the
     // diagonal case never arrives here, because preflightDomoveDestination()
     // admits it for test_move() to refuse.
-    // The three exact masks below are the non-closed doorway states that this
-    // boundary owns. In particular, hack.c test_move():1074-1150 sends
-    // D_BROKEN through testdiag, where doorless_door() admits it off the Rogue
-    // level. D_TRAPPED combinations remain excluded: the trap bit makes them
-    // distinct C states whose later behavior is not traced here.
+    // The walking callers admit every door state. domove_core() calls this
+    // seam only after test_move() has accepted the step, and
+    // preflightDomoveDestination() sends closed doors and refused diagonal
+    // entries to test_move() before it would reach here. test_move()'s
+    // closed-door arm (hack.c:1075-1093) lets a closed, locked or trapped
+    // door through only for a hero who Passes_walls or oozes under it, and
+    // its testdiag rule (hack.c:1138-1139) exempts Passes_walls from the
+    // diagonal refusal. Nothing on the arrival path reads the door's state
+    // except through dfeature_at(), describe_decor() and classify_terrain(),
+    // which handle every mask; mklev.c's D_TRAPPED bit is read only by the
+    // door commands and by trap and kick code, none of which arrival runs.
+    //
+    // teleport.c teleds() keeps the three exact non-closed doorway masks
+    // below. hack.c test_move():1074-1150 sends D_BROKEN through testdiag,
+    // where doorless_door() admits it off the Rogue level.
     const mask = doorMask(location);
     const doorway = location?.typ === DOOR
-        && (mask === D_NODOOR || mask === D_BROKEN || mask === D_ISOPEN);
+        && (pushesBoulder
+            || mask === D_NODOOR || mask === D_BROKEN || mask === D_ISOPEN);
     const ordinaryDestination = location && (walkingLiquid || teleportWater
             || location.typ === ROOM
             || location.typ === CORR
@@ -1731,6 +1744,11 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
             || destination.typ === ICE
             || destination.typ === CLOUD
             || destination.typ === POOL
+            // The Plane of Air's open sky. test_move() admits AIR like any
+            // other non-obstructed square, and the hero's arrival there runs
+            // the same spoteffects() and describe_decor() owners as a walk
+            // onto it, which requireSimpleHeroDestination() also admits.
+            || IS_AIR(destination.typ)
             || IS_FURNITURE(destination.typ)
             || (destination.typ === DOOR
                 && (doorMask(destination) === 0

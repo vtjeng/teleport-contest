@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c test_move():1075-1078 and 1138-1139. A dwarven Archeologist closes the open door west of the start room, polymorphs into a xorn (Passes_walls), and walks west into the closed door, on into the corridor, and back. She then re-enters the closed door diagonally from the room, which testdiag allows for Passes_walls, looks at it with ':' ('There is a closed door here.'), and leaves diagonally. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 260917,
+      "datetime": "20541112201500",
+      "nethackrc": "OPTIONS=name:Phaser,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " bjchch #polyself\nxorn\n  hhllkb:n"
+    }
+  ]
+}
