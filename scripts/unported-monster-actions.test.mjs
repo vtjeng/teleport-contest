@@ -3525,17 +3525,9 @@ test('simple preflight preserves parked-guard source ordering', async () => {
         const before = completeSecondTurnSnapshot(game, target.replay);
 
         for (let attempt = 0; attempt < 2; ++attempt) {
-            if (due) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === 'parked guard handling'
-                    ),
-                );
-            } else {
-                await preflightSimpleMonsterActions(game);
-            }
+            // mon.c movemon_singlemon() hands a due parked guard to
+            // gd_move(); the dry run plans it without touching live state.
+            await preflightSimpleMonsterActions(game);
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, target.replay),
                 before,

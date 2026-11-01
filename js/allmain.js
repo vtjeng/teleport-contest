@@ -167,7 +167,7 @@ import {
 } from './eat.js';
 import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedShopError } from './shk.js';
-import { UnsupportedVaultGuardError, invault } from './vault.js';
+import { UnsupportedVaultGuardError, gd_move, invault } from './vault.js';
 import { fightm } from './mhitm.js';
 import {
     m_everyturn_effect,
@@ -317,6 +317,11 @@ export async function newgame() {
     g.urealtime.realtime = 0;
     g.urealtime.start_timing = getnow(g);
     save_currentstate(g);
+    // C ref: allmain.c:840. "useful data now exists"; pline.c impossible()
+    // reads it for its "Saving and reloading" advice.
+    g.program_state ??= {};
+    g.program_state.something_worth_saving
+        = (g.program_state.something_worth_saving ?? 0) + 1;
 
     // C ref: allmain.c welcome(TRUE) prints the hallucination prelude first.
     const hallucinationWelcome = welcomeHallucinationMessage(g);
@@ -1381,6 +1386,8 @@ const runElapsedTurnMonsterAction =
 async function moveElapsedTurnMonster(monster, env) {
     return movemon_singlemon(monster, {
         ...env,
+        // C ref: mon.c movemon_singlemon():1233-1239, a guard parked at <0,0>.
+        guardMove: (guard, guardEnv) => gd_move(guard, guardEnv),
         everyTurnEffect: runEveryTurnEffectWithRegionHooks,
         visionRecalc: vision_recalc,
         clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),

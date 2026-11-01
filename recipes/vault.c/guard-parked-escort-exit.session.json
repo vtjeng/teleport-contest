@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent vault.c gd_move() parked-guard witness for mon.c movemon_singlemon()'s <0,0> branch: teleport into a level-1 vault, answer the guard, and follow its escort until gd_move_cleanup() parks it at <0,0> while the hero still stands on the temporary corridor (C's postmov() then calls newsym(0,0), whose impossible() prints three messages). Two waits and one step stay on the corridor, so each parked gd_move() fails restfakecorr(); the last step reaches the real corridor, clear_fcorr() removes the temporary one, and the guard is discarded.",
+  "segments": [
+    {
+      "seed": 7328,
+      "datetime": "20261031193000",
+      "nethackrc": "OPTIONS=name:Parker,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+      "moves": " \u0014  Hhhhhhjjjjjjj. 40s  Parker\rsskkkkkk   sskks"
+    }
+  ]
+}
