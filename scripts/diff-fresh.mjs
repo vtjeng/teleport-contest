@@ -704,12 +704,15 @@ export async function runJsSession(recording, scoringRoot) {
 
     try {
         for (const segment of normalizeSession(recording).segments) {
+            // The same fields as frozen/ps_test_runner.mjs replayInputFor().
+            // The judge passes no recorderIsDst, so the port replays with
+            // its daylight-time default even where a recording stores
+            // false; such a recording fails here as it fails for the judge.
             const game = await runSegment({
                 seed: segment.seed,
                 datetime: segment.datetime,
                 nethackrc: segment.nethackrc,
                 moves: segment.moves,
-                recorderIsDst: segment.recorderIsDst,
                 storage,
             });
             const rng = (game.getRngLog?.() || []).map(withoutJsIndex).filter(isRngCall);
