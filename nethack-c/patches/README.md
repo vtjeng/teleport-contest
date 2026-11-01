@@ -1,6 +1,6 @@
 # NetHack 5.0 recorder patches
 
-Eight patches that turn upstream NetHack 5.0 into a deterministic,
+Nine patches that turn upstream NetHack 5.0 into a deterministic,
 reproducible "recorder" build whose run-to-run behavior is exactly
 what the JS port has to match.
 
@@ -14,6 +14,7 @@ what the JS port has to match.
 | 006 | `nomux-capture` | Replace `tty` curses output with deterministic 24×80 capture, raw-print routing, and input-boundary snapshots | Need exact terminal contents at every input boundary |
 | 007 | `stable-pointer-format` | Replace native diagnostic pointer spellings with stable null/non-null tokens | `%p` output varies with ASLR, allocators, and C implementations, so JavaScript cannot reproduce it |
 | 008 | `shown-config-home` | After opening `$HOME/.nethackrc`, store its name as `$NETHACK_SHOWN_HOME/.nethackrc` when that variable is set | NetHack prints the config file's path in the options help and some messages; `scripts/record-session.mjs` runs each game with a temporary `HOME` and sets the variable to the judge's `HOME`, so C prints the path the reference recordings show |
+| 009 | `fixed-isdst` | When `NETHACK_FIXED_ISDST` is `1` or `0`, use it as the `tm_isdst` that patch 001's `time_from_yyyymmddhhmmss()` passes to `mktime()`, instead of the flag of the current local time | Patch 001 turns the fixed datetime into a clock time with the recording machine's current `tm_isdst`, so the same recipe gives times an hour apart in summer and in winter. The judge's recorder ran on New York daylight time and the judge's scorer replays every segment that way; `scripts/record-session.mjs` sets the variable to `1` and stores `recorderIsDst: true` (both from `JUDGE_RECORDER_IS_DST` in `js/calendar.js`), so a recording made in any season matches the judge's |
 
 ## Apply
 

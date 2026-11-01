@@ -141,14 +141,25 @@ function compatibleOffset(wallMillis, fields, offsets) {
     return (exact[0] ?? candidates.at(-1)).offset;
 }
 
+// The tm_isdst bit that the judge's recorder inherited (see
+// time_from_yyyymmddhhmmss() below). Every reference recording was made while
+// New York was on daylight time, and frozen/ps_test_runner.mjs passes no
+// recorderIsDst to runSegment(), so the judge always replays with this value.
+// scripts/record-session.mjs passes it to the recorder (patch 009,
+// NETHACK_FIXED_ISDST) and stores it as each segment's recorderIsDst, so every
+// local recording uses it whatever the date it is made.
+export const JUDGE_RECORDER_IS_DST = true;
+
 // C ref: calendar.c time_from_yyyymmddhhmmss(). record-session.mjs fixes the
 // canonical recorder process to America/New_York. Patch 001 copies the current
 // local struct tm, including tm_isdst, then overwrites only the six date/time
 // fields before calling mktime(). Preserve that quirk: a fixed winter time
 // parsed while the recorder is in summer is normalized one hour backward, and
-// vice versa. Existing canonical recordings were made while tm_isdst was 1,
-// so that is the default; callers can supply the inherited bit explicitly.
-export function time_from_yyyymmddhhmmss(value, inheritedIsDst = true) {
+// vice versa. The judge's recorder inherited JUDGE_RECORDER_IS_DST, so that is
+// the default; callers can supply the inherited bit explicitly.
+export function time_from_yyyymmddhhmmss(
+    value, inheritedIsDst = JUDGE_RECORDER_IS_DST,
+) {
     const fields = parseFixedDatetime(value);
     if (!fields) return 0;
 
@@ -172,14 +183,14 @@ export function time_from_yyyymmddhhmmss(value, inheritedIsDst = true) {
 // C ref: calendar.c getnow().
 export function getnow(state = game, now = new Date()) {
     const fixed = time_from_yyyymmddhhmmss(
-        state?.fixedDatetime, state?.recorderIsDst ?? true,
+        state?.fixedDatetime, state?.recorderIsDst ?? JUDGE_RECORDER_IS_DST,
     );
     return fixed || Math.trunc(now.getTime() / 1000);
 }
 
 export function getLocalTime(state = game, now = new Date()) {
     const fixed = time_from_yyyymmddhhmmss(
-        state?.fixedDatetime, state?.recorderIsDst ?? true,
+        state?.fixedDatetime, state?.recorderIsDst ?? JUDGE_RECORDER_IS_DST,
     );
     return recorderFieldsAt(fixed ? fixed * 1000 : now.getTime());
 }

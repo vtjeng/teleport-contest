@@ -23,6 +23,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {createPromptController, digest, validatePromptPlan} from './recorder-prompt-plan.mjs';
 import {RECORDER_HOME} from '../js/cfgfiles.js';
+import {JUDGE_RECORDER_IS_DST} from '../js/calendar.js';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(SCRIPT_DIR, '..');
@@ -139,58 +140,6 @@ export async function replayWithinDeadline(deadline, run, now = Date.now) {
 
 const RECORDER_TIME_ZONE = 'America/New_York';
 export const USAGE = 'Usage: node scripts/record-session.mjs <input.session.json> [output.session.json] [--prompt-plan plan.json --prompt-receipt receipt.json --emitted-recipe recipe.json]';
-const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
-    'en-CA-u-ca-gregory-nu-latn',
-    {
-        timeZone: RECORDER_TIME_ZONE,
-        hourCycle: 'h23',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-    },
-);
-
-function recorderFieldsAt(epochMillis) {
-    const fields = {};
-    for (const part of RECORDER_TIME_FORMAT.formatToParts(
-        new Date(epochMillis),
-    )) {
-        if (part.type !== 'literal') fields[part.type] = Number(part.value);
-    }
-    return fields;
-}
-
-function fieldsAsUtcMillis(fields) {
-    return Date.UTC(
-        fields.year,
-        fields.month - 1,
-        fields.day,
-        fields.hour,
-        fields.minute,
-        fields.second,
-    );
-}
-
-function recorderOffsetAt(epochMillis) {
-    const wholeSecondMillis = Math.trunc(epochMillis / 1000) * 1000;
-    return fieldsAsUtcMillis(recorderFieldsAt(wholeSecondMillis))
-        - wholeSecondMillis;
-}
-
-export function canonicalRecorderIsDst(now = new Date()) {
-    const year = recorderFieldsAt(now.getTime()).year;
-    const offsets = [];
-    // This captures the contemporary standard and daylight offsets used by
-    // the recorder process without consulting the Node host timezone.
-    for (let month = 0; month < 12; ++month) {
-        offsets.push(recorderOffsetAt(Date.UTC(year, month, 15, 12)));
-    }
-    return recorderOffsetAt(now.getTime()) === Math.max(...offsets)
-        && Math.max(...offsets) !== Math.min(...offsets);
-}
 
 // ---------------------------------------------------------------------------
 // Screen encoding — ports run_session.py compress_ansi_line +
@@ -576,6 +525,13 @@ export async function recordSegment({
         NETHACK_NO_DELAY: '1',
         NETHACK_SEED: String(seg.seed ?? 0),
         NETHACK_FIXED_DATETIME: seg.datetime || '20000110090000',
+        // Patch 001 (calendar.c time_from_yyyymmddhhmmss()) gives mktime()
+        // the tm_isdst of the current local time, so the same datetime
+        // gives clock times an hour apart in summer and in winter.  Patch
+        // 009 replaces that bit with this one: the judge's recorder ran on
+        // daylight time, and the judge replays every segment that way.
+        // main() stores the same value as each segment's recorderIsDst.
+        NETHACK_FIXED_ISDST: JUDGE_RECORDER_IS_DST ? '1' : '0',
         NETHACK_RNGLOG: rngLogPath,
         NOMUX_MARKERS: '1',
         NETHACK_RAW_KEYS: '1',
@@ -938,7 +894,6 @@ async function main() {
         );
     }
     const tz = RECORDER_TIME_ZONE;
-    const recorderIsDst = canonicalRecorderIsDst();
 
     if (!await exists(binary)) {
         throw new Error(`recorder binary not found: ${binary}\n  build it via nethack-c/build-recorder.sh`);
@@ -1021,7 +976,9 @@ async function main() {
                 datetime: seg.datetime,
                 nethackrc: seg.nethackrc,
                 moves: result.moves ?? seg.moves,
-                recorderIsDst,
+                // recordSegment() passed this bit to C as
+                // NETHACK_FIXED_ISDST (patch 009).
+                recorderIsDst: JUDGE_RECORDER_IS_DST,
                 steps: result.steps,
             };
             if (result.terminalExit) out.terminalExit = result.terminalExit;

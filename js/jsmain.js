@@ -37,6 +37,7 @@ import {
     tty_wait_synch,
 } from './tty_rawprint.js';
 import { GameDisplay } from './game_display.js';
+import { JUDGE_RECORDER_IS_DST } from './calendar.js';
 import { setStorageForTesting, vfsReadFile, vfsWriteFile, vfsDeleteFile } from './storage.js';
 import { light_globals_init } from './light.js';
 import { shk_globals_init } from './shk.js';
@@ -235,10 +236,12 @@ export class NethackGame {
     constructor(opts = {}) {
         this._seed = opts.seed || 0;
         this._datetime = opts.datetime || null;
-        // Recorder patch 001 leaks tm_isdst into fixed-time parsing. Official
-        // sessions were recorded while New York daylight time was active;
-        // fresh recorder output can carry the explicit bit for local diffs.
-        this._recorderIsDst = opts.recorderIsDst ?? true;
+        // Recorder patch 001 leaks tm_isdst into fixed-time parsing. The
+        // judge passes no recorderIsDst, so it replays with the daylight-time
+        // bit its recorder inherited (calendar.js JUDGE_RECORDER_IS_DST).
+        // Local recordings use that bit too (patch 009); unit tests may pass
+        // another.
+        this._recorderIsDst = opts.recorderIsDst ?? JUDGE_RECORDER_IS_DST;
         this._nethackrc = opts.nethackrc || '';
         // Cross-segment persistence handle. The judge sandbox passes a
         // shared Web-Storage-shaped object here so save / record /
@@ -744,7 +747,9 @@ export function segmentIterationLimit(movesLength) {
 //     datetime: string,       // fixed datetime "YYYYMMDDHHMMSS"
 //     nethackrc: string,      // game-options rc text
 //     moves: string,          // raw key sequence to replay from launch
-//     recorderIsDst: boolean, // recorder tm_isdst bit; defaults to true
+//     recorderIsDst: boolean, // recorder tm_isdst bit; the judge never
+//                             //   passes it, so it defaults to
+//                             //   JUDGE_RECORDER_IS_DST (true)
 //     storage: object }       // Web-Storage-shaped (getItem/setItem/...)
 //                             //   handle for cross-segment persistence —
 //                             //   shared across all segments of a

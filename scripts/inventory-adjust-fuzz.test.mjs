@@ -7,7 +7,6 @@ import {createHash} from 'node:crypto';
 import {execFileSync, spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {PILOT, generatedCases, buildCase, validateTarget, classify, runPilot} from './run-inventory-adjust-fuzz.mjs';
-import {canonicalRecorderIsDst} from './record-session.mjs';
 
 const base = JSON.parse(await fs.readFile(new URL(`../${PILOT.recipe}`, import.meta.url)));
 const anchor = JSON.parse(await fs.readFile(new URL('../recordings/invent.c/adjust-inventory-slots.session.json', import.meta.url)));
@@ -49,8 +48,6 @@ test('deterministic original plan is finite; current weapon follows swaps, upper
     assert.equal(built.recipe.segments[0].moves, `${base.segments[0].moves}#adjust\nzb#adjust\nbA#adjust\nAAi\u001b`);
     assert.throws(() => buildCase(base, ['$']), /finite suffix/u);
     assert.throws(() => buildCase(base, ['a', 'b', 'c', 'd']), /finite suffix/u);
-    assert.equal(canonicalRecorderIsDst(new Date('2026-01-15T12:00:00Z')), false);
-    assert.equal(canonicalRecorderIsDst(new Date('2026-07-15T12:00:00Z')), true);
 });
 
 test('C observation gate rejects changed prefix, wrong prompts, slot identity and absent inventory', () => {

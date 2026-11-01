@@ -1,0 +1,54 @@
+diff --git a/src/calendar.c b/src/calendar.c
+--- a/src/calendar.c
++++ b/src/calendar.c
+@@ -26,7 +26,7 @@
+ #define LOCALTIME_type time_t *
+ #endif
+
+-staticfn struct tm *getlt(void);
++staticfn struct tm *getlt(void); staticfn void fixed_isdst(struct tm *); /* patch 009 */
+
+ time_t
+ getnow(void)
+@@ -161,7 +161,7 @@
+         (void) time((TIME_type) &now);
+         lt = localtime((LOCALTIME_type) &now);
+         if (lt) {
+-            t = *lt;
++            t = *lt; fixed_isdst(&t); /* patch 009 */
+             t.tm_year = atoi(y) - 1900;
+             t.tm_mon = atoi(mo) - 1;
+             t.tm_mday = atoi(md);
+@@ -234,5 +234,32 @@
+     return (getlt()->tm_hour == 0);
+ }
+
++/* Recorder patch 009: fix the daylight-time flag that patch 001 inherits.
++ *
++ * time_from_yyyymmddhhmmss() starts from localtime() of the current time
++ * (patch 001) and replaces only the six date and time fields, so mktime()
++ * receives the recording machine's current tm_isdst.  A fixed datetime
++ * therefore becomes clock times an hour apart depending on whether the
++ * recorder's time zone is on daylight time when the game is recorded.
++ * When NETHACK_FIXED_ISDST is "1" or "0", use that flag instead, as a
++ * recording made while daylight time was or was not in effect would have.
++ * mktime() reads no other field that the current time sets: it ignores
++ * tm_wday and tm_yday, and glibc ignores tm_gmtoff and tm_zone.
++ * scripts/record-session.mjs sets the variable from JUDGE_RECORDER_IS_DST
++ * in js/calendar.js, the daylight-time state of the judge's recorder.
++ *
++ * This function sits at the end of the file and its declaration and call
++ * share lines with existing code, so every upstream line keeps its number:
++ * the RNG log names the line of each call (patch 003).
++ */
++staticfn void
++fixed_isdst(struct tm *t)
++{
++    const char *isdst = nh_getenv("NETHACK_FIXED_ISDST");
++
++    if (isdst && (!strcmp(isdst, "0") || !strcmp(isdst, "1")))
++        t->tm_isdst = *isdst - '0';
++}
++
+ /* calendar.c */
+

@@ -14,7 +14,8 @@ import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {isDeepStrictEqual} from 'node:util';
 import {decodeScreen} from '../frozen/screen-decode.mjs';
-import {recordSegment, canonicalRecorderIsDst} from './record-session.mjs';
+import {recordSegment} from './record-session.mjs';
+import {JUDGE_RECORDER_IS_DST} from '../js/calendar.js';
 import {assertRecordingMatchesRecipe, validateCleanRecipe, runJsSession, compareSessionOutputs} from './diff-fresh.mjs';
 import {createScoringWorkspace, removeScoringWorkspace, PROJECT_ROOT} from './scoring-workspace.mjs';
 import {verifyComparisonWorkspace} from './prep-comparison.mjs';
@@ -248,7 +249,7 @@ export async function createEvaluator({root = PROJECT_ROOT, comparison, binary, 
             // preserveFailure's static result.moves is empty; retain it honestly
             // above, and use the immutable recipe verified against actual keys.
             const recording = {...built.recipe, segments: [{...seg,
-                recorderIsDst: canonicalRecorderIsDst(), steps: result.steps}]};
+                recorderIsDst: JUDGE_RECORDER_IS_DST, steps: result.steps}]};
             const bytes = json(recording), recordingSha256 = digest(bytes);
             await fs.writeFile(join(directory, 'capture.session.json'), bytes, {flag: 'wx'});
             const target = validateTarget(base, built, recording, calibration);
