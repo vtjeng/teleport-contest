@@ -6813,8 +6813,14 @@ export async function cls() {
     game._inCls = true;
     try {
         const display = game?.nhDisplay;
+        // tty_display_nhwindow() returns first when WIN_CANCELLED is set,
+        // and wintty.h gives it the same bit as the message window's
+        // WIN_STOP. After an Escape at --More--, the call neither clears
+        // rawprint nor waits; the screen erase below still empties the line.
+        const messageStopped = Boolean(game._ttyMessageStopped);
         // tty_display_nhwindow(WIN_MESSAGE, FALSE) clears rawprint first.
-        if (display?.nomuxRaw) display.nomuxRaw.rawprint = 0;
+        if (display?.nomuxRaw && !messageStopped)
+            display.nomuxRaw.rawprint = 0;
         // C display.c cls() begins with display_nhwindow(WIN_MESSAGE, FALSE).
         // On the TTY this dismisses a pending --More-- before the old level is
         // erased.  drag_down() relies on that boundary: its caller's fall
@@ -6823,7 +6829,8 @@ export async function cls() {
         // the other display-window callers so the message state is not carried
         // into the rebuilt map.
         const waitingForMore = display?.toplin === TOPLINE_NEED_MORE;
-        if (waitingForMore && await dismissPendingTtyMessage(game)) {
+        if (!messageStopped && waitingForMore
+            && await dismissPendingTtyMessage(game)) {
             display.toplin = TOPLINE_NEED_MORE;
             clearTtyMessageWindow(game);
         } else if (display) {

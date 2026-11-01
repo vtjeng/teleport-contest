@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
     PLNMSG_CAUGHT_IN_EXPLOSION,
     PLNMSG_UNKNOWN,
+    WIN_CANCELLED,
     WIN_NOSTOP,
     WIN_STOP,
 } from '../js/const.js';
@@ -15,6 +17,7 @@ import { nhgetch } from '../js/input.js';
 import { NO_COLOR } from '../js/terminal.js';
 import {
     dismissPendingTtyMessage,
+    displayPendingTtyMessageWindow,
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     TOPLINE_NON_EMPTY,
@@ -144,6 +147,32 @@ test('Escape More clears the physical row but keeps WIN_STOP history state',
         'Your movements are now unencumbered.',
     );
 });
+
+// wintty.h defines WIN_CANCELLED and WIN_STOP as the same bit, and
+// tty_display_nhwindow() returns before its WIN_MESSAGE arm when that bit is
+// set. An Escape at the More that update_topl() raised for an earlier message
+// therefore leaves the next message drawn with NEED_MORE, and a following
+// display_nhwindow(WIN_MESSAGE) neither waits nor empties the line.
+test('display_nhwindow(WIN_MESSAGE) is a no-op while WIN_STOP is set',
+    async () => {
+        const wintty = readFileSync('nethack-c/upstream/include/wintty.h', 'utf8');
+        assert.match(wintty, /#define WIN_CANCELLED 1\b/u);
+        assert.match(wintty, /#define WIN_STOP 1\b/u);
+        const winttyC = readFileSync('nethack-c/upstream/win/tty/wintty.c', 'utf8');
+        assert.match(winttyC, /tty_display_nhwindow\([\s\S]*?if \(cw->flags & WIN_CANCELLED\)\s*return;[\s\S]*?case NHW_MESSAGE:/u);
+        assert.equal(WIN_CANCELLED, WIN_STOP);
+
+        // The message is the tutorial's first engraving text; any text that
+        // leaves NEED_MORE behind exercises the same arm.
+        const message = 'You read: "Move around with h j k l".';
+        const state = messageState(message, TOPLINE_NEED_MORE);
+        state._ttyMessageStopped = true;
+        // No key is queued: a wait at --More-- would fail on the empty queue.
+        await displayPendingTtyMessageWindow(state);
+        assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
+        assert.equal(rowText(state), message);
+        assert.equal(state._ttyMessageStopped, true);
+    });
 
 test('urgent output clears Escape suppression before updating history',
     async () => {

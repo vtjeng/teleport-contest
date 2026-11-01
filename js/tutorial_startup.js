@@ -225,8 +225,7 @@ export async function enter_tutorial(target, state = game) {
         });
 
         // maybe_do_tutorial() performs one final redraw after deferred_goto;
-        // that redraw first resolves pickup()'s pending engraving text.
-        await dismissPendingTtyMessage(state);
+        // its cls() resolves pickup()'s pending engraving text.
         vision_recalc(0);
         await docrt();
         await bot();

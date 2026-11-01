@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50417,
+      "datetime": "20300611072000",
+      "nethackrc": "OPTIONS=name:Brann,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\n",
+      "moves": " y \u001bjj"
+    }
+  ],
+  "comment": "Accepts the startup tutorial and answers the arrival engraving's first --More-- with ESC. engrave.c read_engr_at() prints \"Something is engraved here on the floor.\" and then \"You read: ...\"; tty's ESC at --More-- suppresses the second message."
+}
