@@ -14,6 +14,7 @@ import { rest_regions, rest_saved_level_regions } from './region.js';
 import { newsym } from './display.js';
 import { cansee, does_block, unblock_point } from './vision.js';
 import { mon_catchup_elapsed_time } from './dog.js';
+import { restore_timers } from './timeout.js';
 import {
     COLNO,
     COULD_SEE,
@@ -714,18 +715,7 @@ export async function getlev(ledger, state = game) {
     // savelev() captured the level-local timers and lights before save_timers()
     // and save_light_sources() unlinked them. Re-link them into the global
     // chains now.
-    if (snapshot.timers?.length) {
-        // Prepend the saved level-local timers to the current timer chain.
-        const timerHead = snapshot.timers[0];
-        let timerTail = timerHead;
-        for (let i = 1; i < snapshot.timers.length; i++) {
-            timerTail.next = snapshot.timers[i];
-            timerTail = snapshot.timers[i];
-        }
-        state.gt ??= {};
-        timerTail.next = state.gt.timer_base ?? null;
-        state.gt.timer_base = timerHead;
-    }
+    if (snapshot.timers?.length) restore_timers(snapshot.timers, state);
 
     if (snapshot.lights?.length) {
         // Prepend the saved level-local lights to the current light chain.

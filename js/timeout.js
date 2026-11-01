@@ -2294,6 +2294,19 @@ export function save_timers(range, state = game) {
     }
 }
 
+// C ref: timeout.c restore_timers() (2706-2728), for a level the port saved
+// itself. C reads the timers in the order save_timers() wrote them and passes
+// each to insert_timer(), so they rejoin the global queue in expiry order. A
+// level timer that expires before a global one must still run first. The
+// ghostly `adjust` applies only to a bones file, which keeps no timers here.
+export function restore_timers(timers, state = game) {
+    timerGlobals(state);
+    for (const timer of timers) {
+        timer.next = null;
+        insert_timer(timer, state);
+    }
+}
+
 // C ref: timeout.c run_timers() (2216-2240). "Pick off timeout elements from
 // the global queue and call their functions. Do this until their time is less
 // than or equal to the move count." nh_timeout() runs it as its last statement
