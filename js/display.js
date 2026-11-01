@@ -5212,9 +5212,10 @@ function _statusGoldSymbol() {
 
 // C ref: botl.c initblstats[]'s BL_TIME entry, whose "%ld" is filled from
 // svm.moves, under the " T:" prefix wintty.c status_fieldfmt[] supplies. This
-// is the one field botl.c timebot() refreshes on its own.
+// is the one field botl.c timebot() refreshes on its own. The tty shows the
+// value last delivered to it (see _deliverStatusTime()).
 function _statusTimeText() {
-    return `T:${game.moves || 1}`;
+    return `T:${game._statusTimeShown ?? (game.moves || 1)}`;
 }
 
 function _statusLine2Configuration(capacity) {
@@ -6136,6 +6137,44 @@ function _statusFieldEnabled(field, state) {
         : _computeStatusFieldEnabled(field, state);
 }
 
+// C ref: botl.c eval_notify_windowport_field(). `changed` is a nonzero
+// compare_blstats(prev, curr) against the other bank, and `expired` is the
+// hilite_reset_needed() timer reset; either one, or gu.update_all, makes C
+// pass the field to status_update(). This reads the banks without changing
+// them.
+function _statusFieldNotice(gb, fld, data, updateAll) {
+    const value = data.value ?? null;
+    const compareValue = data.compareValue ?? value;
+    const changed = gb.status_hilite_compare_value[1][fld] !== compareValue
+        || gb.status_hilite_percent[1][fld] !== (data.percent ?? null)
+        || gb.status_hilite_text[1][fld] !== (data.text ?? null);
+    const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
+    const expired = !updateAll && !game.multi && until > 0
+        && until < (game.moves ?? 0)
+        && gb.status_hilite_rule[1][fld]?.behavior === 'changed';
+    return { changed, expired };
+}
+
+// C ref: botl.c eval_notify_windowport_field() for BL_TIME, and the
+// status_vals[BL_TIME] value wintty.c keeps for it. C writes svm.moves into
+// blstats[idx][BL_TIME] on every bot() and stat_update_time() call, but tells
+// the window port only when that value differs from the other bank's. bot()
+// toggles idx and stat_update_time() does not, so after svm.moves goes back
+// (nhlua.c nhl_gamestate() on leaving the tutorial), a timebot() can write the
+// value the other bank already holds: the tty then keeps showing the earlier
+// turn until a later value differs. Call this after _beginStatusHilitePass()
+// and before laying out the status rows.
+function _deliverStatusTime() {
+    const field = STATUS_FIELDS.find(row => row.key === 'time');
+    if (!_statusFieldEnabled(field, game)) return;
+    const gb = game.gb;
+    const data = _statusFieldData('time');
+    const updateAll = Boolean(game._statusHiliteUpdateAll);
+    const { changed, expired } = _statusFieldNotice(gb, field.fld, data,
+        updateAll);
+    if (updateAll || changed || expired) game._statusTimeShown = data.value;
+}
+
 // C ref: bot_via_windowport() plus evaluate_and_notify_windowport(). Collect
 // every enabled typed field once per bot notification; status painting only
 // consumes these delivered banks. `onlyField` is the timebot fast path.
@@ -6184,12 +6223,9 @@ function _collectStatusHilites(layouts, onlyField = null) {
         const previousPercent = gb.status_hilite_percent[1][fld];
         const previousText = gb.status_hilite_text[1][fld];
         const previousRule = gb.status_hilite_rule[1][fld];
-        const changed = previousCompareValue !== compareValue
-            || previousPercent !== percent || previousText !== text;
         const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
-        const expired = !updateAll && !game.multi && until > 0
-            && until < (game.moves ?? 0)
-            && previousRule?.behavior === 'changed';
+        const { changed, expired } = _statusFieldNotice(gb, fld, data,
+            updateAll);
         if (expired) {
             gb.status_hilite_times[0][fld] = 0;
             gb.status_hilite_times[1][fld] = 0;
@@ -6924,10 +6960,11 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     // restore the steady layout.
     const retainInitialOverlap = initialTtyRefresh
         && !optionalFieldsChanged;
+    _beginStatusHilitePass();
+    _deliverStatusTime();
     const layouts = statusLayouts({
         initialTtyRefresh: retainInitialOverlap,
     });
-    _beginStatusHilitePass();
     game._statusOptionalFieldSnapshot = optionalSnapshot;
     game._renderedStatusLayouts = layouts;
     _collectStatusHilites(layouts);
@@ -6967,6 +7004,7 @@ export async function timebot() {
         // takes stat_update_time() rather than falling back to whole bot().
         _beginStatusHilitePass('time');
         try {
+            _deliverStatusTime();
             _stat_update_time();
         } finally {
             game._statusHiliteOnlyField = null;
