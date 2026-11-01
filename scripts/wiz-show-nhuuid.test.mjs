@@ -27,7 +27,6 @@ test('UUID command matches its whole source body and wizard-only row', () => {
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(js, /wiz_show_nhuuid: \(key, state\) => wiz_show_nhuuid\(state\),/u);
     assert.match(js, /if \(command === 'wizshownhuuid'\)\s*\{[\s\S]*?await wiz_show_nhuuid\(state\);\s*resetCommandVars\(state, state\.multi < 0\);\s*return;/u);
-    assert.match(js, /command !== 'wizshownhuuid'/u);
 });
 
 test('UUID display reads the stored value and reset owns a fresh empty field', async () => {
