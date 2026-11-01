@@ -186,7 +186,7 @@ test('hliquid preserves its preferred value or consumes one display draw', () =>
     state.u.uprops[HALLUC] = { intrinsic: 0 };
     state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
     assert.equal(
-        hliquid('water', { state, random: () => assert.fail('unexpected draw') }),
+        hliquid('water', { state, displayRandom: () => assert.fail('unexpected draw') }),
         'water',
     );
 
@@ -195,7 +195,7 @@ test('hliquid preserves its preferred value or consumes one display draw', () =>
     assert.equal(
         hliquid('water', {
             state,
-            random(bound) {
+            displayRandom(bound) {
                 draws.push(bound);
                 return 39;
             },
@@ -206,7 +206,7 @@ test('hliquid preserves its preferred value or consumes one display draw', () =>
 
     state.program_state.gameover = true;
     assert.equal(
-        hliquid('water', { state, random: () => assert.fail('unexpected draw') }),
+        hliquid('water', { state, displayRandom: () => assert.fail('unexpected draw') }),
         'water',
     );
 });

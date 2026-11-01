@@ -1128,13 +1128,14 @@ export function rndcolor(state = game, env = {}) {
 
 // C ref: do_name.c hcolor() (1461-1466). A missing or hallucinated preferred
 // color always consumes one display-RNG draw; a real preferred color consumes
-// none. The optional env keeps deterministic tests on the same seam used by
-// x_monnam() without changing the C-shaped state argument.
+// none. env.displayRandom keeps deterministic tests on the same seam used by
+// x_monnam() without changing the C-shaped state argument. env.random is the
+// gameplay stream in callers' environments, so it is never consulted here.
 export function hcolor(colorpref, state = game, env = {}) {
     const hallucinating = hallucinationActive(state);
     if (!hallucinating && colorpref) return colorpref;
     const random = displayRandomFunction(
-        env.displayRandom ?? env.random ?? stateDisplayRandom(state),
+        env.displayRandom ?? stateDisplayRandom(state),
     );
     return HCOLORS[random(HCOLORS.length)];
 }
@@ -1677,11 +1678,12 @@ export function Amonnam(monster, env = {}) {
 }
 
 // C ref: do_name.c hliquid().  Hallucinatory terrain descriptions share the
-// display RNG with glyph randomization and monster naming.
+// display RNG with glyph randomization and monster naming; as in hcolor(),
+// env.random (the gameplay stream) is never consulted.
 export function hliquid(liquidpref, env = {}) {
     const state = env.state ?? game;
     const random = displayRandomFunction(
-        env.displayRandom ?? env.random ?? stateDisplayRandom(state),
+        env.displayRandom ?? stateDisplayRandom(state),
     );
     const preferred = liquidpref == null ? '' : String(liquidpref);
     const hallucinating = Boolean(
