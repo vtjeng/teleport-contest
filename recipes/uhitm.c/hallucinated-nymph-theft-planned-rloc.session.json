@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92733014,
+      "datetime": "20360717201000",
+      "nethackrc": "OPTIONS=name:Pocketed,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!tips,pettype:none\n",
+      "comment": "Independent uhitm.c mhitm_ad_sedu() witness: a debug Wizard takes off her cloak, so no worn armor delays a theft, becomes hallucinated with monster detection through #wizintrinsic, creates a nymph beside her, and waits while it steals and teleports away. The monster-turn planning scan runs the theft and its rloc() first; rloc_to_core()'s newsym() calls must use the attack's suppressed redraw there, or the planned display of the detected, hallucinated nymph advances the live display RNG. The seed and clock were chosen independently of the example games.",
+      "moves": " T #wizintrinsic\nht\n  \u0007nymph\nms ms ms ms ms ms ms ms "
+    }
+  ]
+}

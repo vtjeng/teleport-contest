@@ -4145,11 +4145,14 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         // alongside the attack env's message function.
         // Controlled relocation must retain the planner input boundary so
         // getpos is replayed live after the theft message.
+        // rloc_to_core()'s two newsym() calls use the attack's redraw hook:
+        // a planning scan suppresses it, and a hallucinated monster glyph
+        // drawn there would otherwise advance the live display RNG.
         const rlocEnv = {
             ...env,
             state,
             random: env.random,
-            newsym,
+            newsym: env.redraw ?? (env.planning ? () => {} : newsym),
             onscary: (x, y, mon, normEnv) =>
                 onscary(x, y, mon, normEnv.state),
             setApparxy: set_apparxy,
