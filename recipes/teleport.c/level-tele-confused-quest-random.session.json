@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent teleport.c level_tele() witness for the confused random arm inside the Quest. A debug-mode Priest teleports to Pri-loca through the level menu (letter z on this seed's second page), drinks a wished-for potion of confusion, searches once, and asks ^V for level 3. Confusion && rnl(5) prints 'Oops...' and jumps to random_levtport, whose random_teleport_level() returns an absolute depth; C skips the typed-level quest adjustment (newlev + depth_start - 1) on that path, so the hero moves from Home 3 to Home 2 instead of to the goal level.",
+  "segments": [
+    {
+      "seed": 7740219,
+      "datetime": "20670126154402",
+      "nethackrc": "OPTIONS=name:Aldous,role:Priest,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0016?\n>z      \u0017potion of confusion\n  qi   s\u00163\n          "
+    }
+  ]
+}
