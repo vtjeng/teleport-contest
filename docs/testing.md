@@ -260,19 +260,75 @@ no level files, and its save file stays for the restore.
 
 ### Daylight time and recordings
 
-A recording depends on whether New York is on daylight time when it is
-made, not only on the recipe. The patched `calendar.c`
+Without patch 009, a recording depends on whether New York is on daylight
+time when it is made, not only on the recipe. The patched `calendar.c`
 `time_from_yyyymmddhhmmss()` (patch 001) turns the recipe's `datetime` into
 a clock time with `mktime()`, and copies `tm_isdst` from the current local
 time first. The same `datetime` therefore becomes two clock times an hour
 apart, and night, midnight, shopkeeper names (`shknam.c`, from
-`ubirthday`) and some RNG calls can differ. `record-session.mjs` stores the
-flag in each segment as `recorderIsDst`. Two local recordings of the 500
+`ubirthday`) and some RNG calls can differ. Two local recordings of the 500
 host-parity recipes, made on either side of the change at 06:00 UTC on
 1 November 2026, differed in 39 recipes (5 of them in RNG). All 39 were
 among the 372 recorded under different flags; the 128 recorded under the
-same flag on both runs were identical. Compare only recordings made
-during the same daylight-time period.
+same flag on both runs were identical.
+
+The judge's reference recordings were all made on daylight time. The
+judge's scorer, `frozen/ps_test_runner.mjs`, builds each segment's input
+in `replayInputFor()` from `seed`, `datetime`, `nethackrc` and `moves`
+only, so `runSegment()` never receives `recorderIsDst` and the port uses
+its default, `JUDGE_RECORDER_IS_DST` in `js/calendar.js` (`true`). The
+judge therefore replays every segment as a daylight-time recording, and
+fails a recording that C made on standard time even when the recording
+stores `recorderIsDst: false`.
+
+`scripts/record-session.mjs` records every segment with the judge's
+flag, whatever the date. It sets `NETHACK_FIXED_ISDST` to `1`, and
+recorder patch 009 (`nethack-c/patches/009-fixed-isdst.patch`) uses that
+value in place of the `tm_isdst` that patch 001 copies. `mktime()` reads
+no other field of the copied time on Linux, so C produces what it
+produced when the recorder ran in summer; this has not been checked on
+macOS, whose `mktime()` may also read `tm_gmtoff`. `record-session.mjs` writes
+`recorderIsDst: true` from the same constant. A recorder built before
+patch 009 ignores the variable, so rebuild it with
+`bash nethack-c/build-recorder.sh` before recording.
+
+`scripts/diff-fresh.mjs` `runJsSession()`, which the
+`.cache/tools/replay-check.mjs` helper also calls, and
+`scripts/scan-sessions.mjs` pass the judge's four fields only, so they
+replay as the judge does. Some `scripts/run-*.mjs` matrices still pass
+each recording's own `recorderIsDst`; for a recording made with patch 009
+that value is the default. Unit tests that pass `recorderIsDst: false`
+exercise the standard-time branch of `time_from_yyyymmddhhmmss()` and are
+unaffected.
+
+The patch was checked on 1 November 2026, on standard time, against the
+shared recorder, which was built without it:
+
+- Recordings made with patch 009 of the three shop recipes withdrawn in
+  89a6169d9 pass the judge's scorer. The withdrawn recordings, made
+  without it on standard time, failed (`kick-shop-door-pay-damage-5520005`:
+  RNG 5738 of 5771, screens 24 of 29).
+- `kick-shop-door-pay-damage-5520005`, recorded with patch 009 as normal
+  and under a `time()` shim (`LD_PRELOAD`) set to 15 July and to
+  15 January 2026, gave three byte-identical recordings. Without the
+  patch, the July recording was byte-identical to those three, and the
+  January recording matched one made on the current date and differed
+  from the July one.
+- Recipes for committed recordings made on daylight time were recorded
+  again with patch 009. All 96 recordings committed between 04:12 and
+  23:00 PDT on 31 October, among them 14 two-segment recordings that are
+  mostly save and restore pairs, had
+  identical steps, and 94 were byte-identical; the other 2 differ only
+  in a recipe comment edited later. Ten `shk.c` recordings that the
+  recorder without the patch failed to reproduce on standard time were
+  reproduced with identical steps. Older recordings that differ in both
+  builds differ in RNG source line numbers or screens, from earlier
+  recorder builds.
+
+`cmd.c/toggle-bound-param-config` and `cmd.c/toggle-bound-param-menu`
+were recorded on 1 November before patch 009 and store
+`recorderIsDst: false`. Both pass the judge's scorer, and recording them
+again with patch 009 changes only that field.
 
 ### Measuring the differences on macOS
 
@@ -313,9 +369,10 @@ from a branch that GitHub has seen, such as `main`.
    profile, so every kind the comparison still reports is a difference
    the profile does not cover. The script sets `TMPDIR=/tmp` so that both
    hosts record alike; a recorder built before patch 008 prints the
-   temporary `HOME`, whose length is then the same on both hosts. Record
-   during the same daylight-time period as the macOS run (see "Daylight
-   time and recordings").
+   temporary `HOME`, whose length is then the same on both hosts. A
+   recorder built before patch 009 takes the current daylight-time flag,
+   so compare its recordings only with ones made during the same
+   daylight-time period (see "Daylight time and recordings").
 
 4. Compare the two sets:
 
@@ -352,13 +409,15 @@ code the 500-recipe sample does not reach would not have been measured;
 when the macOS comparison reports a new kind, trace it in the C source
 and add an edit to the profile.
 
-Every edit to the profile, and patch 008, keeps the line numbers of the
-upstream file it changes. The RNG log names the C file and line of every
-call (patch 003), so an added line in `eat.c` or `cfgfiles.c` would change
-the logged line of every later call and committed recordings would no
-longer record again identically. `scripts/linux-macos-profile.test.mjs`
-and `scripts/shown-config-home-patch.test.mjs` fail when a hunk moves a
-line (`scripts/recorder-patch-lines.mjs`).
+Every edit to the profile, and patches 008 and 009, keeps the line numbers
+of the file it changes. The RNG log names the C file and line of every
+call (patch 003), so an added line in `eat.c`, `cfgfiles.c` or
+`calendar.c` would change the logged line of every later call and
+committed recordings would no longer record again identically.
+`scripts/linux-macos-profile.test.mjs`,
+`scripts/shown-config-home-patch.test.mjs` and
+`scripts/fixed-isdst-patch.test.mjs` fail when a hunk moves a line
+(`scripts/recorder-patch-lines.mjs`).
 
 Recordings made with the profile and patch 008 need no host substitution
 before they are compared with the port. Older Linux recordings still do:
