@@ -4480,43 +4480,6 @@ test('first-turn fog upkeep commits before later monster work', async () => {
     assert.equal(vapor.arg, 0);
     assert.deepEqual(vapor.rects, [{ lx: x, ly: y, hx: x, hy: y }]);
     assert.deepEqual(vapor.monsters, [fogCloud.m_id]);
-
-    game.level.regions = [];
-    fogCloud.movement = 0;
-
-    // A later parked guard remains outside the live monster-action boundary,
-    // even when dead and below a movement ration.
-    game.level.monsters[x][y] = null;
-    game.level.monlist = {
-        isgd: true,
-        mhp: 0,
-        mlstmv: game.moves - 1,
-        movement: 0,
-        mstate: MON_FLOOR,
-        mx: 0,
-        my: 0,
-        nmon: null,
-    };
-    game.context.move = 1;
-    game.nhDisplay.pushKey(commandKeyCode('~'));
-    const parked = {
-        hunger: game.u.uhunger,
-        moves: game.moves,
-        movement: game.u.umovement,
-    };
-    // The elapsed path used to reject here with a replay-boundary message.
-    // Every turn now runs the general path, so the real monster-action
-    // boundary is what stops it, and it names the branch it could not take.
-    await assert.rejects(
-        moveloop_core(),
-        /parked guard handling/u,
-    );
-    assert.deepEqual({
-        hunger: game.u.uhunger,
-        moves: game.moves,
-        movement: game.u.umovement,
-    }, parked);
-    assert.equal(game.nhDisplay.inputQueueLength, 1);
 });
 
 test('hero fog upkeep keeps its every-input region owner', async () => {

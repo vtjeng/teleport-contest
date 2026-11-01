@@ -202,6 +202,7 @@ import {
     setmnotwielded,
 } from './weapon.js';
 import { canseemon, canspotmon } from './display.js';
+import { gd_move } from './vault.js';
 
 // questpgr.c's two window-port calls, suppressed for the dry run. The pager
 // still shuffles nhlib's alignment table and converts every %-code, so the
@@ -247,14 +248,13 @@ function liveOnMap(monster) {
 }
 
 function assertSimpleScanState(monster, state) {
+    // mon.c movemon_singlemon() gives a guard parked at <0,0> one gd_move()
+    // per turn before its DEADMONSTER and off-map returns, so hand it on
+    // whether it is alive or dead. planSimpleMonsterScan() binds gd_move().
     const parkedGuard = monster.isgd
         && !monster.mx
         && !((monster.mstate ?? MON_FLOOR) & MON_MIGRATING);
-    if (parkedGuard) {
-        if ((state.moves ?? 0) > (monster.mlstmv ?? 0))
-            unsupported('parked guard handling');
-        return false;
-    }
+    if (parkedGuard) return true;
     if (!liveOnMap(monster)) return false;
     // Returning true means "hand this monster to movemon_singlemon", not
     // "this monster will act". mon.c runs m_everyturn_effect() before its
@@ -1777,6 +1777,10 @@ async function planSimpleMonsterScan(monster, env) {
         requestPlanningInput(operation) {
             throw new MonsterInputPlanningBoundaryError(operation);
         },
+        // C ref: mon.c movemon_singlemon():1233-1239. The parked guard's
+        // vault.c gd_move() receives env.planning and leaves the clone alone,
+        // as it does for a guard on the map; the live scan runs it.
+        guardMove: (guard, guardEnv) => gd_move(guard, guardEnv),
         everyTurnEffect: planningEveryTurnEffect,
         // C ref: mon.c:1258-1259. movemon()'s tail sets vision_full_recalc
         // whenever a light source exists (mon.c:1332-1333), and the next

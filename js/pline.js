@@ -7,11 +7,11 @@
 import { game } from './gstate.js';
 import { livelog_add } from './files.js';
 import { truncateByteString } from './hacklib.js';
-import { BUFSZ, DEAF, PLINE_VERBALIZE } from './const.js';
+import { BUFSZ, DEAF, DEVTEAM_EMAIL, PLINE_VERBALIZE } from './const.js';
 import { is_fainted } from './eat.js';
 import { unconscious } from './trap.js';
 import { messageAt } from './startup_a11y.js';
-import { ttyPline } from './tty_message.js';
+import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { isok } from './cmd_isok.js';
 
 // C refs: pline.c You_hear() (436-451), youprop.h Deaf/Unaware, and
@@ -85,6 +85,40 @@ export async function verbalize(line, state = game, { message = ttyPline } = {})
         await message(`"${line}"`, state);
     } finally {
         state.gp.pline_flags &= ~PLINE_VERBALIZE;
+    }
+}
+
+// C ref: pline.c impossible() (584-633). The caller has already formatted
+// the diagnostic. paniclog() only appends to the paniclog file, which the
+// port does not write; iflags.debug_fuzzer is never set. The recorder's
+// sysconf sets neither SUPPORT nor CRASHREPORTURL, so sysopt.support is read
+// as unset and the CRASHREPORT "Report now?" query is never reached.
+export async function impossible(text, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
+    const programState = state.program_state ??= {};
+    if (programState.in_impossible)
+        throw new Error('impossible called impossible'); // C panic()
+    programState.in_impossible = 1;
+    try {
+        // pbuf[BUFSZ - 1] = '\0'
+        await urgentMessage(truncateByteString(text, BUFSZ - 1), state, env);
+        if (programState.in_sanity_check) return;
+        let disorder = 'Program in disorder!';
+        if (programState.something_worth_saving)
+            disorder += '  (Saving and reloading may fix this problem.)';
+        await message(disorder, state, env);
+        await message(`Please report these messages to ${DEVTEAM_EMAIL}.`,
+            state, env);
+        if (state.sysopt?.support) {
+            await message(
+                `Alternatively, contact local support: ${state.sysopt.support}`,
+                state,
+                env,
+            );
+        }
+    } finally {
+        programState.in_impossible = 0;
     }
 }
 
