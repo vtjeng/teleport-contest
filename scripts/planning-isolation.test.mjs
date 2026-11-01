@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { COLNO, CORR, P_DAGGER, P_QUARTERSTAFF, P_SKILLED, P_BASIC, ROWNO, ROOM } from '../js/const.js';
+import { COLNO, CORR, HALLUC, P_DAGGER, P_QUARTERSTAFF, P_SKILLED, P_BASIC, ROWNO, ROOM } from '../js/const.js';
 import { drain_weapon_skill } from '../js/weapon.js';
+import { monsterCommonName } from '../js/do_name.js';
+import { cloneIsaacContext } from '../js/rng.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';
@@ -54,6 +56,44 @@ test('planned weapon forgetting owns the advancement history and skill records',
     assert.equal(planned.u.skill_record[0], P_QUARTERSTAFF);
     assert.equal(planned.u.weapon_skills[P_DAGGER].skill, P_BASIC);
     assert.equal(planned.u.weapon_skills[P_DAGGER].advance, 20); // Zero draw chooses the source lower bound.
+});
+
+// The level's monster list is fmon's linked list.
+function tameMonster(state) {
+    for (let monster = state.level.monlist; monster; monster = monster.nmon)
+        if (monster.mtame) return monster;
+    return null;
+}
+
+test('a planned hallucinated monster name draws from the clone display RNG', async () => {
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/do_name.c', import.meta.url), 'utf8',
+    );
+    // x_monnam() names a hallucinated monster through rndmonnam(), which
+    // draws from rnd.c's single display stream.
+    assert.match(cSource,
+        /rndmonnam\(char \*code\)[\s\S]*?name = rn2_on_display_rng\(SPECIAL_PM \+ BOGUSMONSIZE - LOW_PM\)/u);
+    await runSegment({
+        // Independent Wizard startup; its kitten is the named monster.
+        seed: 30517729, datetime: DATETIME,
+        nethackrc: 'OPTIONS=name:NameCopy,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:cat\n',
+        moves: '',
+    });
+    // Any nonzero timeout makes Hallucination active; 50 turns is arbitrary.
+    game.u.uprops[HALLUC].intrinsic = 50;
+    const kitten = tameMonster(game);
+    assert.ok(kitten, 'startup places the kitten');
+    const liveBefore = cloneIsaacContext(game.displayCtx);
+    const planned = planningState(game);
+    const plannedKitten = tameMonster(planned);
+    // trap.c trapeffect_sqky_board() names the monster with mon_nam() and no
+    // display-random hook, as the monster-turn planning scan calls it.
+    monsterCommonName(plannedKitten, planned);
+    assert.deepEqual(game.displayCtx, liveBefore,
+        'planning leaves the live display stream untouched');
+    assert.notDeepEqual(planned.displayCtx, liveBefore,
+        'the planned name advances the clone display stream');
 });
 
 function mapMemory(state) {

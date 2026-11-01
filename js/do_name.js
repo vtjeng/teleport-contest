@@ -1134,7 +1134,7 @@ export function hcolor(colorpref, state = game, env = {}) {
     const hallucinating = hallucinationActive(state);
     if (!hallucinating && colorpref) return colorpref;
     const random = displayRandomFunction(
-        env.displayRandom ?? env.random ?? rn2_on_display_rng,
+        env.displayRandom ?? env.random ?? stateDisplayRandom(state),
     );
     return HCOLORS[random(HCOLORS.length)];
 }
@@ -1394,7 +1394,7 @@ export function x_monnam(
         // display RNG, not the gameplay RNG.
         const randomName = rndmonnamDetails({
             state,
-            random: env.displayRandom ?? rn2_on_display_rng,
+            random: env.displayRandom ?? stateDisplayRandom(state),
         });
         buf += randomName.name;
         name_at_start = bogon_is_pname(randomName.code);
@@ -1554,6 +1554,13 @@ export function rndghostname(env = {}) {
         : String(state.plname ?? '');
 }
 
+// rnd.c keeps one display stream per game. A monster-action planning clone
+// owns a copy of it (planningState() clones displayCtx), so a name built
+// against that clone must draw from the clone's copy, not the live game's.
+function stateDisplayRandom(state) {
+    return (bound) => rn2_on_display_rng(bound, state);
+}
+
 function displayRandomFunction(random) {
     if (typeof random === 'function') return random;
     if (random && typeof random.rn2 === 'function')
@@ -1566,7 +1573,7 @@ function displayRandomFunction(random) {
 // while glyph-update descriptions only need the stripped text.
 export function bogusmon(env = {}) {
     const random = displayRandomFunction(
-        env.random ?? rn2_on_display_rng,
+        env.random ?? stateDisplayRandom(env.state ?? game),
     );
     const selected = get_rnd_text(
         BOGUSMONFILE,
@@ -1594,7 +1601,7 @@ export function bogon_is_pname(code) {
 export function rndmonnamDetails(env = {}) {
     const state = env.state ?? game;
     const random = displayRandomFunction(
-        env.random ?? rn2_on_display_rng,
+        env.random ?? stateDisplayRandom(state),
     );
     let index;
     do {
@@ -1674,7 +1681,7 @@ export function Amonnam(monster, env = {}) {
 export function hliquid(liquidpref, env = {}) {
     const state = env.state ?? game;
     const random = displayRandomFunction(
-        env.displayRandom ?? env.random ?? rn2_on_display_rng,
+        env.displayRandom ?? env.random ?? stateDisplayRandom(state),
     );
     const preferred = liquidpref == null ? '' : String(liquidpref);
     const hallucinating = Boolean(

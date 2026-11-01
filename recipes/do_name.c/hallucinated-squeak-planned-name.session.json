@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48113307,
+      "datetime": "20370412150500",
+      "nethackrc": "OPTIONS=name:Creaker,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "comment": "Independent do_name.c x_monnam()/rndmonnam() witness: a debug Wizard steps off the up stairs, wishes for a squeaky board, becomes hallucinated through #wizintrinsic, and steps away so the kitten crosses the board. The monster-turn planning scan builds the hallucinated name in trapeffect_sqky_board() before the live pass does; the planned name must draw from the planning clone's copy of the display RNG, or every later hallucinated glyph shifts. The seed and clock were chosen independently of the example games.",
+      "moves": "h\u0017squeaky board\n#wizintrinsic\nh\n hmsmsmsmsmsms"
+    }
+  ]
+}
