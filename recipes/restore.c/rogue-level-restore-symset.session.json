@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "restore.c dorecover(): the current symbol set is not saved, so a game restored on the Rogue level calls assign_graphics(ROGUESET) before docrt(). A debug Archeologist with symset:DECgraphics level-teleports to the Rogue level with the wizard-mode menu and saves; the second segment restores the game, whose first screen draws the Rogue level's plain ASCII walls, and searches once. Seeds and dates were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5180923,
+      "datetime": "20301219143000",
+      "nethackrc": "OPTIONS=name:Indy,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup,symset:DECgraphics\n",
+      "moves": "\u0016?\ng\u001b\u001b\u001bSy"
+    },
+    {
+      "seed": 5180924,
+      "datetime": "20301219153000",
+      "nethackrc": "OPTIONS=name:Indy,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup,symset:DECgraphics\n",
+      "moves": "  s"
+    }
+  ]
+}

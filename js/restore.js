@@ -40,10 +40,11 @@ import {
     W_TOOL,
     W_WEP,
     STONE,
+    ROGUESET,
 } from './const.js';
 import { init_artifacts, restore_artifacts } from './artifacts.js';
 import {
-    ledger_no, level_info, load_exclusions, set_dungeon_topology,
+    ledger_no, level_info, load_exclusions, on_level, set_dungeon_topology,
 } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
@@ -63,6 +64,7 @@ import {
     parseSnapshot, SAVE_FILE_PATH, savemonchn, saveobjchn,
 } from './save.js';
 import { restore_oracles } from './rumors.js';
+import { assign_graphics } from './symbols.js';
 import { role_init } from './role_init.js';
 import { set_residency, restshk } from './shk.js';
 import { stairway_add, stairway_at, stairway_free_all } from './stairs.js';
@@ -400,6 +402,13 @@ export async function dorestore(state = game) {
     } finally {
         state.program_state.restoring = wasRestoring;
     }
+
+    // C ref: restore.c dorecover():905-906. The current symbol set is not
+    // saved; startup options selected the primary set, so a game saved on
+    // the Rogue level switches to its symbols here, as goto_level() does on
+    // arrival.
+    if (on_level(state.u.uz, state.rogue_level))
+        assign_graphics(ROGUESET, state);
 
     // max_rank_sz computes gm.mrank_sz from the role's rank table.
     _uInitInternals.max_rank_sz(state);
