@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "pickup.c lift_object():1713-1716 and pickup():784-788. A dwarvish Valkyrie teleports to the Sokoban entry level, drops a wished dagger, wishes a boulder onto her square, and picks up both from the ',' menu: the dagger is lifted, then the boulder is refused with 'You cannot get your hand around this boulder.' and pickup() stops. She then polymorphs into a giant beetle, which drops her spear and shield, and picks up all three: body_part(HAND) gives 'foreclaw' after the spear and shield are lifted. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 517203,
+      "datetime": "20541103141500",
+      "nethackrc": "OPTIONS=name:Lifter,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizlevelport\n?\n>B\n   #wizwish\ndagger\n de #wizwish\nboulder\n ,,\n  #polyself\ngiant beetle\n  ,,\n "
+    }
+  ]
+}

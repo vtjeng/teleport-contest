@@ -932,10 +932,41 @@ export async function query_category(
     return { n: picks.length, pick_list: picks.map(({ value, count }) => ({ value, count })) };
 }
 
+function pickupObjectEnv(state) {
+    return objectGenerationEnv({
+        state,
+        hooks: {
+            message: ttyPline,
+            inventoryComparisonDiscovered: () => ttyPline(
+                'You learn more about your items by comparing them.',
+                state,
+            ),
+        },
+    });
+}
+
 // Existing pickup/addinv admission before discovery and floor extraction.
 // Shop billing runs later at pick_obj's source position; its independently
 // implemented pricing callees can still refuse their unported variants.
 function preflightPickupObjects(selected, state) {
+    // pickup.c lift_object():1713-1716 refuses a boulder on a Sokoban level
+    // before any weight or slot test and returns -1, and pickup()'s loop at
+    // pickup.c:784-788 stops there. Plan the objects ahead of the first such
+    // boulder as their own selection; the boulder and everything after it go
+    // to the live source path, which prints the refusal and stops.
+    const sokobanBoulder = state.level?.flags?.sokoban_rules
+        ? selected.findIndex(({ obj }) => obj.otyp === BOULDER) : -1;
+    if (sokobanBoulder >= 0) {
+        const prefix = sokobanBoulder > 0
+            ? preflightPickupObjects(selected.slice(0, sokobanBoulder), state)
+            : { addPlans: [], env: pickupObjectEnv(state), unliftable: [] };
+        const rest = selected.slice(sokobanBoulder);
+        return {
+            addPlans: [...prefix.addPlans, ...rest.map(() => null)],
+            env: prefix.env,
+            unliftable: [...prefix.unliftable, ...rest.map(({ obj }) => obj)],
+        };
+    }
     let addedWeight = 0;
     let projectedGold = money_cnt(state.invent);
     // pickup_object() touches artifacts, checks fatal/Rider corpses, and may
@@ -991,7 +1022,7 @@ function preflightPickupObjects(selected, state) {
         && object.oclass !== COIN_CLASS
         && object.otyp !== LOADSTONE
         && !(object.otyp === BOULDER
-            && (state.Sokoban || throws_rocks(state.youmonst?.data)))
+            && (state.level?.flags?.sokoban_rules || throws_rocks(state.youmonst?.data)))
         && !object.oartifact
         && object.otyp !== CORPSE
         && object.otyp !== SCR_SCARE_MONSTER;
@@ -1010,7 +1041,7 @@ function preflightPickupObjects(selected, state) {
         && object.oclass !== COIN_CLASS
         && object.otyp !== LOADSTONE
         && !(object.otyp === BOULDER
-            && (state.Sokoban || throws_rocks(state.youmonst?.data)))
+            && (state.level?.flags?.sokoban_rules || throws_rocks(state.youmonst?.data)))
         && !object.oartifact
         && object.otyp !== CORPSE
         && object.otyp !== SCR_SCARE_MONSTER;
@@ -1037,7 +1068,7 @@ function preflightPickupObjects(selected, state) {
             obj.oclass !== COIN_CLASS
             && obj.otyp !== LOADSTONE
             && !(obj.otyp === BOULDER
-                && (state.Sokoban || throws_rocks(state.youmonst?.data)))
+                && (state.level?.flags?.sokoban_rules || throws_rocks(state.youmonst?.data)))
             && !obj.oartifact
             && obj.otyp !== CORPSE
             && obj.otyp !== SCR_SCARE_MONSTER);
@@ -1063,16 +1094,7 @@ function preflightPickupObjects(selected, state) {
         || (!sourceZeroLift
             && calc_capacity(addedWeight, state) > promptLimit);
 
-    const env = objectGenerationEnv({
-        state,
-        hooks: {
-            message: ttyPline,
-            inventoryComparisonDiscovered: () => ttyPline(
-                'You learn more about your items by comparing them.',
-                state,
-            ),
-        },
-    });
+    const env = pickupObjectEnv(state);
     if (sourceZeroLift || deferAddinvForBurdenPrompt) {
         // pickup_object() either stops in carry_count() or asks lift_object()
         // before pick_obj() creates its addinv plan.
@@ -2990,7 +3012,7 @@ async function carry_count(obj, container, count, telekinesis, state) {
 // C ref: pickup.c:1704-1794. lift_object().
 // Returns > 0 to lift, 0 to skip, < 0 to stop.
 async function lift_object(obj, container, cnt_p, telekinesis, state) {
-    if (obj.otyp === BOULDER && state.Sokoban) {
+    if (obj.otyp === BOULDER && state.level?.flags?.sokoban_rules) {
         await ttyPline(
             `You cannot get your ${body_part(HAND, state.youmonst)} around this `
             + `${xnameFresh(obj, state)}.`,
