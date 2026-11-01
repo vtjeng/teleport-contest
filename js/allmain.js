@@ -144,6 +144,7 @@ import {
     cansee,
     does_block,
     init_vision_globals,
+    m_canseeu,
     unblock_point,
     vision_recalc,
     vision_reset,
@@ -1434,7 +1435,8 @@ async function moveElapsedTurnMonster(monster, env) {
             ...subjectEnv,
             redraw: (x, y) => newsym(x, y),
         }),
-        canSeeHero: () => true,
+        // C ref: mon.c movemon_singlemon():1305, m_canseeu().
+        canSeeHero: (subject) => m_canseeu(subject, env.state),
         canSeeSquare: (x, y) => cansee(x, y, env.state),
         fightMonster: (subject, subjectEnv) => fightm(subject, {
             ...subjectEnv,

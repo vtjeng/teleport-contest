@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mon.c movemon_singlemon():1305-1318. A Samurai puts on a wished ring of conflict, drinks a blessed potion of invisibility, and creates two jackals beside her. Jackals do not see invisible, so m_canseeu() is false and neither jackal calls fightm() on the other; both just move and attack where they think she is. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 384402,
+      "datetime": "20541115110000",
+      "nethackrc": "OPTIONS=name:Unseen,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizwish\nring of conflict\n #wizwish\nblessed potion of invisibility\n Pfr qg \u0007jackal\n \u0007jackal\n msmsmsmsmsms"
+    }
+  ]
+}

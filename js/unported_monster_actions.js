@@ -189,6 +189,7 @@ import {
     cansee,
     couldsee,
     does_block,
+    m_canseeu,
     makeVisionBuffers,
     recalc_block_point,
     restoreTransparencyIndex,
@@ -1894,7 +1895,8 @@ async function planSimpleMonsterScan(monster, env) {
         // resistance preflight for this slice; the visibility operations stay
         // here so the planning and live scans take the same final Conflict
         // gates before dochugw().
-        canSeeHero: () => true,
+        // C ref: mon.c movemon_singlemon():1305, m_canseeu().
+        canSeeHero: (subject) => m_canseeu(subject, env.state),
         canSeeSquare: (x, y) => cansee(x, y, env.state),
         fightMonster: (subject, subjectEnv) => fightm(subject, {
             ...subjectEnv,
