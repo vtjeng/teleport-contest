@@ -8293,7 +8293,7 @@ export async function passive(
                             effectEnv,
                         );
                         await nomul(
-                            (acurr(A_WIS, state) > 12 || random.rn2(4))
+                            (acurr(state, A_WIS) > 12 || random.rn2(4))
                                 ? -tmp : -127,
                             state,
                         );

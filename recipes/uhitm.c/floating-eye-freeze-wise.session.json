@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 72519,
+      "datetime": "20300402160745",
+      "nethackrc": "OPTIONS=name:Gazer,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " w-\u0007floating eye\nFu Fu "
+    }
+  ],
+  "comment": "uhitm.c passive() freezes a hero who hits a seeing floating eye with nomul((ACURR(A_WIS) > 12 || rn2(4)) ? -tmp : -127). This Priestess has Wis 17, so the || short-circuits and C draws no rn2(4). The bare-handed blows keep the eye alive long enough for the second F u to hit it."
+}
