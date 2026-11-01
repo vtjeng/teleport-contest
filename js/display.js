@@ -7204,6 +7204,11 @@ const {
 } = statusConstants;
 const BL_VERS = STATUS_FIELDS.find(row => row.name === 'version').fld;
 const statusField = fld => STATUS_FIELDS.find(row => row.fld === fld);
+// C ref: botl.c initblstats[fld].  The hilite code indexes the table by a
+// statusfields value although the table lists version (BL_VERS, 26) before
+// weapon, armor and terrain (23..25), so names, types and idxmax for those
+// four come from the row at that position: initblstats[BL_VERS] is terrain's.
+const initblstat = fld => STATUS_FIELDS[fld];
 
 // C ref: botl.c s_to_anything(). LP64 strtol saturation followed by the
 // target union member's width; pointer members write the pointed-to value.
@@ -7298,7 +7303,7 @@ export function status_hilite_add_threshold(state, fld, hilite) {
 }
 export function status_hilite2str(rule) {
     if (!rule) return null;
-    const row = STATUS_FIELDS.find(f => f.key === rule.field);
+    const row = initblstat(STATUS_FIELDS.find(f => f.key === rule.field).fld);
     const rel = rule.relation;
     let behavior = '';
     if (rule.behavior === 'percentage' || rule.behavior === 'absolute') {
@@ -7388,7 +7393,7 @@ export async function status_hilite_menu_choose_field(state, helpers) {
     return picks?.length ? picks[0] - 1 : BL_FLUSH;
 }
 export async function status_hilite_menu_choose_behavior(state, fld, helpers) {
-    const row = statusField(fld);
+    const row = initblstat(fld);
     if (!row) return BL_TH_NONE;
     const items = [];
     const add = (text, value, key) => items.push(hiliteItem(text, value, key));
@@ -7415,7 +7420,7 @@ export async function status_hilite_menu_choose_updownboth(state, fld, str, ltok
         if (str != null) add(`${str} or ${fld === BL_AC ? 'worse (higher)' : 'more'}`, GE_VALUE);
         add(str != null ? `${fld === BL_AC ? 'Worse (higher)' : 'More'} than ${str}` : 'Value goes up', GT_VALUE);
     }
-    const picks = hilitePicks(await hiliteMenu(state, { items, title: `Select field ${statusField(fld).name} value:`, how: PICK_ONE }, helpers));
+    const picks = hilitePicks(await hiliteMenu(state, { items, title: `Select field ${initblstat(fld).name} value:`, how: PICK_ONE }, helpers));
     return picks?.length ? picks[0] - 10 : NO_LTEQGT;
 }
 
@@ -7428,8 +7433,8 @@ export async function status_hilite_menu_add(state, origfld, helpers) {
         if (phase === 'field') {
             fld = origfld === BL_FLUSH ? await status_hilite_menu_choose_field(state, helpers) : origfld;
             if (fld === BL_FLUSH) return false;
-            row = statusField(fld);
-            rule = { field: row.key, behavior: 'none', relation: '=', value: 0, text: '', style: {} };
+            row = initblstat(fld);
+            rule = { field: statusField(fld).key, behavior: 'none', relation: '=', value: 0, text: '', style: {} };
             colorqry = attrqry = '';
             phase = 'behavior';
         }
@@ -7621,11 +7626,11 @@ export async function status_hilite_menu_fld(state, fld, helpers) {
         status_hilite_linestr_gather(state);
         count = status_hilite_linestr_countfield(state, fld);
     }
-    const items = count ? state.gb.status_hilite_str.filter(row => row.fld === fld).map(row => hiliteItem(row.str, row.id)) : [`No current hilites for ${statusField(fld).name}`];
+    const items = count ? state.gb.status_hilite_str.filter(row => row.fld === fld).map(row => hiliteItem(row.str, row.id)) : [`No current hilites for ${initblstat(fld).name}`];
     items.push('');
     if (count) items.push(hiliteItem('Remove selected hilites', -1, 'X'));
     if (fld !== BL_SCORE) items.push(hiliteItem('Add new hilites', -2, 'Z'));
-    const picks = hilitePicks(await hiliteMenu(state, { items, title: `Current ${statusField(fld).name} hilites:`, how: PICK_ANY }, helpers));
+    const picks = hilitePicks(await hiliteMenu(state, { items, title: `Current ${initblstat(fld).name} hilites:`, how: PICK_ANY }, helpers));
     let acted = false;
     if (picks?.length) {
         if (picks.includes(-1)) for (const id of picks) if (id > 0 && status_hilite_remove(state, id)) acted = true;

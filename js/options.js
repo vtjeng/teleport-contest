@@ -2276,11 +2276,12 @@ function statusHiliteFieldName(rawName) {
     return partials.length === 1 ? partials[0] : null;
 }
 
-// C ref: botl.c initblstats[].fldname, which two of the messages below quote
-// verbatim.  Every key of STATUS_HILITE_FIELDS is already its C spelling
-// except this one, whose row reads INIT_BLSTAT("HD", ...).
+// C ref: botl.c initblstats[fld].fldname, which two of the messages below
+// quote verbatim.  C indexes the table by the statusfields value, and the
+// table lists version (BL_VERS, 26) before weapon, armor and terrain (23..25),
+// so those four fields print the name of the row at their value's position.
 function statusHiliteFieldCName(field) {
-    return field === 'hd' ? 'HD' : field;
+    return STATUS_FIELDS[STATUS_FIELDS.find(row => row.key === field).fld].name;
 }
 
 // C ref: botl.c splitsubfields() (2685-2726).  It splits str in place on '+'

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7311905,
+      "datetime": "20561203094512",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#optionsfull\n:status highlight rules\n\n>cac\n \u001b>g\u001b\u001b\u001bs"
+    }
+  ]
+}

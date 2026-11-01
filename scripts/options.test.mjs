@@ -3157,6 +3157,14 @@ test('every malformed status highlight reports its C message', () => {
             ["Field 'alignment' does not support numeric values."]],
         // initblstats[] spells this field "HD", and the message quotes it.
         ['hd/<50%/red', ["Cannot use percent with 'HD'."]],
+        // C quotes initblstats[fld].fldname with fld = BL_TERRAIN (25), and
+        // row 25 of botl.c initblstats[] is "armor" because "version" (BL_VERS,
+        // 26) sits at row 23.  terrain is the last of the four rotated rows.
+        ['terrain/50/red',
+            ["Field 'armor' does not support numeric values."]],
+        // version is BL_VERS (26), and row 26 is "terrain".
+        ['version/<50%/red',
+            ["Field 'terrain' does not support numeric values."]],
         // LARGEST_INT is 32767, and the message prints the parsed value with
         // the relationship it was given rather than the text as typed.
         ['hitpoints/40000/red',
