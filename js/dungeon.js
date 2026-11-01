@@ -2710,15 +2710,34 @@ export function induced_align(pct, state = game, random = rn2) {
     return Align2amask(random(3) - 1);
 }
 
+const DUNGEON_NUMBERS = [
+    ['quest_dnum', 'The Quest'],
+    ['sokoban_dnum', 'Sokoban'],
+    ['mines_dnum', 'The Gnomish Mines'],
+    ['tower_dnum', "Vlad's Tower"],
+    ['tutorial_dnum', 'The Tutorial'],
+];
+
+// C refs: dungeon.h level and dungeon-number macros (for example,
+// #define qlocate_level (svd.dungeon_topology.d_qlocate_level)). Each macro
+// names a field of svd.dungeon_topology, so JavaScript's state.<macro> alias
+// must be that topology field. fixup_level_locations() builds the topology for
+// a new game; dungeon.c restore_dungeon() reads it whole from the save file
+// (Sfi_dgn_topology) without recomputing it, so dorecover() reaches this
+// with the saved object.
+export function set_dungeon_topology(state, topology) {
+    for (const [, target] of LEVEL_MAP)
+        state[target] = topology[`d_${target}`];
+    for (const [target] of DUNGEON_NUMBERS)
+        state[target] = topology[`d_${target}`];
+    state.dungeon_topology = topology;
+}
+
 export function fixup_level_locations(state, roleFilecode) {
     const topology = {};
-    for (const [, target] of LEVEL_MAP) {
-        const location = { dnum: 0, dlevel: 0 };
-        topology[`d_${target}`] = location;
-        // C aliases each macro (for example, bigroom_level) to its zeroed
-        // dungeon_topology field even when the optional level is absent.
-        state[target] = location;
-    }
+    // An optional level that is absent keeps its zeroed topology field.
+    for (const [, target] of LEVEL_MAP)
+        topology[`d_${target}`] = { dnum: 0, dlevel: 0 };
 
     for (const [name, target] of LEVEL_MAP) {
         const special = find_level(name, state);
@@ -2727,7 +2746,6 @@ export function fixup_level_locations(state, roleFilecode) {
 
         const location = { ...special.dlevel };
         topology[`d_${target}`] = location;
-        state[target] = location;
         if (name.startsWith('x-')) {
             special.proto = `${roleFilecode}${name.slice(1)}`;
         } else if (target === 'knox_level') {
@@ -2741,18 +2759,8 @@ export function fixup_level_locations(state, roleFilecode) {
         }
     }
 
-    const dungeonNumbers = [
-        ['quest_dnum', 'The Quest'],
-        ['sokoban_dnum', 'Sokoban'],
-        ['mines_dnum', 'The Gnomish Mines'],
-        ['tower_dnum', "Vlad's Tower"],
-        ['tutorial_dnum', 'The Tutorial'],
-    ];
-    for (const [target, name] of dungeonNumbers) {
-        const value = dname_to_dnum(name, state);
-        topology[`d_${target}`] = value;
-        state[target] = value;
-    }
+    for (const [target, name] of DUNGEON_NUMBERS)
+        topology[`d_${target}`] = dname_to_dnum(name, state);
 
     const dummy = find_level('dummy', state);
     if (dummy) {
@@ -2760,7 +2768,7 @@ export function fixup_level_locations(state, roleFilecode) {
         if (dungeon.num_dunlevs > 1 - dungeon.depth_start)
             --dungeon.depth_start;
     }
-    state.dungeon_topology = topology;
+    set_dungeon_topology(state, topology);
 }
 
 function init_private_lua(random) {

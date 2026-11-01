@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "dungeon.c restore_dungeon(): the restored game keeps the saved svd.dungeon_topology and relinks the saved branch list, without rerunning fixup_level_locations(). A debug Priest saves at once; the second segment restores, declines to keep the save file, opens the wizard level-teleport menu (whose Fort Ludios and Elemental Planes rows read the branch chain and the dummy-level depth_start), and picks Pri-loca from its second page. do.c goto_level() -> quest.c onquest() -> on_locate() then shows the locate-level quest text through questpgr.c com_pager_core(), whose nhl_init() draws the nhlib.lua shuffle. Seeds, datetimes and role were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 7311,
+      "datetime": "20270315104500",
+      "nethackrc": "OPTIONS=name:Pilgrim,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "Sy"
+    },
+    {
+      "seed": 7312,
+      "datetime": "20270316120000",
+      "nethackrc": "OPTIONS=name:Pilgrim,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\nn\u0016?\n>z  "
+    }
+  ]
+}

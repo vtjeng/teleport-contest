@@ -38,7 +38,7 @@ import {
     W_WEP,
 } from './const.js';
 import { init_artifacts, restore_artifacts } from './artifacts.js';
-import { fixup_level_locations } from './dungeon.js';
+import { set_dungeon_topology } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
 import { restore_waterlevel } from './mkmaze.js';
@@ -203,7 +203,11 @@ export async function dorestore(state = game) {
     // C ref: restore.c getlev():1113 rest_stairs(), which dorecover() reaches
     // through getlev() for the hero's level.
     rest_stairs(snapshot.stairs, state);
-    state.dungeon_topology = snapshot.dungeon_topology;
+    // C ref: dungeon.c restore_dungeon():222 reads svd.dungeon_topology
+    // whole; dorecover() does not rerun fixup_level_locations(), whose x-
+    // proto renames, Fort Ludios branch insertion and dummy-level
+    // depth_start adjustment are already in the saved dungeon state.
+    set_dungeon_topology(state, snapshot.dungeon_topology);
     state.n_dgns = snapshot.n_dgns;
     state.dungeons = snapshot.dungeons;
     if (snapshot.branches) state.branches = snapshot.branches;
@@ -327,8 +331,11 @@ export async function dorestore(state = game) {
         state.sp_levchn = state.specialLevels[0] ?? null;
     }
 
-    // Rebuild the branch linked list.
+    // C ref: dungeon.c restore_dungeon():225-238 links each restored branch
+    // to the next one read, in saved order.
     if (state.branches) {
+        for (let i = 0; i < state.branches.length; i++)
+            state.branches[i].next = state.branches[i + 1] ?? null;
         state.svb ??= {};
         state.svb.branches = state.branches[0] ?? null;
     }
@@ -346,11 +353,6 @@ export async function dorestore(state = game) {
     state.go ??= {};
     state.go.oclass_prob_totals ??= [];
     init_oclass_probs(state);
-
-    // Dungeon-level aliases (stronghold_level, astral_level, etc.) are
-    // computed from the special-level chain and the dungeon table.
-    // fixup_level_locations() rebuilds them without using RNG.
-    fixup_level_locations(state, state.urole?.filecode ?? '');
 
     // Reconstruct youmonst from the monster catalog and the hero's form.
     _uInitInternals.setInitialUasmon(state);
