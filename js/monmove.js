@@ -4102,10 +4102,17 @@ export async function m_move(monster, rawEnv = {}) {
         // a defensive escape before giving up.
         const escape = find_defensive(monster, true, env);
         if (escape) {
-            // use_defensive() writes through ttyPline(), which the planning
-            // pass does not suppress, so the pass records that the monster
-            // would act without executing it, as usePreMoveItems() does.
-            if (env.planning) return MMOVE_DONE;
+            // As in dochug()'s pre-move item use, the clone cannot run
+            // use_defensive() silently; stop the dry run at its boundary so
+            // the live scan performs the escape and the plan resumes after it.
+            if (env.planning) {
+                if (typeof env.requestPlanningInput !== 'function') {
+                    throw new TypeError(
+                        'planned use_defensive requires a planning boundary',
+                    );
+                }
+                env.requestPlanningInput('muse.c use_defensive');
+            }
             if (await use_defensive(monster, escape, state, env))
                 return MMOVE_DONE;
         }

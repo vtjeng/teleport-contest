@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises monmove.c dochug():797-799 find_misc()/use_misc() MUSE_POT_SPEED during a multi-allocation hero action. Four wished chain mails leave the fast Samurai Strained, so one search spans several turns. The hostile gnome lord steps onto the dropped potion, picks it up, and quaffs it mid-scan; worn.c mon_adjust_speed() makes it MFAST, which the next allocation's mcalcmove() reads.",
+  "segments": [
+    {
+      "seed": 9130004,
+      "datetime": "20261102093000",
+      "nethackrc": "OPTIONS=name:Quaffer,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017uncursed potion of speed\ndf\u0017uncursed chain mail\n \u0017uncursed chain mail\n \u0017uncursed chain mail\n \u0017uncursed chain mail\n \u0007hostile gnome lord\nj\u001bj\u001bj\u001bj\u001bms\u001bms\u001bms\u001bms\u001b"
+    }
+  ]
+}

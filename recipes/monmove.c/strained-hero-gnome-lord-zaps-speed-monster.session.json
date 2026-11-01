@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Variation of strained-hero-gnome-lord-quaffs-speed: the item is a wand of speed monster, so use_misc() takes MUSE_WAN_SPEED_MONSTER through mzapwand() instead of the potion branch. The Strained hero walks away, the gnome lord picks up the wand and zaps itself mid-scan, and the remaining allocations of that hero action read its new MFAST speed.",
+  "segments": [
+    {
+      "seed": 9140002,
+      "datetime": "20261102093000",
+      "nethackrc": "OPTIONS=name:Quaffer,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017uncursed wand of speed monster\ndf\u0017uncursed chain mail\n \u0017uncursed chain mail\n \u0017uncursed chain mail\n \u0017uncursed chain mail\n \u0007hostile gnome lord\nh\u001bh\u001bh\u001bh\u001bms\u001bms\u001bms\u001b"
+    }
+  ]
+}

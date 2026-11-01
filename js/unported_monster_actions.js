@@ -236,6 +236,14 @@ function unsupported(reason) {
     throw new UnsupportedSimpleMonsterActionError(reason);
 }
 
+// Stop a dry-run scan before a live-only monster item action. js/allmain.js
+// replays the scan on the live state and plans the rest from its result.
+function stopPlanBeforeItemUse(env, operation) {
+    if (typeof env.requestPlanningInput !== 'function')
+        throw new TypeError(`planned ${operation} requires a planning boundary`);
+    env.requestPlanningInput(operation);
+}
+
 function activeProperty(state, property, blockedMatters = true) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic)
@@ -1660,6 +1668,17 @@ function simpleMonsterActionOperations(env, state) {
                 // disjunction calls, refuses through this rather than
                 // answering TRUE.
         unsupported,
+        // C ref: monmove.c dochug():794-799 runs muse.c use_defensive() or
+        // use_misc() as soon as find_defensive() or find_misc() selects an
+        // item. Both change the monster or the level -- a potion or wand of
+        // speed monster sets mspeed through worn.c mon_adjust_speed(), which
+        // the next allocation's mcalcmove() reads; other items heal,
+        // teleport, dig, or use up the object -- and both write straight to
+        // the terminal, so the clone cannot run them silently. Answering
+        // "the monster acted" without the effect would plan every later scan
+        // and allocation from a state C never reaches. The dry run stops at
+        // the planning boundary instead; js/allmain.js replays the scan live
+        // and plans the remaining allocation from the actual result.
         usePreMoveItems: async (itemUser, itemEnv) => {
                     const defensive = find_defensive(
                         itemUser,
@@ -1667,12 +1686,8 @@ function simpleMonsterActionOperations(env, state) {
                         itemEnv,
                     );
                     if (defensive) {
-                        // The planning pass discovers that the monster
-                        // would act without executing the action, since
-                        // use_defensive calls ttyPline and other output
-                        // functions the planning context does not suppress.
                         if (itemEnv.planning)
-                            return true;
+                            stopPlanBeforeItemUse(itemEnv, 'muse.c use_defensive');
                         const result = await use_defensive(
                             itemUser,
                             defensive,
@@ -1687,7 +1702,7 @@ function simpleMonsterActionOperations(env, state) {
                     );
                     if (misc) {
                         if (itemEnv.planning)
-                            return true;
+                            stopPlanBeforeItemUse(itemEnv, 'muse.c use_misc');
                         const result = await use_misc(
                             itemUser,
                             misc,
