@@ -4493,12 +4493,12 @@ async function handler_align_misc(state, optidx, helpers) {
     return optn_ok;
 }
 
-function autounlockHandlerValue(state) {
-    const bits = state.flags.autounlock;
+// C ref: options.c optfn_autounlock() (1066-1168), its get_val arm: the
+// full unlocktypes[i][0] name of each set bit, joined by " + ".
+function autounlockValue(bits) {
     if (!bits) return 'none';
     return unlocktypes
         .filter((_name, index) => (bits & (1 << index)) !== 0)
-        .map((name) => name[0])
         .join(' + ');
 }
 
@@ -4536,7 +4536,7 @@ async function handler_autounlock(state, optidx, helpers) {
         && state.give_opt_msg !== false) {
         await ttyPline(
             `'${optname}' ${changed ? 'changed to' : 'is still'} `
-                + `'${autounlockHandlerValue(state)}'.`,
+                + `'${autounlockValue(state.flags.autounlock)}'.`,
             state,
         );
     }
@@ -7592,13 +7592,9 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
                     : preferred === 'n' ? 'none' : 'random';
     },
     soundlib: (state) => get_soundlib_name(state),
-    autounlock: (state, option) => {
-        const bits = requireParsedNumber(state, option);
-        if (!bits) return 'none';
-        return unlocktypes
-            .filter((_name, index) => (bits & (1 << index)))
-            .join(' + ');
-    },
+    autounlock: (state, option) => autounlockValue(
+        requireParsedNumber(state, option),
+    ),
     // go.ov_primary_syms holds an explicit S_boulder override; without one
     // the value falls back to the active rock-class symbol.
     boulder: (state) => decodeUtf8ByteString([

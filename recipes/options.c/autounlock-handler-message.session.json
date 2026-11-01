@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: options.c handler_autounlock() and optfn_autounlock() get_val. Picking kick and force in the autounlock handler prints the full unlocktypes names joined by ' + '; reopening and accepting unchanged prints the 'is still' form under the default verbose flag. Seed and clock chosen independently.",
+  "segments": [
+    {
+      "seed": 73190455,
+      "datetime": "20540309081722",
+      "nethackrc": "OPTIONS=name:Ostra,role:Valkyrie,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\n#optionsfull\n:autounlock\n\nkf\n#optionsfull\n:autounlock\n\n\n."
+    }
+  ]
+}
