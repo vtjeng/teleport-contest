@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40917,
+      "datetime": "20320508201133",
+      "nethackrc": "OPTIONS=name:Leaver,role:Ranger,race:gnome,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!splash_screen,pettype:none,time\n",
+      "moves": " y   ssss\u0016?\nb  i"
+    }
+  ],
+  "comment": "do.c goto_level() leaving the tutorial calls nhlua.c tutorial(FALSE), whose nhlib.lua tutorial_leave() callback runs nh.gamestate(true): nhl_gamestate() resets the turn counter to the stored move, prints \"Resetting time to move #1.\", and gives back the sequestered inventory, hero struct, discoveries, monster statistics and spellbook. The wizard-mode level teleport menu picks Dungeons of Doom level 2, which is built at the reset turn, and i shows the restored inventory."
+}

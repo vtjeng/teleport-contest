@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61840,
+      "datetime": "20290817093012",
+      "nethackrc": "OPTIONS=name:Climber,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup\n",
+      "moves": "Sy"
+    },
+    {
+      "seed": 61841,
+      "datetime": "20290817101544",
+      "nethackrc": "OPTIONS=name:Climber,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup\n",
+      "moves": "sss<n"
+    }
+  ],
+  "comment": "save.c savelev_core() writes the current level's stairway list and destination areas, and restore.c getlev() reads them back. After the restore the hero still stands on the up staircase: the pet's dog_goal() takes the On_stairs() approach instead of scanning the hero's inventory with dogfood(), and < reaches doup()'s climb prompt, which n declines."
+}
