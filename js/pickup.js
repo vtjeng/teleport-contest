@@ -1011,8 +1011,12 @@ function preflightPickupObjects(selected, state) {
         }
         addedWeight += objectWeight;
     }
-    const exceedsCarryCapacity = inv_weight(state) + addedWeight
-        >= 2 * weight_cap(state);
+    // pickup.c pickup():783-789 calls pickup_object() once per selected row,
+    // so an empty selection (a cancelled or empty menu, or nothing chosen)
+    // reaches no lift_object() and no capacity decision, however overloaded
+    // the hero already is.
+    const exceedsCarryCapacity = selected.length > 0
+        && inv_weight(state) + addedWeight >= 2 * weight_cap(state);
     const selectedObject = selected.length === 1 ? selected[0] : null;
     const object = selectedObject?.obj;
     // pickup.c:carry_count() returns zero for one ordinary, non-gold object

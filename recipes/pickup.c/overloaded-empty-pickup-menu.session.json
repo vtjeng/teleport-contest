@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "pickup.c pickup(): an Overloaded Valkyrie opens the Pick up what? menu over a dagger and an apple and leaves it with nothing selected, by ESC, by space and by Enter, so pickup() calls pickup_object() for no row",
+  "segments": [
+    {
+      "seed": 3390127,
+      "datetime": "20261107143000",
+      "nethackrc": "OPTIONS=name:Pack,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "db\u0017apple\nde\u001710 loadstones\n,\u001b, s,k\ns"
+    }
+  ]
+}
