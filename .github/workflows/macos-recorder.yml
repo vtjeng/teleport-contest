@@ -41,6 +41,13 @@ jobs:
       - name: Record the sample
         run: experiments/host-parity/record-sample.sh macos-recordings
 
+      # The key-binding probes (experiments/host-parity/README.md, "Key-binding
+      # probes") test which paths of cmd.c handler_rebind_keys_add() fail on
+      # macOS. They go into their own directory so the 500-recipe comparison
+      # is unchanged.
+      - name: Record the key-binding probes
+        run: experiments/host-parity/record-sample.sh macos-recordings/probes 5 experiments/host-parity/probes/*.session.json
+
       - name: Upload recordings
         if: always()
         uses: actions/upload-artifact@v7

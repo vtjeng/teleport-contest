@@ -16,6 +16,8 @@ hosts differ and gives the procedure. The files are:
 - `select-sample.mjs`: the script that chose the sample.
 - `record-sample.sh`: records the recipes with the C recorder. The macOS
   workflow and a local Linux run both use it.
+- `probes/<name>.session.json`: five key-binding probe recipes, recorded
+  apart from the sample (see "Key-binding probes for the next macOS run").
 
 ## Source and selection rule
 
@@ -161,9 +163,16 @@ escapes):
 | `bind-param` | `a~:toggle:\nautopickup\n\u001b\u001b~` | `Snprintf()` of `toggle(autopickup)` | `Bound key '~' to "toggle(autopickup)".` |
 | `bind-twice` | ``a~:apply\n\u001ba`:pray\n\u001b\u001b~\u001b`\u001b`` | A second bind in the same menu | Both keys bound |
 
-The `bind-param` probe is the committed recipe
-`recipes/cmd.c/toggle-bound-param-menu.session.json`; the other four are
-not committed.
+The five recipes are in `probes/`. `bind-param` is a copy of the
+committed recipe `recipes/cmd.c/toggle-bound-param-menu.session.json`.
+The macOS workflow records them into `probes/` inside its artifact, apart
+from the 500-recipe sample. Their Linux recordings, made with the Linux
+output profile, all match the port (`replay-check.mjs`, 5 of 5, at
+`b97f251d`). To record them locally:
+
+```sh
+experiments/host-parity/record-sample.sh .cache/host-parity/linux-probes 5 experiments/host-parity/probes/*.session.json
+```
 
 If macOS prints `Key binding failed?!` for the four probes that use
 `Strcat()` and binds the `bind-param` key, the judge's behavior is
