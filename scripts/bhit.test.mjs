@@ -307,7 +307,15 @@ test('bhitm keeps its ray position separate from zap.c hit()', async () => {
     assert.ok(messages.some((line) => line.startsWith('The wand hits ')));
     assert.equal(game.gn.notonhead, false);
     assert.equal(monster.mhp, 28);
-    assert.deepEqual(draws, [['rnd', 20], ['d', 2, 12], ['rn2', 111]]);
+    // rnd(20) is the to-hit roll, d(2,12) the striking damage and rn2(111)
+    // the resistance check. The hero sees the unidentified wand hit, so
+    // bhitm()'s tail calls zap.c learnwand() -> makeknown() ->
+    // o_init.c discover_object(..., credit_hero) -> attrib.c
+    // exercise(A_WIS, TRUE), which draws rn2(19). That draw used to go to
+    // the live stream, outside this test's injected one.
+    assert.deepEqual(draws, [
+        ['rnd', 20], ['d', 2, 12], ['rn2', 111], ['rn2', 19],
+    ]);
 });
 
 test('bhitm applies a successful wand or spell slow effect before its common tail',
