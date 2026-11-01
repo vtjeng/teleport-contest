@@ -3673,16 +3673,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['seen pit-edge effects', /trap/u, ({ state }) => {
                 state.level.traps.push({ tx: 10, ty: 5, ttyp: PIT, tseen: true });
             }],
-            ['nearby timed corpse impact', /buried corpse/u, ({ state }) => {
-                state.level.buriedobjlist = {
-                    nobj: null,
-                    otmp: null,
-                    otyp: CORPSE,
-                    ox: 10,
-                    oy: 5,
-                    timed: true,
-                };
-            }],
             ['missing floor grid', /floor-object grid/u, ({ state }) => {
                 state.level.objects[10] = null;
             }],
@@ -3808,41 +3798,6 @@ test('prepared drop admission rejects changed ownership and origin',
             /drop admission is stale/u,
         );
     });
-
-test('buried-corpse impact preflight pins every coordinate boundary', () => {
-    const refusing = [
-        [9, 4], [9, 5], [9, 6],
-        [10, 4], [10, 6],
-        [11, 4], [11, 5], [11, 6],
-    ];
-    for (const [ox, oy] of refusing) {
-        const { hooks, obj, state } = ordinaryDropFixture();
-        state.level.buriedobjlist = {
-            nobj: null, otyp: CORPSE, ox, oy, timed: true,
-        };
-        assert.throws(
-            () => preflight_dropx(obj, { state, hooks }),
-            /buried corpse/u,
-            `${ox},${oy}`,
-        );
-    }
-
-    for (const [name, buried] of [
-        ['wrong type', { otyp: OIL_LAMP, timed: true, ox: 10, oy: 5 }],
-        ['untimed', { otyp: CORPSE, timed: false, ox: 10, oy: 5 }],
-        ['left', { otyp: CORPSE, timed: true, ox: 8, oy: 5 }],
-        ['right', { otyp: CORPSE, timed: true, ox: 12, oy: 5 }],
-        ['above', { otyp: CORPSE, timed: true, ox: 10, oy: 3 }],
-        ['below', { otyp: CORPSE, timed: true, ox: 10, oy: 7 }],
-    ]) {
-        const { hooks, obj, state } = ordinaryDropFixture();
-        state.level.buriedobjlist = { ...buried, nobj: null };
-        assert.doesNotThrow(
-            () => preflight_dropx(obj, { state, hooks }),
-            name,
-        );
-    }
-});
 
 test('dropz places an impact drop before the source redraw and encumbrance',
     async () => {

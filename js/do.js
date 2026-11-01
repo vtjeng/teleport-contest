@@ -2000,19 +2000,6 @@ export function preflight_dropx(obj, env = {}) {
     // do.c:dropx/dropz/flooreffects adds no effect for an engraving on dry
     // floor. Keep its text intact and let the ordinary placement/redraw run.
     // A visible region affects the canonical redraw, not floor placement.
-    for (let buried = state.level.buriedobjlist; buried; buried = buried.nobj) {
-        // hack.c impact_disturbs_zombies() only changes a timed corpse within
-        // one square. A matching timer still needs peek_timer(), so
-        // conservatively refuse every nearby timed corpse; unrelated buried
-        // objects make the loop inert.
-        if (buried.otyp === CORPSE && buried.timed
-            && buried.ox >= x - 1 && buried.ox <= x + 1
-            && buried.oy >= y - 1 && buried.oy <= y + 1) {
-            throw new UnsupportedDropError(
-                'impact disturbing a nearby buried corpse',
-            );
-        }
-    }
     if (!Array.isArray(state.level.objects?.[x]))
         throw new UnsupportedDropError('a missing floor-object grid');
     // invent.c stackobj() (4366-4375) hands this object to merged() (814-948)
@@ -2195,18 +2182,18 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         // before corpse disturbance, ball handling, shop sale, and stacking.
         await container_impact_dmg(obj, normalized.state.u.ux,
             normalized.state.u.uy, { state: normalized.state });
-
-        // hack.c:impact_disturbs_zombies() is already implemented with the
-        // dothrow landing helpers. C calls it after container impact and
-        // before ball/shop handling and stackobj().
-        const { impact_disturbs_zombies } = await import('./dothrow.js');
-        impact_disturbs_zombies(obj, true, normalized.state);
-        if (obj === normalized.state.uball) {
-            // C do.c:dropz() runs punishment-chain relocation after impact
-            // effects and before stacking the dropped object.
-            await drop_ball(normalized.state.u.ux, normalized.state.u.uy,
-                normalized.state);
-        }
+    }
+    // C do.c:dropz() calls hack.c impact_disturbs_zombies(obj, with_impact)
+    // for every floor drop, after container impact and before ball/shop
+    // handling and stackobj(); an ordinary drop uses its non-violent
+    // weight threshold.
+    const { impact_disturbs_zombies } = await import('./dothrow.js');
+    impact_disturbs_zombies(obj, withImpact, normalized.state);
+    if (obj === normalized.state.uball) {
+        // C do.c:dropz() runs punishment-chain relocation after impact
+        // effects and before stacking the dropped object.
+        await drop_ball(normalized.state.u.ux, normalized.state.u.uy,
+            normalized.state);
     }
     if (obj !== normalized.state.uball
         && normalized.state.u.ushops?.[0]) {

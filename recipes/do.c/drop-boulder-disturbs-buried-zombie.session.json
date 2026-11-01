@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: do.c dropz() -> hack.c impact_disturbs_zombies(obj, FALSE) -> disturb_buried_zombies(). Debug-mode wishes make a zombifying kobold corpse, drop it, put a pit under it, and fill the pit with a wished boulder too heavy to carry, which buries the corpse with its ZOMBIFY_MON timer. A second wished boulder dropped on the next square weighs over the non-violent threshold and shortens that timer. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 62405193,
+      "datetime": "20510822170940",
+      "nethackrc": "OPTIONS=name:Brenna,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "\nh\u0017zombifying kobold corpse\nde\u0017pit\n\u0017boulder\nl\u0017boulder\n20s...."
+    }
+  ]
+}
