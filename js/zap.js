@@ -6086,6 +6086,9 @@ export async function dobuzz(
                             type, nd, flash_str(fltyp, true, state, random), sx, sy,
                             state, random, env,
                         );
+                        // end.c done() does not return once the ray kills
+                        // the hero, so C never resumes the ray.
+                        if (state.program_state?.gameover) return;
                         monstunseesu(M_SEEN_REFL, state);
                     }
                 } else if (!heroIsBlind(state)) {

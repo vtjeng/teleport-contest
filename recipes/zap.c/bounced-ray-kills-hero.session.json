@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Exercises zap.c dobuzz() when a bounced ray kills the hero. A debug wish supplies a wand of fire, zapped west at the room wall; the bolt bounces back and kills a 10 HP Tourist. end.c done() does not return, so C never resumes the ray. Answering the debug Die? prompt and the disclosure prompts plays the game to its final screen.",
+  "segments": [
+    {
+      "seed": 4471902,
+      "datetime": "20360723201000",
+      "nethackrc": "OPTIONS=name:Bouncer,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "  #wizwish\nwand of fire\nzoh   yq        "
+    }
+  ]
+}
