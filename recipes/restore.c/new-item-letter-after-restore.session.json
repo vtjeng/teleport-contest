@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "decl.h gl.lastinvnr is 'never saved&restored'. A Samurai in debug mode wishes for an orange, which moves invent.c assigninvlet()'s search start past his starting letters, drops his yumi to free its letter, and saves. The second segment restores, declines to keep the save file, and runs with decl.c's lastinvnr of 51, so the wished apple takes the first free letter from 'a' rather than the letter after the orange's. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 582016,
+      "datetime": "20270314093000",
+      "nethackrc": "OPTIONS=name:Lettered,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017orange\ndcSy"
+    },
+    {
+      "seed": 582017,
+      "datetime": "20270314101500",
+      "nethackrc": "OPTIONS=name:Lettered,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " n\u0017apple\ni\u001b"
+    }
+  ]
+}

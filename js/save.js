@@ -450,10 +450,10 @@ function serializeGameState(state) {
         invent: state.invent,
         // Equipment state: setworn() sets these game-level pointers; the
         // restore path scans owornmask to rebuild them, but unweapon has no
-        // per-object representation. lastinvnr is the next inventory letter
-        // counter; head_engr is the engraving chain on this level.
+        // per-object representation. head_engr is the engraving chain on
+        // this level. lastinvnr is left out: decl.h marks gl.lastinvnr
+        // "never saved&restored", so a restored game resumes from decl.c's 51.
         unweapon: state.unweapon,
-        lastinvnr: state.lastinvnr,
         head_engr: state.head_engr,
         // Artifact tracking: artidisco records which artifacts the hero has
         // identified; artiexist records which exist in the game.

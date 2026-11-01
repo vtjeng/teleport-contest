@@ -237,7 +237,6 @@ export async function dorestore(state = game) {
     // The dangling ball-and-chain, gm.migrating_objs and gm.migrating_mons
     // chains that follow it in C (684-696) are not in the snapshot.
     state.invent = restobjchn(snapshot.invent, state);
-    if (snapshot.lastinvnr != null) state.lastinvnr = snapshot.lastinvnr;
     if (snapshot.head_engr != null) state.head_engr = snapshot.head_engr;
 
     // C has a static artifact catalog; JS rebuilds its per-game catalog
