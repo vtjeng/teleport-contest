@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: dog.c mon_arrive():584-592 picks a spot in the first room in_rooms() reports, through svr.rooms[*r - ROOMOFFSET], which also holds subrooms. In this Minetown variant the shops are subrooms. The hero steals from the hardware store and level-teleports away with its keeper adjacent, pays him off, and returns; the keeper migrates home with MIGR_APPROX_XY to his shop door, where in_rooms() lists the shop subroom first, so mon_arrive() calls somexy() on the shop. Seed, clock and character chosen independently; the seed was picked for a Minetown with nested shop rooms.",
+  "segments": [
+    {
+      "seed": 71850012,
+      "datetime": "20390521163055",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0016?\n w\n\n\n#levelchange\n14\n\u001b\u00172000 gold pieces\n\u0014 \nhjjj.\n\n,\n\u0014hhkkk.\n\n\n\n\u0016?\nbp\n\n\nms\u001bms\u001b\u0016?\n w\u001b\u001b\u001bms\u001bms\u001bms\u001bms\u001bms\u001bms\u001b"
+    }
+  ]
+}
