@@ -58,3 +58,40 @@ To regenerate the sample from the same run:
 ```sh
 node experiments/host-parity/select-sample.mjs .cache/c-diff .cache/c-diff/results-efbea20a.jsonl
 ```
+
+## Results
+
+The first measurement ran on 1 November 2026: macOS workflow run
+[41280653286](https://github.com/vtjeng/teleport-contest/actions/runs/41280653286)
+at commit `7ca77caf` (macOS 26.6.2, Apple clang 21.0.0, Node 22.23.4),
+and a Linux recording of the same recipes at the same commit, both in
+standard time. All 500 recipes recorded on both hosts.
+
+`node scripts/compare-host-recordings.mjs` reported:
+
+| Measure | Count |
+| --- | --- |
+| RNG logs identical | 498 of 500 |
+| Recipes with differing screens | 223 |
+| Kind: `/dev/random` versus `/dev/urandom` | 192 recipes, 203 screens |
+| Kind: `MacOS` versus `Unix` | 192 recipes, 203 screens |
+| Kind: apple message | 33 recipes, 36 screens |
+| Kind: key binding (`g04439`) | 1 recipe |
+
+The two recipes whose RNG logs differ are `g00203`, from the apple step
+on, and `g04439`, after the key-binding difference.
+
+Replaying the 500 macOS recordings with the JavaScript port
+(`node .cache/tools/replay-check.mjs <repo> <recording>`, no host
+substitution):
+
+| Sample group | Match macOS | Differ |
+| --- | --- | --- |
+| `pass` | 159 | 0 |
+| `host` | 175 | 57 |
+| `fail` | 56 | 53 |
+
+51 of the 110 differing recordings print the recorder's temporary `HOME`
+(`/tmp/nh-rec-XXXXXX/home`) in the options help, where the port prints
+the judge's. `docs/testing.md`, "Local recordings and the judge's host",
+interprets these results.

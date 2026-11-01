@@ -91,6 +91,7 @@ These differ for host reasons. The first three are compile-time choices:
 | The `v` and `#version` text | `MacOS NetHack Version 5.0.0 ...` | `Unix NetHack Version 5.0.0 ...` | `PORT_ID` in `include/global.h:191-193` (`__APPLE__`) and `:217-219` (`UNIX`), put into the version string by `src/mdlib.c:341` |
 | Eating an apple | `Delicious!  Must be a Macintosh!` | `Core dumped.` | `src/eat.c:2179-2185`, `fprefx()`: the `MACOS` branch comes before the `UNIX` one. A pear prints `Core dumped.` on both hosts. |
 | The build options in `#version` | `strong PRNG seed from /dev/random` | `strong PRNG seed from /dev/urandom` | `DEV_RANDOM` in `include/unixconf.h:424-430`, printed by `src/mdlib.c:511-513`. The extra letter can move a line break in the paragraph that follows. |
+| Binding a key from the options menu | `Key binding failed?!` after the first letter of the command name | Reads the whole command name | Not yet traced; seen in one game (`g04439`), see below |
 | The options help text (`Set options as OPTIONS=<options> in ...`) | The judge's `HOME`, given in `docs/recording-environment.md` | `/tmp/nh-rec-XXXXXX/home` | `src/options.c:9471` prints `get_configfile()`, which is `$HOME/.nethackrc`. `scripts/record-session.mjs` sets `HOME` to a directory it creates with `mkdtemp()`. The path's length decides how many lines the help text takes, and so which lines fall on each page of the pager. |
 
 Save files are compressed with `/usr/bin/compress`, as on macOS
@@ -106,14 +107,39 @@ The `HOME` difference comes from `record-session.mjs`, not from the host,
 so the macOS workflow below records with the same `/tmp/nh-rec-XXXXXX/home`
 as a local run and does not measure it.
 
-`CRASHREPORT` and `PANICTRACE` were suspected but are not expected to
-differ: `include/config.h:244-285` defines both for `MACOS` and for
-`__linux__`, and the Linux recorder's `#version` screen lists `show stack
-trace on error` and `launch browser to report issues`, as `js/mdlib.js` does
-for the judge. Other compile-time `MACOS` branches, such as
-`RUNTIME_PASTEBUF_SUPPORT` (`include/unixconf.h:414-416`), and differences
-in the C library (regular expressions, `printf` corner cases, terminal input
-modes) have not been measured. The macOS workflow below measures them.
+The macOS workflow below measured the differences on 1 November 2026
+(run [41280653286](https://github.com/vtjeng/teleport-contest/actions/runs/41280653286),
+commit `7ca77caf`, macOS 26.6.2, Apple clang 21.0.0), against a Linux
+recording of the same 500 recipes at the same commit, both in standard
+time:
+
+- The RNG logs were identical in 498 of the 500 recipes. Screens differed
+  in 223.
+- Every differing screen falls into one of four kinds: `/dev/random` (192
+  recipes) and `MacOS` (192, the same `#version` and banner screens), the
+  apple message (33), and one key-binding difference (1, below). In one
+  apple game (`g00203`) the RNG log also diverges from the step where the
+  apple is eaten.
+- `CRASHREPORT` and `PANICTRACE` do not differ:
+  `include/config.h:244-285` defines both for `MACOS` and for
+  `__linux__`.
+- No other compile-time branch or C library difference appeared in this
+  sample. A difference in code the sample does not reach would not show.
+
+The key-binding difference: in `g04439` the player binds a key from the
+options menu. At `Bind 'o' to what command?`, the macOS recorder prints
+`Key binding failed?!--More--` after the first letter of the command
+name, while the Linux recorder goes on reading the name; the RNG log
+diverges later in the same game. The cause has not been traced. The port
+matches neither recording at that step.
+
+The same recordings also measure the port against macOS directly, with no
+substitution: replayed with `node .cache/tools/replay-check.mjs`, 390 of
+the 500 match. All 159 sample games that matched Linux also match macOS,
+and 175 of the 232 host-affected games match macOS outright, which
+confirms that the port prints the judge's macOS text. 51 of the 110
+failures differ only in the `HOME` path, because the workflow records with
+the local `/tmp/nh-rec-XXXXXX/home` while the port prints the judge's.
 
 ### Private installs
 
