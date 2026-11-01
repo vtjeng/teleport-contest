@@ -4077,12 +4077,15 @@ export function newsym(x, y) {
 // ── see_monsters ──
 // C ref: display.c mimic_light_blocking() and set_mimic_blocking().  The
 // caller has already changed See_invisible before this traversal starts.
-export function set_mimic_blocking(state = game) {
+// A planning clone passes admitPointChange, which it calls before each
+// block_point() or unblock_point() rewrites the shared obstruction index.
+export function set_mimic_blocking(state = game, { admitPointChange = null } = {}) {
     const seeInvisible = state.u?.uprops?.[SEE_INVIS];
     const canSeeInvisible = Boolean(seeInvisible?.intrinsic
         || seeInvisible?.extrinsic);
     iter_mons((monster) => {
         if (!monster.minvis || !is_lightblocker_mappear(monster)) return;
+        admitPointChange?.(monster.mx, monster.my, state);
         if (canSeeInvisible)
             block_point(monster.mx, monster.my, state);
         else

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310542,
+      "datetime": "20280914101500",
+      "nethackrc": "OPTIONS=name:Drained,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "#levelchange\n15\n\u001b\u0007hostile wraith\nmsmsmsmsmsms"
+    }
+  ],
+  "comment": "Independent witness for exper.c losexp() reached from a monster's mhitu.c AD_DRLI touch during the elapsed-turn monster plan. The level-15 Healer holds Warning from attrib.c's healer_abil table; the wraith's drain to level 14 removes it, so attrib.c postadjabil() calls display.c see_monsters() on the planning clone."
+}

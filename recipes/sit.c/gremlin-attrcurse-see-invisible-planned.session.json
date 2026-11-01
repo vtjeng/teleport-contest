@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4416093,
+      "datetime": "20290310233000",
+      "nethackrc": "OPTIONS=name:Cursed,role:Ranger,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "#levelchange\n15\n\u001b\u0007hostile gremlin\nms\u001bms\u001bms\u001b"
+    }
+  ],
+  "comment": "Independent witness for sit.c attrcurse() reached from uhitm.c mhitm_ad_curs() during the elapsed-turn monster plan. The level-15 Ranger holds See_invisible from attrib.c's ran_abil table; at night the gremlin's AD_CURS claw selects case 7, so attrcurse() runs display.c set_mimic_blocking(), see_monsters() and newsym() on the planning clone."
+}

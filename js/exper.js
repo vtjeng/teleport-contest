@@ -72,7 +72,10 @@ export async function losexp(drainer = null, state = game, env = {}) {
 
     if (u.ulevel > 1) {
         --u.ulevel;
-        await adjabil(u.ulevel + 1, u.ulevel, state, { message });
+        // adjabil()'s postadjabil() reaches display.c see_monsters() when
+        // Warning or See_invisible lapses; it needs the caller's redraw seam,
+        // which a planning clone supplies as its silent repaint.
+        await adjabil(u.ulevel + 1, u.ulevel, state, { ...env, message });
         livelog_printf(
             LL_MINORAC,
             `lost experience level ${u.ulevel + 1}`,

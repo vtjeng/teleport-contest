@@ -1065,16 +1065,30 @@ export async function attrcurse(state = game, rawEnv = {}) {
             );
             if (heroIsBlind(state) && !blindTelepathy) {
                 const { see_monsters } = await import('./display.js');
-                await see_monsters(state);
+                await see_monsters(state, { ...rawEnv, message });
             }
             await message('Your senses fail!', state);
         } else if (propertyId === SEE_INVIS) {
             const seeInvisible = u.uprops[SEE_INVIS];
             if (!(seeInvisible?.intrinsic || seeInvisible?.extrinsic)) {
                 const { newsym, see_monsters, set_mimic_blocking } = await import('./display.js');
-                set_mimic_blocking(state);
-                await see_monsters(state);
-                newsym(u.ux, u.uy, state);
+                // A planning clone borrows vision.c's shared obstruction
+                // index, so it admits each point set_mimic_blocking()
+                // changes; see_monsters() and the hero's newsym() repaint
+                // through the caller's redraw seam.
+                if (rawEnv.planning
+                    && typeof rawEnv.admitPlannedVisionChange !== 'function') {
+                    throw new TypeError(
+                        'planned attrcurse requires admitPlannedVisionChange',
+                    );
+                }
+                set_mimic_blocking(state, {
+                    admitPointChange: rawEnv.planning
+                        ? rawEnv.admitPlannedVisionChange
+                        : null,
+                });
+                await see_monsters(state, { ...rawEnv, message });
+                (rawEnv.redraw ?? newsym)(u.ux, u.uy, state);
             }
             await message(`You ${Hallucination(state)
                 ? 'tawt you taw a puttie tat' : 'thought you saw something'}!`, state);
