@@ -64,6 +64,9 @@ import {
     defends_when_carried,
 } from './artifacts.js';
 import { def_char_to_monclass } from './drawing.js';
+// pronoun_gender() below reads canspotmon(). js/display.js imports this file
+// too; both sides use the other's exports only inside function bodies.
+import { canspotmon } from './display.js';
 // grounded() below reads has_ceiling(). The two files already reach each other
 // through js/shk.js and js/display.js, and both sides use the other's exports
 // only inside function bodies, so this direct edge resolves the same way.
@@ -1857,10 +1860,8 @@ function hallucinatingHero(state) {
 // -- when PRONOUN_HALLU lets hallucination scramble the answer. That last arm
 // spends the only draw here, so it is the reason this is not a pure lookup.
 //
-// canspotmon() lives in js/startup_a11y.js, which reaches this file through
-// js/display.js, so the caller supplies it, as mons_see_trap() above does for
-// m_cansee(). PRONOUN_NO_IT skips it, which is why the operation is demanded
-// inside the branch rather than at the top.
+// C calls display.h canspotmon() directly; js/display.js owns it. A caller
+// may pass env.canSpotMonster to substitute its own visibility test.
 export function pronoun_gender(mtmp, pg_flags, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
@@ -1869,12 +1870,7 @@ export function pronoun_gender(mtmp, pg_flags, env = {}) {
 
     if (hallu_rand && hallucinatingHero(state)) return random.rn2(4); /* 0..3 */
     if (!override_vis) {
-        const canSpotMonster = env.canSpotMonster;
-        if (typeof canSpotMonster !== 'function') {
-            throw new TypeError(
-                'pronoun_gender requires the canSpotMonster owner',
-            );
-        }
+        const canSpotMonster = env.canSpotMonster ?? canspotmon;
         if (!canSpotMonster(mtmp, state)) return NEUTRAL;
     }
     if (is_neuter(mtmp.data)) return NEUTRAL;

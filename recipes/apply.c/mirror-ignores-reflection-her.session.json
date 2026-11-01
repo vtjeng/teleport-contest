@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of mirror-ignores-reflection-his: a gnome Healer applies the wished mirror (inventory slot m) south at a peaceful female gnome lord, so mondata.c pronoun_gender() answers the female row and apply.c 1195 reads \"her\". Seed, clock and character were chosen fresh; the C recording places the gnome lady directly below the hero.",
+  "segments": [
+    {
+      "seed": 730114,
+      "datetime": "20390214183000",
+      "nethackrc": "OPTIONS=name:Mirrorgnome,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017uncursed mirror\n\u0007peaceful female gnome lord\namj"
+    }
+  ]
+}
