@@ -2,11 +2,16 @@
 // Print a compact report of the archived checkpoint result for one commit:
 // each check's verdict, the regression-recording and fixed-session totals,
 // the synthetic totals, and every failing synthetic case with its metrics.
+// Cases in challenges/invalid-references.json that fail exactly as listed are
+// reported apart from port failures; see summarizeSynthetic().
 //
 // Usage: node scripts/checkpoint-report.mjs [revision] [--json]
+//        node scripts/checkpoint-report.mjs --results <directory> [--json]
 //
 // Reads <git common dir>/checkpoint-results/<commit>/latest.json, which
 // `npm run checkpoint` and `scripts/fetch-hosted-checkpoint.mjs` write.
+// --results reads a combined checkpoint directory instead (summary.json
+// beside synthetic/*.json), as the Checkpoint workflow's report job does.
 // Synthetic results exist only for hosted runs.
 
 import { execFileSync } from 'node:child_process';
@@ -16,6 +21,32 @@ import { pathToFileURL } from 'node:url';
 import { checkpointResultsDirectory } from './checkpoint-results.mjs';
 
 const METRICS = ['screens', 'rng', 'cursors'];
+
+// The single list of admitted synthetic cases whose recording, not the port,
+// is wrong. Resolved from this script so every caller reads the same file.
+export const INVALID_REFERENCES_PATH = 'challenges/invalid-references.json';
+const INVALID_REFERENCES_URL = new URL(`../${INVALID_REFERENCES_PATH}`, import.meta.url);
+
+export function readInvalidReferences(url = INVALID_REFERENCES_URL) {
+    const list = JSON.parse(readFileSync(url, 'utf8'));
+    if (list.version !== 1 || !Array.isArray(list.cases))
+        throw new Error(`${INVALID_REFERENCES_PATH}: expected version 1 with a cases array`);
+    const seen = new Set();
+    for (const entry of list.cases) {
+        const key = `${entry?.batch}/${entry?.id}`;
+        const counts = METRICS.every((k) => Number.isSafeInteger(entry?.expected?.[k]?.matched)
+            && Number.isSafeInteger(entry?.expected?.[k]?.total));
+        if (typeof entry?.batch !== 'string' || typeof entry.id !== 'string' || !entry.cause
+            || typeof entry.cause !== 'string' || !Array.isArray(entry.evidence) || !entry.evidence.length
+            || !counts || seen.has(key))
+            throw new Error(`${INVALID_REFERENCES_PATH}: malformed or duplicate entry ${key}`);
+        seen.add(key);
+    }
+    return list.cases;
+}
+
+const sameMetrics = (metrics, expected) => METRICS.every((k) =>
+    metrics?.[k]?.matched === expected[k].matched && metrics?.[k]?.total === expected[k].total);
 
 // Recording stages each report "recordings: P/T passing, screens S/T, rng R/T";
 // hosted runs join one such clause per shard with "; ".
@@ -36,26 +67,63 @@ export function parseRecordingSummary(text) {
 }
 
 // evaluations: parsed synthetic evaluation files ({batch, cases[{id, passed, metrics, error}]}).
-export function summarizeSynthetic(evaluations) {
-    const totals = { cases: 0, passing: 0, batches: evaluations.length };
-    for (const metric of METRICS) totals[metric] = [0, 0];
+// invalidReferences: the entries of challenges/invalid-references.json.
+//
+// A listed case is set apart (`invalid`) only while it fails with exactly the
+// metrics its entry expects and no error. Otherwise it stays in the totals and
+// is flagged in `listProblems`: 'matches' (it passes; remove the entry),
+// 'changed' (a different failure, which also stays in `failing`), or
+// 'missing' (no evaluation holds it). `totals` counts every case; `valid`
+// leaves out only the `invalid` cases.
+export function summarizeSynthetic(evaluations, invalidReferences = []) {
+    const counts = () => ({ cases: 0, passing: 0, batches: evaluations.length,
+        ...Object.fromEntries(METRICS.map((metric) => [metric, [0, 0]])) });
+    const add = (into, c) => {
+        into.cases++;
+        if (c.passed) into.passing++;
+        for (const metric of METRICS) {
+            into[metric][0] += c.metrics?.[metric]?.matched ?? 0;
+            into[metric][1] += c.metrics?.[metric]?.total ?? 0;
+        }
+    };
+    const totals = counts();
+    const valid = counts();
+    const listed = new Map(invalidReferences.map((entry) => [`${entry.batch}/${entry.id}`, entry]));
+    const found = new Set();
     const failing = [];
+    const invalid = [];
+    const listProblems = [];
     for (const evaluation of evaluations) {
         for (const c of evaluation.cases) {
-            totals.cases++;
-            if (c.passed) totals.passing++;
-            else failing.push({ batch: evaluation.batch, id: c.id, metrics: c.metrics, error: c.error });
-            for (const metric of METRICS) {
-                totals[metric][0] += c.metrics?.[metric]?.matched ?? 0;
-                totals[metric][1] += c.metrics?.[metric]?.total ?? 0;
+            const result = { batch: evaluation.batch, id: c.id, metrics: c.metrics, error: c.error };
+            const key = `${evaluation.batch}/${c.id}`;
+            const entry = listed.get(key);
+            let excluded = false;
+            if (entry) {
+                found.add(key);
+                if (c.passed) listProblems.push({ ...result, problem: 'matches' });
+                else if (c.error || !sameMetrics(c.metrics, entry.expected))
+                    listProblems.push({ ...result, problem: 'changed', expected: entry.expected });
+                else {
+                    invalid.push({ ...result, cause: entry.cause, evidence: entry.evidence });
+                    excluded = true;
+                }
             }
+            add(totals, c);
+            if (!excluded) add(valid, c);
+            if (!c.passed && !excluded) failing.push(result);
         }
     }
-    failing.sort((a, b) => a.id.localeCompare(b.id));
-    return { totals, failing };
+    for (const entry of invalidReferences)
+        if (!found.has(`${entry.batch}/${entry.id}`))
+            listProblems.push({ batch: entry.batch, id: entry.id, problem: 'missing' });
+    for (const list of [failing, invalid, listProblems]) list.sort((a, b) => a.id.localeCompare(b.id));
+    return { totals, valid, failing, invalid, listProblems };
 }
 
-export function summarizeCheckpoint(summary, evaluations) {
+// The list is read only when there are synthetic results to compare with it.
+export function summarizeCheckpoint(summary, evaluations,
+    invalidReferences = evaluations.length ? readInvalidReferences() : []) {
     return {
         commit: summary.commit,
         timestamp: summary.timestamp,
@@ -65,13 +133,20 @@ export function summarizeCheckpoint(summary, evaluations) {
             ({ label, passed, informational, skipped })),
         recordings: parseRecordingSummary(summary.recordings?.summary),
         fixed: summary.score ?? null,
-        synthetic: evaluations.length ? summarizeSynthetic(evaluations) : null,
+        synthetic: evaluations.length ? summarizeSynthetic(evaluations, invalidReferences) : null,
     };
 }
 
 // Older or partial summaries can lack a field; show '?' rather than fail.
 const n = (value) => (typeof value === 'number' ? value.toLocaleString('en-US') : '?');
 const pair = ([matched, total]) => `${n(matched)}/${n(total)}`;
+const caseMetrics = (metrics) => METRICS.map((k) => `${k} ${metrics?.[k]?.matched}/${metrics?.[k]?.total}`).join(', ');
+const LIST_PROBLEMS = {
+    matches: () => 'listed as an invalid reference but now matches; remove its entry',
+    changed: (c) => `listed as an invalid reference but its result changed; expected ${caseMetrics(c.expected)}, `
+        + `got ${caseMetrics(c.metrics)}${c.error ? `; error: ${c.error}` : ''}`,
+    missing: () => 'listed as an invalid reference but no evaluation contains it',
+};
 
 export function formatCheckpointReport(report) {
     const lines = [];
@@ -93,12 +168,21 @@ export function formatCheckpointReport(report) {
     if (!s) {
         lines.push('Synthetic: not in this result (local runs do not evaluate synthetic batches)');
     } else {
-        const t = s.totals;
-        lines.push(`Synthetic: ${n(t.passing)}/${n(t.cases)} cases passing in ${t.batches} batches; `
-            + `screens ${pair(t.screens)}; rng ${pair(t.rng)}; cursors ${pair(t.cursors)}`);
-        for (const c of s.failing) {
-            const m = METRICS.map((k) => `${k} ${c.metrics?.[k]?.matched}/${c.metrics?.[k]?.total}`).join(', ');
-            lines.push(`  FAIL ${c.id}: ${m}${c.error ? `; error: ${c.error}` : ''}`);
+        const totals = (t) => `screens ${pair(t.screens)}; rng ${pair(t.rng)}; cursors ${pair(t.cursors)}`;
+        const v = s.valid;
+        lines.push(`Synthetic: ${n(v.passing)}/${n(v.cases)} valid cases passing in ${v.batches} batches; ${totals(v)}`);
+        lines.push(`Synthetic, all admitted cases: ${n(s.totals.passing)}/${n(s.totals.cases)} passing; ${totals(s.totals)}`);
+        for (const c of s.failing)
+            lines.push(`  FAIL ${c.id}: ${caseMetrics(c.metrics)}${c.error ? `; error: ${c.error}` : ''}`);
+        if (s.invalid.length) {
+            lines.push(`${s.invalid.length} invalid references (host-recorded or corrupted recordings), `
+                + `not port defects; see ${INVALID_REFERENCES_PATH}:`);
+            for (const c of s.invalid) lines.push(`  INVALID ${c.id}: ${caseMetrics(c.metrics)}; ${c.cause}`);
+        }
+        if (s.listProblems.length) {
+            lines.push(`Invalid-reference list needs attention: ${s.listProblems.length} `
+                + `${s.listProblems.length === 1 ? 'entry' : 'entries'} in ${INVALID_REFERENCES_PATH}`);
+            for (const c of s.listProblems) lines.push(`  CHECK ${c.id}: ${LIST_PROBLEMS[c.problem](c)}`);
         }
     }
     return lines.join('\n');
@@ -111,19 +195,29 @@ export function loadCheckpoint(revision = 'HEAD', root = process.cwd()) {
     if (!existsSync(latest))
         throw new Error(`no archived checkpoint for ${commit}; run npm run checkpoint or import a hosted run`);
     const summary = JSON.parse(readFileSync(latest, 'utf8'));
-    const syntheticDir = summary.artifacts && join(summary.artifacts, 'synthetic');
-    const evaluations = syntheticDir && existsSync(syntheticDir)
+    return summarizeCheckpoint(summary, readEvaluations(summary.artifacts && join(summary.artifacts, 'synthetic')));
+}
+
+// A combined checkpoint directory: summary.json beside synthetic/*.json.
+export function loadCheckpointResults(directory) {
+    const summary = JSON.parse(readFileSync(join(directory, 'summary.json'), 'utf8'));
+    return summarizeCheckpoint(summary, readEvaluations(join(directory, 'synthetic')));
+}
+
+function readEvaluations(syntheticDir) {
+    return syntheticDir && existsSync(syntheticDir)
         ? readdirSync(syntheticDir).filter((f) => f.endsWith('.json')).sort()
             .map((f) => JSON.parse(readFileSync(join(syntheticDir, f), 'utf8')))
         : [];
-    return summarizeCheckpoint(summary, evaluations);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+    const usage = 'usage: checkpoint-report.mjs [revision] [--json] | --results <directory> [--json]';
     const args = process.argv.slice(2);
     const json = args.includes('--json');
     const rest = args.filter((a) => a !== '--json');
-    if (rest.length > 1) throw new Error('usage: checkpoint-report.mjs [revision] [--json]');
-    const report = loadCheckpoint(rest[0]);
+    const results = rest[0] === '--results';
+    if (results ? rest.length !== 2 : rest.length > 1) throw new Error(usage);
+    const report = results ? loadCheckpointResults(rest[1]) : loadCheckpoint(rest[0]);
     console.log(json ? JSON.stringify(report, null, 1) : formatCheckpointReport(report));
 }

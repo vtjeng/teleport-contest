@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "about": "Admitted synthetic cases whose recorded reference, not the port, is wrong. Reports count them apart from port failures. docs/testing.md, 'Known failures', states when an entry may be added or removed. 'expected' is the exact evaluation metrics the invalid reference produces; any other result is flagged.",
+  "cases": [
+    {
+      "batch": "v32",
+      "id": "v32-version-build-options",
+      "cause": "Recorded on the Linux recorder, so its #version screen prints 'Unix NetHack Version' and '/dev/urandom' where the judge's macOS recorder and the port print 'MacOS' and '/dev/random'.",
+      "expected": {
+        "screens": { "matched": 32, "total": 33 },
+        "rng": { "matched": 4251, "total": 4251 },
+        "cursors": { "matched": 33, "total": 33 }
+      },
+      "evidence": [
+        "investigations/synthetic/v32/v32-version-build-options.json",
+        "docs/testing.md",
+        "experiments/host-parity/README.md"
+      ]
+    },
+    {
+      "batch": "v35",
+      "id": "v35-gehennom-juiblex",
+      "cause": "Juiblex's magic mapping overflowed recorder patch 006's 6144-byte screen buffer, which overwrote nine recorded cursor positions; all 18,153 RNG calls match.",
+      "expected": {
+        "screens": { "matched": 100, "total": 109 },
+        "rng": { "matched": 18153, "total": 18153 },
+        "cursors": { "matched": 100, "total": 109 }
+      },
+      "evidence": [
+        "investigations/synthetic/v35/v35-gehennom-juiblex.json"
+      ]
+    },
+    {
+      "batch": "v35",
+      "id": "v35-version-feature-report",
+      "cause": "Recorded on the Linux recorder, so its #version screen prints 'Unix NetHack Version' and '/dev/urandom' where the judge's macOS recorder and the port print 'MacOS' and '/dev/random'.",
+      "expected": {
+        "screens": { "matched": 35, "total": 36 },
+        "rng": { "matched": 2697, "total": 2697 },
+        "cursors": { "matched": 36, "total": 36 }
+      },
+      "evidence": [
+        "investigations/synthetic/v35/v35-version-feature-report.json",
+        "docs/testing.md",
+        "experiments/host-parity/README.md"
+      ]
+    },
+    {
+      "batch": "v48",
+      "id": "v48-short-version-command-attempt1",
+      "cause": "Recorded on the Linux recorder, so its v banner prints 'Unix NetHack Version' where the judge's macOS recorder and the port print 'MacOS'.",
+      "expected": {
+        "screens": { "matched": 1, "total": 2 },
+        "rng": { "matched": 2897, "total": 2897 },
+        "cursors": { "matched": 2, "total": 2 }
+      },
+      "evidence": [
+        "investigations/synthetic/v48/v48-short-version-command-attempt1.json",
+        "docs/testing.md",
+        "experiments/host-parity/README.md"
+      ]
+    }
+  ]
+}

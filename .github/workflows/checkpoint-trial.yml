@@ -185,3 +185,28 @@ jobs:
           overwrite: true
           path: .cache/checkpoint-stages
           include-hidden-files: true
+
+  # Reporting only. It must not fail: scripts/record-published-synthetic.mjs
+  # requires every job of the run to succeed.
+  report:
+    name: Checkpoint report
+    needs: combine
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: parallel-checkpoint
+          path: .cache/checkpoint-stages
+      - run: |
+          mkdir -p .cache
+          node scripts/checkpoint-report.mjs --results .cache/checkpoint-stages > .cache/checkpoint-report.txt 2>&1 \
+            || echo "Report unavailable (exit $?)" >> .cache/checkpoint-report.txt
+          cat .cache/checkpoint-report.txt
+          { echo '```text'; cat .cache/checkpoint-report.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
