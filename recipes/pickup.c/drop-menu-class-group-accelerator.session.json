@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 314159,
+    "datetime": "20280917081522",
+    "nethackrc": "OPTIONS=name:Grouper,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+    "moves": "\u001bDa\n!/!\u001b",
+    "comment": "pickup.c query_objlist() gives each USE_INVLET row its object-class symbol as the group accelerator, so in the drop menu '!' toggles every potion and '/' the wand; Escape cancels the drop."
+  }]
+}

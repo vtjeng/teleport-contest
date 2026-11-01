@@ -738,13 +738,11 @@ export async function query_objlist(
             // order matters when a future caller enables hallucination, since
             // both operations can consume display-RNG draws.
             const glyphInfo = obj_to_glyph(curr, state);
-            const groupSelector = (qflags & USE_INVLET)
-                ? curr.invlet
-                : (first && curr.oclass === COIN_CLASS)
-                    ? '$'
-                    : String.fromCharCode(
-                        DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + objectClass],
-                    );
+            // pickup.c:1136 passes def_oc_syms[oc_class].sym as the group
+            // accelerator whether or not USE_INVLET picks the selector.
+            const groupSelector = String.fromCharCode(
+                DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + objectClass],
+            );
             items.push({
                 // C passes a zero selector for ordinary rows, allowing the
                 // TTY menu to assign a,b,c... after headings; gold is the
