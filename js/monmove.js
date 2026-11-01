@@ -2550,6 +2550,9 @@ export async function dochug(monster, rawEnv = {}) {
     // every monster; a Medusa gaze can kill it, so test death before recovery.
     await m_respond(monster, env);
     if (monster.mhp < 1) return 1;
+    // A Medusa gaze can also end the game. C's done() does not return, so
+    // the monster's turn ends here, as mattacku()'s callers end it below.
+    if (state.program_state?.gameover) return 1;
 
     // C ref: monmove.c:758-760. Only fleeing monsters might regain courage.
     if (monster.mflee && !monster.mfleetim
