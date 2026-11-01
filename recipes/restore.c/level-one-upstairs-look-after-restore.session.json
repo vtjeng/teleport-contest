@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Variation of level-one-upstairs-after-restore: a dwarven Valkyrie saves while still standing on the D:1 up staircase, so the restored map shows the hero rather than the stairs. The second segment's only input is ':', whose look_here() -> stairs_description() reads the restored stairway from restore.c rest_stairs() and reports the staircase up out of the dungeon. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 86027,
+      "datetime": "20261103171000",
+      "nethackrc": "OPTIONS=name:Landing,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "Sy"
+    },
+    {
+      "seed": 86028,
+      "datetime": "20261103174500",
+      "nethackrc": "OPTIONS=name:Landing,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ":"
+    }
+  ]
+}

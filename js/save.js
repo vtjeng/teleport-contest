@@ -435,6 +435,10 @@ function serializeGameState(state) {
         urace: state.urace,
         // Level and dungeon state
         level: state.level,
+        // C ref: save.c savelev_core():517 save_stairs() writes the current
+        // level's gs.stairs list, head first, after the map. rest_stairs()
+        // in js/restore.js reads it back.
+        stairs: state.stairs,
         dungeon_topology: state.dungeon_topology,
         n_dgns: state.n_dgns,
         dungeons: state.dungeons,

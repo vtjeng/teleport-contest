@@ -54,6 +54,7 @@ import { parseSnapshot, SAVE_FILE_PATH } from './save.js';
 import { restore_oracles } from './rumors.js';
 import { role_init } from './role_init.js';
 import { set_residency, restshk } from './shk.js';
+import { stairway_add, stairway_at, stairway_free_all } from './stairs.js';
 import { vfsReadFile, vfsDeleteFile, vfsListFiles } from './storage.js';
 import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
@@ -117,6 +118,22 @@ export async function restore_menu(_bannerwin = null, state = game) {
     return choice < 0 ? -1 : 0;
 }
 
+// C ref: restore.c rest_stairs(). Frees the current list, then adds each
+// saved stairway in the order save_stairs() wrote it, head first. Because
+// stairway_add() pushes onto the head, the restored list is in reverse order,
+// as in C. stairway_add() clears u_traversed, so the saved value is copied
+// back afterwards. The snapshot keeps tolev absolute, so C's conversion from
+// a relative dlevel has no counterpart.
+function rest_stairs(saved, state) {
+    stairway_free_all(state);
+    for (let stway = saved; stway; stway = stway.next) {
+        stairway_add(stway.sx, stway.sy, stway.up, stway.isladder,
+            stway.tolev);
+        const newst = stairway_at(stway.sx, stway.sy, state);
+        if (newst) newst.u_traversed = stway.u_traversed;
+    }
+}
+
 // The worn-slot table mirrors js/worn.js WORN_SLOTS so that restore can
 // rebuild game-level equipment pointers from each object's owornmask
 // without importing setworn() and its side effects.
@@ -178,6 +195,9 @@ export async function dorestore(state = game) {
     // Level and dungeon state
     state.level = snapshot.level;
     rest_region_capacity(state.level);
+    // C ref: restore.c getlev():1113 rest_stairs(), which dorecover() reaches
+    // through getlev() for the hero's level.
+    rest_stairs(snapshot.stairs, state);
     state.dungeon_topology = snapshot.dungeon_topology;
     state.n_dgns = snapshot.n_dgns;
     state.dungeons = snapshot.dungeons;

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c savelev_core() -> save_stairs() and restore.c getlev() -> rest_stairs() for the hero's level on #save and restore. A Priest steps off the D:1 up staircase and saves. The restored map draws that staircase through display.c back_to_glyph() -> stairs.c known_branch_stairs(), which needs the restored stairway's tolev and u_traversed to pick S_brupstair (yellow). The second segment walks back onto the staircase and looks with ':', so look_here() -> stairs_description() names the way out of the dungeon. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 50213,
+      "datetime": "20261102091500",
+      "nethackrc": "OPTIONS=name:Stairwell,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "lkSy"
+    },
+    {
+      "seed": 50214,
+      "datetime": "20261102101500",
+      "nethackrc": "OPTIONS=name:Stairwell,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "jh:"
+    }
+  ]
+}
