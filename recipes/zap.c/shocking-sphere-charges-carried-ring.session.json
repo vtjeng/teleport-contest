@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: mhitu.c explmu() AD_ELEC -> explode.c mon_explodes()/explode() -> zap.c destroy_items() -> maybe_destroy_item(), whose RING_CLASS arm charges an oc_charged ring on rn2(3) and calls read.c recharge(obj, 0) for the hero's pack (rn2(7) destruction test). A debug-created shocking sphere explodes next to a hero carrying a ring of protection. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 29475113,
+      "datetime": "20460708132748",
+      "nethackrc": "OPTIONS=name:Odo,role:Priest,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0017ring of protection\n\u0007shocking sphere\nmsms\n\n\n\n\n"
+    }
+  ]
+}
