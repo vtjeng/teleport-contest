@@ -30,7 +30,9 @@ import {
     depth,
     dunlevs_in_dungeon,
     ledger_no,
+    load_exclusions,
     maxledgerno,
+    save_exclusions,
 } from './dungeon.js';
 import { formatkiller } from './topten.js';
 import { fruit_from_indx } from './fruit.js';
@@ -760,6 +762,8 @@ function serializeBonesLevel(state) {
         lastseentyp: level.lastseentyp,
         bonesinfo: level.bonesinfo,
         regions: level.regions,
+        // C ref: save.c:552 save_exclusions(); a bones file is a savelev().
+        exclusion_zones: save_exclusions(state),
         traps,
         track,
         monsters,
@@ -1009,6 +1013,9 @@ function restoreBonesLevel(bonesData, state) {
     // boundary in dndest, which dungeon.c In_W_tower() requires.
     state.updest = bonesData.updest ? { ...bonesData.updest } : {};
     state.dndest = bonesData.dndest ? { ...bonesData.dndest } : {};
+    // C ref: restore.c getlev():1227 load_exclusions() reads the bones
+    // level's zones onto the list the departing level's savelev() emptied.
+    load_exclusions(bonesData.exclusion_zones, state);
 
     // Rebuild floor objects: place in the per-location .objects chains, the
     // per-location grid (level.objects), and the flat objlist chain.

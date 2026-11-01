@@ -41,7 +41,9 @@ import {
     STONE,
 } from './const.js';
 import { init_artifacts, restore_artifacts } from './artifacts.js';
-import { ledger_no, level_info, set_dungeon_topology } from './dungeon.js';
+import {
+    ledger_no, level_info, load_exclusions, set_dungeon_topology,
+} from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
 import { restore_waterlevel } from './mkmaze.js';
@@ -430,6 +432,8 @@ export async function dorestore(state = game) {
     // bubbles through mkmaze.c restore_waterlevel(); the snapshot has none
     // on any other level.
     if (snapshot.waterlevel) restore_waterlevel(snapshot.waterlevel, state);
+    // C ref: restore.c getlev():1227 load_exclusions(), after rest_bubbles().
+    load_exclusions(snapshot.exclusion_zones, state);
 
     // C ref: restore.c:684 defers monster repaint until allmain.c:92-94.
     state.gd ??= {};
@@ -796,6 +800,8 @@ export async function getlev(ledger, state = game) {
         restoredRegionVisuals(state));
 
     if (snapshot.waterlevel) restore_waterlevel(snapshot.waterlevel, state);
+    // C ref: restore.c getlev():1227 load_exclusions(), after rest_bubbles().
+    load_exclusions(snapshot.exclusion_zones, state);
 
     // C restore.c rest_track() restores the track ring after the elapsed-time
     // catch-up. A missing ring is the equivalent of a freshly initialized

@@ -44,7 +44,9 @@ import { nomul } from './hack.js';
 import { save_light_sources } from './light.js';
 import { dmonsfree } from './makemon_create.js';
 import { change_luck } from './moveloop_preamble.js';
-import { ledger_no, level_info, maxledgerno } from './dungeon.js';
+import {
+    free_exclusions, ledger_no, level_info, maxledgerno, save_exclusions,
+} from './dungeon.js';
 import { save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import { vfsWriteFile } from './storage.js';
@@ -227,6 +229,8 @@ export function savelev(ledger, state = game, options = {}) {
             timers: levelTimers,
             lights: levelLights,
             waterlevel,
+            // save.c:552 save_exclusions(), after save_bubbles().
+            exclusion_zones: save_exclusions(state),
         };
 
         // Mark LFILE_EXISTS so goto_level knows a save exists for this level.
@@ -239,6 +243,10 @@ export function savelev(ledger, state = game, options = {}) {
     // level. A newly generated destination therefore starts with no tracks;
     // getlev() restores the saved ring when the hero returns.
     initrack(state);
+
+    // save.c:560-561. release_data() holds in both modes, and
+    // clear_level_structures() frees the departing level's exclusion zones.
+    free_exclusions(state);
 }
 
 // ── dosave / dosave0 — the #save command ──
@@ -451,6 +459,9 @@ function serializeGameState(state) {
         // Plane of Water's or Air's bubbles with the hero's level; it is an
         // empty marker everywhere else.
         waterlevel: save_waterlevel(null, state),
+        // C ref: save.c:552 save_exclusions() writes the hero's level's
+        // exclusion zones after its bubbles.
+        exclusion_zones: save_exclusions(state),
         dungeon_topology: state.dungeon_topology,
         n_dgns: state.n_dgns,
         dungeons: state.dungeons,

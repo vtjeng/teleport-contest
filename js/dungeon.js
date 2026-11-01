@@ -2301,6 +2301,35 @@ export async function donamelevel(state = game) {
     return ECMD_OK;
 }
 
+// C ref: dungeon.c free_exclusions() (2581-2593). mklev.c
+// clear_level_structures() calls it, both before a new level is made and when
+// save.c savelev() releases the level being left.
+export function free_exclusions(state = game) {
+    state.exclusion_zones = null;
+}
+
+// C ref: dungeon.c save_exclusions() (2595-2614). savelev() writes the
+// current level's zones head to tail; the returned array is this port's
+// record of them in the level snapshot. The list itself is not freed here.
+export function save_exclusions(state = game) {
+    const saved = [];
+    for (let ez = state.exclusion_zones ?? null; ez; ez = ez.next) {
+        const { zonetype, lx, ly, hx, hy } = ez;
+        saved.push({ zonetype, lx, ly, hx, hy });
+    }
+    return saved;
+}
+
+// C ref: dungeon.c load_exclusions() (2616-2634). getlev() pushes each saved
+// zone onto the head of sve.exclusion_zones, so a restored list is reversed.
+export function load_exclusions(saved, state = game) {
+    for (const { zonetype, lx, ly, hx, hy } of saved ?? []) {
+        state.exclusion_zones = {
+            zonetype, lx, ly, hx, hy, next: state.exclusion_zones ?? null,
+        };
+    }
+}
+
 // C ref: dungeon.c find_mapseen() (2638-2649).
 export function find_mapseen(lev, state = game) {
     return state.svm?.mapseenchn?.find((entry) => on_level(entry.lev, lev))

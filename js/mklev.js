@@ -21,6 +21,7 @@ import {
     dunlev,
     dunlevs_in_dungeon,
     find_level,
+    free_exclusions,
     init_mapseen,
     insert_branch,
     level_difficulty,
@@ -489,7 +490,7 @@ function clear_level_structures() {
     g.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     g.stairs = null;
     g.head_engr = null;
-    g.exclusion_zones = null;
+    free_exclusions(g);
     // C ref: gl.lregions / gn.num_lregions, the level regions a special
     // level's des.levregion() and des.teleport_region() add through
     // levregion_add(). C allocates it on the first add and frees it at the

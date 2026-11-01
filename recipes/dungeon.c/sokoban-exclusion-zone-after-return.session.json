@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 918273,
+      "datetime": "20350709140000",
+      "nethackrc": "OPTIONS=name:Odile,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,time\n",
+      "moves": "\u0016?\n>B\u00163\n\u0016?\n>B\u0017ring of slow digestion\nPer\u0017scroll of scare monster\ndf\u0017blindfold\nPg\u0017wand of sleep (0:60)\nzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001bzh.\u001b\u001b",
+      "comment": "Independent wizard-mode visit to the top Sokoban level, a level teleport to a new Dungeons of Doom level, and a return. save.c savelev() keeps the Sokoban level's monster-generation exclusion zone (dungeon.c save_exclusions()), mklev.c clear_level_structures() frees it, and restore.c getlev() reloads it (dungeon.c load_exclusions()). The blind, sleeping hero then waits on a scare monster scroll until makemon.c makemon_rnd_goodpos() draws a square inside that zone, which teleport.c goodpos() rejects. The seed, clock, character, and input were chosen for this path."
+    }
+  ]
+}
