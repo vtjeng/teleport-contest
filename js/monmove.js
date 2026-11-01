@@ -195,6 +195,7 @@ import { Is_special, on_level, u_on_newpos } from './dungeon.js';
 import {
     bad_rock,
     cant_squeeze_thru,
+    disturb_buried_zombies,
     in_town,
     losehp,
     may_dig,
@@ -259,6 +260,7 @@ import {
     can_teleport,
     dmgtype,
     flesh_petrifies,
+    grounded,
     hides_under,
     is_animal,
     is_clinger,
@@ -2729,6 +2731,10 @@ export async function dochug(monster, rawEnv = {}) {
             // cooldown draws in live play and mutates only the planning clone.
             if (monster === state.u.ustuck && !m_next2u(monster, state))
                 await unstuck(monster, state, env);
+            // C ref: monmove.c:938-939. A walking monster's footfalls hasten
+            // every buried zombie within one square of where it now stands.
+            if (grounded(preMoveSpecies, state))
+                disturb_buried_zombies(monster.mx, monster.my, state);
             /* Maybe it stepped on a trap and fell asleep... */
             if (helpless(monster)) return 0;
             /* Monsters can move and then shoot on same turn;
