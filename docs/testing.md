@@ -93,6 +93,15 @@ These differ for host reasons. The first three are compile-time choices:
 | The build options in `#version` | `strong PRNG seed from /dev/random` | `strong PRNG seed from /dev/urandom` | `DEV_RANDOM` in `include/unixconf.h:424-430`, printed by `src/mdlib.c:511-513`. The extra letter can move a line break in the paragraph that follows. |
 | The options help text (`Set options as OPTIONS=<options> in ...`) | The judge's `HOME`, given in `docs/recording-environment.md` | `/tmp/nh-rec-XXXXXX/home` | `src/options.c:9471` prints `get_configfile()`, which is `$HOME/.nethackrc`. `scripts/record-session.mjs` sets `HOME` to a directory it creates with `mkdtemp()`. The path's length decides how many lines the help text takes, and so which lines fall on each page of the pager. |
 
+Save files are compressed with `/usr/bin/compress`, as on macOS
+(`COMPRESS` in `include/config.h`). Most Linux hosts lack that program;
+there `nethack-c/build-recorder.sh` points `COMPRESS` at gzip instead,
+because a missing compressor makes NetHack print an error and an extra
+`--More--` after every save. With gzip the save file is named `.gz`
+rather than `.Z`; no recorded screen has shown that name. On Debian or
+Ubuntu, `sudo apt install ncompress` provides `/usr/bin/compress`, and
+the next build uses it.
+
 The `HOME` difference comes from `record-session.mjs`, not from the host,
 so the macOS workflow below records with the same `/tmp/nh-rec-XXXXXX/home`
 as a local run and does not measure it.
