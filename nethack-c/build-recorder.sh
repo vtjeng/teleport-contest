@@ -99,6 +99,15 @@ for p in "$PATCHES_DIR"/*.patch; do
     git apply --recount "$p"
 done
 echo "[ok] $(ls $PATCHES_DIR/*.patch | wc -l | tr -d ' ') patches applied"
+# The judge's recorder runs on macOS, and NetHack chooses a few strings at
+# compile time.  On Linux, apply the macOS-output profile so a local
+# recording prints the judge's text; the patch file lists each edit and the
+# measurement behind it.
+if [ "$OS" = Linux ]; then
+    echo "  applying host-profiles/linux-macos-output.patch..."
+    git apply --recount "$SCRIPT_DIR/host-profiles/linux-macos-output.patch"
+    echo "[ok] Linux macOS-output profile applied"
+fi
 rm -rf .git
 
 # --- Step 3: configure (hints + Makefile flags) ---

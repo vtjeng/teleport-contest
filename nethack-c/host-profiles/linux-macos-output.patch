@@ -1,0 +1,82 @@
+Linux macOS-output profile for the recorder.
+
+nethack-c/build-recorder.sh applies this patch after the patches/ series
+whenever it builds on Linux.  The judge's reference recordings come from a
+recorder built on macOS (docs/recording-environment.md), and NetHack picks
+a few strings when it is compiled.  These edits make a Linux build print
+the macOS text for each one that the host-parity measurement found: macOS
+run 41280653286 (macOS 26.6.2) against a Linux recording of the same 500
+recipes at commit 7ca77caf; docs/testing.md, "Local recordings and the
+judge's host", gives the results.
+
+The profile does not define MACOS, which would also compile macOS-only
+code (unixconf.h:117, :357, :414; global.h:451).  Each edit names Linux
+(__linux__) in the condition it extends, or replaces the Linux value.
+
+Every edit keeps the line count of its file.  The recorder's RNG log names
+the C file and line of each call (patch 003), so an added line in a .c file
+would change every logged line number after it.  The explanation for each
+edit is therefore here rather than in the source:
+
+1. include/global.h:191, PORT_ID.  Upstream defines PORT_ID "MacOS" only
+   when the compiler defines __APPLE__ (:191-193); otherwise UNIX falls
+   through to "Unix" (:217-219).  src/mdlib.c:341 and :367 put PORT_ID into
+   the version banner and the #version text.  Measured: "MacOS" against
+   "Unix" in 192 of the 500 recipes (203 screens).
+
+2. include/unixconf.h:425, DEV_RANDOM.  Upstream uses /dev/urandom for
+   LINUX (:424-425) and /dev/random for MACOS (:427-428).
+   src/mdlib.c:511-513 prints the name among #version's build options.
+   sys/unix/unixmain.c sys_random_seed() also opens it, but the recorder
+   takes its seed from NETHACK_SEED (patch 001), and Linux's /dev/random
+   no longer blocks once the kernel has seeded it.  Measured:
+   "/dev/random" against "/dev/urandom" in 192 recipes (203 screens).
+
+3. src/eat.c:2179, fprefx()'s apple message.  Upstream compiles the
+   "Delicious!  Must be a Macintosh!" branch only for MACOS9 or MACOS, and
+   MACOS comes from __APPLE__ (include/config1.h:43-44).  On UNIX the apple
+   otherwise takes the "Core dumped." branch (:2187-2190), which while
+   hallucinating also calls rnd(100) for its fake manual page.  Measured:
+   the apple message in 33 recipes (36 screens).  In g00203 the macOS line
+   was too long to share the top line with the next message, so its
+   --More-- came before the rest of that turn's RNG calls, which the RNG
+   log then placed on a later step.
+
+git apply ignores this text.
+
+diff --git a/include/global.h b/include/global.h
+--- a/include/global.h
++++ b/include/global.h
+@@ -188,7 +188,7 @@
+ #ifdef MACOS9
+ #define PORT_ID "Mac"
+ #endif
+-#ifdef __APPLE__
++#if defined(__APPLE__) || defined(__linux__) /* Linux macOS-output profile */
+ #define PORT_ID "MacOS"
+ #endif
+ #ifdef MSDOS
+diff --git a/include/unixconf.h b/include/unixconf.h
+--- a/include/unixconf.h
++++ b/include/unixconf.h
+@@ -422,7 +422,7 @@
+  * OSX is based on NetBSD kernel and has both /dev/random and /dev/urandom.
+  */
+ #ifdef LINUX
+-# define DEV_RANDOM "/dev/urandom"
++# define DEV_RANDOM "/dev/random" /* Linux macOS-output profile */
+ #else
+ # if defined(BSD) || defined(MACOS)
+ #  define DEV_RANDOM "/dev/random"
+diff --git a/src/eat.c b/src/eat.c
+--- a/src/eat.c
++++ b/src/eat.c
+@@ -2176,7 +2176,7 @@
+         } else if (otmp->otyp == APPLE && otmp->cursed && !Sleep_resistance) {
+             ; /* skip core joke; feedback deferred til fpostfx() */
+ 
+-#if defined(MACOS9) || defined(MACOS)
++#if defined(MACOS9) || defined(MACOS) || defined(__linux__) /* profile */
+         /* KMH -- Why should Unix have all the fun?
+            We check MACOS before UNIX to get the Apple-specific apple
+            message; the '#if UNIX' code will still kick in for pear. */
