@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 161803,
+    "datetime": "20300228211047",
+    "nethackrc": "OPTIONS=name:Setter,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+    "moves": "\u001b#optionsfull\n,>.>@\u001b",
+    "comment": "#optionsfull runs options.c doset(), which flags every row MENU_ITEMFLAGS_SKIPINVERT; with the default menuinvertmode 1, windows.c menuitem_invert_test() keeps the select-page ',', select-all '.' and invert-all '@' keys from turning any row on."
+  }]
+}

@@ -7831,7 +7831,8 @@ function doset_add_menu(
     // "    " replaces "a - " -- assumes menus follow that style.
     const indent = !a_int ? '    ' : '';
     const text = format(indent, option.name, value || 'unknown');
-    items.push(a_int ? { text, value: a_int } : { text });
+    // C passes MENU_ITEMFLAGS_SKIPINVERT for every row (options.c 9063-9064).
+    items.push(a_int ? { text, value: a_int, skipinvert: true } : { text });
 }
 
 // options.c doset() lists menu_tab_sep only for a hero in debug mode, because
@@ -7885,6 +7886,7 @@ export function dosetMenuItems(state, helpers, skiphelp) {
                     value: HELP_IDX + 1,
                     selector: '?',
                     groupSelector: '?',
+                    skipinvert: true, // options.c 8805-8807
                 });
             }
         }
@@ -7924,7 +7926,8 @@ export function dosetMenuItems(state, helpers, skiphelp) {
                 indent, option.name,
                 term_for_boolean(i, booleanOptionValue(state, option)),
             );
-            items.push(a_int ? { text, value: a_int } : { text });
+            // C passes MENU_ITEMFLAGS_SKIPINVERT (options.c 8858-8859).
+            items.push(a_int ? { text, value: a_int, skipinvert: true } : { text });
         }
     }
 
