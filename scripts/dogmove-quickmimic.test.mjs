@@ -10,6 +10,7 @@ import {
     M_AP_NOTHING,
     M_AP_OBJECT,
     MMOVE_MOVED,
+    NON_PM,
     OBJ_CONTAINED,
     OBJ_DELETED,
     OBJ_FLOOR,
@@ -70,6 +71,7 @@ import {
     objects_globals_init,
     TOOL_CLASS,
     SACK,
+    TIN,
     TRIPE_RATION,
     WEAPON_CLASS,
 } from '../js/objects.js';
@@ -664,21 +666,63 @@ test('m_consume_obj heals a non-pet by the consumed object weight',
         assert.equal(state.level.objects[5][5], null);
     });
 
-// m_consume_obj rejects corpse effects that are not ported. PM_NURSE still
-// reaches mhealup; the wraith growth branch is covered immediately below.
-test('m_consume_obj rejects corpses with unported effect branches',
+// C ref: mon.c m_consume_obj() mon.c:1438-1441. obj.h mhealup() holds for a
+// CORPSE, EGG or TIN whose corpsenm is PM_NURSE: after delobj() the eater
+// heals to its maximum and a blind eater is cured through mcureblindness().
+test('m_consume_obj heals and cures a nurse-food eater after deleting it',
+    async () => {
+        for (const { name, otyp } of [
+            // The corpse and the tin take the same mhealup() arm.
+            { name: 'corpse', otyp: CORPSE },
+            { name: 'tin', otyp: TIN },
+        ]) {
+            const { monster, state } = quickState(false);
+            reset_mvitals(state);
+            // 3 of 8 HP: a pet gets no pre-deletion weight healing, so the
+            // full 8 can come only from the mhealup() arm.
+            monster.mhp = 3;
+            monster.mcansee = false;
+            monster.mblinded = 4;
+            const food = floorMimicCorpse(state, PM_NURSE, {
+                otyp,
+                owt: state.objects[otyp].oc_weight,
+            });
+            const messages = [];
+
+            await m_consume_obj(monster, food, {
+                ...eatingEnv(state, messages),
+                quickMimic: async () => assert.fail(`${name}: not a mimic`),
+            });
+
+            assert.equal(food.where, OBJ_DELETED, `${name}: consumed`);
+            assert.equal(monster.mhp, monster.mhpmax, `${name}: healed`);
+            assert.equal(monster.mcansee, true, `${name}: sight restored`);
+            assert.equal(monster.mblinded, 0, `${name}: blind timer cleared`);
+            // quickState(false) leaves the square out of sight, so
+            // mcureblindness() gets canseemon() == FALSE and stays silent.
+            assert.deepEqual(messages, [], `${name}: no cure message`);
+        }
+    });
+
+// C ref: mon.c m_consume_obj() mon.c:1396-1399 and 1410. An empty TIN
+// (corpsenm NON_PM) sets none of the food-effect flags and its corpsenm is
+// NON_PM, so a non-pet only heals by the tin's weight and gets no mon_givit().
+test('m_consume_obj lets a non-pet eat an empty tin for its weight',
     async () => {
         const { monster, state } = quickState(false);
-        const corpse = floorMimicCorpse(state, PM_NURSE);
-        await assert.rejects(
-            m_consume_obj(monster, corpse, {
-                ...eatingEnv(state),
-                quickMimic: async () => assert.fail('nurse corpse'),
-            }),
-            /non-nurse/u,
-        );
-        assert.equal(state.level.objects[5][5], corpse,
-            'unported nurse effect remains guarded before consumption');
+        monster.mtame = 0;
+        // 1 of 40 HP leaves room for the tin's whole objects[] weight.
+        monster.mhp = 1;
+        monster.mhpmax = 40;
+        const tin = floorMimicCorpse(state, NON_PM, {
+            otyp: TIN,
+            owt: state.objects[TIN].oc_weight,
+        });
+
+        await m_consume_obj(monster, tin, eatingEnv(state));
+
+        assert.equal(tin.where, OBJ_DELETED);
+        assert.equal(monster.mhp, 1 + state.objects[TIN].oc_weight);
     });
 
 test('m_consume_obj grows wraith-corpse eaters after deleting the corpse',

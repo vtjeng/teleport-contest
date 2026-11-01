@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Variation of rock-mole-eats-tin: the tin holds nurse meat, so mon.c m_consume_obj() takes its mhealup() arm, healmon() to the mole's maximum HP.",
+  "segments": [
+    {
+      "seed": 6620,
+      "datetime": "20261101143000",
+      "nethackrc": "OPTIONS=name:Archer,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!autopickup,!tips\n",
+      "moves": " \u0017tin of nurse meat\nhhhkdf\u0007rock mole\n\u0014k.s s s s s s s s s s "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A debug-created rock mole steps onto a wished-for tin and eats it: monmove.c m_move() -> mon.c meatmetal() -> m_consume_obj() with a TIN. A debug teleport puts the tin between the hero and the mole so the mole's approach lands on it.",
+  "segments": [
+    {
+      "seed": 6620,
+      "datetime": "20261101143000",
+      "nethackrc": "OPTIONS=name:Archer,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!autopickup,!tips\n",
+      "moves": " \u0017tin\nhhhkdf\u0007rock mole\n\u0014k.s s s s s s s s s s "
+    }
+  ]
+}

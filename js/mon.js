@@ -338,6 +338,7 @@ import {
     likes_lava,
     locomotion,
     mindless,
+    poly_when_stoned,
     Resists_Elem,
     touch_petrifies,
     monsndx,
@@ -1479,25 +1480,18 @@ export async function meatbox(mon, obj, rawEnv = {}) {
     }
 }
 
-// C ref: mon.c m_consume_obj() (1392-1453), the tame-monster branch for a
-// corpse. dogmove.c dog_eat() is its live caller. Its uball/uchain arms use
-// read.c:unpunish before the ball deletion or chain-free return. After delobj,
-// corpses that trigger polyfood, mhealup, mstoning, sliming, or pyrolisk
-// explosion remain explicit fail-closed gaps; mlevelgain and mon_givit are
-// ported below. The source's pre-consumption healing is shared by every
-// non-pet object eater.
+// C ref: mon.c m_consume_obj() (1392-1453). Its callers are dogmove.c
+// dog_eat() and mon.c meatmetal(), meatobj() and meatcorpse(). The function
+// records every effect flag before delobj() and applies them afterwards in
+// source order. The uball/uchain arms use read.c unpunish().
 export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const unsupported = rawEnv.unsupported;
-    const stop = (reason) => {
-        if (typeof unsupported === 'function') unsupported(reason);
-        throw new TypeError(`m_consume_obj requires ${reason}`);
-    };
+    const ispet = Boolean(mtmp.mtame);
 
     // mon.c:1396-1399. A non-pet heals by the consumed object's weight before
     // any special corpse or container effect. healmon()'s return is discarded
     // by C, so the source owner is called directly and no result is inferred.
-    if (!mtmp.mtame && mtmp.mhp < mtmp.mhpmax) {
+    if (!ispet && mtmp.mhp < mtmp.mhpmax) {
         const weight = state.objects?.[otmp.otyp]?.oc_weight ?? 0;
         healmon(mtmp, weight, 0);
     }
@@ -1515,119 +1509,89 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         return;
     }
 
-    // C line 1410: corpsenm is NON_PM for non-CORPSE objects.
+    // mon.c:1406-1425. canseemon() is read before the object is deleted.
+    const vis = canseemon(mtmp, state);
+    // corpsenm is NON_PM for every object other than a CORPSE.
     const corpsenm = otmp.otyp === CORPSE ? otmp.corpsenm : NON_PM;
-
-    // Non-corpse food items: the C special-effect macros (ofood, polyfood,
-    // mlevelgain, mhealup, mstoning) all require CORPSE, EGG, or TIN; the
-    // CARROT eye-cure check is by otyp.  Keep every other food arm guarded
-    // until its downstream effect is ported.
-    if (otmp.otyp !== CORPSE) {
-        if (otmp.otyp === EGG) {
-            // C obj.h polyfood() includes eggs whose species polymorphs or
-            // carries AD_POLY. m_consume_obj deletes the egg before newcham.
-            const eggSpeciesIndex = otmp.corpsenm;
-            const eggSpecies = eggSpeciesIndex >= LOW_PM
-                ? state.mons?.[eggSpeciesIndex] : null;
-            const polymorphs = Boolean(eggSpecies)
-                && (pm_to_cham(eggSpeciesIndex, state) !== NON_PM
-                    || dmgtype(eggSpecies, AD_POLY));
-            const visible = polymorphs && canseemon(mtmp, state);
-            delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
-            if (polymorphs) {
-                await newcham(mtmp, null, {
-                    ...rawEnv,
-                    state,
-                    ncflags: visible ? NC_SHOW_MSG : 0,
-                });
-            }
-            return;
-        }
-        if (otmp.otyp === TIN) stop('a non-TIN food item');
-        if (otmp.otyp === GLOB_OF_GREEN_SLIME) {
-            // C mon.c:m_consume_obj() sets `slimer` before delobj(), then
-            // changes the eater into green slime with visibility-sensitive
-            // newcham() feedback. Gelatinous-cube digestion reaches this
-            // branch after meatobj() has engulfed the glob into inventory.
-            const visible = canseemon(mtmp, state);
-            delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
-            await newcham(mtmp, state.mons[PM_GREEN_SLIME], {
-                ...rawEnv,
-                state,
-                ncflags: visible ? NC_SHOW_MSG : 0,
-            });
-            return;
-        }
-        delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
-        if (otmp.otyp === CARROT && !mtmp.mcansee) {
-            // C ref: muse.c mcureblindness() (2872-2881), reached by
-            // mon.c m_consume_obj() after the CARROT arm's delobj().
-            mtmp.mcansee = true;
-            mtmp.mblinded = 0;
-            const canSeeMonster = rawEnv.canSeeMonster
-                ?? ((subject) => canseemon(subject, state));
-            if (canSeeMonster(mtmp) && haseyes(mtmp.data)) {
-                const message = rawEnv.message ?? ttyPline;
-                await message(
-                    messageAt(
-                        `${capitalizedMonsterName(mtmp, state)} can see again.`,
-                        mtmp.mx,
-                        mtmp.my,
-                        state,
-                    ),
-                    state,
-                );
-            }
-        }
-        return;
-    }
-
-    const corpseSpecies = ismnum(corpsenm) ? state.mons?.[corpsenm] : null;
-
-    // Gate every post-delobj effect branch. Each check mirrors the C macro or
-    // inline test that guards an effect not yet ported in this file.
-    const isMimic = corpsenm === PM_SMALL_MIMIC
-        || corpsenm === PM_LARGE_MIMIC
-        || corpsenm === PM_GIANT_MIMIC;
-    // polyfood: pm_to_cham or AD_POLY
-    if (corpseSpecies && ismnum(corpsenm)
-        && (pm_to_cham(corpsenm, state) !== NON_PM
-            || dmgtype(corpseSpecies, AD_POLY)))
-        stop('a non-polymorphing corpse');
-    // GLOB_OF_GREEN_SLIME is caught by the non-CORPSE branch above.
-    // mon.c:1411 mlevelgain(otmp), defined in obj.h as ofood plus
-    // corpsenm == PM_WRAITH. C saves this before delobj() and grows the eater
-    // after deletion, subject to the pet's form-level cap.
-    const gainsLevel = corpsenm === PM_WRAITH;
-    // mhealup: PM_NURSE
-    if (corpsenm === PM_NURSE) stop('a non-nurse corpse');
-    // mstoning: flesh_petrifies
-    if (corpseSpecies && flesh_petrifies(corpseSpecies))
-        stop('a non-petrifying corpse');
-    // pyrolisk egg: EGG is not a corpse, handled in the non-CORPSE branch.
-    if (isMimic) {
-        if (typeof rawEnv.quickMimic !== 'function')
-            throw new TypeError(
-                'm_consume_obj requires a quickMimic operation',
-            );
-    }
+    const deadmimic = otmp.otyp === CORPSE
+        && (corpsenm === PM_SMALL_MIMIC
+            || corpsenm === PM_LARGE_MIMIC
+            || corpsenm === PM_GIANT_MIMIC);
+    const slimer = otmp.otyp === GLOB_OF_GREEN_SLIME;
+    // obj.h ofood(), polyfood(), mlevelgain() and mhealup(), and mon.c
+    // mstoning(), read the object's own corpsenm: a TIN or EGG names its
+    // contents' species there, or a non-index value such as NON_PM.
+    const ofood = otmp.otyp === CORPSE || otmp.otyp === EGG
+        || otmp.otyp === TIN;
+    const foodSpecies = ofood && ismnum(otmp.corpsenm)
+        ? state.mons?.[otmp.corpsenm] : null;
+    const poly = ofood && otmp.corpsenm >= LOW_PM
+        && (pm_to_cham(otmp.corpsenm, state) !== NON_PM
+            || dmgtype(state.mons?.[otmp.corpsenm], AD_POLY));
+    const grow = ofood && otmp.corpsenm === PM_WRAITH;
+    const heal = ofood && otmp.corpsenm === PM_NURSE;
+    const eyes = otmp.otyp === CARROT;
+    const mstone = Boolean(foodSpecies) && flesh_petrifies(foodSpecies);
+    // dogmove.c dog_eat() binds quickmimic(); check it before the deletion.
+    if (ispet && deadmimic && typeof rawEnv.quickMimic !== 'function')
+        throw new TypeError('m_consume_obj requires a quickMimic operation');
 
     delobj(otmp, objectGenerationEnv({ ...rawEnv, state })); /* munch */
 
-    // C mon.c:1430-1434 discards grow_up's return. The awaited port keeps its
-    // rnd(8), hit-point changes, level increment, and any evolution message in
-    // source order before the later corpse effects.
-    if (gainsLevel
-        && (!mtmp.mtame || mtmp.m_lev < mtmp.data.mlevel + 15)) {
-        await grow_up(mtmp, null, { ...rawEnv, state });
+    if (poly || slimer) {
+        await newcham(mtmp, slimer ? state.mons[PM_GREEN_SLIME] : null, {
+            ...rawEnv,
+            state,
+            ncflags: vis ? NC_SHOW_MSG : 0,
+        });
     }
-
-    // Mimic corpses trigger quickmimic for tame pets (C line 1446-1447).
-    if (isMimic) {
+    // C discards grow_up()'s return. The awaited port keeps its rnd(8),
+    // hit-point changes, level increment, and any evolution message in
+    // source order before the later effects.
+    if (grow) {
+        if ((ispet && mtmp.m_lev < mtmp.data.mlevel + 15) || !ispet)
+            await grow_up(mtmp, null, { ...rawEnv, state });
+    }
+    if (mstone) {
+        if (poly_when_stoned(mtmp.data, state)) {
+            await mon_to_stone(mtmp, state, { ...rawEnv, state });
+        } else if (!Resists_Elem(mtmp, STONE_RES, state)) {
+            if (vis) {
+                await monsterMessage(
+                    `${Monnam(mtmp, state, rawEnv)} turns to stone!`,
+                    mtmp,
+                    state,
+                    rawEnv,
+                );
+            }
+            await monstone(mtmp, state, { ...rawEnv, state });
+        }
+    }
+    if (heal)
+        healmon(mtmp, mtmp.mhpmax, 0);
+    if ((eyes || heal) && !mtmp.mcansee) {
+        // C ref: muse.c mcureblindness() (2872-2881), called with
+        // canseemon(mtmp) as its verbosity.
+        const canSeeMonster = rawEnv.canSeeMonster
+            ?? ((subject) => canseemon(subject, state));
+        const verbos = canSeeMonster(mtmp);
+        mtmp.mcansee = true;
+        mtmp.mblinded = 0;
+        if (verbos && haseyes(mtmp.data)) {
+            await monsterMessage(
+                `${capitalizedMonsterName(mtmp, state)} can see again.`,
+                mtmp,
+                state,
+                rawEnv,
+            );
+        }
+    }
+    if (ispet && deadmimic)
         await rawEnv.quickMimic(mtmp, { ...rawEnv, state });
-    }
-    if (ismnum(corpsenm))
-        await mon_givit(mtmp, corpseSpecies, { ...rawEnv, state });
+    // mon.c:1447-1448 tests `otmp->otyp == EGG && corpsenm == PM_PYROLISK`,
+    // but corpsenm is NON_PM for an EGG, so its explode() never runs.
+    if (corpsenm !== NON_PM)
+        await mon_givit(mtmp, state.mons?.[corpsenm], { ...rawEnv, state });
 }
 
 // C ref: mon.c meatmetal() (1463-1531).
