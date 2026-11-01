@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6419074,
+      "datetime": "20150709060211",
+      "nethackrc": "OPTIONS=name:Lobber,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "t?b\u001bt?\u001bs",
+      "comment": "Variation of message-menu-escape-never-mind-independent: the Valkyrie's one throwable dagger is listed by wintty.c tty_message_menu(); typing its letter at the --More-- selects it (dismiss_more) and getobj() asks for a direction, which Escape cancels. A second listing cancelled by Escape prints \"Never mind.\", and the search afterwards shows later output is not suppressed."
+    }
+  ]
+}

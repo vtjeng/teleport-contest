@@ -292,6 +292,10 @@ export async function tty_message_menu(
         state.nhDisplay.toplin = TOPLINE_NEED_MORE;
         clearTtyMessageWindow(state);
     }
+    // wintty.c 2840-2843: Escape at this --More-- cancels the prompt rather
+    // than suppressing later messages, so C clears WIN_CANCELLED (the same
+    // bit as WIN_STOP) and the caller's "Never mind." is still shown.
+    state._ttyMessageStopped = false;
     const selected = typeof invletter === 'number'
         ? invletter
         : String(invletter ?? '').charCodeAt(0);

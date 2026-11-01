@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6419073,
+      "datetime": "20280226213704",
+      "nethackrc": "OPTIONS=name:Abstainer,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": " q?\u001b:",
+      "comment": "Independent one-item getobj listing cancelled at its --More--: the Priest's only drinkable stack makes invent.c display_pickinv() call message_menu(); Escape there is wintty.c tty_message_menu()'s cancel answer, which clears WIN_CANCELLED (2840-2843), so invent.c getobj() still prints \"Never mind.\" and the following ':' look prints normally."
+    }
+  ]
+}
