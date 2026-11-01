@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77215,
+      "datetime": "20390527203344",
+      "nethackrc": "OPTIONS=name:Nowhere,role:Archeologist,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u00160\ny  y nnnnn \u001b"
+    }
+  ],
+  "comment": "Independent wizard-mode level teleport to 0, confirmed at Go to Nowhere. The hero answers y to Die?, so the first done(DIED) in teleport.c level_tele() ends the game; the energized-cloud and rematerialization messages that follow a declined death must not appear. The n answers decline the disclosure and bones prompts."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30577,
+      "datetime": "20460911062031",
+      "nethackrc": "OPTIONS=name:Skydiver,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0016-3\n   y nnnn \u001b"
+    }
+  ],
+  "comment": "Independent wizard-mode level teleport to -3 without flight. The hero plummets and answers y to Die?, so done(DIED) in teleport.c level_tele() ends the game; the surface-return message that follows a declined death must not appear. The four n answers decline the disclosure prompts."
+}

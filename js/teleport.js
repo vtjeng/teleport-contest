@@ -2438,6 +2438,9 @@ export async function level_tele(state = game) {
             killer.name = 'committed suicide';
             const { done } = await import('./end.js');
             await done(DIED, state);
+            // A "Die?" answer of 'y' ends the program inside done(); this
+            // port marks that with gameover instead of exiting.
+            if (state.program_state?.gameover) return;
             await ttyPline('An energized cloud of dust begins to coalesce.', state);
             await ttyPline(
                 `Your body rematerializes${state.gi?.invent || state.invent
@@ -2538,6 +2541,9 @@ export async function level_tele(state = game) {
         u.uz.dlevel = newlev <= -10 ? -10 : 0;
         const { done } = await import('./end.js');
         await done(DIED, state);
+        // teleport.c:1370-1372: only a declined death or life-saving
+        // returns from done(); a real death has ended the program.
+        if (state.program_state?.gameover) return;
         assign_level(u.uz, savedLevel);
         escape_by_flying = 'find yourself back on the surface';
     }
