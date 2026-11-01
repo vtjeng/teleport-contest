@@ -33,14 +33,40 @@ const DEFAULT_INSTALL = path.join(
     'games', 'lib', 'nethackdir');
 // NetHack reads NETHACKDIR and HACKDIR through nh_getenv() (options.c),
 // which discards a value longer than BUFSZ / 2 and lets the game fall back
-// to its compiled-in /usr/games/lib/nethackdir. A checkout under
-// .claude/worktrees/ pushes the install path past that limit, so main()
-// stages a copy under the short temporary directory when the real path
-// would be discarded.
+// to its compiled-in /usr/games/lib/nethackdir. main() records from a copy
+// of the install under the temporary directory and refuses to start if
+// that path is too long, rather than letting the game read another install.
 export const NETHACKDIR_MAX_LENGTH = 128;
 
 export function installDirTooLong(installDir) {
     return installDir.length > NETHACKDIR_MAX_LENGTH;
+}
+
+// Each recording plays in its own copy of the install. NetHack keeps a game's
+// lock and level files (<uid><name> and <uid><name>.<n>), its save file,
+// bones and the score files in the install directory. Two recordings that
+// shared one directory could find each other's lock files, delete each
+// other's save files before a restore segment, or list each other's games
+// on the tombstone's score list. The copy leaves out these per-game files:
+// clearStaleState() would delete them anyway, and a file that another game
+// removes while the copy runs would otherwise make the copy fail.
+export function isPerGameFile(relativePath) {
+    const parts = relativePath.split(path.sep);
+    if (parts[0] === 'save') return parts.length > 1;
+    if (parts.length > 1) return false;
+    const lower = parts[0].toLowerCase();
+    if (lower.endsWith('.lua')) return false;
+    return ['record', 'xlogfile', 'logfile', 'paniclog'].includes(lower)
+        || lower.startsWith('bon')
+        || lower.includes('lock')
+        || /\.\d+$/u.test(lower);
+}
+
+export async function copyInstall(installDir, privateDir) {
+    await fs.cp(installDir, privateDir, {
+        recursive: true,
+        filter: (source) => !isPerGameFile(path.relative(installDir, source)),
+    });
 }
 
 export function terminalInputKey(segment) {
@@ -924,12 +950,18 @@ async function main() {
     const homeDir = path.join(tmpDir, 'home');
 
     try {
-        if (installDirTooLong(installDir)) {
-            const staged = path.join(tmpDir, 'install');
-            await fs.cp(installDir, staged, { recursive: true });
-            console.error(`[note] NetHack ignores a NETHACKDIR longer than ${NETHACKDIR_MAX_LENGTH} characters; recording from a copy at ${staged}`);
-            installDir = staged;
+        // A private install for this recording (see isPerGameFile()). It
+        // lives as long as tmpDir, so every segment of the session uses the
+        // same copy: a save made in one segment is still in <copy>/save/
+        // when the next segment restores it.
+        const privateInstall = path.join(tmpDir, 'install');
+        if (installDirTooLong(privateInstall)) {
+            throw new Error(`temporary install path ${privateInstall} is longer `
+                + `than ${NETHACKDIR_MAX_LENGTH} characters, which NetHack ignores; `
+                + 'set TMPDIR to a shorter directory');
         }
+        await copyInstall(installDir, privateInstall);
+        installDir = privateInstall;
         const newSegments = [];
         const deadline = prompt ? Date.now() + prompt.maxMs : null;
         for (let i = 0; i < session.segments.length; i++) {
@@ -1020,7 +1052,7 @@ async function main() {
     }
 }
 
-// Run only as a script; the test imports the path-length helper above.
+// Run only as a script; tests import the helpers above.
 if (process.argv[1]
     && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
     main().then(code => {

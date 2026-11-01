@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 
 import {
+    copyInstall,
     installDirTooLong,
+    isPerGameFile,
     NETHACKDIR_MAX_LENGTH,
     successfulTerminalExit,
     terminalInputKey,
@@ -21,16 +26,70 @@ test('the NETHACKDIR limit is BUFSZ / 2 from the C source', () => {
 
 test('installDirTooLong flags only paths nh_getenv() would discard', () => {
     // 128 characters is the last length nh_getenv() accepts; 129 is the first
-    // it discards. The main checkout's install path is 95 characters and a
-    // .claude/worktrees/<name>/ path is about 130.
+    // it discards.
     assert.equal(installDirTooLong('/'.padEnd(128, 'a')), false);
     assert.equal(installDirTooLong('/'.padEnd(129, 'a')), true);
+    // The private copy main() records from: mkdtemp() under Linux /tmp, and
+    // under a macOS per-user TMPDIR (the shape GitHub's macOS runners use).
+    assert.equal(installDirTooLong('/tmp/nh-rec-AbC123/install'), false);
     assert.equal(installDirTooLong(
-        '/home/vtjeng/development/vtjeng/teleport-contest/nethack-c/recorder/install/games/lib/nethackdir',
+        '/var/folders/6x/abcdefghijklmnopqrstuvwxyz0000/T/nh-rec-AbC123/install',
     ), false);
+    // A .claude/worktrees/<name>/ install path is about 130 characters, so a
+    // TMPDIR that deep would be refused.
     assert.equal(installDirTooLong(
         '/home/vtjeng/development/vtjeng/teleport-contest/.claude/worktrees/recorder-wizards/nethack-c/recorder/install/games/lib/nethackdir',
     ), true);
+});
+
+test('the private install copy leaves out every per-game file', () => {
+    // Lock and level files: files.c set_levelfile_name() appends .<level>
+    // to <uid><player name>, and level 0 doubles as the game's lock file.
+    // 1000 is a typical Linux user id; 12 checks a two-digit level.
+    assert.equal(isPerGameFile('1000agent.0'), true);
+    assert.equal(isPerGameFile('1000Contestant.12'), true);
+    // The score files clearStaleState() recreates empty, and the
+    // <file>_lock names files.c make_lockname() gives their locks.
+    for (const name of ['record', 'xlogfile', 'logfile', 'paniclog',
+        'record_lock', 'perm_lock']) {
+        assert.equal(isPerGameFile(name), true, name);
+    }
+    // Bones names from the comment in files.c set_bonesfile_name(): a main
+    // dungeon level and Minetown, whose name does not end in a digit.
+    assert.equal(isPerGameFile('bonD0.4'), true);
+    assert.equal(isPerGameFile('bonM0.T'), true);
+    // A save in save/ is per-game; the save directory itself is copied, so
+    // a later segment's save has somewhere to go.
+    assert.equal(isPerGameFile(path.join('save', '1000agent.gz')), true);
+    assert.equal(isPerGameFile('save'), false);
+    // Installed data: the binary, sysconf, the empty perm file, help text
+    // and Lua level files, including wizard1.lua, whose name contains a
+    // player-name pattern that clearStaleState() matches.
+    for (const name of ['nethack', 'sysconf', 'perm', 'opthelp',
+        'data', 'wizard1.lua', 'minetn-1.lua']) {
+        assert.equal(isPerGameFile(name), false, name);
+    }
+});
+
+test('copyInstall copies installed data and leaves out per-game files', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'record-session-test-'));
+    try {
+        const install = path.join(root, 'install');
+        await mkdir(path.join(install, 'save'), { recursive: true });
+        // One installed file, one level file, one save and one score file
+        // stand for the four groups isPerGameFile() separates.
+        await writeFile(path.join(install, 'sysconf'), 'WIZARDS=*\n');
+        await writeFile(path.join(install, '1000agent.0'), 'lock');
+        await writeFile(path.join(install, 'save', '1000agent.gz'), 'save');
+        await writeFile(path.join(install, 'record'), 'score');
+        const copy = path.join(root, 'copy');
+        await copyInstall(install, copy);
+        assert.deepEqual((await readdir(copy)).sort(), ['save', 'sysconf']);
+        assert.deepEqual(await readdir(path.join(copy, 'save')), []);
+        assert.equal(await readFile(path.join(copy, 'sysconf'), 'utf8'), 'WIZARDS=*\n');
+    } finally {
+        await rm(root, { recursive: true, force: true });
+    }
 });
 
 test('terminal-input intent names exactly the recipe final key', () => {
