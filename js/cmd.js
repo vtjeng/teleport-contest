@@ -403,7 +403,7 @@ import {
     selection_new,
     set_selection_floodfillchk,
 } from './themerooms.js';
-import { collectLookaroundMessages, heroIsBlind, messageAt } from './startup_a11y.js';
+import { collectLookaroundMessages, messageAt } from './startup_a11y.js';
 import { cansee, vision_reset } from './vision.js';
 import { m_at } from './monst.js';
 import { linedup } from './mthrowu.js';
@@ -1890,14 +1890,6 @@ export function end_of_input(state = game) {
     return ECMD_OK;
 }
 
-// Movement counts use the implemented MOVEMENTCMD dispatch and movement
-// repetition in allmain.c moveloop_core(). Keep other counted command paths
-// behind their existing boundary until their handler/re-entry contracts are
-// verified; the presence of the shared repeat loop does not establish those.
-const COUNTED_BOUNDARY = 'cmd.c parse() committed a count leaving gm.multi '
-    + 'above 0 before a nonmovement row this port will not repeat, which '
-    + 'allmain.c moveloop_core():515-531 turns into a repeat of the command; '
-    + 'that nonmovement command path remains unsupported';
 const EMPTY_KEY_BOUNDARY = 'cmd.c rhack():3660-3671 answers a NUL or 0377 '
     + 'command byte with nhbell(), which is not ported';
 
@@ -5550,6 +5542,11 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         // This sits below the prefix loop because each pass through that loop
         // calls parse() again, which zeroes gc.command_count at cmd.c:5102, so
         // only the last parse's count survives to be spent.
+        //
+        // Every other row is dispatched below with gm.multi intact. Its
+        // result tail (rhack():3810-3818) resets the count for ECMD_OK,
+        // ECMD_CANCEL and ECMD_FAIL; ECMD_TIME leaves it for
+        // moveloop_core():527-530 to re-enter rhack(gc.cmd_key).
         const row = command !== null ? EXTCMD_BY_NAME.get(command) : null;
         if (row?.f_text && !state.go?.occupation && state.multi) {
             set_occupation(
@@ -5557,54 +5554,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 row.f_text,
                 state.multi,
                 state,
-            );
-        } else if (state.multi > 0 && command !== null && command !== 'pay'
-            && command !== 'pickup' && command !== '#'
-            && command !== 'wizgenesis'
-            // invent.c ddoinv() always ends through ECMD_OK, which makes
-            // rhack() reset gm.multi after one display instead of asking
-            // moveloop_core() to repeat this no-time command.
-            && command !== 'inventory'
-            // C sighted dolook returns ECMD_OK and clears its count after one look.
-            && !(command === 'look' && !heroIsBlind(state))
-            && !Object.hasOwn(MOVEMENT_INTENTS, command)
-            // These commands clear a count with their no-time result.
-            && command !== 'wizsmell' && command !== 'wizkill'
-            && command !== 'panic' && command !== 'wizshownhuuid' && command !== '?') {
-            // `#` is the dispatch row for doextcmd(), not the selected
-            // extended command. C dispatches it with gm.multi intact; the
-            // selected handler (for example, wiz_genesis() using multi as its
-            // monster quantity) and its ECMD result own count consumption and
-            // reset. A repeated selected command still reaches its own ported
-            // handler or its existing refusal.
-            // The direct Ctrl-G binding selects that same wiz_genesis() row.
-            // cmd.c:3726-3729 spends one count before dispatch; read.c's
-            // create_particular_parse() consumes the remaining gm.multi as
-            // quantity, and ECMD_OK resets it after this single dispatch.
-            // shk.c dopay:1755 clears multi before its first action, so pay
-            // never reaches the repeated-command path refused here. Likewise,
-            // hack.c dopickup consumes gc.command_count and clears gm.multi
-            // before pickup_checks(), so a counted comma is one pickup.
-            // cmd.c's MOVEMENTCMD rows are dispatched below even when gm.multi
-            // is positive; their domove() call is the source movement arm and
-            // is already wired here. Other rows leave the count for
-            // moveloop_core():527-530 to re-enter rhack(). Their individual
-            // repeated-command paths retain the existing refusal.
-            // A key bound to no command is exempt: the bad-command path below
-            // zeroes gm.multi itself, as cmd.c:3841 does.
-            //
-            // A row that carries occupation text is not exempt when one is
-            // already running. It fails the `!go.occupation` term above and C
-            // leaves it to the same unported repeat arm, so it is refused
-            // here too, which is why the message names the rows this port will
-            // not repeat rather than the rows without occupation text. No
-            // ported path reaches that state: moveloop_core() returns before
-            // rhack() while an occupation is installed, so both of its rhack()
-            // calls arrive with go.occupation clear.
-            resetCommandVars(state);
-            throw new UnsupportedHeroCommandBoundaryError(
-                COUNTED_BOUNDARY,
-                key,
             );
         }
         // C ref: iactions.c itemactions_pushkeys() queues do_reqmenu, dotip,

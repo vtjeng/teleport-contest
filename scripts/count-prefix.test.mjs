@@ -7,7 +7,6 @@ import {
     donull,
     rhack,
     set_occupation,
-    UnsupportedHeroCommandBoundaryError,
 } from '../js/cmd.js';
 import { dosearch } from '../js/detect.js';
 import { game } from '../js/gstate.js';
@@ -262,26 +261,26 @@ test('an empty number-pad count leaves the command identical to a bare one',
     assert.equal(emptyCount.multi, 0);
 });
 
-test('a counted row refuses while another occupation is already running',
+test('a counted row dispatches without installing while an occupation runs',
     async () => {
     // cmd.c rhack():3728 installs only when `tlist->f_text && !go.occupation
     // && gm.multi` all hold. A row that carries occupation text and arrives
-    // while one is running fails the middle term and falls to
-    // moveloop_core():515-531's repeat arm, which is not ported, so this port
-    // refuses it -- and the boundary has to name the term the branch actually
-    // tests, since the searching row does carry occupation text.
+    // while one is running fails the middle term, so the running occupation
+    // stays installed and rhack() still dispatches dosearch() once. Its
+    // ECMD_TIME result skips reset_cmd_vars() at rhack():3810-3818, leaving
+    // the count that parse() committed for moveloop_core().
     await runSegment(segmentBeforeCount(' 9s'));
     // Any installed occupation fails rhack()'s `!go.occupation` term; this
     // one answers "not finished" so nothing about it can end the count.
-    game.go.occupation = () => 1;
+    const running = () => 1;
+    game.go.occupation = running;
     for (const ch of '9s') game.nhDisplay.pushKey(commandKeyCode(ch));
 
-    await assert.rejects(
-        rhack(0, game),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === commandKeyCode('s')
-            && /a nonmovement row this port will not repeat/u.test(error.message),
-    );
+    await rhack(0, game);
+    assert.equal(game.go.occupation, running, 'the running occupation stays');
+    // parse():5142-5144 assigns the count of 9 and then decrements it.
+    assert.equal(game.multi, 8, 'ECMD_TIME leaves the committed count');
+    assert.equal(game.context.move, 1, 'the search took time');
 });
 
 test('a counted occupation leaves the state interrupt_multi() acts on',

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50263,
+      "datetime": "20280611071530",
+      "nethackrc": "OPTIONS=name:Counter,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,!tutorial,pettype:none,time\n",
+      "moves": " 12)3x 3\u0004l l l l"
+    }
+  ],
+  "comment": "cmd.c parse() turns a count into gm.multi before a nonmovement command. The counted ) runs doprwep(), whose ECMD_OK result makes rhack() reset the count after one display. The counted x runs doswapweapon(), which zeroes gm.multi itself, so the weapons swap once. The counted Ctrl-D runs dokick(), whose ECMD_TIME result leaves gm.multi for allmain.c moveloop_core() to re-enter rhack(gc.cmd_key), so the hero kicks at empty space three times, answering a fresh direction prompt each time, before the last l moves."
+}

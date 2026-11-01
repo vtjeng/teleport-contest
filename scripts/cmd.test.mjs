@@ -26,7 +26,6 @@ import {
     resetCommandVars,
     rhack,
     UnsupportedHeroCommandBoundaryError,
-    UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
 import {
 } from '../js/eat.js';
@@ -3004,12 +3003,8 @@ test('counted comma pickup reaches the handler that consumes its count', () => {
     assert.ok(cCount >= 0 && cCount < cReset && cReset < cChecks);
     assert.ok(cChecks < cSelect);
 
-    // Preserve the refusals for other counted nonmovement commands while
-    // admitting comma pickup, `#` dispatch, and the direct wizgenesis row,
-    // whose selected handler consumes the count as a monster quantity. The
-    // next test verifies that `#` passes its count to the selected handler.
-    assert.match(CMD_JS,
-        /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& command !== 'wizgenesis'[\s\S]*?command !== 'inventory'[\s\S]*?!Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
+    // rhack() dispatches comma with the count intact. The next test verifies
+    // that `#` passes its count to the selected handler.
     assert.match(CMD_JS,
         /if \(command === 'pickup'\)[\s\S]*?runPickupCommand\(key, state\)/u);
 
@@ -3060,14 +3055,8 @@ test('counted #wizgenesis carries its quantity through doextcmd then resets ECMD
         assert.match(cCreate,
             /d->quan = 1 \+ \(\(gm\.multi > 0\) \? \(int\) gm\.multi : 0\);/u);
 
-        // The generic repeat refusal remains active for unsupported rows;
-        // only '#' is a container dispatch whose selected handler consumes
-        // this already-decremented multi value.
-        assert.match(CMD_JS,
-            /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& command !== 'wizgenesis'[\s\S]*?command !== 'inventory'[\s\S]*?!Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
-        const jsCountGuard = CMD_JS.indexOf('state.multi > 0 && command !== null');
-        const jsGenesisDispatch = CMD_JS.indexOf("if (command === '#')", jsCountGuard);
-        assert.ok(jsCountGuard >= 0 && jsGenesisDispatch > jsCountGuard);
+        // '#' is a container dispatch: rhack() passes the already-decremented
+        // multi value to the selected handler, which consumes it.
 
         const base = {
             // Fixed seed keeps the two genesis runs comparable; only the
@@ -3110,7 +3099,30 @@ test('counted #wizgenesis carries its quantity through doextcmd then resets ECMD
             'the initial wait and #wizgenesis dispatch once each; count does not repeat it');
     });
 
-test('a committed count is retained as a parsed command after dispatch refusal',
+// cmd.c parse():5142-5144 commits a count of 3 as gm.multi 2 before rhack()
+// looks up '>'. The Healer starts on the up staircase, so dodown() prints
+// "You can't go down here." and returns ECMD_OK; rhack():3816-3817 then
+// reset_cmd_vars() clears the count after one dispatch, and allmain.c
+// moveloop_core() has nothing to repeat. A C recording of ' 3>' with this
+// seed, options and datetime matches the port's screens and RNG (diff-fresh
+// RESULT: PASS).
+async function assertCountedDescentResets(replay, keys) {
+    game.level.monlist = null;
+    const initialDispatches = game._commandDispatchCount;
+    const startingMoves = game.moves;
+    for (const ch of keys) game.nhDisplay.pushKey(commandKeyCode(ch));
+    await moveloop_core();
+    await flush_screen(1);
+    assert.equal(topLine(game), "You can't go down here.");
+    assert.equal(game.multi, 0, 'ECMD_OK reset the committed count');
+    assert.equal(game.moves, startingMoves, 'the refusal took no time');
+    assert.equal(game.context.pendingCommand, undefined);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    assert.equal(game._commandDispatchCount, initialDispatches + 1);
+    assert.ok(replay.getScreens().length > 0);
+}
+
+test('a counted command that answers ECMD_OK resets after one dispatch',
     async () => {
     const replay = await runSegment({
         seed: 840003,
@@ -3119,47 +3131,10 @@ test('a committed count is retained as a parsed command after dispatch refusal',
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
         moves: '',
     });
-    game.level.monlist = null;
-    const initialDispatches = game._commandDispatchCount;
-    game.nhDisplay.pushKey(commandKeyCode('3'));
-    // The descent row is outside this task's counted no-time inventory path.
-    game.nhDisplay.pushKey(commandKeyCode('>'));
-    // get_count() consumes the '3' and returns the '>', so the refusal names
-    // the command byte the count modified rather than the digit that opened
-    // it. It is the plain boundary and never the branch subclass
-    // failClosedCommand() raises from below a dispatched command;
-    // scripts/scan-sessions.mjs isCommandRefusal() separates the two.
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && !(error instanceof UnsupportedHeroCommandBranchBoundaryError)
-            && error.key === commandKeyCode('>'),
-    );
-    const rejected = heroCommandRetrySnapshot(replay);
-    // cmd.c parse():5142-5144 sets gm.multi to the count and then decrements
-    // it, so a count of 3 leaves two repeats owed.
-    assert.deepEqual(game.context.pendingCommand, {
-        key: commandKeyCode('>'),
-        commandCount: 3,
-        lastCommandCount: 3,
-        multi: 2,
-    });
-    // Both keys entered parse(); nothing is left for a second read.
-    assert.equal(game.nhDisplay.inputQueueLength, 0);
-    assert.equal(game._commandDispatchCount, initialDispatches + 1);
-
-    // The retry re-decides the retained command instead of dispatching it,
-    // and reads no further input to do so.
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === commandKeyCode('>'),
-    );
-    assert.deepEqual(heroCommandRetrySnapshot(replay), rejected);
-    assert.equal(game._commandDispatchCount, initialDispatches + 1);
+    await assertCountedDescentResets(replay, '3>');
 });
 
-test('a number-pad count reaches the same committed-count refusal', async () => {
+test('a number-pad count reaches the same ECMD_OK reset', async () => {
     const replay = await runSegment({
         seed: 840003,
         datetime: COMMAND_DATETIME,
@@ -3168,37 +3143,9 @@ test('a number-pad count reaches the same committed-count refusal', async () => 
             + '!splash_screen,number_pad,pettype:none',
         moves: '',
     });
-    game.level.monlist = null;
     // With number_pad on, cmd.c parse():5110 reads the byte itself and only
     // the count key hands control to get_count(), which then collects the 3.
-    game.nhDisplay.pushKey(commandKeyCode('n'));
-    game.nhDisplay.pushKey(commandKeyCode('3'));
-    game.nhDisplay.pushKey(commandKeyCode('>'));
-
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === commandKeyCode('>'),
-    );
-    const rejected = heroCommandRetrySnapshot(replay);
-    assert.deepEqual(game.context.pendingCommand, {
-        key: commandKeyCode('>'),
-        commandCount: 3,
-        lastCommandCount: 3,
-        multi: 2,
-    });
-    assert.deepEqual(game.nhDisplay.terminal._inputQueue, []);
-
-    game.nhDisplay.cursorCol++;
-    assert.notDeepEqual(heroCommandRetrySnapshot(replay), rejected);
-    game.nhDisplay.cursorCol--;
-
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === commandKeyCode('>'),
-    );
-    assert.deepEqual(heroCommandRetrySnapshot(replay), rejected);
+    await assertCountedDescentResets(replay, 'n3>');
 });
 
 test('command retry snapshot detects monster, display RNG, and recorder owners',
@@ -3391,49 +3338,33 @@ test('C and Meta-N direct bindings reach docallcmd from rhack', async () => {
     }
 });
 
-test('a count ahead of a command this port will not repeat is refused after parse()',
+test('a count ahead of a nonmovement command is read whole by parse()',
     async () => {
     // cmd.c parse() (5096-5151) runs to completion before rhack() looks at the
-    // byte it returned, so a command this port will not repeat is refused at
-    // the command byte and never at a count digit: get_count() has already
-    // consumed and echoed the digits, parse():5142-5144 has already committed
-    // gm.multi, and parse():5147's clear_nhwindow(WIN_MESSAGE) has already
-    // cleared the row. 'X' is the twoweapon row (cmd.c:1913), a nonmovement
-    // row rhack()'s counted-command boundary refuses once a count leaves
-    // gm.multi above 0 -- and the counted form has to cost the two extra key
-    // reads, not stop at the first digit.
-    for (const [typed, screens, count] of [
-        [' 12X', 4, 12],
-    ]) {
-        const replay = await runSegment({
-            seed: 840021,
-            datetime: COMMAND_DATETIME,
-            nethackrc: 'OPTIONS=name:CountUnadmitted,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,pettype:none',
-            // The leading space dismisses startup output, so every later byte
-            // is part of the command under test.
-            moves: typed,
-        });
-        assert.deepEqual(
-            game.context.pendingCommand,
-            {
-                key: commandKeyCode('X'),
-                commandCount: count,
-                lastCommandCount: count,
-                // parse():5142-5144 assigns the count and then decrements it.
-                multi: count ? count - 1 : 0,
-            },
-            `'${typed}' retains the parsed command`,
-        );
-        // One screen per key read. A refusal taken on the byte that opened the
-        // command would stop at the '1' and leave two of these unspent.
-        assert.equal(
-            replay.getScreens().length,
-            screens,
-            `'${typed}' read every byte`,
-        );
-    }
+    // byte it returned: get_count() consumes and echoes the digits,
+    // parse():5121 records gl.last_command_count, and parse():5142-5144
+    // commits gm.multi. 'X' is the twoweapon row (cmd.c:1913). rhack()
+    // dispatches it with the count intact; dotwoweapon() refuses a Healer
+    // with ECMD_OK, so rhack():3816-3817 resets gm.multi after one dispatch.
+    // A C recording of the same keys, seed, options and datetime matches the
+    // port (diff-fresh RESULT: PASS).
+    const replay = await runSegment({
+        seed: 840021,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:CountUnadmitted,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        // The leading space dismisses startup output, so every later byte
+        // is part of the command under test.
+        moves: ' 12X',
+    });
+    assert.equal(game.lastCommandCount, 12, 'get_count() read both digits');
+    assert.equal(game.multi, 0, 'ECMD_OK reset the committed count');
+    assert.equal(game.context.pendingCommand, undefined);
+    assert.equal(game._commandDispatchCount, 1, 'X dispatched once');
+    // The startup screen plus one screen per key read: ' ', '1', '2', 'X'.
+    assert.equal(replay.getScreens().length, 5);
+    assert.equal(topLine(game), "Healers aren't able to use two weapons at once.");
 });
 
 test('a count of 0 or 1 leaves the command identical to a bare one',
@@ -3539,31 +3470,27 @@ test('the 0377 empty-key value stays refused after parsing', async () => {
     );
 });
 
-test('a counted descent remains behind the unsupported repeat boundary',
+test('a counted descent off the stairs takes no time and leaves no count',
     async () => {
-    // This task opens the no-time inventory path only. A counted descent can
-    // enter a stair transition, so it remains at the existing repeat boundary.
-    for (const typed of ['3>']) {
-        await runSegment({
-            seed: 840021,
-            datetime: COMMAND_DATETIME,
-            nethackrc: 'OPTIONS=name:CountOutside,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,pettype:none',
-            moves: ' ',
-        });
-        const refusedFrom = game.moves;
-        for (const ch of typed) game.nhDisplay.pushKey(commandKeyCode(ch));
-        await assert.rejects(
-            moveloop_core(),
-            (error) => error instanceof UnsupportedHeroCommandBoundaryError
-                && error.key === commandKeyCode(typed.at(-1))
-                && /gm\.multi above 0/.test(error.message),
-            `'${typed}' stops at the committed count`,
-        );
-        assert.equal(game.moves, refusedFrom, `'${typed}' elapsed no turn`);
-        assert.equal(game.multi, 0, `'${typed}' left no live count`);
-    }
+    // dodown() off a down staircase returns ECMD_OK, so rhack():3816-3817
+    // resets the count that parse() committed and moveloop_core() repeats
+    // nothing. A C recording of ' 3>' with this seed, options and datetime
+    // matches the port (diff-fresh RESULT: PASS).
+    await runSegment({
+        seed: 840021,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:CountOutside,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    const startingMoves = game.moves;
+    for (const ch of '3>') game.nhDisplay.pushKey(commandKeyCode(ch));
+    await moveloop_core();
+    await flush_screen(1);
+    assert.equal(topLine(game), "You can't go down here.");
+    assert.equal(game.moves, startingMoves, "'3>' elapsed no turn");
+    assert.equal(game.multi, 0, "'3>' left no live count");
 });
 
 test('the segment runner budget covers counts through the portable limit', () => {
@@ -4306,11 +4233,9 @@ test('an unbound byte answers rhack bad-command output and takes no time',
         { key: 30, shown: '^^' }, // ^^, unbound and outside the ASCII letters
         { key: 3, shown: '^C' }, // ^C, unbound in the source command table
     ];
-    // A counted descent refuses instead, and names the command byte it
-    // modified: get_count() has already eaten the '7' by then.
-    const refused = [
-        { typed: '7>', key: commandKeyCode('>') },
-    ];
+    // A counted descent is not a bad command either: get_count() eats the
+    // '7' and rhack() dispatches '>', whose dodown() answers off the stairs.
+    const counted = ['7>'];
     const replay = await runSegment({
         seed: 840021,
         datetime: COMMAND_DATETIME,
@@ -4371,16 +4296,12 @@ test('an unbound byte answers rhack bad-command output and takes no time',
     game.nhDisplay.pushKey(commandKeyCode('n'));
     game.nhDisplay.pushKey(commandKeyCode('3'));
     game.nhDisplay.pushKey(commandKeyCode('>'));
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === commandKeyCode('>'),
-        'the number-pad count key stays a count prefix',
-    );
+    await moveloop_core();
+    await flush_screen(1);
+    assert.equal(topLine(game), "You can't go down here.",
+        'the number-pad count key stays a count prefix');
 
-    // A refused command is retained for retry, so each refusal needs its own
-    // segment rather than another key pushed at the same prompt.
-    for (const { typed, key } of refused) {
+    for (const typed of counted) {
         await runSegment({
             seed: 840021,
             datetime: COMMAND_DATETIME,
@@ -4389,15 +4310,14 @@ test('an unbound byte answers rhack bad-command output and takes no time',
                 + '!tutorial,!splash_screen,pettype:none',
             moves: ' ',
         });
-        const refusedFrom = game.moves;
+        const countedFrom = game.moves;
         for (const ch of typed) game.nhDisplay.pushKey(commandKeyCode(ch));
-        await assert.rejects(
-            moveloop_core(),
-            (error) => error instanceof UnsupportedHeroCommandBoundaryError
-                && error.key === key,
-            `'${typed}' stays outside the bad-command path`,
-        );
-        assert.equal(game.moves, refusedFrom);
+        await moveloop_core();
+        await flush_screen(1);
+        assert.equal(topLine(game), "You can't go down here.",
+            `'${typed}' stays outside the bad-command path`);
+        assert.equal(game.moves, countedFrom);
+        assert.equal(game.multi, 0);
     }
 });
 
