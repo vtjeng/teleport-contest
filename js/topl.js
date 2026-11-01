@@ -80,6 +80,9 @@ export function addtopl(text, state = game) {
             display.setCursor(column, display.cursorRow ?? 0);
             display.clearToEol();
             display.setCursor(0, (display.cursorRow ?? 0) + 1);
+            // topl_putsym()'s newline arm, topl.c:325.
+            const cw = messageWindow(state);
+            if (cw) cw.cury = display.cursorRow;
             column = 0;
         }
         display.setCell(column++, display.cursorRow ?? 0, ch, NO_COLOR, 0);
@@ -307,8 +310,15 @@ export function topl_putsym(ch, state = game) {
         if (display.cursorCol > 0)
             display.setCursor(display.cursorCol - 1, display.cursorRow);
     } else if (ch === '\n') {
+        // topl.c:322 clears the rest of the row the cursor leaves; then
+        // topl.c:339-340, `if (cw->curx == 0) cl_end()`, clears the whole
+        // row it moves onto, so a wrapped prompt hides the map row under it.
         display.clearToEol();
         display.setCursor(0, display.cursorRow + 1);
+        // topl.c:325, cw->cury = ttyDisplay->cury.
+        const cw = messageWindow(state);
+        if (cw) cw.cury = display.cursorRow;
+        display.clearToEol();
     } else {
         if (display.cursorCol === display.cols - 1)
             topl_putsym('\n', state);
@@ -725,6 +735,8 @@ export function show_topl(text, state = game) {
         display.clearRow(0);
         display.setCursor(0, 0);
     }
+    // topl.c:157, cw->curx = cw->cury = 0.
+    if (win) win.curx = win.cury = 0;
     display.setCursor(0, 0);
     for (let col = 0; col < display.cols; ++col) display.setCell(col, 0, ' ', NO_COLOR, 0);
     addtopl(text, state);

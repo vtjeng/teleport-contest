@@ -19,7 +19,7 @@ import {
     extcmd_initiator,
     extcmds_match,
 } from './cmd.js';
-import { flush_screen } from './display.js';
+import { docorner, flush_screen } from './display.js';
 import { game } from './gstate.js';
 import { vision_recalc } from './vision.js';
 import { mungspaces, visctrl } from './hacklib.js';
@@ -55,27 +55,26 @@ const CTRL_P = 0x10;
 // public entry points set before calling hooked_tty_getlin().
 let suppress_history = false;
 
-// C ref: win/tty/topl.c topl_putsym() at 305.  Backspace steps the cursor
-// back, wrapping onto the previous row's last written column; an ordinary byte
-// is written where the cursor stands after wrapping at the terminal's final
-// column, which topl_putsym() keeps unused.
+// C ref: win/tty/topl.c topl_putsym() at 305, ported in js/topl.js.  Backspace
+// steps the cursor back, wrapping onto the previous row's last written column;
+// an ordinary byte is written where the cursor stands after wrapping at the
+// terminal's final column, which topl_putsym() keeps unused.  The wrap clears
+// the whole row it moves onto and records that row in the message window's
+// cury, which the clear below reads.
 //
-// The newline arm below is incomplete on purpose.  C runs cl_end() twice: once
-// at topl.c:322 on the row it leaves, and once at topl.c:340, where
-// `if (cw->curx == 0) cl_end()` wipes the whole row it moved onto.  Only the
-// first is ported, so the port leaves the old map row visible to the right of a
-// wrapped prompt.  Production callers do not run past column 79.
-// Porting the second cl_end() belongs with tty_clear_nhwindow(WIN_MESSAGE)'s
-// docorner() repair: both are wrapped-prompt
-// rendering and neither can be validated against a C recording without the
-// other.
 // C ref: win/tty/wintty.c tty_clear_nhwindow(WIN_MESSAGE).  home() and
-// cl_end() clear the top row; docorner() repairs the map rows a wrapped
-// prompt overwrote, which only a prompt longer than one terminal row reaches.
-function clearMessageWindow(display) {
-    const lastRow = Math.max(0, display.cursorRow);
-    for (let row = 0; row <= lastRow && row < display.rows; ++row)
-        display.clearRow(row);
+// cl_end() clear the top row; when cw->cury is nonzero, docorner(1,
+// cw->cury + 1, 0) clears each row the prompt wrapped onto and refreshes its
+// map glyphs.  cw->cury is the row of the last wrap, not the cursor's row:
+// backspacing onto the first row moves only ttyDisplay's cursor.  getlin
+// always clears with a non-empty top line, so the toplin test is omitted.
+function clearMessageWindow(state) {
+    const display = state.nhDisplay;
+    const cw = state.wintty?.wins?.[state.wintty.messageWindow];
+    display.clearRow(0);
+    display.setCursor(0, 0);
+    if (cw?.cury) docorner(1, cw.cury + 1, 0, state);
+    if (cw) cw.curx = cw.cury = 0;
     display.setCursor(0, 0);
 }
 
@@ -151,7 +150,7 @@ async function hooked_tty_getlin(query, hook, state) {
                     // through the remaining tests, every one of which declines it.
                     text = '';
                     pos = 0;
-                    clearMessageWindow(display);
+                    clearMessageWindow(state);
                     putsyms(`${query} `, state);
                     continue;
                 }
@@ -173,7 +172,7 @@ async function hooked_tty_getlin(query, hook, state) {
                 display.inread = 0;
                 await tty_doprev_message(state);
                 display.inread = savedInread;
-                clearMessageWindow(display);
+                clearMessageWindow(state);
                 state._ttyToplines = `${query} ${text}`;
                 display.toplines = state._ttyToplines;
                 show_topl(state._ttyToplines, state);
@@ -186,7 +185,7 @@ async function hooked_tty_getlin(query, hook, state) {
                 continue;
             }
             if (doprev) {
-                clearMessageWindow(display);
+                clearMessageWindow(state);
                 state._ttyToplines = `${query} ${text}`;
                 display.toplines = state._ttyToplines;
                 show_topl(state._ttyToplines, state);
@@ -253,7 +252,7 @@ async function hooked_tty_getlin(query, hook, state) {
 
     // ttyDisplay->toplin = TOPLINE_NON_EMPTY, then
     // clear_nhwindow(WIN_MESSAGE) takes the prompt off the screen.
-    clearMessageWindow(display);
+    clearMessageWindow(state);
     display.toplin = TOPLINE_EMPTY;
     state._pending_message = '';
     if (suppress_history) {

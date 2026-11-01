@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Exercises topl.c topl_putsym()'s newline arm and wintty.c tty_clear_nhwindow(WIN_MESSAGE)'s docorner() repair through getline.c hooked_tty_getlin(). A debug level teleport to Medusa's island and a magic map put water on map row 0, under the second terminal row. The #annotate answer then wraps past column 79 (clearing that row), Escape restarts the prompt over the text (docorner restores the row), a second answer wraps and is backspaced onto the first row, and Enter clears the prompt with the cursor on row 0 while cw->cury still names row 1. The final look command shows the restored map row.",
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20330207141500",
+      "nethackrc": "OPTIONS=name:Annotator,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "  #wizlevelport\n?\nh\u0006#annotate\nwhere the stone statues stand watch over dark water\u001bthe gorgon keeps her island far from shore\u007f\u007f\u007f\u007f\u007f\u007f\u007f\u007f\u007f\u007f\n:"
+    }
+  ]
+}
