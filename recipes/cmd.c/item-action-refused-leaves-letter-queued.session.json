@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "cmd.c rhack() (3642-3651) running a CMDQ_KEY left on CQ_CANNED. iactions.c itemactions_pushkeys() queues dothrow and the food ration's letter d; as a handless jackal, dothrow.c ok_to_throw() refuses with \"You can't throw or shoot without hands.\" before getobj() pops the letter, ECMD_OK keeps the queue, and the next rhack() runs d as the drop command.",
+  "segments": [{
+    "seed": 30418862,
+    "datetime": "20260208204507",
+    "nethackrc": "OPTIONS=name:Pawless,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+    "moves": " #polyself\njackal\n\u001bidt\u001b\u001b"
+  }]
+}

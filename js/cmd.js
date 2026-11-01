@@ -1990,6 +1990,15 @@ export function cmdq_key_char(node) {
         ? String.fromCharCode(node.key) : node.key;
 }
 
+// The same key as the C char code, for a reader that compares it with key
+// codes. rhack() is one: an item action whose command refuses before reading
+// its queued inventory letter leaves that letter for the next rhack() call,
+// which runs it as a command key.
+export function cmdq_key_code(node) {
+    return typeof node.key === 'string'
+        ? node.key.charCodeAt(0) : node.key;
+}
+
 // C ref: cmd.c cmdq_add_dir() (294-315). The direction fields are kept as
 // three separate values because getdir() can queue a vertical direction too.
 export function cmdq_add_dir(q, dx, dy, dz, state = game) {
@@ -5446,7 +5455,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 cmdqCommand = queued.ec_entry.ef_txt
                     ?? queued.ec_entry.ef_funct;
             } else {
-                key = queued.typ === CMDQ_KEY ? queued.key : 0;
+                key = queued.typ === CMDQ_KEY ? cmdq_key_code(queued) : 0;
             }
         } else if (firstTime) {
             const pending = state.context.pendingCommand;
@@ -5524,7 +5533,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 } else {
                     queuedExtcmdEntry = null;
                     key = queuedAfterPrefix.typ === CMDQ_KEY
-                        ? queuedAfterPrefix.key : 0;
+                        ? cmdq_key_code(queuedAfterPrefix) : 0;
                 }
             } else {
                 queuedExtcmdEntry = null;
