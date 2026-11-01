@@ -589,7 +589,14 @@ async function worn_item_removal(mon, obj, state = game, env = {}) {
     const verb = (obj.owornmask & W_WEAPONS) ? 'disarms'
         : (obj.owornmask & W_ACCESSORY) ? 'removes'
         : 'takes off';
-    await message(`${Some_Monnam(mon, state)} ${verb} ${objbuf}.`, state);
+    // x_monnam()'s unseen someone/something choice draws core RNG, and a
+    // hallucinated species draws the display stream; use the caller's.
+    const nameEnv = {
+        random: env.random,
+        displayRandom: env.displayRandom
+            ?? ((bound) => rn2_on_display_rng(bound, state)),
+    };
+    await message(`${Some_Monnam(mon, state, nameEnv)} ${verb} ${objbuf}.`, state);
     state.iflags ??= {};
     state.iflags.last_msg = PLNMSG_MON_TAKES_OFF_ITEM;
     await remove_worn_item(obj, true, state, env);
@@ -623,7 +630,15 @@ export async function steal(
     // The following is true if successful on first of two attacks.
     if (!monnear(mtmp, state.u.ux, state.u.uy, state)) return 0;
 
-    let Monnambuf = Some_Monnam(mtmp, state);
+    // x_monnam() draws core RNG for the unseen someone/something choice and
+    // the display stream for a hallucinated species, so a planning caller's
+    // streams must reach both.
+    const nameEnv = {
+        random,
+        displayRandom: env.displayRandom
+            ?? ((bound) => rn2_on_display_rng(bound, state)),
+    };
+    let Monnambuf = Some_Monnam(mtmp, state, nameEnv);
 
     // C: if (go.occupation) maybe_finished_meal(FALSE);
     if (state.go?.occupation)
@@ -862,7 +877,7 @@ export async function steal(
         }
         // hero's blindfold might have just been stolen
         if (!seen && canspotmon(mtmp, state))
-            Monnambuf = Monnam(mtmp, state);
+            Monnambuf = Monnam(mtmp, state, nameEnv);
     } else if (otmp.owornmask) {
         // weapon or ball&chain
         const item = otmp === state.uball ? state.uchain : otmp;

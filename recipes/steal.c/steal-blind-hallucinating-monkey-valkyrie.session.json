@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent steal.c recipe: a blindfolded, hallucinating lawful Valkyrie waits beside a wizard-created monkey. steal() and worn_item_removal() name the unseen thief with Some_Monnam(), whose hallucinated someone/something choice is a core rn2(2) draw; the monster-turn planning pass must draw it from its cloned stream.",
+  "segments": [
+    {
+      "seed": 61120401,
+      "datetime": "20610412083000",
+      "nethackrc": "OPTIONS=name:Pilfered,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u0017blindfold\n \u0017potion of hallucination\n qf  Pe  \u0007monkey\n  s s s   s "
+    }
+  ]
+}

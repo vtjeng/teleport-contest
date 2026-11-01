@@ -1100,10 +1100,14 @@ test('mattacku keeps planned theft callbacks silent', async () => {
 
 test('planned hallucinated restriction uses display RNG without leaking gameplay RNG',
     async () => {
-    // do_name.c:rndmonnam() uses the display stream while teleport.c:
-    // tele_restrict() formats the visible blocked message. Passing the full
-    // attack env keeps planning's display clone on that stream and leaves its
-    // gameplay draws in the source order mattacku() established.
+    // do_name.c:rndmonnam() uses the display stream for each hallucinated
+    // name: steal.c:365 steal()'s Some_Monnam(), steal.c:329
+    // worn_item_removal()'s Some_Monnam() for the wielded spear, and
+    // teleport.c tele_restrict()'s blocked message. Each name draws a species
+    // (SPECIAL_PM + BOGUSMONSIZE - LOW_PM) and then pmname()'s gender (2).
+    // Passing the full attack env keeps planning's display clone on that
+    // stream and leaves its gameplay draws in the source order mattacku()
+    // established.
     const state = await meleeHero();
     state.level.flags.noteleport = true;
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
@@ -1127,8 +1131,9 @@ test('planned hallucinated restriction uses display RNG without leaking gameplay
     assert.deepEqual(planned.lines, []);
     assert.deepEqual(planned.urgent, []);
     assert.deepEqual(displayBounds, [
-        SPECIAL_PM + 100 - LOW_PM,
-        2,
+        SPECIAL_PM + 100 - LOW_PM, 2, // steal() Monnambuf
+        SPECIAL_PM + 100 - LOW_PM, 2, // worn_item_removal()
+        SPECIAL_PM + 100 - LOW_PM, 2, // tele_restrict()
     ]);
     assert.deepEqual(planned.bounds, [
         'rnd(20)', 'd(0,0)', 'rn2(9)', 'rn2(3)', 'rn2(6)',
