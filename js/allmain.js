@@ -1853,9 +1853,17 @@ export async function moveloop_core() {
         && !hallucination?.blocked
         && !propertyActive(g, HALLUC_RES),
     );
+    const blind = Boolean(g.u.uprops?.[BLINDED]?.intrinsic
+        || g.u.uprops?.[BLINDED]?.extrinsic)
+        && !g.u.uprops?.[BLINDED]?.blocked;
     // Keep the existing non-hallucinatory vision/region ordering. Hallucination
     // below follows C's sensing layers before spending pending vision work.
-    if (!hallucinating && g.vision_full_recalc) {
+    // C ref: allmain.c moveloop_core() (454-472). Both recalculations sit
+    // inside `if (!svc.context.mv || Blind)`, so a running hero who can see
+    // keeps stale vision until the recalculation after domove(). lookaround()
+    // reads that stale seenv: on the Plane of Water, movebubbles() resets the
+    // bubbles' old cells to unseen water, so a rush can plunge into them.
+    if (!hallucinating && (!g.context?.mv || blind) && g.vision_full_recalc) {
         vision_recalc(0);
         g.vision_full_recalc = 0;
     }
@@ -1868,9 +1876,6 @@ export async function moveloop_core() {
     // layers and redraws the swallowed stomach. The latter bypasses newsym(),
     // so the swallowed guard alone is not enough: omitting this branch leaves
     // the stale pre-hallucination DEC/Unicode stomach on the terminal.
-    const blind = Boolean(g.u.uprops?.[BLINDED]?.intrinsic
-        || g.u.uprops?.[BLINDED]?.extrinsic)
-        && !g.u.uprops?.[BLINDED]?.blocked;
     if (!g.context?.mv || blind) {
         if (hallucinating) {
             await see_monsters(g);

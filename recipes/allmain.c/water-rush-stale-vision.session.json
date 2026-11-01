@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "allmain.c moveloop_core(): the vision_recalc() before lookaround() sits inside `if (!svc.context.mv || Blind)`, so a seeing hero who is running keeps stale vision until the recalculation after domove(). A debug Valkyrie level-teleports to the Plane of Water with the wizard-mode menu, takes the Amulet's random wish, and rushes east. Her first step stays in her bubble, and movebubbles() then carries her one square. The square ahead is now water with no seen angles, because movebubbles() reset the bubbles' old cells and vision has not been recalculated, so hack.c avoid_moving_on_liquid() does not stop the rush and she plunges in. The seed was the first of eight fresh seeds whose rush showed this; it and the date were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6620415,
+      "datetime": "20301207101500",
+      "nethackrc": "OPTIONS=name:Wade,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\nOPTIONS=!autopickup,time\n",
+      "moves": "\u0016?\n>>K\u001b\u001b\u001bL\u001b\u001b\u001bH\u001b\u001b\u001b"
+    }
+  ]
+}
