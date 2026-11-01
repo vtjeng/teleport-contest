@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "weapon.c special_dmgval():380-391, reached from uhitm.c hmonas() AT_HUGS with W_ARMC|W_ARM|W_ARMU. A Priest polymorphs into a salamander, which keeps its robe (MZ_HUMAN, humanoid), and hugs a created giant mummy while the robe is uncursed (outermost layer chosen, no roll). It then blesses the robe with holy water and hugs a second giant mummy, which is undead and so hates blessings: special_dmgval() rolls rnd(4) for the robe. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 730411,
+      "datetime": "20541108093000",
+      "nethackrc": "OPTIONS=name:Hugger,role:Priest,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #polyself\nsalamander\n  \u0007giant mummy\n Fk   Fk    #dip\nbd \u0007giant mummy\n Fl   Fl   Fl   Fl     Fl    "
+    }
+  ]
+}

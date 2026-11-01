@@ -448,13 +448,6 @@ function weaponEnv(env = {}) {
     return { ...env, state: env.state ?? game };
 }
 
-function requiredOperation(env, name, owner) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`${owner} requires a ${name} operation`);
-    return operation;
-}
-
 function isSpecies(monster, pmidx, state) {
     return monster.data === state.mons?.[pmidx]
         || monster.data?.pmidx === pmidx
@@ -620,13 +613,10 @@ export function dmgval(otmp, mon, state = game, env = {}) {
 
 // C ref: weapon.c special_dmgval() (357-425). The extra damage a *non-weapon*
 // hit carries from blessed or silver equipment, and, through `silverhit`, which
-// slot supplied it. uhitm.c hmon_hitmon_barehands() is the only caller here,
-// and it passes W_ARMG when the hero wears gloves and the ring masks otherwise.
+// slot supplied it.
 //
 // C returns the bonus and writes the mask through `silverhit_p`; `out` carries
-// that second result. The W_ARMC|W_ARM|W_ARMU arm at 380-391 belongs to
-// mhitu.c's passive body-armor hits and no ported caller reaches it, so it
-// stops rather than being restated for a mask no caller sends.
+// that second result.
 export function special_dmgval(magr, mdef, armask, out, state = game, env = {}) {
     const random = env.random ?? { d, rn2, rnd };
     const left_ring = (armask & W_RINGL) !== 0;
@@ -636,9 +626,16 @@ export function special_dmgval(magr, mdef, armask, out, state = game, env = {}) 
 
     let obj = null;
     if (armask & (W_ARMC | W_ARM | W_ARMU)) {
-        requiredOperation(env, 'unsupported', 'special_dmgval')(
-            'body armor special damage',
-        );
+        // The outermost of cloak, suit and shirt that the attacker wears.
+        if ((armask & W_ARMC) && (obj = which_armor(magr, W_ARMC, state)))
+            armask = W_ARMC;
+        else if ((armask & W_ARM) && (obj = which_armor(magr, W_ARM, state)))
+            armask = W_ARM;
+        else if ((armask & W_ARMU)
+                 && (obj = which_armor(magr, W_ARMU, state)))
+            armask = W_ARMU;
+        else
+            armask = 0;
     } else if (armask & (W_ARMG | W_RINGL | W_RINGR)) {
         obj = which_armor(magr, W_ARMG, state);
         armask = obj ? W_ARMG : 0;

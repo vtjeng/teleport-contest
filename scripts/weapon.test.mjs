@@ -1996,20 +1996,64 @@ test('special_dmgval reads silver rings when no gloves are worn', () => {
     assert.deepEqual(roller.calls, []);
 });
 
-// weapon.c:380-391. The body-armor arm belongs to mhitu.c's passive hits and
-// has no ported caller, so all three of its bits stop here.
-test('special_dmgval refuses the body-armor mask', () => {
+// weapon.c:380-391, the body-armor arm that uhitm.c's hug passes as
+// W_ARMC|W_ARM|W_ARMU: the outermost worn layer of cloak, suit and shirt is
+// the one that scores, and the mask C reports back names that layer only.
+test('special_dmgval reads the outermost body armor layer', () => {
     const state = makeState();
+    // A wraith is undead, so mon_hates_blessings() holds; a werewolf in human
+    // form hates silver; a vampire hates both; a newt hates neither.
     const wraith = monster(state, PM_WRAITH);
+    const were = monster(state, PM_HUMAN_WEREWOLF);
+    const body = W_ARMC | W_ARM | W_ARMU;
+    const hit = (armask, mdef, results) => {
+        const roller = scriptedRandom(results);
+        const out = {};
+        const bonus = special_dmgval(state.youmonst, mdef, armask, out, state,
+            { random: roller.random, ...refuseUnsupported });
+        return { bonus, silverhit: out.silverhit, calls: roller.calls };
+    };
+    // As in the glove test above, fixed-material objects stand in for the
+    // armor: special_dmgval() reads only `blessed` and oc_material from the
+    // layer it picks. DAGGER is iron and SILVER_DAGGER silver.
+    const layer = (otyp, mask, blessed = 0) =>
+        object(state, otyp, { blessed, owornmask: mask });
 
-    for (const armask of [W_ARMC, W_ARM, W_ARMU, W_ARMC | W_ARM | W_ARMU]) {
-        assert.throws(
-            () => special_dmgval(state.youmonst, wraith, armask, {}, state,
-                refuseUnsupported),
-            /body armor special damage/u,
-            `mask ${armask}`,
-        );
-    }
+    // Nothing worn: armask becomes 0 and no die is rolled.
+    state.uarmc = null;
+    state.uarm = null;
+    state.uarmu = null;
+    assert.deepEqual(hit(body, wraith, []),
+        { bonus: 0, silverhit: 0, calls: [] });
+
+    // A blessed shirt alone scores rnd(4) against the wraith; 3 is an
+    // arbitrary scripted roll that the bonus must carry through.
+    state.uarmu = layer(DAGGER, W_ARMU, 1);
+    assert.deepEqual(hit(body, wraith, [3]),
+        { bonus: 3, silverhit: 0, calls: ['rnd(4)'] });
+
+    // An uncursed suit over it covers the shirt, so nothing is rolled.
+    state.uarm = layer(DAGGER, W_ARM);
+    assert.deepEqual(hit(body, wraith, []),
+        { bonus: 0, silverhit: 0, calls: [] });
+    // A mask naming only the shirt still reaches the shirt under the suit.
+    assert.deepEqual(hit(W_ARMU, wraith, [2]),
+        { bonus: 2, silverhit: 0, calls: ['rnd(4)'] });
+
+    // A silver suit against the werewolf scores rnd(20) and reports W_ARM;
+    // 13 is an arbitrary scripted roll.
+    state.uarm = layer(SILVER_DAGGER, W_ARM);
+    assert.deepEqual(hit(body, were, [13]),
+        { bonus: 13, silverhit: W_ARM, calls: ['rnd(20)'] });
+
+    // A blessed silver cloak over everything rolls rnd(4) then rnd(20)
+    // against the vampire and reports W_ARMC; 4 + 7 checks the sum.
+    state.uarmc = layer(SILVER_DAGGER, W_ARMC, 1);
+    assert.deepEqual(hit(body, monster(state, PM_VAMPIRE), [4, 7]),
+        { bonus: 11, silverhit: W_ARMC, calls: ['rnd(4)', 'rnd(20)'] });
+    // The same cloak against a newt adds nothing.
+    assert.deepEqual(hit(body, monster(state, PM_NEWT), []),
+        { bonus: 0, silverhit: 0, calls: [] });
 });
 
 // weapon.c:1423-1434.
