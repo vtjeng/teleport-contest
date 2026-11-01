@@ -5270,7 +5270,9 @@ function _statusLine2Configuration(capacity) {
         ? status_version(game.flags).length + 1 : 0;
     let conditionLevel = 0;
     let capacityLevel = 0;
-    let capacityPadding = '';
+    // A blank shrink_enc() left in status_vals[BL_CAP] on an earlier flush
+    // still counts toward this row (see _deliverStatusCapacity()).
+    let capacityPadding = game._statusCapacityBlank ? ' ' : '';
     let shortLevel = false;
     const build = () => {
         const capacityText = _capacityStatus(capacity, capacityLevel);
@@ -5307,6 +5309,9 @@ function _statusLine2Configuration(capacity) {
         shortLevel = true;
         status = build();
     }
+    // make_things_fit() begins the next flush with shrink_enc(0), which
+    // writes the same blank back; only tty_status_update(BL_CAP) removes it.
+    if (capacityPadding) game._statusCapacityBlank = true;
     return { capacityLevel, capacityPadding, conditionLevel, shortLevel };
 }
 
@@ -5794,7 +5799,12 @@ export function status_window_rows() {
     return game.iflags?.wc2_statuslines === 3 ? 3 : 2;
 }
 
-function statusLayouts({ initialTtyRefresh = false } = {}) {
+// `deliverCapacity` marks bot()'s pass, the one in which botl.c can send
+// BL_CAP to the window port (see _deliverStatusCapacity()).
+function statusLayouts({
+    deliverCapacity = false,
+    initialTtyRefresh = false,
+} = {}) {
     const count = status_window_rows();
     if (game.iflags?.status_updates === false) {
         return Array.from({ length: count }, () => ({ text: '', owners: [] }));
@@ -5804,6 +5814,7 @@ function statusLayouts({ initialTtyRefresh = false } = {}) {
     // selection must reuse this snapshot rather than recomputing live state.
     const capacity = game.u ? near_capacity(game) : 0;
     game._statusCapacitySnapshot = capacity;
+    if (deliverCapacity) _deliverStatusCapacity(capacity);
     return count === 3
         ? [
             _statusLine1Layout(false),
@@ -6216,6 +6227,26 @@ function _deliverStatusTime() {
     const { changed, expired } = _statusFieldNotice(gb, field.fld, data,
         updateAll);
     if (updateAll || changed || expired) game._statusTimeShown = data.value;
+}
+
+// C ref: botl.c eval_notify_windowport_field() for BL_CAP, and the
+// status_vals[BL_CAP] string wintty.c keeps for it. For an unencumbered hero
+// the core sends a single blank, which tty_status_update() reduces to an empty
+// field. When make_things_fit() reaches shrink_enc() on a two-row status, it
+// rewrites that field as " " + encvals[lvl][0], a blank of length 1, and
+// every later make_things_fit() starts with shrink_enc(0), which writes the
+// blank again. The blank therefore stays on the row, ahead of the conditions,
+// until the core sends BL_CAP again: when the capacity changes, a temporary
+// highlight expires, or gu.update_all is set. game._statusCapacityBlank is that
+// blank; _statusLine2Configuration() sets it. Call this after
+// _beginStatusHilitePass() and before laying out the status rows.
+function _deliverStatusCapacity(capacity) {
+    const field = STATUS_FIELDS.find(row => row.key === 'carrying-capacity');
+    const data = _statusFieldData('carrying-capacity', capacity);
+    const updateAll = Boolean(game._statusHiliteUpdateAll);
+    const { changed, expired } = _statusFieldNotice(game.gb, field.fld, data,
+        updateAll);
+    if (updateAll || changed || expired) game._statusCapacityBlank = false;
 }
 
 // C ref: bot_via_windowport() plus evaluate_and_notify_windowport(). Collect
@@ -7006,6 +7037,7 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     _beginStatusHilitePass();
     _deliverStatusTime();
     const layouts = statusLayouts({
+        deliverCapacity: true,
         initialTtyRefresh: retainInitialOverlap,
     });
     game._statusOptionalFieldSnapshot = optionalSnapshot;

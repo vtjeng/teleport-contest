@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent wintty.c make_things_fit()/shrink_enc() witness. A debug Valkyrie at experience level 30 with 10000 gold and six timed conditions fills status line 2 to exactly 79 columns at T:1-9. At T:10 the row is 80 columns even with the shortest condition words, so C reaches shrink_enc(), which turns the empty BL_CAP into a one-column blank, then shortens Dlvl to Dl. Deafness (15 turns) ends at T:16 and the row fits again, but the blank stays ahead of the conditions because the core has not resent BL_CAP. Wishing for 150 rocks (Stressed) and dropping them makes botl.c send BL_CAP twice, which removes the blank.",
+  "segments": [
+    {
+      "seed": 5150731,
+      "datetime": "20261103143000",
+      "nethackrc": "OPTIONS=name:Capblank,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time,showexp\n",
+      "moves": "#levelchange\n30\n\u001b\u001710000 gold pieces\n\u001b#wizintrinsic\n40f40g40h40i15j40q\n\u001bssssssssssssssssssss\u0017150 rocks\n\u001bssde\u001bssss"
+    }
+  ]
+}
