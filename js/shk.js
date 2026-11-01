@@ -286,7 +286,7 @@ import { placebc, unplacebc } from './ball.js';
 import { makemon_runtime } from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { m_next2u } from './mhitu.js';
-import { mbodypart, poly_gender } from './polyself.js';
+import { body_part, mbodypart, poly_gender } from './polyself.js';
 import { livelog_printf, verbalize, youHear } from './pline.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { growl, set_voice, yelp } from './sounds.js';

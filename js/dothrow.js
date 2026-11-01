@@ -451,7 +451,7 @@ import {
 import { bhit, boomhit, hit, miss } from './zap.js';
 import { hmon, passive_obj } from './uhitm.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { m_in_air, minliquid, setmangry, wake_nearto, wakeup } from './mon.js';
+import { m_in_air, minliquid, seemimic, setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -474,6 +474,8 @@ import {
     shop_keeper,
     sellobj,
     stolen_value,
+    contained_gold,
+    subfrombill,
 } from './shk.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { dotrap, mintrap } from './trap_effects.js';
@@ -815,9 +817,7 @@ export async function mhurtle_step(arg, x, y) {
         });
         if (Upolyd(state.u) && touch_petrifies(state.youmonst.data)
             && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
-            await minstapetrify(monster, true, state, {
-                ...env, state, random, message,
-            });
+            await minstapetrify(monster, true, state, env);
             newsym(monster.mx, monster.my);
         }
         if (touch_petrifies(monster.data)

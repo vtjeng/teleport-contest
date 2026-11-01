@@ -102,7 +102,8 @@ import {
 import { m_at } from './monst.js';
 import { dealloc_obj, mkobj, mksobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { just_an } from './objnam.js';
+import { an, just_an } from './objnam.js';
+import { t_at } from './trap.js';
 import { observe_object } from './o_init.js';
 import { obj_stop_timers } from './timeout.js';
 import { locomotion, type_is_pname } from './mondata.js';

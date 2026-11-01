@@ -239,6 +239,7 @@ import {
     WARNING,
     WOUNDED_LEGS,
     WWALKING,
+    ARTICLE_THE,
 } from './const.js';
 import {
     is_pool,

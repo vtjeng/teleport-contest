@@ -142,6 +142,7 @@ import {
     M_AP_TYPMASK,
     CXN_ARTICLE,
     uhim,
+    LL_SPOILER,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {

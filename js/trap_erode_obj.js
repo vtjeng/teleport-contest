@@ -44,6 +44,7 @@ import {
     materialnm,
 } from './const.js';
 import { monsterPossessive } from './do_name.js';
+import { game } from './gstate.js';
 import { delobj, update_inventory } from './invent.js';
 import { AD_ACID, AD_FIRE } from './monsters.js';
 import { SCR_BLANK_PAPER, SCR_MAIL, SCROLL_CLASS } from './objects.js';
@@ -69,6 +70,7 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { heroIsBlind } from './startup_a11y.js';
+import { rn2 } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';

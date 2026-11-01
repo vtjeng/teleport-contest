@@ -400,7 +400,7 @@ import { body_part, change_sex, float_vs_flight, livelog_newform, poly_gender } 
 import { trycall } from './do.js';
 import {
     incr_itimeout, make_hallucinated, make_slimed, self_invis_message,
-    toggle_blindness,
+    make_glib, toggle_blindness,
 } from './potion.js';
 import { rn2, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';

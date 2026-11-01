@@ -176,6 +176,7 @@ import {
     monsterCommonName,
     mon_nam,
     x_monnam,
+    Monnam,
 } from './do_name.js';
 import { game } from './gstate.js';
 import { get_obj_location } from './light.js';

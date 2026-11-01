@@ -2151,7 +2151,7 @@ export async function still_chewing(x, y, state = game) {
     recalc_block_point(x, y, state);
     newsym(x, y);
     if (digtxt) await ttyPline(digtxt, state);
-    if (dmgtxt) await pay_for_damage(dmgtxt, false, state, rawEnv);
+    if (dmgtxt) await pay_for_damage(dmgtxt, false, state);
     reset_digging(state);
     return 0;
 }

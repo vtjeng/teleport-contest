@@ -148,6 +148,7 @@ import {
     W_SADDLE,
     W_WEP,
     ismnum,
+    ECMD_FAIL,
 } from './const.js';
 import { acurr, adjattrib, exercise, poisontell } from './attrib.js';
 import { permapoisoned, Sting_effects } from './artifacts.js';

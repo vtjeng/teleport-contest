@@ -146,6 +146,7 @@ import {
     S_QUADRUPED,
     S_UNICORN,
     S_VORTEX,
+    PM_GHOST,
 } from './monsters.js';
 import { killed, monkilled } from './mon.js';
 import { acurr, adjalign } from './attrib.js';
