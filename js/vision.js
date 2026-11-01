@@ -21,7 +21,7 @@ import {
     MONSEEN_NORMAL, MONSEEN_SEEINVIS, MONSEEN_INFRAVIS,
     MONSEEN_TELEPAT, MONSEEN_XRAYVIS, MONSEEN_DETECT, MONSEEN_WARNMON,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7, SVALL,
-    IS_WALL, TEMP_LIT, TT_PIT,
+    IS_WALL, ROOMOFFSET, TEMP_LIT, TT_PIT,
 } from './const.js';
 import {
     canseemon,
@@ -812,6 +812,47 @@ export async function do_clear_area_async(
 // the module-level `game`, so a caller whose state is not `game` must supply
 // its own.  Omitting it is refused below rather than left to be discovered on
 // a repainted frame.
+// C ref: vision.c rogue_vision() (313-364). On the Rogue level the hero sees
+// the whole of a lit room, walls included, and could-see a dark one; the
+// adjacent squares are always in sight. The in-doorway newsym() runs while
+// state.viz_array still holds the previous bitmap, as in C.
+function rogue_vision(next, rmin, rmax, state, redraw) {
+    const { u, level } = state;
+    const rnum = level.at(u.ux, u.uy).roomno - ROOMOFFSET; /* no SHARED... */
+
+    if (rnum >= 0) {
+        const room = level.rooms[rnum];
+        for (let zy = room.ly - 1; zy <= room.hy + 1; zy++) {
+            const start = rmin[zy] = room.lx - 1;
+            const stop = rmax[zy] = room.hx + 1;
+            for (let zx = start; zx <= stop; zx++) {
+                if (room.rlit) {
+                    next[zy][zx] = COULD_SEE | IN_SIGHT;
+                    level.at(zx, zy).seenv = SVALL; /* see the walls */
+                } else {
+                    next[zy][zx] = COULD_SEE;
+                }
+            }
+        }
+    }
+
+    const in_door = level.at(u.ux, u.uy).typ === DOOR;
+
+    /* Can always see adjacent. */
+    const ylo = Math.max(u.uy - 1, 0);
+    const yhi = Math.min(u.uy + 1, ROWNO - 1);
+    const xlo = Math.max(u.ux - 1, 1);
+    const xhi = Math.min(u.ux + 1, COLNO - 1);
+    for (let zy = ylo; zy <= yhi; zy++) {
+        if (xlo < rmin[zy]) rmin[zy] = xlo;
+        if (xhi > rmax[zy]) rmax[zy] = xhi;
+        for (let zx = xlo; zx <= xhi; zx++) {
+            next[zy][zx] = COULD_SEE | IN_SIGHT;
+            if (in_door && (zx === u.ux || zy === u.uy)) redraw(zx, zy);
+        }
+    }
+}
+
 export function vision_recalc(control = 0, env = {}) {
     const state = env.state ?? game;
     if (state !== game && typeof env.redraw !== 'function') {
@@ -846,8 +887,7 @@ export function vision_recalc(control = 0, env = {}) {
     // caller. Keeping the guard here also makes couldsee() agree with the C
     // bitmap while monster movement runs inside the engulfment. C gives Blind
     // and Rogue-level vision precedence over underwater and pit sight, and
-    // underwater sight precedence over pit sight. The Rogue-specific bitmap
-    // remains unported, so preserve its existing view_from path.
+    // underwater sight precedence over pit sight.
     const rogueLevel = on_level(u.uz, state.rogue_level);
     const underwaterOutsideWaterLevel = Boolean(
         u.uinwater && !on_level(u.uz, state.water_level),
@@ -892,6 +932,9 @@ export function vision_recalc(control = 0, env = {}) {
                 for (let col = minCol; col <= maxCol; ++col)
                     next[row][col] = IN_SIGHT | COULD_SEE;
             }
+        } else if (rogueLevel && !heroIsBlind(u)) {
+            // vision.c:584-585. Blind sight takes the view_from() path.
+            rogue_vision(next, next_rmin, next_rmax, state, redraw);
         } else {
             view_from(u.uy, u.ux, next, next_rmin, next_rmax);
         }

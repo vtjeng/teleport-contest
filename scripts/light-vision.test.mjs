@@ -28,6 +28,7 @@ import {
     OBJ_MINVENT,
     POOL,
     ROOM,
+    ROOMOFFSET,
     SEE_INVIS,
     SVALL,
     TEMP_LIT,
@@ -440,6 +441,14 @@ test('pit sight leaves Blind and Rogue-level paths in precedence', () => {
         ['Rogue level', (state) => {
             state.u.uz = { dnum: 0, dlevel: 1 };
             state.rogue_level = { ...state.u.uz };
+            // vision.c rogue_vision() marks the hero's whole room COULD_SEE
+            // (lit or dark), so make the dark rectangle room 0; the pit
+            // branch would reach only the adjacent squares.
+            state.level.rooms[0] = { lx: 2, ly: 2, hx: 20, hy: 15, rlit: 0 };
+            for (let x = 2; x <= 20; ++x) {
+                for (let y = 2; y <= 15; ++y)
+                    state.level.at(x, y).roomno = ROOMOFFSET;
+            }
         }],
     ];
 

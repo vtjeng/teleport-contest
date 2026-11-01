@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "vision.c rogue_vision(): on the Rogue level the hero sees the whole of a lit room, walls and doors included, rather than the view_from() line-of-sight area. A debug Samurai level-teleports to Dlvl 16, the Rogue level for this seed, and lands at <8,9> in a lit room whose doors at <13,7> and <13,10> are out of clear_path() reach; C draws both doors on arrival. The seed was found with scripts/scan-port.mjs scanSeeds() over seeds 5524101-5524400 (Rogue-level arrival in a lit room with a door clear_path() cannot reach; 6 of 300 kept) and was not taken from a recorded session.",
+  "segments": [
+    {
+      "seed": 5524187,
+      "datetime": "20271109194000",
+      "nethackrc": "OPTIONS=name:Rover,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u001616\n"
+    }
+  ]
+}
