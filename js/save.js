@@ -471,7 +471,8 @@ function serializeGameState(state) {
         // Fruit list: custom fruit names from option parsing and gameplay.
         pl_fruit: state.svp?.pl_fruit,
         // Game subsystems
-        spl_book: state.spl_book,
+        // C ref: save.c savegamestate():317-319 writes svs.spl_book[].
+        spl_book: state.svs?.spl_book,
         mvitals: state.mvitals,
         mapseenchn: state.svm?.mapseenchn,
         // C savegamestate() writes global timers and light sources before the

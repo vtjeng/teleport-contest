@@ -260,8 +260,8 @@ export async function dorestore(state = game) {
     }
 
     // Game subsystems
+    // C ref: restore.c restgamestate():708-710 reads svs.spl_book[].
     if (snapshot.spl_book != null) {
-        state.spl_book = snapshot.spl_book;
         state.svs ??= {};
         state.svs.spl_book = snapshot.spl_book;
     }

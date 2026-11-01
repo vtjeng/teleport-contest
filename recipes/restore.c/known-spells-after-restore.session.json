@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c savegamestate():317-319 Sfo_spell(svs.spl_book[]) and restore.c restgamestate():708-710 Sfi_spell(svs.spl_book[]). An elven Wizard saves on her first turn. The second segment restores and lists her spells with '+', so spell.c dovspell() reads the restored svs.spl_book; the menu is then dismissed. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 63391,
+      "datetime": "20261104200500",
+      "nethackrc": "OPTIONS=name:Bookish,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "Sy"
+    },
+    {
+      "seed": 63392,
+      "datetime": "20261104213000",
+      "nethackrc": "OPTIONS=name:Bookish,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "+\u001b"
+    }
+  ]
+}
