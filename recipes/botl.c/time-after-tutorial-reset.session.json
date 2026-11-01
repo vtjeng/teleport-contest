@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c stat_update_time() writes svm.moves into blstats[now_or_before_idx][BL_TIME] without the 0/1 toggle bot_via_windowport() makes, and eval_notify_windowport_field() tells the tty only when that value differs from the other bank's. The hero enters the tutorial, searches twice (T:3), and #quit's yes answer takes end.c done2()'s schedule_goto() back to level 1, where nhlua.c nhl_gamestate() resets the turn counter to move #1 and the arrival's full bot() shows T:1. Each later search takes the timebot() path: move 2 differs from the other bank and shows, move 3 equals the tutorial's T:3 left in that bank and is not delivered, so the tty keeps T:2 until move 4.",
+  "segments": [
+    {
+      "seed": 70321,
+      "datetime": "20331114093000",
+      "nethackrc": "OPTIONS=name:Vardis,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none,time,!autopickup\n",
+      "moves": " y     ss#quit\ny  ssss"
+    }
+  ]
+}
