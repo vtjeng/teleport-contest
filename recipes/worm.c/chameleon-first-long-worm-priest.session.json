@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of chameleon-first-long-worm: a human Priest creates five peaceful chameleons, so a different role, inventory and chameleon count reach mon.c newcham()'s worm.c get_wormno()/initworm() call on a level that has never held a worm. Seed 830027 came from a port-only scan of seeds 830001-830060 with this input, which found 4 seeds whose 6bd668f8 replay stopped on that slot allocation; here the first long worm appears on turn 17.",
+  "segments": [
+    {
+      "seed": 830027,
+      "datetime": "20410322091500",
+      "nethackrc": "OPTIONS=name:Wormscan,role:Priest,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " 5\u0007peaceful chameleon\n\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b"
+    }
+  ]
+}

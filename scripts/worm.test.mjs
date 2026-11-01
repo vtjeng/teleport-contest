@@ -17,6 +17,7 @@ import {
     wormhitu,
 } from '../js/worm.js';
 import { game } from '../js/gstate.js';
+import { GameMap } from '../js/game.js';
 
 function wormState() {
     return {
@@ -225,6 +226,34 @@ test('create_worm_tail makes num_segs plus one zeroed linked-list nodes', () => 
         () => ({ x: 0, y: 0 }),
     ));
     assert.notEqual(segments[0], segments[1]);
+});
+
+// worm.c save_worm() clears every wheads[]/wtails[]/wgrowtime[] slot when a
+// level is freed, so a freshly made level has all MAX_NUM_WORMS slots empty.
+// js/unported_monster_actions.js planningState() copies `level.worms` when it
+// clones the level; a level that lacked the array handed the clone an
+// undefined slot table, and the first long worm made during a planned turn
+// (mon.c newcham() 5451-5453 or makemon()) refused there.
+test('a new GameMap level owns empty worm slots that a level clone keeps', () => {
+    const level = new GameMap();
+    assert.ok(Object.hasOwn(level, 'worms'));
+    assert.deepEqual(level.worms, Array(MAX_NUM_WORMS).fill(null));
+
+    // The same own-property copy planningState() makes.
+    const clone = Object.assign(Object.create(GameMap.prototype), level, {
+        worms: level.worms.map((record) => record),
+    });
+    const state = { level: clone };
+    // Slot 0 is reserved, so get_wormno() hands out slot 1 first.
+    assert.equal(get_wormno(state), 1);
+    // rn2(5) may answer 0 segments; the list then holds only the hidden head
+    // node at the worm's own square, here (4, 5).
+    initworm({ wormno: 1, mx: 4, my: 5 }, 0, { state });
+    assert.deepEqual(clone.worms[1], {
+        segments: [{ x: 4, y: 5 }],
+        growtime: 0,
+    });
+    assert.equal(level.worms[1], null, 'the clone owns its own slot table');
 });
 
 test('initworm owns its default and injected level state and resets its clock',

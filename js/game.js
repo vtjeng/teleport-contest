@@ -1,7 +1,7 @@
 // game.js — Core game data structures.
 // C ref: rm.h struct rm, dungeon.h, you.h
 
-import { COLNO, ROWNO, STONE } from './const.js';
+import { COLNO, MAX_NUM_WORMS, ROWNO, STONE } from './const.js';
 import { NO_COLOR } from './terminal.js';
 
 // A single map cell. Mirrors C's struct rm.
@@ -72,6 +72,11 @@ export class GameMap {
         // fresh active-region list; visible gas clouds are not terrain.
         this.regions = [];
         this.max_regions = 0; // C clear_regions(): fresh allocation capacity.
+        // C ref: worm.c wheads[]/wtails[]/wgrowtime[]. save_worm() clears
+        // every slot when it frees a level and rest_worm() refills them, so a
+        // level's slots always exist. js/worm.js initworm() keeps one
+        // { segments, growtime } record per allocated wormno; slot 0 is unused.
+        this.worms = Array(MAX_NUM_WORMS).fill(null);
         this.flags = {
             nfountains: 0,
             nsinks: 0,

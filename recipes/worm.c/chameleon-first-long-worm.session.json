@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent worm.c get_wormno()/initworm() witness: the first long worm on a level comes from mon.c newcham() while a peaceful chameleon changes form during the elapsed turn, so its worm slot is allocated on a level that has never held a worm. Nine peaceful chameleons are created with a counted ^G, and the hero searches with ESC after each turn to dismiss any --More--. Seed 610080 came from a port-only scan of seeds 610001-610200 with this input, which found 40 seeds whose 6bd668f8 replay stopped on that slot allocation; here the first long worm appears on turn 6.",
+  "segments": [
+    {
+      "seed": 610080,
+      "datetime": "20410322091500",
+      "nethackrc": "OPTIONS=name:Wormscan,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " 9\u0007peaceful chameleon\n\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b"
+    }
+  ]
+}
