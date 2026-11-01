@@ -165,6 +165,18 @@ const WORN_SLOTS = Object.freeze([
     { mask: W_CHAIN, field: 'uchain' },
 ]);
 
+// Restore the at() method that GameMap provides for coordinate-bounded
+// location lookup; functions are excluded from the JSON snapshot. Every
+// restored level needs it before region.c rest_regions() can reach
+// vision.c does_block() through remove_region().
+function restoreLevelAt(level) {
+    if (!level || typeof level.at === 'function') return;
+    level.at = function at(x, y) {
+        if (x < 0 || x >= COLNO || y < 0 || y >= ROWNO) return null;
+        return this.locations[x]?.[y] || null;
+    };
+}
+
 // C ref: restore.c dorecover() (789-951). Reads the saved game state from
 // VFS storage, applies it to the game object, and reconstructs computed
 // state. Returns true on success; false if no save file exists.
@@ -198,6 +210,7 @@ export async function dorestore(state = game) {
 
     // Level and dungeon state
     state.level = snapshot.level;
+    restoreLevelAt(state.level);
     // C ref: restore.c getlev():1225 rest_regions(). The game state and the
     // regions were saved on the same turn, so only regions whose time had
     // already run out are discarded.
@@ -330,15 +343,6 @@ export async function dorestore(state = game) {
     if (snapshot.track != null) state.track = snapshot.track;
 
     // ---- Reconstruct computed state ----
-
-    // Restore the at() method that GameMap provides for coordinate-bounded
-    // location lookup; functions are excluded from the JSON snapshot.
-    if (state.level && typeof state.level.at !== 'function') {
-        state.level.at = function at(x, y) {
-            if (x < 0 || x >= COLNO || y < 0 || y >= ROWNO) return null;
-            return this.locations[x]?.[y] || null;
-        };
-    }
 
     // Rebuild the special-level linked list from the saved array.
     if (state.specialLevels) {
@@ -488,12 +492,7 @@ function rest_other_levels(levels, state) {
     if (!Array.isArray(levels)) return;
     for (const { ledger, ...saved } of levels) {
         const level = saved.level;
-        if (level && typeof level.at !== 'function') {
-            level.at = function at(x, y) {
-                if (x < 0 || x >= COLNO || y < 0 || y >= ROWNO) return null;
-                return this.locations[x]?.[y] || null;
-            };
-        }
+        restoreLevelAt(level);
         level.monlist = restmonchn(level.monlist, state);
         level.objlist = restobjchn(level.objlist, state);
         level.buriedobjlist = restobjchn(level.buriedobjlist, state);
@@ -699,14 +698,7 @@ export async function getlev(ledger, state = game) {
     state.updest = snapshot.updest ?? {};
     state.dndest = snapshot.dndest ?? {};
 
-    // Restore the at() method if the level lost it (e.g. through a
-    // previous JSON round-trip, though in-memory snapshots keep it).
-    if (state.level && typeof state.level.at !== 'function') {
-        state.level.at = function at(x, y) {
-            if (x < 0 || x >= COLNO || y < 0 || y >= ROWNO) return null;
-            return this.locations[x]?.[y] || null;
-        };
-    }
+    restoreLevelAt(state.level);
 
     // C ref: restore.c:1110 svo.omoves = svm.moves - elapsed. The elapsed time
     // is how many game turns passed since the hero left this level. The snapshot

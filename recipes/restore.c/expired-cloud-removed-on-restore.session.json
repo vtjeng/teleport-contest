@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5520817,
+      "datetime": "20280611141500",
+      "nethackrc": "OPTIONS=name:Clouded,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017uncursed scroll of stinking cloud\nre    hhhhh.sssssSy"
+    },
+    {
+      "seed": 5520818,
+      "datetime": "20280611150000",
+      "nethackrc": "OPTIONS=name:Clouded,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " ss"
+    }
+  ],
+  "comment": "Independent witness for restore.c dorecover() reaching region.c rest_regions() and remove_region() on the hero's level. The Valkyrie reads a stinking-cloud scroll and saves on the turn after run_regions() brought the visible cloud's ttl to 0, so the restore removes it without its expire callback and remove_region() tests vision.c does_block() on the restored map."
+}
