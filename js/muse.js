@@ -260,6 +260,16 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 // their source enum names.
 const AT_GAZE = 15;
 
+// C ref: display.c map_invisible(), as every muse.c call site uses it. The
+// elapsed-turn preflight runs a monster's item use against a planning clone
+// (unported_monster_actions.js planningState()), whose location grid is its
+// own copy. That dry run keeps C's map-memory write on the clone without
+// painting the live terminal; the live replay of the same turn paints it.
+function mapInvisibleAt(x, y, state) {
+    if (state === game) map_invisible(x, y, state);
+    else map_invisible_planning(x, y, state);
+}
+
 // C ref: muse.c:1272-1290, the offensive half of the MUSE_* action codes.
 // Only the five throwable potions are ported; the rest are named so that
 // find_offensive()'s nomore() skips and use_offensive()'s switch read the same
@@ -564,7 +574,7 @@ async function mreadmsg(mtmp, otmp, state, rawEnv = {}) {
         } else if (couldsee(mtmp.mx, mtmp.my, state)
             && mdistu(mtmp, state) <= 10 * 10) {
             const markInvisible = rawEnv.markInvisible
-                ?? (state === game ? map_invisible : map_invisible_planning);
+                ?? mapInvisibleAt;
             markInvisible(mtmp.mx, mtmp.my, state);
         }
 
@@ -1566,7 +1576,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                     `Suddenly you cannot see ${nambuf}.`,
                     mtmp.mx, mtmp.my, state), state);
                 if (vis)
-                    map_invisible(mtmp.mx, mtmp.my, state);
+                    mapInvisibleAt(mtmp.mx, mtmp.my, state);
             }
             if (oseen)
                 discover_object(otmp.otyp, true, true, true, state);
@@ -1796,7 +1806,7 @@ async function you_aggravate(mtmp, state) {
     }
     newsym(mtmp.mx, mtmp.my, state);
     if (!canspotmon(mtmp, state))
-        map_invisible(mtmp.mx, mtmp.my, state);
+        mapInvisibleAt(mtmp.mx, mtmp.my, state);
 }
 
 // C ref: muse.c find_defensive() (440-748). Select a defensive item or
@@ -2383,7 +2393,7 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
     if (reveal_invis && mtmp.mhp >= 1 /* !DEADMONSTER */
         && cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
         && !canspotmon(mtmp, state))
-        map_invisible(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+        mapInvisibleAt(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
 
     return 0;
 }
@@ -2444,7 +2454,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
             if (mtmp) {
                 if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
                     && !canspotmon(mtmp, state))
-                    map_invisible(
+                    mapInvisibleAt(
                         state.gb.bhitpos.x, state.gb.bhitpos.y, state);
                 await fhitm(mtmp, obj, state, rawEnv);
                 range -= 3;
@@ -2884,7 +2894,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
                 state,
             );
             if (mtmp.minvis)
-                map_invisible(mtmp.mx, mtmp.my, state);
+                mapInvisibleAt(mtmp.mx, mtmp.my, state);
             if (oseen)
                 discover_object(
                     otmp.otyp, true, true, true, state, { ...env, random },

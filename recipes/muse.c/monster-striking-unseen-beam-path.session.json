@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "muse.c mbhit(): a hill orc picks up a dropped wand of striking and zaps it through invisible newts that a Valkyrie, who lacks see invisible, cannot spot, so mbhit() calls map_invisible() on a beam square during a planned monster turn",
+  "segments": [
+    {
+      "seed": 5170331,
+      "datetime": "20261103091500",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017wand of striking\n\u0017wand of striking\ndflllldehh\u0007sleeping invisible newt\n\u0007sleeping invisible newt\n\u0007sleeping invisible newt\n\u0007sleeping invisible newt\n\u0007sleeping invisible newt\n\u0007sleeping invisible newt\n\u0007sleeping invisible newt\n\u0007sleeping invisible newt\n\u0007hostile hill orc\n. . . . . . . . . . . . . . "
+    }
+  ]
+}
