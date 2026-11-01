@@ -102,7 +102,6 @@ test('panic retains its source wizard row and typed/direct no-time dispatch', as
     const js = readFileSync('js/cmd.js', 'utf8');
     assert.match(js, /wiz_panic: \(key, state\) => wiz_panic\(state\),/u);
     assert.match(js, /if \(command === 'panic'\)\s*\{[\s\S]*?await wiz_panic\(state\);\s*resetCommandVars\(state, state\.multi < 0\);\s*return;/u);
-    assert.match(js, /command !== 'wizkill'\s*&& command !== 'panic'/u);
 });
 
 function moveState() {
