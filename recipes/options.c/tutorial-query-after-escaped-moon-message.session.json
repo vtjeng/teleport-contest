@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 29514,
+      "datetime": "20250129213000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Ranger,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\n",
+      "moves": "\u001bns"
+    }
+  ],
+  "comment": "New-moon start: the moon message forces --More-- on the welcome message, and Escape answers it. options.c ask_do_tutorial()'s menu reaches wintty.c tty_display_nhwindow(NHW_MENU), whose tty_display_nhwindow(WIN_MESSAGE) returns at once because WIN_STOP shares WIN_CANCELLED's bit; tty_clear_nhwindow() then erases the moon message without a second --More--. n declines the tutorial."
+}

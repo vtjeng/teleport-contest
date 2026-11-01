@@ -459,7 +459,8 @@ export async function displayTtyMenuTextWindow(
     // a corner menu. The latter clears an already acknowledged top line too;
     // only the full-screen branch's term_clear_screen() can provide that
     // clearing without this message-window operation.
-    if (display.toplin === TOPLINE_NEED_MORE) {
+    // A set WIN_STOP makes that flush return at once (WIN_CANCELLED bit).
+    if (display.toplin === TOPLINE_NEED_MORE && !state._ttyMessageStopped) {
         await dismissPendingTtyMessage(state);
         // dismissPendingTtyMessage() leaves TOPLINE_EMPTY after its More
         // response. Restore NEED_MORE so clearTtyMessageWindow() follows the
@@ -911,6 +912,7 @@ export async function displayTtyTextWindow(state = game, lines) {
     // Flush an unacknowledged top-line message before the text window
     // covers it, the same guard selectTtyMenu() applies for menus.
     if (display.toplin === TOPLINE_NEED_MORE
+        && !state._ttyMessageStopped
         && await dismissPendingTtyMessage(state)) {
         if (state.nhDisplay) state.nhDisplay.toplin = TOPLINE_NEED_MORE;
         clearTtyMessageWindow(state);
@@ -1626,7 +1628,10 @@ export async function selectTtyMenu(state = game, spec) {
     // port's dismissal has already zeroed both fields clearTtyMessageWindow()
     // tests, so row 0 would keep the acknowledged message for the full-screen
     // menus that do not clear it again below.
+    // After Escape at --More--, WIN_STOP shares WIN_CANCELLED's bit, so the
+    // NHW_MESSAGE call returns at once and only the clear below runs.
     if (state.nhDisplay?.toplin === TOPLINE_NEED_MORE
+        && !state._ttyMessageStopped
         && await dismissPendingTtyMessage(state)) {
         if (state.nhDisplay) state.nhDisplay.toplin = TOPLINE_NEED_MORE;
         clearTtyMessageWindow(state);

@@ -10,7 +10,6 @@ import { deferred_goto, schedule_goto } from './do.js';
 import { game } from './gstate.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
-import { dismissPendingTtyMessage } from './tty_message.js';
 import { vision_recalc } from './vision.js';
 
 const REPROMPT = Symbol('tutorial menu needs an explicit choice');
@@ -66,7 +65,6 @@ export async function ask_do_tutorial(state = game) {
     if (state.tutorial_set_in_config)
         return Boolean(state.flags?.tutorial);
 
-    await dismissPendingTtyMessage(state);
     let repeated = false;
     for (;;) {
         const answer = await select_menu(
