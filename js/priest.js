@@ -64,7 +64,9 @@ import {
     mon_pmname,
     rndmonnamDetails,
 } from './do_name.js';
-import { assign_level, find_mapseen, mapseen_room, on_level } from './dungeon.js';
+import {
+    assign_level, mapseen_room, mapseen_temple, on_level,
+} from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { dist2, s_suffix, sgn } from './hacklib.js';
@@ -825,18 +827,6 @@ function heroDeaf(state) {
 function heroHallucinating(state) {
     const prop = state.u?.uprops?.[HALLUC];
     return Boolean(prop?.intrinsic || prop?.extrinsic) && !prop?.blocked;
-}
-
-// C ref: dungeon.c mapseen_temple(). Sets mapseen flags for valley/sanctum.
-function mapseen_temple(priest, state) {
-    const mptr = find_mapseen(state.u?.uz, state);
-    if (!mptr) return;
-    if (state.valley_level
-        && on_level(state.u.uz, state.valley_level))
-        mptr.flags.valley = 1;
-    else if (state.sanctum_level
-        && on_level(state.u.uz, state.sanctum_level))
-        mptr.flags.msanctum = 1;
 }
 
 // C ref: priest.c intemple(int roomno). Called when the hero enters a TEMPLE

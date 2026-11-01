@@ -107,6 +107,23 @@ import {
     renderDungeonData,
 } from './generate-dungeon-data.mjs';
 
+// recalc_mapseen() asks at_dgn_entrance("The Quest") on every call, and C's
+// dungeon_branch() panics when no branch leads there. A constructed level
+// needs the smallest dungeon list that answers that question. The entrance
+// on level 11 of dungeon 0 is arbitrary; it only has to differ from the
+// fixtures' level 1, so the quest summons annotation stays off. Neither
+// dungeon is hellish, so Invocation_lev() is false for every fixture level.
+function installQuestEntrance(state) {
+    state.dungeons = [
+        { dname: 'The Dungeons of Doom', flags: { hellish: 0 } },
+        { dname: 'The Quest', flags: { hellish: 0 } },
+    ];
+    state.branches = [{
+        end1: { dnum: 0, dlevel: 11 },
+        end2: { dnum: 1, dlevel: 1 },
+    }];
+}
+
 function initialize(seed, roleFilecode = 'Arc', options = {}) {
     resetGame();
     game.urole = { filecode: roleFilecode };
@@ -309,6 +326,7 @@ test('update_mapseen_for reads one square and refreshes the hero\'s own', () => 
         urooms: [0],
     };
     init_mapseen(state.u.uz, state);
+    installQuestEntrance(state);
     state.level.at(4, 4).typ = ROOM;
     state.level.at(5, 4).typ = CORR;
 
@@ -428,6 +446,7 @@ test('recalc_mapseen takes altar alignment from mimics and Astral sight', () => 
         urooms: [0],
     };
     init_mapseen(state.u.uz, state);
+    installQuestEntrance(state);
     state.level.lastseentyp = Array.from(
         { length: 80 }, () => new Array(21).fill(STONE),
     );
@@ -464,6 +483,7 @@ test('recalc_mapseen rebuilds summaries for every seen room family', () => {
         urooms: [0],
     };
     const mapseen = init_mapseen(state.u.uz, state);
+    installQuestEntrance(state);
     state.level.lastseentyp = Array.from(
         { length: 80 }, () => new Array(21).fill(STONE),
     );
@@ -520,6 +540,7 @@ test('recalc_mapseen counts every remembered feature and saturates at three',
                 urooms: [0],
             };
             const mapseen = init_mapseen(state.u.uz, state);
+            installQuestEntrance(state);
             state.level.lastseentyp = Array.from(
                 { length: 80 }, () => new Array(21).fill(STONE),
             );
@@ -545,6 +566,7 @@ test('recalc_mapseen resolves encoded subrooms through their parent graph',
             urooms: [0],
         };
         const mapseen = init_mapseen(state.u.uz, state);
+        installQuestEntrance(state);
         state.level.lastseentyp = Array.from(
             { length: 80 }, () => new Array(21).fill(STONE),
         );

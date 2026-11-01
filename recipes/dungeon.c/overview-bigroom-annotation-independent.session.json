@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 62401,
+      "datetime": "20330711090807",
+      "nethackrc": "OPTIONS=name:BigRoomProbe,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u001610\n#overview\n\u001b"
+    }
+  ],
+  "comment": "dungeon.c recalc_mapseen() sets flags.bigroom while a sighted hero is on the Big Room; that flag makes the level interesting to #overview and adds its 'A very big room.' line. A debug-mode Priest dismisses the welcome, level-teleports to depth 10, where seed 62401 places bigrm, then opens #overview. The seed, clock and character were chosen for this case."
+}

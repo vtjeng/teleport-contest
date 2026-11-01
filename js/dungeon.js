@@ -16,6 +16,7 @@ import {
     BLINDED,
     CLOUD,
     COLNO,
+    DBWALL,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
@@ -27,6 +28,7 @@ import {
     ESCAPED,
     CORR,
     DELPHI,
+    DOOR,
     FLYING,
     HALLUC,
     HALLUC_RES,
@@ -66,6 +68,7 @@ import {
     TREE,
     Upolyd,
     VAULT,
+    VIBRATING_SQUARE,
     VISITED,
     plur,
 } from './const.js';
@@ -99,7 +102,13 @@ import { dmgtype_fromattack, is_animal } from './mondata.js';
 // js/trap.js imports on_level() from this file. Both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 
-import { is_pool, is_ice, is_lava } from './dbridge.js';
+import {
+    is_drawbridge_wall, is_pool, is_ice, is_lava,
+} from './dbridge.js';
+// js/shk.js and js/priest.js import from this file. All three use the
+// others' exports only inside function bodies, so the cycles resolve.
+import { inhishop, shop_keeper } from './shk.js';
+import { findpriest, inhistemple } from './priest.js';
 import { ttyPline } from './tty_message.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -2417,6 +2426,9 @@ function incrementMapseenFeature(feat, key) {
     if (feat[key] < 3) feat[key] += 1;
 }
 
+// C ref: dungeon.c count_feat_lastseentyp() (2948-3070). Counts one
+// remembered location into the current level's mapseen features. C's
+// `#if 0` arms for ice, water and lava are not compiled.
 function count_feat_lastseentyp(mapseen, x, y, state) {
     switch (state.level?.lastseentyp?.[x]?.[y] ?? STONE) {
     case TREE:
@@ -2447,6 +2459,32 @@ function count_feat_lastseentyp(mapseen, x, y, state) {
         incrementMapseenFeature(mapseen.feat, 'naltar');
         break;
     }
+    // The Castle and Fort Ludios are annotated once their main entrance has
+    // been seen or mapped: a drawbridge part on the Castle, or a door four
+    // columns right of a throne in the Fort.
+    case DOOR:
+        if (on_level(state.u?.uz, state.knox_level)) {
+            // The throne is on the door's row or one row above or below,
+            // and need not have been seen yet.
+            const tx = x - 4;
+            for (let ty = y - 1; ty <= y + 1; ++ty) {
+                if (isok(tx, ty) && state.level.at(tx, ty)?.typ === THRONE) {
+                    mapseen.flags.ludios = 1;
+                    break;
+                }
+            }
+            break;
+        }
+        if (is_drawbridge_wall(x, y, state) < 0)
+            break;
+        // FALLTHROUGH: the open portcullis of a lowered drawbridge.
+    case DBWALL:
+    case DRAWBRIDGE_DOWN:
+        if (on_level(state.u?.uz, state.stronghold_level)) {
+            mapseen.flags.castle = 1;
+            mapseen.flags.castletune = 1;
+        }
+        break;
     default:
         break;
     }
@@ -2481,27 +2519,69 @@ export function mapseen_room(roomIndex, state) {
     return null;
 }
 
-// C ref: dungeon.c recalc_mapseen() (3073-3261), through the ordinary-level
-// room and remembered-feature branches used by magic mapping. Special-level
-// annotations, unattended shop ownership, and bones records remain outside
-// the current ordinary-level boundary.
+// C ref: dungeon.c recalc_mapseen() (3073-3261). Rebuilds the current level's
+// overview summary from the rooms the hero has seen and the remembered
+// terrain, then refreshes the automatic special-level annotations and the
+// known bones records.
 export function recalc_mapseen(state = game) {
-    const mapseen = find_mapseen(state.u?.uz, state);
+    const u = state.u;
+    const mapseen = find_mapseen(u?.uz, state);
     if (!mapseen) return;
 
     mapseen.feat = emptyMapseenFeat();
-    mapseen.flags.notreachable = 0;
+    // Reset most flags; some level-specific ones keep their values.
+    if (mapseen.flags.notreachable) {
+        mapseen.flags.notreachable = 0;
+        // Returning to a quest that ejection made unreachable revives the
+        // annotation data for every quest level, not only this one.
+        if (u.uz.dnum === state.quest_dnum) {
+            for (const other of state.svm.mapseenchn) {
+                if (other.lev.dnum === mapseen.lev.dnum)
+                    other.flags.notreachable = 0;
+            }
+        }
+    }
     mapseen.flags.knownbones = 0;
-    mapseen.flags.oracle = 0;
+    mapseen.flags.sokosolved = in_sokoban_level(u.uz, state)
+        && !state.level?.flags?.sokoban_rules ? 1 : 0;
+    // flags.bigroom keeps its previous value while the hero cannot see.
+    if (!heroBlind(state))
+        mapseen.flags.bigroom = on_level(u.uz, state.bigroom_level) ? 1 : 0;
+    else if (mapseen.flags.forgot)
+        mapseen.flags.bigroom = 0;
+    mapseen.flags.roguelevel = on_level(u.uz, state.rogue_level) ? 1 : 0;
+    mapseen.flags.oracle = 0; // recalculated during room traversal below
     mapseen.flags.castletune = 0;
+    // flags.castle keeps its previous value.
     mapseen.flags.forgot = 0;
+    // flags.quest_summons is disabled once the quest is finished.
+    const questStatus = state.svq?.quest_status ?? {};
+    mapseen.flags.quest_summons = at_dgn_entrance('The Quest', state)
+        && u.uevent?.qcalled
+        && !(u.uevent.qcompleted || u.uevent.qexpelled
+            || questStatus.leader_is_dead) ? 1 : 0;
+    mapseen.flags.questing = on_level(u.uz, state.qstart_level)
+        && questStatus.got_quest ? 1 : 0;
+    // flags.msanctum, .valley, and .vibrating_square are handled below.
 
-    for (const roomno of state.u?.urooms ?? []) {
-        if (!roomno) break;
-        const roomIndex = roomno - ROOMOFFSET;
-        if (mapseen.msrooms[roomIndex]) mapseen.msrooms[roomIndex].seen = 1;
+    // Track the rooms the hero is in.
+    for (const uroom of u.urooms ?? []) {
+        if (!uroom) break;
+        const ridx = uroom - ROOMOFFSET;
+        const room = mapseen_room(ridx, state);
+        mapseen.msrooms[ridx].seen = 1;
+        let untended = 0;
+        if (room.rtype >= SHOPBASE) {
+            const shopkeeper = shop_keeper(uroom, state);
+            untended = !shopkeeper || !inhishop(shopkeeper, state) ? 1 : 0;
+        } else if (room.rtype === TEMPLE) {
+            const priest = findpriest(uroom, state);
+            untended = !priest || !inhistemple(priest, state) ? 1 : 0;
+        }
+        mapseen.msrooms[ridx].untended = untended;
     }
 
+    // Recalculate room knowledge: for now, just shops and temples.
     for (let roomIndex = 0; roomIndex < mapseen.msrooms.length; ++roomIndex) {
         if (!mapseen.msrooms[roomIndex].seen) continue;
         const room = mapseen_room(roomIndex, state);
@@ -2521,12 +2601,81 @@ export function recalc_mapseen(state = game) {
         }
     }
 
+    // Record the hero's own square when it can be felt (not levitating).
     if (!heroLevitating(state))
-        update_lastseentyp(state.u.ux, state.u.uy, state);
+        update_lastseentyp(u.ux, u.uy, state);
     for (let x = 1; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y)
             count_feat_lastseentyp(mapseen, x, y, state);
     }
+
+    // The Valley and Moloch's Sanctum are normally annotated on entering
+    // their attended temple; the priest may already be dead, so a mapped
+    // altar also adds the annotation.
+    if (on_level(u.uz, state.valley_level)) {
+        // Do not clear the annotation when the altar is gone.
+        if (mapseen.feat.naltar > 0)
+            mapseen.flags.valley = 1;
+    } else if (on_level(u.uz, state.sanctum_level)) {
+        if (mapseen.feat.naltar > 0)
+            mapseen.flags.msanctum = 1;
+        if (mapseen.flags.msanctum) {
+            const invocationLevel = {
+                dnum: u.uz.dnum,
+                dlevel: u.uz.dlevel - 1,
+            };
+            const other = find_mapseen(invocationLevel, state);
+            if (other) other.flags.vibrating_square = 0;
+        }
+    } else if (Invocation_lev(u.uz, state)) {
+        // Annotate the vibrating square's level once its trap is seen, or
+        // once the trap is gone (the invocation has happened), unless the
+        // Sanctum already carries its own annotation.
+        const trap = (state.level?.traps ?? []).find(
+            (candidate) => candidate.ttyp === VIBRATING_SQUARE,
+        );
+        if (trap) {
+            mapseen.flags.vibrating_square = trap.tseen ? 1 : 0;
+        } else {
+            const sanctum = find_mapseen(state.sanctum_level, state);
+            mapseen.flags.vibrating_square = !sanctum
+                || !sanctum.flags.msanctum ? 1 : 0;
+        }
+    }
+
+    // Clone the level's bones records so the overview does not depend on
+    // this level staying in memory.
+    if (state.level?.bonesinfo && !mapseen.final_resting_place) {
+        let head = null;
+        let tail = null;
+        for (let bp = state.level.bonesinfo; bp; bp = bp.next) {
+            const copy = { ...bp, next: null };
+            if (tail) tail.next = copy;
+            else head = copy;
+            tail = copy;
+        }
+        mapseen.final_resting_place = head;
+    }
+    // A past hero's death becomes known once the current hero has seen the
+    // map location where it happened.
+    for (let bp = mapseen.final_resting_place; bp; bp = bp.next) {
+        if (state.level.lastseentyp?.[bp.frpx]?.[bp.frpy]) {
+            bp.bonesknown = true;
+            mapseen.flags.knownbones = 1;
+        }
+    }
+}
+
+// C ref: dungeon.c mapseen_temple() (3263-3277). The Valley and Sanctum get
+// their automatic annotation once their temple is entered. C ignores the
+// priest argument.
+export function mapseen_temple(_priest, state = game) {
+    const mptr = find_mapseen(state.u?.uz, state);
+    if (!mptr) return;
+    if (on_level(state.u.uz, state.valley_level))
+        mptr.flags.valley = 1;
+    else if (on_level(state.u.uz, state.sanctum_level))
+        mptr.flags.msanctum = 1;
 }
 
 // C ref: dungeon.c room_discovered() (3282-3290).
