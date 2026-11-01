@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent restore.c recipe: restgamestate():627 set_uasmon() rebuilds the FROMFORM intrinsics of a polymorphed hero. A debug-mode Samurai polymorphs into a raven and saves; the second segment restores, so the status line must keep the raven's Fly condition, declines to keep the save file, and presses s, which reports an already-found monster without taking time.",
+  "segments": [
+    {
+      "seed": 92046611,
+      "datetime": "20650214090000",
+      "nethackrc": "OPTIONS=name:Winged,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u001b#polyself\nraven\n   Sy"
+    },
+    {
+      "seed": 92046612,
+      "datetime": "20650214093000",
+      "nethackrc": "OPTIONS=name:Winged,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": " ns"
+    }
+  ]
+}

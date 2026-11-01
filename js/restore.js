@@ -60,6 +60,7 @@ import { stairway_add, stairway_at, stairway_free_all } from './stairs.js';
 import { vfsReadFile, vfsDeleteFile, vfsListFiles } from './storage.js';
 import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
+import { set_uasmon } from './polyself.js';
 import { select_menu } from './windows.js';
 import { TTY_STARTUP_BANNER } from './tty_startup.js';
 import { tty_putmsghistory } from './topl.js';
@@ -354,8 +355,21 @@ export async function dorestore(state = game) {
     state.go.oclass_prob_totals ??= [];
     init_oclass_probs(state);
 
-    // Reconstruct youmonst from the monster catalog and the hero's form.
-    _uInitInternals.setInitialUasmon(state);
+    // C ref: restore.c restgamestate():604 copies u.mcham into youmonst.cham,
+    // then 627 set_uasmon() rebuilds youmonst.data and the FROMFORM
+    // intrinsics, such as a polymorphed form's flight, from u.umonnum.
+    // program_state.restoring keeps set_uasmon() from calling
+    // float_vs_flight(), whose blockers are already in the saved state.
+    state.youmonst ??= {};
+    state.youmonst.cham = state.u.mcham;
+    state.program_state ??= {};
+    const wasRestoring = state.program_state.restoring;
+    state.program_state.restoring = 1;
+    try {
+        set_uasmon(state);
+    } finally {
+        state.program_state.restoring = wasRestoring;
+    }
 
     // max_rank_sz computes gm.mrank_sz from the role's rank table.
     _uInitInternals.max_rank_sz(state);
