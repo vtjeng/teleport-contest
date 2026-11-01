@@ -289,14 +289,13 @@ export async function resurrect(state = game, rawEnv = {}) {
     );
     if (!monster) return null;
 
-    // makemon.c has already marked and counted the new Wizard.
+    // makemon.c has already marked and counted the new Wizard, and its
+    // set_apparxy() has chosen where he thinks the hero is; wizard.c:767-770
+    // changes only the wait bits and the paranoia flags.
     monster.mrevived = true;
+    monster.mstrategy &= ~STRAT_WAITMASK;
     monster.mtame = 0;
     monster.mpeaceful = false;
-    monster.mstrategy = 0; // MM_NOWAIT suppresses STRAT_WAITMASK setup.
-    monster.mgenmklev = false;
-    monster.mux = state.u.ux;
-    monster.muy = state.u.uy;
     set_malign(monster, state);
 
     // wizard.c:774-778. SetVoice() has no screen/state consumer in the port;

@@ -154,6 +154,14 @@ test('resurrect creates the first Wizard and emits its source-order threat',
                 my: HERO_Y - 1,
             });
             monster.iswiz = true;
+            // makemon.c ends with set_apparxy(); a displaced or unseen hero
+            // leaves the Wizard guessing a nearby square. resurrect() must
+            // keep that guess: wizard.c:767-770 writes only mstrategy, mtame,
+            // and mpeaceful (C recording recordings/wizard.c/
+            // resurrect-displaced-guess shows the guess surviving into the
+            // Wizard's first set_apparxy()).
+            monster.mux = HERO_X;
+            monster.muy = HERO_Y - 1;
             env.redraw(monster.mx, monster.my);
             await env.norepMessage('The Wizard of Yendor suddenly appears next to you!');
             return monster;
@@ -183,8 +191,8 @@ test('resurrect creates the first Wizard and emits its source-order threat',
     assert.equal(monster.mtame, 0);
     assert.equal(monster.mpeaceful, false);
     assert.equal(monster.mstrategy, 0);
-    assert.equal(monster.mgenmklev, false);
-    assert.deepEqual([monster.mux, monster.muy], [HERO_X, HERO_Y]);
+    // The constructor's apparent-hero guess is left alone.
+    assert.deepEqual([monster.mux, monster.muy], [HERO_X, HERO_Y - 1]);
 });
 
 test('get_iter_mons skips the dead and the off-map', () => {
