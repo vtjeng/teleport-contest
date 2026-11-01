@@ -2566,7 +2566,8 @@ export async function dolookaround(state = game) {
 // C ref: cmd.c dotoggleoption() (1377-1386).
 export async function dotoggleoption(state = game) {
     if (state.cmd_bind?.param) {
-        return await toggle_bool_option(state.cmd_bind.param, state);
+        return await toggle_bool_option(state.cmd_bind.param, state,
+            optionCommandHelpers(state));
     }
     await ttyPline('Use #optionsfull to set any option instead.', state);
     return ECMD_OK;
@@ -3706,7 +3707,15 @@ async function runEnhanceCommand(key, state) {
 // select_menu() draws anything, so an unported option value stops before any
 // output.
 async function runOptionsCommand(key, state, handler = doset_simple) {
-    return failClosedCommand(key, state, () => handler(state, {
+    return failClosedCommand(key, state, () => handler(state,
+        optionCommandHelpers(state)));
+}
+
+// The window-port and cmd.c seams js/options.js reaches through `helpers`:
+// doset() and doset_simple() above, and toggle_bool_option() for
+// dotoggleoption(), all hand them on to parseoptions().
+function optionCommandHelpers(state) {
+    return {
         // add_menu_heading() draws each section heading with
         // iflags.menu_headings, which menuTitleStyle() reads.
         headingStyle: {
@@ -3740,7 +3749,7 @@ async function runOptionsCommand(key, state, handler = doset_simple) {
         },
         resetCommands: () => reset_commands(false, state),
         updateRestOnSpace: () => update_rest_on_space(state),
-    }));
+    };
 }
 
 // C ref: cmd.c count_bind_keys(). Both of its loops read gc.Cmd.cmdbinds,
@@ -4961,6 +4970,16 @@ export function extcmdRow(name) {
     return entry;
 }
 
+// C ref: cmd.c rhack():3679, `gc.cmd_bind = cmdbind_get(key & 0xFF)`.
+// state.cmd_bind is gc.cmd_bind: decl.c starts it NULL, rhack() sets it for
+// every key it looks up, and only dotoggleoption() reads it, for the
+// parameter bind_key() stored with a CMD_PARAM binding such as
+// toggle(autopickup). cmdbind_get() answers a snapshot rather than C's list
+// node; the command reads it before anything can rebind the key.
+function setCommandBinding(key, state) {
+    state.cmd_bind = cmdbind_get(key & 0xFF, state);
+}
+
 // C ref: cmd.c rhack() at 3688-3692, the can_do_extcmd() call rhack() makes
 // for the row the pressed key is bound to, ahead of the prefix tests and the
 // dispatch below. A refusal reset_cmd_vars(TRUE)s and leaves res at ECMD_OK,
@@ -5447,9 +5466,10 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             return;
         }
 
-        // C ref: rhack():3682-3685. A queued extended command supplies its own
+        // C ref: rhack():3679-3685. A queued extended command supplies its own
         // table row, and the `goto do_cmdq_extcmd` that brings it here skips
-        // the binding lookup entirely.
+        // the binding lookup entirely, leaving gc.cmd_bind as it was.
+        if (!cmdqCommand) setCommandBinding(key, state);
         let command = cmdqCommand
             ?? commandForKey(commandBindings(state), key);
         if (!await rhackCanDoExtcmd(command, state)) return;
@@ -5504,6 +5524,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 resetCommandVars(state);
                 return;
             }
+            if (!commandAfterPrefix) setCommandBinding(key, state);
             command = commandAfterPrefix
                 ?? commandForKey(commandBindings(state), key);
             // C loops back to do_cmdq_extcmd for the prefixed command, so the

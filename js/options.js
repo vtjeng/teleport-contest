@@ -3464,11 +3464,11 @@ function bindingSeparator(bindings) {
 //  - The three parameter diagnostics (2696-2712) belong to the binding itself
 //    and are here: C reports every one of them for a key it has already
 //    bound, so none of them changes the answer.
-//  - The bind->param store (2706-2708) is unported.  include/func_tab.h:37
-//    declares that field and cmd.c dotoggleoption() (1376-1384) is its only
-//    reader, through gc.cmd_bind->param at 1378-1379; `parameter` below is
-//    computed for the diagnostics and then dropped.  Deferral
-//    bind-key-parameter-is-not-stored covers it.
+//  - The bind->param store (2706-2708) is createCommandBindingModel()'s too:
+//    it keeps the first 30 characters of the parameter of a CMD_PARAM row.
+//    cmd.c dotoggleoption() (1376-1384) is the field's only reader, through
+//    the gc.cmd_bind that rhack() sets; `parameter` below is computed for the
+//    diagnostics only.
 function bind_key(result, command) {
     if (command.toLowerCase() === 'nothing') return true;
     // C truncates its copy at the '(' and points p past it only when a ')'
@@ -8127,9 +8127,11 @@ function setBooleanOptionValue(state, option, value) {
         delete state.flags?.[parsedName];
 }
 
-// C ref: options.c toggle_bool_option() (9278-9293). The command supplies a
+// C ref: options.c toggle_bool_option() (9278-9297). The command supplies a
 // prefix, but only an in-game boolean option with storage may match it.
-export async function toggle_bool_option(prefix, state) {
+// `helpers` are the ones doset() receives; parseoptions() hands them to the
+// option's handler.
+export async function toggle_bool_option(prefix, state, helpers) {
     const text = String(prefix).toLowerCase();
     let result = ECMD_FAIL;
     // C deliberately does not stop after the first prefix match: every
@@ -8140,9 +8142,14 @@ export async function toggle_bool_option(prefix, state) {
             || option.setwhere !== set_in_game
             || !option.addr
             || !option.name.toLowerCase().startsWith(text)) continue;
-        setBooleanOptionValue(state, option, !booleanOptionValue(state, option));
+        // 9290-9292: a leading '!' turns a set option off, and parseoptions()
+        // runs optfn_boolean(), which prints "'name' option toggled on." or
+        // "off.".
+        const buf = (booleanOptionValue(state, option) ? '!' : '')
+            + option.name;
+        if (await parseoptions(state, buf, false, false, helpers))
+            result = ECMD_OK;
         await reset_needed_visuals(state);
-        result = ECMD_OK;
     }
     return result;
 }

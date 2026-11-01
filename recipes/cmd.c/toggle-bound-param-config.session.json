@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first bound #toggle parameter from the config file, a variation of toggle-bound-param-menu: BINDINGS=~:toggle(time) goes through cmd.c bind_key(), and rhack() sets gc.cmd_bind, whose param dotoggleoption() toggles on and then off; s then takes a turn with the time option off",
+  "segments": [
+    {
+      "seed": 5520917,
+      "datetime": "20260803091500",
+      "nethackrc": "OPTIONS=name:Tally,role:Healer,race:gnome,gender:male,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!time\nBINDINGS=~:toggle(time)\n",
+      "moves": "~~s"
+    }
+  ]
+}

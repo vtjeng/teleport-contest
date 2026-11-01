@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first bound #toggle parameter set from the options menu: bind keys, a, ~, the toggle row and the parameter autopickup. cmd.c handler_rebind_keys_add() binds toggle(autopickup) through Snprintf(), and rhack() sets gc.cmd_bind, whose param dotoggleoption() toggles when ~ is pressed",
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "20261115143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "#optionsfull\n      h\na~:toggle:\nautopickup\n\u001b\u001b~"
+    }
+  ]
+}
