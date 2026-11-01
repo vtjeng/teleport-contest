@@ -1,5 +1,6 @@
 {
   "version": 5,
+  "_comment": "Exercises botl.c status_hilite_menu(), status_hilite_menu_fld(), status_hilite_menu_choose_behavior(), status_hilite_menu_add() and status_hilite2str() for fields whose statusfields value is not their initblstats[] row. Choosing weapon (BL_WEAPON, 23) names it after row 23, version, through an always rule; choosing terrain (BL_TERRAIN, 25) opens the armor behavior menu, which is then cancelled.",
   "segments": [
     {
       "seed": 7311905,
