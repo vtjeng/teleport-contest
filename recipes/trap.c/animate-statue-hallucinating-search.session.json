@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises trap.c animate_statue() through detect.c dosearch0() while the hero hallucinates. A wizard-mode wish places a statue trap beside a dwarven Caveman, who quaffs hallucination and searches until the trap fires away from his square. The 'suddenly seems more animated' message names a monster from do_name.c rndmonnam(), which draws on the display RNG, before delobj() deletes the statue.",
+  "segments": [
+    {
+      "seed": 4418263,
+      "datetime": "20560722160340",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "j#wizwish\nstatue trap\n#wizwish\npotion of hallucination\nlqfssssssssssss"
+    }
+  ]
+}

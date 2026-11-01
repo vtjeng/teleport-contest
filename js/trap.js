@@ -3566,7 +3566,7 @@ export async function animate_statue(
         await message(`${upstart(statueName)} ${comesToLife}!`, state);
     } else if (Hallucination(state)) {
         await message(
-            `The ${rndmonnam({ state, random })} suddenly seems more animated.`,
+            `The ${rndmonnam({ state })} suddenly seems more animated.`,
             state,
         );
     } else if (cause === ANIMATE_SHATTER) {

@@ -2114,7 +2114,7 @@ export async function observe_quantum_cat(box, makecat, givemsg, rawEnv = {}) {
             const catName = (state.u?.uprops?.[HALLUC]?.intrinsic
                 && !(state.u?.uprops?.[HALLUC + 1]?.intrinsic
                     || state.u?.uprops?.[HALLUC + 1]?.extrinsic))
-                ? rndmonnam({ state, random }) : 'housecat';
+                ? rndmonnam({ state }) : 'housecat';
             await ttyPline(
                 `The ${catName} inside the box is dead!`,
                 state,
