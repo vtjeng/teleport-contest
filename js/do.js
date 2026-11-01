@@ -268,7 +268,7 @@ import { mcureblindness } from './muse.js';
 import {
     dmgtype, is_whirly, olfaction, passes_walls, sticks, touch_petrifies,
     throws_rocks, is_reviver, is_rider, is_displacer, locomotion,
-    ceiling_hider,
+    ceiling_hider, is_vampshifter, nonliving,
 } from './mondata.js';
 import { youHear } from './monmove.js';
 import {
@@ -1043,8 +1043,20 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                     if (state.context?.mon_moving) {
                         const { dmgval } = await import('./weapon.js');
                         trappedMonster.mhp -= dmgval(obj, trappedMonster, state, rawEnv);
-                        if (trappedMonster.mhp < 1)
+                        if (trappedMonster.mhp < 1) {
+                            // do.c:213-218 names the death whenever the hero
+                            // can spot the victim, even out of sight.
+                            if (canspotmon(trappedMonster, state)) {
+                                const fate = nonliving(trappedMonster.data)
+                                    || is_vampshifter(trappedMonster)
+                                    ? 'destroyed' : 'killed';
+                                await (rawEnv.message ?? ttyPline)(
+                                    `${Monnam(trappedMonster, state)} is ${fate}!`,
+                                    state,
+                                );
+                            }
                             await mondied(trappedMonster, state, rawEnv);
+                        }
                     } else {
                         const { hmon } = await import('./uhitm.js');
                         await hmon(trappedMonster, obj, 1, 1, state, rawEnv);
