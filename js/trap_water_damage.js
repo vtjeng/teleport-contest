@@ -747,6 +747,8 @@ export async function water_damage(obj, description, force, env = {}) {
         return ER_NOTHING;
     }
 
-    // C ref: trap.c:4849. Default: rust erosion.
-    return erode_obj(obj, description, ERODE_RUST, EF_NONE, env);
+    // C ref: trap.c:4849. Default: rust erosion. erode_obj() draws rnl(4)
+    // for a blessed item (trap.c:257) from the same RNG as this function.
+    return erode_obj(obj, description, ERODE_RUST, EF_NONE,
+                     { ...env, state, random });
 }

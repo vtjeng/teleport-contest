@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent trap.c witness for drown() -> water_damage_chain() -> water_damage() -> erode_obj() on a blessed item: the debug Priest, whose starting mace is blessed, wishes a pool under himself (objnam.c wizterrainwish()), steps east, and steps back with the m prefix so that hack.c swim_move_danger() lets him in. drown() rusts the mace after erode_obj() draws rnl(4) at trap.c:257, and he crawls out. The seed, date and keys were chosen for this case.",
+  "segments": [
+    {
+      "seed": 7720031,
+      "datetime": "20350614091500",
+      "nethackrc": "OPTIONS=name:PoolPriest,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017pool\nlmh    s"
+    }
+  ]
+}
