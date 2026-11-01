@@ -15,10 +15,12 @@ import { set_wear } from './do_wear.js';
 import { game } from './gstate.js';
 import { update_inventory } from './invent.js';
 import {
+    encumber_msg,
     pickup,
     preflight_initial_pickup,
     reset_justpicked,
 } from './pickup.js';
+import { can_reach_floor, read_engr_at } from './engrave.js';
 import { rnd } from './rng.js';
 import { initrack } from './track.js';
 import { ttyPline } from './tty_message.js';
@@ -30,7 +32,6 @@ export function change_luck(amount, state = game) {
     state.u.uluck = Math.max(LUCKMIN, Math.min(LUCKMAX, current + amount));
 }
 
-// encumber_msg() remains at its source boundary.
 export async function moveloop_preamble(
     resuming = false,
     state = game,
@@ -82,9 +83,19 @@ export async function moveloop_preamble(
 
     state.disp.botlx = true;
     if (resuming) {
-        // allmain.c:87-88 processes restore-only repairs before resuming.
+        // allmain.c:86-89: read_engr_at() is "a subset of pickup()", which
+        // only a new game runs, and fix_shop_damage() repairs shops.
+        await read_engr_at(state.u.ux, state.u.uy, state, {
+            pline: ttyPline,
+            canReachFloor: can_reach_floor,
+        });
         await fix_shop_damage(state, env);
     }
+
+    // C ref: allmain.c:91 encumber_msg(), "in case they auto-picked up
+    // something". go.oldcap is not saved, so a restored hero who is already
+    // burdened hears the message here.
+    await encumber_msg(state);
 
     // C ref: allmain.c:92-94. End restore's display deferral before the
     // first turn; the helper must complete any pending glow feedback here.

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83025,
+      "datetime": "20350719201144",
+      "nethackrc": "OPTIONS=name:Lugger,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " E- Elbereth\n\u0017heavy iron ball\n sSy"
+    },
+    {
+      "seed": 83026,
+      "datetime": "20350719213058",
+      "nethackrc": "OPTIONS=name:Lugger,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": " n   ss"
+    }
+  ],
+  "comment": "allmain.c moveloop_preamble(TRUE) on a restored debug-mode game: after unixmain.c's keep-save question, the resuming branch calls engrave.c read_engr_at() for the dust Elbereth under the hero, and pickup.c encumber_msg() compares near_capacity() with go.oldcap, which a restore does not save, so the hero burdened by the wished-for heavy iron ball hears \"Your movements are slowed slightly because of your load.\" again."
+}
