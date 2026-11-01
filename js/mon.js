@@ -810,6 +810,10 @@ export async function movemon(env = {}) {
         },
         state,
     );
+    // The same NORETURN done(): C never reaches movemon()'s tail after a
+    // death, and by then savebones() may already have freed the level's
+    // monsters that dmonsfree() would count.
+    if (state.program_state?.gameover) return false;
 
     if (any_light_source(state)) state.vision_full_recalc = 1;
     if (state.context?.bypasses)

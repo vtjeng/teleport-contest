@@ -1648,6 +1648,11 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                     utarget, utarget, false,
                     state, random, env,
                 );
+                // A breath that kills the hero ends in done(), which C never
+                // returns from; js/end.js returns with gameover set instead,
+                // so stop before the breath's own upkeep draws. mattacku()
+                // stops the remaining attacks on the same flag.
+                if (state.program_state?.gameover) return M_ATTK_HIT;
                 state.gb.buzzer = 0;
                 nomul(0, state);
                 /* breath runs out sometimes. Also, give monster some

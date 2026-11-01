@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: mthrowu.c breamm() -> zap.c buzz() -> zhitu() -> hack.c losehp() -> end.c done(), which never returns. A debug-created red dragon breathes on a weak hero from a distance; the hero answers the debug-mode Die? and Save bones? prompts with y, and the game ends. Neither breamm()'s upkeep draws nor mon.c movemon()'s tail may run after the death. Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 15937284,
+      "datetime": "20480119225046",
+      "nethackrc": "OPTIONS=name:Ines,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time,disclose:-i -a -v -g -c -o\n",
+      "moves": "\n\u0007red dragon\nlllmsmsmsms   yy  "
+    }
+  ]
+}
