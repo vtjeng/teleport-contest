@@ -24,11 +24,13 @@ if [ $# -eq 0 ]; then
     set -- "$HERE"/recipes/*.session.json
 fi
 
-# record-session.mjs puts the game's HOME under os.tmpdir(), and NetHack
-# prints HOME/.nethackrc in the options help text. The default temporary
-# directory is /tmp on Linux but a longer /var/folders/... path on macOS,
-# which would change where that text wraps. Using /tmp on both hosts leaves
-# only the 6-character mkdtemp() suffix to differ, which
+# record-session.mjs puts the game's HOME and its copy of the install under
+# os.tmpdir(). The default temporary directory is /tmp on Linux but a longer
+# /var/folders/... path on macOS. The recorder now prints the judge's HOME in
+# the options help (patch 008), so the temporary path no longer reaches a
+# known screen; recordings made before that change printed it, and wrapped
+# it differently on each host. Using /tmp on both hosts keeps the two runs
+# alike and leaves only the 6-character mkdtemp() suffix to differ, which
 # scripts/compare-host-recordings.mjs masks.
 export TMPDIR=/tmp
 

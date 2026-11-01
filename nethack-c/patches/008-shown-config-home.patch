@@ -1,0 +1,56 @@
+diff --git a/src/cfgfiles.c b/src/cfgfiles.c
+--- a/src/cfgfiles.c
++++ b/src/cfgfiles.c
+@@ -23,7 +23,7 @@
+ #endif
+ 
+ staticfn void vconfig_error_add(const char *, va_list);
+-staticfn FILE *fopen_config_file(const char *, int);
++staticfn FILE *fopen_config_file(const char *, int); staticfn FILE *shown_configfile(FILE *); /* patch 008 */
+ staticfn int get_uchars(char *, uchar *, boolean, int, const char *);
+ #ifdef NOCWD_ASSUMPTIONS
+ staticfn void adjust_prefix(char *, int);
+@@ -325,7 +325,7 @@
+ 
+     set_configfile_name(tmp_config);
+     if ((fp = fopen(configfile, "r")) != (FILE *) 0)
+-        return fp;
++        return shown_configfile(fp);
+ #if defined(__APPLE__) /* UNIX+__APPLE__ => OSX || MacOS */
+     /* try an alternative */
+     if (envp) {
+@@ -2072,5 +2072,34 @@
+ 
+ /* ----------  END CONFIG FILE HANDLING ----------- */
+ 
++/* Recorder patch 008: show the reference recorder's config file path.
++ *
++ * fopen_config_file() has just opened $HOME/.nethackrc.  NetHack prints
++ * configfile[] in the options help (options.c:9471), in option errors
++ * (options.c:6815-6818, cfgfiles.c:1614) and in #saveoptions' prompt.  The
++ * judge's recorder ran with the HOME that docs/recording-environment.md
++ * gives; a local recorder runs with a temporary one.  When
++ * NETHACK_SHOWN_HOME is set, store the path the file would have had under
++ * it.  Only the name changes: the open stream still reads the local file.
++ * #saveoptions writes to the stored name, as the judge's recorder did;
++ * where that directory does not exist, its fopen() fails without a message.
++ *
++ * This function sits at the end of the file and its declaration shares a
++ * line with fopen_config_file()'s, so every upstream line keeps its number:
++ * the RNG log names the line of each call (patch 003).
++ */
++staticfn FILE *
++shown_configfile(FILE *fp)
++{
++    char shown[BUFSZ];
++    char *home = nh_getenv("NETHACK_SHOWN_HOME");
++
++    if (home && *home) {
++        Snprintf(shown, sizeof shown, "%s/%s", home, ".nethackrc");
++        set_configfile_name(shown);
++    }
++    return fp;
++}
++
+ /*cfgfiles.c*/
+ 

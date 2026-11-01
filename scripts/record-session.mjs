@@ -22,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
 import {createPromptController, digest, validatePromptPlan} from './recorder-prompt-plan.mjs';
+import {RECORDER_HOME} from '../js/cfgfiles.js';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(SCRIPT_DIR, '..');
@@ -565,6 +566,11 @@ export async function recordSegment({
         NETHACKDIR: installDir,
         HACKDIR: installDir,
         HOME: homeDir,
+        // Patch 008 (cfgfiles.c fopen_config_file()) shows the config file
+        // as NETHACK_SHOWN_HOME/.nethackrc once it has opened
+        // HOME/.nethackrc, so C prints the judge's path
+        // (docs/recording-environment.md), the one the port prints.
+        NETHACK_SHOWN_HOME: RECORDER_HOME,
         TERM: 'xterm-256color',
         TZ: tz,
         NETHACK_NO_DELAY: '1',

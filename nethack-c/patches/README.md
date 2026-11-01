@@ -1,6 +1,6 @@
 # NetHack 5.0 recorder patches
 
-Seven patches that turn upstream NetHack 5.0 into a deterministic,
+Eight patches that turn upstream NetHack 5.0 into a deterministic,
 reproducible "recorder" build whose run-to-run behavior is exactly
 what the JS port has to match.
 
@@ -13,6 +13,7 @@ what the JS port has to match.
 | 005 | `rng-display-logging` | Log the third PRNG context (display/hallucination) to `NETHACK_RNGLOG_DISP` | Hallucination uses a separate stream so it doesn't perturb gameplay RNG |
 | 006 | `nomux-capture` | Replace `tty` curses output with deterministic 24×80 capture, raw-print routing, and input-boundary snapshots | Need exact terminal contents at every input boundary |
 | 007 | `stable-pointer-format` | Replace native diagnostic pointer spellings with stable null/non-null tokens | `%p` output varies with ASLR, allocators, and C implementations, so JavaScript cannot reproduce it |
+| 008 | `shown-config-home` | After opening `$HOME/.nethackrc`, store its name as `$NETHACK_SHOWN_HOME/.nethackrc` when that variable is set | NetHack prints the config file's path in the options help and some messages; `scripts/record-session.mjs` runs each game with a temporary `HOME` and sets the variable to the judge's `HOME`, so C prints the path the reference recordings show |
 
 ## Apply
 
@@ -31,6 +32,11 @@ cd nethack-c/recorder
 for p in ../patches/*.patch; do patch -p1 < "$p"; done
 # ...build per sys/unix/Makefile.unix
 ```
+
+On Linux, `build-recorder.sh` also applies
+`../host-profiles/linux-macos-output.patch` after this series, so the build
+prints the macOS text that the judge's recorder printed. That file lists its
+edits.
 
 ## Patch scope
 
