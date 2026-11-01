@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "makemon.c makemon(): a horned devil beside a hero who wished a tree onto her own square calls minion.c msummon(), whose makemon(u.ux, u.uy) request starts from a non-ACCESSIBLE square and is relocated by enexto()",
+  "segments": [
+    {
+      "seed": 7712409,
+      "datetime": "20261105201500",
+      "nethackrc": "OPTIONS=name:Arbor,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "#levelchange\n30\n\u001b\u001b\u0017blessed +5 gray dragon scale mail\nWe\u0017tree\n\u0007hostile horned devil\nms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  ms  "
+    }
+  ]
+}

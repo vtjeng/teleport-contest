@@ -3389,15 +3389,11 @@ test('makemon cloneu hero-square call relocates before pool accessibility',
             /enexto_core\(&cc, u\.ux, u\.uy, ptr, gpflags\)/u,
         );
 
-        const jsCloneCall = MAKEMON_JS_SOURCE.indexOf('const cloneuCall =');
-        const jsAccessibleGuard = MAKEMON_JS_SOURCE.indexOf(
-            '&& (!isok(x, y) || !ACCESSIBLE(', jsCloneCall,
-        );
-        assert.ok(jsCloneCall >= 0 && jsAccessibleGuard > jsCloneCall);
-        assert.match(
-            MAKEMON_JS_SOURCE.slice(jsCloneCall, jsAccessibleGuard),
-            /&& !cloneuCall/u,
-        );
+        // C makemon() never tests ACCESSIBLE() on the requested square, so
+        // the port must not refuse a call whose hero square is a pool, tree
+        // or wall before enexto_core() relocates it.
+        assert.doesNotMatch(MAKEMON_JS_SOURCE, /ACCESSIBLE\(/u);
+        assert.doesNotMatch(MAKEMON_JS_SOURCE, /non-accessible location/u);
 
         const state = initialLevelState();
         state.in_mklev = false;

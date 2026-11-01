@@ -8,7 +8,6 @@
 // species-specific branches remain explicitly bounded.
 
 import {
-    ACCESSIBLE,
     ALL_TRAPS,
     AM_CHAOTIC,
     AM_LAWFUL,
@@ -1583,28 +1582,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     if (state.in_mklev && (mmflags & MM_EDOG)) {
         throw new UnsupportedMonsterCreationError(
             'edog creation during mklev',
-        );
-    }
-    // C makemon does not check ACCESSIBLE for explicitly placed mklev
-    // monsters; level templates position eels on water and other species on
-    // terrain the template chose.  Guards are placed at wall positions that
-    // invault() converts to doors immediately after creation.
-    // read.c particular creation passes the hero square as a request for
-    // nearby placement; makemon.c selects that square before checking it.
-    if (!state.in_mklev && !createParticularCall && !startingPetCall && !deadbookCall
-        && !familiarCall && !wereSummonCall
-        && !runtimeExplicitRandomCall && !runtimeGroupCall
-        && !explicitInventorylessHeroCall && !randomCoordinates
-        && !hatchEggCall
-        && !explicitCoordinateRuntimeCall
-        && !explicitCoordinateNoFlagsRuntimeCall
-        && !explicitCoordinateNoMinventRuntimeCall
-        && !vaultGuardCall
-        && !cloneWizardCall && !furiesCall
-        && !cloneuCall
-        && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
-        throw new UnsupportedMonsterCreationError(
-            `non-accessible location <${x},${y}>`,
         );
     }
     if (!ptr && !(mmflags & MM_NOGRP) && !state.in_mklev
