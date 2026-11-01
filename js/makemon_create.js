@@ -1635,6 +1635,10 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             // lifecycle without an initial-level species reservoir gate.
             && !minionSummonCall
             && !wereSummonCall
+            // trap.c animate_statue() creates whatever species the statue
+            // records in corpsenm, with NO_MINVENT, so no species-specific
+            // inventory arm runs.
+            && !statueAnimationCall
             && !deadbookCall
             && !runtimeGroupCall
             && !createParticularCall

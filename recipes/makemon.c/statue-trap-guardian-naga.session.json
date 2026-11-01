@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "makemon.c makemon(): a Samurai wishes a statue trap and then a guardian naga statue onto the same square, steps off and back on, and trap.c animate_statue() creates the difficulty-16 naga with NO_MINVENT|MM_NOMSG",
+  "segments": [
+    {
+      "seed": 6624019,
+      "datetime": "20261108110000",
+      "nethackrc": "OPTIONS=name:Carver,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "kk\u0017statue trap\n\u0017statue of a guardian naga\nkj\nmsms "
+    }
+  ]
+}
