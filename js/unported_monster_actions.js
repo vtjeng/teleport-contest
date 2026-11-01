@@ -448,6 +448,17 @@ function cloneLocationGrid(locations) {
     );
 }
 
+// Copy shk.c's struct damage chain in list order: when, place, cost, typ,
+// flags and next.
+function cloneDamageList(damage) {
+    if (!damage) return damage ?? null;
+    return {
+        ...damage,
+        place: { ...damage.place },
+        next: cloneDamageList(damage.next ?? null),
+    };
+}
+
 export function planningState(state) {
     const monsterMap = new Map();
     for (const head of [
@@ -559,6 +570,12 @@ export function planningState(state) {
                 dst: trap.dst ? { ...trap.dst } : trap.dst,
                 teledest: trap.teledest ? { ...trap.teledest } : trap.teledest,
             })),
+            // C's svl.level.damagelist. shk.c shk_move() reaches
+            // shk_fixes_damage(), whose discard_damage_struct() relinks and
+            // frees a record, and add_damage() raises a record's cost and
+            // `when` in place. Sharing the chain would let the dry run repair
+            // shop damage that the live pass then never repairs.
+            damagelist: cloneDamageList(state.level.damagelist),
             // vision.c keeps one cached transparency index, which the planned
             // state borrows. A planned door opening or visible-region change
             // rebuilds the index from the clone, and the planning wrapper

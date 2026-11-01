@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent shk.c shk_fixes_damage()/repair_damage() witness for two pending shop-damage records. A levitating Valkyrie arrives inside a D:4 general store, wishes for a hole on her square, steps west and wishes for a second hole. Each hole is trap.c maketrap() zero-cost shop damage. While she hovers over the newer hole, the list head, the keeper repairs the older, non-head record first; she then moves off the newer hole so that it is repaired too. Seed, date, role and inputs were chosen for this recipe.",
+  "segments": [
+    {
+      "seed": 4417313,
+      "datetime": "20711114093015",
+      "nethackrc": "OPTIONS=name:Patcher,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u00164\n  \u0017ring of levitation\nPer \u0017hole\nh\u0017hole\nssssssssssssl ssssssss"
+    }
+  ]
+}
