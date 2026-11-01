@@ -787,7 +787,7 @@ async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
         const endearment = !random.rn2(2) ? 'lover'
             : !random.rn2(2) ? 'dear' : 'sweetheart';
         const query = `"Shall I remove your ${str}, ${endearment}?"`;
-        if (await y_n(query, state) === 'n') return;
+        if (await y_n(query, state) === 'n'.charCodeAt(0)) return;
     } else {
         const hair = body_part(HAIR, state.youmonst);
         const hairText = `let me run my fingers through your ${hair}`;
@@ -865,6 +865,15 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
         return 0;
     }
 
+    // The rest of doseduce() can ask y_n() questions in mayberem() and the
+    // ring offers, and its outcome draws follow those answers. Stop a
+    // planning clone at this boundary so the live pass asks them.
+    if (rawEnv.planning) {
+        if (typeof rawEnv.requestPlanningInput !== 'function')
+            throw new TypeError('planned doseduce requires an input boundary');
+        rawEnv.requestPlanningInput('mhitu.c doseduce');
+    }
+
     const seewho = canseemon(mon, state);
     if (!seewho) await pline('Someone caresses you...');
     else await pline(`You feel very attracted to ${mon_nam(mon, state, namingEnv)}.`);
@@ -901,7 +910,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 );
                 makeknown(RIN_ADORNMENT);
                 set_voice(mon, 0, 80, 0, state);
-                if (await y_n(query, state) === 'n') {
+                if (await y_n(query, state) === 'n'.charCodeAt(0)) {
                     ring = nextRing;
                     continue;
                 }
@@ -944,7 +953,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 );
                 makeknown(RIN_ADORNMENT);
                 set_voice(mon, 0, 80, 0, state);
-                if (await y_n(query, state) === 'n') {
+                if (await y_n(query, state) === 'n'.charCodeAt(0)) {
                     ring = nextRing;
                     continue;
                 }

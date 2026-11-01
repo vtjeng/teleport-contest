@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent mhitu.c recipe: a dwarven Valkyrie in debug mode creates an incubus and waits with forced searches. doseduce() asks mayberem()'s shield question, which ESC answers 'n', so the shield stays on. The monster-turn planning pass must stop before doseduce() rather than ask the question itself.",
+  "segments": [
+    {
+      "seed": 71093501,
+      "datetime": "20620905191500",
+      "nethackrc": "OPTIONS=name:Courted,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u001b\u0007incubus\n ms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001bms\u001b\u001b"
+    }
+  ]
+}
