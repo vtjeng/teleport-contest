@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of hd-after-tutorial-polyself with showexp and statuslines:3, so BL_EXP is disabled along with BL_XP and the fields sit on the three-line layout's second row. The hero polymorphs into a hill orc (mlevel 2) in the tutorial and leaves it through #quit; the tty keeps HD:2. A later wizard-mode #polyself into the hero's own race reaches polyself.c newman(), which fails its survival check here; the hero declines the wizard-mode Die? prompt, and the status still shows HD:2.",
+  "segments": [
+    {
+      "seed": 90417,
+      "datetime": "20310922201000",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=playmode:debug,!legacy,!splash_screen,pettype:none,!autopickup,showexp,statuslines:3\n",
+      "moves": " y     #polyself\nhill orc\n\u001b\u001bs#quit\ny  ss#polyself\nelf\n\u001b\u001bss"
+    }
+  ]
+}

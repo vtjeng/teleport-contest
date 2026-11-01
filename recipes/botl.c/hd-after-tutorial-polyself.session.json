@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c status_initialize(REASSESS_ONLY), reached from polyself.c set_uasmon(), enables BL_HD and disables BL_XP in the tty when the hero polymorphs. nhlua.c nhl_gamestate() restores u (so u.umonnum and !Upolyd) on leaving the tutorial without reassessing the fields. evaluate_and_notify_windowport() then stops sending BL_HD, and wintty.c tty_status_update() drops BL_XP, so the tty keeps the last BL_HD it was sent. The hero takes wizard-mode #polyself into a dingo (mlevel 4) in the tutorial, #quit's yes answer returns to level 1, and the status line keeps HD:4 with the restored HP and AC.",
+  "segments": [
+    {
+      "seed": 58213,
+      "datetime": "20290305141500",
+      "nethackrc": "OPTIONS=name:Odrel,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " y     #polyself\ndingo\n\u001b\u001bss#quit\ny  sss"
+    }
+  ]
+}

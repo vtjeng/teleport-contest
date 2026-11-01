@@ -8512,6 +8512,9 @@ test('status uses source attribute order and exceptional strength text', async (
 
     state.flags.showexp = false;
     state.flags.time = false;
+    // options.c optfn_boolean() follows a showexp or time change with
+    // status_initialize(REASSESS_ONLY); the tty draws only enabled fields.
+    status_initialize(state);
     await bot();
     assert.equal(
         row(23),
