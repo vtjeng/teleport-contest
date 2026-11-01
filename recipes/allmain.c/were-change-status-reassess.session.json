@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent allmain.c moveloop_core() witness for its \"if (gw.were_changes) set_uasmon();\" step. The 23:30 start on a full moon gives a human-form were a 1-in-3 chance each turn to change. A debug Priestess creates a werejackal next to her and waits with safe_wait off. Its bites lower her hit points, which hilite_status:hitpoints/down/red shows in red for up to 30 turns. When the werejackal changes into a jackal, set_uasmon() calls status_initialize(REASSESS_ONLY); gu.update_all resets the temporary highlight, and the next status shows the hit points without colour.",
+  "segments": [
+    {
+      "seed": 6619047,
+      "datetime": "20261124233000",
+      "nethackrc": "OPTIONS=name:Werewatch,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!safe_wait,time,color,statushilites:30,hilite_status:hitpoints/down/red\n",
+      "moves": "\u001b\u0007werejackal\n\u001bsssss"
+    }
+  ]
+}

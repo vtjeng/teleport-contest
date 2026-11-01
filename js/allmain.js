@@ -69,7 +69,7 @@ import {
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectOperationError } from './obj.js';
-import { polyself } from './polyself.js';
+import { polyself, set_uasmon } from './polyself.js';
 import { you_were } from './were.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
@@ -1174,6 +1174,10 @@ async function finishElapsedTurnAfterSearch(state, random, { planning = false } 
             ...searchEnv,
         });
     }
+    // C ref: allmain.c:347-350. A were change this turn (were.c new_were()
+    // and were_change(), counted from mcalcdistress()) updates the hero's
+    // innate intrinsics, mainly Drain_resistance.
+    if (state.gw.were_changes) set_uasmon(state);
     // C ref: allmain.c:351 mkot_trap_warn(). Sense traps near the hero when
     // wielding the Master Key of Thievery without gloves.
     await mkot_trap_warn(state);
