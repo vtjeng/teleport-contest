@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Exercises hack.c move_out_of_bounds() with mention_walls on. A debug level teleport reaches Juiblex's swamp, whose floor runs along map row 0; a magic map and a controlled teleport put the hero on that row. A step north reports the cardinal direction through cmd.c xytodir() and directionname(), and northwest and northeast steps there, away from a corner, report their cardinal part.",
+  "segments": [
+    {
+      "seed": 3108851,
+      "datetime": "20350308074500",
+      "nethackrc": "OPTIONS=name:Edgewalker,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,mention_walls\n",
+      "moves": "  #wizlevelport\n?\nm\u001b\u001b\u0006\u0014>Kkkkh.\u001bkyu"
+    }
+  ]
+}

@@ -379,12 +379,12 @@ test('the closed-door arm owns its capability and impairment branches', async ()
 // hack.c move_out_of_bounds() took over the off-map refusal from an accident:
 // blocksMove() used to answer "blocked" for a square with no location, and
 // deleting its door term exposed that. The committed rush case reaches the
-// silent arm only, with mention_walls off, so the fail-closed guard and the
-// context.move = 0 beside it were both deletable with the suite green.
+// silent arm only, with mention_walls off, so the context.move = 0 beside it
+// was deletable with the suite green.
 //
 // The force-fight arm is scripts/force-fight.test.mjs's; this file keeps the
 // two arms that leave the hero where he stood.
-test('an off-map step refuses silently, or fails closed when it would speak', async () => {
+test('an off-map step refuses silently, or names the direction', async () => {
     const { segments } = loadClosedDoorAutoopenRecipe();
     const base = segments.find(seg => seg.moves[0] === 'h');
 
@@ -404,17 +404,23 @@ test('an off-map step refuses silently, or fails closed when it would speak', as
     assert.equal(game.multi, 0);
     assert.equal(game.moves, movesBefore);
 
-    // hack.c:2592-2606, the arm C prints through. It needs cmd.c
-    // directionname(), which is unported, so it fails closed. The step still
-    // spends no turn in C, so the refusal drops a line and nothing else.
+    // hack.c:2592-2606, the arm C prints through. A cardinal step names its
+    // own direction; recordings/hack.c/move-out-of-bounds-mention-walls
+    // records the same message for north in C. The step still spends no turn.
     await runSegment({ ...base, moves: '' });
     game.u.ux = 1;
     game.context.forcefight = 0;
     game.flags.mention_walls = true;
+    const movesBeforeSpeaking = game.moves;
     game.nhDisplay.pushKey(walkWest);
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error.reason === 'move out of bounds',
+    await moveloop_core();
+    assert.equal(game.u.ux, 1);
+    assert.equal(game.context.move, 0);
+    assert.equal(game.multi, 0);
+    assert.equal(game.moves, movesBeforeSpeaking);
+    assert.equal(
+        game._ttyToplines,
+        'You have already gone as far west as possible.',
     );
 });
 
