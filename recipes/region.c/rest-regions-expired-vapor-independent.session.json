@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83317,
+      "datetime": "20280420071512",
+      "nethackrc": "OPTIONS=name:VaporProbe,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!tips,time\n",
+      "moves": "\u0017cursed scroll of stinking cloud\n\nri\n\nhhhhh.\u00163\nmsmsmsmsmsmsmsmsmsmsmsms\u00161\nmsmsms"
+    }
+  ],
+  "comment": "region.c rest_regions() subtracts the turns spent away from each timed region of a returning level and removes any whose time has run out, without running its expire callback. A debug-mode Archeologist wishes for a cursed scroll of stinking cloud, reads it, and centres the five-square cloud five columns to his left, where its time to live is four to six turns. He level-teleports to depth 3 at once, forces twelve searches with the m prefix so that monsters can neither refuse nor interrupt them, and returns to depth 1, where C has discarded the cloud. The seed, clock and character were chosen for this case."
+}

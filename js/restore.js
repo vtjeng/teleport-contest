@@ -10,7 +10,9 @@
 // reconstruction (docrt, bot) and the welcome-back message follow in the
 // caller (jsmain.js).
 
-import { rest_region_capacity } from './region.js';
+import { rest_regions } from './region.js';
+import { newsym } from './display.js';
+import { cansee, does_block, unblock_point } from './vision.js';
 import { mon_catchup_elapsed_time } from './dog.js';
 import {
     COLNO,
@@ -194,7 +196,10 @@ export async function dorestore(state = game) {
 
     // Level and dungeon state
     state.level = snapshot.level;
-    rest_region_capacity(state.level);
+    // C ref: restore.c getlev():1225 rest_regions(). The game state and the
+    // regions were saved on the same turn, so only regions whose time had
+    // already run out are discarded.
+    rest_regions(snapshot.moves, state, restoredRegionVisuals(state));
     // C ref: restore.c getlev():1113 rest_stairs(), which dorecover() reaches
     // through getlev() for the hero's level.
     rest_stairs(snapshot.stairs, state);
@@ -569,6 +574,17 @@ function rebuildEquipmentPointers(state) {
 // each monster (mon_catchup_elapsed_time) and gives hiders a chance to hide
 // (hide_monst, conditioned on elapsed > rnd(10)).
 
+// region.c remove_region() unblocks and redraws a visible region's squares
+// through the live vision and display state, as C does inside getlev().
+function restoredRegionVisuals(state) {
+    return {
+        doesBlock: (x, y, location) => does_block(x, y, location, state),
+        unblockPoint: (x, y) => unblock_point(x, y, state),
+        canSee: (x, y) => cansee(x, y, state),
+        newsym: (x, y) => newsym(x, y),
+    };
+}
+
 export async function getlev(ledger, state = game) {
     const snapshot = state._savedLevels?.[ledger];
     if (!snapshot) {
@@ -577,7 +593,6 @@ export async function getlev(ledger, state = game) {
 
     // Restore the level, stairs, engravings, smeq, updest, dndest.
     state.level = snapshot.level;
-    rest_region_capacity(state.level);
     state.stairs = snapshot.stairs;
     state.head_engr = snapshot.head_engr;
     if (snapshot.smeq) state.smeq = snapshot.smeq;
@@ -681,6 +696,12 @@ export async function getlev(ledger, state = game) {
             hide_monst(mtmp, state);
         }
     }
+
+    // C ref: restore.c getlev():1225 rest_regions(), after restdamage() and
+    // before rest_bubbles(). savelev() wrote the region timestamp from the
+    // same svm.moves it saved as omoves.
+    rest_regions(snapshot.omoves ?? state.moves, state,
+        restoredRegionVisuals(state));
 
     if (snapshot.waterlevel) restore_waterlevel(snapshot.waterlevel, state);
 

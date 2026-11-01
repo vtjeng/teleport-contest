@@ -1133,6 +1133,27 @@ export function rest_region_capacity(level) {
     for (const region of level.regions) region.max_monst = region.monsters.length;
 }
 
+// C ref: region.c rest_regions() (797-890) for a level saved by this game
+// (not a bones file). save_regions() wrote svm.moves as the region
+// timestamp; `savedMoves` is that value. Each timed region loses the turns
+// spent away from the level, and every region whose time has run out is
+// removed without running its expire callback. The removal can redraw a
+// visible region's squares, so the caller supplies remove_region()'s
+// vision and display operations.
+export function rest_regions(savedMoves, state = game, rawEnv = {}) {
+    rest_region_capacity(state.level);
+    const tmstamp = state.moves - savedMoves;
+    const regions = state.level.regions;
+    for (const region of regions) {
+        if (region.ttl >= 0)
+            region.ttl = region.ttl > tmstamp ? region.ttl - tmstamp : 0;
+    }
+    for (let index = regions.length - 1; index >= 0; --index) {
+        const region = regions[index];
+        if (region.ttl === 0) remove_region(region, state, rawEnv);
+    }
+}
+
 // C ref: region.c region_stats() (899-922). Preserve sizeof(NhRegion)
 // in the capacity term even though the allocated array contains pointers.
 export function region_stats(headerFormat, state = game) {
