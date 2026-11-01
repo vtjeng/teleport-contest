@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73095,
+      "datetime": "20320508201500",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none,time\n",
+      "moves": " y   10s#quit\ny i +\u001bs"
+    }
+  ],
+  "comment": "Enters the startup tutorial as a Wizard, spends ten turns there, then answers #quit's tutorial query with y. end.c done2() schedules the return; do.c goto_level() calls nhlua.c tutorial(FALSE), and nhlib.lua tutorial_leave() restores the saved turn counter, inventory, worn items, and spellbook through nhl_gamestate(TRUE). The inventory and spell listings show the restored state."
+}

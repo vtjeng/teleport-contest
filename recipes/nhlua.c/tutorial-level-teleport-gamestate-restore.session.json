@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84217,
+      "datetime": "20340930110500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,playmode:debug,pettype:none,time\n",
+      "moves": " y   5s\u0016?\na i s"
+    }
+  ],
+  "comment": "Cheap variation of the tutorial exit: a debug-mode Valkyrie spends five turns in tut-1 and then picks Dungeons of Doom level 1 from the ^V level-teleport menu. teleport.c level_tele() schedules the move; do.c goto_level() calls nhlua.c tutorial(FALSE), whose nhlib.lua tutorial_leave() prints \"Resetting time to move #1.\" and restores the saved inventory and worn armor through nhl_gamestate(TRUE)."
+}
