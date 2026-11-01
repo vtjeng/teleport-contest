@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent trap.c sink_into_lava() witness, unmounted. A fire-resistant Valkyrie wishes for lava under herself, so lava_effects() traps her (TT_LAVA), then searches in place: each turn allmain.c moveloop_core() calls sink_into_lava(), which lowers u.utrap's high byte and, since she did not move, adds rnd(4). When the high byte runs out she sinks below the surface and dies (done(DISSOLVED)); answering the debug-mode 'Die?' prompt with the default 'n' takes the life-saved arm: reset_utrap(TRUE), then safe_teleds(). Searches typed after death land on --More-- and are ignored.",
+  "segments": [
+    {
+      "seed": 6630511,
+      "datetime": "20670911203318",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017uncursed ring of fire resistance\n Pel \u0017lava\n    ssssssssssssssssssss  n     "
+    }
+  ]
+}

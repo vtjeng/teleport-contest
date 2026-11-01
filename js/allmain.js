@@ -541,9 +541,14 @@ export async function finishHeroTimeEffects(state = game, env = {}) {
     if (state.iflags?.hilite_delta)
         status_eval_next_unhilite(state);
     await applyClairvoyancePlan(plan, state, env);
-    if (!state.u.utrap || state.u.utraptype !== TT_LAVA) {
-        if (!state.u.umoved) await pooleffects(false, state);
+    // A fast hero sinks once per action, so possibly more than once a turn.
+    if (state.u.utrap && state.u.utraptype === TT_LAVA) {
+        const { sink_into_lava } = await import('./trap.js');
+        await sink_into_lava(state);
     }
+    // When the hero escapes from lava, he cannot just stay there.
+    else if (!state.u.umoved)
+        await pooleffects(false, state);
 }
 
 export class UnsupportedTurnBoundaryError extends Error {

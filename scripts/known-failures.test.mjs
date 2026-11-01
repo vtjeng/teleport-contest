@@ -35,15 +35,6 @@ const KNOWN_FAILURES = [
         name: 'mixed-fire-blind-fatal: tombstone killer attribution',
         recording: 'experiments/backlog-terminal-lava/recordings/mixed-fire-blind-fatal.session.json',
     },
-    {
-        // Mounted Wizard rides a pony into lava, then keeps sinking. Entry now
-        // matches (recordings/steed/mounted-lava-entry passes); observed
-        // failing on 3e01a48b4 and ee49a85f0 at RNG call 2792 (step 93 in
-        // the diff-fresh report), where C calls rnd(4) in trap.c
-        // sink_into_lava() and JavaScript calls rn2(12) instead.
-        name: 'lava-mounted-terrain: later lava sinking',
-        recording: 'experiments/backlog-terminal-lava/recordings/lava-mounted-terrain.session.json',
-    },
 ];
 
 for (const {name, recording} of KNOWN_FAILURES)

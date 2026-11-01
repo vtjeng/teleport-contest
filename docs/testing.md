@@ -69,7 +69,6 @@ itself is wrong.
 | Case | Observed failing on | First difference | Cause |
 | --- | --- | --- | --- |
 | `experiments/backlog-terminal-lava/recordings/mixed-fire-blind-fatal.session.json` | `3e01a48b4`, `ee49a85f0` | Tombstone screen, step 75, row 10. RNG, cursors and lengths match. | Killer attribution in `explode.c` `explode()` |
-| `experiments/backlog-terminal-lava/recordings/lava-mounted-terrain.session.json` | `3e01a48b4`, `ee49a85f0` | RNG call 2,792 (step 93): C calls `rnd(4)` in `sink_into_lava()`, JS calls `rn2(12)` | `trap.c` `sink_into_lava()` while mounted |
 
 Update this table in the commit that fixes or adds a known failure.
 

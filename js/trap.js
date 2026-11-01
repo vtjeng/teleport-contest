@@ -3,7 +3,7 @@
 // C ref: trap.c -- t_at(), hole_destination(), maketrap(), deltrap(),
 // conjoined_pits(), clear_conjoined_pits(), adj_nonconjoined_pit(),
 // choose_trapnote(), set_utrap(), reset_utrap(), fill_pit(), float_down(),
-// climb_pit(), lava_effects(), sokoban_guilt(),
+// climb_pit(), lava_effects(), sink_into_lava(), sokoban_guilt(),
 // trapname(), dountrap(), could_untrap(), untrap_prob(), cnv_trap_obj(),
 // into_vs_onto(), move_into_trap(), try_disarm(), reward_untrap(),
 // disarm_holdingtrap(), disarm_landmine(), unsqueak_ok(),
@@ -55,6 +55,7 @@ import {
     AS_OK,
     FAILEDUNTRAP,
     FIRE_RES,
+    SLIMED,
     FIRE_TRAP,
     FINGER,
     FLYING,
@@ -1818,6 +1819,54 @@ export async function lava_effects(state = game) {
     const { ignite_items } = await import('./apply_catch_lit.js');
     await ignite_items(state.invent, { state, random });
     return false;
+}
+
+// C ref: trap.c sink_into_lava() (6990-7034). allmain.c moveloop_core()
+// calls it once per hero action while the hero is stuck in lava; the high
+// byte of u.utrap counts the turns left before the hero sinks under.
+export async function sink_into_lava(state = game) {
+    const { u } = state;
+    const sink_deeper = 'You sink deeper into the lava.';
+
+    if (!u.utrap || u.utraptype !== TT_LAVA) {
+        // Nothing to do; see the C comment about a flier turned hider.
+    } else if (!is_lava(u.ux, u.uy, state)) {
+        reset_utrap(false, state); // this shouldn't happen either
+    } else if (!u.uinvulnerable) {
+        if (!heroLavaProperty(state, FIRE_RES))
+            u.uhp = Math.trunc((u.uhp + 2) / 3);
+
+        u.utrap -= (1 << 8);
+        if (u.utrap < (1 << 8)) {
+            state.killer ??= {};
+            state.killer.format = KILLED_BY;
+            state.killer.name = 'molten lava';
+            await ttyUrgentPline('You sink below the surface and die.', state);
+            await burn_away_slime(state); // add insult to injury?
+            await done(DISSOLVED, state);
+            // really_done() is NORETURN in C; the segment harness marks
+            // final death with gameover instead.
+            if (state.program_state?.gameover) return;
+            // Only life-saving gets here; try to get away from lava.
+            await reset_utrap(true, state);
+            // Levitation or flight have become unblocked, otherwise teleport.
+            if (!Levitation(state) && !Flying(state)) {
+                const { safe_teleds } = await import('./teleport.js');
+                await safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT, state);
+            }
+        } else if (!u.umoved) {
+            // Slime cannot finish while in lava, but may come close before
+            // the lava burns it away.
+            const slimed = Math.trunc(u.uprops[SLIMED].intrinsic ?? 0);
+            if (slimed && rnd(10 - 1) >= (slimed & TIMEOUT)) {
+                await ttyPline(sink_deeper, state);
+                await burn_away_slime(state);
+            } else {
+                await ttyNorep(sink_deeper, state);
+            }
+            u.utrap += rnd(4);
+        }
+    }
 }
 
 // C ref: trap.c fire_damage_chain() (4550-4573). `here` selects nexthere
