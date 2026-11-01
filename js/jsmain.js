@@ -508,6 +508,11 @@ export class NethackGame {
         // live message-history clamp.
         activate_chosen_soundlib(g);
         tty_create_nhwindow(NHW_MESSAGE, g);
+        // C ref: allmain.c init_sound_disp_gamewindows():720-721 calls
+        // status_initialize(FALSE) right after creating WIN_MESSAGE, before
+        // the restore-or-new-game branch, so a restored game has the status
+        // banks too. gb.blinit and the banks are not in the save file.
+        status_initialize(g, false);
 
         // ── Branch: restore saved game or start new one ──
         // C ref: unixmain.c nethack_main() checks for a save file between
@@ -611,10 +616,6 @@ export class NethackGame {
         }
 
         // Run game startup
-        // C ref: allmain.c newgame() creates the status window and calls
-        // status_initialize(FALSE) after player selection, only on a fresh
-        // game. Restores retain their serialized status banks.
-        status_initialize(g, false);
         await newgame();
         // C ref: sys/unix/unixmain.c nethack_main().  This boundary must
         // precede moveloop(): an existing welcome message can force More

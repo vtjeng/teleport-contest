@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent allmain.c witness for init_sound_disp_gamewindows() calling status_initialize(FALSE) (allmain.c:720-721) before the restore-or-new-game branch: a Tourist saves in the first segment; the second segment restores the game and turns on the 'time' option with O, so options.c optfn_boolean() calls status_initialize(REASSESS_ONLY) (options.c:5349-5350), which botl.c:1697 permits only after the full initialization. The seeds, dates and keys were chosen for this case.",
+  "segments": [
+    {
+      "seed": 7720277,
+      "datetime": "20351103201500",
+      "nethackrc": "OPTIONS=name:StatusTime,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,showexp\n",
+      "moves": "s.Sy"
+    },
+    {
+      "seed": 7720278,
+      "datetime": "20351103203000",
+      "nethackrc": "OPTIONS=name:StatusTime,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,showexp\n",
+      "moves": "O>p\ns."
+    }
+  ]
+}
