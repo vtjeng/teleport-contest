@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: monmove.c m_search_items():1405-1414 skips merchandise on a shk.c costly_spot(). This Minetown variant builds its shops as subrooms, so costly_spot() must find the keeper through the subroom's room number. The hero opens the general store's door, a debug-created gnomish wizard (likes_magic) appears beside it, and the hero teleports away out of line; C leaves the shop's scrolls, spellbooks and ring alone and the gnomish wizard follows the hero. Seed, clock and character chosen independently; the seed was picked for a Minetown with nested shop rooms.",
+  "segments": [
+    {
+      "seed": 71850012,
+      "datetime": "20390521163055",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0016?\n w\n\n\n\u0014 \nLljjj.ohj\u0007gnomish wizard\n\u0014HHhhhhhKkkkk.msmsmsmsmsms"
+    }
+  ]
+}
