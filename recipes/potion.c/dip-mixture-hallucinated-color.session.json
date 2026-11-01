@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: potion.c potion_dip():2581-2582 prints \"The mixture looks %s.\" with do_name.c hcolor(), whose hallucinated colour comes from rn2_on_display_rng() and never from the core RNG. A hallucinating hero dips a potion of healing into a potion of speed (mixtype() gives extra healing). Seed, clock and character chosen independently.",
+  "segments": [
+    {
+      "seed": 61927304,
+      "datetime": "20380226184409",
+      "nethackrc": "OPTIONS=name:Runa,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,time\n",
+      "moves": "\n\u0017potion of hallucination\nqe\u0017uncursed potion of healing\n\u0017uncursed potion of speed\n#dip\nfg\n\n"
+    }
+  ]
+}
