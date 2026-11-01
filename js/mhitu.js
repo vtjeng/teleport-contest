@@ -2587,6 +2587,11 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
     state.gm.mswallower = mtmp;
     await mdamageu(mtmp, tmp, state, rawEnv);
     state.gm.mswallower = null;
+    // C's mdamageu() -> done_in_by() does not return on the ordinary death
+    // path; really_done() returns here with gameover set, so stop before the
+    // expulsion that a surviving swallowed hero would get.
+    if (state.program_state?.gameover)
+        return M_ATTK_HIT;
     if (tmp) await stop_occupation(state, {
         message,
         statusRefresh: rawEnv.statusRefresh,

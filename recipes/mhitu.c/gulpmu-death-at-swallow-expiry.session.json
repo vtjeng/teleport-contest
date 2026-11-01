@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mhitu.c gulpmu() when its mdamageu() kills the engulfed hero on the turn u.uswldtim reaches zero. Debug-create a steam vortex beside a gnome Healer, decline the earlier wizard-mode deaths with the default answer, and accept the one that falls on expiry. done_in_by() does not return, so C never reaches the 'You get expelled!' branch after the death.",
+  "segments": [
+    {
+      "seed": 5523087,
+      "datetime": "20561019211507",
+      "nethackrc": "OPTIONS=name:Ilse,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "#wizgenesis\nsteam vortex\nm.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  yq"
+    }
+  ]
+}
