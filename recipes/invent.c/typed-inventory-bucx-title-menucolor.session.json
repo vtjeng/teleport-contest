@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Variation of typed-inventory-bucx-title: a MENUCOLOR rule matching the title row. query_objlist() adds gt.this_title through add_menu_str(), so windows.c add_menu() applies menu coloring to it like any other row. Also covers the C category and a custom menu_headings attribute.",
+  "segments": [{
+    "seed": 40276611,
+    "datetime": "20241130184105",
+    "nethackrc": "OPTIONS=name:Hue,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\nOPTIONS=menucolors,menu_headings:bold\nMENUCOLOR=\"known to be\"=green&underline\n",
+    "moves": " IU\u001bIB\u001bIC\u001b"
+  }]
+}

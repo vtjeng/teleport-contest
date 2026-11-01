@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "invent.c dotypeinv() (3940-4031) for the U and B categories. It passes a null qstr to pickup.c query_objlist(), which adds gt.this_title as an unhighlighted add_menu_str() row (1091-1095) above the menu_headings class headings. The U menu picks e to reach itemactions() and then cancels it.",
+  "segments": [{
+    "seed": 61907345,
+    "datetime": "20240511072233",
+    "nethackrc": "OPTIONS=name:Tally,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+    "moves": " IUe\u001bIB\u001b"
+  }]
+}

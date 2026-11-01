@@ -85,7 +85,14 @@ test('dotypeinv preserves the null query title used by invent.c', () => {
     assert.ok(cStart >= 0 && cCall > cStart);
     assert.ok(jsStart >= 0 && jsCall > jsStart && jsEnd > jsCall);
     assert.match(INVENT_C.slice(cCall, cCall + 70), /query_objlist\(\(char \*\) 0,/u);
-    assert.match(INVENT_JS.slice(jsCall, jsEnd), /state\.gt\.this_title \?\? null/u);
+    // The title reaches the menu through gt.this_title, which pickup.c
+    // query_objlist() adds as an unhighlighted row; the qstr stays null.
+    // recordings/invent.c/typed-inventory-bucx-title.session.json is the C
+    // evidence: a highlighted title, as a non-null qstr draws, mismatches.
+    assert.match(
+        INVENT_JS.slice(jsCall, jsEnd),
+        /state,\s*(?:\/\/[^\n]*\n\s*)*null,\s*PICK_ONE/u,
+    );
 });
 
 test('dotypeinv matches the recorded inventory category menu', async () => {

@@ -692,6 +692,12 @@ export async function query_objlist(
     );
 
     const items = [];
+    if (state.gt?.this_title) {
+        /* dotypeinv() supplies gt.this_title to display as initial header;
+           intentionally avoid the menu_headings highlight attribute here */
+        // pickup.c:1091-1095 add_menu_str(): an ATR_NONE, NO_COLOR text row.
+        items.push({ text: state.gt.this_title });
+    }
     const packOrder = [...(state.flags.inv_order ?? [])];
     if (qflags & INCLUDE_VENOM) packOrder.push(VENOM_CLASS);
     const menuOrder = sorted ? packOrder : [null];

@@ -5517,7 +5517,9 @@ export async function dotypeinv(state = game, hooks = {}) {
             | INVORDER_SORT | INCLUDE_VENOM,
         (obj) => this_type_only(obj, state),
         state,
-        state.gt.this_title ?? null,
+        // invent.c:4017 passes a null qstr; query_objlist() shows
+        // gt.this_title as its first, unhighlighted menu row instead.
+        null,
         PICK_ONE,
     );
     if (result.n > 0) {
