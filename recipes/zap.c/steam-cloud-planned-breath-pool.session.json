@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c zap_over_floor() fire-over-pool steam cloud during a monster's planned breath. Three wished pools lie east of the stair; a red dragon breathes along them, and the first cloud's message forces --More-- before the ray reaches the next pool. The dropped dagger's message fills the top line enough to force that --More--. The cloud the dry run made on the next pool must not block the hero's view of the real first cloud, so the screen at the --More-- shows that cloud.",
+  "segments": [
+    {
+      "seed": 61523,
+      "datetime": "20340607080910",
+      "nethackrc": "OPTIONS=name:Steam,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "\u0017red dragon scale mail\n\u0017blessed ring of levitation\nWePfr\nl\u0017pool\nl\u0017pool\nl\u0017pool\nllR\n\u0007red dragon\n\u0014@hhhhh.db\n\n\ns"
+    }
+  ]
+}

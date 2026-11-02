@@ -5229,6 +5229,21 @@ export async function melt_ice_away(arg, _timeout, rawEnv = {}) {
     }
 }
 
+// add_region() rebuilds vision.c's module-wide transparency index for a
+// cloud's points. A planning clone borrows that index, so mark the borrow
+// before the first block_point(); the planning wrapper then restores the
+// index from the live level. Without this, a dry-run cloud stays blocking on
+// the live map and hides squares the real cloud does not.
+function admitPlannedCloud(x, y, state, env, what) {
+    if (!env.planning) return;
+    if (typeof env.admitPlannedVisionChange !== 'function') {
+        throw new TypeError(
+            `planned ${what} requires admitPlannedVisionChange`,
+        );
+    }
+    env.admitPlannedVisionChange(x, y, state);
+}
+
 // C ref: zap.c zap_over_floor() (5140-5497), "location", "damage type plus
 // {wand|spell|breath} info", "extra output if shop door is destroyed",
 // "ignore any monster here", and "supplied when breaking a wand; or POT_OIL
@@ -5307,6 +5322,7 @@ export async function zap_over_floor(
             // owner; this caller supplies its live and planning operations so
             // the source's BFS draws and visible-region update are preserved.
             if (!onWaterLevel) {
+                admitPlannedCloud(x, y, state, env, 'steam cloud');
                 await create_gas_cloud(x, y, random.rnd(5), 0, {
                     ...env,
                     blockPoint: env.blockPoint
@@ -5365,6 +5381,7 @@ export async function zap_over_floor(
                 }
             }
         } else if (IS_FOUNTAIN(lev.typ)) {
+            admitPlannedCloud(x, y, state, env, 'fountain steam');
             await create_gas_cloud(x, y, random.rnd(3), 0, {
                 ...env,
                 blockPoint: env.blockPoint
@@ -5495,18 +5512,7 @@ export async function zap_over_floor(
         // Poison gas with range one is the green dragon/iron golem breath
         // arm.  Wall squares are deliberately ignored by C's ZAP_POS test.
         if (ZAP_POS(lev.typ)) {
-            // add_region() rebuilds vision.c's shared transparency index for
-            // the planned cloud map. Mark that borrowed index first so the
-            // planning wrapper restores it from the live level afterwards.
-            if (env.planning) {
-                if (typeof env.admitPlannedVisionChange !== 'function') {
-                    throw new TypeError(
-                        'planned poison gas requires '
-                        + 'admitPlannedVisionChange',
-                    );
-                }
-                env.admitPlannedVisionChange(x, y, state);
-            }
+            admitPlannedCloud(x, y, state, env, 'poison gas');
             await create_gas_cloud(x, y, 1, 8, {
                 ...env,
                 allowPositiveDamage: true,

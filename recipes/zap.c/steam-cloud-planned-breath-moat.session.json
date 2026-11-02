@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of steam-cloud-planned-breath-pool: the middle wished square is a moat, so the first cloud takes zap_over_floor()'s non-POOL arm ('Some water evaporates.') and the terrain stays water.",
+  "segments": [
+    {
+      "seed": 61523,
+      "datetime": "20340607080910",
+      "nethackrc": "OPTIONS=name:Steam,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "\u0017red dragon scale mail\n\u0017blessed ring of levitation\nWePfr\nl\u0017pool\nl\u0017moat\nl\u0017pool\nllR\n\u0007red dragon\n\u0014@hhhhh.db\n\n\ns"
+    }
+  ]
+}
