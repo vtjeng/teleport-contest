@@ -216,6 +216,7 @@ import {
     normal_shape,
 } from '../js/mon.js';
 import { cancel_monst } from '../js/zap.js';
+import { newegd } from '../js/vault.js';
 import { clear_bypasses } from '../js/worn.js';
 import {
     create_region,
@@ -3517,6 +3518,10 @@ test('simple preflight preserves parked-guard source ordering', async () => {
         const target = await prepareSelectedAction();
         clearCoordinateGrid(game.level.monsters);
         target.monster.isgd = true;
+        // makemon() gives every guard its vault.c egd record (MM_EGD); the
+        // guard belongs to the hero's level.
+        newegd(target.monster);
+        target.monster.mextra.egd.gdlevel = { ...game.u.uz };
         target.monster.mx = 0;
         target.monster.my = 0;
         // moves=2 makes mlstmv=1 due and mlstmv=2 already handled.
@@ -3526,8 +3531,14 @@ test('simple preflight preserves parked-guard source ordering', async () => {
 
         for (let attempt = 0; attempt < 2; ++attempt) {
             // mon.c movemon_singlemon() hands a due parked guard to
-            // gd_move(); the dry run plans it without touching live state.
-            await preflightSimpleMonsterActions(game);
+            // gd_move(), where the dry run stops so the live scan runs it;
+            // an inert one is never handed over. Neither touches live state.
+            const plan = await preflightSimpleMonsterActions(game);
+            assert.equal(
+                plan.inputBoundary?.operation,
+                due ? 'vault.c gd_move' : undefined,
+                `${due ? 'due' : 'inert'} guard boundary, attempt ${attempt + 1}`,
+            );
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, target.replay),
                 before,

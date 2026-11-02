@@ -1812,8 +1812,9 @@ async function planSimpleMonsterScan(monster, env) {
             throw new MonsterInputPlanningBoundaryError(operation);
         },
         // C ref: mon.c movemon_singlemon():1233-1239. The parked guard's
-        // vault.c gd_move() receives env.planning and leaves the clone alone,
-        // as it does for a guard on the map; the live scan runs it.
+        // vault.c gd_move() receives env.planning and stops the dry run
+        // through requestPlanningInput above, as it does for a guard on the
+        // map; the live scan runs it and the plan resumes after that scan.
         guardMove: (guard, guardEnv) => gd_move(guard, guardEnv),
         everyTurnEffect: planningEveryTurnEffect,
         // C ref: mon.c:1258-1259. movemon()'s tail sets vision_full_recalc

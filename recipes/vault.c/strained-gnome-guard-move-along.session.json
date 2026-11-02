@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "vault.c gd_move() draws rn2(10) for \"Move along!\" whenever the guard is not next to a hero who has not followed it. The port's dry run of a turn used to skip gd_move() entirely, so its random draws fell behind the live game's after the guard's first move, and for a burdened hero its count of movement allocations could disagree with the live count (\"elapsed-turn preflight disagreed with live allocation count\"). The dry run now stops at gd_move() and the live pass plans the rest of the turn after that scan. A debug-mode Monk (intrinsically Fast) teleports into a level-1 vault, wishes for a heavy iron ball, polymorphs into a gnome (Strained), answers the guard and keeps searching while the guard calls \"Move along!\". Independent of the c-diff-b4 examples and of strained-gnome-guard-question-midturn.",
+  "segments": [
+    {
+      "seed": 51207408,
+      "datetime": "20260214093000",
+      "nethackrc": "OPTIONS=name:Tarsus,role:Monk,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none,time\n",
+      "moves": "\u0014  LJjjjj. \u0017heavy iron ball\n#polyself\ngnome\n 60s Tarsus\nssss"
+    }
+  ]
+}
