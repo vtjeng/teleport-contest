@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730418,
+      "datetime": "20270314162045",
+      "nethackrc": "OPTIONS=name:Restless,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": "\u0007soldier\n\u001bm.20.    \u001b"
+    }
+  ],
+  "comment": "do.c donull() under cmd.c timed_occupation(). The m. rest gives the newly created soldier a turn's movement. The counted rest then installs the waiting occupation with gm.multi 19. The adjacent soldier's mhitu.c mattacku() runs nomul(0), which zeroes gm.multi but leaves the occupation set, and spends the attack wielding its weapon, so no hit or miss calls stop_occupation(). On the next turn timed_occupation() calls donull() with gm.multi 0, so cmd_safety_prevention() prints \"Are you waiting to get hit?\" and donull() answers ECMD_OK, which timed_occupation() discards: svc.context.move stays TRUE from moveloop_core(), and the soldier still attacks that turn."
+}
