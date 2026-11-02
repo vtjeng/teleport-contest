@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 582213,
+      "datetime": "20360614101530",
+      "nethackrc": "OPTIONS=name:Describer,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,autodescribe\n",
+      "moves": ";!mlm."
+    }
+  ],
+  "comment": "getpos.c auto_describe() witness: with autodescribe on, farlook switches to the target menu with '!', then 'm' finds no monster but the hero, so getpos_menu() prints \"You cannot detect any monsters.\" without setting msg_given. The following auto_describe() is custompline(SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U): show_topl() replaces that line instead of appending to it. A cursor move and a second 'm' repeat the pair before '.' picks the spot."
+}

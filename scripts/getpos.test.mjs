@@ -335,6 +335,8 @@ test('getpos automatic descriptions include configured compass coordinates', asy
     // auto_describe() writes through show_topl(), which leaves gt.toplines
     // empty, so read the displayed top line rather than the history line.
     game._preNhgetchHook = async () => {
+        // auto_describe() writes with SUPPRESS_HISTORY, so the description
+        // is on the screen's top line but never becomes gt.toplines.
         if (game.gg.getposx === target.x && game.gg.getposy === target.y)
             descriptions.push(game._pending_message);
     };
