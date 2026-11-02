@@ -134,18 +134,9 @@ test('Wizard cloak confers and removes its worn extrinsic', async () => {
     const cloak = game.uarmc;
     assert.equal(cloak?.otyp, O.CLOAK_OF_MAGIC_RESISTANCE);
     assert.equal(game.u.uprops[ANTIMAGIC].extrinsic & W_ARMC, W_ARMC);
-    assert.throws(
-        () => setnotworn(cloak, env),
-        /worn requires cancelDoff/,
-    );
-    assert.equal(game.uarmc, cloak);
-    assert.equal(cloak.owornmask & W_ARMC, W_ARMC);
-    assert.equal(game.u.uprops[ANTIMAGIC].extrinsic & W_ARMC, W_ARMC);
-
-    setnotworn(cloak, {
-        ...env,
-        hooks: { ...env.hooks, ...removalHooks() },
-    });
+    // No removal hooks: setnotworn() runs worn.c's own callees,
+    // cancel_doff() and monstunseesu_prop(), as ball.c litter() needs.
+    setnotworn(cloak, env);
     assert.equal(game.uarmc, null);
     assert.equal(game.u.uprops[ANTIMAGIC].extrinsic & W_ARMC, 0);
     assert.equal(cloak.owornmask & W_ARMC, 0);

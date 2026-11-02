@@ -64,8 +64,10 @@ import {
     ART_EYES_OF_THE_OVERWORLD,
     ART_SNICKERSNEE,
     artifact_light,
+    set_artifact_intrinsic,
     Stone_resistance,
 } from './artifacts.js';
+import { cancel_doff } from './do_wear.js';
 import { game } from './gstate.js';
 import { see_wsegs } from './worm.js';
 import { newsym, canspotmon } from './display.js';
@@ -105,9 +107,11 @@ import {
 import {
     breakarm,
     cantweararm,
+    cvt_prop_to_mseenres,
     has_horns,
     mhim,
     mhis,
+    monstunseesu,
     nohands,
     raceptr,
     sliparm,
@@ -213,8 +217,9 @@ function property(state, index) {
     return result;
 }
 
-// WornEnv hook contract. These hooks own source subsystems which are not yet
-// ported here, and run at their exact C call boundaries:
+// WornEnv hook overrides. setworn() and setnotworn() call their source
+// callees directly; a hook replaces one only for a caller that must observe
+// or suppress that call:
 //
 //   cancelDoff(obj, slotMask, env) -> do_wear.c cancel_doff().
 //   monsterUnseesProperty(propertyIndex, env) -> monstunseesu_prop().
@@ -249,18 +254,24 @@ function blockedProperty(obj, mask, state) {
     return 0;
 }
 
+// C ref: worn.c:106, 130 and 173 set_artifact_intrinsic().
 function artifactIntrinsic(obj, on, mask, env) {
     if (!obj.oartifact) return;
-    const hook = requiredHook(env, 'setArtifactIntrinsic', obj);
-    return hook(obj, on, mask, env);
+    const hook = env.hooks.setArtifactIntrinsic;
+    if (hook) return hook(obj, on, mask, env);
+    return set_artifact_intrinsic(obj, on, mask, env.state, env);
 }
 
+// C ref: worn.c:102 and 170 monstunseesu_prop(), monst.h:94.
 function monsterUnseesProperty(index, obj, env) {
-    requiredHook(env, 'monsterUnseesProperty', obj)(index, env);
+    const hook = env.hooks.monsterUnseesProperty;
+    if (hook) hook(index, env);
+    else monstunseesu(cvt_prop_to_mseenres(index), env.state);
 }
 
+// C ref: worn.c:110 and 164 cancel_doff().
 function cancelDoff(obj, slotMask, env) {
-    requiredHook(env, 'cancelDoff', obj)(obj, slotMask, env);
+    (env.hooks.cancelDoff ?? cancel_doff)(obj, slotMask, env);
 }
 
 // C ref: worn.c setworn(), old-object branch. slotMask owns the slot-local
@@ -286,24 +297,6 @@ function addSlotEffects(obj, slotMask, callerMask, env) {
         if (blocked) property(state, blocked).blocked |= slotMask;
     }
     return artifactIntrinsic(obj, true, callerMask, env);
-}
-
-function preflightSetworn(obj, mask, env) {
-    const { state } = env;
-    for (const slot of WORN_SLOTS) {
-        if (!(slot.mask & mask)) continue;
-        const old = state[slot.field] ?? null;
-        if (old) {
-            requiredHook(env, 'cancelDoff', old);
-            if (!(slot.mask & (W_SWAPWEP | W_QUIVER))) {
-                requiredHook(env, 'monsterUnseesProperty', old);
-                if (old.oartifact)
-                    requiredHook(env, 'setArtifactIntrinsic', old);
-            }
-        }
-        if (obj?.oartifact && !(slot.mask & (W_SWAPWEP | W_QUIVER)))
-            requiredHook(env, 'setArtifactIntrinsic', obj);
-    }
 }
 
 // C ref: worn.c recalc_telepat_range(). Artifact ESP is injected because the
@@ -382,7 +375,6 @@ export function setworn(obj, mask, env = {}) {
 function* setworn_steps(obj, mask, env) {
     const normalized = wornEnv(env);
     const { state } = normalized;
-    preflightSetworn(obj, mask, normalized);
     for (const slot of WORN_SLOTS) {
         if (!(slot.mask & mask)) continue;
         const old = state[slot.field] ?? null;
@@ -427,13 +419,6 @@ function* setnotworn_steps(obj, env) {
     if (!obj) return null;
     const normalized = wornEnv(env);
     const { state } = normalized;
-    for (const slot of WORN_SLOTS) {
-        if (state[slot.field] !== obj) continue;
-        requiredHook(normalized, 'cancelDoff', obj);
-        requiredHook(normalized, 'monsterUnseesProperty', obj);
-        if (obj.oartifact)
-            requiredHook(normalized, 'setArtifactIntrinsic', obj);
-    }
     if (state.u.twoweap && (obj === state.uwep || obj === state.uswapwep))
         set_twoweap(false, state);
     let unworn = 0;
@@ -1570,6 +1555,5 @@ export const _wornInternals = Object.freeze({
     addSlotEffects,
     blockedProperty,
     is_pole,
-    preflightSetworn,
     removeSlotEffects,
 });

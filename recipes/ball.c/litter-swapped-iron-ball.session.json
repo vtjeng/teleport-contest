@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "drag_down() litter() drops a wielded-slot object down the stairs. A punished Valkyrie wields her attached iron ball, so pushweapon leaves a second wished iron ball as the alternate weapon; drag_down() always falls forward and litter() calls setnotworn() on that alternate weapon. Seed, date and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 5172093,
+      "datetime": "20460718142233",
+      "nethackrc": "OPTIONS=name:Litter,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,pushweapon\n",
+      "moves": " \u0017uncursed heavy iron ball\nwe\u0017uncursed scroll of punishment\nrf , wgi \u0006\u0014  >.>    i "
+    }
+  ]
+}

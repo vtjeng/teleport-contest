@@ -175,7 +175,7 @@ import {
     set_occupation,
     yn_function,
 } from './cmd.js';
-import { artifact_light, retouch_object, set_artifact_intrinsic, Stone_resistance } from './artifacts.js';
+import { artifact_light, retouch_object, Stone_resistance } from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
 import { set_bc } from './ball.js';
@@ -197,7 +197,6 @@ import { racial_exception } from './makemon_create.js';
 import {
     can_be_strangled,
     cantweararm,
-    cvt_prop_to_mseenres,
     amphibious,
     breathless,
     has_head,
@@ -206,7 +205,6 @@ import {
     is_flyer,
     is_clinger,
     is_swimmer,
-    monstunseesu,
     nohands,
     nolimbs,
     num_horns,
@@ -803,7 +801,7 @@ export async function stop_donning(stolenobj, state = game) {
 // C ref: do_wear.c cancel_doff() (1642-1659). Worn-slot changes interrupt
 // a pending armor callback unless do_takeoff() set I_SPECIAL for its own
 // removal sequence.
-function cancel_doff(obj, slotmask, env) {
+export function cancel_doff(obj, slotmask, env) {
     const state = env.state;
     const takeoff = takeoffContext(state);
     if (!(takeoff.mask & I_SPECIAL) && donning(obj, state))
@@ -811,32 +809,19 @@ function cancel_doff(obj, slotmask, env) {
     takeoff.mask &= ~slotmask;
 }
 
-// The worn.js hook set every setworn() call needs. C runs all three from
-// inside setworn() (worn.c:73-142) itself; worn.js injects them because their
-// owners sit in other source files. It lives here because cancel_doff() does,
-// and do.c drop() imports it for its setuwep(), setuqwep() and setuswapwep()
-// calls. setnotworn() (worn.c:150) calls the same three from removal callers;
-// its copies are not interchangeable: they run for every matching
-// slot, where setworn()'s sit inside the `wp->w_mask & ~(W_SWAPWEP |
-// W_QUIVER)` gate at worn.c:93 that js/worn.js removeSlotEffects()
-// reproduces, and setnotworn() runs cancel_doff() before the property work
-// rather than after it.
+// The worn.js environment for a setworn() or setnotworn() call. worn.js runs
+// cancel_doff(), monstunseesu_prop() and set_artifact_intrinsic() itself, as
+// worn.c does. This binds the caller's state and clears any override of those
+// three that the caller's own hooks carry, so the source callees always run.
 export function setwornEnv(state = game, rawEnv = {}) {
     return {
         ...rawEnv,
         state,
         hooks: {
             ...rawEnv.hooks,
-            cancelDoff: cancel_doff,
-            // C ref: worn.c:102 monstunseesu_prop(p).
-            monsterUnseesProperty: (propertyIndex, env) => {
-                monstunseesu(cvt_prop_to_mseenres(propertyIndex), env.state);
-            },
-            // C ref: worn.c:105-106 set_artifact_intrinsic(). artifact.c owns
-            // the full implementation; the hook forwards with the caller's
-            // state so the right uprops array is updated.
-            setArtifactIntrinsic: (obj, on, mask, env) =>
-                set_artifact_intrinsic(obj, on, mask, state, env),
+            cancelDoff: undefined,
+            monsterUnseesProperty: undefined,
+            setArtifactIntrinsic: undefined,
         },
     };
 }
