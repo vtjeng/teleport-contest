@@ -33,6 +33,7 @@ import { msgtype_type } from './options.js';
 import { sound_speak } from './sounds.js';
 import {
     fitsOnTtyTopline,
+    more,
     remember_topl,
     show_topl,
     update_topl,
@@ -280,29 +281,33 @@ export async function tty_message_menu(
     if (how !== PICK_ONE)
         throw new Error(`unsupported tty_message_menu mode ${how}`);
 
-    await ttyPline(mesg, state);
-    const response = await dismissPendingTtyMessage(state, {
-        dismissMore: typeof invletter === 'number'
-            ? invletter
-            : String(invletter ?? '').charCodeAt(0),
-        returnResponse: true,
-    });
-    if (state.nhDisplay) {
-        // wintty.c restores NEED_MORE before tty_clear_nhwindow(), because
-        // more() has already reset the top-line state to EMPTY.
-        state.nhDisplay.toplin = TOPLINE_NEED_MORE;
-        clearTtyMessageWindow(state);
-    }
-    // wintty.c 2840-2843: Escape at this --More-- cancels the prompt rather
-    // than suppressing later messages, so C clears WIN_CANCELLED (the same
-    // bit as WIN_STOP) and the caller's "Never mind." is still shown.
-    state._ttyMessageStopped = false;
+    const display = state.nhDisplay;
+    if (!display)
+        throw new Error('tty_message_menu requires an initialized display');
     const selected = typeof invletter === 'number'
         ? invletter
         : String(invletter ?? '').charCodeAt(0);
-    return response && (response === selected || response === 27)
-        ? response
-        : 0;
+    // wintty.c 2828-2832. The letter also dismisses a --More-- that a
+    // message too long for one line raises inside tty_putstr(); that more()
+    // records its key in morc and leaves the top line TOPLINE_EMPTY.
+    display.dismiss_more = selected;
+    display.morc = 0;
+    await ttyPline(mesg, state);
+    // wintty.c 2834-2839: a message that fit on one line gets its --More--
+    // here; more() resets the state to EMPTY, so NEED_MORE is restored
+    // before tty_clear_nhwindow().
+    if (display.toplin === TOPLINE_NEED_MORE) {
+        await more(state);
+        display.toplin = TOPLINE_NEED_MORE;
+        clearTtyMessageWindow(state);
+    }
+    // wintty.c 2840-2844: Escape at this --More-- cancels the prompt rather
+    // than suppressing later messages, so C clears WIN_CANCELLED (the same
+    // bit as WIN_STOP) and the caller's "Never mind." is still shown.
+    state._ttyMessageStopped = false;
+    display.dismiss_more = 0;
+    const morc = display.morc;
+    return morc === selected || morc === 27 ? morc : 0;
 }
 
 // C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, TRUE/FALSE). Only a

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5517093,
+      "datetime": "20370611082210",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "#name\nib Whisper of the Northern Winds and the Southern Sea\nt?k\u001bt?b\u001b"
+    }
+  ],
+  "comment": "Independent wintty.c tty_message_menu() witness: a Valkyrie names her dagger so that its inventory line no longer fits on one row, then asks for the throw list with ?. The one-item message menu wraps, so tty_putstr() raises its own --More--, which leaves the top line TOPLINE_EMPTY and records the answering key in morc. Escape there cancels the throw with \"Never mind.\"; the variation answers the same --More-- with the item letter, which selects the dagger and reaches the direction prompt."
+}

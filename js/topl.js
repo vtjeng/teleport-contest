@@ -279,6 +279,9 @@ export async function update_topl(message, state = game, context = {}) {
 
     if (current && !stoppedAtEntry) {
         await callbacks.dismissPendingTtyMessage?.(state, {
+            // more() lets xwaitforspace() accept ttyDisplay->dismiss_more,
+            // which tty_message_menu() sets to its item letter.
+            dismissMore: state.nhDisplay?.dismiss_more ?? 0,
             preventEscapeStop: urgentMessage,
         });
     }
@@ -292,6 +295,9 @@ export async function update_topl(message, state = game, context = {}) {
     redrawTtyTopline(state, next, mixedFirstCell);
     if (wrapTtyTopline(next, columns).length > 1) {
         await callbacks.dismissPendingTtyMessage?.(state, {
+            // more() lets xwaitforspace() accept ttyDisplay->dismiss_more,
+            // which tty_message_menu() sets to its item letter.
+            dismissMore: state.nhDisplay?.dismiss_more ?? 0,
             preventEscapeStop: urgentMessage,
         });
     }
