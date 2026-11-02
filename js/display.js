@@ -6070,6 +6070,9 @@ function _statusRelationMatches(actual, relation, threshold) {
 // Read-only TTY painting consumes the selection made by the status
 // notification pass. Plain flush_screen repaints never advance this history.
 function _statusFieldStyle(field) {
+    // C ref: wintty.c render_status() (5213-5232) draws a field's stored
+    // color and attributes only while iflags.hilite_delta is nonzero.
+    if (!game.iflags?.hilite_delta) return null;
     const fieldRow = STATUS_FIELDS.find(row => row.key === field);
     if (!fieldRow) return null;
     return game.gb?.status_hilite_rule?.[0]?.[fieldRow.fld]?.style ?? null;
@@ -6330,6 +6333,24 @@ function _collectStatusHilites(layouts, onlyField = null) {
         const data = _statusFieldData(field.key,
             field.key === 'carrying-capacity'
                 ? game._statusCapacitySnapshot : null);
+        // C ref: botl.c eval_notify_windowport_field() (1523-1543). A
+        // percentage field recomputes its percentage only while it has
+        // highlight rules, and then only when its value changed, on
+        // update_all, or (for BL_XP) always; 'hitpointbar' forces BL_HP.
+        // Otherwise the bank keeps its last percentage, 0 until one has been
+        // computed, so the first pass after a rule is added can see a change.
+        if (data.percent != null) {
+            const hasThresholds = (game.iflags?.status_hilites ?? []).some(
+                (rule) => rule.field === field.key,
+            );
+            const valueChanged = gb.status_hilite_compare_value[1][fld]
+                !== (data.compareValue ?? data.value ?? null);
+            const recompute = (hasThresholds && (valueChanged || updateAll
+                    || field.key === 'experience-level'))
+                || (field.key === 'hitpoints'
+                    && Boolean(game.iflags?.wc2_hitpointbar));
+            if (!recompute) data.percent = gb.status_hilite_percent[1][fld] ?? 0;
+        }
         const value = data.value ?? null;
         const compareValue = data.compareValue ?? value;
         const percent = data.percent ?? null;
@@ -6374,10 +6395,12 @@ function _collectStatusHilites(layouts, onlyField = null) {
             && (pendingChanged || game.multi
                 || (until > 0 && (game.moves ?? 0) <= until));
         if (notification) {
+            // botl.c get_hilite() picks the rule whatever 'statushilites'
+            // says; the tty applies iflags.hilite_delta when it draws the
+            // field (wintty.c render_status()), in _statusFieldStyle().
             const selected = holdTemporary
                 ? previousRule
-                : game.iflags?.hilite_delta
-                    ? _selectStatusHilite(field.key, data, change) : null;
+                : _selectStatusHilite(field.key, data, change);
             gb.status_hilite_rule[0][fld] = selected;
             // eval_notify_windowport_field() writes the selected rule into
             // both banks only when it notifies the field, including on

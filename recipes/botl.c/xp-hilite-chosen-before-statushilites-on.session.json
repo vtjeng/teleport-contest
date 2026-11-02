@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "botl.c eval_notify_windowport_field() and get_hilite() choose a status highlight whatever 'statushilites' says; wintty.c render_status() applies iflags.hilite_delta only when it draws. The debug-mode Healer drops from experience level 3 to 2, which leaves 39 of 40 points, so BL_XP has a nonzero percentage. In one visit to the status hilites menu it adds experience-level/always/cyan&dim and then a power rule; the second 'Added hilite' message runs bot() while hilite_delta is still 0, and BL_XP, whose percentage is computed only once it has a rule, changes from 0 and takes the cyan rule. Leaving the menu sets hilite_delta to 3, and the redrawn status line shows Xp:2 in cyan. The port used to skip the rule while hilite_delta was 0 and kept the percentage current without any rule.",
+  "segments": [
+    {
+      "seed": 4411902,
+      "datetime": "20270618081500",
+      "nethackrc": "OPTIONS=name:Odo,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,showexp\n",
+      "moves": " #levelchange\n3\n\u001b#levelchange\n2\n\u001bO>nmagc\n \u001blabd\n \u001b    ss"
+    }
+  ]
+}
