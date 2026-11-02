@@ -264,11 +264,11 @@ export class NethackGame {
         this._animFramesByStep = [];
         this._pendingAnimFrames = [];
         this._lastRngIdx = 0;
-        // This segment's RNG log. rng.js keeps one log per process, and
-        // start() replaces it with a fresh one, so until then the process log
-        // still holds the previous segment's calls; a segment that stops
-        // before that point has logged none.
-        this._rngLog = [];
+        // rng.js keeps one RNG log per process, and start() replaces it with
+        // a fresh one, so until then the process log still holds the previous
+        // segment's calls; a segment that stops before that point has logged
+        // none.
+        this._rngLogStarted = false;
         // runSegment() records here the error that ended the segment early,
         // as { name, message, stack }; null when nothing crashed.
         this.segmentError = null;
@@ -335,7 +335,7 @@ export class NethackGame {
         // C initializes the game RNG before reading the configuration file.
         initRng(this._seed);
         enableRngLog();
-        this._rngLog = getRngLog();
+        this._rngLogStarted = true;
 
         // choose_windows(DEFAULT_WINDOW_SYS) (unixmain.c:104) installs the tty
         // window procs long before init_nhwindows(), so raw_print() already
@@ -696,7 +696,7 @@ export class NethackGame {
 
     getScreens() { return this._screens; }
     getCursors() { return this._cursors; }
-    getRngLog() { return this._rngLog; }
+    getRngLog() { return this._rngLogStarted ? getRngLog() : []; }
     // Per-step PRNG slices, parallel to getScreens(). Each entry is the
     // log of PRNG calls that fired since the previous capture (i.e.
     // since the previous nhgetch). Useful for tooling like the PS
