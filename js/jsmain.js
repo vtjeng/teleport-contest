@@ -77,7 +77,6 @@ import {
 import {
     init_vision_globals,
     vision_reset,
-    vision_recalc,
 } from './vision.js';
 import { initUnported } from './unported.js';
 
@@ -568,7 +567,10 @@ export class NethackGame {
             delete g.context.pendingCommand;
 
             // C ref: dorecover():944-945 docrt() + clear_nhwindow(WIN_MSG).
-            vision_recalc(0);
+            // docrt() does the vision pass that restore.js's
+            // vision_full_recalc = 1 requests; a separate vision_recalc(0)
+            // here would draw each hallucinated monster an extra time on
+            // the display RNG before docrt() redraws it.
             await cls();
             await docrt();
             await flush_screen(1);

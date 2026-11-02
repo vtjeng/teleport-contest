@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "_comment": "restore.c dorecover() redraws a restored level once, through docrt() (944) and the vision_full_recalc = 1 it sets at 928; see_monsters() stays deferred until moveloop. The debug-mode Valkyrie drinks a wished-for potion of hallucination, creates two monsters beside her and saves. On restore each hallucinated monster takes one display-RNG draw before the welcome --More--. The port used to run an extra vision_recalc(0) before docrt(), which spent a second draw per monster and showed different monster letters.",
+  "segments": [
+    {
+      "seed": 66120419,
+      "datetime": "20260407193000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none\n",
+      "moves": "\u0017potion of hallucination\nqe\u0007newt\n\u0007jackal\nSy"
+    },
+    {
+      "seed": 66120420,
+      "datetime": "20260407194500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none\n",
+      "moves": "  nss"
+    }
+  ]
+}
