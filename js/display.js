@@ -318,7 +318,12 @@ import {
     monsterClassSymbol,
 } from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
-import { heroIsBlind, noteGlyphBufferMutation, queueGlyphUpdateNotice } from './startup_a11y.js';
+import {
+    emitGlyphUpdateNotices,
+    heroIsBlind,
+    noteGlyphBufferMutation,
+    queueGlyphUpdateNotice,
+} from './startup_a11y.js';
 import { see_wsegs, worm_known } from './worm.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
@@ -4249,6 +4254,9 @@ export async function docrt(options = {}) {
                 }
             if (options.restoreVision) options.restoreVision();
             else vision_recalc(0);
+            // vision_recalc() ends with notice_all_mons(), whose lines C
+            // prints here, inside docrt(), before see_monsters().
+            await emitGlyphUpdateNotices(game, { pline: ttyPline });
             if (options.overlayMonsters !== false) await see_monsters(game);
         }
         // display.c post_map marks status dirty before leaving in_docrt.
@@ -6987,6 +6995,10 @@ export async function cls() {
     if (game._inCls) return;
     game._inCls = true;
     try {
+        // C prints a vision_recalc() notice_all_mons() line at once; the
+        // port queues it. docrt()'s vision_recalc(2) can queue one just
+        // before this cls(), so print it before the message window below.
+        await emitGlyphUpdateNotices(game, { pline: ttyPline });
         const display = game?.nhDisplay;
         // tty_display_nhwindow() returns first when WIN_CANCELLED is set,
         // and wintty.h gives it the same bit as the message window's

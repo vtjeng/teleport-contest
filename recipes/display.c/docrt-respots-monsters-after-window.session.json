@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 622718,
+      "datetime": "20360519094133",
+      "nethackrc": "OPTIONS=name:Spotter,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,spot_monsters\n",
+      "moves": " \u0007jackal\n\u0007jackal\n\u0007jackal\n\u0007jackal\n\u0007jackal\n\u0007jackal\n#optionsfull\n\u001b  \u0018\u001b  "
+    }
+  ],
+  "comment": "display.c docrt() witness: with spot_monsters on, dismissing a full-screen menu (#optionsfull) or text window (attributes) redraws the map through docrt(). Its vision_recalc(2) resets mspotted for the six now-unseen jackals and its vision_recalc(0) ends with notice_all_mons(), so the \"You see a jackal.\" lines are printed inside docrt(). They overflow the top line, and after the menu the --More-- waits while select_menu() still has bot() disabled, so that screen keeps blank status lines."
+}
