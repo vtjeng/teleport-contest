@@ -356,7 +356,9 @@ export function reveal_terrain_getglyph(
             } else if (keepTraps && region
                        && (glyphIsGascloud(glyph) || wasMonster)) {
                 const trap = t_at(x, y, state);
-                glyph = trap?.tseen ? trap_to_glyph(trap, state) : region.glyph;
+                // C's reg->glyph is the port's cmap_to_glyph(region.glyph_cmap).
+                glyph = trap?.tseen ? trap_to_glyph(trap, state)
+                    : cmap_to_glyph(region.glyph_cmap, state);
             } else {
                 const lastSeenType = state.level.lastseentyp[x][y];
                 if (lastSeenType === location.typ) {

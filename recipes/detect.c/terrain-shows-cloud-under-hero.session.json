@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 377150,
+      "datetime": "20360418112751",
+      "nethackrc": "OPTIONS=name:Clouded,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " \u0017uncursed scroll of stinking cloud\nrf  . #terrain\nb\u001b#terrain\na\u001b"
+    }
+  ],
+  "comment": "detect.c reveal_terrain_getglyph() witness: a poison-resistant Barbarian centers a stinking cloud on himself. #terrain's \"known terrain and traps only\" view hides the hero, and because a visible region covers that spot, keep_traps shows the region's glyph (C reg->glyph) there instead of the remembered floor. The \"known terrain only\" variation drops traps and regions and shows the floor."
+}
