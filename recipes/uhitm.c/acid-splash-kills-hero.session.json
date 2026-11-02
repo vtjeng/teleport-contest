@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 559302,
+      "datetime": "20271118220433",
+      "nethackrc": "OPTIONS=name:Splashed,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup,!tips\n",
+      "moves": " \u0007ochre jelly\n\u001bFuFuFuFuFuFuFu  yq "
+    }
+  ],
+  "comment": "uhitm.c passive() AD_ACID. A 10-hit-point Tourist in debug mode creates an ochre jelly and fights it bare-handed with F. The seventh blow hits, and the jelly's passive acid splash takes the hero to 0 hit points through mhitu.c mdamageu(), whose done() asks \"Die?\". Answering y ends the game in really_done(), which never returns, so C draws neither passive()'s rn2(30) for erode_armor() nor anything after it. The q skips the disclosure questions and the space declines bones."
+}
