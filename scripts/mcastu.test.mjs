@@ -1540,7 +1540,8 @@ test('stun spell: free action uses the resistant branch without a stun roll',
             u: {
                 ux: 4, uy: 5,
                 uprops: {
-                    [FREE_ACTION]: { intrinsic: 1, extrinsic: 0 },
+                    // youprop.h:383 Free_action is EFree_action alone.
+                    [FREE_ACTION]: { intrinsic: 0, extrinsic: 1 },
                     [STUNNED]: { intrinsic: 0, extrinsic: 0 },
                 },
             },

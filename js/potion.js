@@ -2407,8 +2407,10 @@ function Sleep_resistance(state) {
     return eitherSource(state, SLEEP_RES);
 }
 
+// youprop.h:383 Free_action reads the extrinsic field alone; an intrinsic
+// FREE_ACTION (wizard-mode #wizintrinsic) does not count.
 function Free_action(state) {
-    return eitherSource(state, FREE_ACTION);
+    return Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
 }
 
 // C ref: youprop.h:132 Acid_resistance, the plain "either source" spelling.

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 384627,
+      "datetime": "20360611075940",
+      "nethackrc": "OPTIONS=name:Frozen,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " #wizintrinsic\n:free action\n\n \u0017uncursed potion of paralysis\nql   "
+    }
+  ],
+  "comment": "potion.c peffect_paralysis() witness: youprop.h's Free_action is u.uprops[FREE_ACTION].extrinsic alone, so the timed intrinsic that #wizintrinsic grants does not stop a quaffed potion of paralysis from freezing the hero's feet."
+}

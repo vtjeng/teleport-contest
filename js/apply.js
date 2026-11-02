@@ -4162,7 +4162,8 @@ export async function use_mirror(obj, state = game, env = {}) {
                 state,
             );
         } else if (u.umonnum === PM_FLOATING_EYE) {
-            if (applyPropertyActive(FREE_ACTION, state)) {
+            // youprop.h:383 Free_action is the extrinsic field alone.
+            if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
                 await ttyPline('You stiffen momentarily under your gaze.', state);
             } else {
                 const hallucinating = applyIsHallucinating(state);

@@ -1687,8 +1687,9 @@ test('paralysis preserves its Free_action, levitation, and steed messages',
     await startedGame(771025, 'ParalysisGates');
     const potion = vaporPotion(POT_PARALYSIS);
 
-    game.u.uprops[FREE_ACTION].intrinsic = FROMOUTSIDE;
-    game.u.uprops[FREE_ACTION].extrinsic = 0;
+    // youprop.h:383 Free_action is EFree_action alone: a worn ring.
+    game.u.uprops[FREE_ACTION].intrinsic = 0;
+    game.u.uprops[FREE_ACTION].extrinsic = W_RINGL;
     game.u.uprops[LEVITATION].intrinsic = 0;
     game.u.uprops[LEVITATION].extrinsic = 0;
     game.u.uprops[LEVITATION].blocked = 0;
@@ -1700,7 +1701,7 @@ test('paralysis preserves its Free_action, levitation, and steed messages',
     assert.deepEqual(getRngLog(), []);
     assert.equal(game.multi ?? 0, 0);
 
-    game.u.uprops[FREE_ACTION].intrinsic = 0;
+    game.u.uprops[FREE_ACTION].extrinsic = 0;
     game.u.uprops[LEVITATION].intrinsic = FROMOUTSIDE;
     clearTopline();
     enableRngLog();
@@ -1887,7 +1888,12 @@ for (const [name, property, seed] of [
             game.u.uprops[FREE_ACTION].extrinsic = 0;
             game.u.uprops[SLEEP_RES].intrinsic = 0;
             game.u.uprops[SLEEP_RES].extrinsic = 0;
-            game.u.uprops[property].intrinsic = FROMOUTSIDE;
+            // youprop.h:383 Free_action is EFree_action alone (a worn
+            // ring); Sleep_resistance also counts the intrinsic.
+            if (property === FREE_ACTION)
+                game.u.uprops[property].extrinsic = W_RINGL;
+            else
+                game.u.uprops[property].intrinsic = FROMOUTSIDE;
             const previous = {
                 multi: game.multi ?? 0,
                 reason: game.multi_reason,
@@ -2019,9 +2025,9 @@ test('free action turns the paralysis vapors into a momentary stiffening',
     async () => {
     await startedGame(771013, 'VaporFreeAction');
     clearTopline();
-    // youprop.h Free_action reads HFree_action || EFree_action; FROMOUTSIDE is
-    // the intrinsic bit a ring or a role grants.
-    game.u.uprops[FREE_ACTION].intrinsic = FROMOUTSIDE;
+    // youprop.h:383 Free_action reads EFree_action alone; W_RINGL is the
+    // extrinsic bit a worn ring of free action sets.
+    game.u.uprops[FREE_ACTION].extrinsic = W_RINGL;
     const drawn = [];
     const random = {
         // The frozen branch's nomul(-rnd(5)) must not run.
@@ -2046,7 +2052,12 @@ for (const [label, property] of [
     test(`${label} lets the sleeping vapors yawn without a timeout`, async () => {
         await startedGame(771014, 'VaporSleepRes');
         clearTopline();
-        game.u.uprops[property].intrinsic = FROMOUTSIDE;
+        // youprop.h:383 Free_action is EFree_action alone (a worn ring);
+        // Sleep_resistance also counts the intrinsic.
+        if (property === FREE_ACTION)
+            game.u.uprops[property].extrinsic = W_RINGL;
+        else
+            game.u.uprops[property].intrinsic = FROMOUTSIDE;
         const drawn = [];
         const random = {
             rnd: (bound) => { drawn.push(['rnd', bound]); return 2; },

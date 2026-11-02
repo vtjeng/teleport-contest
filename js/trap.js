@@ -2458,9 +2458,9 @@ function Passes_walls(state) {
     const p = state.u?.uprops?.[PASSES_WALLS];
     return Boolean(p?.intrinsic || p?.extrinsic);
 }
+// youprop.h:383 Free_action reads the extrinsic field alone.
 function Free_action(state) {
-    const p = state.u?.uprops?.[FREE_ACTION];
-    return Boolean(p?.intrinsic || p?.extrinsic);
+    return Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
 }
 // C ref: hack.h Maybe_Half_Phys(). Halves physical damage when the hero
 // has Half_physical_damage from either source.

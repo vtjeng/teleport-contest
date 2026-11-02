@@ -30,6 +30,8 @@ for(const c of cases)for(const awareness of ['awake','paralyzed','sleeping','fai
  const waiting=newMonster({data:game.mons[PM_HUMAN],mnum:PM_HUMAN,m_id:9932,m_lev:1,mhp:10,mhpmax:10,mcanmove:true,mcansee:true,msleeping:true,mstrategy:STRAT_WAITFORU});
  actor.nmon=waiting;game.level.monlist=actor;place_monster(actor,6,7,game);place_monster(waiting,7,7,game);
  for(const [p,on] of [[HALLUC,c.hallu],[HALLUC_RES,false],[ANTIMAGIC,c.anti],[FREE_ACTION,c.free],[HALF_SPDAM,c.half]]){game.u.uprops[p].intrinsic=on?100:0;game.u.uprops[p].extrinsic=0;}
+ // youprop.h:383 Free_action is EFree_action alone, so free action comes from a worn ring (extrinsic bit 1).
+ game.u.uprops[FREE_ACTION].intrinsic=0;game.u.uprops[FREE_ACTION].extrinsic=c.free?1:0;
  game.u.uprops[CONFUSION].intrinsic=c.old??0;game.u.uprops[STUNNED].intrinsic=c.oldStun??0;
  game.multi=awareness==='awake'?0:-4;game.u.usleep=awareness==='sleeping'?1:0;game.u.uhs=awareness==='fainted'?FAINTED:NOT_HUNGRY;game.u.uhunger=awareness==='fainted'?-10:900;game.nomovemsg=awareness==='sleeping'?'You wake up.':null;
  light_globals_init(game);init_vision_globals();vision_reset(game);vision_recalc(0);

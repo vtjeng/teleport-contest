@@ -838,7 +838,8 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
 async function mcast_paralyze(mtmp, env = {}) {
     const state = env.state ?? game;
     const antimagic = heroProperty(state, ANTIMAGIC);
-    const freeAction = heroProperty(state, FREE_ACTION);
+    // youprop.h:383 Free_action is the extrinsic field alone.
+    const freeAction = Boolean(state.u?.uprops?.[FREE_ACTION]?.extrinsic);
     let dmg = 0;
     if (antimagic || freeAction) {
         await shieldeff(state.u.ux, state.u.uy, state);
@@ -1034,7 +1035,8 @@ async function mcast_stun_you(dmg, env = {}) {
         ?? (env.planning ? async () => {} : ttyPline);
     const hStun = state.u?.uprops?.[STUNNED]?.intrinsic ?? 0;
 
-    if (heroProperty(state, ANTIMAGIC) || heroProperty(state, FREE_ACTION)) {
+    if (heroProperty(state, ANTIMAGIC)
+        || state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
         await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         if (!hStun)
