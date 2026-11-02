@@ -608,6 +608,10 @@ export function planningState(state) {
         atemp: [...(state.u?.atemp ?? [])],
         atime: [...(state.u?.atime ?? [])],
         uevent: { ...(state.u?.uevent ?? {}) },
+        // mon.c xkilled() counts u.uconduct.killer when a planned passive
+        // counterattack kills the attacker; the live pass must still see
+        // the first kill and log it.
+        uconduct: { ...(state.u?.uconduct ?? {}) },
         uhave: { ...(state.u?.uhave ?? {}) },
         uprops: state.u?.uprops?.map(
             (property) => property ? { ...property } : property,

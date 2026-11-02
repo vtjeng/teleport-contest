@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mon.c xkilled() 3499-3502: the hero's first kill logs 'killed for the first time' to the chronicle, including a kill by mhitu.c passiveum() through assess_dmg() while a monster attacks a polymorphed hero. The port plans monster turns on a clone, which must not count the planned kill against the live conduct. A Healer polymorphs into a fire vortex, creates newts and waits until one dies of the heat, then lists the chronicle. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 6620514,
+      "datetime": "20520416120500",
+      "nethackrc": "OPTIONS=name:Elspeth,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " #polyself\nfire vortex\n\u0007newt\n\u0007newt\n20s     20s     #chronicle\n "
+    }
+  ]
+}
