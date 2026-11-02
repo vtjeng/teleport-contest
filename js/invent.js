@@ -1233,10 +1233,11 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
                 if (ilet === '?' && !lets && altletsStr)
                     allowed_choices = altletsStr;
 
-                // C clears qbuf before display_pickinv(). Forced menus use
-                // the prompt as their menu query; the JS menu owner already
-                // displays the same title through the enclosing prompt.
-                const menuquery = null;
+                // C:1972-1975 -- C clears qbuf and menuquery before
+                // display_pickinv(); a forced menu then gets the prompt as
+                // its query, which end_menu() shows above the choices.
+                const menuquery = state.iflags.force_invmenu
+                    ? `What do you want to ${word}?` : null;
 
                 // C:1976-1978 -- compute the hands description when the
                 // full inventory is shown (allowed_choices is null), or

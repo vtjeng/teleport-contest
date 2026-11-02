@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 917354,
+      "datetime": "20270415141522",
+      "nethackrc": "OPTIONS=name:Menuist,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,force_invmenu\n",
+      "moves": " e\u001bw*\u001bt\u001b"
+    }
+  ],
+  "comment": "invent.c getobj() with force_invmenu. Each forced menu passes display_pickinv() the menu query \"What do you want to <word>?\", which end_menu() shows above the candidates. The hero opens the eat menu and escapes it, opens the wield menu, picks '*' to redisplay it with the whole inventory and escapes, then opens the throw menu and escapes. Seeds, datetimes, character and inputs were chosen independently of every recorded session."
+}
