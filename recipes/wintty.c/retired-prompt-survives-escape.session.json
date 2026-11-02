@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310452,
+      "datetime": "20370308201540",
+      "nethackrc": "OPTIONS=name:Nimue,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "\u0017uncursed spellbook of finger of death\nyhss\u0007vampire\n\u0014Hhhk.sro\u001b\u001b"
+    }
+  ],
+  "comment": "Independent wintty.c tty_clear_nhwindow() witness: a debug Wizard wishes for a spellbook of finger of death, summons a vampire beside a closed door and teleports to the next room. On the turn the hero declines the very difficult spellbook with Escape, the unseen vampire bat reaches the closed door and monmove.c vamp_shift() calls display_nhwindow(WIN_MESSAGE, FALSE), which marks the answered prompt TOPLINE_EMPTY without erasing it. The final Escape command then makes parse() call clear_nhwindow(WIN_MESSAGE), which does nothing, so the prompt stays on the top line."
+}

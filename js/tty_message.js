@@ -174,14 +174,15 @@ export async function xwaitforspace(
 
 // C ref: win/tty/wintty.c tty_clear_nhwindow(WIN_MESSAGE).  Command parsing
 // clears the physical top line after the final key has been read while
-// retaining gt.toplines for message history.
+// retaining gt.toplines for message history. With TOPLINE_EMPTY it does
+// nothing, so a line that tty_display_nhwindow(WIN_MESSAGE, FALSE) retired
+// without erasing (as monmove.c vamp_shift() does) stays on the screen.
 export function clearTtyMessageWindow(state = game) {
     const display = state.nhDisplay;
     if (!display) return;
-    if (display.toplin !== TOPLINE_EMPTY || state._pending_message) {
-        display.clearRow(0);
-        display.setCursor(0, 0);
-    }
+    if (display.toplin === TOPLINE_EMPTY) return;
+    display.clearRow(0);
+    display.setCursor(0, 0);
     state._pending_message = '';
     delete state._ttyMixedFirstCell;
     display.toplin = TOPLINE_EMPTY;

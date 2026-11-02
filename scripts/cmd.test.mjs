@@ -4039,7 +4039,9 @@ test('reqmenu rejects non-prefix commands and Escape cancels silently',
 
             await rhack(0, state);
 
-            assert.equal(state._pending_message, '');
+            // No message was ever shown, so tty_clear_nhwindow() finds
+            // TOPLINE_EMPTY and leaves the (unset) line state alone.
+            assert.equal(state._pending_message ?? '', '');
             assert.deepEqual(state.nhDisplay.grid, clearedGrid);
             assert.equal(state.context.move, 0);
             assert.equal(state.iflags.menu_requested, false);

@@ -32,6 +32,7 @@ import {
     update_topl,
 } from '../js/topl.js';
 import {
+    clearTtyMessageWindow,
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     ttyCustomPline,
@@ -197,6 +198,23 @@ test('auto_describe flags replace an unacknowledged message', async () => {
     const win = state.wintty.wins[state.wintty.messageWindow];
     assert.equal(win.data[0], 'You cannot see any monsters.');
     assert.equal(state._ttyToplines, '');
+});
+
+// wintty.c tty_clear_nhwindow(WIN_MESSAGE) acts only when toplin is not
+// TOPLINE_EMPTY. tty_display_nhwindow(WIN_MESSAGE, FALSE) can mark an
+// answered prompt empty without erasing it, as monmove.c vamp_shift() does;
+// parse()'s clear then leaves the prompt text on the screen.
+test('clearing an empty message window leaves a retired line on screen', async () => {
+    const state = historyState();
+    const prompt = 'Continue? [yn] (n) ';
+    await ttyCustomPline(prompt, SUPPRESS_HISTORY, state);
+    state.nhDisplay.toplin = TOPLINE_EMPTY;
+
+    clearTtyMessageWindow(state);
+
+    const row = state.nhDisplay.grid[0].map((cell) => cell.ch).join('');
+    assert.equal(row.trimEnd(), prompt.trimEnd());
+    assert.equal(state._pending_message, prompt);
 });
 
 test('reversed history places the current topline before newest-to-oldest entries', async () => {
