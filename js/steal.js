@@ -803,7 +803,7 @@ export async function steal(
     }
 
     const was_doffing = doffing(otmp, state);
-    const olddelay = await stop_donning(otmp, state);
+    const olddelay = await stop_donning(otmp, state, { ...env, message });
     await stop_occupation(state, { ...env, message });
 
     let named = 0;

@@ -765,7 +765,9 @@ export function cancel_don(state = game) {
 // interrupted delay before choosing the armor-removal duration. C clears the
 // pending callback before unmul(), so completion cannot run a donning/doffing
 // action that was canceled by the theft.
-export async function stop_donning(stolenobj, state = game) {
+// env.message carries the caller's message operation to unmul(), so a
+// planning steal() prints nothing.
+export async function stop_donning(stolenobj, state = game, env = {}) {
     let otmp = null;
     for (let obj = state.invent; obj; obj = obj.nobj) {
         if ((obj.owornmask & W_ARMOR) && donning(obj, state)) {
@@ -789,7 +791,7 @@ export async function stop_donning(stolenobj, state = game) {
         // order even though cancel_don() has set it to zero.
         result = -Math.trunc(state.multi ?? 0);
     }
-    await unmul(message, state);
+    await unmul(message, state, env);
 
     if (puttingOn) {
         const { remove_worn_item } = await import('./steal.js');

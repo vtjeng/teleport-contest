@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 447106,
+      "datetime": "20360809170258",
+      "nethackrc": "OPTIONS=name:Dresser,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " \u0017plate mail\n\u0007water nymph\nWe   "
+    }
+  ],
+  "comment": "steal.c steal() witness: the hero answers the W prompt with plate mail, whose five-turn delay is still running when a water nymph steals. steal() calls stop_donning(), whose \"You stop putting on ...\" goes through steal()'s message operation, so the port's planning pass prints nothing and the live pass replaces the answered prompt as C does."
+}
