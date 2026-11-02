@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent allmain.c moveloop_core() witness for a second movement allocation after a mid-scan polymorph. A debug Wizard wishes for plate mail, a large shield and potions of gain level (several later letters do not match this seed's inventory, so those commands only prompt), drops her cloak of magic resistance and stands beside a genetic engineer. Its AD_POLY hits (uhitm.c mhitm_ad_poly(), mhitm.c mon_poly(), polyself.c polyself()) change her form repeatedly; at T:42 a Stressed form becomes an unburdened one slower than 12, so u_calc_moveamt() needs two allocations before she moves again. The resumed elapsed-turn plan for an unburdened hero counts only one, and the port used to compare that count under the first, burdened plan's gate and stop with \"elapsed-turn preflight disagreed with live allocation count\".",
+  "segments": [
+    {
+      "seed": 7310455,
+      "datetime": "20261103101500",
+      "nethackrc": "OPTIONS=name:Shapeshift,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!safe_wait,time\n",
+      "moves": "\u0017plate mail\n\u001b\u0017large shield\n\u001b\u00176 blessed potions of gain level\n\u001bqq\u001bqq\u001bqq\u001bqq\u001bqq\u001bqq\u001bT\u001bWo\u001bw-\u001bWp\u001bdb\u001b\u0007genetic engineer\n\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b"
+    }
+  ]
+}
