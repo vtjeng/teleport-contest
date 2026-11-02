@@ -16,7 +16,7 @@ import { poly_obj } from '../js/zap.js';
 import {
     d, rn1, rn2, rnd, rne, rnl, rnz,
 } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { disintegrate_arm, setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
 import {

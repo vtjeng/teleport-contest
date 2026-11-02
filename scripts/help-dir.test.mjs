@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 // Seed 9400016 places a Valkyrie on a settled level with a door nearby.
 // The kick command (Ctrl-D) reaches getdir(null) without hitting unported

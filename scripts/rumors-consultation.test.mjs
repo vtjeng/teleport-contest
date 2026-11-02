@@ -4,7 +4,7 @@ import test from 'node:test';
 import { ACH_ORCL, A_WIS, ECMD_OK, ECMD_TIME } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { addinv, money_cnt } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_ORACLE } from '../js/monsters.js';
 import { mksobj, weight } from '../js/obj.js';
 import { GOLD_PIECE } from '../js/objects.js';

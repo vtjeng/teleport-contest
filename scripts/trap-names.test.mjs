@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { HALLUC, HALLUC_RES, NO_TRAP, TRAPNUM, WEB } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { trapname } from '../js/trap.js';
 import { halu_trapnames } from '../js/trap_names_data.js';
 import { generateTrapNames } from './generate-trap-names.mjs';

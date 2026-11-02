@@ -38,7 +38,7 @@ import {
 } from '../js/monsters.js';
 import { EGG, SPE_HEALING } from '../js/objects.js';
 import { newMonster } from '../js/monst.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const DATETIME = '20260214031500';
 const RC = [

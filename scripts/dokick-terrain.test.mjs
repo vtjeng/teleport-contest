@@ -7,7 +7,7 @@ import { SCATTER_MAY_HIT } from '../js/explode.js';
 import { kick_nondoor } from '../js/dokick.js';
 import { make_engr_at, engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ROCK } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';

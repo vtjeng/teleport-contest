@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_FOX, PM_JACKAL } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import {

@@ -11,7 +11,7 @@ import {
     W_ARM,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     BRONZE_PLATE_MAIL,
     CRYSTAL_PLATE_MAIL,

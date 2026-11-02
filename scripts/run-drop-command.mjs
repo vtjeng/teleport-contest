@@ -38,7 +38,7 @@ import { BURN, DUST, ENGRAVE, OBJ_FLOOR, OBJ_INVENT, SHRINK_GLOB } from '../js/c
 import { engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import { GLOB_OF_GRAY_OOZE, GLOB_OF_BROWN_PUDDING } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runDifferential, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

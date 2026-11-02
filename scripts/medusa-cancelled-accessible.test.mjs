@@ -5,7 +5,7 @@ import {cancel_monst} from '../js/zap.js';
 import {mksobj} from '../js/obj.js';
 import {addinv} from '../js/invent.js';
 import {WAN_CANCELLATION} from '../js/objects.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {newMonster,place_monster,m_at} from '../js/monst.js';
 import {PM_MEDUSA,NON_PM,AT_GAZE,AD_STON} from '../js/monsters.js';

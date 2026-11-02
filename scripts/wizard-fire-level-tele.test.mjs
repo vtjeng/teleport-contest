@@ -12,7 +12,7 @@ import {
     OBJ_INVENT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { AMULET_OF_YENDOR, BOULDER } from '../js/objects.js';
 import {
     FIRE_PLANE_DATETIME,

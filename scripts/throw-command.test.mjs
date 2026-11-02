@@ -28,7 +28,7 @@ import { extcmdlist } from '../js/extcmdlist_data.js';
 import { SCR_IDENTIFY, SCR_MAGIC_MAPPING, YUMI } from '../js/objects.js';
 import { W_SWAPWEP, W_WEP } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 function segments() {
     return loadThrowCommandRecipe().segments;

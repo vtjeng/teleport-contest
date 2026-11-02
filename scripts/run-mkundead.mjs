@@ -11,7 +11,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { is_undead } from '../js/mondata.js';
 import { PM_NEWT, PM_PIRANHA } from '../js/monsters.js';
 import { BELL_OF_OPENING, CORPSE } from '../js/objects.js';

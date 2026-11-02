@@ -4,7 +4,7 @@ import {runJsSession,compareSessionOutputs,formatReport} from './diff-fresh.mjs'
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {make_sick} from '../js/potion.js';
 import {planningState} from '../js/unported_monster_actions.js';
 import {createCoreRandom,cloneIsaacContext} from '../js/rng.js';

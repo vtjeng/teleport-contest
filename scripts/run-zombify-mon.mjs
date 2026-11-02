@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {ZOMBIFY_MON} from '../js/const.js';
 import {PM_HUMAN_ZOMBIE, PM_GNOME_ZOMBIE, PM_LICHEN, PM_NEWT} from '../js/monsters.js';
 import {CORPSE} from '../js/objects.js';

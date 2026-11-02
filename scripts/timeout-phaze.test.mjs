@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { FROMOUTSIDE, PASSES_WALLS, TIMEOUT, W_RINGL } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { nh_timeout, nh_timeout_requires_live_state, phaze_dialogue } from '../js/timeout.js';
 
 async function hero() {

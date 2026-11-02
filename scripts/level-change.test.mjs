@@ -53,7 +53,7 @@ import { xlev_to_rank } from '../js/display.js';
 import { losexp, newexplevel, newuexp, pluslvl } from '../js/exper.js';
 import { game } from '../js/gstate.js';
 import { achieve_rank, record_achievement } from '../js/insight.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     M2_UNDEAD,
     PM_ARCHEOLOGIST,

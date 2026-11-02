@@ -5,7 +5,7 @@ import test from 'node:test';
 import { doapply } from '../js/apply.js';
 import { ECMD_TIME, HOMEMADE_TIN, OBJ_INVENT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_CHICKATRICE, PM_DEATH, PM_LICHEN, PM_NEWT } from '../js/monsters.js';
 import { CORPSE, TIN, TINNING_KIT } from '../js/objects.js';
 

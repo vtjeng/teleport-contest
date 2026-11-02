@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { isok } from '../js/cmd_isok.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { AD_FIRE, AT_BITE, AT_CLAW, PM_FIRE_ANT, PM_ORC } from '../js/monsters.js';
 import { mhitm_adtyping } from '../js/uhitm.js';

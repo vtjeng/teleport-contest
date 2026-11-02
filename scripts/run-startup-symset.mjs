@@ -8,7 +8,7 @@
 
 import { H_DEC, H_UNK, PRIMARYSET } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dosetMenuItems } from '../js/options.js';
 import { cmap_symbol, S_vwall } from '../js/symbols.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

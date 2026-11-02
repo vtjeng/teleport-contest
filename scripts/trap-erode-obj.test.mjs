@@ -30,7 +30,7 @@ import {
     W_ARMH,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_KOBOLD } from '../js/monsters.js';
 import {
     ARMOR_CLASS,

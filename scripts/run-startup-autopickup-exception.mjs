@@ -7,7 +7,7 @@
 
 import { game } from '../js/gstate.js';
 import { truncateByteString } from '../js/hacklib.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import { optionValue, parseNethackrc } from '../js/options.js';
 import { regex_match } from '../js/posixregex.js';

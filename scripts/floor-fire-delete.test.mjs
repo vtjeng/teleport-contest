@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameMap } from '../js/game.js';
 import { ROOM, OBJ_FLOOR } from '../js/const.js';
 import { SCR_IDENTIFY, SCROLL_CLASS } from '../js/objects.js';

@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { BLINDED, CONFUSION, INVIS, SEE_INVIS } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { S_HUMANOID } from '../js/monsters.js';
 import {
     seffect_confuse_monster,

@@ -4,7 +4,7 @@ import test from 'node:test';
 import { ROOM } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { makemon_runtime } from '../js/makemon_create.js';
 import { PM_WIZARD_OF_YENDOR } from '../js/monsters.js';
 import { resurrect } from '../js/wizard.js';

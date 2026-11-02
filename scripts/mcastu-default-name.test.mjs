@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {newMonster,place_monster} from '../js/monst.js';
 import {PM_MASTER_LICH,NON_PM,AT_MAGC,AD_SPEL} from '../js/monsters.js';
 import {castmu} from '../js/mcastu.js';

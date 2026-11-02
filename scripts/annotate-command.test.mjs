@@ -12,7 +12,7 @@ import test from 'node:test';
 import { ECMD_OK } from '../js/const.js';
 import { donamelevel, find_mapseen } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 // Start a game so the full game state is initialized.
 async function startedGame(seed, name) {

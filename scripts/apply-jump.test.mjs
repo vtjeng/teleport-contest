@@ -71,7 +71,7 @@ test('get_valid_jump_position keeps the Knight distance and accessibility rules'
 });
 
 test('trapped jump crossing HUNGRY uses canonical hunger operations', async () => {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
     const { dojump } = await import('../js/apply.js');
     const { FROMOUTSIDE, HUNGRY, NOT_HUNGRY, TIP_GETPOS, TT_PIT } = await import('../js/const.js');
@@ -97,7 +97,7 @@ test('trapped jump crossing HUNGRY uses canonical hunger operations', async () =
 });
 
 test('jump forwards the supplied hunger callbacks and random source at the trapped caller', async () => {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
     const { jump } = await import('../js/apply.js');
     const { HUNGRY, WEAK, TIP_GETPOS, TT_PIT } = await import('../js/const.js');
@@ -125,7 +125,7 @@ test('jump forwards the supplied hunger callbacks and random source at the trapp
 });
 
 test('jump releases a tame captor when Conflict is absent', async () => {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
     const { jump } = await import('../js/apply.js');
     const { clearTtyMessageWindow } = await import('../js/tty_message.js');
@@ -147,7 +147,7 @@ test('jump releases a tame captor when Conflict is absent', async () => {
 });
 
 test('one-cell jump consumes a flat mutable range and emits no delay frame', async () => {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
     const { jump } = await import('../js/apply.js');
     const { ROOM, TIP_GETPOS } = await import('../js/const.js');

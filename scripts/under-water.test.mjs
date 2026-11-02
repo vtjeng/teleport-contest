@@ -8,7 +8,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { cls, docrt, show_glyph_cell, under_water } from '../js/display.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { rhack } from '../js/cmd.js';
 
 function setup() {

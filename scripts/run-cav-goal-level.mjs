@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ART_SCEPTRE_OF_MIGHT } from '../js/artifacts.js';
 import { PM_CHROMATIC_DRAGON, PM_SHRIEKER } from '../js/monsters.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

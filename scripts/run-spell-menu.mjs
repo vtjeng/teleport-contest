@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { SORTBY_LETTER } from '../js/spell.js';
 import { NO_SPELL } from '../js/const.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

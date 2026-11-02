@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import * as ballOwner from '../js/ball.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {clearTtyMessageWindow} from '../js/tty_message.js';
 import {mksobj} from '../js/obj.js';
 import {objectGenerationEnv} from '../js/object_generation.js';

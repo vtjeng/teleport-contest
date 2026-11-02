@@ -71,7 +71,7 @@ import {
     inv_weight,
     weight_cap,
 } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     M1_NOTAKE,
     PM_BROWN_PUDDING,

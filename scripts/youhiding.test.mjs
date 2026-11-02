@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import * as insight from '../js/insight.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { M_AP_NOTHING, M_AP_OBJECT, M_AP_FURNITURE, M_AP_MONSTER,
     FLYING, HALLUC, ROOM, POOL, TT_PIT, SPIKED_PIT, PIT } from '../js/const.js';
 import { PM_SMALL_MIMIC, PM_TRAPPER, PM_CAVE_SPIDER, PM_GIANT_EEL,

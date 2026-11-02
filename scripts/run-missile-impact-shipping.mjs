@@ -14,7 +14,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { MIGR_STAIRS_UP, OBJ_MIGRATING } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_SHRIEKER } from '../js/monsters.js';
 import { APPLE, SPE_HEALING } from '../js/objects.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

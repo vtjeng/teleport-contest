@@ -10,7 +10,7 @@
 import { OBJ_FLOOR, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { donameFresh } from '../js/objnam.js';
 import { SLIME_MOLD } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

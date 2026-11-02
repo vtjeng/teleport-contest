@@ -8,7 +8,7 @@ import { ART_LONGBOW_OF_DIANA } from '../js/artifacts.js';
 import { FUMBLING, OBJ_FLOOR } from '../js/const.js';
 import { weight } from '../js/obj.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 const names = ['blessed', 'uncursed', 'cursed', 'fumbling'];

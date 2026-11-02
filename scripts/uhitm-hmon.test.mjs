@@ -57,7 +57,7 @@ import {
     ART_GIANTSLAYER,
 } from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { mlifesaver } from '../js/mon.js';
 import {

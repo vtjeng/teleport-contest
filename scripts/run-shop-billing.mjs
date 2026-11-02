@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DEAF, OBJ_INVENT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { FOOD_RATION, POT_OBJECT_DETECTION } from '../js/objects.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

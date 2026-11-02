@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { COLNO, ROWNO, TELEPORT_CONTROL } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mbhitm } from '../js/muse.js';
 import { mksobj } from '../js/obj.js';
 import { WAN_TELEPORTATION } from '../js/objects.js';

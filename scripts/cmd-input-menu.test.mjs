@@ -16,7 +16,7 @@ import { ECMD_CANCEL, ECMD_OK } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 function inputState(keys = [], iflags = {}) {
     const state = resetGame();

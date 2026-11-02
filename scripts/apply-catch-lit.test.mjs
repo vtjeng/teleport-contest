@@ -30,7 +30,7 @@ import {
 } from '../js/objects.js';
 import { game } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 
 test('floor candle ignition locates its accessible message like C', async () => {

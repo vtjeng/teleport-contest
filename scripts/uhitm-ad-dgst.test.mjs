@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { DEAF, M_ATTK_MISS, M_ATTK_AGR_DIED } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { corpse_chance } from '../js/mon.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { accessible } from '../js/monmove.js';

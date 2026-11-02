@@ -4,7 +4,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import * as dog from '../js/dog.js';
 import { bhitm } from '../js/zap.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadRideDismountRecipe } from './run-ride-dismount.mjs';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { can_saddle } from '../js/steed.js';

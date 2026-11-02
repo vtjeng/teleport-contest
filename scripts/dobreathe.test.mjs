@@ -23,7 +23,7 @@ import test from 'node:test';
 
 import { ECMD_OK, STRANGLED } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dobreathe } from '../js/polyself.js';
 import { attacktype_fordmg, can_breathe } from '../js/mondata.js';
 import * as monsters from '../js/monsters.js';

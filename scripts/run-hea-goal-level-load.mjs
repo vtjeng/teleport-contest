@@ -8,7 +8,7 @@ import { find_level } from '../js/dungeon.js';
 import { COLNO, POOL, ROWNO, W_NONDIGGABLE } from '../js/const.js';
 import { QUARTERSTAFF, WAN_LIGHTNING } from '../js/objects.js';
 import { PM_CYCLOPS, PM_GIANT_EEL } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

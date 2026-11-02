@@ -4,7 +4,7 @@
 // follows a separate More dismissal so it reaches the newly opened getlin.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { num_genocides } from '../js/insight.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

@@ -19,7 +19,7 @@ import {
     HALLUC,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { growl, growl_sound, h_sounds, whimper, yelp } from '../js/sounds.js';
 import {

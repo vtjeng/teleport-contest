@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { propagate_chain_lightning, cast_chain_lightning } from '../js/spell.js';
 import { DISP_BEAM, DISP_END, ROOM, DOOR, D_CLOSED, D_LOCKED,
     POOL, MOAT, DRAWBRIDGE_UP, LAVAPOOL, WATER, LAVAWALL, STONE,

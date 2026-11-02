@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import * as doPort from '../js/do.js';
 import {rot_corpse} from '../js/dig.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {eaten_stat} from '../js/eat.js';
 import {CORPSE, LARGE_BOX} from '../js/objects.js';
 import {G_GENOD, W_WEP, OBJ_MIGRATING, OBJ_MINVENT, OBJ_CONTAINED, OBJ_DELETED, OBJ_FREE, OBJ_INVENT, ROT_CORPSE,

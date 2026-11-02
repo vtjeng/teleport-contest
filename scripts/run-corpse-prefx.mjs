@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_FLESH_GOLEM, PM_STONE_GOLEM, PM_WIZARD } from '../js/monsters.js';
 import { TIN } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

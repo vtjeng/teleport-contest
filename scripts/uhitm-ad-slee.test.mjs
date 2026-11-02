@@ -10,7 +10,7 @@ import {
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AD_SLEE,

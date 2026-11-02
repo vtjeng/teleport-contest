@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {runSegment} from '../../../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../../../js/jsmain.js';
 import {game} from '../../../js/gstate.js';
 import {cmdq_add_ec,cmdq_peek,rhack} from '../../../js/cmd.js';
 import {extcmdlist} from '../../../js/extcmdlist_data.js';

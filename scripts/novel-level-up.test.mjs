@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { SPE_NOVEL } from '../js/objects.js';
 import { study_book } from '../js/spell.js';
 import { newuexp } from '../js/exper.js';

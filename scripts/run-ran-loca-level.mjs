@@ -10,7 +10,7 @@ import {
 import {
     PM_FOREST_CENTAUR, PM_GIANT_BAT, PM_MOUNTAIN_CENTAUR, PM_SCORPION, PM_WUMPUS,
 } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

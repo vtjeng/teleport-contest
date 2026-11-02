@@ -11,7 +11,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { BEARTRAP, LAND_MINE } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const recipe = JSON.parse(readFileSync(new URL(
     '../recipes/apply.c/beartrap-setting-independent.session.json',

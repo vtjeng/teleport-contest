@@ -4,7 +4,7 @@ import test from 'node:test';
 import { AD_SITM, PM_MONKEY, NON_PM } from '../js/monsters.js';
 import { W_SADDLE } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { mhitm_adtyping } from '../js/uhitm.js';

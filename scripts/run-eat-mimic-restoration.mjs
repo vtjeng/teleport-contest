@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { M_AP_NOTHING, M_AP_OBJECT } from '../js/const.js';
 import { eatmdone } from '../js/eat.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GOLD_PIECE } from '../js/objects.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

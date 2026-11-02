@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {M_AP_TYPE,M_AP_OBJECT} from '../js/const.js';
 import {PM_SMALL_MIMIC,PM_TRAPPER} from '../js/monsters.js';
 import {STRANGE_OBJECT} from '../js/objects.js';

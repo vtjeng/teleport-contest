@@ -11,7 +11,7 @@ import {
 import { remove_ok } from '../js/do_wear.js';
 import { game } from '../js/gstate.js';
 import { ARMOR_CLASS, RING_CLASS, RIN_REGENERATION } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     TAKEOFF_KEY,
     WAIT,

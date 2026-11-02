@@ -76,7 +76,7 @@ import { S_altar } from '../js/symbols.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { RIDE_COMMAND, loadRideDismountRecipe } from './run-ride-dismount.mjs';
 import { light_globals_init } from '../js/light.js';

@@ -65,7 +65,7 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import { currency, money_cnt } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
-import { NethackGame, runSegment } from '../js/jsmain.js';
+import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
 import { getRngLog } from '../js/rng.js';
 import { do_mkroom } from '../js/mkroom.js';

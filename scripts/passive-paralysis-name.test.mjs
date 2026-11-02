@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {game} from '../js/gstate.js';
 import {GameMap} from '../js/game.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {newMonster,place_monster} from '../js/monst.js';
 import {PM_HUMAN,PM_ANGEL,PM_GELATINOUS_CUBE,PM_FLOATING_EYE} from '../js/monsters.js';
 import {mattackm} from '../js/mhitm.js';

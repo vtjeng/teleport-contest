@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 
 import { CQ_CANNED, W_WEP } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { BRASS_LANTERN, MAGIC_LAMP, OIL_LAMP } from '../js/objects.js';
 import { PM_EARTH_ELEMENTAL } from '../js/monsters.js';
 import { heroIsBlind } from '../js/startup_a11y.js';

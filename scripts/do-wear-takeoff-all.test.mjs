@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 
 // cmd.c binds A to doddoremarm; source do_takeoff clears the primary through

@@ -26,7 +26,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { AD_COLD, AD_ELEC, AD_FIRE, PM_NEWT } from '../js/monsters.js';
 import {
     breathless, haseyes, Resists_Elem,

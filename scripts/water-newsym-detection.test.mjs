@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import {createScoringWorkspace,removeScoringWorkspace} from './scoring-workspace.mjs';
 import {runJsSession,compareSessionOutputs,formatReport} from './diff-fresh.mjs';
 import assert from 'node:assert/strict';import test from 'node:test';
-import {runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';import {newMonster,place_monster} from '../js/monst.js';import {PM_GOBLIN,NUMMONS} from '../js/monsters.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';import {newMonster,place_monster} from '../js/monst.js';import {PM_GOBLIN,NUMMONS} from '../js/monsters.js';
 import {BLINDED,HALLUC,DETECT_MONSTERS,SEE_INVIS,TELEPAT,WARN_OF_MON,ROOM} from '../js/const.js';
 import {GLYPH_DETECT_MALE_OFF,GLYPH_DETECT_FEM_OFF,GLYPH_MON_MALE_OFF} from '../js/glyph_offsets.js';
 import {newsym} from '../js/display.js';import {init_vision_globals,vision_reset,vision_recalc,cansee} from '../js/vision.js';import {light_globals_init} from '../js/light.js';

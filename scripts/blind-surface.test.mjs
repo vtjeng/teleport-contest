@@ -4,7 +4,7 @@ import test from 'node:test';
 import { surface } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
 import { dfeature_at } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadBlindSurfaceRecipe } from './run-blind-surface.mjs';
 
 // The noun each segment's walk is chosen to reach, and whether dfeature_at()

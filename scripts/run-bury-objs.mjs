@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { OBJ_BURIED, ROT_ORGANIC } from '../js/const.js';
 import { APPLE, BOULDER, FOOD_RATION, LEASH, WEAPON_CLASS } from '../js/objects.js';
 import { peek_timer } from '../js/timeout.js';

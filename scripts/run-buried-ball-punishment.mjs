@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
 import { HEAVY_IRON_BALL, IRON_CHAIN } from '../js/objects.js';
 import { OBJ_BURIED, TT_BURIEDBALL, TT_NONE } from '../js/const.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 export const PUNISHMENT_CASES = [

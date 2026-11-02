@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_WATER_MOCCASIN, PM_GREEN_DRAGON, PM_RAVEN } from '../js/monsters.js';
 import { mhitm_really_poison } from '../js/uhitm.js';

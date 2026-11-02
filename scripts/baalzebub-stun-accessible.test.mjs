@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 // C gazemu AD_STUN uses pline_mon; expectation is source-derived, not a new C execution.
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {newMonster,place_monster,m_at} from '../js/monst.js';
 import {PM_BAALZEBUB,NON_PM,AT_GAZE,AD_STUN} from '../js/monsters.js';

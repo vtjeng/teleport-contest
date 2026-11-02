@@ -8,7 +8,7 @@ import {
     FIRE_RES, FIRE_TRAP, IN_SIGHT, NON_PM, Trap_Effect_Finished,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { PM_FIRE_ELEMENTAL } from '../js/monsters.js';

@@ -25,7 +25,7 @@
 // the range and the yield in the matrix script's comment.
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 export function* seedRange(first, last) {
     if (!Number.isSafeInteger(first) || !Number.isSafeInteger(last)

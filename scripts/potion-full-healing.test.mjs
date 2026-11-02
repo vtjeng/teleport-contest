@@ -7,7 +7,7 @@ import test from 'node:test';
 import { A_CON, A_STR, BLINDED, DEAF, HALLUC, HALLUC_RES, SICK, VOMITING,
     WOUNDED_LEGS } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { POT_FULL_HEALING } from '../js/objects.js';
 import { peffects } from '../js/potion.js';
 

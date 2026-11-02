@@ -34,7 +34,7 @@ import { rhack, there_cmd_menu_next2u, MCMD } from '../js/cmd.js';
 import { legs_in_no_shape } from '../js/do.js';
 import { dokick, kickstr } from '../js/dokick.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { newMonster } from '../js/monst.js';

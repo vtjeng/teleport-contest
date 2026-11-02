@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_MINOTAUR } from '../js/monsters.js';
 
 import { sobj_at } from '../js/invent.js';

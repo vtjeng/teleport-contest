@@ -4,7 +4,7 @@ import {sobj_at} from '../js/invent.js';
 import {STATUE} from '../js/objects.js';
 import {M_ATTK_AGR_DIED} from '../js/const.js';
 // C mdisplacem uses pline_mon only for petrification; source-derived expectation, no new C execution.
-import {runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {newMonster,place_monster,m_at} from '../js/monst.js';import {PM_DISPLACER_BEAST,PM_COCKATRICE,NON_PM} from '../js/monsters.js';import {mdisplacem} from '../js/mhitm.js';import {mm_displacement} from '../js/mon.js';import {accessible} from '../js/monmove.js';import {cansee} from '../js/vision.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {newMonster,place_monster,m_at} from '../js/monst.js';import {PM_DISPLACER_BEAST,PM_COCKATRICE,NON_PM} from '../js/monsters.js';import {mdisplacem} from '../js/mhitm.js';import {mm_displacement} from '../js/mon.js';import {accessible} from '../js/monmove.js';import {cansee} from '../js/vision.js';
 for(const enabled of [true,false]) test(`native displacement petrification location, accessiblemsg=${enabled}`,async()=>{
  await runSegment({seed:7710048,datetime:'20261028120000',nethackrc:`OPTIONS=name:Stone,role:Valkyrie,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,${enabled?'':'!'}accessiblemsg\n`,moves:''});
  assert.equal(Boolean(game.a11y.accessiblemsg),enabled);const y=2;function mon(pm,x,id){assert.ok(accessible(x,y,game)&&cansee(x,y,game));assert.equal(m_at(x,y,game),null);const data=game.mons[pm];const m=newMonster({data,mnum:pm,cham:NON_PM,m_id:id,m_lev:data.mlevel,mcanmove:1,mcansee:1,mhp:100,mhpmax:100});place_monster(m,x,y,game);m.nmon=game.level.monlist;game.level.monlist=m;return m;}

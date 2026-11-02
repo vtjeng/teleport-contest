@@ -8,7 +8,7 @@ import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
 import { PM_CHAMELEON, PM_MASTER_ASSASSIN, PM_SHARK } from '../js/monsters.js';
 import { SKELETON_KEY, TIN } from '../js/objects.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 function linked(head, next) {

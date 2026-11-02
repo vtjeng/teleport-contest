@@ -4,7 +4,7 @@ import test from 'node:test';
 import {G_EXTINCT, G_GENOD, MON_DETACH, OBJ_DELETED, W_AMUL} from '../js/const.js';
 import {game} from '../js/gstate.js';
 import {makemap_prepost} from '../js/cmd.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {kill_genocided_monsters} from '../js/mon.js';
 import {accessible} from '../js/monmove.js';
 import {m_at, newMonster, place_monster, remove_monster} from '../js/monst.js';

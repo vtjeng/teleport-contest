@@ -18,7 +18,7 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { makemon_runtime } from '../js/makemon_create.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     M1_BREATHLESS, M2_UNDEAD, PM_FOG_CLOUD, PM_LONG_WORM, S_GOLEM,
 } from '../js/monsters.js';

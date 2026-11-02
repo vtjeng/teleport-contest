@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {CHEST, COIN_CLASS} from '../js/objects.js';
 import {BLINDED, LEVITATION, T_LOOTED} from '../js/const.js';
 import {normal_obj_to_glyph} from '../js/display.js';

@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { DOOR, D_ISOPEN, D_NODOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     loadDoorlessPetDisplacementRecipe,
     loadPetDoorwayDisplacementRecipe,

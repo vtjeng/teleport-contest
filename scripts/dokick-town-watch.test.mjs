@@ -5,7 +5,7 @@ import test from 'node:test';
 import { D_LOCKED, D_WARNED } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { in_town } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { is_watch } from '../js/mondata.js';
 import { couldsee } from '../js/vision.js';
 

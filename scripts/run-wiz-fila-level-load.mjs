@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { In_quest, OROOM } from '../js/const.js';
 import { Is_special, find_level } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 async function verifyWizFilaSegment(segment) {

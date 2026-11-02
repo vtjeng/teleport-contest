@@ -10,7 +10,7 @@ import { ACH_TUNE, A_WIS, COLNO, D_CLOSED, D_NODOOR, DB_EAST, DB_NORTH,
 from '../js/const.js';
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
     charm_snakes, calm_nymphs, do_improvisation, do_play_instrument,

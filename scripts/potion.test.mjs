@@ -32,7 +32,7 @@ import { game } from '../js/gstate.js';
 import { PM_GOBLIN, PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
 import { m_at, newMonster } from '../js/monst.js';
 import { makemon_runtime, m_dowear } from '../js/makemon_create.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 import { discover_object } from '../js/o_init.js';
 import { add_to_minv, addinv } from '../js/invent.js';

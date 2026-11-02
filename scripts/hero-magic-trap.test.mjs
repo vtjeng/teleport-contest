@@ -20,7 +20,7 @@ import {
 import { at_dgn_entrance, on_level } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
 import { acurr } from '../js/attrib.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_GIANT_RAT } from '../js/monsters.js';
 import { body_part } from '../js/polyself.js';

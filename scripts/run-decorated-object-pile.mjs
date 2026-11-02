@@ -10,7 +10,7 @@
 import { DOOR, OBJ_FLOOR, STAIRS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { dfeature_at } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { HEAVY_IRON_BALL } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

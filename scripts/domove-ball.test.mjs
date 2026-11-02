@@ -4,7 +4,7 @@ import test from 'node:test';
 import { ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { domove } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { remove_object, place_object } from '../js/obj.js';
 import { SCROLL_CLASS, SCR_PUNISHMENT } from '../js/objects.js';
 import { punish } from '../js/read.js';

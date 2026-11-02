@@ -6,7 +6,7 @@ import { adjalign, ALIGNLIM } from '../js/attrib.js';
 import { experience } from '../js/exper.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog } from '../js/rng.js';
 import { add_to_minv } from '../js/invent.js';
 import {

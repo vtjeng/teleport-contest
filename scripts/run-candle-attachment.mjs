@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { BURN_OBJECT, LS_OBJECT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { CANDELABRUM_OF_INVOCATION, WAX_CANDLE, TALLOW_CANDLE } from '../js/objects.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

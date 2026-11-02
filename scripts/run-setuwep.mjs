@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { OBJ_FLOOR } from '../js/const.js';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 import { AKLYS, BOOMERANG, LONG_SWORD, PICK_AXE, POT_SLEEPING, RIN_SEARCHING } from '../js/objects.js';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';

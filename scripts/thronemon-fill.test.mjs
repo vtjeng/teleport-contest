@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { COLNO, ROWNO, THRONE } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import { PM_ELVEN_MONARCH, PM_OGRE_TYRANT } from '../js/monsters.js';
 import {

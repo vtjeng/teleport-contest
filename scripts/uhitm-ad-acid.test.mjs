@@ -5,7 +5,7 @@ import test from 'node:test';
 import { ACID_RES, M_SEEN_ACID } from '../js/const.js';
 import { isok } from '../js/cmd_isok.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AD_ACID, AT_BITE, PM_GRAY_OOZE, PM_OCHRE_JELLY, PM_STONE_GIANT,

@@ -43,7 +43,7 @@ import { dodown, goto_level } from '../js/do.js';
 import { find_mapseen, ledger_no, level_info } from '../js/dungeon.js';
 import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import { mksobj, place_object } from '../js/obj.js';
 import { BOULDER, BULLWHIP, PICK_AXE } from '../js/objects.js';

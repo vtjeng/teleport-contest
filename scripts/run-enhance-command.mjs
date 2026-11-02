@@ -32,7 +32,7 @@
 
 import { P_ATTACK_SPELL, P_DAGGER, P_NUM_SKILLS } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { P_RESTRICTED } from '../js/startup_skills.js';
 import { P_NAME, add_skills_to_menu } from '../js/weapon.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

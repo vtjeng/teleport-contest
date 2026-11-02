@@ -5,7 +5,7 @@ import test from 'node:test';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { ACH_TUNE } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 test('the second Castle tune hint preserves its audible message boundary',
     async () => {

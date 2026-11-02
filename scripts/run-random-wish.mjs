@@ -27,7 +27,7 @@
 // And a corpse cannot be drawn at all, because objects.h gives it oc_prob 0.
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,

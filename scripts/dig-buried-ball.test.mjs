@@ -166,7 +166,7 @@ test('dig.c punishment restoration and unearthing have canonical owners', async 
 });
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { buried_ball_to_punishment, unearth_objs } from '../js/dig.js';
 import { punish } from '../js/read.js';
 import { OBJ_FREE, PIT, ROOM } from '../js/const.js';

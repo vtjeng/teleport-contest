@@ -28,7 +28,7 @@ import {
     extcmdlist,
 } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     ESCAPE_KEY,
     EXTCMD_KEY,

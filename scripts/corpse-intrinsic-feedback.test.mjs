@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import {compareSessionOutputs,formatReport,runJsSession} from './diff-fresh.mjs';
 import {createScoringWorkspace,removeScoringWorkspace} from './scoring-workspace.mjs';
 import assert from 'node:assert/strict';import test from 'node:test';
-import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';import {runSegment} from '../js/jsmain.js';
+import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {newMonster,place_monster} from '../js/monst.js';import {PM_PURPLE_WORM,PM_STALKER} from '../js/monsters.js';
 import {mon_givit,mon_give_prop} from '../js/mon.js';import {planningState} from '../js/unported_monster_actions.js';
 import {ROOM,HALLUC,HALLUC_RES,BLINDED,SEE_INVIS,DETECT_MONSTERS,FIRE_RES,TELEPORT,NON_PM} from '../js/const.js';

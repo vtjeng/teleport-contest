@@ -12,7 +12,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { init_objects } from '../js/o_init.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { light_globals_init } from '../js/light.js';
 import { timeout_globals_init } from '../js/timeout.js';
 

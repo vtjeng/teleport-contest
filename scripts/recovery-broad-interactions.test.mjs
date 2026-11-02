@@ -2,7 +2,7 @@
 // these checks do not claim a new native C constructor execution.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {mklev} from '../js/mklev.js';
 import {ICE, M_AP_NOTHING} from '../js/const.js';

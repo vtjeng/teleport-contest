@@ -37,7 +37,7 @@ import {
     glyph_is_invisible,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { is_undead } from '../js/mondata.js';
 import { CHEST } from '../js/objects.js';
 import { mksobj, place_object } from '../js/obj.js';

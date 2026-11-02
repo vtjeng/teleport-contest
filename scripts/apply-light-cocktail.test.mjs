@@ -7,7 +7,7 @@ import { addinv } from '../js/invent.js';
 import { near_capacity } from '../js/hack.js';
 import { POT_OIL } from '../js/objects.js';
 import { mksobj } from '../js/obj.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { light_cocktail } from '../js/apply.js';
 
 const APPLY_C = readFileSync(

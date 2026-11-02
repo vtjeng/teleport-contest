@@ -7,7 +7,7 @@ import {
 import { close_drawbridge, create_drawbridge } from '../js/dbridge.js';
 import { canseemon } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GNOME } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { d, rn1, rn2, rne, rnl, rnz } from '../js/rng.js';

@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { STONE_RES } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE, PM_STONE_GOLEM } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import { minstapetrify } from '../js/trap.js';

@@ -1,4 +1,4 @@
-import {runSegment} from '../../../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../../../js/jsmain.js';
 import {game} from '../../../js/gstate.js';
 const setup='#wizgenesis\nhostile vampire\n';
 for(const seed of [98732041,98732042])for(const length of [45,48,100]){

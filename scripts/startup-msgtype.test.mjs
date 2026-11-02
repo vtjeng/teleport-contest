@@ -18,7 +18,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { nhgetch } from '../js/input.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import {
     msgtype_parse_add,

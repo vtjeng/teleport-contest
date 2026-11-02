@@ -27,7 +27,7 @@ import { ZAP_POS } from '../js/const.js';
 import { acurrstr } from '../js/attrib.js';
 import { closed_door } from '../js/monmove.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { On_stairs, stairway_at } from '../js/stairs.js';
 
 // cmd.c:2000 binds C('w') to the "wizwish" row. Spelled from its code point

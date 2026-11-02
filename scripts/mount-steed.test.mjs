@@ -72,7 +72,7 @@ import { m_at } from '../js/monst.js';
 import { put_saddle_on_mon } from '../js/dog.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { getRngLog } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadMountSteedRecipe } from './run-mount-steed.mjs';
 
 const C_STEED = readFileSync(new URL('../nethack-c/upstream/src/steed.c', import.meta.url), 'utf8');

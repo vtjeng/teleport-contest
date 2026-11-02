@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { COULD_SEE, IN_SIGHT, OBJ_MINVENT, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_GNOME, PM_NEWT, NON_PM } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';

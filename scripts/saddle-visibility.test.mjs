@@ -4,7 +4,7 @@ import test from 'node:test';
 import { BLINDED, IN_SIGHT, OBJ_MINVENT, SEE_INVIS, W_SADDLE } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { fully_identify_obj } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { PM_PONY } from '../js/monsters.js';
 import { newObject } from '../js/obj.js';

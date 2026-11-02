@@ -3,7 +3,7 @@ import test from 'node:test';
 import fs from 'node:fs';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { planningState, wieldMonsterItemAgainstMonster } from '../js/unported_monster_actions.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_HUMAN } from '../js/monsters.js';

@@ -8,7 +8,7 @@ import { artifact_exists } from '../js/artifacts.js';
 import { doapply } from '../js/apply.js';
 import { ECMD_CANCEL, ECMD_TIME } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import { MIRROR, SKELETON_KEY } from '../js/objects.js';
 

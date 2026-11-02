@@ -8,7 +8,7 @@ import { BLINDED, DEAF, G_GONE, MM_NOMSG } from '../js/const.js';
 import { dowaternymph } from '../js/fountain.js';
 import { game } from '../js/gstate.js';
 import { PM_WATER_NYMPH } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 async function startedGame() {
     await runSegment({

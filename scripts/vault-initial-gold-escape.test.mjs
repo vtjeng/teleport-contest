@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {game} from '../js/gstate.js';
 import {money_cnt} from '../js/invent.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {findgd, vault_occupied} from '../js/vault.js';
 
 // C vault.c gd_move(): leaving with gold before fcend grows past one

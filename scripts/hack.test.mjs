@@ -116,7 +116,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { Boots_on } from '../js/do_wear.js';
 import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { vision_reset } from '../js/vision.js';
 import {
     M1_FLY, M2_ROCKTHROW, PM_CAVE_SPIDER, PM_COCKATRICE, PM_GRID_BUG, PM_HUMAN,

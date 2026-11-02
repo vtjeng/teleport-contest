@@ -32,7 +32,7 @@ import {
 } from '../js/bury.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { add_to_buried, add_to_minv } from '../js/invent.js';
 import { newObject, place_object } from '../js/obj.js';
 import {

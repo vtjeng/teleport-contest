@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { get_level_extends } from '../js/mkmaze.js';
 import { SAM_LOCA_LEVEL_OBJECTS } from '../js/sam_loca_level_data.js';
 import { COLNO, ROWNO, DOOR, SDOOR, D_CLOSED, D_LOCKED, W_NONDIGGABLE } from '../js/const.js';

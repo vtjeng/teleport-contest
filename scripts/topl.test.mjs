@@ -34,7 +34,7 @@ import {
     TOPLINE_NEED_MORE,
     ttyCustomPline,
 } from '../js/tty_message.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { QUEST_PAGER_OUTPUT } from '../js/questpgr.js';
 
 const wrappedStartupRecording = normalizeSession(JSON.parse(readFileSync(

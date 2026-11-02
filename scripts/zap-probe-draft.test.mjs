@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const recipe = JSON.parse(readFileSync(new URL(
     '../challenges/cases/v67/v67-rogue-blind-probing-action7.recipe.session.json',

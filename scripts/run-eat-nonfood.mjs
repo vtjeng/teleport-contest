@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_FIRE_ELEMENTAL } from '../js/monsters.js';
 import { BULLWHIP } from '../js/objects.js';
 import * as gstate from '../js/gstate.js';

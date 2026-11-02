@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { game } from '../js/gstate.js';
 import { getpos, getpos_sethilite } from '../js/getpos.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const C_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/getpos.c', import.meta.url), 'utf8',

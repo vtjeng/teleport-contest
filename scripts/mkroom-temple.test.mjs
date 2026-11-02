@@ -15,7 +15,7 @@ import {
     ROOMOFFSET,
     TEMPLE,
 } from '../js/const.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';

@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { STONED, TIMEOUT } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 const cases = ['limber', 'limber-variation', 'limber-outside'];

@@ -76,7 +76,7 @@ test('unfaint losing coin flip keeps timed deafness and never worsens recovered 
 });
 
 test('starvation gate preserves rounded RNG bound, constitution threshold and fatal source order', async () => {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
     const { planningState } = await import('../js/unported_monster_actions.js');
     const { acurr } = await import('../js/attrib.js');
@@ -167,7 +167,7 @@ test('morehungry fills planning hunger operations without changing supplied RNG 
 });
 
 test('gethungry faint runs real corpse selftouch and stops the fatal status tail', async () => {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
     const { mksobj, set_corpsenm, weight } = await import('../js/obj.js');
     const { addinv_nomerge } = await import('../js/invent.js');
@@ -272,7 +272,7 @@ test('gethungry faint runs real corpse selftouch and stops the fatal status tail
 });
 
 test('gethungry faint without a petrifying corpse continues the ordinary faint status tail', async () => {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
     const { near_capacity, endRunning } = await import('../js/hack.js');
     const { bot } = await import('../js/display.js');

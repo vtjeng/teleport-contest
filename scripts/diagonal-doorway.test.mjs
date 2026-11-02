@@ -21,7 +21,7 @@ import {
     test_move,
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { bigmonst } from '../js/mondata.js';
 import {
     PM_AIR_ELEMENTAL,

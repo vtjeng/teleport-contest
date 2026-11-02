@@ -11,7 +11,7 @@ import {
 import { STUNNED, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { mhitm_adtyping } from '../js/uhitm.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { isok } from '../js/cmd_isok.js';
 import { newMonster, place_monster } from '../js/monst.js';
 

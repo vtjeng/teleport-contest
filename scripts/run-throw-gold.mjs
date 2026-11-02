@@ -83,7 +83,7 @@
 import { COIN_CLASS } from '../js/objects.js';
 import { GETOBJ_SUGGEST } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { throw_ok } from '../js/dothrow.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';

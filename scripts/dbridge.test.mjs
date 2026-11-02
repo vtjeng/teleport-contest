@@ -34,7 +34,7 @@ import {
 } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { canseemon } from '../js/display.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT, PM_NEWT } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';

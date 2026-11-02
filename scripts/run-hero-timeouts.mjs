@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { CONFUSION, DISPLACED, GLIB, HALLUC, NORMAL_SPEED, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { near_capacity } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 export function loadHeroTimeoutRecipes() {

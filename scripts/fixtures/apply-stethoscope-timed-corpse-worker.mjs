@@ -3,7 +3,7 @@ import { parentPort } from 'node:worker_threads';
 import { its_dead } from '../../js/apply.js';
 import { OBJ_FLOOR, REVIVE_MON, TIMER_OBJECT } from '../../js/const.js';
 import { game } from '../../js/gstate.js';
-import { runSegment } from '../../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../../js/jsmain.js';
 import { PM_NEWT } from '../../js/monsters.js';
 import { newObject } from '../../js/obj.js';
 import { CORPSE, ROCK } from '../../js/objects.js';

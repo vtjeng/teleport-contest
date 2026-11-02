@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {punish} from '../js/read.js';
 import {SCR_PUNISHMENT} from '../js/objects.js';
 import {OBJ_FREE, OBJ_FLOOR} from '../js/const.js';

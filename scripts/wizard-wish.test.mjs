@@ -22,7 +22,7 @@ import { UnsupportedDropError } from '../js/do.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_NEWT, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import {

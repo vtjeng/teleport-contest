@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 
 const recording = normalizeSession(JSON.parse(readFileSync(

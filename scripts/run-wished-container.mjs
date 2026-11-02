@@ -37,7 +37,7 @@
 // dropped where the hero stands. Nothing about the type decides it.
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,

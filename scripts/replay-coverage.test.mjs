@@ -124,7 +124,7 @@ export function runSegment(input) { return target(input.flag); }
         'frozen/storage.js': "export const marker = 'frozen-storage';\n",
         'frozen/ps_test_runner.mjs': `import { readFileSync } from 'node:fs';
 import { basename } from 'node:path';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 const file = process.argv.find(arg => arg.startsWith('--worker-session=')).split('=')[1];
 const input = JSON.parse(readFileSync(file, 'utf8'));
 const passed = runSegment(input) === 'frozen-rng,frozen-terminal,frozen-storage';

@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { PIT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import { trapeffect_selector } from '../js/trap_effects.js';

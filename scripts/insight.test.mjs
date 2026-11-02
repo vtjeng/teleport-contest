@@ -136,7 +136,7 @@ import {
 } from '../js/const.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     AD_ACID,
     M1_BREATHLESS,

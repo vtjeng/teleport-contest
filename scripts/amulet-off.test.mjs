@@ -18,7 +18,7 @@ import {
 } from '../js/const.js';
 import { _doWearInternals } from '../js/do_wear.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import { remove_worn_item } from '../js/steal.js';
 import { planningState } from '../js/unported_monster_actions.js';

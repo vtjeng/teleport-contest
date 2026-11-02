@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ALTAR, PIT, TEMPLE } from '../js/const.js';
 import { CLUB, LEATHER_ARMOR } from '../js/objects.js';
 import { PM_BUGBEAR, PM_NEANDERTHAL, PM_SHAMAN_KARNOV } from '../js/monsters.js';

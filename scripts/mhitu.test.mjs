@@ -69,7 +69,7 @@ import {
 import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
 import { near_capacity, spoteffects, weight_cap } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
     calc_mattacku_vars,

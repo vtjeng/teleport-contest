@@ -49,7 +49,7 @@ import { addinv } from '../js/invent.js';
 import { newObject } from '../js/obj.js';
 import { objects_globals_init, AXE, DAGGER, TIN, TIN_OPENER } from '../js/objects.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { find_delayed_killer } from '../js/end.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';

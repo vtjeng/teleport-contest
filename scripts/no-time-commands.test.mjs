@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { flush_screen } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadNoTimeCommandsRecipe } from './run-no-time-commands.mjs';
 
 // The bytes each checked-in segment relies on having no binding. cmd.c

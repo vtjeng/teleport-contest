@@ -50,7 +50,7 @@ import { newMonster, place_monster } from '../js/monst.js';
 import { accessible } from '../js/monmove.js';
 import { block_point } from '../js/vision.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newObject, place_object } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';

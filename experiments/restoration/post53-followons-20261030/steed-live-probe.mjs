@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 
 import { M_ATTK_HIT } from '../../../js/const.js';
 import { game } from '../../../js/gstate.js';
-import { runSegment } from '../../../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../../../js/jsmain.js';
 import { makemon_runtime } from '../../../js/makemon_create.js';
 import { PM_FIRE_GIANT } from '../../../js/monsters.js';
 import { mhitm_knockback } from '../../../js/uhitm.js';

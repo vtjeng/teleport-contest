@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 
 const CASES = ['amulet-wizard', 'amulet-healer', 'forgotten-wizard', 'forgotten-variation', 'turn'];

@@ -38,7 +38,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { NethackGame, runSegment } from '../js/jsmain.js';
+import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
 import { makemon_runtime } from '../js/makemon_create.js';
 import { maketrap } from '../js/trap.js';

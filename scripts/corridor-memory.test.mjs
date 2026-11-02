@@ -4,7 +4,7 @@ import test from 'node:test';
 import { COLNO, CORR, ROOM, ROWNO } from '../js/const.js';
 import { glyph_to_cmap } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import { S_corr, S_darkroom, S_litcorr } from '../js/symbols.js';
 import { loadCorridorMemoryRecipe } from './run-corridor-memory.mjs';

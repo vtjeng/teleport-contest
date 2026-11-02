@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { OBJ_FLOOR, TT_BURIEDBALL } from '../js/const.js';
 import { buried_ball } from '../js/dig.js';
 import { game } from '../js/gstate.js';
-import { NethackGame, runSegment } from '../js/jsmain.js';
+import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 const names = ['scroll', 'scroll-variation', 'bell', 'wallpass', 'unsolid', 'prayer'];

@@ -58,7 +58,7 @@ import {
     PM_LONG_WORM,
 } from '../js/monsters.js';
 import { heroIsBlind } from '../js/startup_a11y.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     COIN_CLASS,
     GOLD_PIECE,

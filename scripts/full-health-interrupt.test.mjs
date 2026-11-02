@@ -12,7 +12,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { projected_capacity } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { ttyPline } from '../js/tty_message.js';
 import {

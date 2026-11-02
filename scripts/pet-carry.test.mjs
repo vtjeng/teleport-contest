@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { droppables } from '../js/dogmove.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadPetCarryRecipe } from './run-pet-carry.mjs';
 
 // dog.c initedog() sets edog->dropdist to 10000, and dogmove.c

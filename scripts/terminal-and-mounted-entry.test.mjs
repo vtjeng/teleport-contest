@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {runJsSession, compareSessionOutputs} from './diff-fresh.mjs';
 import {createScoringWorkspace, removeScoringWorkspace} from './scoring-workspace.mjs';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {is_lava} from '../js/dbridge.js';
 import {PM_PONY} from '../js/monsters.js';

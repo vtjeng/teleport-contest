@@ -24,7 +24,7 @@ import {
     getRngLog,
     initRng,
 } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { CORPSE, FOOD_CLASS } from '../js/objects.js';
 import {

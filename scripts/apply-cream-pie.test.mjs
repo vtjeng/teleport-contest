@@ -16,7 +16,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { can_blnd, haseyes } from '../js/mondata.js';
 import { AT_WEAP, M1_NOEYES } from '../js/monsters.js';
 import { CREAM_PIE } from '../js/objects.js';

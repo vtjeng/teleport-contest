@@ -7,7 +7,7 @@ import { ECMD_TIME, FUMBLING, OBJ_FLOOR, OBJ_INVENT } from '../js/const.js';
 import { ARROW } from '../js/objects.js';
 import { mksobj, weight } from '../js/obj.js';
 import { initRng, enableRngLog, getRngLog, rnd } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 

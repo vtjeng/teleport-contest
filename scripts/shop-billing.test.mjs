@@ -8,7 +8,7 @@ import {
     SHOPBASE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { d, rn1, rnd, rne, rnz } from '../js/rng.js';
 import { bhitm, bhito, create_polymon } from '../js/zap.js';
 import { missum } from '../js/uhitm.js';

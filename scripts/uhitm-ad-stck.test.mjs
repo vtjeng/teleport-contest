@@ -12,7 +12,7 @@ import {
     PM_HUMAN,
     PM_LARGE_MIMIC,
 } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const DATETIME = '20310102030405';
 const RC = [

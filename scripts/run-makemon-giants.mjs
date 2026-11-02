@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_FIRE_GIANT, PM_FROST_GIANT } from '../js/monsters.js';
 import { OBJ_MINVENT } from '../js/const.js';
 import { weight } from '../js/obj.js';

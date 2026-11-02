@@ -6,7 +6,7 @@ import { ROOM, TRAPDOOR, LEVITATION, W_ARMF } from '../js/const.js';
 import { armoroff, Boots_off, Boots_on } from '../js/do_wear.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mksobj } from '../js/obj.js';
 import { LEVITATION_BOOTS } from '../js/objects.js';
 import { teleds } from '../js/teleport.js';

@@ -8,7 +8,7 @@ import {
     PM_ABBOT, PM_EARTH_ELEMENTAL, PM_GRAND_MASTER, PM_XORN,
 } from '../js/monsters.js';
 import { FOOD_RATION, ROBE, TIN } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

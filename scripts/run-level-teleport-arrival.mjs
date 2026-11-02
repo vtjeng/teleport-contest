@@ -22,7 +22,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { mergable } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import {
     PM_AMOROUS_DEMON,

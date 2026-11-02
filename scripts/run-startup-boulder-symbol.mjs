@@ -7,7 +7,7 @@
 import { SYM_BOULDER } from '../js/const.js';
 import { object_glyph_info } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 import { sobj_at } from '../js/invent.js';
 import { BOULDER } from '../js/objects.js';

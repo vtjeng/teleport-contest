@@ -28,7 +28,7 @@ import {
     PM_WATCHMAN,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const DATETIME = '20260214031500';
 const RC = [

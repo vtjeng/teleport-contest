@@ -16,7 +16,7 @@ import { grease_ok, use_grease } from '../js/apply.js';
 import { CAN_OF_GREASE, COIN_CLASS, RING_CLASS } from '../js/objects.js';
 import { game } from '../js/gstate.js';
 import { getRngLog } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const applyC = readFileSync(
     new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',

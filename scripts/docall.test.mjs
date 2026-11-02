@@ -18,7 +18,7 @@ import {
 } from '../js/o_init.js';
 import { SCR_REMOVE_CURSE,
 } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 // Start a game so the full game state is initialized.
 async function startedGame(seed, name) {

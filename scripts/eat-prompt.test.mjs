@@ -24,7 +24,7 @@ import { game } from '../js/gstate.js';
 import * as gstate from '../js/gstate.js';
 import { near_capacity, weight_cap } from '../js/hack.js';
 import { _getobjInternals, getobj } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     PM_FIRE_ELEMENTAL,
     PM_GELATINOUS_CUBE,

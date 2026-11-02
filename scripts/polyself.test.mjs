@@ -39,7 +39,7 @@ import { were_beastie } from '../js/were.js';
 import { your_race } from '../js/mondata.js';
 import { strstri } from '../js/hacklib.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 import {
     FIRE_RES,

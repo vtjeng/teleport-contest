@@ -11,7 +11,7 @@ import {
     throwit_mon_hit,
 } from '../js/dothrow.js';
 import { mksobj } from '../js/obj.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     AD_DGST,
     AT_ENGL,

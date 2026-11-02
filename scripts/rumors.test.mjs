@@ -4,7 +4,7 @@ import test from 'node:test';
 import { COLNO, ORACLEFILE } from '../js/const.js';
 import { xcrypt } from '../js/hacklib.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { RANDOM_TEXT_FILES } from '../js/random_text_data.js';
 import { init_oracles, outoracle, restore_oracles, save_oracles } from '../js/rumors.js';
 import { InMemoryStorage } from '../js/storage.js';

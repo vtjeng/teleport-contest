@@ -6,7 +6,7 @@ import { createScoringWorkspace, removeScoringWorkspace } from './scoring-worksp
 import { BLINDED, COULD_SEE, IN_SIGHT, NHW_MESSAGE, ROOM } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { tty_yn_function } from '../js/topl.js';
 import { TOPLINE_EMPTY } from '../js/tty_message.js';
 import { tty_create_nhwindow } from '../js/wintty.js';

@@ -8,7 +8,7 @@ import {rnd,rn2} from '../js/rng.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {adjattrib} from '../js/attrib.js';
 import {planningState} from '../js/unported_monster_actions.js';
 import {A_INT,A_WIS,FAINTED,NOT_HUNGRY,M_ATTK_HIT} from '../js/const.js';

@@ -26,7 +26,7 @@ import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { RIDE_COMMAND } from './run-ride-dismount.mjs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const DATETIME = '20310203040506';
 // flags.time puts the turn counter on the status line, so a step that should

@@ -127,7 +127,7 @@ import {
     test_move,
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
-import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { stairway_find_dir } from '../js/stairs.js';
 import {
     AD_ACID,
@@ -5153,7 +5153,7 @@ test('count_bind_keys counts moved commands and orphaned default keys',
     });
 
 test('wizard and intrinsic teleport crossing hunger status supply canonical operations', async () => {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const { TELEPORT, FROMOUTSIDE, HUNGRY, NOT_HUNGRY, TIP_GETPOS } = await import('../js/const.js');
     for (const wizard of [true, false]) {
         // Separate startup per branch; teleport is tested through its real rhack binding.

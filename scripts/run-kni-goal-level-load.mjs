@@ -11,7 +11,7 @@ import { game } from '../js/gstate.js';
 import { find_level } from '../js/dungeon.js';
 import { MIRROR } from '../js/objects.js';
 import { PM_IXOTH, PM_OCHRE_JELLY, PM_QUASIT } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 

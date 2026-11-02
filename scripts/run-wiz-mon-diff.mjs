@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
 import { mstrength } from '../js/mondata.js';
 import { NEUTRAL } from '../js/const.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 const cases = ['ordinary', 'ranger', 'nonwizard'];

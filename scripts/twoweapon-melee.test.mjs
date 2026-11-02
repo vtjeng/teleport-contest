@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { P_TWO_WEAPON_COMBAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_NEWT } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import { P_ADVANCE, weapon_type } from '../js/startup_skills.js';

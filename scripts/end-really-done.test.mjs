@@ -22,7 +22,7 @@ import { newObject } from '../js/obj.js';
 import { AMULET_OF_LIFE_SAVING, BELL_OF_OPENING, LARGE_BOX }
     from '../js/objects.js';
 import { observe_quantum_cat } from '../js/pickup.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',

@@ -17,7 +17,7 @@ import {
 import { FEMALE, IN_SIGHT, MALE, NEUTRAL } from '../js/const.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { MAXMCLASSES } from '../js/symbols.js';
 import {
     MONSTER_TEMPLATES,

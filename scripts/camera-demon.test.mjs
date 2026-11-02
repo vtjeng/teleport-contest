@@ -7,7 +7,7 @@ import test from 'node:test';
 import {G_GENOD,HALLUC,HALLUC_RES,LOW_PM} from '../js/const.js';
 import {breakobj,release_camera_demon} from '../js/dothrow.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {PM_HOMUNCULUS,PM_IMP,PM_LICHEN,SPECIAL_PM} from '../js/monsters.js';
 import {EXPENSIVE_CAMERA} from '../js/objects.js';
 import {d,rn1,rn2,rnd,rne} from '../js/rng.js';

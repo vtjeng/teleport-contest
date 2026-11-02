@@ -7,7 +7,7 @@ import test from 'node:test';
 import { ROOM, ROOMOFFSET, VAULT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { money_cnt } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GUARD } from '../js/monsters.js';
 import { place_monster } from '../js/monst.js';
 import { g_at, mkgold } from '../js/obj.js';

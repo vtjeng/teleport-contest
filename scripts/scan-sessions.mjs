@@ -23,7 +23,7 @@ import {
 import { commandForKey } from '../js/command_bindings.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 import * as challengeResults from './challenge-results.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';

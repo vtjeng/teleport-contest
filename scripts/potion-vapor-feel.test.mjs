@@ -4,7 +4,7 @@ import { createScoringWorkspace, removeScoringWorkspace } from './scoring-worksp
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { potionbreathe } from '../js/potion.js';
 import { newObject } from '../js/obj.js';

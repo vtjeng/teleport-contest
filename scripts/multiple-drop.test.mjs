@@ -7,7 +7,7 @@ import * as pickup from '../js/pickup.js';
 import { COIN_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import { ckvalidcat } from '../js/invent.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadMultipleDropRecipe } from './run-multiple-drop.mjs';
 import { W_WEP, W_SADDLE, WORN_TYPES, BY_NEXTHERE, PARANOID_AUTOALL } from '../js/const.js';
 

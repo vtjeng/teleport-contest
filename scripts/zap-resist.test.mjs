@@ -5,7 +5,7 @@ import { accessible } from '../js/monmove.js';
 import { set_malign } from '../js/makemon.js';
 import { newedog } from '../js/dog.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, m_at, place_monster } from '../js/monst.js';
 import { PM_KITTEN, NON_PM } from '../js/monsters.js';
 import { d, rn1, rnd, rne, rnz } from '../js/rng.js';

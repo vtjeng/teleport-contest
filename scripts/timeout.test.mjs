@@ -83,7 +83,7 @@ import { wipeoff } from '../js/do.js';
 import { eatfood } from '../js/eat.js';
 import * as eatModule from '../js/eat.js';
 import { initRng } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { HCOLORS } from '../js/random_text_data.js';
 import { heroIsBlind } from '../js/startup_a11y.js';
 import {

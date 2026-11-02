@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { on_level } from '../js/dungeon.js';
 import { IN_SIGHT, SVALL } from '../js/const.js';
 import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';

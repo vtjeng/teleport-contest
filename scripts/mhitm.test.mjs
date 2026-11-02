@@ -24,7 +24,7 @@ import {
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { add_to_minv, addinv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     attk_protection,
     engulf_target,

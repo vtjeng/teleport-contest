@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { D_BROKEN, D_CLOSED, D_NODOOR, DOOR, ICE, LAVAWALL, POOL } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { zap_over_floor } from '../js/zap.js';
 
 // zap.c:5245-5253: an unseen cold bolt makes a soft crackling sound when

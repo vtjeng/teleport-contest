@@ -5,7 +5,7 @@
 // injected monster flags, scripted RNG, movement planning or global newsym hook.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {mklev} from '../js/mklev.js';
 import {getRngLog} from '../js/rng.js';

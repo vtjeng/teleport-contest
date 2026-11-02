@@ -151,7 +151,7 @@ test('real isolated pilot worker retains full API output and rejects mismatched 
     const output = await scratch(t), root = join(output, 'repo'), workspace = join(output, 'workspace');
     await fs.mkdir(join(root, 'js'), {recursive: true}); await fs.mkdir(join(root, 'frozen'));
     await fs.writeFile(join(root, 'package.json'), '{"type":"module"}');
-    await fs.writeFile(join(root, 'js/jsmain.js'), `export async function runSegment() {
+    await fs.writeFile(join(root, 'js/jsmain.js'), `export async function runSegmentStrict() {
         return {getScreens:()=>['A'],getCursors:()=>[[0,0,1]],getRngLog:()=>[],
             getAnimationFramesByStep:()=>[[]]};
     }`);

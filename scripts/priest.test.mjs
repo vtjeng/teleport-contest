@@ -12,7 +12,7 @@ import {
     mon_aligntyp,
     reset_hostility,
 } from '../js/priest.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     MONSTER_TEMPLATES,
     PM_ALIGNED_CLERIC,

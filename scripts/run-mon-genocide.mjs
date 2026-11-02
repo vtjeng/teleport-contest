@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {G_GENOD} from '../js/const.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {PM_CHAMELEON, PM_GOBLIN, PM_LICHEN, PM_NEWT} from '../js/monsters.js';
 import {validateCleanRecipe} from './diff-fresh.mjs';
 import {runFreshMatrix, runMatrixCli} from './fresh-matrix.mjs';

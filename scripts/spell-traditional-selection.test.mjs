@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const nethackrc = [
     'OPTIONS=name:SpellMenuAudit,role:Priest,race:human,gender:female,align:neutral',

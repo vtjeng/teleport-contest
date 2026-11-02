@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { ROLLING_BOULDER_TRAP } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { BOULDER } from '../js/objects.js';
 import { loadHeroRollingBoulderTrapRecipe } from
     './run-hero-rolling-boulder-trap.mjs';

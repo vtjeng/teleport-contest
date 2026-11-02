@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT, PM_MIND_FLAYER } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { MMOVE_DONE } from '../js/const.js';

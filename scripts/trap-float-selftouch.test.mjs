@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { LEVITATION, PIT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import { float_down } from '../js/trap.js';

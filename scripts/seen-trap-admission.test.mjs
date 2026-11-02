@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import {createScoringWorkspace,removeScoringWorkspace} from './scoring-workspace.mjs';
 import {runJsSession,compareSessionOutputs,formatReport} from './diff-fresh.mjs';
 import assert from 'node:assert/strict';import test from 'node:test';
-import {runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';import {newMonster,place_monster} from '../js/monst.js';import {PM_GOBLIN} from '../js/monsters.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';import {newMonster,place_monster} from '../js/monst.js';import {PM_GOBLIN} from '../js/monsters.js';
 import {DART_TRAP,FIRE_TRAP,SLP_GAS_TRAP,RUST_TRAP,TELEP_TRAP,POLY_TRAP,ROOM,HALLUC,BLINDED,FORCETRAP,FAILEDUNTRAP,FORCEBUNGLE,TOOKPLUNGE} from '../js/const.js';
 import {preflight_dotrap,dotrap} from '../js/trap_effects.js';import {rn2,getRngLog} from '../js/rng.js';import {light_globals_init} from '../js/light.js';import {init_vision_globals,vision_reset,vision_recalc} from '../js/vision.js';
 const types=[[DART_TRAP,'dart trap'],[FIRE_TRAP,'fire trap'],[SLP_GAS_TRAP,'sleeping gas trap'],[RUST_TRAP,'rust trap'],[TELEP_TRAP,'teleportation trap'],[POLY_TRAP,'polymorph trap']];

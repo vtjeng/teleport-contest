@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {P_SKILL} from '../js/startup_skills.js';
 import {P_ATTACK_SPELL, P_SKILLED} from '../js/const.js';
 import {validateCleanRecipe} from './diff-fresh.mjs';

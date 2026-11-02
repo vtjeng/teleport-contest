@@ -4,7 +4,7 @@ import test from 'node:test';
 import { key2extcmddesc } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { HELP_TEXT_FILES } from '../js/help_data.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { parseHelpTextFile } from './generate-help-data.mjs';
 
 const cPager = readFileSync('nethack-c/upstream/src/pager.c', 'utf8');

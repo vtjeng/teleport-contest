@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { SDOOR} from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';
 import { loadExplicitSearchRecipe } from './run-explicit-search.mjs';
 

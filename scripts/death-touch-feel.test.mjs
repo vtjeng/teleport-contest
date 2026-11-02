@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_DEATH, NON_PM, AD_DETH } from '../js/monsters.js';
 import { mhitm_ad_deth } from '../js/uhitm.js';

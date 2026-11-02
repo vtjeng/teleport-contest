@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { NO_COLOR } from '../js/terminal.js';
 import {
     loadInvisibleMonsterMarkerRecipe,

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { stairway_at } from '../js/stairs.js';
 import { loadTravelAdmissionRecipe } from './run-travel-admission.mjs';
 

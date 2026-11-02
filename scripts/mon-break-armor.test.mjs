@@ -4,7 +4,7 @@ import test from 'node:test';
 import { GameMap } from '../js/game.js';
 import { BLINDED, HALLUC, OBJ_MINVENT, W_ARM } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newObject } from '../js/obj.js';
 import { ARMOR_CLASS, LEATHER_ARMOR } from '../js/objects.js';
 import { mon_break_armor } from '../js/worn.js';

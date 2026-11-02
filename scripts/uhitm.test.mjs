@@ -52,7 +52,7 @@ import {
     You_can_move_again,
 } from '../js/hack.js';
 import { poisoned as applyPoison } from '../js/attrib.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';

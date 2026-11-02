@@ -7,7 +7,7 @@ import test from 'node:test';
 
 import { OBJ_DELETED, OBJ_MINVENT, SHRINK_GLOB, TIMER_OBJECT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { FOOD_RATION } from '../js/objects.js';
 import { loadMonsterPickupRecipe } from './run-monster-pickup.mjs';
 

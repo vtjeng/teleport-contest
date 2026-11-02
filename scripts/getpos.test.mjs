@@ -13,7 +13,7 @@ import { cmdq_add_dir, cmdq_add_key, cmdq_add_userinput } from '../js/cmd.js';
 import { cmap_to_glyph } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { getpos } from '../js/getpos.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     cmap_symbol_byte,
     MAXPCHARS,

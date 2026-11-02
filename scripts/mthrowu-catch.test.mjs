@@ -4,7 +4,7 @@ import test from 'node:test';
 import { acurr } from '../js/attrib.js';
 import { A_DEX, OBJ_FLOOR, OBJ_INVENT, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_OGRE, NON_PM } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { mksobj } from '../js/obj.js';

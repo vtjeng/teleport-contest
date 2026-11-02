@@ -5,7 +5,7 @@ import test from 'node:test';
 import { ACID_RES, POISON_RES, SICK_RES, SLEEP_RES, STONE_RES } from '../js/const.js';
 import { edibility_prompts } from '../js/eat.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_ACID_BLOB, PM_COCKATRICE, PM_KOBOLD, PM_MONK } from '../js/monsters.js';
 import { APPLE, CORPSE } from '../js/objects.js';
 import { getRngLog } from '../js/rng.js';

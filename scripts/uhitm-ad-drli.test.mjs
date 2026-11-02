@@ -7,7 +7,7 @@ import {
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { AD_DETH, AD_DRLI, AT_BITE, AT_TUCH, PM_ORC, PM_WRAITH } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';

@@ -43,7 +43,7 @@ import { acurr } from '../js/attrib.js';
 import { weapon_status } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { enlightenment } from '../js/insight.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { could_twoweap } from '../js/mondata.js';
 import { FEDORA, KATANA, SHORT_SWORD } from '../js/objects.js';
 import { P_SKILL, weapon_type } from '../js/startup_skills.js';

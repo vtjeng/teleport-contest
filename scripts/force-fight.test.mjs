@@ -46,7 +46,7 @@ import {
     preflightDomoveDestination,
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { new_light_source } from '../js/light.js';
 import { emits_light } from '../js/mondata.js';
 import { PM_KITTEN, PM_YELLOW_LIGHT } from '../js/monsters.js';

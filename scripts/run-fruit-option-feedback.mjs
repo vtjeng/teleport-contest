@@ -2,7 +2,7 @@
 // Independent options.c:optfn_fruit live feedback and silent route controls.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

@@ -20,7 +20,7 @@ import { migrate_to_level } from '../js/dog.js';
 import { newsym } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { dist2 } from '../js/hacklib.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at, relocate_monster } from '../js/monst.js';
 import {
     PM_FIRE_ELEMENTAL,

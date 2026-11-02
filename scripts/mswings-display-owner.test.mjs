@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { HALLUC, IN_SIGHT, NO_WEAPON_WANTED, OBJ_MINVENT, W_WEP } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mattacku } from '../js/mhitu.js';
 import { PM_HUMAN } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';

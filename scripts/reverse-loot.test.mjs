@@ -8,7 +8,7 @@ test('pickup.c reverse_loot has a canonical callable owner', () => {
 
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mksobj, place_object, weight } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { CHEST, GOLD_PIECE } from '../js/objects.js';

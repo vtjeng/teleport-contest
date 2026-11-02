@@ -8,7 +8,7 @@ import { OBJ_CONTAINED, OBJ_INVENT, OBJ_MINVENT, OBJ_BURIED, PIT, ROOM, ROT_CORP
 import { revive_corpse, revive_mon } from '../js/do.js';
 import { revive } from '../js/zap.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_DEATH, PM_TROLL, PM_WATER_NYMPH, PM_KOBOLD, PM_PESTILENCE, PM_FAMINE } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { t_at } from '../js/trap.js';

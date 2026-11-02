@@ -30,7 +30,7 @@
 
 import { game } from '../js/gstate.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

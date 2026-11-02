@@ -4,7 +4,7 @@ import test from 'node:test';
 import { rhack, resetCommandVars } from '../js/cmd.js';
 import { ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GRID_BUG } from '../js/monsters.js';
 
 const input = {

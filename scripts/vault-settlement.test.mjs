@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {game} from '../js/gstate.js';
 import {money_cnt} from '../js/invent.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {GOLD_PIECE} from '../js/objects.js';
 import {findgd} from '../js/vault.js';
 

@@ -19,7 +19,7 @@ import {
 import { ARROW } from '../js/objects.js';
 import { ammo_and_launcher } from '../js/obj.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 // FIRE_MOVES is `.f  l.fl.`: wait, fire, two --More-- dismissals, east, wait,
 // fire, east, wait. Each prefix below stops one key later than the last.

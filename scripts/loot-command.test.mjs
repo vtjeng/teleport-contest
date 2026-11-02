@@ -26,7 +26,7 @@ import {
 } from '../js/pickup.js';
 import { isContainer, mksobj } from '../js/obj.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { ext_func_tab_from_func, rhack } from '../js/cmd.js';
 

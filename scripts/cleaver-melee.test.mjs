@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { ART_CLEAVER } from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 

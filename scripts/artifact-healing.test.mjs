@@ -6,7 +6,7 @@ import { invoke_healing } from '../js/artifacts.js';
 import { BLINDED, FROMOUTSIDE, ECMD_TIME, W_TOOL, OBJ_INVENT, SICK, SLIMED, SICK_ALL } from '../js/const.js';
 import { PM_AIR_ELEMENTAL } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 
 async function hero() {

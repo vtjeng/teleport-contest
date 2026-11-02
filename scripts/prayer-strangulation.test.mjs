@@ -5,7 +5,7 @@ import { OBJ_DELETED, STRANGLED, W_AMUL } from '../js/const.js';
 import { _doWearInternals } from '../js/do_wear.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mksobj } from '../js/obj.js';
 import { AMULET_OF_REFLECTION, AMULET_OF_STRANGULATION } from '../js/objects.js';
 import { fix_worst_trouble, TROUBLE_STRANGLED } from '../js/pray.js';

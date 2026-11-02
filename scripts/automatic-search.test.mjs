@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { SCORR, SDOOR, SEARCHING} from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadAutomaticSearchRecipe } from './run-automatic-search.mjs';
 
 // role.c gives SEARCHING at experience level 1 to these two roles and to no

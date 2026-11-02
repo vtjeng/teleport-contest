@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { CONFUSION, ECMD_TIME, OBJ_INVENT, W_ARM } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     ARMOR_CLASS, LEATHER_ARMOR, SCR_REMOVE_CURSE, SCROLL_CLASS,
     SPE_REMOVE_CURSE,

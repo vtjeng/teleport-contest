@@ -29,7 +29,7 @@ import { vobj_at } from '../js/display.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { rndmonnam } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { is_silent } from '../js/mondata.js';
 import * as M from '../js/monsters.js';
 import { COIN_CLASS } from '../js/objects.js';

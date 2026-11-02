@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 // C mklev.c:1286-1289 sends a nonzero below-Medusa draw to makemaz("").
 // These Wizard level-teleport recipes were recorded against the pinned C

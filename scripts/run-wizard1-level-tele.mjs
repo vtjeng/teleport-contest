@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 
 import { game } from '../js/gstate.js';
 import { SPE_BOOK_OF_THE_DEAD } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_HELL_HOUND, PM_WIZARD_OF_YENDOR } from '../js/monsters.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';

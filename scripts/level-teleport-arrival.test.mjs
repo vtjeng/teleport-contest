@@ -54,7 +54,7 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { inv_weight, weight_cap } from '../js/hack.js';
 import { check_special_room } from '../js/rooms.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     UnsupportedRegionPlacementError,
     bad_location,

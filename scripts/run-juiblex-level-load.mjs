@@ -11,7 +11,7 @@ import {
     M_AP_FURNITURE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     PM_GIANT_MIMIC,
     PM_JUIBLEX,

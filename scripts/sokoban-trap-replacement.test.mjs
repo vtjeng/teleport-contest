@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {PIT, HOLE} from '../js/const.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {compareSessionOutputs, runJsSession} from './diff-fresh.mjs';
 
 test('replacing the last Sokoban pit invokes completion before the next move', async () => {

@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { cmap_to_glyph } from '../js/display.js';
 import { ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { S_darkroom, S_stone } from '../js/symbols.js';
 import { cansee } from '../js/vision.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';

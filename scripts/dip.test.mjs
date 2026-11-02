@@ -40,7 +40,7 @@ import { PM_WATER_NYMPH } from '../js/monsters.js';
 import { short_oname } from '../js/objnam.js';
 import { altarmask_at } from '../js/pray.js';
 import { water_damage } from '../js/trap_water_damage.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 

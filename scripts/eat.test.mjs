@@ -67,7 +67,7 @@ import {
 } from '../js/objects.js';
 import { tinnable } from '../js/apply.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { planningState } from '../js/unported_monster_actions.js';
 
 const EAT_C = readFileSync(

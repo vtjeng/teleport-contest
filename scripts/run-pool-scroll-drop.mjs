@@ -8,7 +8,7 @@ import { OBJ_FLOOR, OBJ_INVENT } from '../js/const.js';
 import { is_pool } from '../js/dbridge.js';
 import { _dropInternals } from '../js/do.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { SCR_BLANK_PAPER, SCROLL_CLASS } from '../js/objects.js';
 import { getRngLog } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';

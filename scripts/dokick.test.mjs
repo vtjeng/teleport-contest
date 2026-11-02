@@ -45,7 +45,7 @@ test('dokick.c floor-object kick and gold-catch source owners are exported', () 
     }
 });
 
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';

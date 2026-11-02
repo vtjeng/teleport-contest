@@ -114,7 +114,7 @@ import {
 import { xcrypt } from '../js/random_text.js';
 import { RANDOM_TEXT_FILES } from '../js/random_text_data.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 function titleDraw(result) {
     let draws = 0;

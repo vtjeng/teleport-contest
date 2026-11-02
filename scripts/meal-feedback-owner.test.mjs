@@ -4,7 +4,7 @@ import {createScoringWorkspace,removeScoringWorkspace} from './scoring-workspace
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameMap } from '../js/game.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { newObject, place_object, weight } from '../js/obj.js';

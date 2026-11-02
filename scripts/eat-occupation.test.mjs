@@ -57,7 +57,7 @@ import { monsterNearby } from '../js/hack.js';
 import { youHear } from '../js/monmove.js';
 import { the } from '../js/objnam.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     EAT_KEY,
     loadEatOccupationOptionsRecipe,

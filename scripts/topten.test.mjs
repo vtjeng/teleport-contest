@@ -12,7 +12,7 @@ import {
     DIED, PANICKED, PERSMAX, KILLED_BY_AN,
 } from '../js/const.js';
 import { PM_CLERIC, PM_RANGER } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
 
 // --- readentry / writeentry round-trip ---

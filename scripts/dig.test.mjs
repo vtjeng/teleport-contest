@@ -98,7 +98,7 @@ import {
 } from '../js/dig.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
-import { NethackGame, runSegment } from '../js/jsmain.js';
+import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
 import { create_drawbridge, drawbridgeFlags, drawbridgeUnder,
     find_drawbridge, get_wall_for_db } from '../js/dbridge.js';

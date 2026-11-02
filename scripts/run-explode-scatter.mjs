@@ -12,7 +12,7 @@ import { game } from '../js/gstate.js';
 import {
     scatter,
 } from '../js/explode.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 export const SCATTER_SOURCE_RECIPE = Object.freeze({
     version: 5,

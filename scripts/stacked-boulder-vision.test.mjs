@@ -3,7 +3,7 @@ import test from 'node:test';
 import fs from 'node:fs';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { place_object, newObject } from '../js/obj.js';
 import { BOULDER, ROCK } from '../js/objects.js';
 import { ROOM, OBJ_FREE, OBJ_FLOOR } from '../js/const.js';

@@ -49,7 +49,7 @@ import {
     unresponsive,
     UnsupportedMonsterPickupOperationError,
 } from '../js/steal.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
 import { init_objects } from '../js/o_init.js';
 import {

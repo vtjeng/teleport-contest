@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { FORCETRAP, HURTLING, PIT, Trap_Caught_Mon, Trap_Effect_Finished } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT } from '../js/monsters.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';

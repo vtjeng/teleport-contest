@@ -31,7 +31,7 @@ import {
     TEMP_LIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { new_light_source } from '../js/light.js';
 import { set_mimic_sym } from '../js/makemon_create.js';
 import { postmov } from '../js/monmove.js';

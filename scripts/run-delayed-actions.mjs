@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { FUMBLING, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { near_capacity } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { CHAIN_MAIL, FUMBLE_BOOTS } from '../js/objects.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

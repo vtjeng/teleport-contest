@@ -13,7 +13,7 @@ import {
 import { PM_HEALER, PM_NURSE, PM_STONE_GOLEM } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mhitm_adtyping } from '../js/uhitm.js';
 import { goodpos } from '../js/teleport.js';
 

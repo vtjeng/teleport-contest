@@ -93,7 +93,7 @@ import {
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { does_block, vision_reset } from '../js/vision.js';
 import { isThrowingWeapon } from '../js/invent.js';
 import { canspotmon, GLYPH_INVISIBLE } from '../js/display.js';

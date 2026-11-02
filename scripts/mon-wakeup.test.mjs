@@ -14,7 +14,7 @@ import {
     STRAT_WAITMASK,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { setmangry, wakeup } from '../js/mon.js';
 import { newMonster } from '../js/monst.js';
 import { PM_LICHEN, PM_SHOPKEEPER } from '../js/monsters.js';

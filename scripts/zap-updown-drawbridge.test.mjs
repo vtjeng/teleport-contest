@@ -6,7 +6,7 @@ import { DB_NORTH, DOOR, DRAWBRIDGE_DOWN, MOAT, OROOM } from '../js/const.js';
 import { create_drawbridge } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mksobj } from '../js/obj.js';
 import { WAN_STRIKING } from '../js/objects.js';
 import { zap_updown } from '../js/zap.js';

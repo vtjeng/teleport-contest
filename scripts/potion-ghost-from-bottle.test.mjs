@@ -9,7 +9,7 @@ import { BLINDED, HALLUC, HALLUC_RES, MM_NOMSG } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { LOW_PM, PM_GHOST, PM_GIANT_ANT, SPECIAL_PM } from '../js/monsters.js';
 import { ghost_from_bottle } from '../js/potion.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 function potionSource() {
     return readFileSync(

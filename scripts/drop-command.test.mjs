@@ -48,7 +48,7 @@ import { planningState } from '../js/unported_monster_actions.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { addinv, any_obj_ok, freeinv } from '../js/invent.js';
 import { addtobill, costly_spot, onbill, shop_keeper } from '../js/shk.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadThroneDropRecipe, THRONE_DROP_CASES } from './run-throne-drop.mjs';
 import { getRngLog, initRng } from '../js/rng.js';
 import {

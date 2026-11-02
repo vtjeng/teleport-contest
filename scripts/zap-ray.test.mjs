@@ -80,7 +80,7 @@ import { dismissPendingTtyMessage } from '../js/tty_message.js';
 import { create_drawbridge } from '../js/dbridge.js';
 import { add_to_minv } from '../js/invent.js';
 import { mksobj, newObject } from '../js/obj.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { find_delayed_killer } from '../js/end.js';
 import {
     make_blinded, make_hallucinated, make_stoned,

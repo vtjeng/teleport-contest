@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { MOAT } from '../js/const.js';
 import { PM_MEDUSA, PM_YELLOW_DRAGON } from '../js/monsters.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

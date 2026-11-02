@@ -59,7 +59,7 @@ import {
     truncate_to_map,
 } from '../js/getpos.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
 import { cloneIsaacContext, initRng } from '../js/rng.js';
 import {

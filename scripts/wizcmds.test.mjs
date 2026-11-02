@@ -318,7 +318,7 @@ test('make_stoned unlinks only its delayed-killer record when cured', async () =
 });
 
 async function smellTestGame() {
-    const { runSegment } = await import('../js/jsmain.js');
+    const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     await runSegment({
         seed: 14228021, // Independent startup for live map/input owner checks.
         datetime: '20530709151617',

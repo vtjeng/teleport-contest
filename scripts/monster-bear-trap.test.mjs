@@ -38,7 +38,7 @@ import {
 import { rhack } from '../js/cmd.js';
 import { glyph_to_cmap, newsym } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { accessible } from '../js/monmove.js';
 import { m_in_air } from '../js/mon.js';
 import {

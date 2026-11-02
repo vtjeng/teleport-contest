@@ -18,7 +18,7 @@ import { _doWearInternals } from '../js/do_wear.js';
 import { GLYPH_MON_MALE_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE, PM_SOLDIER } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
 import {

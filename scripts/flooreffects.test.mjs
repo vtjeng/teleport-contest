@@ -24,7 +24,7 @@ import { boulder_hits_pool, flooreffects } from '../js/do.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { objects_globals_init } from '../js/objects.js';
 import { init_objects } from '../js/o_init.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';

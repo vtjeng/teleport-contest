@@ -85,7 +85,7 @@ import {
     POTION_CLASS, POT_SPEED,
     POT_WATER, LONG_SWORD,
 } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
 import { TOPLINE_EMPTY } from '../js/tty_message.js';

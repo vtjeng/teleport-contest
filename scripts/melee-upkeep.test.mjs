@@ -15,7 +15,7 @@ import {
     overexertion,
     weight_cap,
 } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 
 const DATETIME = '20260214031500';

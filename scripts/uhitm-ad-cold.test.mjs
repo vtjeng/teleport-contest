@@ -5,7 +5,7 @@ import test from 'node:test';
 import { BLINDED, COLD_RES, MSLOW, OBJ_MINVENT } from '../js/const.js';
 import { isok } from '../js/cmd_isok.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { canseemon } from '../js/display.js';
 import {

@@ -13,7 +13,7 @@ import {
 import { acurr } from '../js/attrib.js';
 import { find_delayed_killer } from '../js/end.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AD_DISE,

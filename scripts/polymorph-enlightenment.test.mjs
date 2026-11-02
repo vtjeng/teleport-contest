@@ -5,7 +5,7 @@ import { BASICENLIGHTENMENT, MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS,
     ENL_GAMEOVERALIVE, ENL_GAMEOVERDEAD, NON_PM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { enlightenment } from '../js/insight.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_HILL_GIANT, PM_WATER_NYMPH, PM_VAMPIRE,
     PM_FOG_CLOUD } from '../js/monsters.js';
 

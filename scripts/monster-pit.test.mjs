@@ -14,7 +14,7 @@ import {
 } from '../js/const.js';
 import { has_ceiling } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { copy_mextra } from '../js/mon.js';
 import { grounded } from '../js/mondata.js';
 import { accessible } from '../js/monmove.js';

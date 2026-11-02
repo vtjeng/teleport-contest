@@ -6,7 +6,7 @@
 // encounter or on a pet's later monster-combat turn.
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { MS_SEDUCE } from '../js/const.js';
 import { S_NYMPH } from '../js/monsters.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

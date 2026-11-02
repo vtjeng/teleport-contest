@@ -8,7 +8,7 @@ import { BURN_OBJECT, LS_OBJECT, OBJ_FLOOR, TEMP_LIT } from '../js/const.js';
 import { rhack } from '../js/cmd.js';
 import { _dropInternals } from '../js/do.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { OIL_LAMP, TALLOW_CANDLE } from '../js/objects.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { vision_recalc } from '../js/vision.js';

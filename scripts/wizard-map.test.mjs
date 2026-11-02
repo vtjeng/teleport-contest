@@ -13,7 +13,7 @@ import {
     WIZMODECMD,
 } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { wiz_map } from '../js/wizcmds.js';
 
 const DIRECT_KEY = '\x06'; // cmd.c C('f'), the wizmap row's direct binding.

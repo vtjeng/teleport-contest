@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 
 import { game } from '../js/gstate.js';
 import { ALTAR, TEMPLE, W_NONDIGGABLE } from '../js/const.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 

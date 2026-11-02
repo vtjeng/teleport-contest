@@ -10,7 +10,7 @@ import {
     RUN_TPORT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadCorridorRunsRecipe } from './run-corridor-runs.mjs';
 
 // cmd.c binds the shift-direction keys to the run* commands, which

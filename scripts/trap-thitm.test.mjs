@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { MON_DETACH, OBJ_DELETED, OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { passes_rocks } from '../js/mondata.js';

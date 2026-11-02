@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { CORPSE } from '../js/objects.js';
 import { PM_COCKATRICE, PM_NEWT } from '../js/monsters.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

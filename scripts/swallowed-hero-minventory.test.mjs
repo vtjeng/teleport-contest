@@ -4,7 +4,7 @@ import test from 'node:test';
 import { MINV_ALL, OBJ_MINVENT, PICK_NONE } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { display_minventory } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { PM_PURPLE_WORM } from '../js/monsters.js';
 import { newObject } from '../js/obj.js';

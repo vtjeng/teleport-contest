@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { shop_keeper } from '../js/shk.js';
 import { compareSessionOutputs, formatReport, runJsSession,
     validateCleanRecipe } from './diff-fresh.mjs';

@@ -7,7 +7,7 @@ import { PICK_ANY } from '../js/const.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { display_pickinv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { wiz_identify } from '../js/wizcmds.js';
 
 function loadSession(name) {

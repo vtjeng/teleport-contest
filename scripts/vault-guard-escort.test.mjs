@@ -21,7 +21,7 @@ import {
 } from '../js/const.js';
 import { unfaint } from '../js/eat.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mondead, mongone } from '../js/mon.js';
 import { PM_GUARD } from '../js/monsters.js';
 import {

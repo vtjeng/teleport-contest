@@ -6,7 +6,7 @@ import { game } from '../js/gstate.js';
 import { COLNO, ROWNO, W_NONDIGGABLE } from '../js/const.js';
 import { PM_TWOFLOWER, PM_GUIDE, PM_KRAKEN } from '../js/monsters.js';
 import { LOW_BOOTS, HAWAIIAN_SHIRT, CHEST } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 function linked(head, next) {
     const list = [];

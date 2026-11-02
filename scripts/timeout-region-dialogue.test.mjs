@@ -7,7 +7,7 @@ import {
 } from '../js/const.js';
 import { M1_BREATHLESS, M2_UNDEAD } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import * as timeout from '../js/timeout.js';
 
 const source = readFileSync(

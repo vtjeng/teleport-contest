@@ -59,7 +59,7 @@ import { tty_yn_function } from '../js/topl.js';
 import { game } from '../js/gstate.js';
 import { delayed_killer, find_delayed_killer } from '../js/end.js';
 import { near_capacity } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     PM_ACID_BLOB,
     PM_GRAY_UNICORN,

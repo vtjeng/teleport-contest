@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { STATUS_FIELDS } from '../js/status_field_data.js';
 import { init_blstats, status_eval_next_unhilite, status_initialize } from '../js/display.js';
-import { finishTerminatedSegment, runSegment } from '../js/jsmain.js';
+import { finishTerminatedSegment, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 
 const xpField = STATUS_FIELDS.find(row => row.key === 'experience-level').fld;

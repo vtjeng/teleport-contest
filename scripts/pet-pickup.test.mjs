@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { OBJ_MINVENT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { COIN_CLASS } from '../js/objects.js';
 import { loadPetPickupRecipe } from './run-pet-pickup.mjs';
 

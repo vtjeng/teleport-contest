@@ -7,7 +7,7 @@ import { drain_weapon_skill } from '../js/weapon.js';
 import { monsterCommonName } from '../js/do_name.js';
 import { cloneIsaacContext } from '../js/rng.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';
 import { hurtle_step } from '../js/dothrow.js';
 import {

@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {BLINDED,BURN_OBJECT,TIMEOUT} from '../js/const.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {BRASS_LANTERN,CANDELABRUM_OF_INVOCATION,OIL_LAMP,POT_OIL,TALLOW_CANDLE,WAX_CANDLE} from '../js/objects.js';
 import {validateCleanRecipe} from './diff-fresh.mjs';
 import {runFreshMatrix,runMatrixCli} from './fresh-matrix.mjs';

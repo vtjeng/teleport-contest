@@ -8,7 +8,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { accessible } from '../js/monmove.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     PM_AIR_ELEMENTAL, PM_BABY_RED_DRAGON, PM_BLACK_PUDDING, PM_BUGBEAR,

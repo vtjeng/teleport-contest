@@ -89,7 +89,7 @@ import {
     projected_capacity,
     weight_cap,
 } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { set_uasmon } from '../js/polyself.js';
 import { new_light_source } from '../js/light.js';
 import {

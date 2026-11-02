@@ -6,7 +6,7 @@ import {
     LEVITATION, POOL, ROOM, STONE, TIMEOUT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     levitation_dialogue, nh_timeout, nh_timeout_requires_live_state,
 } from '../js/timeout.js';

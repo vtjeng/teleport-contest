@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { P_BARE_HANDED_COMBAT, P_KNIFE, P_SPEAR, P_WHIP } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { P_ADVANCE } from '../js/startup_skills.js';
 import {
     loadBarehandedMeleeHitRecipe,

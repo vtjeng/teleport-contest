@@ -10,7 +10,7 @@ import {
 } from '../js/cmd.js';
 import { CMDQ_EXTCMD, CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     next_opt,
     optionHelpLines,

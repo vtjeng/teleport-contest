@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
 import { MAGIC_LAMP } from '../js/objects.js';
 import { PM_ORCUS, PM_SHOPKEEPER } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 

@@ -95,7 +95,7 @@ import { game } from '../js/gstate.js';
 import { losehp } from '../js/hack.js';
 import { tamedog } from '../js/dog.js';
 import { new_light_source } from '../js/light.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { initworm } from '../js/worm.js';
 import {
     AD_PHYS,

@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 
 import { Is_special } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 async function verifyWizLocaSegment(segment) {

@@ -3,7 +3,7 @@ import {createScoringWorkspace,removeScoringWorkspace} from './scoring-workspace
 import {runJsSession,compareSessionOutputs,formatReport} from './diff-fresh.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {GameMap} from '../js/game.js';
 import {ROOM,INVIS,SEE_INVIS,BLINDED,TELEPAT,DETECT_MONSTERS,HALLUC} from '../js/const.js';

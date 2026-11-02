@@ -13,7 +13,7 @@ import { game } from '../js/gstate.js';
 import { find_level } from '../js/dungeon.js';
 import { PM_KING_ARTHUR, PM_WARHORSE } from '../js/monsters.js';
 import { LONG_SWORD, PLATE_MAIL, SADDLE } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 

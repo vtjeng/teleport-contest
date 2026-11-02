@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { ECMD_TIME, MS_SEDUCE } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dotalk } from '../js/sounds.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { getRngLog } from '../js/rng.js';

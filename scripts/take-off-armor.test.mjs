@@ -56,7 +56,7 @@ import {
     Is_dragon_armor, Is_dragon_mail, Is_dragon_scales,
     is_boots, is_gloves,
 } from '../js/obj.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { monstunseesu } from '../js/mondata.js';
 import {
     M1_SEE_INVIS, PM_ACID_BLOB, PM_COCKATRICE,

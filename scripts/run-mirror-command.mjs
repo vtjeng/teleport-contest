@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_MEDUSA } from '../js/monsters.js';
 import { STATUE } from '../js/objects.js';
 import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';

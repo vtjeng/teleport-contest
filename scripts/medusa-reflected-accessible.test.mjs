@@ -7,7 +7,7 @@ import {SHIELD_OF_REFLECTION,STATUE} from '../js/objects.js';
 import {setworn} from '../js/worn.js';
 import {setwornEnv} from '../js/do_wear.js';
 import {W_ARMS,REFLECTING} from '../js/const.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {newMonster,place_monster,m_at} from '../js/monst.js';
 import {PM_MEDUSA,NON_PM,AT_GAZE,AD_STON} from '../js/monsters.js';

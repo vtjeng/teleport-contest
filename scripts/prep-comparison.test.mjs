@@ -18,7 +18,7 @@ function fixture(t) {
     writeFileSync(join(root, 'package.json'), '{"type":"module"}\n');
     // A deliberately empty game output makes the comparator report the one
     // recorded C screen as missing, without invoking game logic or C recording.
-    writeFileSync(join(root, 'js/jsmain.js'), 'export async function runSegment() { return {}; }\n');
+    writeFileSync(join(root, 'js/jsmain.js'), 'export async function runSegmentStrict() { return {}; }\n');
     for (const name of ['isaac64.js', 'terminal.js', 'storage.js']) {
         writeFileSync(join(root, 'js', name), 'export const origin = "contestant";\n');
         writeFileSync(join(root, 'frozen', name), 'export const origin = "official";\n');

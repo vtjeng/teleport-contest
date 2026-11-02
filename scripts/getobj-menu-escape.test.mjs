@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadApplyPromptRecipe } from './run-apply-stethoscope.mjs';
 
 test('getobj returns from the suggested inventory menu on Escape', async () => {

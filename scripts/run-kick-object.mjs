@@ -6,7 +6,7 @@ import { FOOD_RATION, POT_CONFUSION, GOLD_PIECE, LARGE_BOX } from '../js/objects
 import { PM_LEPRECHAUN, PM_ORC } from '../js/monsters.js';
 import { OBJ_MINVENT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

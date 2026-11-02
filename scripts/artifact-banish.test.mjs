@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { invoke_banish } from '../js/artifacts.js';
 import { ECMD_TIME, MS_NEMESIS, MON_MIGRATING } from '../js/const.js';
 import { PM_IMP, PM_KITTEN, PM_ASMODEUS, PM_JUIBLEX } from '../js/monsters.js';

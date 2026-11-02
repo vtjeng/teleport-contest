@@ -4,7 +4,7 @@ import test from 'node:test';
 import { moveloop_core } from '../js/allmain.js';
 import { DOOR, D_ISOPEN, D_NODOOR, STAIRS } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import {
     loadRepeatedSimpleCommandsRecipe,

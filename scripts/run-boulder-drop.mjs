@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { BOULDER } from '../js/objects.js';
 import { transparencyIndexViews } from '../js/vision.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

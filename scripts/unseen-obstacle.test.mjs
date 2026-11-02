@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {STAIRS} from '../js/const.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {heroIsBlind} from '../js/startup_a11y.js';
 
 for (const kind of ['blindfold', 'towel']) {

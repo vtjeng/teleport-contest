@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { Upolyd } from '../js/const.js';
 import { PM_WOOD_NYMPH, PM_WATER_NYMPH, PM_SASQUATCH } from '../js/monsters.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

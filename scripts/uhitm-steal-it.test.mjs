@@ -4,7 +4,7 @@ import test from 'node:test';
 import { OBJ_FLOOR, ONAME_WISH, ROOM } from '../js/const.js';
 import { oname } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { add_to_minv } from '../js/invent.js';
 import { mksobj } from '../js/obj.js';
 import { newMonster, place_monster } from '../js/monst.js';

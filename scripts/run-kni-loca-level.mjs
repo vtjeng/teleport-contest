@@ -9,7 +9,7 @@ import {
     TEMPLE,
 } from '../js/const.js';
 import { PM_OCHRE_JELLY, PM_QUASIT } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

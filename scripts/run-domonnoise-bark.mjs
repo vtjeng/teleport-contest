@@ -13,7 +13,7 @@ import { readFileSync } from 'node:fs';
 
 import { MS_BARK } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_LITTLE_DOG } from '../js/monsters.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

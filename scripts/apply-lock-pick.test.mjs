@@ -33,7 +33,7 @@ import {
     remembered_glyph_from_presentation,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { init_dummyobj, newObject } from '../js/obj.js';
 import {
     PICKLOCK_DID_NOTHING,

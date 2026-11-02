@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { doclassdisco } from '../js/o_init.js';
 import { NROFARTIFACTS, ART_EXCALIBUR } from '../js/artifacts.js';

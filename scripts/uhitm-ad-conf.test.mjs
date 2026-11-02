@@ -5,7 +5,7 @@ import test from 'node:test';
 import { isok } from '../js/cmd_isok.js';
 import { CONFUSION, STRAT_WAITFORU } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AD_CONF,

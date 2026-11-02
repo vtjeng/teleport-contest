@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { POTION_CLASS, POT_PARALYSIS, POT_SLEEPING } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 

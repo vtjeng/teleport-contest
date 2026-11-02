@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { spelleffects } from '../js/spell.js';
 import { SPE_JUMPING } from '../js/objects.js';
 import { ECMD_TIME, FROMOUTSIDE, LEVITATION, P_ESCAPE_SPELL, P_UNSKILLED, TIP_GETPOS } from '../js/const.js';

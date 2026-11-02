@@ -107,7 +107,7 @@ import { init_objects } from '../js/o_init.js';
 import { singular, xnameFresh } from '../js/objnam.js';
 import { getRngLog } from '../js/rng.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     loadEatOneTurnOptionsRecipe,
     loadEatOneTurnRecipe,

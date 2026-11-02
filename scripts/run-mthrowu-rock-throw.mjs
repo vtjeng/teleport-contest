@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_HOBBIT } from '../js/monsters.js';
 import { ROCK, SLING } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

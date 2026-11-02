@@ -31,7 +31,7 @@ import {
 import { PM_HOUSECAT } from '../js/monsters.js';
 import { dotip, tip_ok, use_container } from '../js/pickup.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { newObject } from '../js/obj.js';
 

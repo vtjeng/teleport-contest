@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import { normalizeSession } from '../frozen/session_loader.mjs';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { challengePath, readChallengeBatches } from './challenge-results.mjs';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';

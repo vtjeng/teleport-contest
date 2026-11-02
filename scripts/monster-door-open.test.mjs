@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { COLNO, DOOR, D_CLOSED, D_ISOPEN, ROWNO } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadMonsterDoorOpenRecipe } from './run-monster-door-open.mjs';
 
 // Every segment spends its whole turn budget on the search command, so the

@@ -15,7 +15,7 @@ import {
     sobj_at,
 } from '../js/invent.js';
 import { DAGGER, DART } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const INVENT_C = readFileSync(
     new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',

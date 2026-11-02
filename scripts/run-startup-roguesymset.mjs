@@ -8,7 +8,7 @@
 
 import { H_DEC, H_IBM, H_UNK, ROGUESET } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dosetMenuItems, parseNethackrc } from '../js/options.js';
 import { S_vwall } from '../js/symbols.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

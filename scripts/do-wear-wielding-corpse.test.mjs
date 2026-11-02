@@ -7,7 +7,7 @@ import { instapetrify } from '../js/trap.js';
 import { HeroDeathPlanningError } from '../js/hack.js';
 import { nh_timeout_requires_live_state } from '../js/timeout.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 import { CXN_ARTICLE, KILLED_BY, LAST_PROP, STONING, STONE_RES } from '../js/const.js';
 import {

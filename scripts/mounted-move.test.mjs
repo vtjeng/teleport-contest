@@ -4,7 +4,7 @@ import test from 'node:test';
 import { P_RIDING } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { domove } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mattacku } from '../js/mhitu.js';
 import { m_at } from '../js/monst.js';
 import { PM_ACID_BLOB, PM_GOBLIN, PM_JACKAL } from '../js/monsters.js';

@@ -16,7 +16,7 @@ import test from 'node:test';
 
 import { builds_up, dunlev, dunlev_reached } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 function loadRecipe() {
     return JSON.parse(readFileSync('recipes/sokoban-level-teleport.session.json', 'utf8'));

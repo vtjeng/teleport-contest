@@ -4,7 +4,7 @@ import test from 'node:test';
 import {OBJ_FLOOR, STONE, VWALL} from '../js/const.js';
 import {game} from '../js/gstate.js';
 import {sobj_at} from '../js/invent.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {BOULDER, QUARTERSTAFF} from '../js/objects.js';
 
 // C do.c dropx/dropz/flooreffects leaves ordinary objects on stone or walls.

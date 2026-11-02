@@ -5,7 +5,7 @@ import test from 'node:test';
 import { D_BROKEN } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { in_town } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { is_watch } from '../js/mondata.js';
 
 const recipe = JSON.parse(readFileSync(new URL(

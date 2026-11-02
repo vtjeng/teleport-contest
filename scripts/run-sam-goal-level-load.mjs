@@ -6,7 +6,7 @@ import { COLNO, D_CLOSED, DOOR, ROWNO, W_NONDIGGABLE } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { PM_ASHIKAGA_TAKAUJI, PM_STALKER, PM_WOLF } from '../js/monsters.js';
 import { TSURUGI } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 function linked(head, next) {

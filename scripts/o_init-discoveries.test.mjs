@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { NROFARTIFACTS } from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     discovered_cmp,
     doclassdisco,

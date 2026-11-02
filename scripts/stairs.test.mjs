@@ -20,7 +20,7 @@ import {
 import { dfeature_at } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mkstairs } from '../js/mklev.js';
 import {
     known_branch_stairs,

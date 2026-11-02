@@ -15,7 +15,7 @@ import { surface } from '../js/dungeon.js';
 import { dotip } from '../js/pickup.js';
 import { count_contents } from '../js/invent.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 
 // A fresh state placed by runSegment with the hero on a known square.

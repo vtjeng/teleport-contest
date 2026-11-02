@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {m_at} from '../js/monst.js';
 import {t_at} from '../js/trap.js';
 import {PM_NEWT} from '../js/monsters.js';

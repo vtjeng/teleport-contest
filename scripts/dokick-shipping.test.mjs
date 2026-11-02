@@ -11,7 +11,7 @@ import {
     really_kick_object, ship_object,
 } from '../js/dokick.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mksobj, objectType, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { add_to_container } from '../js/invent.js';

@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { OBJ_INVENT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { AD_SAMU, AT_CLAW, PM_GRID_BUG } from '../js/monsters.js';
 import { newObject } from '../js/obj.js';

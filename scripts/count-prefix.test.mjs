@@ -10,7 +10,7 @@ import {
 } from '../js/cmd.js';
 import { dosearch } from '../js/detect.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ttyNorep } from '../js/tty_message.js';
 import { loadCountPrefixRecipe } from './run-count-prefix.mjs';
 

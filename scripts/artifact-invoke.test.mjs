@@ -264,7 +264,7 @@ test('finesse_ahriman returns false when a worn item also grants levitation', ()
 // canceled cooldown, vertical light and gremlin damage before blindness.
 import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {cmdq_add_key} from '../js/cmd.js';
 import {invoke_blinding_ray} from '../js/artifacts.js';
 import {BLINDED,CQ_CANNED,ECMD_TIME,IN_SIGHT} from '../js/const.js';

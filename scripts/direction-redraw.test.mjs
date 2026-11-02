@@ -5,7 +5,7 @@ import {gunzipSync} from 'node:zlib';
 import test from 'node:test';
 import {compareSessionOutputs, formatReport, runJsSession} from './diff-fresh.mjs';
 import {createScoringWorkspace, removeScoringWorkspace} from './scoring-workspace.mjs';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {docrt} from '../js/display.js';
 import {normalizeSession} from '../frozen/session_loader.mjs';

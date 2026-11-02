@@ -25,7 +25,7 @@ import {
     set_wear,
 } from '../js/do_wear.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { can_be_strangled } from '../js/mondata.js';
 import { poly_gender } from '../js/polyself.js';
 import { M1_HUMANOID, M2_NEUTER } from '../js/monsters.js';

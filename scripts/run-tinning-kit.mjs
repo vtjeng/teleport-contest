@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { Stone_resistance } from '../js/artifacts.js';
 import { HOMEMADE_TIN } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_STONE_GOLEM } from '../js/monsters.js';
 import { CORPSE, TIN, TINNING_KIT } from '../js/objects.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

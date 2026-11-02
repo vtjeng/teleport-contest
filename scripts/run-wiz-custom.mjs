@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { glyphid_cache_status } from '../js/glyphs.js';
 import { sourceGlyphNumber } from '../js/glyph_ids.js';
 import { NH_BASIC_COLOR } from '../js/const.js';

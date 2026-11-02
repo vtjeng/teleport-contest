@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { HALLUC, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_HEALER, PM_NEWT } from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
 import { mksobj, mksobj_at, set_corpsenm } from '../js/obj.js';

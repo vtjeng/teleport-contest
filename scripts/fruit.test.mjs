@@ -16,7 +16,7 @@ import {
     makesingular,
 } from '../js/fruit.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import { initoptions_finish, parseNethackrc } from '../js/options.js';
 import {

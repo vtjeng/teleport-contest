@@ -7,7 +7,7 @@ import test from 'node:test';
 import {BLINDED,BURN_OBJECT,HALLUC,LS_OBJECT,OBJ_DELETED,OBJ_FLOOR,OBJ_FREE,
  OBJ_INVENT,OBJ_MIGRATING,OBJ_MINVENT,REVIVE_MON,TIMER_OBJECT,W_QUIVER} from '../js/const.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {new_light_source} from '../js/light.js';
 import {PM_GNOME,PM_LICHEN,LOW_PM} from '../js/monsters.js';
 import {newObject,place_object,weight} from '../js/obj.js';

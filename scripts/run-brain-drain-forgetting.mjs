@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { A_INT, NO_SPELL, P_BASIC, P_POLEARMS, P_QUARTERSTAFF } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { DUNCE_CAP } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

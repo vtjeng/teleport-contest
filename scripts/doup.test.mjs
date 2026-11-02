@@ -21,7 +21,7 @@ import {
 import { doup } from '../js/do.js';
 import { ledger_no, level_info } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { AD_DGST, AT_ENGL, AT_HUGS } from '../js/monsters.js';
 import { stairway_add, stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';

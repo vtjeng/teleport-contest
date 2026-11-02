@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { AD_SLIM, AT_CLAW, PM_GREEN_SLIME, PM_HUMAN } from '../js/monsters.js';
 import { cloneIsaacContext, createCoreRandom } from '../js/rng.js';

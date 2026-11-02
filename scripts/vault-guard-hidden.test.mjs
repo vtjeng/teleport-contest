@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { M_AP_OBJECT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { findgd } from '../js/vault.js';
 
 // C vault.c invault handles object disguise and hiding before silence or

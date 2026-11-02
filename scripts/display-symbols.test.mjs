@@ -226,7 +226,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { init_vision_globals, vision_recalc, vision_reset } from '../js/vision.js';
 import { wiz_intrinsic } from '../js/wizcmds.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import { parseNethackrc } from '../js/options.js';
 import { STATUS_FIELDS } from '../js/status_field_data.js';

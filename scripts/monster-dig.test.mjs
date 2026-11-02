@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { COLNO, DOOR, D_NODOOR, IS_STWALL, ROWNO } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { DWARVISH_MATTOCK, PICK_AXE, ROCK } from '../js/objects.js';
 import { loadMonsterDigRecipe } from './run-monster-dig.mjs';
 

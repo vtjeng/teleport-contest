@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import test from 'node:test';
 import { BLINDED, DEAF, OBJ_MINVENT, MON_DETACH } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { use_misc } from '../js/muse.js';
 import { PM_DJINNI, PM_GOBLIN } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';

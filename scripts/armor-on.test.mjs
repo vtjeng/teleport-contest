@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {_doWearInternals} from '../js/do_wear.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {getRngLog} from '../js/rng.js';
 import {BLINDED,HALLUC_RES,OBJ_INVENT,TIMEOUT,W_ARM} from '../js/const.js';
 import {ARMOR_CLASS,GOLD_DRAGON_SCALE_MAIL,GOLD_DRAGON_SCALES} from '../js/objects.js';

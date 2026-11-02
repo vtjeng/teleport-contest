@@ -5,7 +5,7 @@
 // expectations, not a newly executed C constructor or gameplay recording.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {mklev} from '../js/mklev.js';
 import {PM_GIANT_ANT} from '../js/monsters.js';

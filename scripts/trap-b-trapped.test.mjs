@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { A_CON, A_STR, FINGER, FROMOUTSIDE, HALF_PHDAM, NO_PART, STUNNED, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { b_trapped } from '../js/trap.js';
 
 async function hero(depth = 1) {

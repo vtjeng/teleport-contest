@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {W_NONDIGGABLE} from '../js/const.js';
 import {SCR_TELEPORTATION} from '../js/objects.js';
 import {PM_CHAMELEON,PM_GUARDIAN_NAGA,PM_LEPRECHAUN} from '../js/monsters.js';

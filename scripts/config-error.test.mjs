@@ -31,7 +31,7 @@ import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
 } from '../js/hacklib.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     FOOD_CLASS, RING_CLASS, WEAPON_CLASS,
 } from '../js/objects.js';

@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 
 import { game } from '../js/gstate.js';
 import { PM_ASMODEUS } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { LAVAPOOL } from '../js/const.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';

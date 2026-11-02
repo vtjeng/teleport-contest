@@ -6,7 +6,7 @@ import { OBJ_DELETED, OBJ_FREE, OBJ_FLOOR, W_BALL, W_CHAIN } from '../js/const.j
 import { game } from '../js/gstate.js';
 import { newObject, place_object } from '../js/obj.js';
 import { HEAVY_IRON_BALL, IRON_CHAIN, TOOL_CLASS } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { unpunish } from '../js/read.js';
 
 test('eatspecial forwards its operation environment to the punishment release helper', () => {

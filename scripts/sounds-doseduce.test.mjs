@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const SOUNDS_C = readFileSync(
     new URL('../nethack-c/upstream/src/sounds.c', import.meta.url), 'utf8',

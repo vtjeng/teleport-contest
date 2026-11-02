@@ -691,7 +691,7 @@ function storageHandle() {
 
 export async function runJsSession(recording, scoringRoot) {
     const runnerUrl = pathToFileURL(join(scoringRoot, 'js', 'jsmain.js')).href;
-    const { runSegment } = await import(runnerUrl);
+    const { runSegmentStrict: runSegment } = await import(runnerUrl);
     const output = {
         rng: [],
         screens: [],

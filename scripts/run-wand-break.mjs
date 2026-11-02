@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     PM_WIZARD, PM_MONK, PM_HEALER, PM_CAVE_DWELLER,
     PM_HILL_GIANT, PM_STONE_GIANT,

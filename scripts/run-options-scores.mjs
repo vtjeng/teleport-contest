@@ -2,7 +2,7 @@
 // Independent C-first options.c:optfn_scores startup/live/value request routes.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { optionValue } from '../js/options.js';
 import { allopt } from '../js/optlist_data.js';

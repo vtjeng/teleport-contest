@@ -5,7 +5,7 @@ import test from 'node:test';
 import { M_SEEN_ELEC, SHOCK_RES } from '../js/const.js';
 import { isok } from '../js/cmd_isok.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AD_ELEC, AT_BITE, PM_GRID_BUG, PM_NEWT, PM_STONE_GIANT,

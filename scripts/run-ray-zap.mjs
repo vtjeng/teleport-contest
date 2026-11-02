@@ -62,7 +62,7 @@
 import { ZAP_POS} from '../js/const.js';
 import { isok } from '../js/cmd_isok.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import { objectType } from '../js/obj.js';
 import { RAY } from '../js/objects.js';

@@ -10,7 +10,7 @@ import {
     POOL, ROOMOFFSET, ROWNO, SDOOR, TEMPLE, W_NONDIGGABLE,
 } from '../js/const.js';
 import { PM_GIANT_EEL, PM_KRAKEN } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

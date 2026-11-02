@@ -12,7 +12,7 @@ import { readFileSync } from 'node:fs';
 
 import { A_CHAOTIC } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dorestore } from '../js/restore.js';
 import { welcomeBackMessage } from '../js/role_init.js';
 import { InMemoryStorage } from '../js/storage.js';

@@ -27,7 +27,7 @@
 import { BLINDED, IS_WALL, SDOOR, STONE } from '../js/const.js';
 import { vobj_at } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import { STATUE } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

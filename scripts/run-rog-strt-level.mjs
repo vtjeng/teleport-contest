@@ -9,7 +9,7 @@ import { PM_MASTER_OF_THIEVES, PM_SMALL_MIMIC, PM_LARGE_MIMIC,
 import { LEATHER_ARMOR, SILVER_DAGGER, DAGGER } from '../js/objects.js';
 import { S_dnstair } from '../js/symbols.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

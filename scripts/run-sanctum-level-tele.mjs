@@ -20,7 +20,7 @@ import {
     W_NONPASSWALL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_HIGH_CLERIC } from '../js/monsters.js';
 import { AMULET_OF_YENDOR } from '../js/objects.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

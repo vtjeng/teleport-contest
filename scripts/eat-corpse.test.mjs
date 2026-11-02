@@ -45,7 +45,7 @@ import {
 } from '../js/eat.js';
 import * as eat from '../js/eat.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     acidic,
     is_giant,

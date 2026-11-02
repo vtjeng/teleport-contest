@@ -77,7 +77,7 @@ import {
     piousness,
     ustatusline,
 } from '../js/insight.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import {
     MZ_SMALL,

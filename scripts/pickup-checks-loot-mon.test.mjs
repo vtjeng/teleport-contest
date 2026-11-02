@@ -7,7 +7,7 @@ import {BLINDED,CQ_CANNED,ECMD_TIME,FLYING,LEVITATION,MAGICAL_BREATHING,
 import {cmdq_add_key} from '../js/cmd.js';
 import {game} from '../js/gstate.js';
 import {dopickup,pickup_checks} from '../js/hack.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {PM_FLOATING_EYE,PM_FIRE_ELEMENTAL,PM_FOG_CLOUD,PM_PONY,PM_PURPLE_WORM,PM_RED_DRAGON} from '../js/monsters.js';
 import {mksobj,place_object} from '../js/obj.js';
 import {objectGenerationEnv} from '../js/object_generation.js';

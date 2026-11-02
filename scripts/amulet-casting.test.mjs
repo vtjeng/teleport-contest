@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { A_INT, A_STR, CONFUSION, ECMD_OK, ECMD_TIME, FROMOUTSIDE, STUNNED, TIMEOUT } from '../js/const.js';
 import { SPE_FORCE_BOLT } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { spell_backfire, spelleffects, spelleffects_check } from '../js/spell.js';

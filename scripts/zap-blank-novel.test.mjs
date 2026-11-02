@@ -6,7 +6,7 @@ import { OBJ_CONTAINED, OBJ_INVENT, ER_DAMAGED } from '../js/const.js';
 import { newObject, weight } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { SACK, SPE_BLANK_PAPER, SPE_NOVEL, SPBOOK_CLASS } from '../js/objects.js';
 import { water_damage } from '../js/trap_water_damage.js';
 import { blank_novel } from '../js/zap.js';

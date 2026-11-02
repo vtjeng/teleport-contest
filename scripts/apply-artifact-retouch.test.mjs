@@ -9,7 +9,7 @@ import {
 import { doapply } from '../js/apply.js';
 import { ECMD_TIME } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { CRYSTAL_BALL } from '../js/objects.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 

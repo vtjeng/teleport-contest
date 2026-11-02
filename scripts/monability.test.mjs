@@ -6,7 +6,7 @@ import {
 } from '../js/const.js';
 import { domonability } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     PM_GREMLIN, PM_WIZARD, PM_RED_DRAGON, PM_SHRIEKER,
     PM_WHITE_UNICORN, PM_GNOME,

@@ -5,7 +5,7 @@ import test from 'node:test';
 import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { TIP_GETPOS } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 
 const recipe = JSON.parse(readFileSync(

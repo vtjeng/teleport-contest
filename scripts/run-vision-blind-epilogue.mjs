@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ICE, IN_SIGHT, ROOM } from '../js/const.js';
 import { PM_EARTH_ELEMENTAL, PM_FIRE_ELEMENTAL } from '../js/monsters.js';
 import { heroIsBlind } from '../js/startup_a11y.js';

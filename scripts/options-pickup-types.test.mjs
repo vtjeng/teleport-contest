@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import * as options from '../js/options.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { COIN_CLASS, FOOD_CLASS, RING_CLASS, WEAPON_CLASS } from '../js/objects.js';
 
 // options.c's local optreq enum; these values pin every no-input request.

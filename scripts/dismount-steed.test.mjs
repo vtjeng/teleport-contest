@@ -113,7 +113,7 @@ import { vault_occupied } from '../js/vault.js';
 import { is_pole } from '../js/worn.js';
 import { block_point } from '../js/vision.js';
 import { getRngLog } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadRideDismountRecipe }
     from './run-ride-dismount.mjs';
 

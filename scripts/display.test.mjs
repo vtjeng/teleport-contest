@@ -20,7 +20,7 @@ import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { game, resetGame } from '../js/gstate.js';
 import { POT_HEALING, POTION_CLASS } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { STATUS_FIELDS } from '../js/status_field_data.js';

@@ -4,7 +4,7 @@ import { A_CHA, COST_CONTENTS, DETECT_MONSTERS, ECMD_OK, ECMD_TIME, MENU_TRADITI
     OBJ_CONTAINED, OBJ_DELETED, OBJ_FREE, OBJ_INVENT, OBJ_ONBILL,
     ROOM, ROOMOFFSET, SHOPBASE } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { addinv_runtime, money_cnt, obj_extract_self, obfree } from '../js/invent.js';
 import { newObject } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';

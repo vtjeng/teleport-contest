@@ -7,7 +7,7 @@ import { ECMD_OK } from '../js/const.js';
 import { AUTOCOMPLETE, IFBURIED, WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dosave0 } from '../js/save.js';
 import { InMemoryStorage } from '../js/storage.js';
 import { wiz_show_nhuuid } from '../js/wizcmds.js';

@@ -11,7 +11,7 @@ import {
     Trap_Effect_Finished,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     dotrap,
     preflight_dotrap,

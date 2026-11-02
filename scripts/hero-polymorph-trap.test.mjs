@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { ANTIMAGIC, POLY_TRAP, W_ARMC } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { initRng } from '../js/rng.js';
 import { PM_RABID_RAT, PM_WIZARD } from '../js/monsters.js';
 import { CLOAK_OF_MAGIC_RESISTANCE } from '../js/objects.js';

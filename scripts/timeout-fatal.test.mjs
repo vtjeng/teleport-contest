@@ -8,7 +8,7 @@ import {
 import { delayed_killer } from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GREEN_SLIME } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
 import { AMULET_OF_LIFE_SAVING } from '../js/objects.js';

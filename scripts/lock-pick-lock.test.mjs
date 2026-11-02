@@ -4,7 +4,7 @@ import test from 'node:test';
 import { acurr } from '../js/attrib.js';
 import { A_DEX, AUTOUNLOCK_APPLY_KEY, AUTOUNLOCK_UNTRAP, DOOR, D_LOCKED, M_AP_FURNITURE } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { pick_lock, reset_pick } from '../js/lock.js';
 import { newMonster } from '../js/monst.js';
 import { M1_NOHANDS, PM_SMALL_MIMIC } from '../js/monsters.js';

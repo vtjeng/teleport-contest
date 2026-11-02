@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { game } from '../js/gstate.js';
 import { MAGIC_MARKER } from '../js/objects.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 const recipe = JSON.parse(readFileSync(new URL(
     '../recipes/write.c/glib-marker-slip-independent.session.json',

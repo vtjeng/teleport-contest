@@ -5,7 +5,7 @@ import test from 'node:test';
 import { COLNO, LAST_PROP, PICK_ANY, PICK_ONE, PICK_NONE, ROOM, ROWNO } from '../js/const.js';
 import { flush_screen, status_window_rows } from '../js/display.js';
 import { GameMap } from '../js/game.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { PM_HUMAN, monst_globals_init } from '../js/monsters.js';

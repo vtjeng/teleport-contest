@@ -39,7 +39,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { addinv, delobj, useupf } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { act_on_act, MCMD, rhack } from '../js/cmd.js';
 import { maybe_unhide_at } from '../js/mon.js';
 import { eggs_in_water, lays_eggs } from '../js/mondata.js';

@@ -8,7 +8,7 @@ import {
 } from '../js/allmain.js';
 import { CORR } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { attacktype } from '../js/mondata.js';
 import { AT_WEAP } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';

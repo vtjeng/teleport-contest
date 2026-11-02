@@ -1,4 +1,4 @@
-import {runSegment} from '../../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../../js/jsmain.js';
 import {game} from '../../js/gstate.js';
 import {ROOM,TELEP_TRAP} from '../../js/const.js';
 import {m_at} from '../../js/monst.js';

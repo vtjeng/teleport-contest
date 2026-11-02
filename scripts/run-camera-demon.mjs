@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {BLINDED,HALLUC,TIMEOUT} from '../js/const.js';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {PM_HOMUNCULUS,PM_IMP} from '../js/monsters.js';
 import {EXPENSIVE_CAMERA} from '../js/objects.js';
 import {validateCleanRecipe} from './diff-fresh.mjs';

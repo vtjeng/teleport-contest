@@ -27,7 +27,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { dopickup, pickup_checks } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { ELVEN_DAGGER } from '../js/objects.js';

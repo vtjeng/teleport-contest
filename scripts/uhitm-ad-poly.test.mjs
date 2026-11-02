@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { ANTIMAGIC, HALF_PHDAM, UNCHANGING, M_ATTK_HIT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mon_poly } from '../js/mhitm.js';
 import { newMonster } from '../js/monst.js';
 import { NON_PM, PM_GENETIC_ENGINEER, PM_NEWT, PM_BABY_GRAY_DRAGON } from '../js/monsters.js';

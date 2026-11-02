@@ -20,7 +20,7 @@ import { engr_at } from '../js/engrave.js';
 import { game, resetGame } from '../js/gstate.js';
 import { isaac64_init, isaac64_next_uint64 } from '../js/isaac64.js';
 import {
-    runSegment,
+    runSegmentStrict as runSegment,
     set_playmode,
     wd_message,
 } from '../js/jsmain.js';

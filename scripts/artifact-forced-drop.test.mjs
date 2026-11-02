@@ -21,7 +21,7 @@ for(const row of proof.rows)test(`native C artifact forced drop ${row.kind}: ${r
 
 // These production-input checks cover state that the terminal replay cannot expose.
 for(const row of proof.rows)test(`forced-drop ownership after native-input recipe: ${row.name}`,async()=>{
-    const {runSegment}=await import('../js/jsmain.js');
+    const {runSegmentStrict: runSegment}=await import('../js/jsmain.js');
     const {ART_SUNSWORD}=await import('../js/artifacts.js');
     const {LONG_SWORD}=await import('../js/objects.js');
     const {PM_GIANT_BAT}=await import('../js/monsters.js');

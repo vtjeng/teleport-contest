@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { DART_TRAP } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { DART } from '../js/objects.js';
 import { mintrap } from '../js/trap_effects.js';
 import {

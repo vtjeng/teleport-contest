@@ -14,7 +14,7 @@ import {
     Trap_Is_Gone,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { thitu } from '../js/mthrowu.js';
 import { DART, WEAPON_CLASS } from '../js/objects.js';
 import { rn2, rnd } from '../js/rng.js';

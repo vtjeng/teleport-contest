@@ -89,7 +89,7 @@ import { game } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { unmul } from '../js/hack.js';
 import { enlightenment } from '../js/insight.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { cantweararm, has_horns, num_horns } from '../js/mondata.js';

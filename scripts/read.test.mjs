@@ -9,7 +9,7 @@ import {
     TOPLINE_EMPTY, W_RINGL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     cap_spe,
     can_center_cloud,

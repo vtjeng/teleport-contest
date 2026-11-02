@@ -8,7 +8,7 @@ import {
     OBJ_INVENT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { ARMOR_CLASS, HELMET, ROCK } from '../js/objects.js';
 import { PM_XORN } from '../js/monsters.js';
 import { passes_rocks } from '../js/mondata.js';

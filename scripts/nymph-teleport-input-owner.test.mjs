@@ -3,7 +3,7 @@ import {runJsSession,compareSessionOutputs,formatReport} from './diff-fresh.mjs'
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {preflightSimpleMonsterActions} from '../js/unported_monster_actions.js';
 import {AMULET_OF_LIFE_SAVING} from '../js/objects.js';

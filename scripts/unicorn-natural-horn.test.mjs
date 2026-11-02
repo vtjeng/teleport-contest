@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { christen_monst } from '../js/do_name.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_WHITE_UNICORN } from '../js/monsters.js';

@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { HALLUC, HALLUC_RES, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { make_hallucinated } from '../js/potion.js';
 import { welcomeHallucinationMessage } from '../js/role_init.js';
 import { dosave0 } from '../js/save.js';

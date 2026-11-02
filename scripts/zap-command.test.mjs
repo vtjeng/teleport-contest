@@ -28,7 +28,7 @@ import {
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_FOX, PM_HILL_GIANT } from '../js/monsters.js';
 import { Tobjnam } from '../js/objnam.js';
 import {

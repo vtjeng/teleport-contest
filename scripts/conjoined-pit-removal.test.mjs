@@ -4,7 +4,7 @@ import test from 'node:test';
 import { PIT, ROOM, TT_PIT } from '../js/const.js';
 import { zap_dig } from '../js/dig.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { conjoined_pits, deltrap, maketrap, set_utrap } from '../js/trap.js';
 
 async function setup() {

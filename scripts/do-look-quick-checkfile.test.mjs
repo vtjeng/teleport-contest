@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { loadWhatisMapHeroRecipe } from './run-whatis-map-getpos-hero.mjs';
 
 const QUICK_CASES = [

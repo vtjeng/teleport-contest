@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
-import {runSegment} from '../js/jsmain.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {ARROW_TRAP, BEAR_TRAP, PIT, SPIKED_PIT, TREE} from '../js/const.js';
 import {CHEST, LEATHER_ARMOR, YA, YUMI} from '../js/objects.js';
 import {PM_FOREST_CENTAUR, PM_HUNTER, PM_MINOTAUR, PM_ORION,

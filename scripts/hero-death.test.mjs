@@ -51,7 +51,7 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { losehp, unmul } from '../js/hack.js';
 import { encodeUtf8Text } from '../js/hacklib.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { money_cnt } from '../js/invent.js';
 import { GameDisplay } from '../js/game_display.js';
 import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';

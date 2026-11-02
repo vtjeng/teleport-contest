@@ -17,7 +17,7 @@ import {
 import { heal_legs } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { near_capacity } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { nh_timeout } from '../js/timeout.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {

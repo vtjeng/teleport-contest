@@ -5,7 +5,7 @@ import {
     GETOBJ_EXCLUDE, GETOBJ_SUGGEST, W_ARM, W_ARMOR, W_WEP,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     any_worn_armor_ok, count_worn_armor,
 } from '../js/do_wear.js';

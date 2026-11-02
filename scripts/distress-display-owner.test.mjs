@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { finishElapsedTurn } from '../js/allmain.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { newMonster, place_monster } from '../js/monst.js';

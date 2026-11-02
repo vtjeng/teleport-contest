@@ -5,7 +5,7 @@ import test from 'node:test';
 import { BLINDED, FROM_FORM, TIMEOUT } from '../js/const.js';
 import { dowipe, wipeoff } from '../js/do.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { make_blinded } from '../js/potion.js';
 
 const WITNESS_PATH = new URL(

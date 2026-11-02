@@ -4,7 +4,7 @@
 // Both roles wield artifact light, create a nearby gremlin and force rest.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

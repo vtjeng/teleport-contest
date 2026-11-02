@@ -38,7 +38,7 @@ import {
 } from '../js/tty_message.js';
 import { doride } from '../js/steed.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { u_maybe_impaired } from '../js/hack.js';
 import {
     ESCAPE_KEY,

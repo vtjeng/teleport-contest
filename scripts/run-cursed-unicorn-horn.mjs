@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { A_CON, SICK, TIMEOUT } from '../js/const.js';
 import { acurr } from '../js/attrib.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 export const CURSED_HORN_CASES = ['knight', 'healer'];

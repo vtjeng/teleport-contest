@@ -47,7 +47,7 @@ import {
     VWALL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { cloneIsaacContext, createCoreRandom } from '../js/rng.js';
 import {

@@ -7,7 +7,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { You_can_move_again } from '../js/hack.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_FOG_CLOUD, PM_LIZARD, PM_NEWT } from '../js/monsters.js';
 import { TIN } from '../js/objects.js';
 import { nh_timeout, nh_timeout_requires_live_state, stoned_dialogue } from '../js/timeout.js';

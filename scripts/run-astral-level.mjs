@@ -5,7 +5,7 @@ import { CONFLICT, STRAT_APPEARMSG, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { is_mplayer } from '../js/mondata.js';
 import { PM_ANGEL } from '../js/monsters.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 

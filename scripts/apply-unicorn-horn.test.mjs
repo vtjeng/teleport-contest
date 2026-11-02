@@ -6,7 +6,7 @@ import { A_CON, DEAF, SICK, TIMEOUT } from '../js/const.js';
 import { use_unicorn_horn } from '../js/apply.js';
 import { shuffle_int_array } from '../js/rnd.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { UNICORN_HORN, TOOL_CLASS } from '../js/objects.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

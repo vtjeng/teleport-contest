@@ -166,7 +166,7 @@ test('do_vicinity_map preserves the C reveal, browse, restore and redraw order',
         );
         assert.equal(typeof do_vicinity_map, 'function');
     });
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {

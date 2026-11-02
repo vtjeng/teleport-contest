@@ -41,7 +41,7 @@ import { moveloop_core } from '../js/allmain.js';
 import { newMonster } from '../js/monst.js';
 import { PM_NEWT } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { acurr } from '../js/attrib.js';
 import { test_move } from '../js/hack.js';
 import {

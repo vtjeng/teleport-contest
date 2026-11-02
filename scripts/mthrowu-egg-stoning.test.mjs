@@ -5,7 +5,7 @@ import { KILLED_BY, STONED, TIMEOUT } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE, PM_KEYSTONE_KOP } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { m_throw } from '../js/mthrowu.js';

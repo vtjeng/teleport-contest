@@ -20,7 +20,7 @@ import {
 import { ART_STORMBRINGER, init_artifacts } from '../js/artifacts.js';
 import { weapon_status } from '../js/display.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { could_twoweap } from '../js/mondata.js';
 import {
     AT_WEAP,

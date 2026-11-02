@@ -18,7 +18,7 @@ import {
     SCATTER_MAY_HITYOU,
     SCATTER_VIS_EFFECTS,
 } from '../js/explode.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import {
     AD_COLD,

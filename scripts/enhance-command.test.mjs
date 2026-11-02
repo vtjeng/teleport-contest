@@ -31,7 +31,7 @@ import {
     TIP_ENHANCE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { P_RESTRICTED, skillSlot } from '../js/startup_skills.js';
 import {
     add_skills_to_menu,

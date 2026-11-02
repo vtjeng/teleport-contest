@@ -3,7 +3,7 @@ import {createScoringWorkspace,removeScoringWorkspace} from './scoring-workspace
 import {runJsSession,compareSessionOutputs,formatReport} from './diff-fresh.mjs';
 import {rn2,getRngLog} from '../js/rng.js';
 import assert from 'node:assert/strict';import test from 'node:test';
-import {runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';
+import {runSegmentStrict as runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';
 import {AIR,WATER,OBJ_FLOOR,OBJ_FREE,HALLUC,BLINDED} from '../js/const.js';import {BOULDER,FOOD_RATION} from '../js/objects.js';
 import {newObject,place_object} from '../js/obj.js';import {objectGenerationEnv} from '../js/object_generation.js';
 import {init_vision_globals,vision_reset,transparencyIndexViews} from '../js/vision.js';import {light_globals_init} from '../js/light.js';import {movebubbles} from '../js/mkmaze.js';

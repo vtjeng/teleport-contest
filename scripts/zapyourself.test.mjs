@@ -45,7 +45,7 @@ import { monsterObject } from '../js/monster_object.js';
 import {
     d, rn1, rn2, rnd, rne, rnl, rnz, initRng, enableRngLog, getRngLog,
 } from '../js/rng.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { NethackGame } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
 import { do_mkroom } from '../js/mkroom.js';
