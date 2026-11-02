@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "do.c flooreffects() lines 209-219: a boulder moving on a monster's turn (svc.context.mon_moving) that lands in a pit holding a trapped monster applies dmgval() directly and, when the victim dies, prints \"<Mon> is killed!\" if the hero can spot it. A hero-caused boulder takes the hmon() arm instead, so a monster must set the boulder moving. In wizard mode the hero wishes for a rolling boulder trap, whose launch boulder lies four squares west, teleports two squares toward it and wishes for a pit on the boulder's path, and creates an ogre. Teleporting diagonally away draws the ogre into the pit. The hero then creates a jackal and teleports so that the jackal's approach crosses the rolling boulder trap. The jackal triggers it, the boulder hits the trapped ogre (trap.c launch_obj() -> mthrowu.c ohitmon()) and falls into the pit, and flooreffects() kills the ogre.",
+  "segments": [
+    {
+      "seed": 61209,
+      "datetime": "20310708101500",
+      "nethackrc": "OPTIONS=name:Brannoc,role:Valkyrie,race:dwarf,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " lll\u0017rolling boulder trap\n\u0014  hh.\u0017pit\n\u0007ogre\n\u0014yy.ms ms ms ms \u0014lllllljj.\u0007jackal\n\u0014hhh. ms ms ms ms ms       "
+    }
+  ]
+}

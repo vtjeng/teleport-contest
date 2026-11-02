@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of boulder-pit-trapped-monster-killed: the hero waits two more turns before creating the jackal and swings once at the trapped ogre, missing, before the jackal triggers the rolling boulder trap. Here mthrowu.c ohitmon() misses the ogre, so the only damage the boulder deals is the dmgval() in do.c flooreffects(), which kills it: \"The ogre is killed!\" precedes \"The boulder fills a pit.\"",
+  "segments": [
+    {
+      "seed": 61209,
+      "datetime": "20310708101500",
+      "nethackrc": "OPTIONS=name:Brannoc,role:Valkyrie,race:dwarf,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " lll\u0017rolling boulder trap\n\u0014  hh.\u0017pit\n\u0007ogre\n\u0014yy.ms ms ms ms ms ms \u0014lllllljj.\u0007jackal\n\u0014hhh. Fh ms ms ms ms ms       "
+    }
+  ]
+}
