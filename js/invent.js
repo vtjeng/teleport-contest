@@ -2367,7 +2367,6 @@ export function preflight_look_here(
             seenTrap: null,
             skip_dfeature,
             skip_objects,
-            withShopPrice: false,
         };
     }
     const objectList = objects ?? (() => {
@@ -2379,7 +2378,6 @@ export function preflight_look_here(
     })();
     const otmp = objectList[0] ?? null;
     const hasPile = objectList.length > 1;
-    const withShopPrice = Boolean(otmp) && costly_spot(ux, uy, state);
     const trap = t_at(ux, uy, state);
     // C ref: invent.c look_here() (4162-4178). The live call names only a
     // visible region and a trap whose tseen bit is set; admission records both
@@ -2411,13 +2409,11 @@ export function preflight_look_here(
             // C names the first tactile cockatrice and breaks; this projection
             // stops there before checking any later object's price.
             if (tactileCockatrice) break;
-            if (withShopPrice)
-                assertPricedObjectNameable(object, state);
+            assertPricedObjectNameable(object, state);
         }
     }
 
-    if (!skipsObjectPriceCheck && otmp && !hasPile && !skip_objects
-        && withShopPrice)
+    if (!skipsObjectPriceCheck && otmp && !hasPile && !skip_objects)
         assertPricedObjectNameable(otmp, state);
     return {
         blind,
@@ -2431,7 +2427,6 @@ export function preflight_look_here(
         seenTrap,
         skip_dfeature,
         skip_objects,
-        withShopPrice,
     };
 }
 
@@ -2471,7 +2466,6 @@ export async function look_here(
         region,
         seenTrap,
         skip_objects,
-        withShopPrice,
     } = plan;
     const verb = blind ? 'feel' : 'see';
     const { ux, uy } = state.u;
@@ -2620,11 +2614,14 @@ export async function look_here(
         for (let object = otmp; object; object = object.nexthere) {
             const canFeelCockatrice = object.otyp === CORPSE
                 && will_feel_cockatrice(object, false, state);
+            // C invent.c:4306 names every pile object with
+            // doname_with_price(); doname_base() decides from the object's
+            // own location whether any price or "(no charge)" applies,
+            // including on the shopkeeper's square, which costly_spot()
+            // excludes.
             lines.push(canFeelCockatrice
                 ? `${donameFresh(object, state)}...`
-                : withShopPrice
-                ? doname_with_price(object, state, { currencyName: currency })
-                : donameFresh(object, state));
+                : doname_with_price(object, state, { currencyName: currency }));
             if (canFeelCockatrice) {
                 feltCockatrice = object;
                 break;
@@ -2638,9 +2635,10 @@ export async function look_here(
     }
     if (dfeature && !skip_dfeature) await message(fbuf, state);
     await readEngraving(state);
-    const namedObject = withShopPrice
-        ? doname_with_price(otmp, state, { currencyName: currency })
-        : donameFresh(otmp, state);
+    // C invent.c:4282, doname_with_price() for the single object too.
+    const namedObject = doname_with_price(
+        otmp, state, { currencyName: currency },
+    );
     await message(`You ${verb} here ${namedObject}.`, state);
     state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
     if (otmp.otyp === CORPSE)

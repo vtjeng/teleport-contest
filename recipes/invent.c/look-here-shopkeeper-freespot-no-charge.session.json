@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c look_here() names floor objects with doname_with_price() (4282 for one object, 4306 for a pile) on every square. The debug-mode gnome Healer level-teleports to Minetown (Grotto Town on this seed), teleports into the hardware store beside its shopkeeper, waits until the shopkeeper leaves his square inside the door, steps onto it and drops a stethoscope and then apples there. shk.c get_cost_of_shop_item() treats that square as a free spot, so both looks end in '(no charge)'. costly_spot() excludes the square, and the port used to gate the priced name on it.",
+  "segments": [
+    {
+      "seed": 52240117,
+      "datetime": "20290922171500",
+      "nethackrc": "OPTIONS=name:Tibbet,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none\n",
+      "moves": "\u0016?\n>w\u0014  Jjjhhh.  ssshdc:dj: s"
+    }
+  ]
+}
