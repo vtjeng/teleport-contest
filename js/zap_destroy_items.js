@@ -405,8 +405,12 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 // C really_done() never returns; gameover represents that
                 // termination in the JavaScript replay harness.
                 if (state.program_state?.gameover) return dmg;
-                await exercise(A_STR, false, state, random,
-                    { encumberMessage: encumber_msg });
+                // The encumbrance line goes through the same message
+                // operation, so a planning pass prints nothing.
+                await exercise(A_STR, false, state, random, {
+                    encumberMessage: env.encumberMessage
+                        ?? ((hero) => encumber_msg(hero, { message })),
+                });
             }
         }
     }
