@@ -966,11 +966,17 @@ export function hero_glyph_info(state = game) {
     );
     const glyph = glyphPresentation(
         symbol,
-        (showRace && !Upolyd(state.u))
-            ? HI_DOMESTIC : species?.mcolor ?? CLR_WHITE,
+        species?.mcolor ?? CLR_WHITE,
         state,
         numeric_glyph_customization(logicalGlyph, state),
     );
+    // C ref: display.c map_glyphinfo() (2620-2632). The hero's color tweak
+    // replaces the stored glyphmap color, so it survives reset_glyphmap()
+    // turning colors off on a Rogue level without Rogue IBM colors.
+    if (state.iflags?.wc_color !== false && !Upolyd(state.u)) {
+        if (hasRogueColor(state)) glyph.color = CLR_YELLOW;
+        else if (showRace) glyph.color = HI_DOMESTIC;
+    }
     // C ref: display.h hero_glyph (654-656). The hero's own square takes an
     // ordinary monster glyph, so reset_glyphmap()'s GLYPH_MON arm gives it
     // MG_MALE or MG_FEMALE like any other monster -- but from Ugender rather

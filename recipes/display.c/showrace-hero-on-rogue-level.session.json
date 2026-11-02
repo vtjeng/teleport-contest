@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "display.c map_glyphinfo() (2620-2632) colors the hero after reset_glyphmap() has stored its glyph color. On the Rogue level without Rogue IBM colors, reset_glyphmap() turns every stored color off, but the showrace tweak still paints the hero HI_DOMESTIC. The debug-mode dwarven Archeologist with showrace level-teleports to the Rogue level and appears as a white 'h'. The port used to fold the tweak into the stored color, which the Rogue symset's nocolor then removed.",
+  "segments": [
+    {
+      "seed": 81726354,
+      "datetime": "20240229101000",
+      "nethackrc": "OPTIONS=name:Thrain,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none,showrace\n",
+      "moves": "\u0016?\ng ss"
+    }
+  ]
+}
