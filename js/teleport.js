@@ -1272,20 +1272,27 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
                 ? ' close by' : null;
             const oldDistance = dist2(oldx, oldy, state.u.ux, state.u.uy);
             monster.mstrategy &= ~STRAT_APPEARMSG;
+            // do_name.c x_monnam() names a monster the hero can spot, which
+            // includes one sensed while blind. A caller's canSeeMonster seam
+            // (canseemon()) must not turn that monster into "it".
+            const nameEnv = {
+                ...env,
+                canSpotMonster: env.canSpotMonster ?? canspotmon,
+            };
             let text;
             if (monster === state.u?.ustuck && !u_at(state.u.ux0, state.u.uy0, state)) {
-                text = `You and ${mon_nam(monster, state, env)} teleport together.`;
+                text = `You and ${mon_nam(monster, state, nameEnv)} teleport together.`;
             } else if (telemsg
                 && (couldsee(x, y, state) || sensemon(monster, state))) {
-                text = `${Monnam(monster, state, env)} vanishes and reappears`
+                text = `${Monnam(monster, state, nameEnv)} vanishes and reappears`
                     + `${next ?? close
                         ?? (oldDistance === distance ? ''
                             : distance < oldDistance ? ' closer to you'
                             : ' farther away')}.`;
             } else {
                 const name = appearmsg
-                    ? Amonnam(monster, { ...env, state })
-                    : Monnam(monster, state, env);
+                    ? Amonnam(monster, { ...nameEnv, state })
+                    : Monnam(monster, state, nameEnv);
                 text = `${name} ${appearmsg ? 'suddenly ' : ''}`
                     + `${heroBlind(state) ? 'arrives' : 'appears'}`
                     + `${next ?? close ?? ''}!`;

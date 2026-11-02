@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "teleport.c rloc_to_core() 1702-1716 from mon.c minliquid_core() 1074-1078: a teleport-capable monster in water relocates with RLOC_MSG, and a monster the hero spots only by telepathy while blind is still named in \"X vanishes and reappears\" (do_name.c x_monnam() tests canspotmon(), not canseemon()). A levitating Valkyrie with an amulet of ESP wishes a pool under herself, steps off it, puts on a blindfold, creates a giant eel (which lands in the pool) and, with the wizard-mode monpolycontrol option, polymorphs it into a tengu, which teleports out of the water on its next move. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 4106637,
+      "datetime": "20570105203000",
+      "nethackrc": "OPTIONS=name:Hildr,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=monpolycontrol\n",
+      "moves": " \u0017amulet of ESP\nPe\u0017ring of levitation\nPfr \u0017pool\nl\u0017blindfold\nPg\u0007giant eel\n\u0017wand of polymorph\nzhhtengu\nmsmsmsmsms "
+    }
+  ]
+}
