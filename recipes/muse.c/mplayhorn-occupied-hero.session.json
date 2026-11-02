@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "muse.c mplayhorn():216-230 while the hero is opening a tin: a bugbear picks up the dropped fire horn and, lined up three squares away, plays it at the hero through find_offensive()/use_offensive() MUSE_FIRE_HORN, so its stop_occupation() prints \"You stop opening the tin.\"",
+  "segments": [
+    {
+      "seed": 731026,
+      "datetime": "20251108204500",
+      "nethackrc": "OPTIONS=name:Kenji,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\n#levelchange\n14\n\u001b\u0017uncursed fire horn\n\u001b\u0017tin\n\u001b\u0007hostile bugbear\n\u001bj\u001bdk\u0014jjj.\u001bel   "
+    }
+  ]
+}
