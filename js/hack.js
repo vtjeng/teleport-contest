@@ -2584,7 +2584,7 @@ async function moverock_core(sx, sy, state, env) {
                     redraw(sx, sy, state);
                     await message(
                         `${(!heroIsDeaf(state) || !heroIsBlind(state))
-                            ? 'KAABLAMM!!' : 'Gadzooks'}  `
+                            ? 'KAABLAMM!!' : 'Gadzooks'}!  `
                             + `${Tobjnam(otmp, 'trigger', state)} `
                             + `${ttmp.madeby_u ? 'your' : 'a'} land mine.`,
                         state,

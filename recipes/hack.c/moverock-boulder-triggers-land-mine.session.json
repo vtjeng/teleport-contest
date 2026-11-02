@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c moverock() 505-523: a pushed boulder that rolls onto a land mine sets it off with \"%s!  %s %s land mine.\", whose first argument is \"KAABLAMM!!\", so the line reads \"KAABLAMM!!!  The boulder triggers your land mine.\" A Samurai wishes for a land mine and arms it, wishes for a boulder one square east, steps past it and pushes it back onto the mine. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 2604417,
+      "datetime": "20460819133000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " j\u0017land mine\n  ag     l\u0017boulder\n  lh    "
+    }
+  ]
+}
