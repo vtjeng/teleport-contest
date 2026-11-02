@@ -2605,6 +2605,13 @@ test('menu_loot awaits real artifact rejection before container extraction',
             assert.equal(item.ocontainer, container);
             container.owt = weight(container, { state });
             state.gc.current_container = container;
+            // artifact.c touch_artifact() blasts the hero for d(4,10)
+            // (d(2,10) with Antimagic, plus rnd(10) for a silver-hater)
+            // before "evades your grasp!", and a fatal blast ends the game in
+            // losehp() before that message. 200 hit points survive the
+            // 50-point maximum, so the test reaches the rejection it checks
+            // rather than the death path.
+            state.u.uhp = state.u.uhpmax = 200;
             if (artifactIndex) {
                 item.oartifact = artifactIndex;
                 state.artiexist[artifactIndex].exists = 1;
