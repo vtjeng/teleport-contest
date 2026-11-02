@@ -1244,6 +1244,11 @@ export async function invault(state, env = {}) {
         nomul(0, state);
     }
 
+    // The dry run of the elapsed-turn tail stops at the guard's question:
+    // getlin() reads keys, so the question and every effect after it belong
+    // to the live pass alone.
+    if (env.planning) return { beforeInput: true };
+
     let buf = '';
     let trycount = 5;
     do {

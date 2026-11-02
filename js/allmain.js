@@ -1252,8 +1252,9 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         ),
         message: turnMessage,
     });
-    await invault(state, {
+    const vault = await invault(state, {
         random,
+        planning,
         message: turnMessage,
         makemon_runtime,
         stopOccupation: (hookEnv = { state }) => stop_occupation(
@@ -1261,6 +1262,7 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         ),
         unmul: (msg) => unmul(msg, state),
     });
+    if (vault?.beforeInput) return { beforeVaultInput: true };
     if (state.u.uhave?.amulet)
         await amulet(state, { random, message: turnMessage });
     maybeWipeHeroEngraving(state, random);

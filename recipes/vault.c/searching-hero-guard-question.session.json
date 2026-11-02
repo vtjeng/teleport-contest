@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "vault.c invault() guard arrival for a hero with intrinsic searching. The debug-mode Monk is raised to experience level 9 for its Searching intrinsic, digs into a closed vault with a wished-for wand of digging, and searches until the guard enters and asks its question with getlin(). With searching active, allmain.js dry-runs the rest of the turn after automatic_search(); that dry run used to reach the guard's getlin() and read the answer itself, so the live guard creation and its 'Suddenly one of the Vault's guards enters!' came out of order. The dry run now stops at the question.",
+  "segments": [
+    {
+      "seed": 30571188,
+      "datetime": "20250911214500",
+      "nethackrc": "OPTIONS=name:Bertil,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none,time\n",
+      "moves": "#wizmap\n\u00162\n#wizmap\n\u00163\n#wizmap\n\u00164\n#wizmap\n#levelchange\n9\n\u001b\u0014  HHHHHHhhhjjj.\u0017wand of digging\nzkhhhhhhhhhhh60s Bertil\nss"
+    }
+  ]
+}
