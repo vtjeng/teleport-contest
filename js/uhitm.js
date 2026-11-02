@@ -2834,6 +2834,7 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
         || (hmd.hand_to_hand && obj.oartifact === ART_CLEAVER)) {
         ; /* no special bonuses */
     } else if (state.urole?.mnum === PM_ROGUE && backstabbable(mon, state)
+               && !Upolyd(state.u)
                /* multi-shot throwing is too powerful here */
                && hmd.hand_to_hand) {
         await requireAttackOperation(env, 'message')(

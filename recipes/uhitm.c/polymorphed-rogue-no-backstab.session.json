@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8830164,
+      "datetime": "20370905132015",
+      "nethackrc": "OPTIONS=name:Fennick,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "#polyself\nhill orc\n\u001b\u001b\u0007mountain nymph\nFj\u001bFj\u001bFj\u001b"
+    }
+  ],
+  "comment": "Independent uhitm.c hmon_hitmon_weapon() witness: a debug Rogue polymorphs into a hill orc and fights a summoned mountain nymph that is still asleep. A sleeping target is backstabbable, but the Rogue backstab arm also requires !Upolyd, so the polymorphed hero hits normally instead of striking from behind and adding rnd(u.ulevel)."
+}
