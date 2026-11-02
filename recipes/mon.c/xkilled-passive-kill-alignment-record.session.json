@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mon.c xkilled() 3676-3723: killing a monster adds its malign to u.ualign.record through attrib.c adjalign(), including a kill by mhitu.c passiveum() through assess_dmg() while a monster attacks a polymorphed hero. The port plans monster turns on a clone, which must not apply the planned adjustment to the live record. A Tourist (initial record 0) polymorphs into a blue jelly and creates a kobold (always hostile, chaotic, so malign 5), which dies of the cold; the attributes screen then shows the record. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 3318207,
+      "datetime": "20490722091500",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " #polyself\nblue jelly\n    \u0007kobold\n  20s     20s     \u0018      "
+    }
+  ]
+}

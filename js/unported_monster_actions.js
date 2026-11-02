@@ -612,6 +612,10 @@ export function planningState(state) {
         // counterattack kills the attacker; the live pass must still see
         // the first kill and log it.
         uconduct: { ...(state.u?.uconduct ?? {}) },
+        // attrib.c adjalign() lowers u.ualign.record and raises
+        // u.ualign.abuse when a planned passive counterattack kills a
+        // peaceful attacker (mon.c xkilled()); the live pass applies it once.
+        ualign: { ...(state.u?.ualign ?? {}) },
         uhave: { ...(state.u?.uhave ?? {}) },
         uprops: state.u?.uprops?.map(
             (property) => property ? { ...property } : property,
