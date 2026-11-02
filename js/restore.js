@@ -655,23 +655,31 @@ function rebuildObjectList(state) {
 // the inventory for items whose owornmask identifies their slot. This
 // replaces what setworn() established during the original equipping and
 // avoids the side effects setworn()'s hooks would produce on restore.
+function setWornPointers(obj, state) {
+    for (const { mask, field } of WORN_SLOTS) {
+        if (obj.owornmask & mask) {
+            state[field] = obj;
+        }
+    }
+}
+
 function rebuildEquipmentPointers(state) {
     // Clear all equipment slots first.
     for (const { field } of WORN_SLOTS) {
         state[field] = null;
     }
 
-    // Walk the inventory linked list.
-    let obj = state.invent;
-    while (obj) {
-        if (obj.owornmask) {
-            for (const { mask, field } of WORN_SLOTS) {
-                if (obj.owornmask & mask) {
-                    state[field] = obj;
-                }
-            }
-        }
-        obj = obj.nobj;
+    // C ref: restore.c restgamestate():685-687, setworn() for each worn
+    // inventory object.
+    for (let obj = state.invent; obj; obj = obj.nobj) {
+        if (obj.owornmask) setWornPointers(obj, state);
+    }
+
+    // C ref: restore.c find_lev_obj():101-104, which getlev() reaches for
+    // the hero's level: a ball or chain on the floor gets its uball or
+    // uchain pointer back through setworn().
+    for (let obj = state.level?.objlist; obj; obj = obj.nobj) {
+        if (obj.owornmask & (W_BALL | W_CHAIN)) setWornPointers(obj, state);
     }
 }
 
