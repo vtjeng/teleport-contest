@@ -2016,6 +2016,10 @@ export async function display_pickinv(
                 const glyphInfo = obj_to_glyph(otmp, state);
                 items.push({
                     selector: otmp.invlet,
+                    // invent.c 3323-3325: #wizidentify makes each item's
+                    // default class symbol its group accelerator.
+                    ...(wizid ? { groupSelector: String.fromCharCode(
+                        DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + otmp.oclass]) } : {}),
                     label: donameFresh(otmp, state),
                     value: wizid ? otmp : otmp.invlet,
                     glyphInfo,
@@ -2051,6 +2055,10 @@ export async function display_pickinv(
                 const glyphInfo = obj_to_glyph(otmp, state);
                 items.push({
                     selector: otmp.invlet,
+                    // invent.c 3323-3325: #wizidentify makes each item's
+                    // default class symbol its group accelerator.
+                    ...(wizid ? { groupSelector: String.fromCharCode(
+                        DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + otmp.oclass]) } : {}),
                     label: donameFresh(otmp, state),
                     value: wizid ? otmp : otmp.invlet,
                     glyphInfo,

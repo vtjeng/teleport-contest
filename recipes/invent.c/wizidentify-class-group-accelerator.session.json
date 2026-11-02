@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c display_pickinv() 3321-3325: the #wizidentify menu gives each unidentified item its default class symbol as a group accelerator. A dwarven Valkyrie wishes for two potions and a scroll, opens #wizidentify, presses '!' to select both potions, and confirms; the scroll stays unidentified, which a second #wizidentify menu shows. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 905163,
+      "datetime": "20541203161500",
+      "nethackrc": "OPTIONS=name:Brenna,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017potion of see invisible\n\u0017potion of confusion\n\u0017scroll of teleportation\n#wizidentify\n!\n #wizidentify\n\u001b"
+    }
+  ]
+}
