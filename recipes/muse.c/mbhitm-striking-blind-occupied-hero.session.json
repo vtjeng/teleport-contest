@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "muse.c mbhitm():1608-1630 WAN_STRIKING hitting the hero while she opens a tin: the blindfolded hero cannot see the bugbear, so mzapwand() only reports a zap she hears and leaves the occupation running; mbhitm()'s own stop_occupation() then prints \"You stop opening the tin.\" after the wand misses. The bugbear picks up the dropped wand first.",
+  "segments": [
+    {
+      "seed": 731026,
+      "datetime": "20251108204500",
+      "nethackrc": "OPTIONS=name:Kenji,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\n#levelchange\n14\n\u001b\u0017uncursed wand of striking\n\u001b\u0017tin\n\u001b\u0017blindfold\n\u001b\u0007hostile bugbear\n\u001bPm\u001bj\u001bdk\u0014jjj.\u001bel "
+    }
+  ]
+}
