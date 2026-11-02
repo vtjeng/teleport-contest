@@ -378,20 +378,8 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 // it performs the same setnotworn transition plus ring effects.
                 await Ring_gone(obj, state);
             } else if (obj.owornmask) {
-                // Other worn items use setnotworn(). Preserve that source
-                // transition even in focused fixtures without optional hooks.
-                const hooks = env.hooks ?? {};
-                await setnotworn(obj, {
-                    ...env,
-                    hooks: {
-                        cancelDoff: hooks.cancelDoff ?? (() => {}),
-                        monsterUnseesProperty:
-                            hooks.monsterUnseesProperty ?? (() => {}),
-                        setArtifactIntrinsic:
-                            hooks.setArtifactIntrinsic ?? (() => {}),
-                        ...hooks,
-                    },
-                });
+                // Other worn items use setnotworn().
+                await setnotworn(obj, env);
             }
             // C clears gc.current_wand before useup() can free the object.
             if (obj === state.current_wand)

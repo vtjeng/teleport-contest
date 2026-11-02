@@ -166,7 +166,6 @@ import { dist2, s_suffix } from './hacklib.js';
 import { note_unported } from './unported.js';
 import { S_hcdoor, S_vcdoor } from './symbols.js';
 import { ttyPline } from './tty_message.js';
-import { setnotworn } from './worn.js';
 import { canseemon, canspotmon } from './display.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
@@ -469,18 +468,8 @@ async function forcelock(state = game) {
                 `${prefix}our ${xnameFresh(uwep, state)} broke!`, state,
             );
             // useup() removes one from the stack or the whole object if
-            // quan == 1. A wielded weapon has owornmask = W_WEP, so
-            // useupall() needs the setNotWorn hook to clear it. cancelDoff
-            // and monsterUnseesProperty are no-ops: no doff is active for a
-            // weapon mid-force, and a normal blade's oc_oprop is 0.
-            await useup(uwep, {
-                state,
-                hooks: {
-                    setNotWorn: (obj, env) => setnotworn(obj, env),
-                    cancelDoff() {},
-                    monsterUnseesProperty() {},
-                },
-            });
+            // quan == 1; useupall() runs setnotworn() for the W_WEP slot.
+            await useup(uwep, { state });
             await ttyPline(
                 'You give up your attempt to force the lock.', state,
             );
