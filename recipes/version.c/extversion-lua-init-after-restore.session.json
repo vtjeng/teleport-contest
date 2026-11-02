@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: version.c doextversion() -> insert_rtoption() -> nhlua.c get_lua_version(), whose first call runs nhl_init() and so nhlib.lua's top-level shuffle(align) (rn2(3), rn2(2)) before caching gl.lua_ver. The first segment shows #version twice, so only the first display shuffles, searches and saves. gl is not saved, so after the restore the second segment's first #version shuffles again; searches afterwards show the RNG stays aligned. Seed, clock and character chosen independently of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 40918263,
+      "datetime": "20590415073318",
+      "nethackrc": "OPTIONS=name:Thessaly,role:Ranger,race:orc,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #version\n\u001bs#version\n\u001bsSy"
+    },
+    {
+      "seed": 40918263,
+      "datetime": "20590415073318",
+      "nethackrc": "OPTIONS=name:Thessaly,role:Ranger,race:orc,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\n#version\n\u001bsss"
+    }
+  ]
+}

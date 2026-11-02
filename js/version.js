@@ -117,13 +117,17 @@ export async function doversion(state, {
     return 0; // C: ECMD_OK.
 }
 
+// C ref: nhlua.c get_lua_version(). gl.lua_ver caches the version string
+// after the first nhl_init(), whose nhlib.lua load shuffles. gl is
+// process-global and is not saved, so a restored game shuffles again on its
+// first version display.
 function get_lua_version(state, random) {
-    state.context ??= {};
-    if (!state.context.versionLuaInitialized) {
+    state.gl ??= {};
+    if (!state.gl.lua_ver) {
         nhl_init(random);
-        state.context.versionLuaInitialized = true;
+        state.gl.lua_ver = LUA_VERSION;
     }
-    return LUA_VERSION;
+    return state.gl.lua_ver;
 }
 
 // C ref: version.c insert_rtoption(). It initializes Lua for every first
