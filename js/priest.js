@@ -232,7 +232,7 @@ export async function ghod_hitsu(priest, rawEnv = {}) {
     const ay = altar.y;
     let x = ax;
     let y = ay;
-    const troom = state.level.rooms[roomno - ROOMOFFSET];
+    const troom = mapseen_room(roomno - ROOMOFFSET, state);
 
     if (u_at(x, y, state)
         || !linedup(u.ux, u.uy, x, y, 1, { ...rawEnv, state })) {

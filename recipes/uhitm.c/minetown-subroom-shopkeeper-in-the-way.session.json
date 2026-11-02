@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "uhitm.c do_attack() safe-monster arm (474-501) for a shopkeeper whose shop is a Minetown subroom. The debug-mode dwarf Valkyrie level-teleports to Minetown (College Town on this seed) and teleports into the hardware store beside its shopkeeper. Two rushes toward the door print 'You stop.  Corsh is in the way!' because tended_shop() reads svr.rooms[*p - ROOMOFFSET], where subrooms follow the top-level rooms; a plain step then reaches dopay(). Before the port resolved that index through mapseen_room(), the shop went unnoticed and the step fell through to domove_swap_with_pet().",
+  "segments": [
+    {
+      "seed": 7311905,
+      "datetime": "20310514093000",
+      "nethackrc": "OPTIONS=name:Brakka,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none\n",
+      "moves": "\u0016?\n>w\u0014  kkkh.  sJJjs"
+    }
+  ]
+}

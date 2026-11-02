@@ -443,7 +443,7 @@ export function set_residency(shopkeeper, zero_out, state = game) {
 export function replshk(oldShopkeeper, newShopkeeper, state = game) {
     const oldEshk = oldShopkeeper.mextra.eshk;
     const newEshk = newShopkeeper.mextra.eshk;
-    state.level.rooms[newEshk.shoproom - ROOMOFFSET].resident = newShopkeeper;
+    mapseen_room(newEshk.shoproom - ROOMOFFSET, state).resident = newShopkeeper;
     if (inhishop(oldShopkeeper, state)
         && state.u.ushops?.[0] === oldEshk.shoproom) {
         newEshk.bill_p = newEshk.bill ?? [];
@@ -4095,7 +4095,8 @@ export async function shk_move(shkp, state, rawEnv = {}) {
 
 // C ref: shk.c IS_SHOP() (56). `x` is a room index, not a room number.
 function IS_SHOP(x, state) {
-    return (state.level?.rooms?.[x]?.rtype ?? -1) >= SHOPBASE;
+    // svr.rooms[x] includes the subrooms after the top-level rooms.
+    return (mapseen_room(x, state)?.rtype ?? -1) >= SHOPBASE;
 }
 
 // C ref: shk.c rile_shk() (1362-1379). Each active bill price rises by the
@@ -4618,7 +4619,7 @@ function clear_no_charge_obj(shopkeeper, otmp, state) {
         if (spot && isok(spot.x, spot.y)) {
             const rno = state.level?.at(spot.x, spot.y)?.roomno ?? 0;
             if (rno >= ROOMOFFSET && IS_SHOP(rno - ROOMOFFSET, state)) {
-                const rmShkp = state.level.rooms[rno - ROOMOFFSET].resident;
+                const rmShkp = mapseen_room(rno - ROOMOFFSET, state).resident;
                 keep = Boolean(rmShkp) && rmShkp !== shopkeeper;
             }
         }

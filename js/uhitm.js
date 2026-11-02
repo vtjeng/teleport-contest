@@ -256,6 +256,7 @@ import {
     test_move,
     You_can_move_again,
 } from './hack.js';
+import { mapseen_room } from './dungeon.js';
 import { in_rooms } from './rooms.js';
 import { dopay, tended_shop } from './shk.js';
 import { paranoid_query, xytodir } from './cmd.js';
@@ -2214,7 +2215,9 @@ export async function do_attack(monster, state = game, env = {}) {
             for (const roomNumber of in_rooms(
                 monster.mx, monster.my, SHOPBASE, state,
             )) {
-                const room = state.level.rooms[roomNumber - ROOMOFFSET];
+                // C indexes svr.rooms[*p - ROOMOFFSET], where subrooms
+                // (a Minetown shop, say) follow the top-level rooms.
+                const room = mapseen_room(roomNumber - ROOMOFFSET, state);
                 if (tended_shop(room, state)) {
                     inShop = true;
                     break;
