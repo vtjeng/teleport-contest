@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 815327,
+      "datetime": "20360712191845",
+      "nethackrc": "OPTIONS=name:Completer,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " #optionsfull\n:autocompletions\n\nd\n#cha\u001b\u001b#at\u001b\u001b"
+    }
+  ],
+  "comment": "cmd.c handler_change_autocompletions() witness: #optionsfull opens the autocompletions menu, which preselects every AUTOCOMPLETE command; 'd' adds #attributes and Enter keeps the rest. parseautocomplete() then sets each picked command, so '#cha' still completes to chat and '#at' now completes to attributes."
+}

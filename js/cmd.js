@@ -4094,7 +4094,9 @@ export async function handler_change_autocompletions(state = game) {
         overlay: state.iflags?.menu_overlay !== false,
     });
     if (picks == null) return;
-    const selected = new Set(Array.isArray(picks) ? picks : [picks]);
+    // A PICK_ANY menu answers C's menu_item list as {value, count} entries;
+    // value carries picks[j].item.a_int.
+    const selected = new Set(picks.map((pick) => pick.value));
     for (let index = 0; index < extcmdlist.length; ++index) {
         const entry = extcmdlist[index];
         const entryFlags = flags[index];
