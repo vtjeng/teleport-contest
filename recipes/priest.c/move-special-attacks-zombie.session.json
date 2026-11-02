@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "priest.c move_special() chooses a square that mfndpos() marked ALLOW_M and calls monmove.c m_move_aggress() for it. mon.c mm_2way_aggression() marks a zombie next to the human temple priest that way. The hero level-teleports to Minetown in wizard mode, maps it with ^F, travels to the altar (killing two gnomes that block the way), and creates three kobold zombies. While the hero searches with the m prefix, the priest of Odin swings his mace at the zombies from pri_move() and destroys them.",
+  "segments": [
+    {
+      "seed": 44130,
+      "datetime": "20320214160000",
+      "nethackrc": "OPTIONS=name:Corvin,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0016?\n>w \u0006_  _.  FhFhFh  __.  __.  FjFjFj  __.  __.  __. \u0007kobold zombie\n\u0007kobold zombie\n\u0007kobold zombie\nms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms "
+    }
+  ]
+}
