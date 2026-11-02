@@ -9461,7 +9461,17 @@ export async function handler_autopickup_exception(state, helpers) {
                 : await getlin('What new autopickup exception pattern?', state);
             const pattern = mungspaces(answer ?? '');
             if (pattern[0] === '\x1b') return optn_ok;
-            if (pattern) add_autopickup_exception(state, `"${pattern}"`);
+            if (pattern) {
+                // options.c:6361. add_autopickup_exception() reports through
+                // config_error_add(), which outside a configuration read
+                // prints each message with pline() and wait_synch()
+                // (cfgfiles.c:1557-1563); see configErrorAdd().
+                const liveConfigErrors = [];
+                add_autopickup_exception(
+                    { ga: state.ga, liveConfigErrors }, `"${pattern}"`,
+                );
+                await plineConfigErrors(state, liveConfigErrors);
+            }
             continue;
         }
         const exceptions = [];

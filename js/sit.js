@@ -971,7 +971,9 @@ export async function dosit(state = game, rawEnv = {}) {
 // C ref: sit.c rndcurse() (569-638). Throne, monster spell, prayer and
 // cursed-book effects share inventory selection and the saddle tail.
 export async function rndcurse(state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { rn2, rnd };
+    // curse() and unbless() reach mkobj.c weight() for a bag of holding,
+    // whose object environment requires the whole random set.
+    const random = rawEnv.random ?? { rn1, rn2, rnd, rne, rnz };
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     const objectEnv = objectGenerationEnv({ ...rawEnv, state, random, message });
