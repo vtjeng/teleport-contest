@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "options.c handler_autopickup_exception() add_autopickup_exception(): two patterns that regcomp rejects ('(' unmatched, '<*arrow' with a leading '*') report their config errors through cfgfiles.c config_error_add() pline()/wait_synch(), then a valid '<arrow' is added and listed",
+  "segments": [
+    {
+      "seed": 7310452,
+      "datetime": "20260419153000",
+      "nethackrc": "OPTIONS=name:Ostrava,role:Priest,race:human,gender:male,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\n#optionsfull\n>>>>>>g\na(\n\na<*arrow\n\na<arrow\nl\nx"
+    }
+  ]
+}
