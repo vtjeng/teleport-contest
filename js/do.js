@@ -1150,10 +1150,23 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
         if (u_at(x, y, state) && trap
             && (uteetering_at_seen_pit(trap, state)
                 || uescaped_shaft(trap, state))) {
-            if (is_pit(trap.ttyp) && verb) {
-                await (rawEnv.message ?? ttyPline)(
-                    `${Tobjnam(obj, 'tumble', state)} into a pit.`, state,
-                );
+            // do.c flooreffects() 289-297: C's the_your[t->madeby_u]
+            // names the pit, and its message ignores `verb`.
+            if (is_pit(trap.ttyp)) {
+                const message = rawEnv.message ?? ttyPline;
+                if (heroIsBlind(state) && !heroIsDeaf(state)) {
+                    const heard = youHear(
+                        `${the(xname(obj, state), state)} tumble downwards.`,
+                        state,
+                    );
+                    if (heard) await message(heard, state);
+                } else {
+                    await message(
+                        `${Tobjnam(obj, 'tumble', state)} into `
+                            + `${trap.madeby_u ? 'your' : 'the'} pit.`,
+                        state,
+                    );
+                }
             } else if (await ship_object(obj, x, y, false, {
                 ...rawEnv,
                 state,

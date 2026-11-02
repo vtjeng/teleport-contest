@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "do.c flooreffects() 289-297: an object that lands on the square where the hero teeters at the edge of a seen pit 'tumbles into' the pit named by the_your[t->madeby_u], or, while the hero is blind and not deaf, is heard to 'tumble downwards'. A dwarvish Archeologist digs a pit with her pick-axe (madeby_u), crawls to its edge, drops a touchstone ('your pit'), then wishes for and puts on a blindfold and drops her tinning kit. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 7714093,
+      "datetime": "20480311174500",
+      "nethackrc": "OPTIONS=name:Ottoline,role:Archeologist,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " hae  >   kk  dg  \u0017blindfold\n  Pi  df  "
+    }
+  ]
+}
