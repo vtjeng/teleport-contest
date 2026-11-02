@@ -801,6 +801,17 @@ test('special option handlers preserve C choice order and state fields',
                 ['f', 3, true], ['p', 4, false],
             ],
         );
+        // options.c menutype[][3] and handler_menustyle()'s two Sprintf()
+        // formats: "%-12.12s%c%.60s" for the selectable row and
+        // "%4s%-12.12s%c%.60s" for the unselectable second line, with
+        // ' ' as the separator because menu_tab_sep is off by default.
+        assert.deepEqual(
+            menustyle.spec.items.slice(0, 2).map((item) => item.text),
+            [
+                'traditional  [prompt for object class(es), then',
+                `${' '.repeat(16)}  ask y/n for each item in those classes]`,
+            ],
+        );
 
         const alignMessage = await runHandler('align_message', ALIGN_LEFT);
         assert.equal(alignMessage.state.iflags.wc_align_message, ALIGN_LEFT);

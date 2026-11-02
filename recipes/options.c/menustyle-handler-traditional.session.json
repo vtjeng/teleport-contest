@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recording for options.c:handler_menustyle(), reached through optfn_menustyle()'s do_handler arm from the full options menu. The handler menu shows each menutype[] row with its two description lines; 't' picks traditional and prints the 'changed to' message, a step west plays on, and a second visit takes 'p' (partial) to show the value column and message for another row.",
+  "segments": [
+    {
+      "seed": 58114027,
+      "datetime": "20480622194311",
+      "nethackrc": "OPTIONS=name:Isolde,role:Priest,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #optionsfull\n:menustyle\n\nth#optionsfull\n:menustyle\n\np."
+    }
+  ]
+}

@@ -7389,7 +7389,8 @@ function rolestring(val, array, field) {
 // C ref: options.c unlocktypes[], burdentype[], runmodes[], sortltype[] and
 // menutype[]; insight.c vanqorders[]; o_init.c disco_order_let and
 // disco_orders_descr[]; decl.c disclosure_options; symbols.c
-// known_handling[].  Only the columns the value column shows are kept.
+// known_handling[].  Except for menutype[], only the columns the value
+// column shows are kept.
 // optfn_autounlock() maps each source-table index to 1U << index; this order
 // therefore owns the UNTRAP/APPLY_KEY/KICK/FORCE bits 1/2/4/8.
 const unlocktypes = Object.freeze(['untrap', 'apply-key', 'kick', 'force']);
@@ -7399,8 +7400,17 @@ const burdentype = Object.freeze([
 ]);
 const runmodes = Object.freeze(['teleport', 'run', 'walk', 'crawl']);
 const sortltype = Object.freeze(['none', 'loot', 'full']);
+// menutype[] keeps all three C columns: the name, then the two description
+// lines handler_menustyle() shows under it.
 const menutype = Object.freeze([
-    'traditional', 'combination', 'full', 'partial',
+    ['traditional', '[prompt for object class(es), then',
+        ' ask y/n for each item in those classes]'],
+    ['combination', '[prompt for object class(es), then',
+        ' use menu for items in those classes]'],
+    ['full', '[use menu to choose class(es), then',
+        ' use another menu for items in those]'],
+    ['partial', '[skip class filtering; always',
+        ' use menu of all available items]'],
 ]);
 const objsymvals = Object.freeze([
     'none', 'headers', 'entries', 'both', 'conditional', 'one-or-other',
@@ -7630,7 +7640,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     ),
     menu_objsyms: (state) => objsymvals[state.iflags.menuobjsyms],
     menuinvertmode: (state) => `${state.iflags.menuinvertmode}`,
-    menustyle: (state) => menutype[state.flags.menu_style],
+    menustyle: (state) => menutype[state.flags.menu_style][0],
     msg_window: (state, option) => optfn_msg_window(
         state, allopt.indexOf(option), GET_VAL, false, '', '',
     ),
