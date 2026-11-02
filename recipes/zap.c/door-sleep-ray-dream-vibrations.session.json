@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "zap.c zap_over_floor() 5441-5462 with pline.c You_feel() 388-400: a sleep ray that puts the hero to sleep and then reaches an unseen closed door prints 'You dream that you feel vibrations.' A blindfolded human Wizard zaps a wished-for wand of sleep east at the adjacent wall; the bounced ray hits him and runs on to the closed door three squares west. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 482782,
+      "datetime": "20550314093000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017wand of sleep\n\u0017blindfold\nPoznl  "
+    }
+  ]
+}

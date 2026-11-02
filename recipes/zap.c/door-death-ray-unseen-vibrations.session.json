@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "zap.c zap_over_floor() 5422-5462: a wand-of-death ray (not a death breath) that reaches a closed door takes the ZT_DEATH case's goto def_case, and an unseen door prints 'You feel vibrations.'. A blindfolded elven Wizard zaps a wished-for wand of death west at the closed door two squares away in the start room. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 731502,
+      "datetime": "20550314093000",
+      "nethackrc": "OPTIONS=name:Ozma,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017wand of death\n\u0017blindfold\nPrzqh  "
+    }
+  ]
+}

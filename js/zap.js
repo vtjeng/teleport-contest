@@ -243,7 +243,7 @@ import {
     hits_bars, m_useup, m_useupall, rnd_hallublast, thitu,
 } from './mthrowu.js';
 import { note_unported } from './unported.js';
-import { livelog_printf, set_msg_xy } from './pline.js';
+import { livelog_printf, set_msg_xy, youFeel } from './pline.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
 import { boxlock, doorlock, picking_at, reset_pick } from './lock.js';
@@ -5611,18 +5611,20 @@ export async function zap_over_floor(
             seeText = 'The door freezes and shatters!';
             hearText = 'a deep cracking sound.';
             break;
-        case ZT_DEATH:
-            if (Math.abs(type) === 20 + ZT_DEATH) {
-                newDoormask = D_NODOOR;
-                seeText = 'The door disintegrates!';
-                hearText = 'crashing wood.';
-            }
-            break;
         case ZT_LIGHTNING:
             newDoormask = D_BROKEN;
             seeText = 'The door splinters!';
             hearText = 'crackling.';
             break;
+        case ZT_DEATH:
+            /* death spells/wands don't disintegrate; C jumps to def_case */
+            if (Math.abs(type) === 20 + ZT_DEATH) {
+                newDoormask = D_NODOOR;
+                seeText = 'The door disintegrates!';
+                hearText = 'crashing wood.';
+                break;
+            }
+            // falls through
         default:
             if (exploding_wand_typ > 0
                 && exploding_wand_typ === WAN_STRIKING) {
@@ -5636,7 +5638,7 @@ export async function zap_over_floor(
                     state, env,
                 );
             } else {
-                await message('You feel vibrations.', state, env);
+                await message(youFeel('vibrations.', state), state, env);
             }
             break;
         }
