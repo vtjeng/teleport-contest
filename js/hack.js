@@ -5628,6 +5628,8 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
             // recursive melt_ice()/spoteffects() entry.
             const pit = Boolean(trap && is_pit(trap.ttyp));
             if (pick && !pit) await pickup(1, state);
+            // C done() never returns from a fatal pickup.
+            if (state.program_state?.gameover) return;
             if (trap && (!staticState.trap
                 || staticState.traptyp !== trap.ttyp)) {
                 staticState.trap = trap;

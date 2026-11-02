@@ -1800,6 +1800,9 @@ export async function pickup(what, state = game) {
         }
     }
 
+    // C done() never returns: a fatal_corpse_mistake() inside
+    // pickup_object() ends the game before this floor tail.
+    if (state.program_state?.gameover) return n_tried > 0 ? 1 : 0;
     if (!swallowed && !skipFloorTail) {
         if (hides_under(state.youmonst?.data))
             hideunder(state.youmonst, { state });

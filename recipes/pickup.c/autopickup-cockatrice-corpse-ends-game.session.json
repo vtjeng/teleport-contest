@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 268841,
+      "datetime": "20360902210417",
+      "nethackrc": "OPTIONS=name:Stony,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,autopickup,pickup_types:%,pettype:none,playmode:debug\n",
+      "moves": " \u0017cockatrice corpse\nlh yq "
+    }
+  ],
+  "comment": "pickup.c pickup() witness: autopickup lifts a cockatrice corpse barehanded, so fatal_corpse_mistake() ends the game inside pickup_object(). C's done() does not return, so neither pickup()'s check_here() tail nor the rest of spoteffects() runs, and the final screen keeps topten's wizard-mode notice."
+}
