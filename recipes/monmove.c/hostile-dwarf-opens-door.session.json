@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "monmove.c postmov() opens a closed door with the monster's hands when m_move()'s can_tunnel is false. A hostile dwarf close to the hero loses can_tunnel at monmove.c:1910-1914 although dwarves tunnel, so mon.c mfndpos() offers the closed door through OPENDOOR and postmov() opens it. The port's destination check used the species' tunnels() instead of m_move()'s can_tunnel and refused the move ('mfndpos() door or special terrain movement'). A debug-mode orcish Barbarian teleports to the corridor outside a closed door on level 1, creates a dwarf beside it, teleports just inside the door and waits until the dwarf opens it. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 61833002,
+      "datetime": "20260718161500",
+      "nethackrc": "OPTIONS=name:Ugrut,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none,time\n",
+      "moves": "\u0014  hhhhjj. \u0007dwarf\n \u0014ll.ssssssssssssss"
+    }
+  ]
+}

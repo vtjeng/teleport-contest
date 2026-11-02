@@ -3816,7 +3816,12 @@ export async function m_move(monster, rawEnv = {}) {
     if (monster.mtame && !monster.wormno) {
         // C: `return postmov(mtmp, ptr, omx, omy, dog_move(mtmp, after), ...)`.
         // dochug() is the only reachable caller and passes after == 0.
-        const petStatus = await movePet(monster, false, env);
+        // postmov() opens, unlocks or digs the pet's chosen door with this
+        // m_move() can_tunnel and can_unlock, so the destination check in
+        // dog_move() reads the same values, as ordinary movement's does below.
+        const petStatus = await movePet(
+            monster, false, { ...env, canTunnel, canUnlock },
+        );
         return await postMonsterMove(monster, oldX, oldY, petStatus, env);
     }
 

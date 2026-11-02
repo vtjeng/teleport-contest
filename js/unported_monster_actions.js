@@ -114,7 +114,6 @@ import {
     passes_walls,
     perceives,
     resists_magm,
-    tunnels,
     verysmall,
 } from './mondata.js';
 import {
@@ -887,15 +886,18 @@ function resistsTrapEffect(monster, trapType, env) {
 // a trapped closed door when OPENDOOR is set; postmov() checks the trap before
 // its whole-mask D_CLOSED arm, so retain the D_TRAPPED bit here and let that
 // source-owned boundary run. can_open repeats mon.c mon_allowflags():2067; a
-// wall-walker or a tunneler skips the block instead and leaves the door closed.
-function opensClosedDoor(monster, location, doorMask) {
+// wall-walker or a monster whose m_move() can_tunnel is still set skips the
+// block instead, and digsDestination() admits the door mdig_tunnel() breaks.
+// can_tunnel is m_move()'s own copy: a hostile dwarf close to the hero has
+// lost it at monmove.c:1910-1914 and opens the door with its hands.
+function opensClosedDoor(monster, location, doorMask, canTunnel) {
     const species = monster.data;
     return location?.typ === DOOR
         && (doorMask & D_CLOSED)
         && !(doorMask & D_LOCKED)
         && !(nohands(species) || verysmall(species))
         && !passes_walls(species)
-        && !tunnels(species);
+        && !canTunnel;
 }
 
 // UnblockDoor (monmove.c:1526-1536) writes the doormask and then rebuilds the
@@ -1019,7 +1021,9 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     // beside the block that skips them.
     const inertDoorway = location?.typ === DOOR
         && INERT_DOOR_MASKS.has(doorMask);
-    const opensDoor = opensClosedDoor(monster, location, doorMask);
+    const opensDoor = opensClosedDoor(
+        monster, location, doorMask, env.canTunnel,
+    );
     // C mon.c mfndpos admits UNLOCKDOOR. m_move supplies the same captured
     // can_unlock that its existing postmov door-opening branch consumes.
     const unlocksDoor = location?.typ === DOOR

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "monmove.c m_move() hands a pet's dog_move() result to postmov() with can_tunnel = tunnels(), before the hostile-and-near reduction at 1910-1914, so a tame dwarf skips postmov()'s door-opening block and dig.c mdig_tunnel() breaks the closed door instead (\"You feel an unexpected draft.\"). The port's pet path gave its destination check no can_tunnel and refused the move. Same setup as hostile-dwarf-opens-door, with the dwarf created tame.",
+  "segments": [
+    {
+      "seed": 61833002,
+      "datetime": "20260718161500",
+      "nethackrc": "OPTIONS=name:Ugrut,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none,time\n",
+      "moves": "\u0014  hhhhjj. \u0007tame dwarf\n \u0014ll.ssssssss"
+    }
+  ]
+}
