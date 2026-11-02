@@ -1568,8 +1568,13 @@ async function advanceElapsedTurn(state) {
             // preflightSimpleMonsterActions() reports only the suffix it was
             // able to scan. The live side has already completed the prefix;
             // rebase the expected count so the final source gate compares the
-            // same complete allocation sequence on both sides.
-            initialCapacity: preflight.initialCapacity,
+            // same complete allocation sequence on both sides. The resumed
+            // plan's own capacity decides whether it planned every allocation
+            // (randomMonsterOnly above stops an unburdened plan after the
+            // first), so it, not the first plan's, gates that comparison: a
+            // hero who polymorphs mid-scan out of a burden into a slow form
+            // needs further allocations that the resumed plan never counted.
+            initialCapacity: resumed.initialCapacity,
             upkeepCount: completedUpkeeps + resumed.upkeepCount,
         };
         pendingDeathReplan = Boolean(resumed.heroDeath);
