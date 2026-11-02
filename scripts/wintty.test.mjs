@@ -374,20 +374,34 @@ test('newclipping keeps the complete-screen branch local and gaps small-screen h
     ]);
 });
 
-test('new_status_window invalidates the JavaScript status layout', () => {
+test('new_status_window clears the JavaScript status rows', () => {
     // WIN_STATUS=4 represents an existing C window descriptor; the concrete
     // value only exercises the destroy-before-recreate branch.
     const state = resetGame();
     initUnported();
     state.wintty = { WIN_STATUS: 4 };
     state.disp = { botlx: false };
+    // A cached two-row layout and style, as bot() leaves them; the window
+    // clear must replace both.
+    state._renderedStatusLayouts = [
+        { text: 'old row 1', owners: [] },
+        { text: 'old row 2', owners: [] },
+    ];
+    state._renderedStatusStyles = [[], []];
     new_status_window(state);
 
     assert.equal(state.wintty.WIN_STATUS, WIN_ERR);
+    // wintty.c tty_clear_nhwindow() NHW_STATUS sets disp.botlx.
     assert.equal(state.disp.botlx, true);
-    assert.equal(state._renderedStatusLayouts, null);
+    // Two blank rows: wc2_statuslines is unset, which StatusRows() reads as 2.
+    // recordings/wintty.c/statuslines-preference-clears-status shows C's
+    // blank status rows until the next bot().
+    assert.deepEqual(state._renderedStatusLayouts, [
+        { text: '', owners: [] },
+        { text: '', owners: [] },
+    ]);
+    assert.equal(state._renderedStatusStyles, null);
     assert.deepEqual([...state.unported], [
-        'wintty.c tty_clear_nhwindow',
         'wintty.c tty_destroy_nhwindow',
         'windows.c genl_status_finish',
         'wintty.c tty_status_init',

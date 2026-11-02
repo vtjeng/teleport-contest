@@ -452,20 +452,35 @@ export function newclipping(x, y, state = game, env = {}) {
     }
 }
 
-// wintty.c:491-510.  The browser renderer has no WinDesc status window;
-// invalidating the cached layout and raising disp.botlx is its equivalent of
-// clearing and recreating the status rows.  The underlying tty lifecycle
-// calls remain recorded gaps until their window-port implementations land.
+// C ref: wintty.c tty_clear_nhwindow() NHW_STATUS arm (1059-1073): cl_end()
+// on every status row, spaces in the window's data, and disp.botlx. The
+// port's status window contents are the cached layouts the screen rebuild
+// writes, so blank layouts are the cleared window until bot() repaints it.
+function clear_status_window(state) {
+    const rows = statusRows(state);
+    state._renderedStatusLayouts = Array.from(
+        { length: rows },
+        () => ({ text: '', owners: [] }),
+    );
+    state._renderedStatusStyles = null;
+    const display = state.nhDisplay;
+    if (display?.grid) {
+        for (let row = display.rows - rows; row < display.rows; ++row)
+            display.clearRow(row);
+    }
+    state.disp ??= {};
+    state.disp.botlx = true;
+}
+
+// wintty.c:491-510.  The browser renderer has no WinDesc status window, so
+// both tty_clear_nhwindow(WIN_STATUS) calls clear the cached status rows; the
+// remaining tty lifecycle calls stay recorded gaps until their window-port
+// implementations land.
 export function new_status_window(state = game, env = {}) {
     const wt = winttyState(state);
     const statusId = wt.WIN_STATUS ?? WIN_ERR;
     if (statusId !== WIN_ERR) {
-        callTerminalOperation(
-            state,
-            env.tty_clear_nhwindow,
-            'wintty.c tty_clear_nhwindow',
-            [statusId, state],
-        );
+        clear_status_window(state);
         callTerminalOperation(
             state,
             env.tty_destroy_nhwindow,
@@ -486,17 +501,10 @@ export function new_status_window(state = game, env = {}) {
         'wintty.c tty_status_init',
         [state],
     );
-    callTerminalOperation(
-        state,
-        env.tty_clear_nhwindow,
-        'wintty.c tty_clear_nhwindow',
-        [wt.WIN_STATUS ?? WIN_ERR, state],
-    );
-    // config.h defines STATUS_HILITES.  status_initialize(REASSESS_ONLY) is
-    // already represented by this port's full status refresh flag.
-    state.disp ??= {};
-    state.disp.botlx = true;
-    state._renderedStatusLayouts = null;
+    // wintty.c:503, whose clear also sets disp.botlx.  config.h defines
+    // STATUS_HILITES; status_initialize(REASSESS_ONLY) is already represented
+    // by the full status refresh that flag requests.
+    clear_status_window(state);
 }
 
 // C ref: win/tty/wintty.c tty_init_nhwindows() (511-593). The terminal
@@ -556,8 +564,11 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
 // preference update is a void no-op in this TTY build; statuslines still
 // rebuilds the status window and clipping geometry before that call.
 export function tty_preference_update(pref, state = game) {
+    // The JS startup path does not store window_inited; as in
+    // resize_tty() above, only an explicit false means windows are
+    // not yet initialized.
     const newstatuslines = pref === 'statuslines'
-        && Boolean(state.iflags?.window_inited);
+        && state.iflags?.window_inited !== false;
     if (newstatuslines) {
         new_status_window(state);
         newclipping(state.u?.ux ?? 0, state.u?.uy ?? 0, state);

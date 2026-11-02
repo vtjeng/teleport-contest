@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 662801,
+      "datetime": "20270801103000",
+      "nethackrc": "OPTIONS=name:Optioneer,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": " mO>>e>>>w\r #f\r  mO>>>>>w\r3\r s"
+    }
+  ],
+  "comment": "wintty.c tty_preference_update() and new_status_window(). The full options menu toggles hitpointbar, whose message repaints the status rows, and sets statuslines to the invalid #f. options.c doset() still calls preference_update(\"statuslines\") after parseoptions() rejects the value, so new_status_window()'s tty_clear_nhwindow(WIN_STATUS) blanks both status rows, and they stay blank at the --More-- that precedes the menu's dismissal. A second pass sets statuslines to 3, so the same path rebuilds a three-row status window. Seeds, datetimes, character and inputs were chosen independently of every recorded session."
+}
