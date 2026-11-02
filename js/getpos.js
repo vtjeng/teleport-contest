@@ -26,7 +26,10 @@ import {
     MV_RUSH,
     MV_WALK,
     NHW_MAP,
+    NO_CURS_ON_U,
+    OVERRIDE_MSGTYPE,
     PICK_ONE,
+    SUPPRESS_HISTORY,
     LOOK_ONCE,
     LOOK_QUICK,
     LOOK_TRADITIONAL,
@@ -121,7 +124,9 @@ import {
     S_water,
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
-import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import {
+    clearTtyMessageWindow, ttyCustomPline, ttyPline,
+} from './tty_message.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
 import { tty_create_nhwindow, tty_curs } from './wintty.js';
@@ -520,8 +525,9 @@ export function truncate_to_map(cx, cy, dx, dy) {
 }
 
 // C ref: getpos.c auto_describe() (640-662), under default getpos_coords.
-// ttyPline() flushes with the cursor on the hero, so restore the selected map
-// coordinate after it writes the source firstmatch text.
+// custompline(SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U) replaces
+// the top line through tty_putstr()'s show_topl() arm, rather than sharing
+// it with an earlier message or stopping for --More-- after one.
 async function auto_describe(cx, cy, state) {
     const noTravelPath = state.iflags?.getloc_travelmode
         && !await is_valid_travelpt(cx, cy, state);
@@ -534,19 +540,20 @@ async function auto_describe(cx, cy, state) {
                 && state.getpos_getvalid
                 && !await state.getpos_getvalid(cx, cy, state);
             const coordinate = coord_desc(cx, cy, state);
-            await ttyPline(
+            await ttyCustomPline(
                 description.firstmatch
                 + (coordinate ? ` ${coordinate}` : '')
                 + (invalidTarget ? ' (invalid target)' : '')
                 + (noTravelPath ? ' (no travel path)' : ''),
+                SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U,
                 state,
             );
+            cursorAt(cx, cy, state);
+            await flush_screen(0);
         }
     } catch (e) {
         if (e.name !== 'UnsupportedWhatisError') throw e;
     }
-    cursorAt(cx, cy, state);
-    await flush_screen(0);
 }
 
 // C ref: getpos.c known_vibrating_square_at() (422-431). A genuine

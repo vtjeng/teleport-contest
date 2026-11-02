@@ -8,6 +8,8 @@ import { normalizeSession } from '../frozen/session_loader.mjs';
 import {
     MSGTYP_NORMAL,
     NHW_MESSAGE,
+    NO_CURS_ON_U,
+    OVERRIDE_MSGTYPE,
     SUPPRESS_HISTORY,
     WIN_LOCKHISTORY,
 } from '../js/const.js';
@@ -33,6 +35,7 @@ import {
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     ttyCustomPline,
+    ttyPline,
 } from '../js/tty_message.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { QUEST_PAGER_OUTPUT } from '../js/questpgr.js';
@@ -174,6 +177,26 @@ test('SUPPRESS_HISTORY shows feedback but keeps it out of Ctrl-P history', async
     assert.equal(state._pending_message, 'Unknown command');
     assert.equal(state.nhDisplay.grid[0][0].ch, 'U');
     assert.equal(state.nhDisplay.grid[0][0].color, 8);
+});
+
+// getpos.c auto_describe() passes SUPPRESS_HISTORY | OVERRIDE_MSGTYPE |
+// NO_CURS_ON_U. tty_putstr() sends ATR_NOHISTORY text to show_topl(), which
+// overwrites a TOPLINE_NEED_MORE line instead of joining it ("You cannot see
+// any monsters.  a boulder") as update_topl() would. The two texts are the
+// getpos_menu() refusal and an autodescribed boulder.
+test('auto_describe flags replace an unacknowledged message', async () => {
+    const state = historyState();
+    await ttyPline('You cannot see any monsters.', state);
+    assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
+
+    await ttyCustomPline('a boulder',
+        SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U, state);
+
+    const row = state.nhDisplay.grid[0].map((cell) => cell.ch).join('');
+    assert.equal(row.trimEnd(), 'a boulder');
+    const win = state.wintty.wins[state.wintty.messageWindow];
+    assert.equal(win.data[0], 'You cannot see any monsters.');
+    assert.equal(state._ttyToplines, '');
 });
 
 test('reversed history places the current topline before newest-to-oldest entries', async () => {

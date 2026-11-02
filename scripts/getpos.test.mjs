@@ -332,9 +332,11 @@ test('getpos automatic descriptions include configured compass coordinates', asy
         glyph: cmap_to_glyph(S_room, game),
     };
     const descriptions = [];
+    // auto_describe() writes through show_topl(), which leaves gt.toplines
+    // empty, so read the displayed top line rather than the history line.
     game._preNhgetchHook = async () => {
         if (game.gg.getposx === target.x && game.gg.getposy === target.y)
-            descriptions.push(game._ttyToplines);
+            descriptions.push(game._pending_message);
     };
     queueKeys('l'.charCodeAt(0), 0x1B);
     try {
