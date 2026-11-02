@@ -29,6 +29,7 @@ The source-pinned tests and the generators read the C and Lua source from
 | Synthetic batches | Hosted Checkpoint, or `node scripts/score-challenges.mjs --batch v<N> --output <file>` | `challenges/manifest.json` (v1), `challenges/manifests/` (v2 to v98), `challenges/cases/` | The same comparison over the 98 admitted batches. |
 | Session scan | Part of Checkpoint | The fixed sessions | `scan-sessions.mjs --json`, plus `check-overread.mjs`, which fails if a replay reads past the end of its input. |
 | Excluded commits | Part of `npm test` | `scripts/excluded-window.test.mjs` | Fails if game code repeats four consecutive lines that commits `736b8cd04..15ed31f2d` added. |
+| Judge entry point | Part of `npm test` | `scripts/run-segment-imports.test.mjs` | Fails if a file outside `frozen/` takes the judge's `runSegment` from `js/jsmain.js`, which ends a crashed segment instead of throwing, rather than `runSegmentStrict`. |
 | Known failures | Part of `npm test` | `scripts/known-failures.test.mjs` | Recordings that do not match yet, reported as `# TODO` without failing the suite. |
 
 ## Full validation

@@ -264,6 +264,14 @@ export class NethackGame {
         this._animFramesByStep = [];
         this._pendingAnimFrames = [];
         this._lastRngIdx = 0;
+        // This segment's RNG log. rng.js keeps one log per process, and
+        // start() replaces it with a fresh one, so until then the process log
+        // still holds the previous segment's calls; a segment that stops
+        // before that point has logged none.
+        this._rngLog = [];
+        // runSegment() records here the error that ended the segment early,
+        // as { name, message, stack }; null when nothing crashed.
+        this.segmentError = null;
         this._themeroomSelectionCollector
             = opts.themeroomSelectionCollector ?? null;
     }
@@ -327,6 +335,7 @@ export class NethackGame {
         // C initializes the game RNG before reading the configuration file.
         initRng(this._seed);
         enableRngLog();
+        this._rngLog = getRngLog();
 
         // choose_windows(DEFAULT_WINDOW_SYS) (unixmain.c:104) installs the tty
         // window procs long before init_nhwindows(), so raw_print() already
@@ -687,7 +696,7 @@ export class NethackGame {
 
     getScreens() { return this._screens; }
     getCursors() { return this._cursors; }
-    getRngLog() { return getRngLog(); }
+    getRngLog() { return this._rngLog; }
     // Per-step PRNG slices, parallel to getScreens(). Each entry is the
     // log of PRNG calls that fired since the previous capture (i.e.
     // since the previous nhgetch). Useful for tooling like the PS
@@ -770,10 +779,35 @@ export function segmentIterationLimit(movesLength) {
 // swallows it, so an observer has no other way to learn which unported path
 // the segment reached.
 //
-// runSegmentStrict() is the same entry point under the name every local test
-// and tool will import.
+// Two entry points share playSegment() and differ only in what an error that
+// is neither a boundary refusal nor input exhaustion does:
+//
+// - runSegment() is the judge's. frozen/ps_test_runner.mjs discards a
+//   segment's output, and every later segment's, when the call throws, so a
+//   crash here ends the segment the way a refusal does: the returned game
+//   keeps every screen, cursor, animation frame and RNG call captured before
+//   the crash, records the error as game.segmentError, and passes it to
+//   options.onError.  It skips finishTerminatedSegment(): that capture mirrors
+//   nh_terminate() after moveloop() returns, and a crashed segment never
+//   reached that point, so its state says nothing about what C would show
+//   there.
+// - runSegmentStrict() rethrows the error. Every local test and tool uses it,
+//   so a crash fails them instead of passing as a short replay;
+//   scripts/run-segment-imports.test.mjs fails when a file imports the
+//   judge's entry point instead.
 export async function runSegment(input, options = {}) {
-    return runSegmentStrict(input, options);
+    const nhGame = createSegmentGame(input, options);
+    try {
+        await playSegment(nhGame, input, options);
+    } catch (error) {
+        nhGame.segmentError = {
+            name: error instanceof Error ? error.name : typeof error,
+            message: String(error instanceof Error ? error.message : error),
+            stack: error instanceof Error ? error.stack ?? null : null,
+        };
+        options.onError?.(error);
+    }
+    return nhGame;
 }
 
 export async function runSegmentStrict(input, options = {}) {
