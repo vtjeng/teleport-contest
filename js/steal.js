@@ -859,7 +859,7 @@ export async function steal(
                 nomul(-armordelay, state);
                 state.multi_reason = 'taking off clothes';
                 state.nomovemsg = null;
-                await remove_worn_item(otmp, true, state);
+                await remove_worn_item(otmp, true, state, { ...env, message });
                 otmp.cursed = curssv;
                 if ((state.multi ?? 0) < 0) {
                     state.gs ??= {};
@@ -884,7 +884,7 @@ export async function steal(
         await worn_item_removal(mtmp, item, state, { ...env, message });
         // if the weapon was also wielded after uchain processing
         if (otmp.owornmask & W_WEAPONS)
-            await remove_worn_item(otmp, false, state);
+            await remove_worn_item(otmp, false, state, { ...env, message });
     }
 
     // do this before removing it from inventory
