@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "sit.c rndcurse() from pray.c angrygods() case 4/5 after an early prayer: the curse lands on an uncursed bag of holding, so mkobj.c curse() reweighs it through weight(); a Caveman has no intrinsic for attrcurse() to remove, so rndcurse() always runs on that branch",
+  "segments": [
+    {
+      "seed": 482916,
+      "datetime": "20250722091500",
+      "nethackrc": "OPTIONS=name:Hrefna,role:Caveman,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\n\u0017uncursed bag of holding\n#pray\ny\n\n\n\ni\u001b"
+    }
+  ]
+}
