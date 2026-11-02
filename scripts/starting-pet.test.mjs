@@ -242,7 +242,7 @@ test('makedog creates a named random dog with exact startup state and RNG', asyn
     assert.equal(state.u.uconduct.pets, 1);
 });
 
-test('see_nearby_monsters records each newly visible adjacent species', () => {
+test('see_nearby_monsters records each newly visible adjacent species', async () => {
     const state = startingPetState();
     state.u.uprops = [];
     state.viz_array = Array.from(
@@ -262,7 +262,7 @@ test('see_nearby_monsters records each newly visible adjacent species', () => {
     state.level.monlist = kitten;
     state.viz_array[kitten.my][kitten.mx] = COULD_SEE | IN_SIGHT;
 
-    assert.equal(see_nearby_monsters(state), 1);
+    assert.equal(await see_nearby_monsters(state), 1);
     assert.equal(state.mvitals[PM_KITTEN].seen_close, 1);
     assert.equal(state.context.lifelist.total_seen_upclose, 1);
     assert.deepEqual(
@@ -270,15 +270,15 @@ test('see_nearby_monsters records each newly visible adjacent species', () => {
         { x: kitten.mx, y: kitten.my },
     );
     assert.equal(state.gn.notonhead, false);
-    assert.equal(see_nearby_monsters(state), 0);
+    assert.equal(await see_nearby_monsters(state), 0);
 
     state.mvitals[PM_KITTEN].seen_close = 0;
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
-    assert.equal(see_nearby_monsters(state), 0);
+    assert.equal(await see_nearby_monsters(state), 0);
     assert.equal(state.mvitals[PM_KITTEN].seen_close, 0);
 });
 
-test('see_nearby_monsters records an adjacent worm tail separately', () => {
+test('see_nearby_monsters records an adjacent worm tail separately', async () => {
     const state = startingPetState();
     state.u.uprops = [];
     state.viz_array = Array.from(
@@ -301,12 +301,12 @@ test('see_nearby_monsters records an adjacent worm tail separately', () => {
     state.viz_array[tailY][tailX] = COULD_SEE | IN_SIGHT;
     state.viz_array[worm.my][worm.mx] = COULD_SEE | IN_SIGHT;
 
-    assert.equal(see_nearby_monsters(state), 1);
+    assert.equal(await see_nearby_monsters(state), 1);
     assert.equal(state.mvitals[PM_LONG_WORM].seen_close, 0);
     assert.equal(state.mvitals[PM_LONG_WORM_TAIL].seen_close, 1);
     assert.equal(state.gn.notonhead, true);
     assert.deepEqual(state.gb.bhitpos, { x: tailX, y: tailY });
-    assert.equal(see_monster_closeup(worm, true, {
+    assert.equal(await see_monster_closeup(worm, true, {
         state,
         observedAt: { x: tailX, y: tailY },
     }), true);
@@ -317,7 +317,7 @@ test('see_nearby_monsters records an adjacent worm tail separately', () => {
     // A stale tail flag must not turn a real-head observation into another
     // tail record; the explicit coordinate owns the source notonhead value.
     state.gn.notonhead = true;
-    assert.equal(see_monster_closeup(worm, true, {
+    assert.equal(await see_monster_closeup(worm, true, {
         state,
         observedAt: { x: worm.mx, y: worm.my },
     }), true);

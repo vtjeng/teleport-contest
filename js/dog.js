@@ -144,6 +144,7 @@ import {
     PM_RANGER,
     PM_SAMURAI,
     PM_SHOCKING_SPHERE,
+    PM_TOURIST,
     S_LIGHT,
     S_DOG,
 } from './monsters.js';
@@ -170,6 +171,7 @@ import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
 import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
+import { experience, more_experienced, newexplevel } from './exper.js';
 import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
 import { del_light_source } from './light.js';
@@ -652,7 +654,7 @@ function setMonsterObservationPosition(monster, observedAt, state) {
 // stale global context from changing which vital is recorded. Startup monsters
 // are undisguised; the representation below also handles the source's
 // monster-appearance case.
-export function see_monster_closeup(monster, photo = false, env = {}) {
+export async function see_monster_closeup(monster, photo = false, env = {}) {
     const { state } = dogEnv(env);
     const hero = state.u;
     const hallucinating = propertyActive(hero, HALLUC)
@@ -704,6 +706,24 @@ export function see_monster_closeup(monster, photo = false, env = {}) {
             state.context.lifelist.total_photographed = Math.trunc(
                 state.context.lifelist.total_photographed ?? 0,
             ) + 1;
+
+            /* "tourist earns points (toward EXP but not final score) for
+               the first instance of each type of monster photographed;
+               worm tail can be photographed but yields no EXP bonus" */
+            if (state.urole?.mnum === PM_TOURIST
+                /* "suppress extra points for photographing the pet that
+                   hero started with (unless it has changed shape due to
+                   growing up or being polymorphed)" */
+                && (monster.m_id !== state.context.startingpet_mid
+                    || mndx !== state.context.startingpet_typ)
+                /* "monsndx() check covers worm tail and also disguised
+                   Wizard of Yendor" */
+                && mndx === monster.data.pmidx) {
+                more_experienced(experience(monster, 0, state), 0, state);
+                await newexplevel(state, {
+                    message: env.message ?? ttyPline,
+                });
+            }
         }
     }
     return true;
@@ -711,7 +731,7 @@ export function see_monster_closeup(monster, photo = false, env = {}) {
 
 // C ref: mon.c see_nearby_monsters(). Mark each newly visible adjacent
 // species as seen up close after the hero's time-consuming action.
-export function see_nearby_monsters(state = game, env = {}) {
+export async function see_nearby_monsters(state = game, env = {}) {
     const hero = state.u;
     const hallucinating = propertyActive(hero, HALLUC)
         && !propertyActive(hero, HALLUC_RES);
@@ -735,7 +755,7 @@ export function see_nearby_monsters(state = game, env = {}) {
                 continue;
             }
             setMonsterObservationPosition(monster, { x, y }, state);
-            if (see_monster_closeup(monster, false, {
+            if (await see_monster_closeup(monster, false, {
                 ...env,
                 state,
                 observedAt: { x, y },
@@ -783,7 +803,7 @@ export async function makedog(env = {}) {
             { x: monster.mx, y: monster.my },
             state,
         );
-        see_monster_closeup(
+        await see_monster_closeup(
             monster,
             carryingType(state, EXPENSIVE_CAMERA),
             normalized,

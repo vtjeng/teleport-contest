@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mon.c see_monster_closeup() 5999-6018 from apply.c do_blinding_ray(): a Tourist earns experience(mtmp, 0) points and a newexplevel() check the first time she photographs each species with her expensive camera, except her unchanged starting pet. A Tourist with showexp photographs her little dog (no points), creates a peaceful dwarf lord and photographs it (20 points, experience level 2), then photographs it again (no points). Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 5092261,
+      "datetime": "20510914083000",
+      "nethackrc": "OPTIONS=name:Wendell,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,pettype:dog,showexp,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " ajy  \u0007peaceful dwarf lord\n  ajj    ajj    "
+    }
+  ]
+}
