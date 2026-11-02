@@ -981,11 +981,14 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
             );
             await burn_away_slime(state, rawEnv);
             const damage = random.d(fireResistant ? 1 : 3, 6);
+            // A planned monster throw stops at a lethal hit, before done();
+            // the live pass repeats the throw and owns the death.
             await losehp(
                 maybeHalfPhysical(damage, state),
                 'molten lava',
                 KILLED_BY,
                 state,
+                rawEnv.planning ? { planning: true, message } : {},
             );
         } else if (!fillsUp && state.flags?.verbose !== false
             && (pushing ? !heroIsBlind(state) : cansee(rx, ry, state))) {
@@ -1074,6 +1077,8 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                         'squished under a boulder',
                         NO_KILLER_PREFIX,
                         state,
+                        rawEnv.planning
+                            ? { planning: true, message: rawEnv.message } : {},
                     );
                     // C jumps to deletedwithboulder after squishing the hero,
                     // skipping the later generic pit-filling message.

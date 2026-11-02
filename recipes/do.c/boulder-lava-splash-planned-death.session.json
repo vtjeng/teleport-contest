@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A monster's thrown boulder kills the hero with molten lava inside a planned monster turn. A levitating Priest wearing a +9 ring of protection floats over a pool of lava that wizard-mode wishes surround with lava, so wizard-created hill giants stay two squares away and throw boulders. A boulder that misses drops on the hero's lava square; do.c boulder_hits_pool() splashes the hero (next2u() includes distance 0) and losehp() kills him. Wizard mode answers Die? with the default n, so savelife() runs. Seed, date and inputs chosen independently. The final escape dismisses the Call prompt for a scroll a giant read.",
+  "segments": [
+    {
+      "seed": 8830417,
+      "datetime": "20390322201544",
+      "nethackrc": "OPTIONS=name:Splash,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time\n",
+      "moves": "\u0017uncursed ring of levitation\nPir \u0017uncursed +9 ring of protection\nPjkkk\u0017lava\nl\u0017lava\nl\u0017lava\nj\u0017lava\nj\u0017lava\nh\u0017lava\nh\u0017lava\nk\u0017lava\nl\u0017lava\nms\u0007hill giant\n\u0007hill giant\n\u0007hill giant\n\u0007hill giant\n\u0007hill giant\n\u0007hill giant\n\u0007hill giant\n\u0007hill giant\n\u0007hill giant\n\u0007hill giant\nms   ms   ms   ms   \u001b"
+    }
+  ]
+}
