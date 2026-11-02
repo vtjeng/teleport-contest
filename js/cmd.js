@@ -1456,8 +1456,11 @@ export async function doextlist(state = game) {
             choices.set('s', 2); // source group accelerator for the ':' row
         } else {
             choices.set('s', 3);
-            // The ':' group synonym loses to wintty's MENU_SEARCH arm;
-            // leaving it out here preserves that backend precedence.
+            // The row's ':' group accelerator is unique, so wintty.c
+            // process_menu_window() puts it in gacc[] and, for PICK_ONE,
+            // inside resp_len: it is an explicit choice that wins over the
+            // MENU_SEARCH command.
+            choices.set(':', 3);
         }
         if (state.wizard) choices.set('z', 4);
         const choice = await select_menu(state, {

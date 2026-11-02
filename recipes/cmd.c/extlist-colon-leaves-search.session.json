@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731904,
+      "datetime": "20360921083344",
+      "nethackrc": "OPTIONS=name:Lister,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " #?\n:loot\n:\u001b"
+    }
+  ],
+  "comment": "cmd.c doextlist() witness: ':' starts a search, and on the search-results menu ':' is the unique group accelerator of \"Switch back from search\". wintty.c process_menu_window() keeps a PICK_ONE group accelerator inside resp_len, so it is an explicit choice that wins over MENU_SEARCH and redisplays the full list."
+}
