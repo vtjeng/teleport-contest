@@ -1263,6 +1263,15 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         unmul: (msg) => unmul(msg, state),
     });
     if (vault?.beforeInput) return { beforeVaultInput: true };
+    const result = await finishElapsedTurnAfterVault(state, random, { planning });
+    // The dry run stopped at the guard's question, so the live pass plans the
+    // rest of this turn's allocations again once the answer is in.
+    return vault?.afterInput ? { ...result, afterVaultInput: true } : result;
+}
+
+// C ref: allmain.c moveloop_core(), upkeep after vault.c invault().
+async function finishElapsedTurnAfterVault(state, random, { planning = false } = {}) {
+    const turnMessage = planning ? async () => {} : ttyPline;
     if (state.u.uhave?.amulet)
         await amulet(state, { random, message: turnMessage });
     maybeWipeHeroEngraving(state, random);
@@ -1695,6 +1704,7 @@ async function advanceElapsedTurn(state) {
             let afterChange;
             let afterLevelEffects;
             let afterStorms;
+            let afterVaultInput;
             try {
                 const result = await finishElapsedTurn(state, random, {
                     timeoutHandoff: preflight.beforeTimeout
@@ -1709,6 +1719,7 @@ async function advanceElapsedTurn(state) {
                 afterChange = result?.afterChange;
                 afterLevelEffects = result?.afterLevelEffects;
                 afterStorms = result?.afterStorms;
+                afterVaultInput = result?.afterVaultInput;
             } catch (error) {
                 // A live-only timeout and its fresh tail can reach existing
                 // command or upkeep refusals after the prefix has completed.
@@ -1765,8 +1776,12 @@ async function advanceElapsedTurn(state) {
                 && upkeepCount === preflight.upkeepCount && !afterStorms) {
                 throw new Error('elapsed-turn preflight disagreed with live storms');
             }
+            if (preflight.beforeVaultInput
+                && upkeepCount === preflight.upkeepCount && !afterVaultInput) {
+                throw new Error('elapsed-turn preflight disagreed with live vault guard question');
+            }
             if (!pendingDeathReplan
-                && (afterStorms || afterLevelEffects || afterUnmul || afterTimeout || afterHunger || afterIntervention || afterTeleport || afterSearch || afterChange)
+                && (afterStorms || afterLevelEffects || afterUnmul || afterTimeout || afterHunger || afterIntervention || afterTeleport || afterSearch || afterChange || afterVaultInput)
                 && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,

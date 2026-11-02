@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "vault.c invault() asks the guard's question during allmain.c moveloop_core()'s once-per-turn upkeep, and the turn then goes on allocating movement. The port's dry run of the turn stops at that question, so the live pass must plan the remaining allocations after the answer. A debug-mode Monk at experience level 6 digs into a closed vault, wishes for a heavy iron ball, polymorphs into a gnome (Strained, so each action takes several allocations) and searches until the guard arrives on a non-final allocation. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 30571188,
+      "datetime": "20250911214500",
+      "nethackrc": "OPTIONS=name:Bertil,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,!splash_screen,pettype:none,time\n",
+      "moves": "#wizmap\n\u00162\n#wizmap\n\u00163\n#wizmap\n\u00164\n#wizmap\n#levelchange\n6\n\u001b\u0014  HHHHHHhhhjjj.\u0017wand of digging\nzkhhhhhhhhhhh\u0017heavy iron ball\n  #polyself\ngnome\n    60s Bertil\n"
+    }
+  ]
+}
