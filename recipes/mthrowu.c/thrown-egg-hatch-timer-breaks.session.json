@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4417203,
+      "datetime": "20270922093011",
+      "nethackrc": "OPTIONS=name:Eggcatcher,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup,!tips\n",
+      "moves": "\u0017cockatrice egg\n\u001bdf\u0007hill orc\n\u001b\u0014 llll.sss m."
+    }
+  ],
+  "comment": "mthrowu.c drop_throw() breaks a monster's egg that hits. The wished cockatrice egg carries objnam.c set_corpsenm()'s hatch timer. The hero drops it beside a new hill orc and teleports four squares east along the row, so the orc steps onto the egg, picks it up and, lined up two squares away, throws it under weapon.c select_rwep()'s Oselect(EGG). The hit makes drop_throw() call delobj(), whose mkobj.c obfree() runs obj_stop_timers() on the hatch timer. The hero is then stoned; m. rests one turn."
+}
