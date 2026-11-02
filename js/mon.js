@@ -1601,6 +1601,10 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
 // C ref: mon.c meatmetal() (1463-1531).
 export async function meatmetal(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    // newsym() through the caller's redraw, which a planning scan of
+    // monmove.c postmov() replaces with a no-op so that hallucinatory
+    // glyphs do not draw from the live display RNG.
+    const redraw = rawEnv.redraw ?? newsym;
     const random = rawEnv.random ?? { rn2, rnd };
     const visible = canseemon(mtmp, state);
     if (mtmp.mtame) return 0;
@@ -1667,7 +1671,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
                 ...objectGenerationEnv({ ...rawEnv, state, random }),
             });
         }
-        newsym(mtmp.mx, mtmp.my, state);
+        redraw(mtmp.mx, mtmp.my, state);
         return 1;
     }
     return 0;
@@ -1676,6 +1680,10 @@ export async function meatmetal(mtmp, rawEnv = {}) {
 // C ref: mon.c meatobj() (1533-1653).
 export async function meatobj(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    // newsym() through the caller's redraw, which a planning scan of
+    // monmove.c postmov() replaces with a no-op so that hallucinatory
+    // glyphs do not draw from the live display RNG.
+    const redraw = rawEnv.redraw ?? newsym;
     if (mtmp.mtame) return 0;
     const original = mtmp.data;
     let count = 0;
@@ -1693,7 +1701,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
             const ox = obj.ox;
             const oy = obj.oy;
             const revived = await revive_corpse(obj, state, rawEnv);
-            newsym(ox, oy, state);
+            redraw(ox, oy, state);
             if (!revived) {
                 obj = nextObj;
                 continue;
@@ -1758,7 +1766,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
             await m_consume_obj(mtmp, obj, { ...rawEnv, state });
             if (mtmp.data !== original) return mtmp.data ? 1 : 2;
         }
-        if (mtmp.minvis) newsym(mtmp.mx, mtmp.my, state);
+        if (mtmp.minvis) redraw(mtmp.mx, mtmp.my, state);
         obj = nextObj;
     }
     if (engulfed && state.flags?.verbose) {
@@ -1779,6 +1787,10 @@ export async function meatobj(mtmp, rawEnv = {}) {
 // C ref: mon.c meatcorpse() (1656-1723).
 export async function meatcorpse(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    // newsym() through the caller's redraw, which a planning scan of
+    // monmove.c postmov() replaces with a no-op so that hallucinatory
+    // glyphs do not draw from the live display RNG.
+    const redraw = rawEnv.redraw ?? newsym;
     if (mtmp.mtame) return 0;
     const original = mtmp.data;
     const x = mtmp.mx;
@@ -1791,7 +1803,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
                 && !Resists_Elem(mtmp, STONE_RES, state))) continue;
         if (is_rider(species)) {
             const revived = await revive_corpse(obj, state, rawEnv);
-            newsym(x, y, state);
+            redraw(x, y, state);
             if (!revived) continue;
             break;
         }
@@ -1815,7 +1827,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
         }
         await m_consume_obj(mtmp, obj, { ...rawEnv, state });
         if (mtmp.data !== original) return mtmp.data ? 1 : 2;
-        if (mtmp.minvis) newsym(x, y, state);
+        if (mtmp.minvis) redraw(x, y, state);
         return 1;
     }
     return 0;

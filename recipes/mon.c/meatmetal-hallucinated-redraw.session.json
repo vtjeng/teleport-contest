@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2690417,
+      "datetime": "20370724170305",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "\u0017potion of hallucination\n\u001710 daggers\n\u001bqe\u001bdb\u0007rock mole\n\u001bbbssssssssssssssssssssssssssssssssssssssss"
+    }
+  ],
+  "comment": "Independent mon.c meatmetal() witness: a hallucinating dwarf Valkyrie drops a stack of daggers, summons a rock mole beside them and steps away while she searches. When the mole eats a dagger, meatmetal() calls newsym(), which draws hallucinatory glyphs from the display RNG. monmove.c postmov() runs only once per monster move, so the port must not repeat that newsym() during its planning pass; doing so consumed extra display draws and changed later hallucinatory monster letters."
+}
