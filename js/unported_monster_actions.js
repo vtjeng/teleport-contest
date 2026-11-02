@@ -180,7 +180,7 @@ import {
 
 
 import { rloc } from './teleport.js';
-import { ttyPline, ttyPlineWillWait } from './tty_message.js';
+import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { passive_obj } from './uhitm.js';
 import { clear_bypasses } from './worn.js';
@@ -1286,11 +1286,11 @@ async function moveSimplePet(monster, after, env) {
 // muse.c use_offensive()'s hurled potion -- bind the same set, so the flight
 // itself behaves identically whichever announcement preceded it.
 //
-// `message` and `throwMissile` are one pair: during planning the announcement
-// is not printed but is measured, and a --More-- there means C stops for input
-// before the missile moves, so the clone leaves the flight to the live pass.
+// The planning clone flies the missile even when the live announcement will
+// stop at --More--: that wait reads a key but changes no game state, so the
+// rest of the clone's scan must see the missile's effects (a hurled potion of
+// paralysis sets multi, which decides the elapsed turn's search and unmul).
 function monsterMissileEnv(monster, env) {
-    let plannedAnnouncementWaits = false;
     return {
         canSeeMonster: (subject) => canseemon(subject, env.state),
         canSeeSquare: (x, y) => cansee(x, y, env.state),
@@ -1376,11 +1376,7 @@ function monsterMissileEnv(monster, env) {
                         ? async () => {} : encumber_msg,
                 },
             ),
-        message: env.planning
-            ? async (text, state) => {
-                plannedAnnouncementWaits = ttyPlineWillWait(text, state);
-            }
-            : ttyPline,
+        message: env.planning ? async () => {} : ttyPline,
         monsterAt: (x, y, state) => m_at(x, y, state),
         monsterName: (subject) => capitalizedMonsterName(
             subject,
@@ -1428,10 +1424,7 @@ function monsterMissileEnv(monster, env) {
         }),
         temporaryDisplay: env.planning ? async () => {} : tmp_at,
         swingVerb: (obj, bash, actionEnv) => mswings_verb(obj, bash, actionEnv),
-        throwMissile: env.planning
-            ? (...args) => plannedAnnouncementWaits
-                ? undefined : m_throw(...args)
-            : m_throw,
+        throwMissile: m_throw,
         unsupported,
     };
 }
