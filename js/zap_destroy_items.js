@@ -19,6 +19,7 @@ import {
 import { exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import {
+    hcolor,
     monsterPossessive,
 } from './do_name.js';
 import { losehp } from './hack.js';
@@ -238,17 +239,13 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
         if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
             skip = true;
             if (u_carry ? !heroIsBlind(state) : vis) {
-                // hcolor("dark red") answers its argument for a hero who is not
-                // hallucinating, and rndcolor() draws for one who is; nothing
-                // ported hallucinates and js/zap.js stops a hallucinating hero
-                // several calls above this one.
                 await message(
                     `${The(
                         u_carry
                             ? xnameFresh(obj, state)
                             : distant_name(obj, xnameFresh, state),
                         state,
-                    )} glows a strange dark red, but remains intact.`,
+                    )} glows a strange ${hcolor('dark red', state)}, but remains intact.`,
                     state,
                 );
             }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "zap.c maybe_destroy_item() 5828-5836: fire reaching a carried Book of the Dead prints 'glows a strange <hcolor(\"dark red\")>', and a hallucinating hero draws that colour from the display RNG (do_name.c hcolor()). A dwarven Valkyrie, whose start kit holds nothing else fire can destroy, wishes for and quaffs a potion of hallucination, puts on a ring of fire resistance, wishes for the Book of the Dead and zaps a wand of fire at herself. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 5180447,
+      "datetime": "20510922141500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017potion of hallucination\nqf\u0017Book of the Dead\n\u0017wand of fire\nzh.     ss"
+    }
+  ]
+}
