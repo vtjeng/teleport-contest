@@ -500,7 +500,10 @@ export async function dog_hunger(monster, edog, rawEnv = {}) {
                 );
             }
             if (env.stopOccupation) await env.stopOccupation(env);
-            else await stop_occupation(state, env);
+            // dogmove.c:386.
+            else await stop_occupation(state, {
+                ...env, message: env.message ?? ttyPline,
+            });
         } else if (moves > edog.hungrytime + DOG_STARVE || monster.mhp < 1) {
             await starve();
             return true;

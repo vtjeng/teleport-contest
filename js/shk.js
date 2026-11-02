@@ -3870,7 +3870,9 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
         }
     }
 
-    if (stopPicking) await stop_occupation(state, env);
+    // shk.c:4838.
+    if (stopPicking)
+        await stop_occupation(state, { ...env, message: env.message ?? ttyPline });
     litter_newsyms(litter, x, y);
     if (disposition < 3) disposition = 2;
     return disposition;

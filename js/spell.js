@@ -928,7 +928,8 @@ export async function study_book(spellbook, state = game, env = {}) {
                 state,
             );
             dullbook += random.rnd(2 * level);
-            await fall_asleep(-dullbook, true, state, env);
+            // spell.c:491.
+            await fall_asleep(-dullbook, true, state, { ...env, message });
             return 1;
         }
     }

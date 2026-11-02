@@ -2505,7 +2505,12 @@ export async function rot_corpse(arg, timeout, rawEnv = {}) {
             const { remove_worn_item } = await import('./steal.js');
             await remove_worn_item(obj, true, state, env);
             const { stop_occupation } = await import('./allmain.js');
-            await stop_occupation(state, env);
+            // dig.c:2165.
+            await stop_occupation(state, {
+                ...env,
+                message: env.message
+                    ?? (env.planning ? async () => {} : ttyPline),
+            });
         }
     } else if (obj.where === OBJ_MINVENT) {
         if (obj.owornmask && obj === obj.ocarry.mw)

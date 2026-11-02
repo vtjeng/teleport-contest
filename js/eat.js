@@ -3275,8 +3275,9 @@ async function fpostfx(otmp, state, env = {}) {
                 );
                 if (heard !== null) await message(heard, state);
             }
+            // eat.c:2595.
             await fall_asleep(
-                -random.rn1(11, 20), true, state, effectEnv,
+                -random.rn1(11, 20), true, state, { ...effectEnv, message },
             );
         }
         break;

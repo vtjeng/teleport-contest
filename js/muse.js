@@ -534,7 +534,8 @@ async function mplayhorn(mtmp, otmp, self, state, rawEnv = {}) {
             rawEnv,
         );
         discover_object(otmp.otyp, true, true, true, state, rawEnv); /* makeknown */
-        await stop_occupation(state);
+        // muse.c:230.
+        await stop_occupation(state, { ...rawEnv, message });
     }
     otmp.spe -= 1; /* use a charge */
 }
@@ -2303,7 +2304,8 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
             } else {
                 await message('The wand misses you.', state);
             }
-            await stop_occupation(state);
+            // muse.c:1630.
+            await stop_occupation(state, { ...discoveryEnv, message });
             nomul(0, state);
         } else if (resists_magm(mtmp, state)) {
             await shieldeff(mtmp.mx, mtmp.my, state);

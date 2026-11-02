@@ -1344,7 +1344,8 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
                 state,
                 canSpotMonster: (subject) => canspotmon(subject, state),
                 couldSee: (targetX, targetY) => couldsee(targetX, targetY, state),
-                stopOccupation: () => stop_occupation(state, env),
+                // teleport.c:1763 dochugw() -> monmove.c:235.
+                stopOccupation: () => stop_occupation(state, { ...env, message }),
             }), afterOccupation);
         }
         return afterOccupation();

@@ -1691,8 +1691,10 @@ async function peffect_sleeping(otmp, state = game, env = {}) {
     } else {
         await ttyPline('You suddenly fall asleep!', state);
         monstunseesu(M_SEEN_SLEEP, state);
+        // potion.c:909.
         await fall_asleep(
-            -rn1(10, 25 - 12 * bcsign(otmp)), true, state, env,
+            -rn1(10, 25 - 12 * bcsign(otmp)), true, state,
+            { ...env, message: env.message ?? ttyPline },
         );
     }
 }

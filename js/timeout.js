@@ -1503,6 +1503,9 @@ async function decrement_property_timeouts(state, env) {
     const u = state.u;
     const random = env.random ?? { d, rn2, rnd };
     const message = env.message ?? ttyPline;
+    // timeout.c:735-790 call stop_occupation() and fall_asleep(), whose
+    // "You stop %s." line needs the same message() as this function's own.
+    const occupationEnv = { ...env, message };
     const wasFlying = Flying(state);
     const encumberMessage = (subject) => encumber_msg(subject, { message });
     for (let index = 0; index < (u.uprops?.length ?? 0); ++index) {
@@ -1580,19 +1583,19 @@ async function decrement_property_timeouts(state, env) {
         case CONFUSION:
             set_itimeout(property, 1);
             await make_confused(0, true, state, env);
-            if (!property.intrinsic) await stop_occupation(state, env);
+            if (!property.intrinsic) await stop_occupation(state, occupationEnv);
             break;
         case STUNNED:
             set_itimeout(property, 1);
             await make_stunned(0, true, state, env);
-            if (!property.intrinsic) await stop_occupation(state, env);
+            if (!property.intrinsic) await stop_occupation(state, occupationEnv);
             break;
         case BLINDED: {
             const wasBlind = heroPropertyActive(state, BLINDED);
             set_itimeout(property, 1);
             await make_blinded(0, true, state, env);
             if (wasBlind && !heroPropertyActive(state, BLINDED))
-                await stop_occupation(state, env);
+                await stop_occupation(state, occupationEnv);
             break;
         }
         case DEAF:
@@ -1600,7 +1603,7 @@ async function decrement_property_timeouts(state, env) {
             await make_deaf(0, true, state, env);
             state.disp ??= {};
             state.disp.botl = true;
-            if (!deaf(state)) await stop_occupation(state, env);
+            if (!deaf(state)) await stop_occupation(state, occupationEnv);
             break;
         case INVIS:
             (env.newsym ?? newsym)(u.ux, u.uy, state);
@@ -1609,7 +1612,7 @@ async function decrement_property_timeouts(state, env) {
                 await message(!propertySource(state, SEE_INVIS)
                     ? 'You are no longer invisible.'
                     : 'You can no longer see through yourself.', state);
-                await stop_occupation(state, env);
+                await stop_occupation(state, occupationEnv);
             }
             break;
         case SEE_INVIS:
@@ -1618,16 +1621,16 @@ async function decrement_property_timeouts(state, env) {
                 redraw: env.redraw ?? env.newsym
                     ?? (env.planning ? () => {} : undefined) });
             (env.newsym ?? newsym)(u.ux, u.uy, state);
-            await stop_occupation(state, env);
+            await stop_occupation(state, occupationEnv);
             break;
         case WOUNDED_LEGS:
             await heal_legs(state, env);
-            await stop_occupation(state, env);
+            await stop_occupation(state, occupationEnv);
             break;
         case HALLUC:
             set_itimeout(property, 1);
             await make_hallucinated(0, true, 0, state);
-            if (!hallucinating(state)) await stop_occupation(state, env);
+            if (!hallucinating(state)) await stop_occupation(state, occupationEnv);
             break;
         case SLEEPY:
             if (unconscious(state) || propertySource(state, SLEEP_RES)) {
@@ -1635,7 +1638,7 @@ async function decrement_property_timeouts(state, env) {
             } else if (propertySource(state, SLEEPY)) {
                 await message('You fall asleep.', state);
                 const duration = random.rnd(20);
-                await fall_asleep(-duration, true, state, env);
+                await fall_asleep(-duration, true, state, occupationEnv);
                 incr_itimeout(property, duration + random.rnd(100));
             }
             break;
