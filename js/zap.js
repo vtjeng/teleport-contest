@@ -6101,7 +6101,9 @@ export async function dobuzz(
                     if (steedResult.hit)
                         range -= 2;
                 } else if (!forcemiss
-                           && zap_hit(Math.trunc(state.u.uac), spellType,
+                           // C passes 0, not the spell type, for the hero:
+                           // a bounced spell gets no spell_hit_bonus().
+                           && zap_hit(Math.trunc(state.u.uac), 0,
                                random, state)) {
                     range -= 2;
                     // C ref: pline.c pline_dir() (113-123) over set_msg_dir()
@@ -6177,9 +6179,11 @@ export async function dobuzz(
                 nomul(0, state);
             }
             // C ref: zap.c:4995-4996. Gas that missed or was not reflected
-            // leaves a 1x1 cloud via the deferred zap_over_floor().
+            // leaves a 1x1 cloud via the deferred zap_over_floor(). C casts
+            // this call's result to void, so a closed door's -1000 range
+            // modifier does not stop the gas; the door bounces it instead.
             if (gas_hit) {
-                range += await zap_over_floor(
+                await zap_over_floor(
                     sx, sy, type, shopdamage, true, 0, state, random,
                     { ...env, newsym: redraw },
                 );

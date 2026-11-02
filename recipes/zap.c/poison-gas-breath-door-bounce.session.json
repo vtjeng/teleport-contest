@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: zap.c dobuzz() 4993-5023. A gnome Healer steps beside the closed east door of the start room, drinks a wished-for blessed potion of gain energy so she has the 15 Pw dobreathe() needs, becomes a green dragon and breathes poison gas east with #monster. The gas reaches the door, where the deferred zap_over_floor() call (cast to void) leaves a cloud and absorbs the blast without ending the ray, so closed_door() with range >= 0 bounces it back across the hero and the room. Seed, clock and character chosen independently of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 61730294,
+      "datetime": "20510927162205",
+      "nethackrc": "OPTIONS=name:Verdigris,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " nl#wizwish\nblessed potion of gain energy\nql#polyself\ngreen dragon\n\u001b#monster\nl\u001bss"
+    }
+  ]
+}
