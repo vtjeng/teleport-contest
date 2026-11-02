@@ -873,6 +873,8 @@ export async function touch_artifact(obj, monster, env = game) {
         }
         const buf = `touching ${artifact.name}`;
         await losehp(dmg, buf, KILLED_BY, state);
+        // C's accepted death enters done() and does not return.
+        if (state.program_state?.gameover) return false;
         await exercise(A_WIS, false, state);
     }
 

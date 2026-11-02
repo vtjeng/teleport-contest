@@ -2150,6 +2150,8 @@ export async function makewish(state = game) {
         otmp, oops_msg, The(aobjnam(otmp, verb, state), state), null,
         holdEnv,
     );
+    // C's accepted death enters done() and does not return.
+    if (state.program_state?.gameover) return;
     state.u.ublesscnt += rn1(100, 50); /* the gods take notice */
 }
 

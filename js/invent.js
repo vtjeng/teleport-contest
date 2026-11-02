@@ -4897,7 +4897,10 @@ export async function hold_another_object(
         const placement = place_object(obj, state.u.ux, state.u.uy, normalized);
         if (placement && typeof placement.then === 'function') await placement;
 
-        if (!await touch_artifact(obj, state.youmonst, normalized)) {
+        const touched = await touch_artifact(obj, state.youmonst, normalized);
+        // C's accepted death enters done() and does not return.
+        if (state.program_state?.gameover) return obj;
+        if (!touched) {
             obj_extract_self(obj, normalized);
             await holdDropY(obj, normalized);
             return obj;

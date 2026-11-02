@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "artifact.c touch_artifact() 951-962: a wished-for cross-aligned intelligent artifact blasts the hero through losehp(), and an accepted death enters done() and never returns, so invent.c hold_another_object() prints no 'x - <artifact>.' line and zap.c makewish() adds no prayer timeout. A lawful Valkyrie wishes for Stormbringer, is killed by its blast, answers y to 'Die?' and skips the disclosure. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 9031877,
+      "datetime": "20500129221000",
+      "nethackrc": "OPTIONS=name:Ragna,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017Stormbringer\n  y nnnnn  "
+    }
+  ]
+}
