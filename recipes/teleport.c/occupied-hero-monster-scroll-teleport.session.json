@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "teleport.c rloc_to_core():1762-1763 dochugw(mtmp, FALSE) while the hero is opening a tin: a bugbear wounded below 10 HP picks up a dropped scroll of teleportation and reads it (muse.c find_defensive()/use_defensive() MUSE_SCR_TELEPORTATION -> m_tele() -> rloc()); montelecontrol places it beside the hero, so monmove.c:220-235 stops the occupation with \"You stop opening the tin.\" The stethoscope reads (a c h) confirm the bugbear's HP before the scroll is dropped off the up staircase.",
+  "segments": [
+    {
+      "seed": 731026,
+      "datetime": "20251108204500",
+      "nethackrc": "OPTIONS=name:Kenji,role:Healer,race:human,gender:female,align:neutral,playmode:debug,montelecontrol,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\n#levelchange\n14\n\u001b\u0017uncursed scroll of teleportation\n\u001b\u0017tin\n\u001b\u0007hostile bugbear\n\u001bach\u001bFh\u001bach\u001bFh\u001bach\u001bFh\u001bach\u001bFh\u001bach\u001bFh\u001bach\u001bFh\u001bach\u001bj\u001bdk\u0014jj.\u001bel  @l. "
+    }
+  ]
+}
