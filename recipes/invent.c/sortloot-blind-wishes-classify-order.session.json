@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the recorder's qsort() first compares objects. The patched program's nh_deterministic_qsort() sorts with glibc's top-down merge sort, which compares the second and third of the first three items before the first. A blindfolded Valkyrie wishes for two armor pieces that she cannot see, swaps them to letters a and c, takes the blindfold off, lists her inventory and then pages through her discoveries. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 7264015,
+      "datetime": "20530707193000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017blindfold\nPe\u0017cloak of protection\n\u0017speed boots\n#adjust\nfa#adjust\ngcRi\u001b\\   "
+    }
+  ]
+}

@@ -552,4 +552,53 @@ export function swapbits(val, bita, bitb) {
     return val ^ ((tmp << bita) | (tmp << bitb));
 }
 
+// C ref: nethack-c/patches/002-deterministic-qsort.patch, hacklib.c
+// nh_deterministic_qsort(). The patched program replaces every qsort() with
+// this wrapper: it sorts an array of element indexes with the C library's
+// qsort(), breaking comparator ties by original index, then permutes the
+// elements. The recorder's glibc qsort() is msort.c's top-down merge sort
+// (msort_with_tmp(): sort the first n/2, then the rest, then merge, taking
+// the left element while the comparison is <= 0). A comparator with side
+// effects, such as invent.c sortloot_cmp(), whose lazy loot_classify()
+// marks objects encountered, therefore runs in that merge order; this
+// reproduces both the sorted result and the order of comparator calls.
+// Sorts `array` in place and returns it.
+export function nh_deterministic_qsort(array, compar) {
+    const n = array.length;
+    if (n < 2) return array;
+    const order = Array.from({ length: n }, (_, i) => i);
+    const tmp = new Array(n);
+    const idxCmp = (a, b) => {
+        const c = compar(array[a], array[b]);
+        if (c) return c;
+        return a < b ? -1 : (a > b ? 1 : 0);
+    };
+    const msort = (lo, count) => {
+        if (count <= 1) return;
+        let n1 = count >> 1;
+        let n2 = count - n1;
+        msort(lo, n1);
+        msort(lo + n1, n2);
+        let b1 = lo;
+        let b2 = lo + n1;
+        let k = 0;
+        while (n1 > 0 && n2 > 0) {
+            if (idxCmp(order[b1], order[b2]) <= 0) {
+                tmp[k++] = order[b1++];
+                --n1;
+            } else {
+                tmp[k++] = order[b2++];
+                --n2;
+            }
+        }
+        while (n1-- > 0) tmp[k++] = order[b1++];
+        // Whatever remains of the second run is already in place.
+        for (let i = 0; i < k; ++i) order[lo + i] = tmp[i];
+    };
+    msort(0, n);
+    const sorted = order.map((i) => array[i]);
+    for (let i = 0; i < n; ++i) array[i] = sorted[i];
+    return array;
+}
+
 // C ref: rn2(x) already in rng.js — re-export not needed

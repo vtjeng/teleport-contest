@@ -176,7 +176,7 @@ import {
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, encodeUtf8ByteString, ing_suffix, letter, s_suffix, strstri, strsubst, visctrl } from './hacklib.js';
+import { digit, encodeUtf8ByteString, ing_suffix, letter, nh_deterministic_qsort, s_suffix, strstri, strsubst, visctrl } from './hacklib.js';
 import {
     LOW_PM,
     PM_ARCHEOLOGIST,
@@ -844,7 +844,7 @@ export function sortloot(olist, mode, by_nexthere, filterfunc, state = game) {
         ++index;
     }
     if (sortMode && items.length > 1) {
-        items.sort((a, b) => sortloot_cmp(a, b, sortMode, state));
+        nh_deterministic_qsort(items, (a, b) => sortloot_cmp(a, b, sortMode, state));
         // C frees comparator-owned name buffers before returning the array.
         for (const item of items) item.str = null;
     }
