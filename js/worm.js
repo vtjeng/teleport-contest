@@ -113,6 +113,8 @@ export function count_wsegs(monster, state = game) {
 // C ref: worm.c see_wsegs() (487-495). Repaint every visible tail node in
 // tail-to-head list order; the final stored node is the hidden head tracker.
 // The source loop neither filters occupancy nor changes the worm list/RNG.
+// newsym() paints the module-global game, so a foreign state (a planning
+// clone) repaints only through an operation it supplies, else draws nothing.
 export function see_wsegs(worm, rawEnv = {}) {
     const env = wormEnvironment(rawEnv);
     const state = env.state;
@@ -127,8 +129,6 @@ export function see_wsegs(worm, rawEnv = {}) {
             env.newsym(x, y, state);
         } else if (state === game) {
             newsym(x, y);
-        } else {
-            (env.noteUnported ?? note_unported)('display.c newsym');
         }
     }
 }

@@ -1334,7 +1334,11 @@ test('u_on_newpos keeps its live redraw default and lets planned recoil stay sil
     assert.match(dungeonSource,
         /seeNearbyObjects\(state, seeNearbyObjectsOptions\);/u);
     assert.match(dothrowSource,
-        /seeNearbyObjectsOptions: planning \? \{\s*redraw: \(\) => note_unported\('display\.c newsym_force planning'\),\s*\} : undefined/u);
+        /seeNearbyObjectsOptions: planning \? \{ redraw \} : undefined/u);
+    // hurtle_step()'s planning redraw is silent, so the clone's
+    // see_nearby_objects() repaint never reaches the live terminal.
+    assert.match(dothrowSource,
+        /const redraw = planning \? \(\) => \{\} : newsym;/u);
     const displaySource = readFileSync(
         new URL('../js/display.js', import.meta.url),
         'utf8',

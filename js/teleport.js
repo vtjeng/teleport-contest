@@ -1947,14 +1947,10 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     }
 
     /* must set u.ux, u.uy after drag_ball() */
+    // see_nearby_objects()'s newsym_force() paints the live map; the planning
+    // clone keeps its discovery writes and draws nothing.
     u_on_newpos(nux, nuy, state, {
-        seeNearbyObjectsOptions: env.planning
-            ? {
-                redraw: () => note_unported(
-                    'display.c newsym_force planning',
-                ),
-            }
-            : { redraw },
+        seeNearbyObjectsOptions: { redraw: env.planning ? () => {} : redraw },
     });
     await fill_pit(u.ux0, u.uy0, state, env);
     if (ball_active && state.uchain?.where === OBJ_FREE)

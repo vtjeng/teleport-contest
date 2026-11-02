@@ -1792,8 +1792,8 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
             'The Archon casts a spell!',
             'The Archon suddenly disappears!',
         ]);
-        assert.deepEqual(gaps, ['display.c newsym'],
-            'planning keeps the discarded live redraw off the cloned state');
+        assert.deepEqual(gaps, [],
+            'the planning clone draws nothing and records no gap');
     });
 
 test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
@@ -1879,7 +1879,8 @@ test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
         '(east): The kobold shaman suddenly disappears!',
         'messageAt uses pline_mon coordinates when accessiblemsg is enabled',
     );
-    assert.deepEqual(gaps, ['display.c newsym']);
+    assert.deepEqual(gaps, [],
+        'the planning clone draws nothing and records no gap');
 });
 
 test('MCAST_DISAPPEAR is not selected when invisibility is already blocked',

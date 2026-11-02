@@ -3697,8 +3697,8 @@ export function unmap_object(x, y, state = game) {
  * C's newsym_force() is newsym() plus the glyph buffer's dirty bookkeeping.
  * js/display.js flush_screen() repaints from game.level rather than from a
  * dirty range, so newsym() alone carries the whole live effect here. A
- * planned clone can supply a redraw callback; its current callback records
- * newsym_force as a named gap while this helper still observes the object.
+ * planned clone supplies a silent redraw callback, so it still observes the
+ * object but never paints the live terminal.
  *
  * The default redraw below is newsym(), which takes no state and reads the
  * module-global `game`. Keep the foreign-state guard unless a caller supplies

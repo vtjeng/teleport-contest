@@ -1067,12 +1067,10 @@ export async function hurtle_step(arg, x, y) {
     const oldX = state.u.ux;
     const oldY = state.u.uy;
     // dungeon.c:u_on_newpos() observes nearby objects before its generic-glyph
-    // redraw. Preserve those clone-owned discovery writes, and record only the
-    // still-unported newsym_force output at that exact discarded-void call.
+    // newsym_force() redraw. The planning clone keeps those discovery writes
+    // and draws through its silent redraw; the live pass repaints.
     u_on_newpos(x, y, state, {
-        seeNearbyObjectsOptions: planning ? {
-            redraw: () => note_unported('display.c newsym_force planning'),
-        } : undefined,
+        seeNearbyObjectsOptions: planning ? { redraw } : undefined,
     });
     redraw(oldX, oldY);
     if (planning) {

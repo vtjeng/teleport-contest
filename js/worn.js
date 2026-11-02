@@ -477,28 +477,19 @@ export function which_armor(monster, mask, state = game) {
 // C ref: worn.c mon_set_minvis() (474-488). The monster's permanent
 // invisibility is copied to its current visibility unless invisibility is
 // blocked, then the occupied square is redrawn.
+//
+// newsym() paints the module-global game whatever state it is handed, so a
+// foreign state (a planning clone) repaints only through a redraw operation
+// it supplies; without one, the clone's discarded repaint draws nothing.
 export function mon_set_minvis(monster, cursedPotion, state = game, rawEnv = {}) {
     monster.perminvis = cursedPotion ? 0 : 1;
     if (!monster.invis_blkd) {
         monster.minvis = monster.perminvis;
-        if (state === game) {
-            newsym(monster.mx, monster.my);
-        } else if (typeof rawEnv.redraw === 'function') {
-            rawEnv.redraw(monster.mx, monster.my, state);
-        } else {
-            const noteUnported = rawEnv.noteUnported ?? note_unported;
-            noteUnported('display.c newsym');
-        }
-        if (monster.wormno) {
-            if (state === game) {
-                see_wsegs(monster, { state });
-            } else if (typeof rawEnv.redraw === 'function') {
-                see_wsegs(monster, { ...rawEnv, state });
-            } else {
-                const noteUnported = rawEnv.noteUnported ?? note_unported;
-                noteUnported('worm.c see_wsegs');
-            }
-        }
+        const redraw = state === game
+            ? newsym : rawEnv.redraw ?? (() => {});
+        redraw(monster.mx, monster.my, state); /* make it disappear */
+        if (monster.wormno)
+            see_wsegs(monster, { ...rawEnv, state, redraw }); /* and any tail too */
     }
 }
 
