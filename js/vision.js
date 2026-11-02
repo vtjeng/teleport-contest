@@ -1100,6 +1100,13 @@ export function vision_recalc(control = 0, env = {}) {
                             loc.seenv = (loc.seenv || 0) | sv;
                             if (!(ov & IN_SIGHT) || oldseenv !== loc.seenv)
                                 redraw(col, row);
+                        } else if ((ov & IN_SIGHT)
+                            || ((nv & COULD_SEE) ^ (ov & COULD_SEE))) {
+                            // vision.c:784 `goto not_in_sight`: a door or
+                            // wall at the end of a dark hallway is not seen,
+                            // and the not-in-sight arm below repaints it
+                            // when it was in sight before.
+                            redraw(col, row);
                         }
                     } else {
                         next_row[col] |= IN_SIGHT;
