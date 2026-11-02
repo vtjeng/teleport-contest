@@ -2784,6 +2784,10 @@ export async function dochug(monster, rawEnv = {}) {
         }
         if (monster.wormno && await wormhitu(monster, env)) return 1;
     }
+    // C done() never returns: an attack that killed the hero, such as
+    // mattacku()'s use_offensive() wand, ends the game before the speech
+    // and cuss gates below.
+    if (state.program_state?.gameover) return 0;
 
     // C ref: monmove.c:980-982. Nearby quest monsters speak after their
     // movement/attack work, unless helpless; the planning caller supplies a
