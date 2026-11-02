@@ -334,8 +334,10 @@ function getpos_help_keyxhelp(tmpwin, k1, k2, gloc, state = game) {
 }
 
 // C ref: getpos.c getpos_refresh() (750-766). The JavaScript TTY menu helper
-// restores a partial popup at dismissal; docrt() then performs C's full map
-// refresh before getpos() puts the targeting cursor back.
+// restores a partial popup at dismissal; docrt_flags(docrtRefresh) then
+// resends the current glyph buffer through redraw_map() rather than
+// regenerating the map, so a cell whose buffered glyph differs from a fresh
+// regeneration (such as the trap #wizmap paints over a blind hero) keeps it.
 async function getpos_refresh(state = game) {
     // docrt() owns the module-level game, which is the production state passed
     // through cmd.js. The state parameter keeps this helper's source-shaped
@@ -346,7 +348,7 @@ async function getpos_refresh(state = game) {
         await state.getpos_hilitefunc(false, state);
         state.getpos_hilite_state = state.defaultHiliteState;
     }
-    await docrt();
+    await docrt({ refreshOnly: true });
     if (state.getpos_hilitefunc && state.getpos_hilite_state === 2)
         await getpos_sethilite(state.getpos_hilitefunc, state.getpos_getvalid, state);
 }

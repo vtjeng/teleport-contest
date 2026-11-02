@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of help-refresh-keeps-mapped-trap-blind: the travel command's getpos() help popup, a Samurai, and a squeaky board. getpos_refresh() resends the glyph buffer, so the trap #wizmap painted over the blind hero survives the popup's dismissal.",
+  "segments": [
+    {
+      "seed": 90271,
+      "datetime": "20350212203040",
+      "nethackrc": "OPTIONS=name:Travel,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "l\u0017squeaky board\n\u0017blindfold\nPf#wizmap\n_?\n\u001b"
+    }
+  ]
+}
