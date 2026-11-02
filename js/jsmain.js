@@ -743,7 +743,7 @@ export function segmentIterationLimit(movesLength) {
 
 // ── Per-segment runner — the contest contract ──
 //
-// The judge calls this once per segment. Input is a clean replay
+// The judge calls runSegment() once per segment. Input is a clean replay
 // descriptor with up to six fields (NO recorded answers):
 //
 //   { seed: number,           // PRNG seed
@@ -769,14 +769,22 @@ export function segmentIterationLimit(movesLength) {
 // the fail-closed boundary error that ended the segment; the loop below
 // swallows it, so an observer has no other way to learn which unported path
 // the segment reached.
-export async function runSegment(
-    input,
-    { traceThemeroomSelections = false, onBoundary = null } = {},
-) {
-    const { seed, datetime, nethackrc, recorderIsDst, storage } = input;
-    const moves = input.moves || '';
+//
+// runSegmentStrict() is the same entry point under the name every local test
+// and tool will import.
+export async function runSegment(input, options = {}) {
+    return runSegmentStrict(input, options);
+}
 
-    const nhGame = new NethackGame({
+export async function runSegmentStrict(input, options = {}) {
+    const nhGame = createSegmentGame(input, options);
+    await playSegment(nhGame, input, options);
+    return nhGame;
+}
+
+function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {
+    const { seed, datetime, nethackrc, recorderIsDst, storage } = input;
+    return new NethackGame({
         seed,
         datetime,
         nethackrc,
@@ -786,6 +794,10 @@ export async function runSegment(
             ? createThemeroomSelectionCollector()
             : null,
     });
+}
+
+async function playSegment(nhGame, input, { onBoundary = null } = {}) {
+    const moves = input.moves || '';
 
     const display = new GameDisplay(null);
     display.onEmptyQueue = () => { throw new Error('Input queue empty - test may be missing keystrokes'); };
@@ -807,16 +819,16 @@ export async function runSegment(
         // nhgetch() has already captured that boundary before discovering
         // that the replay recipe has no next key.
         if (String(error?.message || '').includes('Input queue empty'))
-            return nhGame;
+            return;
         if (isUnportedBoundary(error)) {
             onBoundary?.(error);
-            return nhGame;
+            return;
         }
         throw error;
     }
     if (!started) {
         await finishTerminatedSegment(game);
-        return nhGame;
+        return;
     }
 
     // Drive the game loop until input is exhausted. The judge looks
@@ -857,8 +869,6 @@ export async function runSegment(
     // each nhgetch call, but after gameover no more keys are read. This
     // explicit call after the loop mirrors nh_terminate's capture position.
     await finishTerminatedSegment(game);
-
-    return nhGame;
 }
 
 // C ref: end.c nh_terminate() calls the patched final input-boundary capture
