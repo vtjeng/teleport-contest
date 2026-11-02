@@ -714,7 +714,10 @@ export async function getlev(ledger, state = game) {
 
     // Restore the level, stairs, engravings, smeq, updest, dndest.
     state.level = snapshot.level;
-    state.stairs = snapshot.stairs;
+    // C ref: restore.c getlev():1113 rest_stairs(). Each save and restore
+    // reverses the stairway list, which makemon_rnd_goodpos()'s stair
+    // fallback walks in order.
+    rest_stairs(snapshot.stairs, state);
     state.head_engr = snapshot.head_engr;
     if (snapshot.smeq) state.smeq = snapshot.smeq;
     state.updest = snapshot.updest ?? {};

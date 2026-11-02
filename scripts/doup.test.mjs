@@ -296,8 +296,20 @@ test('savelev() captures level state and getlev() restores it', async () => {
         assert.equal(state.level.monsters[segment.x][segment.y], worm,
             'getlev retains the occupancy grid saved with the worm records');
     }
-    assert.equal(state.stairs, originalStairs,
-        'getlev restores the same stairs chain');
+    // restore.c rest_stairs() re-adds each saved stairway, head first, with
+    // stairway_add(), which pushes onto the head, so the restored chain is
+    // the saved chain reversed. recordings/restore.c/
+    // restored-stairs-order-mongen-fallback.session.json shows the order
+    // reaching makemon_rnd_goodpos()'s stair fallback.
+    const stairPositions = (head) => {
+        const positions = [];
+        for (let stway = head; stway; stway = stway.next)
+            positions.push([stway.sx, stway.sy]);
+        return positions;
+    };
+    assert.deepEqual(stairPositions(state.stairs),
+        stairPositions(originalStairs).reverse(),
+        'getlev restores the stairs chain in reverse order');
     // The snapshot should be deleted after restore.
     assert.equal(state._savedLevels?.[ledger], undefined,
         'the snapshot is consumed (deleted) after restore');
