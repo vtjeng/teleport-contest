@@ -14,6 +14,13 @@ import {
 import { PM_CLERIC, PM_RANGER } from '../js/monsters.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
+import { time_from_yyyymmddhhmmss } from '../js/calendar.js';
+
+// topten() takes C's time_t values: `when` is end.c's endtime and
+// u.ubirthday is the start time, both read through calendar.c yyyymmdd(),
+// which converts any nonzero time with localtime(). Fixture dates are given
+// as YYYYMMDD for readability and converted to noon of that day here.
+const at = (yyyymmdd) => time_from_yyyymmddhhmmss(`${yyyymmdd}120000`, false);
 
 // --- readentry / writeentry round-trip ---
 // These are module-internal, so we test them through topten()'s display
@@ -53,7 +60,7 @@ test('topten prints wizard mode message and returns without writing record', () 
                 setCell() {},
             },
         };
-        topten(DIED, 20260101, state);
+        topten(DIED, at(20260101), state);
         assert.ok(state.nhDisplay.nomuxRaw.active,
             'wizard mode branch wrote raw output');
         // Verify storage was not written.
@@ -68,7 +75,7 @@ test('topten skips everything when panicking', () => {
     // C ref: topten.c:639. if (program_state.panicking) return;
     const state = { program_state: { panicking: true } };
     // Should not throw, should not access any other state.
-    topten(PANICKED, 20260101, state);
+    topten(PANICKED, at(20260101), state);
 });
 
 // --- topten record file format ---
@@ -95,7 +102,7 @@ test('topten writes a correctly formatted record line via VFS', () => {
             wizard: false, discover: false,
         });
 
-        topten(DIED, 20260101, state);
+        topten(DIED, at(20260101), state);
 
         const record = mem.getItem('vfs:record');
         assert.ok(record, 'record file was written');
@@ -126,7 +133,7 @@ test('topten accumulates entries across segments', () => {
             killerName: 'kobold', killerFormat: 1,
             wizard: false, discover: false,
         });
-        topten(DIED, 20260101, state1);
+        topten(DIED, at(20260101), state1);
 
         // Segment 2: different player, different role, scores 200 points.
         const state2 = makeDeathState({
@@ -138,7 +145,7 @@ test('topten accumulates entries across segments', () => {
             killerName: 'orc', killerFormat: 1,
             wizard: false, discover: false,
         });
-        topten(DIED, 20260102, state2);
+        topten(DIED, at(20260102), state2);
 
         // Verify both entries in the record, higher score first.
         const record = mem.getItem('vfs:record');
@@ -173,7 +180,7 @@ test('topten enforces PERSMAX per-player limit', () => {
                 killerName: 'gnome', killerFormat: 1,
                 wizard: false, discover: false,
             });
-            topten(DIED, 20260101, state);
+            topten(DIED, at(20260101), state);
         }
 
         let lines = mem.getItem('vfs:record').trim().split('\n');
@@ -190,7 +197,7 @@ test('topten enforces PERSMAX per-player limit', () => {
             killerName: 'gnome', killerFormat: 1,
             wizard: false, discover: false,
         });
-        topten(DIED, 20260101, state);
+        topten(DIED, at(20260101), state);
 
         lines = mem.getItem('vfs:record').trim().split('\n');
         // The new entry with 10 points is below all existing entries.
@@ -328,7 +335,7 @@ function makeDeathState({
         urace: { filecode: raceCode },
         killer: { name: killerName, format: killerFormat },
         multi: 0,
-        ubirthday: birthdate,
+        ubirthday: at(birthdate),
         // deepest_lev_reached walks all dungeons computing
         // depth_start + dunlev_ureached - 1 for each. Provide only the death
         // dungeon with depth_start = 1 so depth = deathlev and maxlvl = deathlev.
