@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 703355,
+      "datetime": "20370116201744",
+      "nethackrc": "OPTIONS=name:Islander,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017Hawaiian shirt\nSy"
+    },
+    {
+      "seed": 703356,
+      "datetime": "20370118092230",
+      "nethackrc": "OPTIONS=name:Islander,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " nrn  "
+    }
+  ],
+  "comment": "save.c/restore.c ubirthday witness: a January game recorded with tm_isdst=1 saves ubirthday as its local yyyymmddhhmmss string, and restgamestate() converts it back with mktime() under the restoring process's tm_isdst, an hour earlier. Reading the Hawaiian shirt after the restore shows a background that hawaiian_design() derives from the shifted ubirthday."
+}

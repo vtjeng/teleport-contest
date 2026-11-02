@@ -188,7 +188,12 @@ export function getnow(state = game, now = new Date()) {
     return fixed || Math.trunc(now.getTime() / 1000);
 }
 
+// C's yyyymmdd(), hhmmss() and yyyymmddhhmmss() take a time_t: zero reads
+// getlt(), the current (or fixed) local time, and any other value is
+// converted with localtime().
 export function getLocalTime(state = game, now = new Date()) {
+    if (typeof now === 'number' && now !== 0)
+        return recorderFieldsAt(now * 1000);
     const fixed = time_from_yyyymmddhhmmss(
         state?.fixedDatetime, state?.recorderIsDst ?? JUDGE_RECORDER_IS_DST,
     );

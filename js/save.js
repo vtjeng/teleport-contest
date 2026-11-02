@@ -56,6 +56,7 @@ import { save_waterlevel } from './mkmaze.js';
 import { rest_saved_level_regions } from './region.js';
 import { save_oracles } from './rumors.js';
 import { tty_getmsghistory } from './topl.js';
+import { yyyymmddhhmmss } from './calendar.js';
 
 // ── Level-local timer and light source capture ──
 //
@@ -520,7 +521,9 @@ function serializeGameState(state) {
         discover: state.discover,
         multi: state.multi,
         multi_reason: state.multi_reason,
-        ubirthday: state.ubirthday,
+        // C ref: save.c savegamestate():288 writes ubirthday as the
+        // local yyyymmddhhmmss string, not as a time_t.
+        ubirthday: yyyymmddhhmmss(state, state.ubirthday),
         urealtime: state.urealtime,
         track: state.track,
         // C save.c:save_gamelog() serializes each gg.gamelog_line before

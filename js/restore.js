@@ -58,7 +58,11 @@ import { defineObjclassAliases, GRAPPLING_HOOK, PICK_AXE } from './objects.js';
 import { set_mimic_sym } from './makemon_create.js';
 import { restpriest } from './priest.js';
 import { setuwep } from './wield.js';
-import { getnow } from './calendar.js';
+import {
+    getnow,
+    JUDGE_RECORDER_IS_DST,
+    time_from_yyyymmddhhmmss,
+} from './calendar.js';
 import { rn1, rn2, rnd } from './rng.js';
 import {
     parseSnapshot, SAVE_FILE_PATH, savemonchn, saveobjchn,
@@ -328,7 +332,15 @@ export async function dorestore(state = game) {
     if (snapshot.discover != null) state.discover = snapshot.discover;
     state.multi = snapshot.multi ?? 0;
     state.multi_reason = snapshot.multi_reason ?? null;
-    if (snapshot.ubirthday != null) state.ubirthday = snapshot.ubirthday;
+    // C ref: restore.c restgamestate():615-617. The saved local time string
+    // goes back through mktime() with the restoring process's tm_isdst, so a
+    // winter birthday recorded under daylight time moves an hour each save.
+    if (snapshot.ubirthday != null) {
+        state.ubirthday = time_from_yyyymmddhhmmss(
+            snapshot.ubirthday,
+            state.recorderIsDst ?? JUDGE_RECORDER_IS_DST,
+        );
+    }
     if (snapshot.urealtime != null) state.urealtime = snapshot.urealtime;
     // C restore.c:restore_gamelog() rebuilds gg.gamelog by calling
     // gamelog_add() for each serialized line. Keep the saved linked-list

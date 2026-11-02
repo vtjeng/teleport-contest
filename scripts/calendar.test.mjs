@@ -182,3 +182,23 @@ test('Friday the 13th and time-of-day boundaries use fixed local time', () => {
         fixed('20260213010000', false),
     ), false);
 });
+
+test('date serializers convert a nonzero time_t with localtime()', () => {
+    // calendar.c yyyymmddhhmmss(date) reads getlt() only for date 0. A
+    // January instant at 16:34:56 UTC is 11:34:56 EST in the recorder's
+    // zone, whatever fixed datetime the state carries; save.c writes
+    // ubirthday this way.
+    const state = fixed('20260720123456');
+    const winterInstant = Date.UTC(2026, 0, 20, 16, 34, 56) / 1000;
+    assert.equal(yyyymmddhhmmss(state, winterInstant), '20260120113456');
+    assert.equal(yyyymmdd(state, winterInstant), 20260120);
+    assert.equal(hhmmss(state, winterInstant), 113456);
+    // restore.c converts that string back under tm_isdst=1, which lands
+    // an hour earlier (10:34:56 EST, 15:34:56 UTC).
+    assert.equal(
+        time_from_yyyymmddhhmmss('20260120113456', true),
+        Date.UTC(2026, 0, 20, 15, 34, 56) / 1000,
+    );
+    // Zero keeps the getlt() arm: the fixed summer datetime itself.
+    assert.equal(yyyymmddhhmmss(state, 0), '20260720123456');
+});
