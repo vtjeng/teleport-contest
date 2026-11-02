@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "windows.c adjust_menu_promptstyle() hands iflags.menu_headings, color and attribute, to wintty.c tty_end_menu(), which draws every menu prompt in that style; o_init.c dodiscovered() instead putstr()s its class headings in a text window with menu_headings.attr only, so they carry no color. An elven Wizard with menu_headings:green&inverse opens the wizard-mode level-teleport menu (dungeon.c print_dungeon(), whose prompt is green and inverse), cancels, then lists her discoveries (inverse, uncolored headings). Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 6635120,
+      "datetime": "20531102194500",
+      "nethackrc": "OPTIONS=name:Merla,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=menu_headings:green&inverse\n",
+      "moves": " \u0016?\n\u001b  \\  "
+    }
+  ]
+}

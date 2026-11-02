@@ -11,7 +11,7 @@ import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import { MAXOCLASSES } from './objects.js';
 import { OBJCLASS_EXPLANATIONS } from './symbol_data.js';
-import { selectTtyMenu } from './tty_menu.js';
+import { menuTitleStyle, selectTtyMenu } from './tty_menu.js';
 import { regex_match } from './posixregex.js';
 import {
     ATR_BOLD,
@@ -129,8 +129,14 @@ export async function select_menu(state, spec) {
     // Core callers model calls to add_menu() as item objects or display-only
     // strings. Apply the interface-independent adjustment once before the
     // TTY port stores or draws them.
+    // wintty.c tty_end_menu() draws every menu prompt in
+    // tty_menu_promptstyle, which windows.c adjust_menu_promptstyle() copies
+    // from iflags.menu_headings.
+    const titleStyle = menuTitleStyle(state);
     const adjustedSpec = {
         ...spec,
+        titleAttr: spec.titleAttr ?? titleStyle.titleAttr,
+        titleColor: spec.titleColor ?? titleStyle.titleColor,
         items: spec.items?.map((item) => add_menu(state, item)),
         lines: spec.lines?.map((line) => add_menu(state, line)),
     };

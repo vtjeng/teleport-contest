@@ -109,6 +109,7 @@ import {
     zdir,
     W_SADDLE,
 } from './const.js';
+import { NO_COLOR } from './terminal.js';
 import {
     doapply,
     dojump,
@@ -3120,16 +3121,15 @@ async function runShowspellsCommand(key, state) {
 async function runKnownCommand(key, state) {
     return failClosedCommand(key, state, () => dodiscovered(state, {
         message: ttyPline,
-        // o_init.c dodiscovered() writes its headings with
-        // iflags.menu_headings, the same style the inventory menu's class
-        // headings use.
+        // o_init.c dodiscovered() writes its headings with putstr(tmpwin,
+        // iflags.menu_headings.attr, ...): the attribute but not the color.
         textWindow: (lines) => displayTtyTextWindow(
             state,
             lines.map((line) => (line.heading
                 ? {
                     ...line,
                     attr: menuTitleStyle(state).titleAttr,
-                    color: menuTitleStyle(state).titleColor,
+                    color: NO_COLOR,
                 }
                 : line)),
         ),
@@ -3140,13 +3140,15 @@ async function runKnownCommand(key, state) {
 async function runKnownClassCommand(key, state) {
     return failClosedCommand(key, state, () => doclassdisco(state, {
         message: ttyPline,
+        // o_init.c doclassdisco() putstr()s its headings with
+        // iflags.menu_headings.attr and no color.
         textWindow: (lines) => displayTtyTextWindow(
             state,
             lines.map((line) => (line.heading
                 ? {
                     ...line,
                     attr: menuTitleStyle(state).titleAttr,
-                    color: menuTitleStyle(state).titleColor,
+                    color: NO_COLOR,
                 }
                 : line)),
         ),
