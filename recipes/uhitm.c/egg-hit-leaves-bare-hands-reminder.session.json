@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 904417,
+      "datetime": "20360527163009",
+      "nethackrc": "OPTIONS=name:Eggward,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " \u0017egg\n\u0007lichen\nweFnFnFn"
+    }
+  ],
+  "comment": "uhitm.c hmon_hitmon_misc_obj() witness: hitting with a wielded egg uses it up and sets gu.unweapon, so the next hand-to-hand attack says \"You begin bashing monsters with your bare hands.\""
+}
