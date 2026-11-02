@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "end.c done_object_cleanup() 851-906: when a missile in flight kills the hero, really_done() puts gt.thrownobj back on the map, and mkobj.c place_object() block_point()s it when it is a boulder. A gnomish Healer wishes for a boulder, steps off it, creates a hill giant and walks away until the giant throws a boulder that kills her; she declines to survive and the game ends. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 9183345,
+      "datetime": "20470205221000",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " \u0017boulder\n  h\u0007hill giant\n  hhh  yq "
+    }
+  ]
+}
