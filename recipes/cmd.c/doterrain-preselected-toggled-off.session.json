@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "cmd.c doterrain() 1153-1164: when the player toggles off the preselected 'known map without monsters, objects, and traps' entry and then commits the menu, select_menu() returns 0 and doterrain() still shows the known map (which = 1). A Samurai in normal play opens #terrain, presses '-' to unselect every entry, commits with Return, then leaves the terrain view. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 3349026,
+      "datetime": "20540203071500",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " #terrain\n-\n\u001b  "
+    }
+  ]
+}

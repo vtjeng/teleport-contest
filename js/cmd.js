@@ -3228,6 +3228,9 @@ export async function doterrain(state = game) {
         how: PICK_ONE,
         title: 'View which?',
         preselected: 1,
+        // cmd.c doterrain(): n == 0 means the preselected entry was toggled
+        // off and then the menu was committed; C still shows the known map.
+        emptyValue: 1,
         cancelValue: null,
         overlay: state.iflags?.menu_overlay !== false,
     });
