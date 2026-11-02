@@ -3164,6 +3164,8 @@ export async function bhito(obj, wand, state = game,
     let learn_it = false;
     let maybelearnit = false;
     const message = rawEnv.message ?? ttyPline;
+    // A monster's planning pass of muse.c mbhit() supplies its own newsym().
+    const redraw = rawEnv.newsym ?? newsym;
 
     if (obj === wand) return 0;
     if (obj?.bypass) {
@@ -3214,7 +3216,7 @@ export async function bhito(obj, wand, state = game,
                     obj, STRANGE_OBJECT, state, random, rawEnv,
                 );
                 if (replacement)
-                    newsym(replacement.ox, replacement.oy, state);
+                    redraw(replacement.ox, replacement.oy, state);
             }
             break;
         }
@@ -3300,7 +3302,7 @@ export async function bhito(obj, wand, state = game,
                     ? await breaks(obj, ox, oy, breakEnv)
                     : await hero_breaks(obj, ox, oy, 0, breakEnv);
                 if (!broken) maybelearnit = false;
-                else newsym(ox, oy, state);
+                else redraw(ox, oy, state);
                 res = 0;
             }
             if (maybelearnit) learn_it = true;
@@ -3308,7 +3310,7 @@ export async function bhito(obj, wand, state = game,
         case WAN_CANCELLATION:
         case SPE_CANCELLATION:
             await cancel_item(obj, state, rawEnv);
-            newsym(obj.ox, obj.oy, state);
+            redraw(obj.ox, obj.oy, state);
             break;
         case SPE_DRAIN_LIFE: {
             const drained = drain_item(obj, true, state, { ...rawEnv, random });

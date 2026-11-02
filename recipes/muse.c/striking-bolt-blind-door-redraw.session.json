@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310452,
+      "datetime": "20370308201540",
+      "nethackrc": "OPTIONS=name:Nimue,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": "\u0017potion of hallucination\n\u0017wand of striking\n\u0017blindfold\nydp\u0007hill orc\nh#polyself\nxorn\nh\u001bqo\u001bdf\u001bPq\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b"
+    }
+  ],
+  "comment": "Independent muse.c mbhit() witness: a debug Wizard drops a wand of striking beside a hill orc, polymorphs into a xorn, stands on a closed door, drops a potion there, then hallucinates and puts on a blindfold. The orc picks up the wand and zaps it at her; the bolt hits the potion through zap.c bhito() and smashes the door through lock.c doorlock(), and each newsym() of her unseen square maps the potion with a hallucinatory glyph from the display RNG. The port plans each monster move before playing it, so those redraws must go through the planning pass's own newsym() or they draw extra display values."
+}

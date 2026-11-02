@@ -1333,6 +1333,10 @@ async function obstructed(x, y, quietly, state = game, rawEnv = {}) {
 export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
     const door = state.level.at(x, y);
     const message = rawEnv.message ?? ttyPline;
+    // A monster's planning pass supplies its own newsym(), so the door it
+    // would change is not repainted, nor hallucinatory glyphs drawn, on
+    // the live display.
+    const redraw = rawEnv.newsym ?? newsym;
     const mysterywand = obj.oclass === WAND_CLASS && !obj.dknown;
     let result = true;
     let loudness = 0;
@@ -1348,7 +1352,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
         case SPE_FORCE_BOLT:
             door.typ = DOOR;
             setDoorMask(door, D_CLOSED | (doorMask(door) & D_TRAPPED));
-            newsym(x, y, state);
+            redraw(x, y, state);
             if (cansee(x, y, state))
                 await message('A door appears in the wall!', state, rawEnv);
             if (obj.otyp === WAN_OPENING || obj.otyp === SPE_KNOCK)
@@ -1391,7 +1395,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
             setDoorMask(door, D_NODOOR);
             if (visible)
                 await message('The doorway vanishes!', state, rawEnv);
-            newsym(x, y, state);
+            redraw(x, y, state);
             return true;
         }
         if (await obstructed(x, y, mysterywand, state, rawEnv)) return false;
@@ -1425,7 +1429,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
         }
         block_point(x, y, state);
         setDoorMask(door, D_LOCKED | (doorMask(door) & D_TRAPPED));
-        newsym(x, y, state);
+        redraw(x, y, state);
         break;
     }
     case WAN_OPENING:
@@ -1446,7 +1450,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
                     ? canseemon(monster, state) : cansee(x, y, state);
                 setDoorMask(door, D_NODOOR);
                 unblock_point(x, y, state);
-                newsym(x, y, state);
+                redraw(x, y, state);
                 const seeit = monster
                     ? canseemon(monster, state) : cansee(x, y, state);
                 if (monster) {
@@ -1485,7 +1489,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
             setDoorMask(door, D_BROKEN);
             recalc_block_point(x, y, state);
             const seeit = cansee(x, y, state);
-            newsym(x, y, state);
+            redraw(x, y, state);
             if (state.flags?.verbose) {
                 if ((sawit || seeit) && !Unaware(state)) {
                     await message('The door crashes open!', state, rawEnv);
@@ -1498,7 +1502,7 @@ export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
                 vision_recalc(0, {
                     state,
                     redraw: (redrawX, redrawY) =>
-                        newsym(redrawX, redrawY, state),
+                        redraw(redrawX, redrawY, state),
                 });
             loudness = 20;
         } else {
