@@ -1,16 +1,18 @@
 import { spawn, spawnSync } from 'node:child_process';
 import {
     cpSync,
+    existsSync,
     mkdtempSync,
     mkdirSync,
     readdirSync,
+    readFileSync,
     rmSync,
     statSync,
     writeFileSync,
 } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { localTmpdir } from './local-tmpdir.mjs';
 
@@ -75,18 +77,61 @@ function batchCount(sizes) {
     return Math.max(1, Math.min(SCORER_JOBS, Math.ceil(total / MIN_BATCH_BYTES)));
 }
 
+// js/jsmain.js runSegment(), the judge's entry point, ends a crashed segment
+// and returns what it captured, so the runner's scores count the screens
+// before a crash and its `error` field stays null. Every runner process
+// therefore loads SEGMENT_ERROR_PRELOAD, which records each crash under
+// <workspace>/segment-errors/; runScorer() attaches them to the runner's
+// results as `segmentErrors` and names them on stderr, leaving every score
+// and `error` field as the judge reports it.
+const SEGMENT_ERROR_PRELOAD = join(dirname(SCRIPT_PATH), 'segment-error-preload.mjs');
+
 export function runScorer(targetRoot) {
     const sessionDir = join(targetRoot, 'sessions');
+    const errorDir = join(targetRoot, 'segment-errors');
+    mkdirSync(errorDir, { recursive: true });
     const args = batchCount(sessionSizes(sessionDir)) > 1
         ? [SCRIPT_PATH, targetRoot]
         : [join(targetRoot, 'frozen', 'ps_test_runner.mjs'), sessionDir];
-    return spawnSync(process.execPath, args, {
+    const child = spawnSync(process.execPath, args, {
         cwd: targetRoot,
         encoding: 'utf8',
         // Allow the scorer's normal per-session timeout across an entire suite.
         timeout: 10 * 60 * 1000,
         maxBuffer: 64 * 1024 * 1024,
+        env: {
+            ...process.env,
+            // NODE_OPTIONS reaches the runner's own per-session workers too.
+            NODE_OPTIONS: [process.env.NODE_OPTIONS,
+                `--import=${pathToFileURL(SEGMENT_ERROR_PRELOAD).href}`].filter(Boolean).join(' '),
+            TELEPORT_SEGMENT_ERROR_DIR: errorDir,
+        },
     });
+    if (child.error || child.status !== 0) return child;
+    return withSegmentErrors(child, errorDir);
+}
+
+// Attach each session's recorded crashes to its runner result, and add one
+// stderr line per crashed session in the runner's PASS/FAIL style.
+export function withSegmentErrors(child, errorDir) {
+    const markerIndex = child.stdout.lastIndexOf(RESULT_MARKER);
+    if (markerIndex < 0) return child;
+    const bundle = parseRunnerBundle(child.stdout);
+    const lines = [];
+    for (const result of bundle.results) {
+        const log = join(errorDir, `${result.session}.jsonl`);
+        if (!existsSync(log)) continue;
+        result.segmentErrors = readFileSync(log, 'utf8').trim().split('\n')
+            .map(line => JSON.parse(line));
+        const named = result.segmentErrors.map(({ name, message }) => `${name}: ${message}`);
+        lines.push(`  CRASH: ${result.session} (${named.join('; ')})\n`);
+    }
+    if (!lines.length) return child;
+    return {
+        ...child,
+        stdout: `${child.stdout.slice(0, markerIndex)}${RESULT_MARKER}\n${JSON.stringify(bundle)}\n`,
+        stderr: `${child.stderr}${lines.join('')}`,
+    };
 }
 
 /**

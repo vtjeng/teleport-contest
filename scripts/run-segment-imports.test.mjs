@@ -16,6 +16,7 @@ const JUDGE_CALLERS = new Map([
     ['tools/session-viewer/viz.mjs', 'shows what the judge scores, and reports game.segmentError'],
     ['scripts/run-segment-imports.test.mjs', "holds the detector's sample imports"],
     ['scripts/replay-coverage.test.mjs', 'writes a stand-in frozen/ps_test_runner.mjs, which imports what the judge does'],
+    ['scripts/scoring-workspace.test.mjs', 'writes a stand-in frozen/ps_test_runner.mjs, which imports what the judge does'],
 ]);
 
 // frozen/ is the judge's own code. The tracked .cache/ directories are
@@ -28,7 +29,7 @@ const SKIPPED_PREFIXES = ['frozen/', '.cache/'];
 // destructured from a dynamic import, with or without a rename; and a
 // property read, as from a module namespace.
 const STATIC_IMPORT = /import\s*\{([^}]*)\}\s*from\s*['"]([^'"]*)['"]/gu;
-const DYNAMIC_IMPORT = /\{([^}]*)\}\s*=\s*await\s+import\s*\(/gu;
+const DYNAMIC_IMPORT = /\{([^{}]*)\}\s*=\s*await\s+import\s*\(/gu;
 const PROPERTY = /\.runSegment\b(?!Strict)/gu;
 
 export function plainRunSegmentUses(source) {
@@ -60,6 +61,7 @@ test('the detector finds every form of taking the plain runSegment', () => {
         ["import {game} from '../js/gstate.js';import {NethackGame, runSegment as run} from '../js/jsmain.js';", 1],
         ["const { runSegment } = await import('../js/jsmain.js');", 1],
         ['const {runSegment: replay} = await import(runnerUrl);', 1],
+        ["if (worker) {\n    const { runSegment } = await import('../js/jsmain.js');", 1],
         ['runSegment = mod.runSegment;', 1],
         ["import { runSegmentStrict as runSegment } from '../js/jsmain.js';", 0],
         ['const { runSegmentStrict: runSegment } = await import(runnerUrl);', 0],

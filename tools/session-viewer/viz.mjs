@@ -222,6 +222,9 @@ async function loadAndCompute(sessionData, name) {
     // Default JS port lives at ../../js/jsmain.js (the contest skeleton).
     // Override via ?js=<url> for ad-hoc testing against a different port.
     const jsUrl = new URLSearchParams(location.search).get('js') || '../../js/jsmain.js';
+    // The judge's entry point, so the viewer shows what the judge scores: a
+    // segment that crashes keeps the screens before the crash, and the status
+    // line names the crash from game.segmentError.
     let runSegment;
     try {
         const mod = await import(jsUrl);
@@ -232,6 +235,7 @@ async function loadAndCompute(sessionData, name) {
     }
 
     const segments = [];
+    const crashes = [];
     for (let s = 0; s < sessionData.segments.length; s++) {
         const seg = sessionData.segments[s];
         const input = {
@@ -247,6 +251,8 @@ async function loadAndCompute(sessionData, name) {
             status(`seg ${s}: JS port threw: ${err.message}`, 'error');
             return;
         }
+        if (game.segmentError)
+            crashes.push(`seg ${s}: ${game.segmentError.name}: ${game.segmentError.message}`);
         const jsScreens = game.getScreens?.() || [];
         const jsCursors = game.getCursors?.() || [];
         const jsRngSlices = game.getRngSlices?.()
@@ -270,7 +276,10 @@ async function loadAndCompute(sessionData, name) {
     CURRENT = { sessionData, name, segments };
     classifyScreenDiffs();
     initUI();
-    status(buildStatusSummary(name), 'ok');
+    if (crashes.length)
+        status(`${buildStatusSummary(name)}; JS port crashed (${crashes.join('; ')})`, 'error');
+    else
+        status(buildStatusSummary(name), 'ok');
 }
 
 // Walk every step once and classify its screen diff into three independent

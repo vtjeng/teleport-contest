@@ -53,7 +53,9 @@ export function summarizeBundle(bundle) {
 
     for (const result of bundle.results) {
         if (result.passed) summary.sessions.passed++;
-        if (result.error) summary.sessions.errored++;
+        // runScorer() attaches segmentErrors for a crash that the judge's
+        // runSegment() ended the segment on without an `error`.
+        if (result.error || result.segmentErrors?.length) summary.sessions.errored++;
         summary.screens.matched += result.metrics?.screens?.matched || 0;
         summary.screens.total += result.metrics?.screens?.total || 0;
         summary.rngCalls.matched += result.metrics?.rngCalls?.matched || 0;

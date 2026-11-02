@@ -27,7 +27,7 @@ function committedInputs(root, batch) {
     const snapshot = challengeInputSnapshot(root, batch);
     const paths = ['js', 'frozen', 'package.json', 'package-lock.json',
         'scripts/challenge-results.mjs', 'scripts/score-challenges.mjs',
-        'scripts/scoring-workspace.mjs', batch.manifestPath,
+        'scripts/scoring-workspace.mjs', 'scripts/segment-error-preload.mjs', batch.manifestPath,
         ...batch.cases.flatMap(entry => [entry.recipe, entry.recording])];
     if (git(root, ['status', '--porcelain', '--untracked-files=all', '--', ...paths]))
         throw new Error('commit challenge inputs, scorer, and game changes before evaluating');
@@ -47,7 +47,9 @@ export function measuredCases(root, manifest, bundle) {
             throw new Error(`runner did not measure ${entry.id}: ${result?.error || 'incomplete output'}`);
         return { id: entry.id, recordingSha256: entry.recordingSha256, passed: result.passed,
             metrics: { screens: result.metrics.screens, rng: result.metrics.rngCalls, cursors: result.metrics.cursors },
-            error: result.error ?? null };
+            error: result.error ?? null,
+            // A crash the judge's runSegment() ended the segment on; runScorer() attaches it.
+            ...(result.segmentErrors ? { segmentErrors: result.segmentErrors } : {}) };
     });
 }
 

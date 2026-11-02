@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import test from 'node:test';
 
-import { runnerSpeed, sizeBalancedBatches } from './scoring-workspace.mjs';
+import { parseRunnerBundle, runScorer, runnerSpeed, sizeBalancedBatches } from './scoring-workspace.mjs';
 
 test('size-balanced batches place the largest sessions first on the lightest batch', () => {
     // Sizes 8, 1, 5, 4, 2 over two batches: 8 opens batch 0, 5 opens batch 1,
@@ -25,4 +28,55 @@ test('runner speed fits startup plus a per-move cost like the frozen runner', ()
     ]), { startup_ms: 100, per_move_ms: 10, r2: 1, label: '100+10.00/turn', sessions: 2 });
     // One timed session is too few for a line, as in the runner.
     assert.equal(runnerSpeed([{ time: { ms: 5, moves: 1 } }]).label, '?');
+});
+
+test('runScorer() names a crash that the judge entry point ended a segment on', (t) => {
+    // A stand-in workspace: its runner starts one worker per session, as
+    // frozen/ps_test_runner.mjs does, and its runSegment() reports a crash for
+    // crash.session.json only, as js/jsmain.js runSegment() reports one to a
+    // registered reporter. Two sessions show that only the crashed one gains
+    // segmentErrors.
+    const root = mkdtempSync(join(tmpdir(), 'scoring-workspace-crash-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const files = {
+        'js/jsmain.js': `let reporter = null;
+export function setSegmentErrorReporter(next) { reporter = next; }
+export function runSegment(file) {
+    if (file.endsWith('crash.session.json'))
+        reporter?.({ name: 'TypeError', message: 'stand-in crash', stack: '' });
+}
+`,
+        'frozen/ps_test_runner.mjs': `import { spawnSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
+import { basename, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const worker = process.argv.find(arg => arg.startsWith('--worker-session='));
+if (worker) {
+    const { runSegment } = await import('../js/jsmain.js');
+    runSegment(worker.split('=')[1]);
+} else {
+    const dir = process.argv[2];
+    const results = readdirSync(dir).sort().map(name => {
+        spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--worker-session=' + join(dir, name)]);
+        return { session: basename(name), passed: false, error: null };
+    });
+    console.log('__RESULTS_JSON__');
+    console.log(JSON.stringify({ results }));
+}
+`,
+        'sessions/crash.session.json': '{}',
+        'sessions/clean.session.json': '{}',
+    };
+    for (const [path, body] of Object.entries(files)) {
+        mkdirSync(dirname(join(root, path)), { recursive: true });
+        writeFileSync(join(root, path), body);
+    }
+    const child = runScorer(root);
+    assert.equal(child.status, 0, child.stderr);
+    const results = parseRunnerBundle(child.stdout).results;
+    assert.deepEqual(results.map(r => [r.session, r.error, r.segmentErrors]), [
+        ['clean.session.json', null, undefined],
+        ['crash.session.json', null, [{ name: 'TypeError', message: 'stand-in crash' }]],
+    ]);
+    assert.match(child.stderr, /^ {2}CRASH: crash\.session\.json \(TypeError: stand-in crash\)$/mu);
 });

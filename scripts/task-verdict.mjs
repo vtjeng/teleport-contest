@@ -155,7 +155,7 @@ export function reviewTasks(options, taskIds, root = process.cwd()) {
     const comparison = compareChallengeBatches(before, loadEvaluationDirectory(candidateDirectory, candidate), admitted);
     const fixed = compareDevelopment(development(baseline), development(summary));
     const fixedInputs = ['sessions/', 'frozen/', 'scripts/score-development.mjs',
-        'scripts/scoring-workspace.mjs', 'scripts/fixed-workload.mjs'];
+        'scripts/scoring-workspace.mjs', 'scripts/segment-error-preload.mjs', 'scripts/fixed-workload.mjs'];
     if (git(root, 'ls-tree', '-r', baseline.commit, '--', ...fixedInputs)
         !== git(root, 'ls-tree', '-r', candidate, '--', ...fixedInputs))
         fixed.issues.push({ reason: 'fixed recordings or scorer changed' });

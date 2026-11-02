@@ -17,7 +17,7 @@ import {
 // builds it. Goal metadata and checkpoint's other checks do not affect replay.
 const SCORE_PATHS = [
     'js/', 'frozen/', 'package.json', 'scripts/score-development.mjs',
-    'scripts/scoring-workspace.mjs', 'scripts/local-tmpdir.mjs',
+    'scripts/scoring-workspace.mjs', 'scripts/segment-error-preload.mjs', 'scripts/local-tmpdir.mjs',
     'scripts/development-standing.mjs', 'scripts/fixed-workload.mjs',
     'scripts/score-log.mjs',
 ];

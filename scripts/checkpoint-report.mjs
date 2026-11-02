@@ -95,7 +95,8 @@ export function summarizeSynthetic(evaluations, invalidReferences = []) {
     const listProblems = [];
     for (const evaluation of evaluations) {
         for (const c of evaluation.cases) {
-            const result = { batch: evaluation.batch, id: c.id, metrics: c.metrics, error: c.error };
+            const result = { batch: evaluation.batch, id: c.id, metrics: c.metrics, error: c.error,
+                segmentErrors: c.segmentErrors };
             const key = `${evaluation.batch}/${c.id}`;
             const entry = listed.get(key);
             let excluded = false;
@@ -141,6 +142,10 @@ export function summarizeCheckpoint(summary, evaluations,
 const n = (value) => (typeof value === 'number' ? value.toLocaleString('en-US') : '?');
 const pair = ([matched, total]) => `${n(matched)}/${n(total)}`;
 const caseMetrics = (metrics) => METRICS.map((k) => `${k} ${metrics?.[k]?.matched}/${metrics?.[k]?.total}`).join(', ');
+// scripts/scoring-workspace.mjs runScorer() names each crash the judge's
+// runSegment() ended a segment on.
+const crashText = (c) => (c.segmentErrors?.length
+    ? `; crashed: ${c.segmentErrors.map(({ name, message }) => `${name}: ${message}`).join('; ')}` : '');
 const LIST_PROBLEMS = {
     matches: () => 'listed as an invalid reference but now matches; remove its entry',
     changed: (c) => `listed as an invalid reference but its result changed; expected ${caseMetrics(c.expected)}, `
@@ -173,7 +178,7 @@ export function formatCheckpointReport(report) {
         lines.push(`Synthetic: ${n(v.passing)}/${n(v.cases)} valid cases passing in ${v.batches} batches; ${totals(v)}`);
         lines.push(`Synthetic, all admitted cases: ${n(s.totals.passing)}/${n(s.totals.cases)} passing; ${totals(s.totals)}`);
         for (const c of s.failing)
-            lines.push(`  FAIL ${c.id}: ${caseMetrics(c.metrics)}${c.error ? `; error: ${c.error}` : ''}`);
+            lines.push(`  FAIL ${c.id}: ${caseMetrics(c.metrics)}${c.error ? `; error: ${c.error}` : ''}${crashText(c)}`);
         if (s.invalid.length) {
             lines.push(`${s.invalid.length} invalid references (host-recorded or corrupted recordings), `
                 + `not port defects; see ${INVALID_REFERENCES_PATH}:`);

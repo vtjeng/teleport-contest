@@ -806,6 +806,7 @@ export async function runSegment(input, options = {}) {
             stack: error instanceof Error ? error.stack ?? null : null,
         };
         options.onError?.(error);
+        segmentErrorReporter?.(nhGame.segmentError);
     }
     return nhGame;
 }
@@ -814,6 +815,15 @@ export async function runSegmentStrict(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
     await playSegment(nhGame, input, options);
     return nhGame;
+}
+
+// Local scoring runs the unmodified judge in a child process, which keeps no
+// returned game, so scripts/segment-error-preload.mjs registers here to
+// receive each game.segmentError that runSegment() records. The judge never
+// registers one.
+let segmentErrorReporter = null;
+export function setSegmentErrorReporter(reporter) {
+    segmentErrorReporter = reporter;
 }
 
 function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {
