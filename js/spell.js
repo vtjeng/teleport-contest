@@ -720,7 +720,7 @@ async function deadbook(book, state = game, env = {}) {
             await message('The headstones in the cemetery begin to move!', state, env);
             break;
         default:
-            await message('Oh my! Your name appears in the book!', state, env);
+            await message('Oh my!  Your name appears in the book!', state, env);
             break;
         }
     }
