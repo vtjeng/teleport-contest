@@ -4675,11 +4675,11 @@ function setRunmode(result, value, negated) {
 export function optfn_scores(result, optidx, req, negated, opts, op) {
     if (req === DO_INIT) return optn_ok;
     if (req === DO_SET) {
+        // The live editor passes a view with `liveConfigErrors`, which
+        // configErrorAdd() collects for cfgfiles.c config_erradd()'s
+        // pline()/wait_synch() arm (1554-1562).
         const reportError = message => {
-            if (result.go?.opt_initial === false) {
-                // cfgfiles.c:1554-1562 has a live pline()/wait_synch() arm.
-                // Its result is discarded; the existing frame-only owner
-                // cannot supply that output, so preserve the named gap.
+            if (result.go?.opt_initial === false && !result.liveConfigErrors) {
                 note_unported('cfgfiles.c config_erradd');
             } else {
                 configErrorAdd(result, message);
@@ -8734,9 +8734,17 @@ const OPTION_SET_HANDLERS = Object.freeze({
     palette: (state, optidx, negated, opts) => optfn_palette(
         state, optidx, DO_SET, negated, opts,
     ),
-    scores: (state, optidx, negated, opts) => optfn_scores(
-        state, optidx, DO_SET, negated, opts, undefined,
-    ),
+    // optfn_scores() writes only flags.end_*; the view collects its
+    // config_error_add() reports for the live pline()/wait_synch() arm.
+    scores: async (state, optidx, negated, opts) => {
+        const liveConfigErrors = [];
+        const view = { flags: state.flags, liveConfigErrors };
+        const result = optfn_scores(
+            view, optidx, DO_SET, negated, opts, undefined,
+        );
+        await plineConfigErrors(state, liveConfigErrors);
+        return result;
+    },
     pickup_types: (state, optidx, negated, opts, helpers) => optfn_pickup_types(
         state, DO_SET, negated, opts, optidx, helpers,
     ),

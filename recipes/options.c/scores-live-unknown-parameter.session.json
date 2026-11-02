@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "options.c optfn_scores() do_set arm reached from #optionsfull. Its config_error_add() reports go through cfgfiles.c config_erradd()'s pline()/wait_synch() arm (1554-1562) because no configuration file is being read. '2 top/mail' prints \"Unknown scores parameter 'mail'.\" after keeping end_top=2, which the second menu shows as [2 top]; '-1 around' prints the negative-value refusal. The port used to record both reports as unported and print nothing.",
+  "segments": [
+    {
+      "seed": 9182736,
+      "datetime": "20280303120000",
+      "nethackrc": "OPTIONS=name:Quill,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!autopickup,!splash_screen\n",
+      "moves": "#optionsfull\n>>>>>r\n2 top/mail\n#optionsfull\n>>>>>r\n-1 around\ns"
+    }
+  ]
+}
