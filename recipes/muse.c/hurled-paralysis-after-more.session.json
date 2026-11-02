@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent muse.c use_offensive() witness: a hurled potion whose announcement stops at --More-- still lands. A burdened debug Valkyrie wearing a ring of searching drops a potion of paralysis beside a hill orc, which picks it up. While she applies a tin whistle, \"You produce a high whistling sound.\" leaves no room for \"The hill orc hurls a sky blue potion!\", so tty asks for --More-- before mthrowu.c m_throw() flies it. The vapours paralyse her, and allmain.c moveloop_core() skips that turn's automatic search because gm.multi < 0. The elapsed-turn planning clone used to skip the flight at that --More--, expected the search, and stopped the segment with \"elapsed-turn preflight disagreed with live search\".",
+  "segments": [
+    {
+      "seed": 5520731,
+      "datetime": "20261104141500",
+      "nethackrc": "OPTIONS=name:Hurler,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!safe_wait,time\n",
+      "moves": "\u0017ring of searching\n\u001bPer\u001b\u0017uncursed tin whistle\n\u001b\u0017uncursed potion of paralysis\n\u001b\u0017heavy iron ball\n\u001b\u0017plate mail\n\u001b\u0007hill orc\n\u001bdg   l   af   af   af   af   af   af   af   af   af   af   "
+    }
+  ]
+}
