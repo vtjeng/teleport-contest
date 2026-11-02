@@ -1341,11 +1341,12 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         /* verify the chosen object */
         if (!otmp) {
             await ttyPline("You don't have that object.", state);
+            if (state.in_doagain) return null;
             continue;
         }
         if (cntgiven && (cnt < 0 || otmp.quan < cnt)) {
             await ttyPline(
-                `You don't have that many! You have only ${otmp.quan}.`,
+                `You don't have that many!  You have only ${otmp.quan}.`,
                 state,
             );
             if (state.in_doagain) return null;

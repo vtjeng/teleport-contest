@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c getobj() 2063-2067: a count larger than the chosen stack prints 'You don't have that many!  You have only N.' (two spaces after the exclamation mark) and asks again. A Priest drops with counts of 9 on the mace (one) and the potions of water (four), then escapes. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 4417093,
+      "datetime": "20490611081200",
+      "nethackrc": "OPTIONS=name:Aldous,role:Priest,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " d9a 9d \u001bi\u001b"
+    }
+  ]
+}
