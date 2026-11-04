@@ -360,6 +360,26 @@ required shape.
 Create or update a note, report, or permanent record only when
 `.agents/loop.md` or `.agents/review.md` requires it.
 
+### Remove inactive worktrees
+
+The lead session checks `git worktree list --porcelain` at task start
+and after integration or temporary validation work. Remove worktrees
+that are no longer needed without asking for routine cleanup approval.
+
+- Keep the current checkout and worktrees reserved for ongoing work.
+  Confirm that no live agent or process uses a checkout before removal;
+  age or a clean Git status alone does not establish inactivity.
+- Keep worktrees with uncommitted changes, including untracked files or
+  submodule changes. Preserve required evidence outside temporary
+  worktrees before removing them.
+- Preserve branches and commits. Before removing a detached worktree,
+  ensure its HEAD is reachable from a retained branch or tag.
+- Use `git worktree remove`. Clear stale locks only after verifying
+  their owners have exited. Use `--force` only when clean submodules
+  require it, after checking the worktree and submodules for changes.
+- Prune missing entries with `git worktree prune`, verify the remaining
+  worktrees, and briefly report removals and any worktrees retained.
+
 ### Check out the C source in a new worktree
 
 Git records `nethack-c/upstream` as a submodule gitlink, and `git worktree add`
