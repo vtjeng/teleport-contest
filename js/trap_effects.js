@@ -2263,6 +2263,9 @@ export async function dofiretrap(box, rawEnv = {}) {
     if (await burnarmor(state.youmonst, env)
         || random.rn2(3)) {
         await destroy_items(state.youmonst, AD_FIRE, origDmg, env);
+        // An exploding potion's losehp() can reach done(), which does not
+        // return in C.
+        if (state.program_state?.gameover) return;
         await ignite_items(state.invent, env);
     }
     if (!box && await burn_floor_objects(u.ux, u.uy, seeIt, true, {
@@ -2440,6 +2443,9 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
             return Trap_Effect_Finished;
         } else {
             await domagictrap(env);
+            // A fatal domagictrap() effect reaches done(), which does not
+            // return in C.
+            if (state.program_state?.gameover) return Trap_Effect_Finished;
         }
         // C line 2313 discards steedintrap()'s return. An unmounted hero
         // takes its no-op guard; a mounted hero gives the effect to its steed.

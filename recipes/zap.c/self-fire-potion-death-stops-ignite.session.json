@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c zapyourself() WAN_FIRE: destroy_items() boils the hero's potions, and an explosion kills the hero before ignite_items() runs; done() does not return, so the wished candle never catches light.  A debug Healer takes timed intrinsic fire resistance with #wizintrinsic (intrinsic resistance does not protect carried items), wishes for a wand of fire, a candle and two potion stacks, then zaps herself and answers Escape to each Call prompt.",
+  "segments": [
+    {
+      "seed": 71001,
+      "datetime": "20220309111500",
+      "nethackrc": "OPTIONS=name:Ember,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "#wizintrinsic\n>i\n \u0017wand of fire\n\u0017wax candle\n\u00173 potions of water\n\u00173 potions of fruit juice\nzk.     \u001b \u001b y qn"
+    }
+  ]
+}

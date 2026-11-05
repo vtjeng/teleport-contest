@@ -703,6 +703,9 @@ export async function explode(
             await ignite_items(state.invent, { ...env, state, random });
         }
         await destroy_items(state.youmonst, adtyp, dam, { ...env, state, random });
+        // destroy_items() can kill the hero through an exploding potion, and
+        // C's done() does not return.
+        if (state.program_state?.gameover) return;
         await ugolemeffects(adtyp, damu, state, env);
         if (uhurt === 2) {
             if (grabbing && state.u?.ustuck

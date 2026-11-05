@@ -4464,6 +4464,9 @@ export async function mhitm_ad_fire(
             }
             if (magr.m_lev > random.rn2(20)) {
                 await destroy_items(state.youmonst, AD_FIRE, orig_dmg, effectEnv);
+                // destroy_items() can kill the hero through an exploding
+                // potion, and C's done() does not return.
+                if (state.program_state?.gameover) return;
                 await (env.igniteItems ?? ignite_items)(state.invent, effectEnv);
             }
             await burn_away_slime(state, env);

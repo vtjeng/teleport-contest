@@ -1227,6 +1227,9 @@ export async function zapyourself(obj, ordinary, state = game) {
             await ugolemeffects(AD_ELEC, orig_dmg, state);
         }
         await destroy_items(state.youmonst, AD_ELEC, orig_dmg, env);
+        // destroy_items() can kill the hero through an exploding potion, and
+        // C's done() does not return.
+        if (state.program_state?.gameover) break;
         await flashburn(rnd(100), true, state);
         break;
 
@@ -1254,6 +1257,9 @@ export async function zapyourself(obj, ordinary, state = game) {
         await burn_away_slime(state, env);
         await burnarmor(state.youmonst, env);
         await destroy_items(state.youmonst, AD_FIRE, orig_dmg, env);
+        // destroy_items() can kill the hero through an exploding potion, and
+        // C's done() does not return.
+        if (state.program_state?.gameover) break;
         await ignite_items(state.invent, env);
         break;
 

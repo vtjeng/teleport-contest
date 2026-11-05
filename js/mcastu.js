@@ -785,6 +785,9 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
     };
     await burnarmor(state.youmonst, effectEnv);
     await destroy_items(state.youmonst, AD_FIRE, origDmg, effectEnv);
+    // destroy_items() can kill the hero through an exploding potion, and
+    // C's done() does not return.
+    if (state.program_state?.gameover) return dmg;
     await ignite_items(state.invent, effectEnv);
     await mon_spell_hits_spot(
         mtmp, AD_FIRE, state.u.ux, state.u.uy, effectEnv,

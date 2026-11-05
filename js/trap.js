@@ -1699,6 +1699,9 @@ export async function lava_effects(state = game) {
                     state,
                     random,
                 });
+                // destroy_items() can kill the hero through an exploding
+                // potion, and C's done() does not return.
+                if (state.program_state?.gameover) return false;
                 const { ignite_items } = await import('./apply_catch_lit.js');
                 await ignite_items(state.invent, { state, random });
                 return false;
@@ -1793,6 +1796,9 @@ export async function lava_effects(state = game) {
                 state,
                 random,
             });
+            // destroy_items() can kill the hero through an exploding
+            // potion, and C's done() does not return.
+            if (state.program_state?.gameover) return false;
             const { ignite_items } = await import('./apply_catch_lit.js');
             await ignite_items(state.invent, { state, random });
             return false;
@@ -1824,6 +1830,9 @@ export async function lava_effects(state = game) {
         state,
         random,
     });
+    // destroy_items() can kill the hero through an exploding potion, and
+    // C's done() does not return.
+    if (state.program_state?.gameover) return false;
     const { ignite_items } = await import('./apply_catch_lit.js');
     await ignite_items(state.invent, { state, random });
     return false;

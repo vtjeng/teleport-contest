@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "explode.c explode(): destroy_items() boils the hero's potions and an explosion kills the hero; done() does not return, so the fireball's own \"It is fatal.\" never follows.  A debug Healer takes timed intrinsic fire resistance with #wizintrinsic (the fireball itself does no damage, and intrinsic resistance does not protect carried items), wishes for a wand of fire and two potion stacks, breaks the wand, and answers Escape to each Call prompt.",
+  "segments": [
+    {
+      "seed": 71002,
+      "datetime": "20220309111500",
+      "nethackrc": "OPTIONS=name:Ember,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "#wizintrinsic\n>i\n \u0017wand of fire\n\u00173 potions of water\n\u00173 potions of fruit juice\naly   \u001b  \u001b y qn"
+    }
+  ]
+}
