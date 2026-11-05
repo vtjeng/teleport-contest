@@ -180,13 +180,28 @@ function clearRowFrom(display, firstColumn, row) {
 // redraws the map from gg.gbuf. That differs from the covered cells when a
 // UTF-8 glyph left a stale ASCII character in recorder patch 006's shadow
 // cell: the repair blanks it. Without a level there is no map to redraw, so
-// the covered startup text is restored instead.
-function restoreCorner(state, display, repairColumn, snapshot) {
+// the covered startup text is restored instead. `snapshot` holds the rows
+// 0..maxrow the window covered, so its length is docorner()'s ymax.
+async function restoreCorner(state, display, repairColumn, snapshot) {
     if (state.level && state.u?.ux) {
         docorner(repairColumn + 1, snapshot.length, 0, state);
-        return;
+    } else {
+        restoreRegion(display, repairColumn, snapshot);
     }
-    restoreRegion(display, repairColumn, snapshot);
+
+    // C docorner() ends by calling bot() when ymax reaches WIN_STATUS, even
+    // when the half-open clear range ends exactly at its first row and
+    // therefore clears no status cells. It does not restore the status
+    // suffix the window covered: keep the cells left of the repair column
+    // and let bot() redraw the status only when its caller has not disabled
+    // bot updates.
+    const firstStatusRow = display.rows - status_window_rows();
+    if (snapshot.length < firstStatusRow) return;
+    for (let row = Math.max(0, firstStatusRow); row < snapshot.length; ++row)
+        clearRowFrom(display, repairColumn, row);
+    state.disp ??= {};
+    state.disp.botlx = true;
+    await bot();
 }
 
 function restoreRegion(display, firstColumn, snapshot) {
@@ -542,7 +557,7 @@ export async function displayTtyMenuTextWindow(
     if (layout.fullRepair) {
         await erase_menu_or_text(state, display, snapshot, baseCursor);
     } else {
-        restoreCorner(state, display, layout.repairColumn, snapshot);
+        await restoreCorner(state, display, layout.repairColumn, snapshot);
     }
     return response;
 }
@@ -849,36 +864,12 @@ export async function dismissTtyMenu(state = game, rendered) {
         // subsequent rename's empty tty_putstr() advances from this row.
         state._ttyBaseCursorRow = rendered.base.maxrow;
     } else {
-        restoreCorner(
+        await restoreCorner(
             state,
             display,
             rendered.base.repairColumn,
             rendered.snapshot,
         );
-
-        // C ref: wintty.c docorner() clears rows up to but excluding `ymax`,
-        // then calls bot() when ymax reaches WIN_STATUS. The snapshot
-        // restores the base map covered by the corner menu, but C does not
-        // restore the status suffix that docorner() cleared. Keep the cells
-        // left of the menu's repair column and let bot() redraw the status
-        // only when its caller has not disabled bot updates.
-        const firstStatusRow = display.rows - status_window_rows();
-        const repairedEndRow = Math.min(
-            display.rows,
-            rendered.base.maxrow + 1,
-        );
-        // C docorner() keys bottom-line damage off ymax reaching the status
-        // window, even when the half-open clear range ends exactly at its
-        // first row and therefore clears no status cells.
-        if (rendered.base.maxrow + 1 >= firstStatusRow) {
-            for (let row = Math.max(0, firstStatusRow);
-                row < repairedEndRow; ++row) {
-                clearRowFrom(display, rendered.base.repairColumn, row);
-            }
-            state.disp ??= {};
-            state.disp.botlx = true;
-            await bot();
-        }
     }
 }
 

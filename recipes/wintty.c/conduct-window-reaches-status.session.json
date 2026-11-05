@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent debug-mode Priestess raised to experience level 30 with #levelchange, then #quit. The final conduct and achievements window is an NHW_MENU text window at offx 38 whose --More-- row is the first status row, so wintty.c erase_menu_or_text() calls docorner(offx, maxrow + 1, 0) with ymax past WIN_STATUS->offy: cl_end() clears the status suffix from offx and docorner() then sets disp.botlx and calls bot(), which redraws both status rows before the dungeon-overview prompt.",
+  "segments": [
+    {
+      "seed": 5170423,
+      "datetime": "20390612094500",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": " #levelchange\n30\n\u001b#quit\nynnny n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of conduct-window-reaches-status: a debug-mode Monk raised only to experience level 26 attains one rank fewer, so the final conduct window's --More-- row ends on the last map row. docorner()'s half-open clear range then stops at WIN_STATUS->offy and clears no status cells, but ymax still reaches that row, so docorner() still sets disp.botlx and calls bot().",
+  "segments": [
+    {
+      "seed": 8812067,
+      "datetime": "20410227163000",
+      "nethackrc": "OPTIONS=name:Bertil,role:Monk,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup\n",
+      "moves": " #levelchange\n26\n\u001b#quit\nynnny n"
+    }
+  ]
+}
