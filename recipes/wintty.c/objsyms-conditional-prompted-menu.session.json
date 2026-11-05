@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 731264,
+    "datetime": "20300812141516",
+    "nethackrc": "OPTIONS=name:Prompter,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,force_invmenu,!sortpack,color\n",
+    "moves": "\n\nd\u001bw\u001b",
+    "comment": "Reaches wintty.c process_menu_window() with the default menu_objsyms:conditional (4) and !sortpack, so no class heading appears. tty_end_menu() adds the getobj() prompt as a zero-identifier line, so the drop and wield menus show '-' rather than each object's class symbol."
+  }]
+}
