@@ -765,10 +765,12 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
 
     // process_menu_window() decides once from the complete linked menu, before
     // it selects a page.  A zero identifier is any display-only line or
-    // heading in this representation.
+    // heading in this representation.  tty_end_menu() adds a prompt and its
+    // blank separator to that list as two zero-identifier lines, so a menu
+    // with a title never shows object symbols in conditional mode.
     let showObjectSymbols = state.iflags?.use_menu_glyphs === true;
     if ((state.iflags?.menuobjsyms & 4) !== 0) {
-        const hasHeader = (spec.items ?? []).some((item) => (
+        const hasHeader = spec.title != null || (spec.items ?? []).some((item) => (
             typeof item !== 'object' || item === null
                 || !Object.hasOwn(item, 'value')
         ));
