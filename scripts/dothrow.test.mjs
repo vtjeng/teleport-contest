@@ -748,10 +748,14 @@ test('dothrow petrification call sites use minstapetrify in C order', async () =
     assert.doesNotMatch(jsHurtle, /note_unported\('trap\.c instapetrify'\)/u);
     assert.match(jsHurtle,
         /await minstapetrify\(mon, true, state,[\s\S]*?await wake_nearto\(x, y, 10, \{ state, random, message \}\);/u);
+    // C's newsym() calls go through `redraw`, which is newsym() in live play
+    // and draws nothing in a monster turn's planning pass.
     assert.match(jsMHurtle,
-        /await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?newsym\(monster\.mx, monster\.my\);[\s\S]*?await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?newsym\(otherMonster\.mx, otherMonster\.my\);[\s\S]*?await minstapetrify\(monster, true/u);
+        /const redraw = env\.planning \? \(\) => \{\} : newsym;/u);
     assert.match(jsMHurtle,
-        /state\.svk\.killer\.name = `being hit by \$\{name\}`;[\s\S]*?await instapetrify\(state\.svk\.killer\.name, state, env\);[\s\S]*?newsym\(state\.u\.ux, state\.u\.uy\);/u);
+        /await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?redraw\(monster\.mx, monster\.my\);[\s\S]*?await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?redraw\(otherMonster\.mx, otherMonster\.my\);[\s\S]*?await minstapetrify\(monster, true/u);
+    assert.match(jsMHurtle,
+        /state\.svk\.killer\.name = `being hit by \$\{name\}`;[\s\S]*?await instapetrify\(state\.svk\.killer\.name, state, env\);[\s\S]*?redraw\(state\.u\.ux, state\.u\.uy\);/u);
     assert.doesNotMatch(jsMHurtle, /note_unported\('trap\.c instapetrify'\)/u);
     assert.match(jsThrow,
         /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj, \{ state \}\);/u);
