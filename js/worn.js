@@ -289,6 +289,15 @@ function removeSlotEffects(obj, slotMask, callerMask, env) {
 function addSlotEffects(obj, slotMask, callerMask, env) {
     const { state } = env;
     if (slotMask & (W_SWAPWEP | W_QUIVER)) return;
+    add_worn_property(obj, slotMask, callerMask, state);
+    return artifactIntrinsic(obj, true, callerMask, env);
+}
+
+// C ref: worn.c setworn(), the new-object branch's property bits: the
+// object's oc_oprop gains the slot's extrinsic bit and any property it
+// blocks gains the slot's blocked bit. restore.c restgamestate() reaches
+// this through setworn() for every worn object it reads back.
+export function add_worn_property(obj, slotMask, callerMask, state = game) {
     if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
         || callerMask !== W_WEP) {
         const oprop = Math.trunc(objectType(obj, state).oc_oprop ?? 0);
@@ -296,7 +305,6 @@ function addSlotEffects(obj, slotMask, callerMask, env) {
         const blocked = blockedProperty(obj, callerMask, state);
         if (blocked) property(state, blocked).blocked |= slotMask;
     }
-    return artifactIntrinsic(obj, true, callerMask, env);
 }
 
 // C ref: worn.c recalc_telepat_range(). Artifact ESP is injected because the

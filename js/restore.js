@@ -64,6 +64,7 @@ import {
     time_from_yyyymmddhhmmss,
 } from './calendar.js';
 import { rest_engravings } from './engrave.js';
+import { add_worn_property } from './worn.js';
 import { rn1, rn2, rnd } from './rng.js';
 import {
     parseSnapshot, SAVE_FILE_PATH, savemonchn, saveobjchn,
@@ -698,9 +699,19 @@ function rebuildEquipmentPointers(state) {
     }
 
     // C ref: restore.c restgamestate():685-687, setworn() for each worn
-    // inventory object.
+    // inventory object. Besides the pointer, setworn() sets each slot's
+    // extrinsic and blocked bits on the restored u.uprops. A save carries
+    // those bits already, except where nhlua.c nhl_gamestate(TRUE) put back
+    // a u that was copied after the tutorial's setnotworn() calls: there
+    // the worn gear's properties come back only through this setworn().
+    // (Its artifact-intrinsic and display steps stay out, as before.)
     for (let obj = state.invent; obj; obj = obj.nobj) {
-        if (obj.owornmask) setWornPointers(obj, state);
+        if (!obj.owornmask) continue;
+        setWornPointers(obj, state);
+        for (const { mask } of WORN_SLOTS) {
+            if ((obj.owornmask & mask) && !(mask & (W_SWAPWEP | W_QUIVER)))
+                add_worn_property(obj, mask, obj.owornmask, state);
+        }
     }
 
     // C ref: restore.c find_lev_obj():101-104, which getlev() reaches for

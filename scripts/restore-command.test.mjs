@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-import { A_CHAOTIC } from '../js/const.js';
+import { A_CHAOTIC, DISPLACED, W_ARMC } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dorestore } from '../js/restore.js';
@@ -283,4 +283,32 @@ test('debug restore can retain the save through the production prompt', async ()
     // Replace only the answer to the source keep-save prompt.
     await runSegment({ ...recipe.segments[1], moves: ' y ', storage });
     assert.ok(storage.getItem('vfs:nhsave'), 'the y arm preserves the VFS save');
+});
+
+// restore.c restgamestate() (685-689) calls setworn() for every worn object,
+// which sets the slot's extrinsic bit on the restored u.uprops. A save made
+// after the tutorial can carry worn gear whose extrinsic bits were dropped:
+// nhlua.c nhl_gamestate() copies u after the setnotworn() calls and puts that
+// copy back after re-wearing. Only the restore's setworn() brings back, for
+// instance, a Ranger's cloak of displacement.
+test('restore sets a worn object\'s extrinsic property bit', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/restore.c', import.meta.url), 'utf8');
+    assert.match(source, /if \(otmp->owornmask\)\s*setworn\(otmp, otmp->owornmask\);/u);
+    const storage = new InMemoryStorage();
+    const nethackrc = 'OPTIONS=name:Lorien,role:Ranger,race:human,gender:female,'
+        + 'align:neutral,!tutorial,pettype:none';
+    // Seed and datetime are arbitrary; the Ranger's starting cloak of
+    // displacement is worn from the first turn.
+    await runSegment({ seed: 8150232, datetime: '20261120143000', nethackrc,
+        moves: ' Sy', storage });
+    const snapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+    assert.equal(snapshot.u.uprops[DISPLACED].extrinsic & W_ARMC, W_ARMC,
+        'the cloak of displacement is worn when the game is saved');
+    snapshot.u.uprops[DISPLACED].extrinsic = 0;
+    storage.setItem('vfs:nhsave', JSON.stringify(snapshot));
+
+    await runSegment({ seed: 8150233, datetime: '20261120150000', nethackrc,
+        moves: ' ', storage });
+    assert.equal(game.uarmc?.owornmask & W_ARMC, W_ARMC);
+    assert.equal(game.u.uprops[DISPLACED].extrinsic & W_ARMC, W_ARMC);
 });
