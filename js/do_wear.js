@@ -3200,7 +3200,9 @@ export async function glibr(state = game, env = {}) {
         } finally {
             object.quan = savedQuantity;
         }
-        await setuwep(null, setwornEnv(state));
+        // setuwep()'s "stops shining" notice goes through glibr()'s message
+        // operation, which a planned turn silences.
+        await setuwep(null, { ...setwornEnv(state), message });
         cmdq_clear(CQ_CANNED, state);
         if (await canLetGo(object, '', state)) await drop(object);
     }
