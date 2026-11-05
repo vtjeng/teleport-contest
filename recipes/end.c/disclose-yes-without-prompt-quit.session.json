@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "end.c disclose() with categories set to '+' (disclose without prompting): should_query_disclose_option() returns FALSE with defquery 'y', so after #quit the inventory, attributes, conduct and dungeon overview appear in turn with no question asked. No prompt precedes the inventory menu, so the answered 'Really quit without saving?' line stays beside it: really_done()'s display_nhwindow(WIN_MESSAGE, FALSE) marks the top line empty without erasing it, and the corner menu's tty_clear_nhwindow(WIN_MESSAGE) then leaves it alone. The second segment, an elven Wizard, mixes '+' with '-' categories, so the attributes and conduct windows are absent. Seeds, datetimes, characters and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4471902,
+      "datetime": "20280322093000",
+      "nethackrc": "OPTIONS=name:Teller,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!tutorial,!splash_screen,pettype:none,disclose:+i +a +v +g +c +o\n",
+      "moves": " #quit\ny      "
+    },
+    {
+      "seed": 4471903,
+      "datetime": "20280323221500",
+      "nethackrc": "OPTIONS=name:Shower,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!tutorial,!splash_screen,pettype:none,disclose:+i -a -v +g -c +o\n",
+      "moves": " #quit\ny   "
+    }
+  ]
+}

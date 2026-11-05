@@ -869,7 +869,9 @@ const KEY_A = 'a'.charCodeAt(0);
 
 // C ref: end.c should_query_disclose_option() (475-515). The returned
 // `defquery` is the answer used when the option suppresses the prompt and the
-// default passed to yn_function() when it does not.
+// default passed to yn_function() when it does not. yn_function() returns a
+// key code, so a caller that skips the prompt converts `defquery` with
+// charCodeAt(0) before comparing it with KEY_Y or KEY_Q.
 function should_query_disclose_option(category, state) {
     const index = DISCLOSURE_OPTIONS.indexOf(category);
     if (index < 0) {
@@ -917,7 +919,7 @@ async function disclose(how, taken, state) {
             defquery,
             true,
             state,
-        ) : defquery;
+        ) : defquery.charCodeAt(0);
         if (c === KEY_Y) {
             state.iflags.force_invmenu = false;
             await display_inventory(null, true, state, {
@@ -941,7 +943,7 @@ async function disclose(how, taken, state) {
             defquery,
             true,
             state,
-        ) : defquery;
+        ) : defquery.charCodeAt(0);
         if (c === KEY_Y) {
             const lines = await enlightenment(
                 BASICENLIGHTENMENT | MAGICENLIGHTENMENT,
@@ -972,7 +974,7 @@ async function disclose(how, taken, state) {
                 ? ' and achievements' : ''}?`;
             c = await yn_function(query, 'ynq', defquery, true, state);
         } else {
-            c = defquery;
+            c = defquery.charCodeAt(0);
         }
         if (c === KEY_Y) {
             await show_conduct(
@@ -990,7 +992,7 @@ async function disclose(how, taken, state) {
             defquery,
             true,
             state,
-        ) : defquery;
+        ) : defquery.charCodeAt(0);
         if (c === KEY_Y) {
             // C ref: end.c disclose():696. Final disclosure passes 1 for a
             // living ending (escape, ascension, panic) and 2 for death;
@@ -1306,11 +1308,10 @@ async function really_done(how, state) {
         await clearpriests(state);
     }
 
-    // C end.c really_done() displays WIN_MESSAGE at 1247 before disclosure.
-    // This is the nonblocking TTY arm: leave a pending More marker in place
-    // for the next disclosure query without consuming another input key.
+    // C end.c really_done() calls display_nhwindow(WIN_MESSAGE, FALSE) at
+    // 1247 before disclosure.
     if (haveWindows)
-        showPendingTtyMessage(state);
+        await displayPendingTtyMessageWindow(state);
     if (how !== PANICKED) {
         await identifyInventoryForDisclosure(state);
     }

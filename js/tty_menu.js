@@ -729,9 +729,12 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
     const visibleRows = Math.min(display.rows, layout.maxrow);
     if (!layout.fullScreen) {
         // tty_display_nhwindow() clears the message window before a corner
+        // menu.  tty_clear_nhwindow(WIN_MESSAGE) erases the top line only
+        // while toplin is not TOPLINE_EMPTY, so a prompt that an earlier
+        // display_nhwindow(WIN_MESSAGE, FALSE) retired stays beside the
         // menu.  The remaining base-window content is repaired by docorner()
         // when the menu is dismissed.
-        display.clearRow(0);
+        clearTtyMessageWindow(state);
     }
     // A full-screen gameplay menu is repaired by docrt()+flush_screen() in
     // tty_dismiss_nhwindow().  Retain the equivalent physical base frame so
