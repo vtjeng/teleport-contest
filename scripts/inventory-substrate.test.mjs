@@ -3467,13 +3467,19 @@ test('monster altar flooreffects calls the shared doaltarobj port', async () => 
         { length: 21 }, () => new Array(80).fill(0),
     );
     state.viz_array[5][10] |= IN_SIGHT;
+    // doaltarobj() prints through flooreffects()'s message seam, which a
+    // planned monster turn uses to keep the line off the live terminal.
+    const messages = [];
 
     assert.equal(await flooreffects(obj, 10, 5, 'fall', {
         state,
-        message: () => {},
+        message: (line) => { messages.push(line); },
     }), false);
     assert.equal(obj.bknown, 1);
     assert.equal(obj.where, OBJ_FREE);
+    assert.equal(messages.length, 1);
+    // A cursed object gives do.c doaltarobj()'s black flash (do.c:379-380).
+    assert.match(messages[0], /^There is a black flash as .* the altar\.$/u);
 });
 
 test('heavy wish drops stay on an up staircase and a doorway', async () => {
