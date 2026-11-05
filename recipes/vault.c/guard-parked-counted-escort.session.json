@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "vault.c gd_move_cleanup() during a counted move. A lawful human Samurai teleports into a level-1 vault, answers the guard, and follows the escort with counted moves. The guard parks at <0,0> while the hero still walks the temporary corridor; postmov() newsym(0,0) raises impossible(), and the parked guard returns 1 on each later turn without forcing the pending message window, so the move goes on until clear_fcorr() prints \"The corridor disappears.\" Independent of batch 5.",
+  "segments": [
+    {
+      "seed": 5150302,
+      "datetime": "20361002101500",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u0014 Jjjlllllll. 40s Tamsin\rlsskk9l9k9u9l9u      "
+    }
+  ]
+}
