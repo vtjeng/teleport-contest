@@ -66,6 +66,7 @@ import {
 import { rn1, rn2, rnd } from './rng.js';
 import {
     parseSnapshot, SAVE_FILE_PATH, savemonchn, saveobjchn,
+    shift_level_edog_times,
 } from './save.js';
 import { restore_oracles } from './rumors.js';
 import { assign_graphics } from './symbols.js';
@@ -531,6 +532,13 @@ function rest_other_levels(levels, state) {
     }
 }
 
+// C ref: restore.c rest_adjust_levelflags() (1314-1318), the inverse of
+// save.js save_adjust_levelflags().
+function rest_adjust_levelflags(state) {
+    const flags = state.level?.flags;
+    if (flags) flags.stasis_until = (flags.stasis_until ?? 0) + state.moves;
+}
+
 // C ref: restore.c restobj() (183-228). C reads the saved bytes into a struct
 // that newobj() allocated, so every restored object has struct obj's union
 // accessors (nexthere, ocontainer and ocarry over `v`) and its bit-field
@@ -576,9 +584,12 @@ export function restobjchn(first, state) {
 
 // C ref: restore.c restmon() (307-373). The snapshot keeps nmon and every
 // mextra record, so the struct read and the mextra reconstruction have no
-// work here. A pet's droptime and hungrytime are saved relative to the clock
-// and converted back (355-356), which leaves the snapshot's absolute values
-// unchanged; what remains is the apport floor that prevents rn2(0) (357-360).
+// work here. A pet's droptime and hungrytime are stored relative to the
+// clock (355-356): a saved game's hero level holds them absolute, because the
+// save and the restore share one turn, and getlev() converts another level's
+// with save.js shift_level_edog_times(), which leaves rest_other_levels()'s
+// read-and-rewrite to keep them relative. What remains is the apport floor
+// that prevents rn2(0) (357-360).
 function restmon(mtmp, _state) {
     const edog = mtmp.mextra?.edog;
     if (edog && edog.apport <= 0) edog.apport = 1;
@@ -741,6 +752,13 @@ export async function getlev(ledger, state = game) {
     // is how many game turns passed since the hero left this level. The snapshot
     // recorded `omoves` as the value of `state.moves` at the time of saving.
     const elapsed = state.moves - (snapshot.omoves ?? state.moves);
+
+    // C ref: restore.c getlev():1117 rest_adjust_levelflags(), and
+    // restmonchn()'s and restobjchn()'s restmon() calls (355-356): savelev()
+    // left these times relative to its turn (save.js
+    // shift_level_edog_times()); this read makes them absolute again.
+    rest_adjust_levelflags(state);
+    shift_level_edog_times(state.level, state.moves);
 
     // ── Restore timers and lights ──
     //
