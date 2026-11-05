@@ -2922,7 +2922,13 @@ export function select_postmove_object_action(
     const random = rawEnv.random ?? { rn2 };
     const env = { ...rawEnv, state, random };
     const objects = state.level?.objects?.[x]?.[y] ?? null;
-    if (!objects || !monster.mcanmove) return null;
+    if (!monster.mcanmove) return null;
+    // postmov() tests OBJ_AT() once, before meatmetal(), meatobj() and
+    // meatcorpse() (monmove.c:1661), and then calls mpickstuff() even when
+    // eating emptied the square; mpickstuff()'s shop test still draws its
+    // rn2(25) (mon.c:1857). The postmov() caller has made that test and
+    // passes skipConsumption, so only other callers stop here.
+    if (!objects && !rawEnv.skipConsumption) return null;
 
     // Tests and bounded preflight callers may ask about another square. Give
     // source predicates those coordinates without mutating the real monster.
