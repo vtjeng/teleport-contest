@@ -745,6 +745,7 @@ export async function mhurtle_step(arg, x, y) {
     if (!isok(x, y)) return false;
     // Speculative movement keeps map/physics effects without live presentation.
     const redraw = env.planning ? () => {} : newsym;
+    const message = env.planning ? async () => {} : ttyPline;
 
     if (will_hurtle(monster, x, y, state, env)
         && await m_in_out_region(monster, x, y, { ...env, state })) {
@@ -781,7 +782,7 @@ export async function mhurtle_step(arg, x, y) {
     const otherMonster = m_at(x, y, state);
     if (otherMonster && otherMonster !== monster) {
         if (canseemon(monster, state) || canseemon(otherMonster, state)) {
-            await ttyPline(
+            await message(
                 `${Monnam(monster, state, env)} bumps into `
                     + `${a_monnam(otherMonster, env)}.`,
                 state,
@@ -795,30 +796,30 @@ export async function mhurtle_step(arg, x, y) {
             await minstapetrify(
                 monster, !state.context?.mon_moving, state, env,
             );
-            newsym(monster.mx, monster.my);
+            redraw(monster.mx, monster.my);
         }
         if (touch_petrifies(monster.data)
             && !which_armor(otherMonster, W_ARMU | W_ARM | W_ARMC, state)) {
             await minstapetrify(
                 otherMonster, !state.context?.mon_moving, state, env,
             );
-            newsym(otherMonster.mx, otherMonster.my);
+            redraw(otherMonster.mx, otherMonster.my);
         }
     } else if (u_at(x, y, state)) {
-        await ttyPline(
+        await message(
             `${Some_Monnam(monster, state, env)} bumps into you.`,
             state,
         );
         const { stop_occupation } = await import('./allmain.js');
         await stop_occupation(state, {
             ...env,
-            message: env.message
-                ?? ((line, target) => ttyPline(line, target ?? state)),
+            message: env.planning ? message : (env.message
+                ?? ((line, target) => ttyPline(line, target ?? state))),
         });
         if (Upolyd(state.u) && touch_petrifies(state.youmonst.data)
             && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
             await minstapetrify(monster, true, state, env);
-            newsym(monster.mx, monster.my);
+            redraw(monster.mx, monster.my);
         }
         if (touch_petrifies(monster.data)
             && !(state.uarmu || state.uarm || state.uarmc)) {
@@ -836,7 +837,7 @@ export async function mhurtle_step(arg, x, y) {
             );
             state.svk.killer.name = `being hit by ${name}`;
             await instapetrify(state.svk.killer.name, state, env);
-            newsym(state.u.ux, state.u.uy);
+            redraw(state.u.ux, state.u.uy);
         }
     }
     return false;
