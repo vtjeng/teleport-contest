@@ -2901,6 +2901,10 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 await stop_occupation(state, {
                     message,
                 });
+            // C's done() does not return: a fatal boulder ends the game
+            // inside thitu(). really_done() has already put the boulder on
+            // the launch_drop_spot() square for bones, so stop rolling.
+            if (state.program_state?.gameover) return 2;
         }
         if (style === ROLL) {
             if (down_gate(x, y, state) !== MIGR_NOWHERE

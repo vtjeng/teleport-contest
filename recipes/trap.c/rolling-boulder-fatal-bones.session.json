@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent trap.c launch_obj() entry where the rolling boulder kills the hero. A 10-HP Tourist wishes for a rolling boulder trap, steps off and back on, and the boulder's thitu() is fatal; the wizard-mode Save bones? answer is y. C's done() does not return, so the boulder never reaches the per-square flooreffects() call after the hero's square.",
+  "segments": [
+    {
+      "seed": 71540928,
+      "datetime": "20610730120000",
+      "nethackrc": "OPTIONS=name:Flattened,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " kl\u0017rolling boulder trap\n lh  ynnnny  "
+    }
+  ]
+}
