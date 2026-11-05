@@ -49,6 +49,7 @@ import {
     AD_FIRE,
     AD_ACID,
     PM_GIANT_RAT,
+    PM_GNOME_LEADER,
     PM_EARTH_ELEMENTAL,
     PM_NEWT,
     PM_STONE_GIANT,
@@ -678,6 +679,42 @@ test('a visible monster throw includes its location in accessible messages',
         assert.deepEqual(messages,
             ['(5east): The giant rat throws a crude dagger!']);
     });
+
+test('monshoot stops a volley once a missile ends the game', async () => {
+    // C ref: mthrowu.c monshoot() loops m_throw() over gm.m_shot.n missiles.
+    // A missile that kills the hero reaches done() inside thitu(), and C's
+    // done() does not return, so no later missile flies. The port's
+    // end-game path returns with program_state.gameover set instead.
+    const state = await hero();
+    const y = state.u.uy;
+    // A gnome leader is a lord, so monmulti() rolls rnd(2) for its stack.
+    const subject = attacker(state, state.u.ux + 5, y, state.u.ux, y,
+        state.mons[PM_GNOME_LEADER]);
+    // A living thrower, so monshoot()'s own DEADMONSTER stop cannot apply.
+    subject.mhp = subject.mhpmax = 10;
+    const daggers = mksobj(ORCISH_DAGGER, false, false, { state });
+    // Two daggers let a volley of two leave the stack.
+    daggers.quan = 2;
+    add_to_minv(subject, daggers, { state });
+    state.gt = { tbx: -1, tby: 0 };
+    const thrown = [];
+
+    await monshoot(subject, daggers, null, {
+        state,
+        // monmulti()'s rnd(2) answers 2: a two-missile volley.
+        random: { rnd: (limit) => limit },
+        canSeeMonster: () => true,
+        monsterName: () => 'The gnome leader',
+        message: () => {},
+        throwMissile: () => {
+            thrown.push(state.m_shot.i);
+            // The first missile kills the hero.
+            state.program_state.gameover = true;
+        },
+    });
+
+    assert.deepEqual(thrown, [1]);
+});
 
 test('monshoot unseen arm sets m_shot.o to STRANGE_OBJECT and falls through',
     async () => {
