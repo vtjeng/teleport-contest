@@ -2592,7 +2592,7 @@ async function givit(type, ptr, state, env = {}) {
  * C ref: eat.c eye_of_newt_buzz() (1103-1123).
  * Eating an eye of newt can give the player a small magical energy boost.
  */
-async function eye_of_newt_buzz(state, env = {}) {
+export async function eye_of_newt_buzz(state, env = {}) {
     const random = { rn2, rnd, ...(env.random ?? {}) };
     const message = env.message ?? ttyPline;
     if (random.rn2(3) || 3 * state.u.uen <= 2 * state.u.uenmax) {
@@ -2608,7 +2608,9 @@ async function eye_of_newt_buzz(state, env = {}) {
             state.u.uen = state.u.uenmax;
         }
         if (old_uen !== state.u.uen) {
-            await message('You feel a mild buzz.', state);
+            // pline.c You_feel() dreams the feeling while Unaware.
+            await message(`${Unaware(state)
+                ? 'You dream that you feel' : 'You feel'} a mild buzz.`, state);
             state.disp ??= {};
             state.disp.botl = true;
         }
