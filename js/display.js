@@ -2862,7 +2862,19 @@ export function show_glyph_cell(x, y, glyph) {
     loc.disp_browser_ch = displayCh;
     loc.disp_browser_color = displayColor ?? (displayCh ? color : null);
     loc.disp_browser_attr = displayCh ? attr | 0 : null;
-    loc.gnew = 1;
+    // display.c show_glyph() (2031-2047) sets gnew only when the buffered
+    // glyph or its presentation changes. cls() leaves nul_gbuf behind: an
+    // unexplored glyph drawn as a plain space.
+    const prior = previousPresentation
+        ?? { glyph: GLYPH_UNEXPLORED_OFF, ch: ' ', color: NO_COLOR };
+    if (prior.glyph !== logicalPresentation.glyph
+        || prior.ch !== logicalPresentation.ch
+        || (prior.color ?? NO_COLOR) !== logicalPresentation.color
+        || (prior.attr ?? 0) !== logicalPresentation.attr
+        || Boolean(prior.dec) !== logicalPresentation.dec
+        || (prior.displayCh ?? null) !== logicalPresentation.displayCh
+        || (prior.displayColor ?? null) !== logicalPresentation.displayColor)
+        loc.gnew = 1;
     // This order is the sparse-frame contract: install the buffer write, record
     // its mutation, then test notice eligibility and queue it. The first
     // eligible notice captures a full frame; filtered intervening writes remain

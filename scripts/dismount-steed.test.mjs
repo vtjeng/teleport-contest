@@ -945,9 +945,11 @@ test('see_monsters repaints the monster list and skips the hero square',
         const loc = state.level.at(state.u.ux, state.u.uy);
         return { gnew: loc.gnew, ch: loc.disp_ch, color: loc.disp_color };
     };
+    // show_glyph() marks gnew only when the buffered glyph changes
+    // (display.c:2031-2047), so the scribble replaces the buffered glyph too.
     const scribble = () => Object.assign(
         state.level.at(state.u.ux, state.u.uy),
-        { gnew: 0, disp_ch: '?', disp_color: 9 },
+        { gnew: 0, disp_ch: '?', disp_color: 9, disp_glyph: null },
     );
     const SCRIBBLED = { gnew: 0, ch: '?', color: 9 };
 
