@@ -742,10 +742,12 @@ export function disp_artifact_discoveries(state = game, putstr = null) {
         if (putstr) {
             const name = artiname(m, state);
             const art = state.artilist[m];
-            const alignStr = align_str(art.alignment);
+            let alignStr = align_str(art.alignment);
+            if (alignStr === 'unaligned')
+                alignStr = 'non-aligned';
             const typeName = simple_typename(art.otyp, state);
             if (cnt === 0) putstr(true, 'Artifacts');
-            putstr(false, `  ${name} (${alignStr} ${typeName})`);
+            putstr(false, `  ${name} [${alignStr} ${typeName}]`);
         }
         ++cnt;
     }
