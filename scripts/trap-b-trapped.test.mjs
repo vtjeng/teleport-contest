@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { A_CON, A_STR, FINGER, FROMOUTSIDE, HALF_PHDAM, NO_PART, STUNNED, TIMEOUT } from '../js/const.js';
+import { A_CON, A_STR, DISCLOSE_NO_WITHOUT_PROMPT, FINGER, FROMOUTSIDE, HALF_PHDAM, NO_PART, STUNNED, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { b_trapped } from '../js/trap.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 
 async function hero(depth = 1) {
     // Independent Wizard setup; the helper reads dungeon depth for damage.
@@ -71,4 +72,37 @@ test('b_trapped halves physical damage but adds the full roll to existing stun',
     assert.equal(state.u.aexe[A_CON], -1); // FINGER exercises both attributes.
     assert.equal(state.u.uprops[STUNNED].intrinsic, FROMOUTSIDE | 7);
     assert.deepEqual(messages, ['KABOOM!!  The door was booby-trapped!']); // Already stunned.
+});
+
+test('a fatal b_trapped explosion stops before exercise and stun', async () => {
+    const state = await hero();
+    state.u.uhp = 3; // Below the forced roll of 6, so losehp() reaches done().
+    // Finish the game without windows or disclosure prompts, as the
+    // end-really-done fixtures do, so done() needs no input.
+    state.iflags.window_inited = false;
+    state.flags.bones = false;
+    state.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+    state.invent = null;
+    state.moves = Math.max(state.moves, 2);
+    // losehp() writes "You die..." through the TTY; start from an empty top
+    // line so it needs no --More-- keystroke.
+    clearTtyMessageWindow(state);
+    const draws = [];
+    const messages = [];
+    await b_trapped('door', FINGER, state, {
+        random: {
+            rnd(bound) { draws.push(['rnd', bound]); return 6; }, // trap.c:6697, level 1.
+            rn2(bound) { draws.push(['rn2', bound]); return 1; },
+        },
+        message: async text => { messages.push(text); },
+        encumberMessage: async () => {},
+    });
+    // trap.c:6702 losehp() does not return after a death, so neither
+    // exercise() call draws and make_stunned() never says "You stagger...".
+    assert.equal(state.program_state.gameover, true);
+    assert.deepEqual(draws, [['rnd', 6]]);
+    assert.equal(state.u.aexe[A_STR], 0);
+    assert.equal(state.u.aexe[A_CON], 0);
+    assert.equal(state.u.uprops[STUNNED].intrinsic, 0);
+    assert.equal(messages.includes('You stagger...'), false);
 });

@@ -3698,6 +3698,8 @@ export async function b_trapped(item, bodypart, state = game, env = {}) {
     await wake_nearby(false, { ...env, state, random, message });
     await losehp(Maybe_Half_Phys(dmg, state), 'explosion', KILLED_BY_AN,
         state, { ...env, message });
+    // C's losehp() reaches done(), which does not return.
+    if (state.program_state?.gameover) return;
     const exerciseEnv = {
         encumberMessage: env.encumberMessage
             ?? (subject => encumber_msg(subject, { message })),
