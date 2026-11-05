@@ -5690,7 +5690,13 @@ export async function zap_over_floor(
     }
     if (!ignoremon) {
         const mon = m_at(x, y, state);
-        if (mon) await wakeup(mon, type >= 0, { state, random });
+        // wakeup() prints and redraws through this function's operations,
+        // which a monster turn's planning pass silences.
+        if (mon) {
+            await wakeup(mon, type >= 0, {
+                ...env, message, redraw: redrawAt,
+            });
+        }
     }
     return rangemod;
 }

@@ -4028,8 +4028,10 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
     if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_NOTHING) {
         // C ref: mon.c:4339-4343. Mimics come out of hiding, but a disguised
         // Wizard (M_AP_MONSTER) keeps his disguise.
+        // A monster turn's planning pass leaves the redraw to the live pass.
         if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_MONSTER) {
-            seemimic(monster, state);
+            seemimic(monster, state,
+                rawEnv.planning ? { newsym: () => {} } : {});
         }
     } else if (state.context?.forcefight && !state.context?.mon_moving
                && monster.mundetected) {
