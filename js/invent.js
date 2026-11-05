@@ -351,7 +351,10 @@ import {
 } from './objnam.js';
 import { hliquid, mon_nam, noit_Monnam } from './do_name.js';
 import { in_rooms } from './rooms.js';
-import { ILLOBJ_CLASS, LENSES, MAXOCLASSES } from './objects.js';
+import {
+    BALL_CLASS, CHAIN_CLASS, ILLOBJ_CLASS, LENSES, MAXOCLASSES, ROCK_CLASS,
+    WAND_CLASS,
+} from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
@@ -593,7 +596,13 @@ function assignInuseRating(sort_item, rating, altclass) {
 // C ref: invent.c loot_classify() (149-305). Writes class, subclass,
 // discovery and in-use ordering fields into a Loot item.
 const ARMCAT = [7, 4, 1, 2, 3, 5, 6, 8];
-const DEF_SRT_ORDER = '\x0B\x04\x05\x06\x08\x09\x0A\x0C\x07\x0D\x02\x03\x0F\x10\x11';
+// loot_classify()'s static def_srt_order[], used when 'sortpack' is off:
+// like inv_order but with the items most likely to be picked up first.
+const DEF_SRT_ORDER = Object.freeze([
+    COIN_CLASS, AMULET_CLASS, RING_CLASS, WAND_CLASS, POTION_CLASS,
+    SCROLL_CLASS, SPBOOK_CLASS, GEM_CLASS, FOOD_CLASS, TOOL_CLASS,
+    WEAPON_CLASS, ARMOR_CLASS, ROCK_CLASS, BALL_CLASS, CHAIN_CLASS,
+]);
 
 function loot_classify(sort_item, obj, state = game) {
     const objects = state.objects;

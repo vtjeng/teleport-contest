@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 5520913,
+    "datetime": "20290714090807",
+    "nethackrc": "OPTIONS=name:Sorter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!sortpack,!autopickup\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizwish\nsack\n#wizwish\nring of adornment\n#wizwish\nwand of light\ndbdddedfdg,\u001b",
+    "comment": "Reaches invent.c loot_classify() through pickup.c query_objlist() with sortloot:l and !sortpack, so def_srt_order[] orders the classes: ring, then food, then the bag and the lamp (tools), then the dagger."
+  }]
+}
