@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "display.c newsym() show_mem arm with lev->glyph == GLYPH_UNEXPLORED and show_glyph()'s mention_map test: a gnomish Healer with mention_map and a timed warning intrinsic level-teleports to level 12 and searches. A housecat and later a jaguar, seen by infravision, walk through unexplored dark squares. Each square a monster leaves returns to GLYPH_UNEXPLORED, so a later glyph there is again a change from an unexplored glyph that show_glyph() reports. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 203,
+      "datetime": "20260702081500",
+      "nethackrc": "OPTIONS=name:Ivo,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,mention_map\n",
+      "moves": "     #wizintrinsic\n>500v\n  #wizlevelport\n12\n   s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s "
+    }
+  ]
+}

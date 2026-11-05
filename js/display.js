@@ -4081,8 +4081,10 @@ export function newsym(x, y) {
         // glyph was previously written here (e.g. a warning digit for a
         // monster that has since moved away), disp_glyph is set and stale. C's
         // show_glyph overwrites it with GLYPH_UNEXPLORED (space, NO_COLOR);
-        // this clause does the same.
-        show_glyph_cell(x, y, { ch: ' ', color: NO_COLOR, dec: false });
+        // this clause does the same. The presentation keeps the sentinel's
+        // glyph number, which display.c show_glyph()'s mention_map test
+        // reads as glyph_is_unexplored() when a later glyph lands here.
+        show_glyph_cell(x, y, unexploredGlyphInfo(game));
     }
 }
 
@@ -4248,9 +4250,7 @@ export async function docrt(options = {}) {
                         // untouched cell alone; only a stale transient entry
                         // needs the blank write. This mirrors newsym()'s
                         // unexplored-cell arm below.
-                        show_glyph_cell(
-                            x, y, { ch: ' ', color: NO_COLOR, dec: false },
-                        );
+                        show_glyph_cell(x, y, unexploredGlyphInfo(game));
                     }
                 }
             if (options.restoreVision) options.restoreVision();
