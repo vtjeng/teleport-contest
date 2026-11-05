@@ -799,7 +799,8 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
             );
         }
         deltrap(trap, state);
-        newsym(mtmp.mx, mtmp.my);
+        // The caller's redraw is silent in a monster turn's planning pass.
+        requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my, state);
         return Trap_Is_Gone;
     }
 
