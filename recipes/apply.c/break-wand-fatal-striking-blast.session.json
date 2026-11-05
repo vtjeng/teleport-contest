@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent seed 7311905 (debug mode); variation of break-wand-fatal-explosion. The Valkyrie breaks a wished blessed wand of striking; the magical blast that apply.c do_break_wand() sets off with explode() before its per-square loop kills her (Die? answered yes). C's done() does not return, so neither the loop nor discard_broken_wand() runs.",
+  "segments": [
+    {
+      "seed": 7311905,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed wand of striking\naey    y q "
+    }
+  ]
+}
