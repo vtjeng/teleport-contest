@@ -284,7 +284,21 @@ function symbolSetDefinition(name) {
     ));
 }
 
+// Configuration-time selection of one symbol set. The read itself is
+// readSymbolSetFile() below; the customization pass that follows it here is
+// what symbols.c load_symset() runs after read_sym_file() succeeds.
 function loadSymbolSet(name, set, state) {
+    if (readSymbolSetFile(name, set, state))
+        apply_customizations(state.gc.currentgraphics, state);
+}
+
+// C ref: files.c read_sym_file() for the named set, preceded by the
+// clear_symsetentry() and init_*_symbols() that every caller runs first.
+// Returns true when a named set's Start record was read. It applies no
+// customizations: symbols.c do_symset() calls read_sym_file() directly and
+// applies only its own set's customizations afterward, so a menu choice for
+// the rogue set leaves the primary set's colors cleared.
+function readSymbolSetFile(name, set, state) {
     if (set === ROGUESET && isDefaultSymsetName(name)) {
         const arrays = slotArrays(set, state);
         // optfn_roguesymset() asks read_sym_file() for "default"; no Start
@@ -295,7 +309,7 @@ function loadSymbolSet(name, set, state) {
         arrays.baseUtf8.fill(null);
         arrays.overrideUtf8.fill(null);
         state.gs.symset[set].explicitly = true;
-        return;
+        return false;
     }
 
     resetSymbolSlot(set, state);
@@ -304,7 +318,7 @@ function loadSymbolSet(name, set, state) {
     slotArrays(set, state).overrideUtf8.fill(null);
     if (isDefaultSymsetName(name)) {
         state.gs.symset[set].explicitly = true;
-        return;
+        return false;
     }
 
     // symbols.c do_symset1072 fills before read_sym_file.
@@ -340,7 +354,7 @@ function loadSymbolSet(name, set, state) {
         glyphrep_to_custom_map_entries(`${glyphName}:${value}`, state);
     }
     if (glyphid_cache_status(state)) free_glyphid_cache(state);
-    apply_customizations(state.gc.currentgraphics, state);
+    return true;
 }
 
 // C refs: symbols.c:do_symset() and files.c:read_sym_file()'s list-building
@@ -446,7 +460,7 @@ export async function do_symset(
     if (chosenIndex > -1) {
         const definition = SYMBOL_SET_DEFINITIONS[chosenIndex];
         if (definition) {
-            loadSymbolSet(definition.name, whichSet, state);
+            readSymbolSetFile(definition.name, whichSet, state);
             readyToSwitch = true;
         }
     } else if (chosenIndex === -1) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "symbols.c do_symset(TRUE): a human Priest with symset:DECgraphics level-teleports to the Sokoban entry level, whose walls DECgraphics colours blue through G_*_sokoban customizations. From #optionsfull he picks roguesymset and chooses 'plain'. do_symset() calls clear_symsetentry(ROGUESET), whose clear_all_glyphmap_colors() drops every glyph's custom colour, reads the file directly with read_sym_file(), and reapplies only the rogue set's (empty) customizations, so the redrawn Sokoban walls lose their blue. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 61803,
+      "datetime": "20260514101500",
+      "nethackrc": "OPTIONS=name:Bertil,role:Priest,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,symset:DECgraphics,color\n",
+      "moves": " #wizlevelport\n?\n>B\n #optionsfull\n>>>>>>c\nbs"
+    }
+  ]
+}
