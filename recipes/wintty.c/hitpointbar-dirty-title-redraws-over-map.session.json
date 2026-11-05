@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wintty.c check_fields() redraws a dirty hitpointbar title even when its text and highlight are unchanged, because status_vals[BL_TITLE] never matches cw->data from the '[' column. With statuslines:3, ^F maps the bottom map row over the first status row; a blessed potion of healing at full HP sends BL_HP, which redraws the bar over the map glyphs.",
+  "segments": [
+    {
+      "seed": 5529011,
+      "datetime": "20250709091500",
+      "nethackrc": "OPTIONS=name:Ode,role:Priest,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,color,hitpointbar,statuslines:3\n",
+      "moves": "\u0017blessed potion of healing\n\u0006qi"
+    }
+  ]
+}

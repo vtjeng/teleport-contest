@@ -6325,8 +6325,10 @@ function _deliverStatusCapacity(capacity) {
 // C ref: bot_via_windowport() plus evaluate_and_notify_windowport(). Collect
 // every enabled typed field once per bot notification; status painting only
 // consumes these delivered banks. `onlyField` is the timebot fast path.
+// Returns whether this pass marked tty_status[NOW][BL_TITLE] dirty.
 function _collectStatusHilites(layouts, onlyField = null) {
     const gb = game.gb ??= {};
+    let titleDirty = false;
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
     for (const name of ['status_hilite_rule', 'status_hilite_value',
         'status_hilite_compare_value', 'status_hilite_percent',
@@ -6458,9 +6460,15 @@ function _collectStatusHilites(layouts, onlyField = null) {
             // highlight) and, with 'hitpointbar' on, the BL_HP update (HP's
             // color with HL_INVERSE). The later status_update() of the two
             // wins; within one pass BL_HP follows BL_TITLE in initblstats[].
-            if (field.key === 'title') game._statusTitleBarSource = 'title';
-            else if (field.key === 'hitpoints' && game.iflags?.wc2_hitpointbar)
+            // Either update also sets tty_status[NOW][BL_TITLE].dirty.
+            if (field.key === 'title') {
+                game._statusTitleBarSource = 'title';
+                titleDirty = true;
+            } else if (field.key === 'hitpoints'
+                && game.iflags?.wc2_hitpointbar) {
                 game._statusTitleBarSource = 'hitpoints';
+                titleDirty = true;
+            }
         }
         gb.status_hilite_value[0][fld] = value;
         gb.status_hilite_compare_value[0][fld] = compareValue;
@@ -6469,6 +6477,7 @@ function _collectStatusHilites(layouts, onlyField = null) {
         gb.status_hilite_type[0][fld] = field.type;
         if (notification) _setStatusHiliteChange(gb, fld, true);
     }
+    return titleDirty;
 }
 
 // C ref: botl.c status_eval_next_unhilite(), called once after each hero
@@ -6842,7 +6851,7 @@ function writeStatusRows(
     display,
     layouts = statusLayouts(),
     styles = null,
-    { forced = false } = {},
+    { forced = false, titleDirty = false } = {},
 ) {
     if (!display?.grid) return;
     styles ??= layouts.map(({ owners }) => owners.map(
@@ -6860,6 +6869,7 @@ function writeStatusRows(
             layouts[index],
             styles[index],
             forced || previous?.layouts?.length !== layouts.length,
+            titleDirty,
         );
         display.clearRow(screenRow);
         const { text } = layouts[index];
@@ -6932,6 +6942,7 @@ function _statusFieldGroups(layout, rowIndex) {
 
 function _clearRedrawnStatusOverlay(
     screenRow, rowIndex, oldLayout, oldStyles, newLayout, newStyles, forced,
+    titleDirty = false,
 ) {
     const overlay = game._statusMapOverlay;
     if (!overlay?.size) return;
@@ -6939,6 +6950,13 @@ function _clearRedrawnStatusOverlay(
     const oldText = oldLayout?.text ?? '';
     const redraw = new Set();
     const keys = _statusFieldGroups(newLayout, rowIndex);
+    // C ref: wintty.c check_fields(). A dirty field whose color and attribute
+    // are unchanged is skipped only when status_vals[] matches cw->data[]
+    // from the field's first column. The hitpointbar title's data begins
+    // with its '[' while status_vals[BL_TITLE] holds the bare title, so the
+    // comparison fails and a dirty title is always redrawn.
+    if (titleDirty && rowIndex === 0 && game.iflags?.wc2_hitpointbar)
+        redraw.add('title');
     if (!forced) {
         const sameStyle = (a, b) => (a?.color ?? NO_COLOR)
             === (b?.color ?? NO_COLOR)
@@ -7354,7 +7372,7 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     });
     game._statusOptionalFieldSnapshot = optionalSnapshot;
     game._renderedStatusLayouts = layouts;
-    _collectStatusHilites(layouts);
+    const titleDirty = _collectStatusHilites(layouts);
     const styles = game.iflags?.status_updates === false
         ? layouts.map(() => []) : _statusStyleRows(layouts);
     game._renderedStatusStyles = styles;
@@ -7367,7 +7385,7 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     const forcedRedraw = Boolean(game.disp?.botlx);
     try {
         writeStatusRows(game?.nhDisplay, layouts, styles,
-            { forced: forcedRedraw });
+            { forced: forcedRedraw, titleDirty });
         const display = game?.nhDisplay;
         if (forcedRedraw && display?.grid && layouts.length) {
             display.setCursor(
