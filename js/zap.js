@@ -3613,7 +3613,9 @@ export async function bhitm(monster, wand, state = game,
                 more_experienced(
                     Math.min(delta, healAmount), 0, state,
                 );
-                await newexplevel(state);
+                // exper.c pluslvl() announces the new level through pline()
+                // and draws newhp()/newpw() from the core RNG.
+                await newexplevel(state, { message: ttyPline });
             }
             if (monster.mtame || monster.mpeaceful) {
                 const alignment = Math.trunc(state.u?.ualign?.type ?? 0);

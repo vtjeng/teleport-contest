@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent zap.c bhitm() healing entry for a Healer's pet. #levelchange 2 then 1 leaves u.uexp one short of level 2 (exper.c losexp() sets newuexp(1) - 1). The Healer wounds a #wizgenesis tame violet fungus with the scalpel and casts healing at it; more_experienced() then newexplevel() reach pluslvl(), whose welcome message and newhp()/newpw() draws follow the 'looks better' line.",
+  "segments": [
+    {
+      "seed": 63018245,
+      "datetime": "20590404161500",
+      "nethackrc": "OPTIONS=name:MendingHand,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n2\n #levelchange\n1\n \u0007tame violet fungus\n Fj Fj Fj Fj Zaj  "
+    }
+  ]
+}
