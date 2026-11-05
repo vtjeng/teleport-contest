@@ -73,9 +73,11 @@ const HELP_REPLAY_DIGESTS = new Map(Object.entries({
     keys: ['f91592d4ebbdde75e9fbe68766542e25c980c07080083dcc45a4b2fa902a2a41', '7a44e5e23d43717a1cc05c7f3a96d6bcd553f20987bb1013d58ff103b73ea967'],
     // The corner help menu's dismissal also repairs through docorner(). Its
     // cl_end() changes only the stored color of the blank leading cells it
-    // clears. A fresh C recording of loadHelpMenuShellRecipe() matches these
-    // screens, cursors and RNG.
-    shell: ['d3ad9c5b7a2ba8904f218756ff8e2a16f94975fa5283cdb21ff01d176f09729c', 'f6f03651a90293a4a244eb3d5a219e3aa6d9c40d0896423c6eaa04bc2d01caa5'],
+    // clears. The nested whatis menu then finds the top line TOPLINE_EMPTY,
+    // so tty_clear_nhwindow(WIN_MESSAGE) leaves those blanks (stored color 7)
+    // in place on screen 2. A fresh C recording of loadHelpMenuShellRecipe()
+    // matches these screens, cursors and RNG.
+    shell: ['aa71f288ce58a78c6eebe439b891b003ec5a5158817483861ce218dab7d6ad2f', 'f6f03651a90293a4a244eb3d5a219e3aa6d9c40d0896423c6eaa04bc2d01caa5'],
     whatdoes: ['7cf0436f9b22df5247246625dfc2d192d6e700d2d7bd1bff05fb1d7198ec81fd', 'ef740e0cf4a1b1f0cd598ce479e9b2a7daa55c7c4db4a0dd252df0ca761c60c7'],
     version: ['81355b14b16f5ba33dcdb16d4c01d9afd55207ee629c794385aec7386e9045c2', '7eea516c376ea5502e88230792f2d93479609b80e6c6cc6584b438d3a77192c2'],
     'static:help': ['f09497b040bc3e7ba3b392e5f1b023a9af617cfb87ae3b531d6a1f2b5e88f50f', '6e4d58a12c2736c31e567ea6967c179702d6276cd046e880a3ac3bce5b85c6be'],

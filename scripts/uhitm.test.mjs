@@ -385,10 +385,12 @@ test('the natural pet-swap arrival replay pins the TTY handoff',
         // Since docorner() repairs a closed corner menu (wintty.c
         // erase_menu_or_text()), six blank cells on screen 17 store color 7
         // where the snapshot restore left 8; the judge-format screens are
-        // unchanged.
+        // unchanged. One more blank top-line cell keeps color 7 because the
+        // corner menu that follows finds the top line TOPLINE_EMPTY, and
+        // tty_clear_nhwindow(WIN_MESSAGE) then leaves the line alone.
         assert.equal(
             digest(replay.getScreens()),
-            '2bb6c003f45047fb252432601eb48f5fcce9d80ab3b302fc3f7081501497ffa3',
+            '528f6246441fa100399a3a0c3206659ab37e11c75c80c4dbf634580b2294694e',
         );
         assert.equal(
             digest(replay.getCursors()),
