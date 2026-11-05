@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent seed 6630218 (debug mode). A wished lichen corpse is dropped at the far corner of a lit room while a created jackal approaches from the opposite door; four searches time the jackal so that it first comes within dochugw()'s BOLT_LIM range on the monster move after the meal's last bite. monmove.c dochugw() then calls allmain.c stop_occupation(), whose eat.c maybe_finished_meal() finishes the floor meal: done_eating() -> useupf() -> delobj() -> zap.c obj_resists() draws rn2(100) after the jackal's own move. The JavaScript planning pass must take that draw from its cloned RNG, not the live one.",
+  "segments": [
+    {
+      "seed": 6630218,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017lichen corpse\n\u0014 \nhhhhhh.\u0007jackal\n\u0014 lllllllllllllkkk.dessssey"
+    }
+  ]
+}

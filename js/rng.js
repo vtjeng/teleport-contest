@@ -136,9 +136,37 @@ export function cloneIsaacContext(context) {
     };
 }
 
+// A planning clone (js/unported_monster_actions.js
+// preflightSimpleMonsterActions()) dry-runs a turn before the live pass runs
+// it. It injects a random source over its own copy of the core ISAAC context,
+// but a callee that reaches the module-level wrappers below instead -- a
+// default `{ rn2 }` argument, or an env rebuilt without `random` -- would
+// otherwise advance the live stream and log a call C never makes. While a
+// planning context is installed, the wrappers draw from it, unlogged, so
+// such a draw lands in the clone's sequence where the clone's own draws are.
+let _planningCtx = null;
+
+export async function withPlanningCoreContext(context, run) {
+    const previous = _planningCtx;
+    _planningCtx = context;
+    try {
+        return await run();
+    } finally {
+        _planningCtx = previous;
+    }
+}
+
+function liveCtx() {
+    return _planningCtx ?? game.coreCtx;
+}
+
+function liveLog() {
+    return _planningCtx ? undefined : logResult;
+}
+
 // C ref: rn2(x) — random number 0..x-1
 export function rn2(x) {
-    return rn2From(game.coreCtx, x, logResult);
+    return rn2From(liveCtx(), x, liveLog());
 }
 
 // C ref: rn2_on_display_rng(x) — a separate stream for cosmetic choices.
@@ -151,7 +179,7 @@ export function rn2_on_display_rng(x, state = game) {
 
 // C ref: rnd(x) — random number 1..x
 export function rnd(x) {
-    return rndFrom(game.coreCtx, x, logResult);
+    return rndFrom(liveCtx(), x, liveLog());
 }
 
 // C ref: rnd_on_display_rng(x)
@@ -161,29 +189,29 @@ export function rnd_on_display_rng(x) {
 
 // C ref: rn1(x, y) — random number y..y+x-1
 export function rn1(x, y) {
-    return rn1From(game.coreCtx, x, y, logResult);
+    return rn1From(liveCtx(), x, y, liveLog());
 }
 
 // C ref: rnl(x) — luck-biased random number in 0..x-1.
 export function rnl(x) {
-    return rnlFrom(game.coreCtx, game, x, logResult);
+    return rnlFrom(liveCtx(), game, x, liveLog());
 }
 
 // C ref: d(n, x) — roll n dice of x sides
 export function d(n, x) {
-    return dFrom(game.coreCtx, n, x, logResult);
+    return dFrom(liveCtx(), n, x, liveLog());
 }
 
 // C ref: rne(x) — exponentially distributed
 // Internal rn2 calls are logged (matching C's PRNG log format).
 export function rne(x) {
-    return rneFrom(game.coreCtx, game, x, logResult);
+    return rneFrom(liveCtx(), game, x, liveLog());
 }
 
 // C ref: rnz(i) — fuzzy random around i
 // Internal rn2/rne calls are logged (matching C's PRNG log format).
 export function rnz(i) {
-    return rnzFrom(game.coreCtx, game, i, logResult);
+    return rnzFrom(liveCtx(), game, i, liveLog());
 }
 
 export const c_d = d;

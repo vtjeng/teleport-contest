@@ -168,6 +168,7 @@ import {
 import {
     cloneIsaacContext,
     createCoreRandom,
+    withPlanningCoreContext,
     d,
     rn1,
     rn2,
@@ -326,9 +327,12 @@ function assertSimpleActionState(monster) {
     // Both paths run against the planning clone before the live action.
 }
 
+// The clone's random source and the context it draws from; the planning
+// passes below install that context for js/rng.js's module-level wrappers
+// (withPlanningCoreContext()) so a draw that bypasses `random` stays on it.
 function clonedRandom(state) {
     const context = cloneIsaacContext(state.coreCtx);
-    return createCoreRandom(context, state);
+    return { random: createCoreRandom(context, state), context };
 }
 
 function cloneMonster(monster) {
@@ -1433,6 +1437,7 @@ function monsterMissileEnv(monster, env) {
         stopOccupation: (state) => stop_occupation(state, {
             message: env.planning ? async () => {} : ttyPline,
             statusRefresh: env.planning ? () => {} : () => bot(),
+            random: env.random,
         }),
         temporaryDisplay: env.planning ? async () => {} : tmp_at,
         swingVerb: (obj, bash, actionEnv) => mswings_verb(obj, bash, actionEnv),
@@ -1773,9 +1778,12 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
         // whose last bite is already taken finishes there too, which is why
         // planningState() copies the hero's pack -- and both display operations
         // fall silent so only the live pass writes to the terminal.
+        // A meal finished here draws from env.random, the clone's own
+        // source during planning (js/eat.js eatfood()).
         stopOccupation: () => stop_occupation(state, {
             message: env.planning ? async () => {} : ttyPline,
             statusRefresh: env.planning ? () => {} : () => bot(),
+            random: env.random,
         }),
     });
 }
@@ -1961,7 +1969,7 @@ export async function preflightSimpleMonsterActions(
     // leave the live context untouched for the real pass.
     if (planned.context?.bypasses)
         clear_bypasses(planned);
-    const random = clonedRandom(planned);
+    const { random, context: plannedCoreContext } = clonedRandom(planned);
     // A continuation after a live delayed-action callback has already paid
     // the action's ration. It starts at allmain.c's outer-loop condition,
     // not at the initial u.umovement -= NORMAL_SPEED statement.
@@ -1981,23 +1989,26 @@ export async function preflightSimpleMonsterActions(
     let beforeVaultInput = false;
     try {
         try {
-            const scan = await planSimpleMonsterTurn(
-                planned,
-                random,
-                advanceRound ? async (subject, planningRandom) => {
-                    const result = await advanceRound(subject, planningRandom);
-                    beforeUnmul = Boolean(result?.beforeUnmul);
-                    beforeTimeout = Boolean(result?.beforeTimeout);
-                    beforeHunger = Boolean(result?.beforeHunger);
-                    beforeTeleport = Boolean(result?.beforeTeleport);
-                    beforeSearch = Boolean(result?.beforeSearch);
-                    beforeChange = Boolean(result?.beforeChange);
-                    beforeLevelEffects = Boolean(result?.beforeLevelEffects);
-                    beforeStorms = Boolean(result?.beforeStorms);
-                    beforeVaultInput = Boolean(result?.beforeVaultInput);
-                    return result;
-                } : null,
-                afterMonsterScan,
+            const scan = await withPlanningCoreContext(
+                plannedCoreContext,
+                () => planSimpleMonsterTurn(
+                    planned,
+                    random,
+                    advanceRound ? async (subject, planningRandom) => {
+                        const result = await advanceRound(subject, planningRandom);
+                        beforeUnmul = Boolean(result?.beforeUnmul);
+                        beforeTimeout = Boolean(result?.beforeTimeout);
+                        beforeHunger = Boolean(result?.beforeHunger);
+                        beforeTeleport = Boolean(result?.beforeTeleport);
+                        beforeSearch = Boolean(result?.beforeSearch);
+                        beforeChange = Boolean(result?.beforeChange);
+                        beforeLevelEffects = Boolean(result?.beforeLevelEffects);
+                        beforeStorms = Boolean(result?.beforeStorms);
+                        beforeVaultInput = Boolean(result?.beforeVaultInput);
+                        return result;
+                    } : null,
+                    afterMonsterScan,
+                ),
             );
             upkeepCount = scan.upkeepCount;
             deferredGoto = scan.deferredGoto;
@@ -2055,9 +2066,12 @@ export async function preflightSimpleMonsterActions(
 // monster actions and cannot preserve this allocation's source position.
 export async function preflightElapsedTurnTail(state, advanceTail) {
     const planned = planningState(state);
-    const random = clonedRandom(planned);
+    const { random, context } = clonedRandom(planned);
     try {
-        return await advanceTail(planned, random);
+        return await withPlanningCoreContext(
+            context,
+            () => advanceTail(planned, random),
+        );
     } catch (error) {
         if (!(error instanceof HeroDeathPlanningError)) throw error;
         // This tail runs after a live timeout, so run_regions() is replayed

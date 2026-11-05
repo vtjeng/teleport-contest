@@ -2443,6 +2443,7 @@ function temp_givit(type, ptr, random = { rn2 }) {
 // timeout use the game RNG.
 async function givit(type, ptr, state, env = {}) {
     const random = { rn2, d, ...(env.random ?? {}) };
+    const message = env.message ?? ttyPline;
     if (!should_givit(type, ptr, random)
         && !temp_givit(type, ptr, random))
         return;
@@ -2459,7 +2460,7 @@ async function givit(type, ptr, state, env = {}) {
     switch (type) {
     case FIRE_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline(
+            await message(
                 Hallucination(state)
                     ? "You be chillin'."
                     : 'You feel a momentary chill.',
@@ -2470,19 +2471,19 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case SLEEP_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline('You feel wide awake.', state);
+            await message('You feel wide awake.', state);
             addOutside();
         }
         break;
     case COLD_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline('You feel full of hot air.', state);
+            await message('You feel full of hot air.', state);
             addOutside();
         }
         break;
     case DISINT_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline(
+            await message(
                 Hallucination(state)
                     ? 'You feel totally together, man.'
                     : 'You feel very firm.',
@@ -2493,7 +2494,7 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case SHOCK_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline(
+            await message(
                 Hallucination(state)
                     ? 'You feel grounded in reality.'
                     : 'Your health currently feels amplified!',
@@ -2504,7 +2505,7 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case POISON_RES:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline(
+            await message(
                 `You feel ${propertyActive(state, POISON_RES)
                     ? 'especially healthy' : 'healthy'}.`,
                 state,
@@ -2514,7 +2515,7 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case TELEPORT:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline(
+            await message(
                 Hallucination(state)
                     ? 'You feel diffuse.'
                     : 'You feel very jumpy.',
@@ -2525,7 +2526,7 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case TELEPORT_CONTROL:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline(
+            await message(
                 Hallucination(state)
                     ? 'You feel centered in your personal space.'
                     : 'You feel in control of yourself.',
@@ -2536,7 +2537,7 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case TELEPAT:
         if (!(property.intrinsic & FROMOUTSIDE)) {
-            await ttyPline(
+            await message(
                 Hallucination(state)
                     ? 'You feel in touch with the cosmos.'
                     : 'You feel a strange mental acuity.',
@@ -2549,7 +2550,7 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case ACID_RES:
         if (!propertyActive(state, ACID_RES)) {
-            await ttyPline(
+            await message(
                 `You feel ${Hallucination(state)
                     ? 'secure from flashbacks'
                     : 'less concerned about being harmed by acid'}.`,
@@ -2560,7 +2561,7 @@ async function givit(type, ptr, state, env = {}) {
         break;
     case STONE_RES:
         if (!propertyActive(state, STONE_RES)) {
-            await ttyPline(
+            await message(
                 `You feel ${Hallucination(state)
                     ? 'unusually limber'
                     : 'less concerned about becoming petrified'}.`,
@@ -2578,13 +2579,15 @@ async function givit(type, ptr, state, env = {}) {
  * C ref: eat.c eye_of_newt_buzz() (1103-1123).
  * Eating an eye of newt can give the player a small magical energy boost.
  */
-async function eye_of_newt_buzz(state) {
-    if (rn2(3) || 3 * state.u.uen <= 2 * state.u.uenmax) {
+async function eye_of_newt_buzz(state, env = {}) {
+    const random = { rn2, rnd, ...(env.random ?? {}) };
+    const message = env.message ?? ttyPline;
+    if (random.rn2(3) || 3 * state.u.uen <= 2 * state.u.uenmax) {
         const old_uen = state.u.uen;
 
-        state.u.uen += rnd(3);
+        state.u.uen += random.rnd(3);
         if (state.u.uen > state.u.uenmax) {
-            if (!rn2(3)) {
+            if (!random.rn2(3)) {
                 state.u.uenmax++;
                 if (state.u.uenmax > state.u.uenpeak)
                     state.u.uenpeak = state.u.uenmax;
@@ -2592,7 +2595,7 @@ async function eye_of_newt_buzz(state) {
             state.u.uen = state.u.uenmax;
         }
         if (old_uen !== state.u.uen) {
-            await ttyPline('You feel a mild buzz.', state);
+            await message('You feel a mild buzz.', state);
             state.disp ??= {};
             state.disp.botl = true;
         }
@@ -2654,6 +2657,10 @@ export function eatmupdate(state = game, env = {}) {
 // C ref: eat.c cpostfx() (1127-1319), called after completely consuming a
 // corpse. `state.eatmbuf` is the JS representation of C's ge.eatmbuf.
 async function cpostfx(pm, state, env = {}) {
+    // A planning clone finishes a meal through stop_occupation() and passes
+    // its own random source and a silent message operation.
+    const random = { rn1, rn2, d, ...(env.random ?? {}) };
+    const message = env.message ?? ttyPline;
     let tmp = 0;
     let catch_lycanthropy = NON_PM;
     let check_intrinsics = false;
@@ -2690,12 +2697,12 @@ async function cpostfx(pm, state, env = {}) {
             (invis.intrinsic || invis.extrinsic) && !blocked,
         );
         if (!invisible) {
-            set_itimeout(invis, rn1(100, 50));
+            set_itimeout(invis, random.rn1(100, 50));
             if (!heroIsBlind(state) && !blocked)
                 await self_invis_message(state);
         } else {
             if (!(invis.intrinsic & INTRINSIC))
-                await ttyPline('You feel hidden!', state);
+                await message('You feel hidden!', state);
             invis.intrinsic |= FROMOUTSIDE;
             seeInvisible.intrinsic |= FROMOUTSIDE;
         }
@@ -2749,7 +2756,7 @@ async function cpostfx(pm, state, env = {}) {
                     state,
                 );
             }
-            await ttyPline(
+            await message(
                 `You can't resist the temptation to mimic ${tempshape}.`,
                 state,
             );
@@ -2781,14 +2788,14 @@ async function cpostfx(pm, state, env = {}) {
         }
         break;
     case PM_QUANTUM_MECHANIC: {
-        await ttyPline('Your velocity suddenly seems very uncertain!', state);
+        await message('Your velocity suddenly seems very uncertain!', state);
         const fast = state.u.uprops[FAST];
         if (fast.intrinsic & INTRINSIC) {
             fast.intrinsic &= ~INTRINSIC;
-            await ttyPline('You seem slower.', state);
+            await message('You seem slower.', state);
         } else {
             fast.intrinsic |= FROMOUTSIDE;
-            await ttyPline('You seem faster.', state);
+            await message('You seem faster.', state);
         }
         break;
     }
@@ -2807,7 +2814,7 @@ async function cpostfx(pm, state, env = {}) {
     case PM_SANDESTIN: // moot--they do not leave corpses
     case PM_GENETIC_ENGINEER:
         if (propertyActive(state, UNCHANGING)) {
-            await ttyPline('You feel momentarily different.', state);
+            await message('You feel momentarily different.', state);
         } else {
             // C's tin context exists and holds NULL even when this call
             // comes from a corpse meal or Finish_digestion rather than a tin.
@@ -2820,7 +2827,7 @@ async function cpostfx(pm, state, env = {}) {
                     env,
                 );
             }
-            await ttyPline(
+            await message(
                 pm === PM_GENETIC_ENGINEER
                     ? 'You undergo a freakish metamorphosis.'
                     : 'You feel a change coming over you.',
@@ -2833,7 +2840,7 @@ async function cpostfx(pm, state, env = {}) {
         const displaced = state.u.uprops[DISPLACED];
         if (!propertyActive(state, DISPLACED))
             await toggle_displacement(null, 0, true, state);
-        incr_itimeout(displaced, d(6, 6));
+        incr_itimeout(displaced, random.d(6, 6));
         break;
     }
     case PM_DISENCHANTER:
@@ -2851,8 +2858,8 @@ async function cpostfx(pm, state, env = {}) {
     case PM_MIND_FLAYER:
     case PM_MASTER_MIND_FLAYER:
         if (state.u.acurr.a[A_INT] < state.urace.attrmax[A_INT]) {
-            if (!rn2(2)) {
-                await ttyPline('Yum!  That was real brain food!', state);
+            if (!random.rn2(2)) {
+                await message('Yum!  That was real brain food!', state);
                 await adjattrib(A_INT, 1, false, state, {
                     message: ttyPline,
                     encumberMessage: (target) => encumber_msg(target),
@@ -2860,7 +2867,7 @@ async function cpostfx(pm, state, env = {}) {
                 break; // do not give telepathy too
             }
         } else {
-            await ttyPline('For some reason, that tasted bland.', state);
+            await message('For some reason, that tasted bland.', state);
         }
         // FALLTHROUGH
     default:
@@ -2874,7 +2881,7 @@ async function cpostfx(pm, state, env = {}) {
 
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
             || pm === PM_VIOLET_FUNGUS) {
-            await ttyPline('Oh wow!  Great stuff!', state);
+            await message('Oh wow!  Great stuff!', state);
             const hallucination = state.u.uprops[HALLUC];
             await make_hallucinated(
                 (hallucination.intrinsic & TIMEOUT) + 200,
@@ -2886,9 +2893,9 @@ async function cpostfx(pm, state, env = {}) {
 
         /* Eating magical monsters can give you some magical energy. */
         if (attacktype(ptr, AT_MAGC) || pm === PM_NEWT)
-            await eye_of_newt_buzz(state);
+            await eye_of_newt_buzz(state, { random, message });
 
-        tmp = corpse_intrinsic(ptr);
+        tmp = corpse_intrinsic(ptr, random);
 
         /* if something was chosen, give it now (givit() might fail) */
         if (tmp === -1) {
@@ -2897,7 +2904,7 @@ async function cpostfx(pm, state, env = {}) {
                 encumberMessage: (target) => encumber_msg(target),
             });
         } else if (tmp > 0) {
-            await givit(tmp, ptr, state);
+            await givit(tmp, ptr, state, { random, message });
         }
     } /* check_intrinsics */
 
@@ -3492,7 +3499,14 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
 // atomic planning clone; every other operation is this file's own.
 export async function eatfood(state = game, env = {}) {
     const meal = victual(state);
-    const eatEnv = eatOperations(state, env.statusRefresh, env.message);
+    // A planning clone reaches this through stop_occupation() ->
+    // maybe_finished_meal() and supplies its own random source; the meal's
+    // ending (done_eating() -> useupf() -> delobj() -> obj_resists(), and
+    // cpostfx()) must draw from that clone rather than the live RNG.
+    const eatEnv = {
+        ...eatOperations(state, env.statusRefresh, env.message),
+        ...(env.random ? { random: env.random } : {}),
+    };
     let food = meal.piece;
 
     // C ref: `if (food && !carried(food) && !obj_here(food, u.ux, u.uy))

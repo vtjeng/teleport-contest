@@ -128,6 +128,7 @@ import {
     PM_IRON_GOLEM,
     PM_KILLER_BEE,
     PM_KITTEN,
+    PM_LICHEN,
     PM_LEPRECHAUN,
     PM_LONG_WORM,
     PM_LITTLE_DOG,
@@ -4457,6 +4458,53 @@ test('a planning interruption of a finished meal writes nothing', async () => {
     assert.equal(game.u.uhs, NOT_HUNGRY);
     assert.deepEqual(liveDisplaySnapshot(), before);
 });
+
+// The planning pass dry-runs the turn on a clone with its own copy of the core
+// ISAAC context. A finished floor meal ends through done_eating() -> useupf()
+// -> delobj() -> zap.c obj_resists(), whose rn2(100) C draws once, in the live
+// turn; reached through the clone it must come from the clone's context
+// (js/rng.js withPlanningCoreContext()), or the live stream gains a draw C
+// never makes. recordings/eat.c/dochugw-finishes-floor-meal shows the C order.
+test('a planned finished floor meal draws nothing from the live RNG',
+    async () => {
+        const target = await prepareOccupationInterruption();
+        const corpse = newObject({
+            otyp: CORPSE,
+            corpsenm: PM_LICHEN,
+            oclass: game.objects[CORPSE].oc_class,
+            o_id: 9302,
+            quan: 1,
+            // monst.c lichen cwt, which mkobj.c weight() gives a corpse.
+            owt: game.mons[PM_LICHEN].cwt,
+            where: OBJ_FLOOR,
+            ox: game.u.ux,
+            oy: game.u.uy,
+        });
+        installObject(target, corpse);
+        game.go.occupation = eatfood;
+        game.go.occtxt = 'eating the lichen corpse';
+        // eat.c maybe_finished_meal() finishes the meal only once usedtime
+        // has reached reqtime: the last bite is taken, done_eating() is next.
+        // 3 is eatcorpse()'s reqtime for a lichen, 3 + (cwt >> 6).
+        game.context.victual = {
+            ...game.context.victual,
+            piece: corpse,
+            o_id: corpse.o_id,
+            usedtime: 3,
+            reqtime: 3,
+            eating: 1,
+        };
+        enableRngLog();
+        const before = rngSnapshot();
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.deepEqual(rngSnapshot(), before);
+        assert.deepEqual(getRngLog(), []);
+        // The live meal is untouched: only the clone finished it.
+        assert.equal(game.go.occupation, eatfood);
+        assert.equal(game.level.objects[game.u.ux][game.u.uy], corpse);
+    });
 
 test('simple monster movement continues through an ignored object',
     async () => {
