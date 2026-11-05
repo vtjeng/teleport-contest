@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "end.c really_done(): exit_nhwindows() clears the screen before topten() raw-prints. An unknown option in the rc file raw-prints a configuration error at startup, which leaves the recorder in raw mode, so the score list follows the raw cursor on a cleared screen. A chaotic orcish Rogue quits at once. Independent of batch 5.",
+  "segments": [
+    {
+      "seed": 4410287,
+      "datetime": "20330217201500",
+      "nethackrc": "OPTIONS=name:Quill,role:Rogue,race:orc,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=frobnicate\n",
+      "moves": "\n#quit\nynnnn "
+    }
+  ]
+}
