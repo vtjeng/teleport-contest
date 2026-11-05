@@ -6195,7 +6195,9 @@ export async function dobuzz(
                     await flashburn(random.d(nd, 50), true, state,
                         { ...env, message });
                 }
-                await stop_occupation(state, { message: ttyPline });
+                // stop_occupation() prints through dobuzz()'s message
+                // operation, which a planned breath silences.
+                await stop_occupation(state, { message });
                 nomul(0, state);
             }
             // C ref: zap.c:4995-4996. Gas that missed or was not reflected
