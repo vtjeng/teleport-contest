@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first check that a fatal blast from breaking a non-exploding wand ends the command: a debug dwarvish Valkyrie wishes for a wand of striking and breaks it, and apply.c do_break_wand()'s magical explode() before its per-square loop kills her. She answers yes to the debug Die? question, quits the disclosure, and saves bones. end.c done() does not return in C, so the loop's bhitm()/bhitpile() and zapyourself() calls and discard_broken_wand() never run.",
+  "segments": [
+    {
+      "seed": 5590406,
+      "datetime": "20420122193000",
+      "nethackrc": "OPTIONS=name:Odile,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,time,pettype:none\n",
+      "moves": " \u0017wand of striking\naey    y qy"
+    }
+  ]
+}
