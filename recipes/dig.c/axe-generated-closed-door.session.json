@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "dig.c dig() breaking a level-generated closed door with an axe: the door turns broken and feel_newsym() redraws it before the 'You break through the door' message, so the map under the earlier message's --More-- already shows the doorway. The generated door keeps its state in struct rm's flags spelling.",
+  "segments": [
+    {
+      "seed": 7461,
+      "datetime": "20360117103000",
+      "nethackrc": "OPTIONS=name:Hewer,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": "#wizwish\naxe\nae l "
+    }
+  ]
+}

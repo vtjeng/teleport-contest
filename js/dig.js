@@ -586,6 +586,16 @@ function resetDigging(digging) {
 
 // C ref: dig.c dig() (300-570). Both axes share the same occupation state;
 // the caller's Boolean decides whether allmain.c keeps running this callback.
+// C ref: dig.c dig() (460-470), "if (!(lev->doormask & D_TRAPPED))
+// lev->doormask = D_BROKEN;" for a dug secret door and a dug closed door.
+// struct rm aliases doormask and flags; this port stores both spellings, and
+// display.c back_to_glyph() reads `flags` first, so both are written.
+function breakDugDoor(location) {
+    if ((location.flags || location.doormask || 0) & D_TRAPPED) return;
+    location.flags = D_BROKEN;
+    location.doormask = D_BROKEN;
+}
+
 export async function dig(state = game, rawEnv = {}) {
     const { u } = state;
     const digging = state.context?.digging;
@@ -841,16 +851,14 @@ export async function dig(state = game, rawEnv = {}) {
         } else if (location.typ === SDOOR) {
             cvt_sdoor_to_door(location, state);
             digtext = 'You break through a secret door!';
-            if (!(location.doormask & D_TRAPPED))
-                location.doormask = D_BROKEN;
+            breakDugDoor(location);
         } else if (closed_door(x, y, state)) {
             digtext = `You break through the door with your ${simpleonames(weapon, state)}.`;
             if (shopedge) {
                 add_damage(x, y, SHOP_DOOR_COST, state);
                 damageText = 'break';
             }
-            if (!(location.doormask & D_TRAPPED))
-                location.doormask = D_BROKEN;
+            breakDugDoor(location);
         } else {
             return 0;
         }
@@ -890,7 +898,7 @@ export async function dig(state = game, rawEnv = {}) {
             if (monster)
                 await message('The debris from your digging comes to life!', state, rawEnv);
         }
-        if (IS_DOOR(location.typ, state) && (location.doormask & D_TRAPPED)) {
+        if (IS_DOOR(location.typ, state) && ((location.flags || location.doormask || 0) & D_TRAPPED)) {
             location.doormask = D_NODOOR;
             location.flags = D_NODOOR;
             await b_trapped('door', NO_PART, state, { ...rawEnv, random, message });
