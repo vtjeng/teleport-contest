@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent seed 4303783 (debug mode). The Valkyrie quaffs a wished potion of polymorph on turn 1; polyself() draws rn2(20) above her Constitution, so the system shock's rnd(30) loses more HP than she has and she dies (answering the debug-mode Die? prompt yes). C's losehp() reaches done(), which does not return, so polyself()'s exercise(A_CON, FALSE) never runs.",
+  "segments": [
+    {
+      "seed": 4303783,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017potion of polymorph\nqe  y q "
+    }
+  ]
+}
