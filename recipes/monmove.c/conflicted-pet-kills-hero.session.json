@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first check that a pet's move which kills the hero ends the monster's turn: a debug gnomish Healer wishes for and puts on a ring of conflict next to his little dog, rests, and lets its dogmove.c dog_move() ALLOW_U attack (mhitu.c mattacku()) kill him. He answers yes to the debug Die? and bones questions. end.c done() does not return in C, so monmove.c dochug()'s distfleeck() recalculation after m_move() never runs; the port must stop there as well.",
+  "segments": [
+    {
+      "seed": 861204,
+      "datetime": "20411109081500",
+      "nethackrc": "OPTIONS=name:Ostrom,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,time,pettype:dog\n",
+      "moves": " \u0017ring of conflict\nPmr\u001b5s\u001b5s\u001b yqy"
+    }
+  ]
+}
