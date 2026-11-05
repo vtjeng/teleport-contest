@@ -1751,6 +1751,10 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
             missile,
             env,
         );
+        // A missile that kills the hero reaches done(), which does not
+        // return in C; the JavaScript end-game path returns with gameover
+        // set, so no later missile of the volley may fly.
+        if (state.program_state?.gameover) break;
         // Conceptually all N missiles are in flight at once, but if mtmp
         // gets killed, cancel pending shots.
         if (monster.mhp < 1 /* DEADMONSTER */ && state.m_shot.i < state.m_shot.n)
