@@ -142,6 +142,7 @@ import {
     cmap_to_glyph,
     map_glyphinfo,
     map_invisible,
+    map_invisible_planning,
     newsym,
     show_glyph_cell,
     tmp_at,
@@ -516,10 +517,15 @@ export async function explode(
             if (monster) mask |= explosionmask(monster, adtyp, olet, state);
             masks[i][j] = mask;
 
-            if (monster && cansee(xx, yy, state) && !canspotmon(monster, state))
-                map_invisible(xx, yy, state);
-            else if (!monster)
-                unmap_invisible(xx, yy, state);
+            // A planning pass writes only its own map memory; the live pass
+            // repaints these squares.
+            if (monster && cansee(xx, yy, state) && !canspotmon(monster, state)) {
+                if (env.planning) map_invisible_planning(xx, yy, state);
+                else map_invisible(xx, yy, state);
+            } else if (!monster) {
+                unmap_invisible(xx, yy, state,
+                    env.planning ? () => {} : newsym);
+            }
             if (cansee(xx, yy, state)) visible = true;
             if (mask & (EXPL_MON | EXPL_HERO)) anyShield = true;
         }

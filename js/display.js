@@ -3544,14 +3544,15 @@ export function map_invisible_planning(x, y, state) {
  * live state, while scripts/detect.test.mjs drives dosearch0() through a
  * hand-built state whose memory half is exactly what that test reads. The
  * repaint is covered separately, against the live game, in
- * scripts/display-symbols.test.mjs.
+ * scripts/display-symbols.test.mjs. A monster's planning pass (js/explode.js
+ * explode()) passes its own `redraw`, so the live square is not repainted.
  */
-export function unmap_invisible(x, y, state = game) {
+export function unmap_invisible(x, y, state = game, redraw = newsym) {
     if (!isok(x, y)) return false;
     const location = state.level?.at?.(x, y);
     if (!glyph_is_invisible(location?.remembered_glyph?.glyph)) return false;
     unmap_object(x, y, state);
-    newsym(x, y);
+    redraw(x, y);
     return true;
 }
 
