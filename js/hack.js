@@ -1732,6 +1732,21 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // seam names only the arrival behavior that domove_core() still needs
     // after the helper succeeds.
     const destination = state.level?.at(x, y);
+    // A safe monster that oozed under a closed door. When do_attack() lets
+    // the step through, domove_core() still calls test_move() at
+    // hack.c:2843 before the swap at 2922, and test_move()'s closed-door arm
+    // (hack.c:1074-1137) returns FALSE for DO_MOVE unless the hero passes
+    // walls, can ooze, or chews through: the hero bumps, autoopens, or is
+    // told the door is closed, and never reaches domove_swap_with_pet().
+    // Those three falling-through arms stay refused below.
+    if (destination && IS_DOOR(destination.typ) && closed_door(x, y, state)
+        && !propertyPresent(state, PASSES_WALLS)
+        && !can_ooze(state.youmonst, state)
+        && (state.u?.uinwater
+            || !(tunnels(state.youmonst?.data)
+                && !needspick(state.youmonst?.data)))) {
+        return;
+    }
     // C records a pony on wished ICE and CLOUD, a little dog in both an
     // intact open doorway and a kicked-broken doorway, and a tame water
     // elemental in a pool. test_move() admits those destinations and
