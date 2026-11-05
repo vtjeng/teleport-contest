@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "shk.c shk_fixes_damage() and repair_damage(): a Valkyrie level-teleports into Akalapi's general store, wishes for gold, a wand of digging and a helm of telepathy, teleports to the corridor outside the shop's west wall and zaps the wand through the shop, paying for the damage. While she rests outside, the shopkeeper repairs both walls: 'You hear someone muttering an incantation.' is followed by 'Suddenly, a section of the wall closes up!', which needs a --More--. The once-per-turn planning pass must neither draw that prompt nor read its key; C shows the repaired wall at the first --More--. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 4417313,
+      "datetime": "20711114093015",
+      "nethackrc": "OPTIONS=name:Mender,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u00164\n  \u00172000 gold pieces\n\u0017uncursed wand of digging\n\u0017blessed helm of telepathy\nWf #wizmap\n\u0014Hhjjjj.  zel y  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  "
+    }
+  ]
+}
