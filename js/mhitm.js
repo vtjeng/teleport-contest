@@ -1603,6 +1603,10 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
         state.gz.zombify = false; /* reset */
         state.gm ??= {};
         state.gm.mkcorpstat_norevive = false;
+        // An exploding victim (mon.c corpse_chance() -> mon_explodes()) can
+        // kill the hero, and C's done() does not return, so the attacker's
+        // grow_up() below never runs.
+        if (state.program_state?.gameover) return M_ATTK_DEF_DIED;
         if (mdef.mhp >= 1) return mhm.hitflags; /* mdef lifesaved */
         if (mhm.hitflags === M_ATTK_AGR_DIED)
             return M_ATTK_DEF_DIED | M_ATTK_AGR_DIED;
