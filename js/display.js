@@ -321,6 +321,7 @@ import { rn2_on_display_rng } from './rng.js';
 import {
     emitGlyphUpdateNotices,
     heroIsBlind,
+    glyphGnewSinceNotice,
     noteGlyphBufferMutation,
     queueGlyphUpdateNotice,
 } from './startup_a11y.js';
@@ -2841,7 +2842,7 @@ export function show_glyph_cell(x, y, glyph) {
         }
     }
     const previousPresentation = loc.disp_glyph ?? null;
-    const previousGnew = loc.gnew;
+    const previousGnew = glyphGnewSinceNotice(x, y, loc, game);
     // C's gbuf retains logical glyph identity even when a UTF-8 customization
     // deliberately leaves the recorder-facing `ch` cell untouched.
     loc.disp_glyph = logicalPresentation;

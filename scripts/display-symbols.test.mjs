@@ -4240,19 +4240,46 @@ test('a dirty same-identity furniture rewrite still queues a notice', async () =
         state,
     );
 
+    // wiz_map() maps with notice_mon_off() in force, leaving the cell dirty
+    // without a notice; the rewrite after notice_mon_on() still reports it.
+    state.a11y.mon_notices_blocked = 1;
     show_glyph_cell(7, 4, fountain);
+    state.a11y.mon_notices_blocked = 0;
     assert.equal(location.gnew, 1);
+    assert.equal(state._glyphUpdateNotices, undefined);
     show_glyph_cell(7, 4, fountain);
 
     assert.deepEqual(
         state._glyphUpdateNotices.map((notice) => notice.message),
-        [
-            '(3south,6east): fountain.',
-            '(3south,6east): fountain.',
-        ],
+        ['(3south,6east): fountain.'],
     );
     await emitGlyphUpdateNotices(state, { pline: async () => {} });
     assert.equal(location.gnew, 0);
+});
+
+// display.c show_glyph() prints its notice through pline_xy(), and vpline()'s
+// flush_screen() clears every gnew bit before show_glyph() returns, so a
+// same-identity rewrite after a notice has nothing dirty left to report. The
+// C recording recordings/display.c/mention-map-wizmap-graves-esp.session.json
+// shows one grave notice where several such rewrites follow it.
+test('a same-identity rewrite after a queued notice queues nothing', () => {
+    const state = visibleCellState();
+    enableGlyphNotices(state);
+    const location = state.level.at(7, 4);
+    const fountain = terrainGlyphAt(
+        { ...location, typ: FOUNTAIN },
+        7,
+        4,
+        state,
+    );
+
+    show_glyph_cell(7, 4, fountain);
+    show_glyph_cell(7, 4, fountain);
+
+    assert.deepEqual(
+        state._glyphUpdateNotices.map((notice) => notice.message),
+        ['(3south,6east): fountain.'],
+    );
 });
 
 test('hallucinated water notices consume hliquid display RNG in order', () => {

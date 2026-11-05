@@ -502,6 +502,22 @@ function reconcileFinalGlyphBuffer(state, finalBuffer, flushedBuffer) {
     }
 }
 
+// C ref: display.c show_glyph() and pline.c vpline(). C prints a glyph-update
+// notice from inside show_glyph(), and vpline()'s flush_screen() clears every
+// gbuf gnew bit before the next show_glyph() call. The port queues the notice
+// instead, so while one is pending, a cell's gnew bit as the next
+// show_glyph() reads it is set only when show_glyph() has written the cell
+// since that notice. Called by display.js:show_glyph_cell() before it
+// installs the new presentation.
+export function glyphGnewSinceNotice(x, y, location, state) {
+    const tracker = state._glyphNoticeFrameTracker;
+    if (!tracker || state._emittingGlyphUpdateNotices
+        || !state._glyphUpdateNotices?.length) {
+        return location.gnew;
+    }
+    return tracker.pending.has(glyphBufferIndex(x, y)) ? location.gnew : 0;
+}
+
 // Called by display.js:show_glyph_cell(), the local display.c:show_glyph()
 // boundary, after the buffered cell has been installed. Once a notice sequence
 // starts, retain only cells mutated since its preceding source-order pline
