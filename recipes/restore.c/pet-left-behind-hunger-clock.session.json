@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first check of the relative pet clocks in a level file: a debug Valkyrie genocides the common early classes, wears a ring of slow digestion, teleports away from her kitten, and level-teleports to Dlvl 2, leaving the kitten on Dlvl 1 from turn 176 to turn 1576. save.c savemon() stores the kitten's edog hungrytime relative to the departure turn and restore.c restmon() makes it absolute at the return turn, so the never-fed kitten (hungrytime 1000) is not weak from hunger at turn 1576; with absolute times kept it would be (dogmove.c dog_hunger(), DOG_WEAK 500).",
+  "segments": [
+    {
+      "seed": 7351,
+      "datetime": "20410317121500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,time,pettype:cat\n",
+      "moves": " \u0017ring of slow digestion\nPer\u001713 blessed scrolls of genocide\nrf  o\n\u001brf r\n\u001brf F\n\u001brf k\n\u001brf x\n\u001brf h\n\u001brf a\n\u001brf j\n\u001brf d\n\u001brf :\n\u001brf G\n\u001brf b\n\u001brf Z\n\u001b80s\u001b80s\u001b\u0014 llllllkk.\u00162\n\u001b200s\u001b200s\u001b200s\u001b200s\u001b200s\u001b200s\u001b200s\u001b\u00161\n\u001b5s\u001b5s\u001b5s\u001b5s"
+    }
+  ]
+}

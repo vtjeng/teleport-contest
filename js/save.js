@@ -139,6 +139,48 @@ export function savemonchn(first, state) {
         if (mtmp.minvent) saveobjchn(mtmp.minvent, state);
 }
 
+// C ref: save.c savemon() (861-870) and restore.c restmon() (350-357). A
+// level file holds each pet's edog droptime and hungrytime relative to the
+// turn of the write: savemon() applies moves_to_relative_time() to them, and
+// getlev()'s restmon() applies relative_time_to_moves() with the turn of the
+// read, so both times advance by the turns the hero spent away. savemon()
+// writes every monster on the level's chain (savemonchn()) and every
+// remembered monster of a corpse, statue or figurine (saveobj() 740-742),
+// including those in monster inventories and container contents. The port's
+// level file is the in-memory snapshot, so savelev() subtracts the turn from
+// these fields in place (delta = -svm.moves) and getlev() adds the turn of
+// its read (delta = +svm.moves).
+export function shift_level_edog_times(level, delta) {
+    const shiftMonster = (mtmp) => {
+        const edog = mtmp?.mextra?.edog;
+        if (!edog) return;
+        edog.droptime += delta;
+        edog.hungrytime += delta;
+    };
+    const shiftObjects = (first) => {
+        for (let otmp = first; otmp; otmp = otmp.nobj) {
+            shiftMonster(otmp.oextra?.omonst);
+            if (otmp.cobj) shiftObjects(otmp.cobj);
+        }
+    };
+    for (let mtmp = level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        shiftMonster(mtmp);
+        shiftObjects(mtmp.minvent);
+    }
+    shiftObjects(level?.objlist);
+    shiftObjects(level?.buriedobjlist);
+}
+
+// C ref: save.c save_adjust_levelflags() (569-574), which savelev_core()
+// calls before writing the level flags (522). The port keeps the converted
+// value in the snapshot; restore.js rest_adjust_levelflags() converts it
+// back. C converts the live value back after the write (524), which the
+// snapshot does not need.
+function save_adjust_levelflags(state) {
+    const flags = state.level?.flags;
+    if (flags) flags.stasis_until = (flags.stasis_until ?? 0) - state.moves;
+}
+
 // C ref: save.c savelev()/savelev_core(), called from do.c goto_level() with
 // mode `WRITING | FREEING` or `FREEING`. `ledger` is C's `lev`, the ledger
 // number of the level being left. The `FREEING` mode is used when entering the
@@ -208,6 +250,10 @@ export function savelev(ledger, state = game, options = {}) {
     const waterlevel = save_waterlevel(null, state, true);
 
     if (!freeing) {
+        // save.c:521-524 save_adjust_levelflags() and savemonchn()'s and
+        // saveobjchn()'s savemon() calls (861-870) store relative times.
+        save_adjust_levelflags(state);
+        shift_level_edog_times(state.level, -state.moves);
         // Store the snapshot. The key is the ledger number of the level.
         state._savedLevels ??= {};
         state._savedLevels[ledger] = {
