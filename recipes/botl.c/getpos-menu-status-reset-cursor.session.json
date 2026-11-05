@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "botl.c bot() with disp.botlx and wintty.c render_status(): a dwarvish Archeologist with the time option goes to the Sokoban entry level, starts a wizard-mode teleport, turns autodescribe off and getloc_usemenu on in getpos(), and picks a boulder from the two-page 'a' menu. The menu's dismissal runs docrt() while windows.c select_menu() keeps gb.bot_disabled raised, so disp.botlx is still set when getpos()'s nxtc flush_screen(0) reaches bot(). BL_RESET redraws every status field, leaving the terminal cursor after the last field of the bottom line while getpos() waits. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 88002,
+      "datetime": "20260920171500",
+      "nethackrc": "OPTIONS=name:Odile,role:Archeologist,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,time\n",
+      "moves": " #wizlevelport\n?\n>B\n \u0014# !ac\u001b"
+    }
+  ]
+}

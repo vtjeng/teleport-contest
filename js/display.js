@@ -7125,8 +7125,22 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     const styles = game.iflags?.status_updates === false
         ? layouts.map(() => []) : _statusStyleRows(layouts);
     game._renderedStatusStyles = styles;
+    // botl.c bot_via_windowport() sends BL_RESET when disp.botlx is set, and
+    // wintty.c render_status() then redraws every field, leaving the
+    // terminal cursor after the last field of the last status row. A caller
+    // that flushes with cursor_on_u == 0, such as getpos(), waits for input
+    // there. An ordinary update redraws only changed fields; its cursor is
+    // not modelled here.
+    const forcedRedraw = Boolean(game.disp?.botlx);
     try {
         writeStatusRows(game?.nhDisplay, layouts, styles);
+        const display = game?.nhDisplay;
+        if (forcedRedraw && display?.grid && layouts.length) {
+            display.setCursor(
+                Math.min(layouts.at(-1).text.length, display.cols - 1),
+                display.rows - 1,
+            );
+        }
     } finally {
         game._statusHiliteOnlyField = null;
         game._statusHiliteUpdateAll = false;
