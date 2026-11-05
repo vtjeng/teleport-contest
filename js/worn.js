@@ -1096,15 +1096,18 @@ export async function extract_from_minvent(
 
 // C ref: worn.c m_lose_armor() (1038-1051). Remove worn monster armor,
 // place it at the monster's square, mark polymorph drops for bypass, then
-// redraw the occupied square in source order.
+// redraw the occupied square in source order. newsym() paints the live game,
+// so a planning clone (were.c new_were() reached from a planned turn's
+// mcalcdistress()) redraws only through a caller's env.newsym.
 async function m_lose_armor(monster, obj, polyspot, rawEnv = {}) {
     const env = wornEnv(rawEnv);
     const { state } = env;
+    const redraw = env.newsym ?? (state === game ? newsym : () => {});
     await extract_from_minvent(monster, obj, true, false, env);
     const placement = place_object(obj, monster.mx, monster.my, env);
     if (placement && typeof placement.then === 'function') await placement;
     if (polyspot) bypass_obj(obj, state);
-    newsym(monster.mx, monster.my, state);
+    redraw(monster.mx, monster.my, state);
 }
 
 export function bimanual(obj, state = game) {
