@@ -2714,7 +2714,7 @@ test('out_container resumes icebox timers before billing and inventory', async (
     const jsIcebox = jsOut.indexOf('removed_from_icebox(otmp, state);');
     const jsBill = jsOut.indexOf('if (!otmp.unpaid && !carried(container)');
     const jsPick = jsOut.indexOf('if (is_pick(otmp, state))');
-    const jsInventory = jsOut.indexOf('addinv_runtime(otmp, { state })');
+    const jsInventory = jsOut.indexOf('addinv_runtime(otmp, pickupObjectEnv(state))');
     assert.ok(jsExtract < jsWeight && jsWeight < jsIcebox && jsIcebox < jsBill
         && jsBill < jsPick && jsPick < jsInventory,
     'JS preserves C extraction, timer, billing, shop-feedback and inventory order');

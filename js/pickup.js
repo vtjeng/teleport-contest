@@ -3398,7 +3398,9 @@ async function out_container(obj, state) {
     }
     if (is_pick(otmp, state)) await pick_pick(otmp, state);
 
-    const result = await addinv_runtime(otmp, { state });
+    // invent.c merged() can print its comparison-discovery message here, as
+    // it does for a floor pickup.
+    const result = await addinv_runtime(otmp, pickupObjectEnv(state));
     await pickup_prinv(result, count, 'removing', state);
 
     if (is_gold) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c out_container() -> invent.c addinv() -> merged(): the Valkyrie's starting food ration, whose curse status she knows, is taken out of a sack and merges with a wished ration whose status she does not, so the comparison prints \"You learn more about your items by comparing them.\"  A debug Valkyrie wishes for a sack, stashes the ration, wishes for another ration, then takes the first back out.",
+  "segments": [
+    {
+      "seed": 66204417,
+      "datetime": "20230722143000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "\u0017sack\nafsd\u0017food ration\nafoa\n "
+    }
+  ]
+}
