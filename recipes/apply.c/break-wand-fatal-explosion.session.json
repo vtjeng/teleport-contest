@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent seed 4410623 (debug mode). The Valkyrie breaks a wished blessed wand of fire; apply.c broken_wand_explode()'s fireball kills her (answering the debug-mode Die? prompt yes). explode() reaches done(), which does not return in C, so the wand is never discarded and nothing else of do_break_wand() runs.",
+  "segments": [
+    {
+      "seed": 4410623,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed wand of fire\naey    y q "
+    }
+  ]
+}
