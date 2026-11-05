@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of earth-sense-step-onto-buried-object: a debug dwarvish Archeologist steps diagonally, buries her tinning kit with #wizbury, steps back to the staircase and returns.",
+  "segments": [
+    {
+      "seed": 40417730,
+      "datetime": "20190827201500",
+      "nethackrc": "OPTIONS=name:Kili,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "ndf#wizbury\nyn"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dungeon.c u_on_newpos() -> earth_sense() from hack.c domove_core(): a dwarf who steps onto a square with a buried object senses it.  A debug dwarvish Valkyrie drops her food ration, buries it with #wizbury, steps off and steps back.",
+  "segments": [
+    {
+      "seed": 58831208,
+      "datetime": "20240214101500",
+      "nethackrc": "OPTIONS=name:Thyra,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "ldd#wizbury\nhl"
+    }
+  ]
+}

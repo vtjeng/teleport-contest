@@ -4621,8 +4621,14 @@ async function domove_core(state = game) {
     // is its full re-position, possibly back to where the hero started when a
     // pet swap failed. On a same-level step its whole effect is
     // see_nearby_objects(), which turns a nearby generic potion or gem from
-    // its class colour into its own.
-    u_on_newpos(u.ux, u.uy, state);
+    // its class colour into its own. Its earth_sense() pline, the last thing
+    // u_on_newpos() does, is printed here once the synchronous placement
+    // returns.
+    const earthSenseMessages = [];
+    u_on_newpos(u.ux, u.uy, state, {
+        earthSenseMessage: (line) => earthSenseMessages.push(line),
+    });
+    for (const line of earthSenseMessages) await ttyPline(line, state);
 
     // C ref: hack.c domove_core():2936. Moving resets interrupted takeoff,
     // lock-picking, and trap-setting contexts through their canonical owners.
