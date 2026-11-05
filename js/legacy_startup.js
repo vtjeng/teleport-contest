@@ -4,7 +4,9 @@
 
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
-import { initializeQuestPagerLua } from './questpgr.js';
+import { convertLine, initializeQuestPagerLua } from './questpgr.js';
+import { QUEST_TEXT_DATA } from './quest_text_data.js';
+import { tty_putmsghistory } from './topl.js';
 import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { CLR_GRAY, NO_COLOR } from './terminal.js';
@@ -190,5 +192,14 @@ export async function ttyLegacyIntroduction(state = game, random = rn2) {
             || code === 10 || code === 13) break;
     }
     dismissTtyLegacyIntroduction(state, rendered);
+    // C ref: questpgr.c com_pager_core() 597-609.  After the window, the
+    // converted synopsis goes into message history for ^P recall without
+    // being delivered as a message.
+    const msgid = state.u?.uroleplay?.pauper ? 'pauper_legacy' : 'legacy';
+    tty_putmsghistory(
+        convertLine(QUEST_TEXT_DATA.common[msgid].synopsis, state),
+        false,
+        state,
+    );
     return true;
 }

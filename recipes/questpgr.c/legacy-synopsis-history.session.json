@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "questpgr.c com_pager_core() puts the legacy story's converted synopsis into message history after the window closes (allmain.c newgame() -> com_pager(\"legacy\")). A dwarvish Valkyrie dismisses the story, then ^P opens the full message history, which lists the synopsis before the welcome message.",
+  "segments": [
+    {
+      "seed": 61730492,
+      "datetime": "20240611094500",
+      "nethackrc": "OPTIONS=name:Hildra,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!tutorial,!autopickup,msg_window:full\n",
+      "moves": " \u0010 "
+    }
+  ]
+}

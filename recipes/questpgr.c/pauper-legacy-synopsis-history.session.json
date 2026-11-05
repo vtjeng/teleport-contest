@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of legacy-synopsis-history: the pauper option selects com_pager(\"pauper_legacy\"), whose synopsis is the same text, and a chaotic female Priest gives a goddess pronoun.  msg_window:reverse lists history newest first.",
+  "segments": [
+    {
+      "seed": 50318827,
+      "datetime": "20231116201500",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Priest,race:human,gender:female,align:chaotic\nOPTIONS=!tutorial,!autopickup,pauper,msg_window:reverse\n",
+      "moves": " \u0010 "
+    }
+  ]
+}
