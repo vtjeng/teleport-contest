@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent seed 5520117 (debug mode). The Valkyrie wishes for a magic lamp, lights it and turns it off again. apply.c use_lamp() calls timeout.c end_burn(), whose untimed arm (a magic lamp has no burn timer) deletes the light source through light.c del_light_source() and clears lamplit.",
+  "segments": [
+    {
+      "seed": 5520117,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017magic lamp\naeaess"
+    }
+  ]
+}

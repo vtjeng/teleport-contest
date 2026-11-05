@@ -265,15 +265,13 @@ function timerCleanupEnv(state, env = {}) {
     };
 }
 
-// The non-timer end_burn() path still resolves its light-deletion integration
-// hook before mutating object state. BURN_OBJECT timer cleanup uses the
-// source-backed light.js operation above; inventory refresh remains an
-// integration hook and is resolved before a timer is removed.
-function requiredCleanupHook(env, operation, funcIndex) {
-    const hook = env.hooks?.[operation];
-    if (typeof hook !== 'function')
-        throw new UnsupportedTimerCleanupError(operation, funcIndex);
-    return hook;
+// light.c del_light_source(LS_OBJECT, obj_to_any(obj)), which both
+// cleanup_burn() and end_burn()'s untimed arm (a magic lamp or an artifact
+// light) call directly. The optional hook remains a focused test seam.
+function objectLightDeletion(state, env) {
+    return typeof env.hooks?.deleteObjectLightSource === 'function'
+        ? env.hooks.deleteObjectLightSource
+        : (object) => del_light_source(LS_OBJECT, object, state);
 }
 
 // Keep this display boundary synchronized with invent.js update_inventory().
@@ -330,10 +328,7 @@ function preflightTimerCleanup(timer, state, env = {}) {
         return { normalized, deleteLight: null, updateInventory: null };
     }
 
-    const deleteLight = typeof normalized.hooks?.deleteObjectLightSource
-        === 'function'
-        ? normalized.hooks.deleteObjectLightSource
-        : (object) => del_light_source(LS_OBJECT, object, state);
+    const deleteLight = objectLightDeletion(state, normalized);
     const updateInventory = preflightBurnInventoryRefresh(
         obj,
         state,
@@ -2106,11 +2101,7 @@ export function preflight_end_burn(
         && obj.otyp !== MAGIC_LAMP
         && !artifact_light(obj);
     if (!attached) {
-        const deleteLight = requiredCleanupHook(
-            normalized,
-            'deleteObjectLightSource',
-            BURN_OBJECT,
-        );
+        const deleteLight = objectLightDeletion(state, normalized);
         const updateInventory = preflightBurnInventoryRefresh(
             obj,
             state,
