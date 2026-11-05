@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent seed 6630218 (debug mode). The Valkyrie unlocks and opens the room's south door, steps into the open doorway and digs down with a wished pick-axe. dig.c dighole() makes a pit there through trap.c maketrap(), whose `lev->flags = 0` also clears the rm.h doormask alias, leaving D_NODOOR. After climbing out, the hero therefore moves diagonally out of the doorway (hack.c test_move()), which an intact open door would refuse.",
+  "segments": [
+    {
+      "seed": 6630218,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017pick-axe\n\u0017skeleton key\nFklafjyojojjae >uuuuu"
+    }
+  ]
+}
