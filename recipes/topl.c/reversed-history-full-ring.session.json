@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "topl.c tty_doprev_message() reversed arm: with a full 20-slot history ring the walk starts at maxrow-1 and stops when it comes round to maxrow, so the oldest slot is not listed. Twenty-six look and travel-prompt messages fill the ring before ^P.",
+  "segments": [
+    {
+      "seed": 6610427,
+      "datetime": "20330214091530",
+      "nethackrc": "OPTIONS=name:Rewind,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,msg_window:reversed\n",
+      "moves": ":_\u001b:_\u001b:_\u001b:_\u001b:_\u001b:_\u001b:_\u001b:_\u001b:_\u001b:_\u001b:_\u001b:_\u001b:_\u001b\u0010"
+    }
+  ]
+}

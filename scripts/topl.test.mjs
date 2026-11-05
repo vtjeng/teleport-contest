@@ -240,6 +240,33 @@ test('reversed history places the current topline before newest-to-oldest entrie
     assert.ok(current >= 0 && current < newest && newest < oldest, menuFrame);
 });
 
+test('reversed history leaves out the oldest slot of a full ring', async () => {
+    const state = historyState();
+    const win = state.wintty.wins[state.wintty.messageWindow];
+    // A full ring: every slot holds a line, and maxrow (3, chosen away from
+    // both ends of the ring) is the next write slot and so the oldest entry.
+    // topl.c:85-95 starts at maxrow-1 and stops on returning to maxrow.
+    const rows = win.rows;
+    for (let i = 0; i < rows; ++i) win.data[i] = `slot ${i}`;
+    win.maxrow = 3;
+    win.maxcol = 3;
+    state._ttyToplines = 'current topline';
+    state.iflags.prevmsg_window = 'r';
+    state.nhDisplay.pushKey(13);
+    let menuFrame = '';
+    state._preNhgetchHook = () => {
+        menuFrame = state.nhDisplay.serialize();
+    };
+
+    await tty_doprev_message(state);
+
+    // slot 2 is the newest (maxrow - 1); slot 4 is the oldest one listed.
+    assert.ok(menuFrame.indexOf('slot 2') < menuFrame.indexOf('slot 4'),
+        menuFrame);
+    assert.equal(menuFrame.includes('slot 3'), false, menuFrame);
+    assert.equal(win.maxcol, 3);
+});
+
 test('combination history keeps looping across Ctrl-P More responses and clears dismiss_more', async () => {
     const state = historyState();
     const win = state.wintty.wins[state.wintty.messageWindow];

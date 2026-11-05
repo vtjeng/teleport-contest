@@ -355,15 +355,33 @@ function chronologicalHistory(state) {
 }
 
 async function showHistoryMenu(state, reversed = false) {
-    const items = chronologicalHistory(state);
-    if (reversed) {
-        items.reverse();
-        items.unshift(topline(state));
-    } else {
-        items.push(topline(state));
-    }
+    const items = reversed
+        ? [topline(state), ...reversedHistory(state)]
+        : [...chronologicalHistory(state), topline(state)];
     const { displayTtyMenuTextWindow } = await import('./tty_menu.js');
     await displayTtyMenuTextWindow(state, ['Message History', '', ...items]);
+}
+
+// C ref: topl.c tty_doprev_message() reversed arm (85-95). It starts one slot
+// before maxrow and walks backwards until it comes round to maxrow, so the
+// oldest slot, data[maxrow], is never shown; a null slot also ends the walk.
+// tty_putstr() ignores a null string (wintty.c:2245).
+function reversedHistory(state) {
+    const cw = messageWindow(state);
+    if (!cw?.data) return [];
+    const rows = historyRows(state);
+    const maxrow = cw.maxrow ?? 0;
+    const result = [];
+    let maxcol = maxrow - 1;
+    if (maxcol < 0) maxcol = rows - 1;
+    do {
+        const item = cw.data[maxcol];
+        if (item != null) result.push(item);
+        maxcol--;
+        if (maxcol < 0) maxcol = rows - 1;
+        if (cw.data[maxcol] == null) maxcol = maxrow;
+    } while (maxcol !== maxrow);
+    return result;
 }
 
 // C ref: topl.c tty_doprev_message(), including single, full, combination,
