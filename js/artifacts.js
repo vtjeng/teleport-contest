@@ -119,7 +119,7 @@ import {
 import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
 import { getrumor } from './random_text.js';
-import { verbalize } from './pline.js';
+import { verbalize, youFeel } from './pline.js';
 import { bcsign } from './obj.js';
 import { HCOLORS } from './random_text_data.js';
 import {
@@ -2307,7 +2307,10 @@ export async function artifact_hit(
 
             if (Blind(state)) {
                 await message(
-                    `You feel an ${is_art(otmp, ART_STORMBRINGER) ? 'unholy blade' : 'object'} drain your ${life}!`,
+                    youFeel(
+                        `an ${is_art(otmp, ART_STORMBRINGER) ? 'unholy blade' : 'object'} drain your ${life}!`,
+                        state,
+                    ),
                     state);
             } else {
                 /* call distant_name() for possible side-effects even if
