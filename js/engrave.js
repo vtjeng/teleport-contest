@@ -1423,6 +1423,25 @@ export function save_engravings(state = game) {
     }
 }
 
+// C ref: engrave.c rest_engravings() (1584-1619), the per-engraving tail. A
+// level file holds each text buffer from its start, leading spaces included
+// (save_engravings() writes it that way); reading it back skips those spaces
+// again for the actual and remembered texts and marks the engraving finished
+// at the current turn. The port keeps the chain in memory, so the buffer is
+// the text with actual_text_offset spaces in front of it.
+export function rest_engravings(state = game) {
+    for (let ep = state.head_engr ?? null; ep; ep = ep.nxt_engr) {
+        const buffer = ' '.repeat(ep.actual_text_offset ?? 0)
+            + (ep.engr_txt[0] ?? '');
+        const text = buffer.replace(/^ +/u, '');
+        ep.engr_txt[0] = text;
+        ep.actual_text_offset = buffer.length - text.length;
+        if (typeof ep.engr_txt[1] === 'string')
+            ep.engr_txt[1] = ep.engr_txt[1].replace(/^ +/u, '');
+        ep.engr_time = state.moves;
+    }
+}
+
 // C ref: engrave.c rloc_engr() (1667-1681). The caller refreshes the old square;
 // relocation preserves the linked engraving and redraws only its new location.
 export function rloc_engr(ep, state = game, env = {}) {

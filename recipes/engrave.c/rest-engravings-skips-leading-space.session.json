@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent seeds 6630218/6630219 (debug mode). The Valkyrie writes \".,abc\" in the dust and fights from that square, which wipes the leading '.' to a space that wipe_engr_at() skips. A level teleport away and back runs the checkpoint save_currentstate() on arrival, whose save_engravings() moves the text pointer back to the buffer start, so the live text regains the leading space. After #save and restore, restore.c getlev() -> engrave.c rest_engravings() skips leading spaces again, so reading the engraving on the restored level shows no leading space.",
+  "segments": [
+    {
+      "seed": 6630218,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "lE- .,abc\nFyFyFy\u00162\n\u00161\nSy"
+    },
+    {
+      "seed": 6630219,
+      "datetime": "20261114100000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " n\u0014 \n<l. "
+    }
+  ]
+}
