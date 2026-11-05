@@ -1198,7 +1198,9 @@ export async function invault(state, env = {}) {
         await message(
             `Suddenly one of the Vault's ${makeplural(pmname(guard.data, gender(guard)))} enters!`,
         );
-        newsym(guard.mx, guard.my);
+        // newsym() paints the live game, which a planning copy leaves to
+        // the live pass, as map_invisible() below does.
+        if (state === game) newsym(guard.mx, guard.my);
     } else {
         await message('Someone else has entered the Vault.');
         if (state === game) map_invisible(guard.mx, guard.my, state);
