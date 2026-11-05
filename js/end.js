@@ -215,6 +215,7 @@ import { rn2 } from './rng.js';
 import { d } from './rng.js';
 import { timet_delta } from './allmain.js';
 import { canspotmon } from './display.js';
+import { tty_exit_nhwindows } from './wintty.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -1595,10 +1596,13 @@ async function really_done(how, state) {
     if (!disclosureStopprint(state))
         await displayTtyTextWindow(state, textLines);
 
-    // C ref: end.c:1579-1583 exit_nhwindows + topten.
-    // exit_nhwindows clears the screen; topten prints to raw output.
-    // tty_raw_print() enters raw mode on first call: it clears the shadow
-    // screen and starts its cursor at the top left, matching exit_nhwindows.
+    // C ref: end.c:1579-1583 exit_nhwindows + topten. iflags.toptenwin
+    // defaults to false, so the windows close before topten() raw-prints.
+    // exit_nhwindows() clears the screen and, when an earlier raw print has
+    // already put the recorder in raw mode, ends that raw line; otherwise
+    // topten's first tty_raw_print() enters raw mode at the top left.
+    if (haveWindows && !state.iflags?.toptenwin)
+        tty_exit_nhwindows(null, state);
     toptenDisplay(how, endtime, state);
 
     // C ref: end.c:1589-1591.  raw_print() is deliberately after topten;

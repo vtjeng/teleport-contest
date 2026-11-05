@@ -221,19 +221,29 @@ function callTerminalOperation(state, operation, gap, args = []) {
 
 // C ref: wintty.c tty_suspend_nhwindows() (784-790).  term_curs_set(1) only
 // changes cursor visibility, which the recorder does not capture.  settty()
-// (sys/share/unixtty.c 233-248) leaves the alternate screen and raw-prints a
-// non-null farewell; the terminal-mode ioctls have no browser counterpart.
-// The null case's tty_raw_print("") runs while ttyDisplay is still alive, and
-// recorder patch 006 nomux_raw_emit() skips an empty string at that point, so
-// it leaves the captured screen unchanged.
+// (sys/share/unixtty.c 233-248) calls term_end_screen(), whose
+// term_clear_screen() patch 006 mirrors by clearing the shadow screen, and
+// then raw-prints a non-null farewell; the terminal-mode ioctls have no
+// browser counterpart.  The null case's tty_raw_print("") runs while
+// ttyDisplay is still alive.  Patch 006 nomux_raw_emit() drops an empty
+// string at that point unless raw mode is already active, where it ends the
+// current raw line; C still counts the call in ttyDisplay->rawprint.
 export function tty_suspend_nhwindows(str, state = game) {
-    if (str) tty_raw_print(state, str);
+    const display = state.nhDisplay;
+    display?.clearScreen();
+    if (str) {
+        tty_raw_print(state, str);
+    } else if (display?.nomuxRaw?.active) {
+        tty_raw_print(state, '');
+    } else if (display?.nomuxRaw) {
+        display.nomuxRaw.rawprint = (display.nomuxRaw.rawprint ?? 0) + 1;
+    }
 }
 
 // C ref: wintty.c tty_exit_nhwindows() (810-845).  After the farewell, C
 // frees every tty window and the pickinv cache and shuts the terminal down;
-// the segment ends there, so the observable result is the farewell screen
-// and window_inited, which tty_init_nhwindows() set.
+// only raw output follows, so the observable result is the cleared or
+// farewell screen and window_inited, which tty_init_nhwindows() set.
 export function tty_exit_nhwindows(str, state = game) {
     tty_suspend_nhwindows(str, state);
     state.iflags ??= {};
