@@ -906,12 +906,18 @@ test('pickup preflights every reachable addinv dependency before unlinking',
     async () => {
         const cases = [
             {
+                // invent.c carry_obj_effects() (1187-1196): a cursed
+                // figurine of a living species gets its FIG_TRANSFORM timer
+                // once it is carried.
                 name: 'cursed figurine timer',
                 otyp: FIGURINE,
-                expected: /isDeadSpecies is not available/u,
+                accepts: true,
                 prepare(object) {
                     object.cursed = true;
                     object.corpsenm = PM_KOBOLD_ZOMBIE;
+                },
+                check(object) {
+                    assert.equal(object.timed, 1, this.name);
                 },
             },
             {
@@ -921,6 +927,13 @@ test('pickup preflights every reachable addinv dependency before unlinking',
                 prepare(object, state) {
                     state.urole = { ...state.urole, filecode: 'Arc' };
                     state.objects[object.otyp].oc_name_known = 0;
+                },
+                check(_object, state) {
+                    assert.equal(
+                        state.gamelog.at(-1)?.text,
+                        'became literate by deciphering a scroll label',
+                        this.name,
+                    );
                 },
             },
             {
@@ -950,11 +963,7 @@ test('pickup preflights every reachable addinv dependency before unlinking',
                     ...new Array(8).fill(' '.charCodeAt(0)),
                 );
                 await pickup(1, state);
-                assert.equal(
-                    state.gamelog.at(-1)?.text,
-                    'became literate by deciphering a scroll label',
-                    specimen.name,
-                );
+                specimen.check(object, state);
                 assert.equal(object.where, OBJ_INVENT, specimen.name);
                 continue;
             }
@@ -971,14 +980,13 @@ test('pickup preflights every reachable addinv dependency before unlinking',
 
 test('pickup preflights the whole pile before any state or floor mutation',
     async () => {
-        // A cursed figurine triggers the isDeadSpecies preflight, which
-        // fails without a hook. This confirms that pickup backs out of
-        // the entire pile when any single object's preflight fails.
+        // A fractional quantity fails the per-object shape preflight. This
+        // confirms that pickup backs out of the entire pile when one
+        // object's preflight fails after an earlier object has passed.
         const state = await heroOnAnEmptySquare();
         state.flags.pickup = true;
-        const failing = typedObjectUnderHero(state, FIGURINE);
-        failing.cursed = true;
-        failing.corpsenm = PM_KOBOLD_ZOMBIE;
+        const failing = objectUnderHero(state);
+        failing.quan = 1.5;
         const ordinary = objectUnderHero(state);
         ordinary.dknown = false;
         failing.dknown = false;
@@ -999,7 +1007,7 @@ test('pickup preflights the whole pile before any state or floor mutation',
 
         await assert.rejects(
             () => pickup(1, state),
-            /isDeadSpecies is not available/u,
+            /malformed floor object/u,
         );
         assertStillOnBothFloorChains(state, ordinary, ordinaryLinks);
         assert.equal(ordinary.nexthere, failing);

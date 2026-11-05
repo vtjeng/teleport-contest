@@ -184,7 +184,11 @@ import {
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { body_part, mbodypart } from './polyself.js';
-import { learn_egg_type, obj_stop_timers } from './timeout.js';
+import {
+    attach_fig_transform_timeout,
+    learn_egg_type,
+    obj_stop_timers,
+} from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -210,7 +214,12 @@ import {
     S_vodbridge,
     S_vodoor,
 } from './symbols.js';
-import { hides_under, poly_when_stoned, touch_petrifies } from './mondata.js';
+import {
+    dead_species,
+    hides_under,
+    poly_when_stoned,
+    touch_petrifies,
+} from './mondata.js';
 import { hideunder, maybe_unhide_at } from './mon.js';
 import { newsym, obj_to_glyph, mon_to_glyph } from './display.js';
 import { livelog_printf } from './pline.js';
@@ -2697,15 +2706,15 @@ function requiredHook(env, name, obj) {
 // whenever the branch can be preflighted.
 //
 // Predicates: artifactConfersLuck(obj, env), isReviver(species, env),
-// samePrice(obj, target, env), isDeadSpecies(species, includeGone, env).
+// samePrice(obj, target, env).
 // consume_obj_charge's optional call-site checkUnpaid(obj, state) adapter
 // intercepts only invent.c's discarded void billing call; absent it, the
 // existing check_unpaid implementation remains in effect.
 // Inventory effects: removeSpecialInventoryEffects(obj, env),
 // archeologistDeciphersScroll(obj, env), recordAchievement(id, env),
 // updateInventory(state).
-// attachFigurineTimer(obj, env) and stopFigurineTimer(obj, env) own both the
-// external timer queue and obj.timed, as NetHack's timer subsystem does.
+// stopFigurineTimer(obj, env) owns both the external timer queue and
+// obj.timed, as NetHack's timer subsystem does.
 // Ownership/lifetime: objectNoLongerHeld(obj, env), stopObjectTimers(obj, env),
 // deleteObjectLightSource(obj, env), unleashObject(obj, env),
 // resetPick(obj, env). obfreeShopBill(obj, merge, env) returns 'retained' when
@@ -4316,11 +4325,7 @@ export function replace_inventory_core(obj, replacement, env = {}) {
 }
 
 function runCarryObjEffects(obj, env, shouldAttachFigurineTimer) {
-    if (shouldAttachFigurineTimer) {
-        requiredHook(env, 'attachFigurineTimer', obj)(obj, env);
-        if (obj.timed !== 1)
-            throw new Error('attachFigurineTimer must leave one object timer');
-    }
+    if (shouldAttachFigurineTimer) attach_fig_transform_timeout(obj, env);
 }
 
 // Dependency-only half of invent.c:carry_obj_effects(). Object-transfer
@@ -4332,13 +4337,11 @@ export function preflight_carry_obj_effects(obj, env = {}) {
     if (obj.otyp === FIGURINE
         && obj.cursed
         && obj.corpsenm !== NON_PM) {
-        shouldAttachFigurineTimer = !requiredHook(
+        shouldAttachFigurineTimer = !dead_species(
+            obj.corpsenm,
+            true,
             normalized,
-            'isDeadSpecies',
-            obj,
-        )(obj.corpsenm, true, normalized);
-        if (shouldAttachFigurineTimer)
-            requiredHook(normalized, 'attachFigurineTimer', obj);
+        );
     }
     return { normalized, shouldAttachFigurineTimer };
 }

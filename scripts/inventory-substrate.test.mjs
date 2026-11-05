@@ -7,6 +7,9 @@ import test from 'node:test';
 import { getRngLog } from '../js/rng.js';
 
 import {
+    FIG_TRANSFORM,
+    G_GENOD,
+    TIMER_OBJECT,
     ACH_AMUL,
     ACH_BELL,
     ACH_BOOK,
@@ -131,7 +134,13 @@ import {
 } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
 import { del_light_source, light_globals_init } from '../js/light.js';
-import { begin_burn, start_glob_timeout, timeout_globals_init } from '../js/timeout.js';
+import {
+    begin_burn,
+    start_glob_timeout,
+    start_timer,
+    stop_timer,
+    timeout_globals_init,
+} from '../js/timeout.js';
 import { game } from '../js/gstate.js';
 import { oname } from '../js/do_name.js';
 import {
@@ -150,6 +159,7 @@ import {
     PM_COCKATRICE,
     PM_FOX,
     PM_KNIGHT,
+    NUMMONS,
     PM_NEWT,
     monst_globals_init,
 } from '../js/monsters.js';
@@ -2082,45 +2092,67 @@ test('thrown pickup autoquivers only a newly inserted eligible object', () => {
     assert.equal(aklysState.uquiver, undefined);
 });
 
-test('figurine carrying fails closed at its monster predicate seam', () => {
-    const figurineState = initializedState();
-    const figurine = instance(FIGURINE, figurineState, {
-        corpsenm: TEST_SPECIES,
-        cursed: true,
+// invent.c carry_obj_effects() (1187-1196) reads svm.mvitals through
+// dead_species(), which needs only the flags word of each entry, and
+// attach_fig_transform_timeout() writes the timer queue.
+function figurineCarryState() {
+    const state = initializedState();
+    timeout_globals_init(state);
+    state.svm = {
+        ...(state.svm ?? {}),
+        mvitals: Array.from({ length: NUMMONS }, () => ({ mvflags: 0 })),
+    };
+    return state;
+}
+
+function figTransformTimers(state, figurine) {
+    const timers = [];
+    for (let timer = state.gt.timer_base; timer; timer = timer.next) {
+        if (timer.func_index === FIG_TRANSFORM && timer.arg === figurine)
+            timers.push(timer);
+    }
+    return timers;
+}
+
+// attach_fig_transform_timeout() draws rnd(9000); this stub answers 1, so the
+// timer lands at the minimum delay 1 + 200 from timeout.c:1214.
+const FIGURINE_TIMER_RANDOM = { rn2: () => 0, rnd: () => 1 };
+const FIGURINE_TIMER_DELAY = 201;
+
+test('carrying a cursed figurine of a genocided species attaches no timer',
+    () => {
+        const state = figurineCarryState();
+        // G_GENOD on the figurine's species makes dead_species(..., TRUE)
+        // true, so carry_obj_effects() skips attach_fig_transform_timeout().
+        state.svm.mvitals[TEST_SPECIES].mvflags |= G_GENOD;
+        const figurine = instance(FIGURINE, state, {
+            corpsenm: TEST_SPECIES,
+            cursed: true,
+        });
+        let draws = 0;
+        addinv(figurine, {
+            state,
+            random: { rn2: () => ++draws, rnd: () => ++draws },
+        });
+        assert.equal(figurine.where, OBJ_INVENT);
+        assert.equal(draws, 0);
+        assert.equal(Math.trunc(figurine.timed ?? 0), 0);
+        assert.deepEqual(figTransformTimers(state, figurine), []);
     });
-    assert.throws(
-        () => addinv(figurine, { state: figurineState }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'isDeadSpecies',
-    );
-    assert.equal(figurine.where, OBJ_FREE);
-    addinv(figurine, {
-        state: figurineState,
-        hooks: { isDeadSpecies: () => true },
-    });
-    assert.equal(figurine.where, OBJ_INVENT);
-});
 
 test('a live cursed figurine timer follows inventory ownership', () => {
-    const state = initializedState();
+    const state = figurineCarryState();
     const figurine = instance(FIGURINE, state, {
         corpsenm: TEST_SPECIES,
         cursed: true,
-        // An existing transform timer must be replaced, not duplicated.
-        timed: 1,
     });
-    let attached = 0;
-    addinv(figurine, {
-        state,
-        hooks: {
-            attachFigurineTimer(obj) {
-                ++attached;
-                obj.timed = 1;
-            },
-            isDeadSpecies: () => false,
-        },
-    });
-    assert.equal(attached, 1);
+    // An existing transform timer must be replaced, not duplicated:
+    // attach_fig_transform_timeout() stops it before starting the new one.
+    start_timer(5, TIMER_OBJECT, FIG_TRANSFORM, figurine, state);
+    addinv(figurine, { state, random: FIGURINE_TIMER_RANDOM });
+    let timers = figTransformTimers(state, figurine);
+    assert.equal(timers.length, 1);
+    assert.equal(timers[0].timeout, state.moves + FIGURINE_TIMER_DELAY);
     assert.equal(figurine.timed, 1);
 
     let stopped = 0;
@@ -2129,7 +2161,7 @@ test('a live cursed figurine timer follows inventory ownership', () => {
         hooks: {
             stopFigurineTimer(obj) {
                 ++stopped;
-                obj.timed = 0;
+                stop_timer(FIG_TRANSFORM, obj, state);
             },
         },
     });
@@ -2137,26 +2169,18 @@ test('a live cursed figurine timer follows inventory ownership', () => {
     assert.equal(figurine.timed, 0);
     assert.equal(figurine.where, OBJ_FREE);
 
-    addinv(figurine, {
-        state,
-        hooks: {
-            attachFigurineTimer(obj) {
-                ++attached;
-                obj.timed = 1;
-            },
-            isDeadSpecies: () => false,
-        },
-    });
+    addinv(figurine, { state, random: FIGURINE_TIMER_RANDOM });
+    timers = figTransformTimers(state, figurine);
+    assert.equal(timers.length, 1);
     useupall(figurine, {
         state,
         hooks: {
             stopFigurineTimer(obj) {
                 ++stopped;
-                obj.timed = 0;
+                stop_timer(FIG_TRANSFORM, obj, state);
             },
         },
     });
-    assert.equal(attached, 2);
     assert.equal(stopped, 2);
     assert.equal(figurine.timed, 0);
     assert.equal(figurine.where, OBJ_DELETED);

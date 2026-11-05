@@ -77,7 +77,6 @@ import { obj_sheds_light } from './light.js';
 import {
     attacktype,
     can_teleport,
-    dead_species,
     dmgtype,
     is_animal,
     slithy,
@@ -125,7 +124,6 @@ import { obj_resists } from './bury.js';
 import { is_quest_artifact } from './questpgr.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
 import { messageAt } from './startup_a11y.js';
-import { attach_fig_transform_timeout } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import {
@@ -167,10 +165,6 @@ export class UnsupportedMonsterPickupOperationError extends Error {
 function pickupEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const hooks = {
-        isDeadSpecies: (species, includeGone, env) =>
-            dead_species(species, includeGone, env),
-        attachFigurineTimer: (obj, env) =>
-            attach_fig_transform_timeout(obj, env),
         findObjectOwner: (obj, x, y, env) => find_objowner(obj, x, y, env.state),
         subFromBill: (obj, owner, env) => subfrombill(obj, owner, env.state, env),
         ...(rawEnv.hooks ?? {}),

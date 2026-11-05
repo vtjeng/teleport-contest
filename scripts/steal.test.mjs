@@ -36,7 +36,13 @@ import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
 import { count_unpaid } from '../js/invent.js';
-import { AT_ENGL, PM_WOOD_NYMPH, monst_globals_init } from '../js/monsters.js';
+import {
+    AT_ENGL,
+    NUMMONS,
+    PM_WOOD_NYMPH,
+    monst_globals_init,
+} from '../js/monsters.js';
+import { timeout_globals_init } from '../js/timeout.js';
 import { newMonster } from '../js/monst.js';
 import {
     findgold,
@@ -462,27 +468,34 @@ test('cursed figurine carrying effect runs before inventory transfer', () => {
         cursed: true,
         corpsenm: TEST_SPECIES,
     });
-    let attached = 0;
+    const gameState = state();
+    // invent.c carry_obj_effects() asks dead_species(), which reads only the
+    // flags word of each svm.mvitals entry; zero leaves the species alive.
+    gameState.svm = {
+        mvitals: Array.from({ length: NUMMONS }, () => ({ mvflags: 0 })),
+    };
+    timeout_globals_init(gameState);
+    let draws = 0;
     const env = {
-        state: state(),
-        hooks: {
-            isDeadSpecies(species, includeGone) {
-                assert.equal(species, TEST_SPECIES);
-                assert.equal(includeGone, true);
-                return false;
-            },
-            attachFigurineTimer(obj) {
-                ++attached;
-                assert.equal(obj.where, OBJ_FREE);
+        state: gameState,
+        // attach_fig_transform_timeout()'s rnd(9000) is the timer's only
+        // draw. steal.c:676-680 runs carry_obj_effects() before
+        // add_to_minv(), so the figurine is still free when it is drawn.
+        random: {
+            rn2: () => assert.fail('no rn2 draw expected'),
+            rnd(limit) {
+                ++draws;
+                assert.equal(limit, 9000);
+                assert.equal(figurine.where, OBJ_FREE);
                 assert.equal(carrier.minvent, null);
-                obj.timed = 1;
+                return 1;
             },
         },
     };
     const plan = preflight_mpickobj(carrier, figurine, env);
 
     assert.equal(mpickobj(carrier, figurine, env, plan), false);
-    assert.equal(attached, 1);
+    assert.equal(draws, 1);
     assert.equal(figurine.timed, 1);
     assert.equal(figurine.where, OBJ_MINVENT);
 });
