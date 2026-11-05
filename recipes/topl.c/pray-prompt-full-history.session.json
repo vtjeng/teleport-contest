@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "win/tty/topl.c tty_yn_function() Ctrl-P with msg_window:full. The pray confirmation is drawn through SUPPRESS_HISTORY, so gt.toplines is empty while it waits: tty_doprev_message() ends the history with an empty line, and the tty_clear_nhwindow(WIN_MESSAGE) after the recall leaves the repaired map alone. A neutral gnomish Wizard searches twice, asks to pray, recalls the history, and declines with Escape. Independent of batch 5.",
+  "segments": [
+    {
+      "seed": 9031577,
+      "datetime": "20340908071200",
+      "nethackrc": "OPTIONS=name:Mirel,role:Wizard,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,!tips,msg_window:full,paranoid_confirmation:pray\n",
+      "moves": "ss#pray\n\u0010 \u001b"
+    }
+  ]
+}

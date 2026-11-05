@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "win/tty/topl.c tty_yn_function() Ctrl-P with msg_window:full, with a history window tall enough to cover map rows. After the recall, tty_clear_nhwindow(WIN_MESSAGE) finds the message window already empty and does nothing, so the map rows the dismissed window repaired stay drawn. A lawful dwarvish Valkyrie looks at the floor fourteen times, asks to pray, recalls the history, and declines with Escape. Independent of batch 5.",
+  "segments": [
+    {
+      "seed": 6120943,
+      "datetime": "20351126144500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup,!tips,msg_window:full,paranoid_confirmation:pray\n",
+      "moves": "::::::::::::::#pray\n\u0010 \u001b"
+    }
+  ]
+}
