@@ -5922,8 +5922,10 @@ async function buzzmonst(
             // slept_monst() releases a sleeping grabber.
             await slept_monst(mon, { ...env, message });
         }
+        // wake_msg() prints through this function's message operation,
+        // which a monster turn's planning pass silences.
         if (damgtype !== ZT_SLEEP)
-            await wakeup(mon, type >= 0, { state, random });
+            await wakeup(mon, type >= 0, { ...env, state, random, message });
     }
     return { hit: true, reflected: false, clearGas: false, stop: false };
 }

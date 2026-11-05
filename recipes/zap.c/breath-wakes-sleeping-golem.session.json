@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7315845,
+      "datetime": "20370912093015",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,rest_on_space\n",
+      "moves": "\u001b\u0007sleeping flesh golem\n\u0007winter wolf cub\nE- Elbereth\nx x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x "
+    }
+  ],
+  "comment": "Independent zap.c buzzmonst() witness: a debug Valkyrie summons a sleeping flesh golem and a winter wolf cub, writes Elbereth so the cub keeps its distance, then swaps weapons with x, answering each --More-- with a space (rest_on_space). The cub breathes frost through her (she resists) into the golem, which wakes through mon.c wake_msg(). The port plans each monster turn before playing it, and the plan must print that message through buzzmonst()'s silenced message operation. Printed on the live screen, it overflowed the long swap message, raised a --More-- during the plan and consumed a key."
+}
