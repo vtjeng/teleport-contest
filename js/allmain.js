@@ -28,6 +28,7 @@ import {
     POLYMORPH,
     POLY_NOFLAGS,
     RLOC_NOMSG,
+    RUN_TPORT,
     SEARCHING,
     SLT_ENCUMBER,
     TELEPAT,
@@ -2045,6 +2046,24 @@ export async function moveloop_core() {
     // movemon_singlemon()'s own recalculation arm on the turn the command
     // charged, which C reaches only when movemon()'s tail sets the flag.
     if (g.vision_full_recalc) vision_recalc(0);
+    // C ref: allmain.c moveloop_core() (548-555). Outside non-teleport
+    // running (domove() does it there), every seventh count step -- or, when
+    // traveling, every seventh turn -- marks the status line dirty while a
+    // run is in progress and displays the map window. context.run can still
+    // hold a finished travel's 8 here: findtravelpath() puts it back after
+    // nomul(0), and only reset_cmd_vars() or end_running() clears it, so a
+    // counted command after travel takes this arm on its first step.
+    // tty_display_nhwindow(WIN_MAP, FALSE) only ends glyph output, clears
+    // rawprint and flushes stdout; the JS grid has no output stream to flush.
+    const multi = g.multi ?? 0;
+    if ((!g.context.run || g.flags.runmode === RUN_TPORT)
+        && (multi && (!g.context.travel ? !(multi % 7) : !(g.moves % 7)))) {
+        if (g.flags.time && g.context.run) {
+            g.disp ??= {};
+            g.disp.botl = true;
+        }
+        if (g.nhDisplay?.nomuxRaw) g.nhDisplay.nomuxRaw.rawprint = 0;
+    }
     // show_glyph() emits its accessibility pline before returning to the
     // command loop. Preserve that boundary for command-generated reveals even
     // when no later region or combat message forces an earlier drain.

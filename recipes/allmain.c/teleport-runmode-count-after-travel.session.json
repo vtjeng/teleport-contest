@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "allmain.c moveloop_core() 548-555 under runmode:teleport: a count of 15 leaves multi at 14 after rhack(), a multiple of seven, so with the context.run of 8 a finished travel left behind the arm sets disp.botl and the next turn redraws the time once; the remaining counted turns stay suppressed.",
+  "segments": [
+    {
+      "seed": 5180263,
+      "datetime": "20350809201245",
+      "nethackrc": "OPTIONS=name:Waiter,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time,runmode:teleport\n",
+      "moves": "_ll.15s"
+    }
+  ]
+}
