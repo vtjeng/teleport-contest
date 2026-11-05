@@ -462,7 +462,9 @@ export async function grow_up(mtmp, victim, env = {}) {
         set_mon_data(mtmp, ptr, state);
         if (mtmp.cham === oldtype && is_shapeshifter(ptr))
             mtmp.cham = newtype;
-        newsym(mtmp.mx, mtmp.my);
+        // newsym() paints the live game; a monster turn's planning pass
+        // leaves the redraw to the live pass.
+        if (!env.planning) newsym(mtmp.mx, mtmp.my);
         lev_limit = mtmp.m_lev; /* never undo an evolution's increment */
         mtmp.female = Boolean(fem);
         if (mtmp.mleashed) update_inventory();

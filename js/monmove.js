@@ -1947,7 +1947,12 @@ export async function bee_eat_jelly(mon, obj, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
     const message = env.message ?? ttyPline;
-    const objectEnv = objectGenerationEnv({ ...env, state, random, message });
+    // delobj() repaints the jelly's square through objectEnv.redraw, which a
+    // monster turn's planning pass silences.
+    const objectEnv = objectGenerationEnv({
+        ...env, state, random, message,
+        redraw: env.planning ? () => {} : (env.redraw ?? newsym),
+    });
     const mtmp = find_pmmonst(PM_QUEEN_BEE, state);
 
     if (!mtmp) {
