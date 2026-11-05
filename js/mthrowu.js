@@ -2056,9 +2056,12 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
             state.u.uhp -= dam;
             throw env.planningDeath();
         }
+        // A planning pass stops at losehp()'s planning boundary instead
+        // of running rehumanize() for a polymorphed hero on the copy.
         await losehp(dam, knm, kprefix, state, {
             fromMonster: Boolean(env.fromMonster),
             message,
+            planning: env.planning,
         });
         // C losehp() enters end.c really_done() on lethal damage, whose
         // NORETURN path never reaches exercise(A_STR, FALSE).
