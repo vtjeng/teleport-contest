@@ -490,6 +490,8 @@ export async function kick_monster(mon, x, y, state = game) {
             if (hitRoll > dieroll) {
                 await ttyPline(`You kick ${mon_nam(mon, state)}.`, state);
                 const sum = await damageum(mon, uattk, specialDmg, state, env);
+                // A killing kick can end the game; C's done() does not return.
+                if (state.program_state?.gameover) return;
                 await passive(mon, state.uarmf, sum !== M_ATTK_MISS,
                     !(sum & M_ATTK_DEF_DIED), AT_KICK, false, state, env);
                 if (sum & M_ATTK_DEF_DIED) break;

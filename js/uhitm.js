@@ -2152,6 +2152,8 @@ export async function hmonas(mon, state = game, env = {}) {
             state.u.mh = -1;
             await rehumanize(state, attackEnv);
         }
+        // A killing blow can end the game; C's done() does not return.
+        if (state.program_state?.gameover) return false;
         if (sums[i] === M_ATTK_DEF_DIED) {
             await passive(mon, weapon, 1, 0, mattk.aatyp, false, state, attackEnv);
         } else {
@@ -2544,6 +2546,8 @@ export async function hitum_cleave(target, uattk, state = game, env = {}) {
             mon, state.uwep, mhit, needed, counters.role_roll_penalty,
             uattk, dieroll, state, env,
         );
+        // known_hitum() can end the game; C's done() does not return.
+        if (state.program_state?.gameover) return false;
         await passive(
             mon, state.uwep, mhit.value, mon.mhp > 0, AT_WEAP,
             !state.uwep, state, env,
@@ -2620,6 +2624,10 @@ export async function hitum(mon, uattk, state = game, env = {}) {
         state,
         env,
     );
+    // C's done() does not return. Killing a gas spore can end the game in
+    // its death explosion inside known_hitum(), so C never reaches passive();
+    // savebones() may already have freed the monster.
+    if (state.program_state?.gameover) return malive;
     const wep_was_destroyed = Boolean(wepbefore && !state.uwep);
     await passive(
         mon,
@@ -2672,6 +2680,7 @@ export async function hitum(mon, uattk, state = game, env = {}) {
             state,
             env,
         );
+        if (state.program_state?.gameover) return malive;
         /* second passive counter-attack only occurs if second attack hits */
         if (mhit.value) {
             await passive(

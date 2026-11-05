@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent uhitm.c hitum() entry where the hero's killing blow ends the game. A 10-HP Tourist punches a #wizgenesis gas spore to death; its explode.c death explosion is fatal, the wizard-mode Save bones? answer is y, and savebones() frees the dead monster. C's done() does not return, so hitum() never reaches passive() on the freed monster.",
+  "segments": [
+    {
+      "seed": 55190342,
+      "datetime": "20550611093000",
+      "nethackrc": "OPTIONS=name:SporeBones,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0007gas spore\n Fu Fu Fu Fu  ynnnnny  "
+    }
+  ]
+}
