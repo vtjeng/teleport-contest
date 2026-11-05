@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c hilite_reset_needed() compares a temporary highlight's timer with gb.bl_hilite_moves, which status_eval_next_unhilite() sets once per hero action. Dropping gold under gold/down starts a 3-turn highlight; the plate mail's dressing delay ends in moveloop's once-per-turn block, after svm.moves has advanced, and unmul()'s message forces a --More-- whose bot() must still show the highlight.",
+  "segments": [
+    {
+      "seed": 4402117,
+      "datetime": "20250318101500",
+      "nethackrc": "OPTIONS=name:Ilse,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,color,time\nOPTIONS=statushilites:3,hilite_status:gold/down/brown\n",
+      "moves": "\u001750 gold pieces\n\u0017plate mail\n\u0007jackal\n\u0007jackal\n\u0007jackal\nd$We      "
+    }
+  ]
+}

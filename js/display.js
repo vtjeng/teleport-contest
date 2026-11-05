@@ -6250,7 +6250,9 @@ function _statusFieldEnabled(field, state) {
 // compare_blstats(prev, curr) against the other bank, and `expired` is the
 // hilite_reset_needed() timer reset; either one, or gu.update_all, makes C
 // pass the field to status_update(). This reads the banks without changing
-// them.
+// them. The timer is compared with gb.bl_hilite_moves, the svm.moves value
+// status_eval_next_unhilite() last recorded, not with the current turn: a
+// bot() during the monsters' part of a turn still sees the previous one.
 function _statusFieldNotice(gb, fld, data, updateAll) {
     const value = data.value ?? null;
     const compareValue = data.compareValue ?? value;
@@ -6259,7 +6261,7 @@ function _statusFieldNotice(gb, fld, data, updateAll) {
         || gb.status_hilite_text[1][fld] !== (data.text ?? null);
     const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
     const expired = !updateAll && !game.multi && until > 0
-        && until < (game.moves ?? 0)
+        && until < (gb.bl_hilite_moves ?? 0)
         && gb.status_hilite_rule[1][fld]?.behavior === 'changed';
     return { changed, expired };
 }
@@ -6471,6 +6473,8 @@ export function status_eval_next_unhilite(state = game) {
     gb.status_hilite_times[1] ??= Array(size).fill(0);
     _statusHiliteChangeBanks(gb, size);
     const moves = state.moves ?? 0;
+    // C ref: botl.c gb.bl_hilite_moves (decl.c starts it at 0; not saved).
+    gb.bl_hilite_moves = moves;
     const multi = state.multi ?? 0;
     const duration = state.iflags?.hilite_delta ?? 0;
     for (const field of STATUS_FIELDS) {
