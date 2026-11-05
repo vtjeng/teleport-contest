@@ -72,9 +72,9 @@ import {
     glyph_is_cmap,
     glyph_is_monster,
     glyph_is_object,
-    glyph_to_obj,
     glyph_to_cmap,
     newsym,
+    objnum_to_glyph,
 } from './display.js';
 import {
     GLYPH_MON_MALE_OFF,
@@ -715,9 +715,12 @@ export function gather_locs_interesting(
             && glyph !== normalMaleTail && glyph !== normalFemaleTail;
     }
     if (gloc === GLOC_OBJS) {
+        // C compares the whole glyph with objnum_to_glyph(), so only a lone
+        // boulder or rock is skipped; one drawn as the top of a pile uses the
+        // piletop glyph range and remains a target.
         return glyph_is_object(glyph)
-            && glyph_to_obj(glyph) !== BOULDER
-            && glyph_to_obj(glyph) !== ROCK;
+            && glyph !== objnum_to_glyph(BOULDER)
+            && glyph !== objnum_to_glyph(ROCK);
     }
     if (gloc === GLOC_DOOR) return isDoor;
     if (gloc === GLOC_EXPLORE) {
@@ -726,12 +729,17 @@ export function gather_locs_interesting(
         if (!(isDoor
             || (sym >= S_room && sym <= S_darkroom)
             || (sym >= S_corr && sym <= S_litcorr))) return false;
+        // C's IS_UNEXPLORED_LOC() reads the remembered levl[x][y].glyph,
+        // not the displayed glyph_at(): a monster sensed on a never-seen
+        // square (infravision, telepathy, warning) still leaves it
+        // unexplored.
         return [
             [x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1],
         ].some(([nx, ny]) => {
             if (!isok(nx, ny)) return false;
             const neighbor = state.level?.at(nx, ny);
-            return glyph_at(nx, ny, state) === GLYPH_UNEXPLORED_OFF
+            return (neighbor?.remembered_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF)
+                    === GLYPH_UNEXPLORED_OFF
                 && !neighbor?.seenv;
         });
     }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52817,
+      "datetime": "20360714093000",
+      "nethackrc": "OPTIONS=name:Pebble,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " dj\u0017rock\ndp\u0017rock\nhhdql_ooO\u001b"
+    }
+  ],
+  "comment": "Independent getpos.c object-cycle recipe: drop a scroll, wish for a rock and drop it on the scroll so the square shows the piletop rock glyph, then drop a second rock alone two squares west. Standing between them, the travel prompt cycles o, o, O. gather_locs_interesting() GLOC_OBJS compares the whole glyph with objnum_to_glyph(ROCK), so the lone rock is skipped while the piletop rock remains a target."
+}

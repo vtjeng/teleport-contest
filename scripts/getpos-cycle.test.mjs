@@ -4,8 +4,10 @@ import test from 'node:test';
 
 import {
     GLOC_DOOR,
+    GLOC_EXPLORE,
     GLOC_INTERESTING,
     GLOC_MONS,
+    GLOC_OBJS,
     GFILTER_NONE,
     GFILTER_AREA,
     GPCOORDS_NONE,
@@ -18,8 +20,12 @@ import {
 import { GameMap } from '../js/game.js';
 import {
     GLYPH_MON_MALE_OFF,
+    GLYPH_OBJ_OFF,
+    GLYPH_OBJ_PILETOP_OFF,
     GLYPH_PET_MALE_OFF,
 } from '../js/glyph_offsets.js';
+import { BOULDER, ROCK } from '../js/objects.js';
+import { PM_FLOATING_EYE } from '../js/monsters.js';
 import {
     cmap_to_glyph,
     glyph_at,
@@ -36,6 +42,7 @@ import {
     coord_desc,
 } from '../js/getpos.js';
 import {
+    S_corr,
     S_hwall,
     S_hodoor,
     S_room,
@@ -180,6 +187,40 @@ test('interesting locations exclude the complete C wall range including stone', 
     const state = initializedState();
     state.level.at(6, 5).disp_glyph = { glyph: cmap_to_glyph(S_stone, state) };
     assert.equal(gather_locs_interesting(6, 5, GLOC_INTERESTING, state), false);
+});
+
+test('object targets skip only the lone boulder and rock glyphs', () => {
+    // getpos.c GLOC_OBJS compares the whole glyph with objnum_to_glyph(),
+    // which is GLYPH_OBJ_OFF + otyp. The piletop range for the same object
+    // type is a different glyph, so C keeps a rock or boulder that tops a
+    // pile as a target.
+    const state = initializedState();
+    const at = (glyph) => {
+        state.level.at(6, 5).disp_glyph = { glyph };
+        return gather_locs_interesting(6, 5, GLOC_OBJS, state);
+    };
+    assert.equal(at(GLYPH_OBJ_OFF + ROCK), false);
+    assert.equal(at(GLYPH_OBJ_OFF + BOULDER), false);
+    assert.equal(at(GLYPH_OBJ_PILETOP_OFF + ROCK), true);
+    assert.equal(at(GLYPH_OBJ_PILETOP_OFF + BOULDER), true);
+});
+
+test('unexplored targets read the remembered glyph under a sensed monster', () => {
+    // getpos.c IS_UNEXPLORED_LOC() tests levl[x][y].glyph and seenv. A
+    // monster seen by infravision on a never-seen square displays its own
+    // glyph there, but the square's memory stays unexplored. Every other
+    // neighbour of the corridor at <6,5> is seen, so the monster square
+    // alone decides the result.
+    const state = initializedState();
+    state.level.at(6, 5).disp_glyph = { glyph: cmap_to_glyph(S_corr, state) };
+    const neighbor = state.level.at(7, 5);
+    neighbor.seenv = 0;
+    neighbor.disp_glyph = { glyph: GLYPH_MON_MALE_OFF + PM_FLOATING_EYE };
+    assert.equal(gather_locs_interesting(6, 5, GLOC_EXPLORE, state), true);
+    // A square felt while blind remembers its terrain without being seen;
+    // it no longer counts as unexplored.
+    neighbor.remembered_glyph = { glyph: cmap_to_glyph(S_corr, state) };
+    assert.equal(gather_locs_interesting(6, 5, GLOC_EXPLORE, state), false);
 });
 
 test('gather_locs includes the hero and sorts door locations', async () => {

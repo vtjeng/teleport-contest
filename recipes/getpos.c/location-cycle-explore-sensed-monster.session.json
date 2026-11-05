@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70031,
+      "datetime": "20360714093000",
+      "nethackrc": "OPTIONS=name:Ember,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " jjjsssssssssss\u0017blindfold\nPej\u0007sleeping floating eye\nkR_xxX\u001b"
+    }
+  ],
+  "comment": "Independent getpos.c unexplored-cycle recipe: a dwarvish Valkyrie (infravision, Stealth) walks to the square inside the south doorway, searches 11 turns (these only advance the random-number stream so that the next creation lands outside the doorway), puts on a wished-for blindfold, steps blind into the doorway, creates a sleeping floating eye, which lands on the never-seen corridor square beyond it, steps back and removes the blindfold. The eye is then seen by infravision on a square whose remembered glyph is still unexplored. gather_locs_interesting() GLOC_EXPLORE tests IS_UNEXPLORED_LOC() against levl[x][y].glyph, not the displayed monster glyph, so x selects the doorway first; the second x and the X cover forward and reverse cycling."
+}
