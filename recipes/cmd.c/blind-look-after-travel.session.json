@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "cmd.c rhack() result handling for a blind look: dolook() answers ECMD_TIME (invent.c:4314), so no reset_cmd_vars() runs and the context.run of 8 that findtravelpath() left after a finished travel keeps suppressing allmain.c's time_botl. The status time stays stale on the turn the look spends.",
+  "segments": [
+    {
+      "seed": 4402917,
+      "datetime": "20340522144010",
+      "nethackrc": "OPTIONS=name:Feeler,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "#wizwish\nblindfold\n_hhh.Pf: : "
+    }
+  ]
+}

@@ -6512,14 +6512,12 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         // commandTookTime(), so a wrapper that spends a turn forgets the
         // kicked square exactly as the ECMD arms do.
         //
-        // One fold here is wider than the reset argument and is left as it
-        // stands: for an elapsed command C runs no reset_cmd_vars() at all,
-        // where these arms run one and then put context.move back, so multi,
-        // context.run, context.mv and domove_attempting are zeroed on a path
-        // that C leaves alone. Nothing reaches it today. dolook() is the only
-        // one of the five whose own exits can answer ECMD_TIME (invent.c:4160,
-        // :4248 and :4314, each for a blind hero), no ported code writes
-        // u.uprops[BLINDED].
+        // For an elapsed command C runs no reset_cmd_vars() at all, so multi,
+        // context.run, context.mv and domove_attempting survive it. dolook()
+        // is the only one of the five whose own exits can answer ECMD_TIME
+        // (invent.c:4160, :4248 and :4314, each for a blind hero), and its arm
+        // below keeps that distinction: a context.run left at 8 by a finished
+        // travel still suppresses allmain.c's time_botl on the turn it spends.
         if (command === 'inventory') {
             const elapsed = await runInventoryCommand(key, state);
             if (elapsed) {
@@ -6558,11 +6556,12 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         }
         if (command === 'look') {
             const elapsed = await runLookCommand(key, state);
-            // C ref: rhack()'s result handling. dolook() returns ECMD_OK for
-            // a sighted hero, which reaches reset_cmd_vars(); only ECMD_TIME
-            // puts context.move back to TRUE.
-            resetCommandVars(state);
+            // C ref: rhack()'s result handling (cmd.c 3811-3825). dolook()
+            // returns ECMD_OK for a sighted hero, which reaches
+            // reset_cmd_vars(gm.multi < 0); a blind hero's ECMD_TIME skips
+            // the reset and puts context.move back to TRUE.
             if (elapsed) commandTookTime(state);
+            else resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'showgold') {
