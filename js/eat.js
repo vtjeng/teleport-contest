@@ -1296,11 +1296,20 @@ async function start_tin(otmp, state = game, env = {}) {
                 { ...env, ...occupationEnv, state: occupationState },
             )
         );
-        openingTinOccupation.cSourceFunction = 'eat.c:opentin';
+        openingTinOccupation.cSourceFunction = OPENTIN_SOURCE;
         set_occupation(
             openingTinOccupation, 'opening the tin', 0, state,
         );
     }
+}
+
+// The occupation start_tin() installs for C's opentin() is a wrapper closure;
+// this marker on it stands for C's function pointer wherever C compares
+// go.occupation with opentin.
+const OPENTIN_SOURCE = 'eat.c:opentin';
+
+function isOpentinOccupation(occupation) {
+    return occupation?.cSourceFunction === OPENTIN_SOURCE;
 }
 
 // C ref: eat.c Popeye() (3920-3955), the pure return-valued tin-occupation
@@ -1308,7 +1317,7 @@ async function start_tin(otmp, state = game, env = {}) {
 // slime_dialogue(). The occupation callback's source marker represents C's
 // function pointer; the tin stays in its existing context owner.
 export function Popeye(threat, state = game) {
-    if (state.go?.occupation?.cSourceFunction !== 'eat.c:opentin')
+    if (!isOpentinOccupation(state.go?.occupation))
         return false;
 
     const tin = state.context.tin.tin;
@@ -1882,8 +1891,12 @@ export async function newuhs(incr, state = game, env = {}) {
                 'endRunning',
             );
             await message(hungerTransitionMessage(newhs, incr, state), state);
+            // C's `go.occupation != opentin`. start_tin() installs a wrapper
+            // around opentin(), so its source marker stands for that pointer,
+            // as in Popeye() above.
             if (incr && state.go?.occupation
-                && state.go.occupation !== eatfood && state.go.occupation !== opentin) {
+                && state.go.occupation !== eatfood
+                && !isOpentinOccupation(state.go.occupation)) {
                 const { stop_occupation } = await import('./allmain.js');
                 await stop_occupation(state, env);
             }

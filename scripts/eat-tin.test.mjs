@@ -8,9 +8,12 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     GLIB,
+    HALLUC,
     HUNGER,
+    HUNGRY,
     HOMEMADE_TIN,
     NON_PM,
+    NOT_HUNGRY,
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_FLOOR,
@@ -29,6 +32,7 @@ import {
     TIN_VARIETIES,
     set_tin_variety,
     tin_details,
+    newuhs,
     tinopen_ok,
     use_tin_opener,
 } from '../js/eat.js';
@@ -219,6 +223,39 @@ test('start_tin names carried openers with eat.c yobjnam wording', async () => {
     assert.deepEqual(axe.messages,
         ['Using your axe you try to open the tin.']);
     assert.deepEqual(axe.randomBounds, []);
+});
+
+// eat.c newuhs() stops the occupation on a growing hunger only when it is
+// neither eatfood nor opentin. start_tin() installs a wrapper around opentin(),
+// so the comparison has to go through its source marker: comparing the wrapper
+// with opentin itself stopped every tin opening the hunger crossed.
+test('newuhs keeps a tin opening going when hunger grows', async () => {
+    assert.match(EAT_C,
+        /go\.occupation != eatfood && go\.occupation != opentin\)\)\s*stop_occupation\(\);/u);
+    const { state, opener } = tinOpenerState(DAGGER);
+    await use_tin_opener(opener, state, {
+        message: async () => {},
+        random: { rn2: () => 1 },
+    });
+    const occupation = state.go.occupation;
+    assert.equal(occupation.cSourceFunction, 'eat.c:opentin');
+    // 100 is inside newuhs()'s HUNGRY band (50 < uhunger <= 150), one step
+    // below the NOT_HUNGRY status the hero holds, so the call is an increase.
+    state.u.uhunger = 100;
+    state.u.uhs = NOT_HUNGRY;
+    state.u.uhp = 10;
+    state.u.umonster = PM_HUMAN;
+    state.u.atemp = [0, 0, 0, 0, 0, 0];
+    state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const messages = [];
+    await newuhs(true, state, {
+        message: async (text) => { messages.push(text); },
+        endRunning: () => {},
+        statusRefresh: () => {},
+    });
+    assert.deepEqual(messages, ['You feel hungry.']);
+    assert.equal(state.u.uhs, HUNGRY);
+    assert.equal(state.go.occupation, occupation);
 });
 
 test('glib tins dropped by doeat use the normal drop redraw environment',
