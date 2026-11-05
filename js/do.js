@@ -1195,7 +1195,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             return !globbyobj;
         } else if (state.context?.mon_moving && IS_ALTAR(state.level?.at(x, y)?.typ)
             && cansee(x, y, state)) {
-            await doaltarobj(obj, state);
+            await doaltarobj(obj, state, rawEnv);
         } else if (obj.oclass === POTION_CLASS
             && Math.trunc(state.level?.flags?.temperature ?? 0) > 0
             && (state.level?.at(x, y)?.typ === ROOM
@@ -2106,7 +2106,10 @@ function consumeDropAdmission(obj, env, admission) {
 
 // C ref: do.c doaltarobj() (363-386). It is called after a failed ship attempt
 // and before dropy(), so the altar message and BUC knowledge precede placement.
-export async function doaltarobj(obj, state = game) {
+export async function doaltarobj(obj, state = game, env = {}) {
+    // A monster's drop reaches this through flooreffects() with the caller's
+    // message seam, which a planning clone keeps off the live terminal.
+    const message = env.message ?? ttyPline;
     if (heroIsBlind(state)) return;
 
     if (obj.oclass !== COIN_CLASS) {
@@ -2131,7 +2134,7 @@ export async function doaltarobj(obj, state = game) {
         const color = hcolor(obj.blessed ? 'amber' : 'black', state);
         const name = donameFresh(obj, state);
         const verb = otense(obj, 'hit', state);
-        await ttyPline(
+        await message(
             `There is ${an(color)} flash as ${name} ${verb} the altar.`,
             state,
         );
@@ -2139,7 +2142,7 @@ export async function doaltarobj(obj, state = game) {
     } else {
         const name = Doname2(obj, state);
         const verb = otense(obj, 'land', state);
-        await ttyPline(`${name} ${verb} on the altar.`, state);
+        await message(`${name} ${verb} on the altar.`, state);
         if (obj.oclass !== COIN_CLASS) obj.bknown = 1;
     }
 }
