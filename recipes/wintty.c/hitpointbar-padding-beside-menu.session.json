@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "wintty.c render_status() hitpointbar at full HP writes the whole 30-column title, padding included, inside the highlight. A menu window whose offx leaves only two padding cells left of it shows those cells still highlighted: record-session.mjs compresses only runs of five or more spaces into cursor movement.",
+  "segments": [
+    {
+      "seed": 3303,
+      "datetime": "20380311120000",
+      "nethackrc": "OPTIONS=name:Halvar,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,hitpointbar\n",
+      "moves": "i"
+    }
+  ]
+}

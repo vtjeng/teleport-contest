@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { decodeScreen } from '../frozen/screen-decode.mjs';
 
 import { createArtifactTable } from '../js/artifacts.js';
 import {
@@ -587,6 +588,17 @@ function captureDisplayWrites(location) {
 
 function terminalRow(state, row) {
     return state.nhDisplay.grid[row].map((cell) => cell.ch).join('');
+}
+
+// The cells the scorer decodes from the serialized screen, where a
+// compressed run of spaces reads back as default blanks.
+function assertDecodedRange(state, row, start, length, expected, label) {
+    const decoded = decodeScreen(state.nhDisplay.serialize());
+    for (let column = start; column < start + length; ++column) {
+        const { color, attr } = decoded[row][column];
+        assert.deepEqual({ color, attr }, expected,
+            `${label}: column ${column}`);
+    }
 }
 
 function assertCellRange(state, row, start, length, expected, label) {
@@ -8685,13 +8697,22 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
         { color: CLR_RED, attr: ATR_INVERSE },
         'full-HP visible title',
     );
+    // wintty.c writes the 30-column bar, padding included, inside the
+    // highlight; record-session.mjs then encodes the 12-space padding run as
+    // cursor movement, which decodes as default blank cells.
     assertCellRange(
         state,
         22,
         19,
         12,
-        { color: NO_COLOR, attr: ATR_NONE },
-        'the full compressed title-padding run remains unowned',
+        { color: CLR_RED, attr: ATR_INVERSE },
+        'the title padding keeps the bar highlight on the terminal',
+    );
+    assert.deepEqual(
+        decodeScreen(state.nhDisplay.serialize())[22].slice(19, 31)
+            .map(({ color, attr }) => ({ color, attr })),
+        Array(12).fill({ color: NO_COLOR, attr: ATR_NONE }),
+        'the padding run serializes as cursor movement',
     );
     assertCellRange(
         state,
@@ -9296,6 +9317,12 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
             color: state.nhDisplay.grid[22][19].color,
             attr: state.nhDisplay.grid[22][19].attr,
         },
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'HP-bar padding keeps the highlight on the terminal',
+    );
+    assert.deepEqual(
+        (({ color, attr }) => ({ color, attr }))(
+            decodeScreen(state.nhDisplay.serialize())[22][19]),
         { color: NO_COLOR, attr: ATR_NONE },
         'five-or-more-byte HP-bar padding is compressed to cursor movement',
     );
@@ -9318,8 +9345,14 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
         22,
         26,
         5,
-        { color: NO_COLOR, attr: ATR_NONE },
-        'five-byte HP-bar padding becomes unowned after compression',
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'five-byte HP-bar padding keeps the highlight on the terminal',
+    );
+    assert.deepEqual(
+        decodeScreen(state.nhDisplay.serialize())[22].slice(26, 31)
+            .map(({ color, attr }) => ({ color, attr })),
+        Array(5).fill({ color: NO_COLOR, attr: ATR_NONE }),
+        'five-byte HP-bar padding decodes unhighlighted after compression',
     );
     assert.deepEqual(
         {
@@ -9343,7 +9376,7 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
 
     state.plname = 'Foo     Bar';
     await bot();
-    assertCellRange(
+    assertDecodedRange(
         state,
         22,
         4,
@@ -9370,7 +9403,7 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
 
     state.plname = 'Foo      Bar';
     await bot();
-    assertCellRange(
+    assertDecodedRange(
         state,
         22,
         4,

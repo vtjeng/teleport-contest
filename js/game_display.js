@@ -227,6 +227,20 @@ export class GameDisplay {
                 out += sgrTransition(curFg, curAttr, wantFg, wantAttr);
                 curFg = wantFg;
                 curAttr = wantAttr;
+                // record-session.mjs compressAnsiLine() writes a run of five
+                // or more consecutive literal spaces -- one with no SGR
+                // change inside it -- as cursor-forward movement, which
+                // frozen/screen-decode.mjs reads back as default blank
+                // cells, dropping the run's colour and attributes.
+                let run = 0;
+                while (c + run <= lastCol && row[c + run].ch === ' '
+                    && colorToFg(row[c + run].color) === wantFg
+                    && (row[c + run].attr | 0) === wantAttr) ++run;
+                if (run >= 5) {
+                    out += `\x1b[${run}C`;
+                    c += run - 1;
+                    continue;
+                }
                 out += cell.ch;
             }
             // Reset at the end of the line so the next row's cursor-forward

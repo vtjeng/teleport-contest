@@ -5452,27 +5452,6 @@ function _hpBarOwner() {
     return { kind: 'hitpoint-bar' };
 }
 
-function _writeCapturedHighlight(row, start, text, owner) {
-    let column = start;
-    for (let index = 0; index < text.length;) {
-        const spaces = text[index] === ' ';
-        let end = index + 1;
-        while (end < text.length && (text[end] === ' ') === spaces) ++end;
-        const run = text.slice(index, end);
-        // record-session.mjs compresses every maximal run of at least five
-        // literal spaces into cursor-forward movement.  A compressed run was
-        // never written into the recorder shadow grid, so it retains terminal
-        // defaults even when the surrounding bytes were highlighted.
-        column = row.write(
-            column,
-            run,
-            spaces && run.length >= 5 ? null : owner,
-        );
-        index = end;
-    }
-    return column;
-}
-
 function _writeConditions(row, start, entries) {
     let column = start;
     for (const { option, text } of entries) {
@@ -5637,7 +5616,7 @@ function _statusLine1Layout(includeAlignment = true) {
         row.write(0, '[');
         const bar = _statusHitpointBarTitle();
         const highlighted = bar.slice(0, barLength);
-        _writeCapturedHighlight(row, 1, highlighted, _hpBarOwner());
+        row.write(1, highlighted, _hpBarOwner());
         row.write(1 + highlighted.length, bar.slice(highlighted.length));
         row.write(1 + STATUS_HP_BAR_WIDTH, ']');
         column = STATUS_HP_BAR_WIDTH + 2;
