@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "end.c really_done() calls exit_nhwindows() before topten(); tty_suspend_nhwindows() -> settty() -> term_end_screen() clears the screen even when an earlier configuration-error report has already put the recorder in raw mode, and its raw_print(\"\") then advances the raw row.  A repeated boolean option produces the report; the Caveman quits and answers q to the first disclosure question, so done_stopprint leaves the final screen blank.",
+  "segments": [
+    {
+      "seed": 37719604,
+      "datetime": "20210917183000",
+      "nethackrc": "OPTIONS=name:Ugga,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!autopickup,!autopickup\n",
+      "moves": "\n#quit\nyq"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of exit-nhwindows-clear-after-config-error: an Archeologist with disclose prompting for the attributes question answers n to the inventory question and Escape to the attributes question, so done_stopprint is set one prompt later.",
+  "segments": [
+    {
+      "seed": 81264310,
+      "datetime": "20190412081500",
+      "nethackrc": "OPTIONS=name:Indra,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,time,time\nOPTIONS=disclose:ni na -v -g -c -o\n",
+      "moves": "\n #quit\nyn\u001b"
+    }
+  ]
+}
