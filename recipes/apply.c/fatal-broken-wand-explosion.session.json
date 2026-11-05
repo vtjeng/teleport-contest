@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first check that a fatal broken-wand explosion ends the command: a debug Tourist without a pet wishes for a wand of fire and breaks it (apply.c do_break_wand()), and the fireball from broken_wand_explode()'s explode() kills her. She answers yes to the debug Die? question, quits the disclosure, and saves bones. end.c done() does not return in C, so broken_wand_explode() never reaches makeknown() or discard_broken_wand(), whose delobj() would draw obj_resists().",
+  "segments": [
+    {
+      "seed": 5590213,
+      "datetime": "20420122193000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,time,pettype:none\n",
+      "moves": " \u0017wand of fire\namy     y qy"
+    }
+  ]
+}
