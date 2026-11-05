@@ -31,6 +31,7 @@ import { wiz_where } from '../js/wizcmds.js';
 import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
+import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { objects_globals_init } from '../js/objects.js';
 import { init_artifacts } from '../js/artifacts.js';
@@ -298,7 +299,10 @@ test('print_dungeon informational path reports a portal or an expected absence',
         state.earth_level = { dnum: 0, dlevel: 1 };
         state.u.ux = 12;
         state.u.uy = 13;
-        state.level = { traps: [{ ttyp: MAGIC_PORTAL, tx: 20, ty: 21 }] };
+        // A real level: dismissing the text window repairs the map through
+        // docorner(), which reads the level's locations.
+        state.level = new GameMap();
+        state.level.traps = [{ ttyp: MAGIC_PORTAL, tx: 20, ty: 21 }];
         let lines = [];
         state._captureDungeonLines = (items) => {
             lines = items.map((item) => item.text);
@@ -311,7 +315,7 @@ test('print_dungeon informational path reports a portal or an expected absence',
         withoutPortal.earth_level = { dnum: 0, dlevel: 1 };
         withoutPortal.u.ux = 12;
         withoutPortal.u.uy = 13;
-        withoutPortal.level = { traps: [] };
+        withoutPortal.level = new GameMap();
         lines = [];
         withoutPortal._captureDungeonLines = (items) => {
             lines = items.map((item) => item.text);

@@ -381,9 +381,14 @@ test('the natural pet-swap arrival replay pins the TTY handoff',
         assert.equal(replay.getRngLog().length, 3113);
         assert.equal(replay.getScreens().length, 26);
         assert.equal(replay.getCursors().length, 26);
+        // The digest covers every cell's stored color, including blanks.
+        // Since docorner() repairs a closed corner menu (wintty.c
+        // erase_menu_or_text()), six blank cells on screen 17 store color 7
+        // where the snapshot restore left 8; the judge-format screens are
+        // unchanged.
         assert.equal(
             digest(replay.getScreens()),
-            '2655bf5473b51f27dc06afef2593371214ed6fd60dcb991fa13a5c793f6eceba',
+            '2bb6c003f45047fb252432601eb48f5fcce9d80ab3b302fc3f7081501497ffa3',
         );
         assert.equal(
             digest(replay.getCursors()),
