@@ -198,16 +198,11 @@ import {
 import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
-    APPLE,
-    BANANA,
     BEARTRAP,
     BOULDER,
     COIN_CLASS,
-    EUCALYPTUS_LEAF,
     HEAVY_IRON_BALL,
     LAND_MINE,
-    ORANGE,
-    PEAR,
     ROCK,
     GLASS,
     STATUE,
@@ -2347,17 +2342,8 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
         }
     } else if (IS_TREE(location.typ, state)) {
         setTerrain(location, ROOM, 0);
-        if (pile && pile < 5) {
-            const fruits = [APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF];
-            mksobj_at(
-                fruits[random.rnd(fruits.length) - 1],
-                x,
-                y,
-                true,
-                false,
-                objectEnv,
-            );
-        }
+        if (pile && pile < 5)
+            rnd_treefruit_at(x, y, objectEnv);
     } else {
         setTerrain(location, CORR, 0);
         if (pile && pile < 5) {
