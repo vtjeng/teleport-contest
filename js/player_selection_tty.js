@@ -5,6 +5,7 @@
 import { game } from './gstate.js';
 import { truncateByteString } from './hacklib.js';
 import { nhgetch } from './input.js';
+import { TOPLINE_NON_EMPTY } from './tty_message.js';
 import {
     answer_initial_player_selection,
     answer_player_selection_confirmation,
@@ -446,7 +447,14 @@ async function waitForSelectionMore(state, message) {
         const code = await nhgetch(state);
         // tty_nhgetch() maps NUL to Escape before xwaitforspace().
         if (code === 0 || code === 10 || code === 13
-            || code === 27 || code === 32) return;
+            || code === 27 || code === 32) {
+            // C's pline() leaves TOPLINE_NEED_MORE; the menu that follows
+            // runs more() and then tty_clear_nhwindow(WIN_MESSAGE). This
+            // loop has already taken the More key, so mark the line
+            // non-empty and let the menu clear it.
+            display.toplin = TOPLINE_NON_EMPTY;
+            return;
+        }
     }
 }
 
@@ -501,6 +509,9 @@ export async function ttyPlayerSelectionImpl(state = game, random) {
             if (context.status === 'prompt') {
                 renderInitialQuestion(state, context.prompt);
                 const response = await nhgetch(state);
+                // topl.c tty_yn_function() leaves the answered prompt as
+                // TOPLINE_NON_EMPTY, so the menu that follows clears it.
+                state.nhDisplay.toplin = TOPLINE_NON_EMPTY;
                 context = answer_initial_player_selection(
                     state, context, response, random,
                 );
