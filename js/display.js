@@ -2844,13 +2844,20 @@ export function show_glyph_cell(x, y, glyph) {
     const previousPresentation = loc.disp_glyph ?? null;
     const previousGnew = glyphGnewSinceNotice(x, y, loc, game);
     // C's gbuf retains logical glyph identity even when a UTF-8 customization
-    // deliberately leaves the recorder-facing `ch` cell untouched.
+    // deliberately leaves the recorder-facing `ch` cell untouched. That cell
+    // keeps the last ASCII glyph flush_screen() printed (tty_*), not one that
+    // show_glyph() buffered and replaced before the flush.
     loc.disp_glyph = logicalPresentation;
     if (ch !== null) {
         loc.disp_ch = ch;
         loc.disp_color = color;
         loc.disp_decgfx = !!decgfx;
         loc.disp_attr = attr | 0;
+    } else if (loc.tty_ch !== undefined) {
+        loc.disp_ch = loc.tty_ch;
+        loc.disp_color = loc.tty_color;
+        loc.disp_decgfx = loc.tty_decgfx;
+        loc.disp_attr = loc.tty_attr;
     }
     loc.disp_browser_ch = displayCh;
     loc.disp_browser_color = displayColor ?? (displayCh ? color : null);
@@ -6730,6 +6737,9 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             const glyph = loc.disp_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF;
             const frameColor = frameColorActive
                 && x > 0 && x < COLNO && mapY >= 0 && mapY < ROWNO;
+            // cl_end() above blanked the terminal cell. A cell whose gbuf
+            // glyph prints through g_pututf8() keeps that blank.
+            if (loc.disp_glyph?.ch === null) clearTtyCell(loc, true);
             if (glyph === GLYPH_UNEXPLORED_OFF
                 && !forceUnexplored && !frameColor) continue;
 
@@ -6742,6 +6752,12 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             // tty_print_glyph()'s UTF-8 path does not update the recorder
             // shadow cell, which is represented by a null character here.
             if (ch === null || ch === undefined) continue;
+            if (presentation.ch !== null && presentation.ch !== undefined) {
+                loc.tty_ch = presentation.ch;
+                loc.tty_color = presentation.color ?? NO_COLOR;
+                loc.tty_decgfx = Boolean(presentation.dec);
+                loc.tty_attr = presentation.attr ?? 0;
+            }
             display.setCell(
                 x - 1,
                 screenRow,
@@ -6783,6 +6799,34 @@ function writeStatusRows(
             );
         }
     }
+}
+
+// tty_ch, tty_color, tty_decgfx and tty_attr hold a map cell of recorder patch
+// 006's shadow terminal (termcap.c nomux_buf): the last ASCII glyph printed
+// there. They stay undefined until the first flush, cls() or docorner() that
+// reaches the cell. cls() and docorner()'s cl_end() blank them; `display`
+// also blanks the disp_* cell drawn from them for a UTF-8 glyph.
+function clearTtyCell(loc, display = false) {
+    loc.tty_ch = null;
+    loc.tty_color = NO_COLOR;
+    loc.tty_decgfx = false;
+    loc.tty_attr = 0;
+    if (!display) return;
+    loc.disp_ch = null;
+    loc.disp_color = NO_COLOR;
+    loc.disp_decgfx = false;
+    loc.disp_attr = 0;
+}
+
+// C ref: display.c flush_screen() prints each gbuf cell whose gnew bit is set
+// through wintty.c tty_print_glyph(). Only g_putch() reaches the shadow cell;
+// a UTF-8 customization goes through g_pututf8() and leaves it unchanged.
+function commitFlushedGlyph(loc) {
+    if (loc.disp_glyph?.ch === null) return;
+    loc.tty_ch = loc.disp_ch;
+    loc.tty_color = loc.disp_color;
+    loc.tty_decgfx = loc.disp_decgfx;
+    loc.tty_attr = loc.disp_attr;
 }
 
 // ── Build screen output ──
@@ -6850,6 +6894,7 @@ function _buildScreenOutput(cursorOnHero = true) {
             for (let x = 1; x < COLNO; x++) {
                 const loc = game.level?.at(x, y);
                 if (!loc || (bufferedOnly && !loc.gnew)) continue;
+                if (loc.gnew) commitFlushedGlyph(loc);
                 const ch = browserGlyphs && loc.disp_browser_ch
                     ? loc.disp_browser_ch
                     : (loc.disp_decgfx
@@ -7046,6 +7091,7 @@ export async function cls() {
                     loc.disp_browser_attr = null;
                     loc.disp_glyph = null;
                     loc.gnew = 0;
+                    clearTtyCell(loc);
                 }
             }
         }

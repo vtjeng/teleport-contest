@@ -71,7 +71,11 @@ const HELP_REPLAY_DIGESTS = new Map(Object.entries({
     controls: ['bcd7512fae63c8a3bf2cec7675982ed9874679b9a5690ed8008f651cc8ed7b68', '352687a17dba550e986b4ce382f7f3e902a4283e96c078d7e4c1c393a431a104'],
     contact: ['d2485ad1b76ad015f55e24eae39c19b40c42d023258db28f833a33898caa8747', 'ea518409b9490ca1b0f02dd5eb253714c9bc4f3f00dce35756be29e6b9f6d670'],
     keys: ['f91592d4ebbdde75e9fbe68766542e25c980c07080083dcc45a4b2fa902a2a41', '7a44e5e23d43717a1cc05c7f3a96d6bcd553f20987bb1013d58ff103b73ea967'],
-    shell: ['92442c67684282ee9bf28823ca3981ae4ad52763ca8be66533f8399ffd3a4b89', 'f6f03651a90293a4a244eb3d5a219e3aa6d9c40d0896423c6eaa04bc2d01caa5'],
+    // The corner help menu's dismissal also repairs through docorner(). Its
+    // cl_end() changes only the stored color of the blank leading cells it
+    // clears. A fresh C recording of loadHelpMenuShellRecipe() matches these
+    // screens, cursors and RNG.
+    shell: ['d3ad9c5b7a2ba8904f218756ff8e2a16f94975fa5283cdb21ff01d176f09729c', 'f6f03651a90293a4a244eb3d5a219e3aa6d9c40d0896423c6eaa04bc2d01caa5'],
     whatdoes: ['7cf0436f9b22df5247246625dfc2d192d6e700d2d7bd1bff05fb1d7198ec81fd', 'ef740e0cf4a1b1f0cd598ce479e9b2a7daa55c7c4db4a0dd252df0ca761c60c7'],
     version: ['81355b14b16f5ba33dcdb16d4c01d9afd55207ee629c794385aec7386e9045c2', '7eea516c376ea5502e88230792f2d93479609b80e6c6cc6584b438d3a77192c2'],
     'static:help': ['f09497b040bc3e7ba3b392e5f1b023a9af617cfb87ae3b531d6a1f2b5e88f50f', '6e4d58a12c2736c31e567ea6967c179702d6276cd046e880a3ac3bce5b85c6be'],

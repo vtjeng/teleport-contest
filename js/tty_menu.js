@@ -5,6 +5,7 @@
 
 import {
     bot,
+    docorner,
     docrt,
     flush_screen,
     status_window_rows,
@@ -172,6 +173,20 @@ function clearRegion(display, firstColumn, rowCount) {
 function clearRowFrom(display, firstColumn, row) {
     for (let column = firstColumn; column < display.cols; ++column)
         display.setCell(column, row, ' ', NO_COLOR, 0);
+}
+
+// C ref: wintty.c erase_menu_or_text() repairs a window with a nonzero offx
+// through docorner(offx, maxrow + 1, 0), which clears each covered row and
+// redraws the map from gg.gbuf. That differs from the covered cells when a
+// UTF-8 glyph left a stale ASCII character in recorder patch 006's shadow
+// cell: the repair blanks it. Without a level there is no map to redraw, so
+// the covered startup text is restored instead.
+function restoreCorner(state, display, repairColumn, snapshot) {
+    if (state.level && state.u?.ux) {
+        docorner(repairColumn + 1, snapshot.length, 0, state);
+        return;
+    }
+    restoreRegion(display, repairColumn, snapshot);
 }
 
 function restoreRegion(display, firstColumn, snapshot) {
@@ -527,7 +542,7 @@ export async function displayTtyMenuTextWindow(
     if (layout.fullRepair) {
         await erase_menu_or_text(state, display, snapshot, baseCursor);
     } else {
-        restoreRegion(display, layout.repairColumn, snapshot);
+        restoreCorner(state, display, layout.repairColumn, snapshot);
     }
     return response;
 }
@@ -834,7 +849,8 @@ export async function dismissTtyMenu(state = game, rendered) {
         // subsequent rename's empty tty_putstr() advances from this row.
         state._ttyBaseCursorRow = rendered.base.maxrow;
     } else {
-        restoreRegion(
+        restoreCorner(
+            state,
             display,
             rendered.base.repairColumn,
             rendered.snapshot,

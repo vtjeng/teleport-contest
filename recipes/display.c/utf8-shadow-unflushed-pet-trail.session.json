@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent display.c flush_screen() and wintty.c docorner() witness under the UTF-8 Enhanced1 symset. tty_print_glyph() sends UTF-8 floor glyphs through g_pututf8(), which recorder patch 006 does not mirror, so each cell keeps the last ASCII glyph flushed there. With the default leap runmode a rush flushes only every seventh move, so the pet glyphs buffered and replaced between flushes never reach the shadow cell. The ? help menu is a corner window; its dismissal runs docorner(), which blanks the stale cells it covers.",
+  "segments": [
+    {
+      "seed": 50417733,
+      "datetime": "20930214091500",
+      "nethackrc": "OPTIONS=name:Trail,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,symset:Enhanced1\n",
+      "moves": "LHLHKJKJ?\u001b"
+    }
+  ]
+}
