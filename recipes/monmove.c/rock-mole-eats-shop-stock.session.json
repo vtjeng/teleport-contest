@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "monmove.c postmov() (1660-1681) and mon.c mpickstuff() (1857): a Valkyrie level-teleports into a general store and creates a peaceful rock mole, then rests. The mole wanders the shop and meatmetal() eats a wand that was the only object on its square. postmov() made its OBJ_AT() test before eating, so it still calls mpickstuff(), whose shop test draws rn2(25) on the now empty square. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 4417313,
+      "datetime": "20711114093015",
+      "nethackrc": "OPTIONS=name:Mender,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u00164\n  \u0007peaceful rock mole\n  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  "
+    }
+  ]
+}
