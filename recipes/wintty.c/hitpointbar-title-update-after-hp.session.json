@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wintty.c tty_status_update() stores the hitpointbar's color and attributes in tty_status[NOW][BL_TITLE] from both the BL_TITLE and the BL_HP updates. Two potions of gain level raise the rank under title/up; when that 2-turn highlight expires, BL_TITLE is sent alone and the bar loses its inverse video.",
+  "segments": [
+    {
+      "seed": 8812093,
+      "datetime": "20250703183000",
+      "nethackrc": "OPTIONS=name:Brann,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,color,hitpointbar\nOPTIONS=statushilites:2,hilite_status:title/up/bright-blue\n",
+      "moves": "\u00172 blessed potions of gain level\nqfqfssssss"
+    }
+  ]
+}

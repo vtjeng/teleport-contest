@@ -8686,7 +8686,11 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
     await bot();
     assert.doesNotMatch(row(23), /Blind/u);
 
+    // options.c turns 'hitpointbar' on with status_initialize(REASSESS_ONLY),
+    // so the next bot() notifies every field and BL_HP's update follows
+    // BL_TITLE's (wintty.c tty_status_update()).
     state.iflags.wc2_hitpointbar = true;
+    status_initialize(state);
     await bot();
     assert.equal(row(22).slice(0, 19), '[Hero the Plunderer');
     assertCellRange(
@@ -9302,7 +9306,11 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
         { color: NO_COLOR, attr: ATR_NONE },
     );
 
+    // options.c turns 'hitpointbar' on with status_initialize(REASSESS_ONLY),
+    // whose gu.update_all makes the next bot() notify BL_HP after BL_TITLE.
     state.iflags.wc2_hitpointbar = true;
+    state.gu ??= {};
+    state.gu.update_all = true;
     await bot();
     assertCellRange(
         state,
