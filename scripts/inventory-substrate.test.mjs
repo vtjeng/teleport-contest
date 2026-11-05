@@ -47,6 +47,7 @@ import {
     OBJ_LUAFREE,
     OBJ_ONBILL,
     SHRINK_GLOB,
+    HOLE,
     PIT,
     TT_PIT,
     ROOM,
@@ -3509,8 +3510,10 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         // the drop -- sellobj() would be a no-op in C (shk.c:3938-3944).
         state.level.flags.has_shop = true;
         // Use a trap to trigger the guard before mutation, since the hero is
-        // not at a costly spot and the narrowed shop guard is inert here.
-        state.level.traps = [{ tx: 10, ty: 5, ttyp: PIT, tseen: true }];
+        // not at a costly spot and the narrowed shop guard is inert here. A
+        // seen hole remains behind the ship_object() boundary; a seen pit edge
+        // now reaches flooreffects()'s ported pit arm.
+        state.level.traps = [{ tx: 10, ty: 5, ttyp: HOLE, tseen: true }];
 
         assert.throws(
             () => preflight_dropx(ball, { state, hooks }),
@@ -3650,10 +3653,10 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.level.at(10, 5).typ = WATER;
             }],
             // Direct dropx has no reachability gate, but this trap still
-            // belongs to the unported shipping/floor-effects dependency.
-            ['seen pit floor', /trap/u, ({ state }) => {
+            // belongs to the unported shipping dependency.
+            ['seen hole floor', /trap/u, ({ state }) => {
                 state.level.traps.push({
-                    tx: 10, ty: 5, ttyp: PIT, tseen: true,
+                    tx: 10, ty: 5, ttyp: HOLE, tseen: true,
                 });
             }],
             ['worn ball', /worn/u, ({ obj }) => { obj.owornmask = W_WEP; }],
@@ -3670,8 +3673,8 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.uball = obj;
             }],
             ['unpaid ball', /unpaid/u, ({ obj }) => { obj.unpaid = true; }],
-            ['seen pit-edge effects', /trap/u, ({ state }) => {
-                state.level.traps.push({ tx: 10, ty: 5, ttyp: PIT, tseen: true });
+            ['unseen hole effects', /trap/u, ({ state }) => {
+                state.level.traps.push({ tx: 10, ty: 5, ttyp: HOLE, tseen: false });
             }],
             ['missing floor grid', /floor-object grid/u, ({ state }) => {
                 state.level.objects[10] = null;

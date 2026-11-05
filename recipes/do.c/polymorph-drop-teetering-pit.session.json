@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "do.c dropx() and flooreffects() pit arm (289-297): a human Samurai wishes a pit beside the up stairs, steps off and back into it, then floats up out of it with a blessed potion of levitation, so she stands untrapped at a seen pit (uteetering_at_seen_pit()). Polymorphing into a kitten makes polyself.c break_armor() and drop_weapon() drop the splint mail and katana through dropx(); flooreffects() reports each one tumbling into the pit before ordinary placement. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 27182,
+      "datetime": "20260611143000",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " l#wizwish\npit\nlh #wizwish\nblessed potion of levitation\nqf #polyself\nkitten\n   "
+    }
+  ]
+}

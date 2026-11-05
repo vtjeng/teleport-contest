@@ -2003,11 +2003,14 @@ export function preflight_dropx(obj, env = {}) {
     // do.c:flooreffects handles a boulder on a pit or hole before its later
     // hero pit-edge/shaft arm. That branch consumes the boulder and removes
     // the trap; other boulder traps are inert and reach ordinary placement.
+    // A hero teetering at a seen pit reaches flooreffects()'s pit arm
+    // (do.c:289-297), which only reports the object tumbling into the pit
+    // before ordinary placement. The hole and escaped-shaft arms ship the
+    // object through ship_object() and stay behind this boundary.
     const boulderFillsTrap = obj.otyp === BOULDER && trap
         && (is_pit(trap.ttyp) || is_hole(trap.ttyp));
     if (trap && !boulderFillsTrap
         && (is_hole(trap.ttyp)
-            || uteetering_at_seen_pit(trap, state)
             || uescaped_shaft(trap, state))) {
         throw new UnsupportedDropError('shipping or floor effects at a trap');
     }
