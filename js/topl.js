@@ -511,8 +511,28 @@ function setTopline(text, state) {
     }
 }
 
+// C ref: wintty.c tty_clear_nhwindow() NHW_MESSAGE arm (1047-1058), as
+// topl.c tty_yn_function() calls it after a Ctrl-P recall (topl.c:441, 455).
+// It does nothing once the message window is empty: a full or combination
+// history window has already cleared it before drawing, so the map under the
+// dismissed window stays as that window's repair left it. Otherwise it clears
+// the top line and repairs any wrapped rows below it with docorner().
+async function clearMessageWindowAfterRecall(state) {
+    const display = state.nhDisplay;
+    if (display.toplin === TOPLINE_EMPTY) return;
+    const cw = messageWindow(state);
+    display.setCursor(0, 0);
+    display.clearToEol();
+    if (cw?.cury) {
+        const { docorner } = await import('./display.js');
+        docorner(1, cw.cury + 1, 0, state);
+    }
+    if (cw) cw.curx = cw.cury = 0;
+    display.toplin = TOPLINE_EMPTY;
+}
+
 // C ref: wintty.c tty_clear_nhwindow(WIN_MESSAGE), used by
-// topl.c tty_yn_function() after message-history navigation and wrapped prompts.
+// topl.c tty_yn_function()'s clean_up for a wrapped prompt.
 function clearMessageWindow(display) {
     const lastRow = Math.max(0, display.cursorRow);
     for (let row = 0; row <= lastRow && row < display.rows; ++row)
@@ -598,7 +618,11 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // prompt without adding it to history yet.
     remember_topl(state);
     show_topl(prompt, state);
-    state._ttyToplines = prompt;
+    // remember_topl() emptied gt.toplines and addtopl() does not write it, so
+    // until clean_up rewrites it the prompt is on screen but not in
+    // gt.toplines; tty_doprev_message() reads the empty string.
+    state._ttyToplines = '';
+    display.toplines = '';
     state._pending_message = '';
     // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
     display.toplin = TOPLINE_NEED_MORE;
@@ -623,10 +647,12 @@ export async function tty_yn_function(query, resp, def, state = game) {
                     display.inread = 0;
                     await tty_doprev_message(state);
                     display.inread = savedInread;
-                    clearMessageWindow(display);
+                    await clearMessageWindowAfterRecall(state);
+                    // topl.c:442 redraws the prompt with addtopl(), which
+                    // leaves gt.toplines empty.
                     show_topl(prompt, state);
-                    state._ttyToplines = prompt;
-                    display.toplines = prompt;
+                    state._ttyToplines = '';
+                    display.toplines = '';
                     display.toplin = TOPLINE_NEED_MORE;
                 } else {
                     if (!doprev) await tty_doprev_message(state);
@@ -636,10 +662,10 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 q = 0;
                 continue;
             } else if (doprev) {
-                clearMessageWindow(display);
+                await clearMessageWindowAfterRecall(state);
                 show_topl(prompt, state);
-                state._ttyToplines = prompt;
-                display.toplines = prompt;
+                state._ttyToplines = '';
+                display.toplines = '';
                 display.toplin = TOPLINE_NEED_MORE;
                 doprev = false;
                 q = 0;
