@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 2984471,
+    "datetime": "20330118064200",
+    "nethackrc": "OPTIONS=name:Ranker,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug,hitpointbar,statushilites:2,time\nOPTIONS=hilite_status:title/always/red&underline\nOPTIONS=hilite_status:title/changed/bright-blue\n",
+    "moves": "  #wizwish\n2 uncursed potions of gain level\nqiqi\nsssss",
+    "comment": "Variation of hitpointbar-title-highlight-expires: the title also has an 'always' rule with a color and an attribute. When the temporary highlight expires, tty_status_update() stores that rule's color and underline for BL_TITLE, and render_status() draws the bar with them instead of the HP inverse."
+  }]
+}

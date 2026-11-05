@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 6640217,
+    "datetime": "20270903211500",
+    "nethackrc": "OPTIONS=name:Ranker,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug,hitpointbar,statushilites:3,time\nOPTIONS=hilite_status:title/changed/bright-blue\n",
+    "moves": "  #wizwish\n2 uncursed potions of gain level\nqeqe\nssssss",
+    "comment": "Reaches wintty.c tty_status_update() and render_status() with 'hitpointbar'. Two potions of gain level reach a new rank, so BL_TITLE gets a temporary highlight; when it expires three turns later the core sends BL_TITLE without BL_HP, and the bar loses its inverse video until HP changes."
+  }]
+}

@@ -6457,6 +6457,17 @@ function _collectStatusHilites(layouts, onlyField = null) {
         gb.status_hilite_text[0][fld] = text;
         gb.status_hilite_type[0][fld] = field.type;
         if (notification) _setStatusHiliteChange(gb, fld, true);
+        // C ref: wintty.c tty_status_update(). BL_TITLE's default arm stores
+        // the title's own color and attributes in tty_status[NOW][BL_TITLE];
+        // the BL_HP arm overwrites them with the HP color and HL_INVERSE when
+        // 'hitpointbar' is on.  render_status() draws the bar with whichever
+        // came last, so a title sent alone (its temporary highlight expiring)
+        // drops the inverse until BL_HP is sent again.  Turning 'hitpointbar'
+        // on runs status_initialize(), whose update_all pass sends BL_HP after
+        // BL_TITLE, so only updates made while the bar is on matter.
+        if (notification && game.iflags?.wc2_hitpointbar
+            && (field.key === 'title' || field.key === 'hitpoints'))
+            game._statusHitpointBarSource = field.key;
     }
 }
 
@@ -6628,6 +6639,19 @@ function _statusOwnerStyle(owner) {
         return _statusConditionStyle(owner.option);
     }
     if (owner.kind === 'hitpoint-bar') {
+        if (game._statusHitpointBarSource === 'title') {
+            // tty_status_update()'s default arm: the title rule's attributes
+            // reach Begin_Attr() whatever 'statushilites' says, its color
+            // only while iflags.hilite_delta is set.
+            const titleFld = STATUS_FIELDS.find(row => row.key === 'title').fld;
+            const titleStyle
+                = game.gb?.status_hilite_rule?.[0]?.[titleFld]?.style ?? null;
+            return {
+                color: game.iflags?.hilite_delta
+                    ? titleStyle?.color ?? NO_COLOR : NO_COLOR,
+                attrib: titleStyle?.attrib ?? HL_UNDEF,
+            };
+        }
         const hpStyle = _statusFieldStyle('hitpoints');
         return {
             color: hpStyle?.color ?? NO_COLOR,
