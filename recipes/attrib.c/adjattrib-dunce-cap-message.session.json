@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent seed 6630218 (debug mode). The Valkyrie kills the adjacent newt, wears a wished dunce cap and quaffs a wished blessed potion of enlightenment. potion.c peffect_enlightenment() calls adjattrib(A_INT, 1, FALSE) and adjattrib(A_WIS, 1, FALSE); with msgflg FALSE (0) each prints the dunce cap's \"Your cap constricts briefly, then relaxes again.\" before the enlightenment display.",
+  "segments": [
+    {
+      "seed": 6630218,
+      "datetime": "20261114093000",
+      "nethackrc": "OPTIONS=name:Pellucid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "FkFkFkFk\u0017dunce cap\nWe  \u0017blessed potion of enlightenment\nqf    "
+    }
+  ]
+}

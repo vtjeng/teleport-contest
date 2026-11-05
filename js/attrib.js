@@ -1145,11 +1145,14 @@ export async function adjattrib(
     state = game,
     env = {},
 ) {
+    // Callers pass C's TRUE/FALSE as booleans and its -1 as a number;
+    // msgflg is the integer C compares.
+    const msgflg = Number(messageMode);
     if (state.u?.uprops?.[FIXED_ABIL]?.extrinsic || !increment) return false;
 
     if ((index === A_INT || index === A_WIS)
         && state.uarmh?.otyp === DUNCE_CAP) {
-        if (messageMode === 0) {
+        if (msgflg === 0) {
             await emitAttributeMessage(
                 env,
                 'Your cap constricts briefly, then relaxes again.',
@@ -1201,7 +1204,7 @@ export async function adjattrib(
     }
 
     if (acurr(state, index) === oldCurrent) {
-        if (messageMode === 0 && state.flags?.verbose) {
+        if (msgflg === 0 && state.flags?.verbose) {
             if (attrs.base[index] === oldBase
                 && attrs.max[index] === oldMaximum) {
                 await emitAttributeMessage(
@@ -1225,7 +1228,7 @@ export async function adjattrib(
     attrs.exercise[index] = 0;
     state.disp ??= {};
     state.disp.botl = true;
-    if (messageMode <= 0) {
+    if (msgflg <= 0) {
         await emitAttributeMessage(
             env,
             youFeel(`${Math.abs(increment) > 1 ? 'very ' : ''}${description}!`, state),
