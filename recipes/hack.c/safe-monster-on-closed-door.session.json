@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c domove_core(): a step at a safe monster that stands on a closed door. A neutral gnomish Healer teleports to the corridor end east of a locked door and creates two tame fog clouds; the second, amorphous, is placed on the door. Each step west spends do_attack()'s rn2(7) and then reaches test_move()'s closed-door arm, which stops the hero at the locked door before domove_swap_with_pet(); the first draw instead stops her with \"is in the way\". Independent of batch 5.",
+  "segments": [
+    {
+      "seed": 5150302,
+      "datetime": "20370405164500",
+      "nethackrc": "OPTIONS=name:Odile,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u0014 KkkkkkkHHhhhhhh. \u0007tame fog cloud\n\u0007tame fog cloud\nhhh"
+    }
+  ]
+}
