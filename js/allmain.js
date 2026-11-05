@@ -45,6 +45,7 @@ import {
     makedog, mon_arrive, mon_catchup_elapsed_time, see_nearby_monsters,
 } from './dog.js';
 import { mklev, l_nhcore_init } from './mklev.js';
+import { run_end_turn_callbacks } from './nhlua.js';
 import { u_on_upstairs } from './stairs.js';
 import { m_at } from './monst.js';
 import {
@@ -2048,6 +2049,8 @@ export async function moveloop_core() {
     // command loop. Preserve that boundary for command-generated reveals even
     // when no later region or combat message forces an earlier drain.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
+    // C ref: allmain.c moveloop_core() (558-563), the end_turn callbacks.
+    await run_end_turn_callbacks(g);
 }
 
 // C ref: allmain.c moveloop()

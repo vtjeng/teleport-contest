@@ -257,6 +257,56 @@ async function tutorial_leave(state) {
     await nhl_gamestate(true, state);
 }
 
+// C ref: dat/nhlib.lua tutorial_turn() and its tutorial_events table. The
+// only event has no ucoord, so it is tried on every call. When the hero's
+// nutrition is below 148, obj.new() (nhlobj.c l_obj_new_readobjnam()) parses
+// the name through readobjnam(), o:placeobj() (l_obj_placeobj()) puts the
+// food under the hero, and each nh.pline(..., true) (nhlua.c nhl_pline())
+// is a pline followed by display_nhwindow(WIN_MESSAGE, TRUE). Returning true
+// removes the event.
+async function tutorial_turn(state) {
+    const events = state.tutorial_events;
+    if (!events?.hunger || !(state.u.uhunger < 148)) return;
+    const [{ readobjnam }, { objectGenerationEnv }, { place_object },
+        { newsym }, ttyMessage, { cmd_from_ecname }] = await Promise.all([
+        import('./objnam_readobjnam.js'),
+        import('./object_generation.js'),
+        import('./obj.js'),
+        import('./display.js'),
+        import('./tty_message.js'),
+        import('./cmd.js'),
+    ]);
+    const obj = await readobjnam(
+        'blessed food ration', null, objectGenerationEnv({ state }),
+    );
+    // l_obj_placeobj(): cvt_to_abscoord() adds nothing once
+    // level_finalize_topology() has zeroed xstart and ystart, and
+    // obj_extract_self() leaves a free object where it is.
+    if (obj) {
+        place_object(obj, state.u.ux, state.u.uy, { state });
+        newsym(state.u.ux, state.u.uy);
+    }
+    await ttyMessage.ttyPline(
+        "Looks like you're getting hungry.  You'll starve to death, unless you eat something.",
+        state,
+    );
+    await ttyMessage.displayPendingTtyMessageWindow(state);
+    await ttyMessage.ttyPline(
+        `Comestibles are eaten with '${cmd_from_ecname('eat', state)}'`,
+        state,
+    );
+    await ttyMessage.displayPendingTtyMessageWindow(state);
+    delete events.hunger;
+}
+
+// C ref: allmain.c moveloop_core() (558-563), which runs nhcore.lua
+// nh_callback_run("end_turn") at the end of every call that reaches the
+// command dispatch. tutorial_turn() is the only end_turn callback;
+// tutorial_enter() registers it and tutorial_leave() removes it.
+export async function run_end_turn_callbacks(state = game) {
+    if (state.tutorialCallbacks?.end_turn) await tutorial_turn(state);
+}
+
 // C ref: nhlua.c tutorial() (1835-1846), called by do.c goto_level().
 // dat/nhcore.lua binds enter_tutorial and leave_tutorial to nhlib.lua
 // tutorial_enter() and tutorial_leave(), which this port runs in place of

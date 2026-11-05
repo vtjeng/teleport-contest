@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48211,
+      "datetime": "20310917093000",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none,time\n",
+      "moves": "  y   800s200s20s    :  "
+    }
+  ],
+  "comment": "Enters the startup tutorial as a Samurai and searches until hunger interrupts the count, then searches on until nutrition falls below 148. allmain.c moveloop_core() runs the end_turn callback that nhlib.lua tutorial_enter() registered; tutorial_turn() then calls obj.new(\"blessed food ration\"), which reaches objnam.c readobjnam() and rnd_otyp_by_namedesc(), places the ration under the hero, and shows two messages, each followed by --More--. The : command shows the ration."
+}

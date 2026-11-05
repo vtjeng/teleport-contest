@@ -467,6 +467,10 @@ export function l_nhcore_init(state = game, random = rn2) {
     const align = [A_LAWFUL, A_NEUTRAL, A_CHAOTIC];
     shuffle_core_values(align, random);
     state.splev_align = align;
+    // dat/nhlib.lua's local tutorial_events table, created when nhl_init()
+    // loads nhlib.lua into the new core state. Its one entry, the hunger
+    // event, is removed after it fires; see nhlua.js tutorial_turn().
+    state.tutorial_events = { hunger: true };
 }
 
 // C ref: mklev.c mklev()
