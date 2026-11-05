@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c shk_fixes_damage()/repair_damage() planning witness, a variation of repair-older-hole-levitating: the levitating Valkyrie makes the same two holes in the D:4 general store, waits two turns and then swaps weapons with x three times, answering each --More-- with a space. The port plans each monster turn before playing it. When the keeper repairs the older hole during the swaps, the plan must print neither his whisper nor 'The hole is filled in.' and must not repaint the square. Printed on the live screen, the whisper overflowed the long swap message, raised a --More-- during the plan and consumed a key.",
+  "segments": [
+    {
+      "seed": 4417313,
+      "datetime": "20711114093015",
+      "nethackrc": "OPTIONS=name:Patcher,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u00164\n  \u0017ring of levitation\nPer \u0017hole\nh\u0017hole\nssx x x ssssss"
+    }
+  ]
+}

@@ -3748,11 +3748,11 @@ async function litter_scatter(litter, x, y, shkp, state = game, env = {}) {
 }
 
 // C ref: shk.c litter_newsyms() (4712-4720). Redraw only squares to which
-// litter was moved.
-function litter_newsyms(litter, x, y) {
+// litter was moved, through repair_damage()'s redraw.
+function litter_newsyms(litter, x, y, redraw = newsym) {
     for (let i = 0; i < 9; ++i) {
         if (litter[i] & LITTER_UPDATE)
-            newsym(x + litterHoriz(i), y + litterVert(i));
+            redraw(x + litterHoriz(i), y + litterVert(i));
     }
 }
 
@@ -3761,6 +3761,9 @@ function litter_newsyms(litter, x, y) {
 async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
     if (!repairable_damage(damage, shkp, state)) return 0;
     const message = shopRepairMessage(env);
+    // A shopkeeper's move in a monster turn's planning pass repairs only the
+    // planning copy; the live pass repaints the squares.
+    const redraw = env.planning ? () => {} : newsym;
 
     const { x, y } = damage.place;
     const seeit = cansee(x, y, state);
@@ -3822,7 +3825,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
 
         deltrap(trap, state);
         del_engr_at(x, y, state);
-        if (seeit) newsym(x, y);
+        if (seeit) redraw(x, y);
         if (!catchup) disposition = 3;
     }
 
@@ -3849,7 +3852,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
         await litter_scatter(litter, x, y, shkp, state, env);
     del_engr_at(x, y, state);
 
-    if (seeit) newsym(x, y);
+    if (seeit) redraw(x, y);
     block_point(x, y, state);
     if (catchup) return 1;
 
@@ -3860,7 +3863,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
         } else if (IS_DOOR(damage.typ)) {
             await message('Suddenly, the shop door reappears!', state, env);
         }
-        newsym(x, y);
+        redraw(x, y);
     } else if (IS_WALL(damage.typ)) {
         if (inside_shop(state.u.ux, state.u.uy, state)
             === shkp.mextra.eshk.shoproom) {
@@ -3878,7 +3881,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
             ...env,
             message: env.planning ? message : (env.message ?? ttyPline),
         });
-    litter_newsyms(litter, x, y);
+    litter_newsyms(litter, x, y, redraw);
     if (disposition < 3) disposition = 2;
     return disposition;
 }
