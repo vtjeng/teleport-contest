@@ -4699,6 +4699,9 @@ async function broken_wand_explode(obj, damage, expltype, state = game,
         state,
         { ...env, random },
     );
+    // C's done() never returns after a fatal explosion; the JS end owner
+    // sets gameover instead, so nothing after it may run.
+    if (state.program_state?.gameover) return;
     discover_object(obj.otyp, true, true, true, state, { ...env, random });
     discard_broken_wand(state, env);
 }
@@ -4864,6 +4867,9 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
         state,
         { ...env, random },
     );
+    // A fatal explosion ends the game inside C's done(), which never
+    // returns; JS marks gameover and must skip the rest of the breakage.
+    if (state.program_state?.gameover) return ECMD_TIME;
     zapsetup(state);
 
     for (let i = 0; i <= N_DIRS; i++) {
@@ -4939,6 +4945,9 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
                 if (state.disp?.botl) await bot();
             }
             const dealt = await zapyourself(obj, false, state);
+            // zapyourself() and losehp() can each end the game; C's done()
+            // does not return to this loop.
+            if (state.program_state?.gameover) return ECMD_TIME;
             if (dealt) {
                 const killer = `killed ${uhim(state)}self by breaking a wand`;
                 await losehp(
@@ -4948,6 +4957,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
                     state,
                     env,
                 );
+                if (state.program_state?.gameover) return ECMD_TIME;
             }
             if (state.disp?.botl) await bot();
         }

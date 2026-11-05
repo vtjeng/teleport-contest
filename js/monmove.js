@@ -2725,6 +2725,10 @@ export async function dochug(monster, rawEnv = {}) {
         }
 
         if (!status) status = await moveMonster(monster, env);
+        // C's done() never returns: an m_move() that killed the hero ends
+        // the game before monmove.c dochug() reaches distfleeck() again.
+        // JS marks gameover instead.
+        if (state.program_state?.gameover) return 0;
         // C returns before fear/range checks when an escape migrated it.
         if (mon_offmap(monster)) return 1;
         if (status !== MMOVE_DIED) {

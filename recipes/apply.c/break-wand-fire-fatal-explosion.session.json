@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61407,
+      "datetime": "20330214181500",
+      "nethackrc": "OPTIONS=name:Ember,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017wand of fire\namy       y qn"
+    }
+  ],
+  "comment": "A Tourist with 10 hit points breaks a wished-for wand of fire in debug mode and answers y at Die?. apply.c broken_wand_explode() calls explode(), whose fatal damage reaches end.c done(); C's done() never returns, so neither makeknown() nor discard_broken_wand() runs and no further random number is drawn. Answering q at the disclosure prompt and n at Save bones? ends the game."
+}

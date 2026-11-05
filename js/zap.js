@@ -1534,6 +1534,10 @@ export async function zapyourself(obj, ordinary, state = game) {
         note_unported('zap.c impossible');
         break;
     }
+    // Several arms above can end the game (a death ray, system shock from
+    // polyself()). C's done() never returns to learnwand(); JS marks
+    // gameover instead.
+    if (state.program_state?.gameover) return damage;
     if (learn_it) learnwand(obj, state);
     return damage;
 }

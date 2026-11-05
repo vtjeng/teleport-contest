@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 33111,
+      "datetime": "20330727101500",
+      "nethackrc": "OPTIONS=name:Quill,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017potion of polymorph\nqm  y qn"
+    }
+  ],
+  "comment": "A Tourist with 10 hit points quaffs a wished-for potion of polymorph in debug mode. polyself.c polyself() fails the rn2(20) > ACURR(A_CON) system-shock test, and the rnd(30) damage from losehp() reaches end.c done(); after y at Die?, C's done() never returns, so exercise(A_CON, FALSE) draws no random number. Answering q at the disclosure prompt and n at Save bones? ends the game."
+}

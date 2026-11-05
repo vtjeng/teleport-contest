@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44206,
+      "datetime": "20330727101500",
+      "nethackrc": "OPTIONS=name:Quill,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017wand of digging\namy  y qn"
+    }
+  ],
+  "comment": "A Tourist with 10 hit points breaks a wished-for wand of digging in debug mode and answers y at Die?. apply.c do_break_wand() reaches its general explode(), whose fatal magical blast reaches end.c done(); C's done() never returns, so the per-square digging loop and its rn2(obj->spe) draws never run. Answering q at the disclosure prompt and n at Save bones? ends the game."
+}

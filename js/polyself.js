@@ -1734,6 +1734,8 @@ export async function polyself(psflags, state = game, env = {}) {
         && !isvamp && rn2(20) > acurr(state, A_CON)) {
         await ttyPline('You shudder for a moment.', state);
         await losehp(rnd(30), 'system shock', KILLED_BY_AN, state);
+        // C's done() never returns after a fatal shock; JS marks gameover.
+        if (state.program_state?.gameover) return;
         await exercise(A_CON, false, state, { rn2 }, {
             encumberMessage: encumber_msg,
         });

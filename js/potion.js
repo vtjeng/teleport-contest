@@ -1873,6 +1873,8 @@ async function peffect_acid(otmp, state = game) {
             KILLED_BY_AN,
             state,
         );
+        // C's done() never returns after a fatal dose; JS marks gameover.
+        if (state.program_state?.gameover) return;
         await exercise(A_CON, false, state, { rn2 }, {
             encumberMessage: encumber_msg,
         });
