@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first check that a pet's kill whose victim explodes fatally ends the attack: a debug Healer creates a tame titanothere and a gas spore beside her and rests until the titanothere's claw (mhitm.c mattackm() -> mdamagem()) kills the spore, whose mon.c corpse_chance() -> explode.c mon_explodes() blast kills her. She answers yes to the debug Die? question, quits the disclosure, and saves bones. end.c done() does not return in C, so mdamagem() never reaches the attacker's makemon.c grow_up().",
+  "segments": [
+    {
+      "seed": 7720931,
+      "datetime": "20420714101500",
+      "nethackrc": "OPTIONS=name:Pell,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,time,pettype:none\n",
+      "moves": " \u0007tame titanothere\n\u0007gas spore\nsss s s s s  yqy"
+    }
+  ]
+}
