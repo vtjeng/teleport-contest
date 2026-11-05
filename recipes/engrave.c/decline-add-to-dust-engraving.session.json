@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent engrave.c doengrave() recipe. Seed, clock, name, Samurai role and inputs were selected for this run. A fingertip dust engraving is engraved over twice: answering n to \"Do you want to add to the current engraving?\" wipes out the dust message, and answering q prints Never mind.",
+  "segments": [
+    {
+      "seed": 4417203,
+      "datetime": "20410608093011",
+      "nethackrc": "OPTIONS=name:Tadashi,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "E-\nAbc\nE-n\n\nXyz\nE-q.."
+    }
+  ]
+}
