@@ -94,10 +94,7 @@ import { um_dist } from './apply.js';
 import { enexto, rloc } from './teleport.js';
 import { spot_stop_timers } from './timeout.js';
 import { t_at, deltrap } from './trap.js';
-import {
-    displayPendingTtyMessageWindow,
-    ttyPline,
-} from './tty_message.js';
+import { ttyPline } from './tty_message.js';
 import {
     block_point, cansee, couldsee, m_canseeu, recalc_block_point, unblock_point,
 } from './vision.js';
@@ -422,7 +419,7 @@ async function wallify_vault(grd, state, env) {
                 // Monster at wall position: relocate or throw
                 const mon = m_at(x, y, state);
                 if (mon && mon !== grd) {
-                    if (!rloc(mon, RLOC_MSG, { state })) {
+                    if (!(await rloc(mon, RLOC_MSG, { state }))) {
                         await m_into_limbo(mon, state, env);
                     }
                 }
@@ -504,9 +501,9 @@ async function gd_mv_monaway(grd, nx, ny, state, env) {
     const mtmp = m_at(nx, ny, state);
     if (mtmp && mtmp !== grd) {
         if (!Deaf(state)) {
-            env.message('"Out of my way, scum!"', state, env);
+            await env.message('"Out of my way, scum!"', state, env);
         }
-        if (!rloc(mtmp, RLOC_ERR | RLOC_MSG, { state })
+        if (!(await rloc(mtmp, RLOC_ERR | RLOC_MSG, { state }))
             || m_at(nx, ny, state)) {
             await m_into_limbo(mtmp, state, env);
         }
@@ -534,12 +531,6 @@ async function gd_move_cleanup(grd, semi_dead, disappear_msg_seen, state, env) {
                 `Suddenly, ${alwaysVisibleMonsterName(grd, state)} disappears.`,
                 state, env,
             );
-            // The C pline() call leaves its completed message in the TTY
-            // window before gd_move_cleanup() returns; when that window is
-            // awaiting More, it also prevents later monster turns from
-            // consuming RNG before the next input. Complete that same
-            // display-window boundary in the awaitable JS TTY adapter.
-            await displayPendingTtyMessageWindow(state);
         return 1;
     }
     return -2;
@@ -605,7 +596,7 @@ export async function gd_move(grd, env = {}) {
         if (!u_in_vault
             && (grd_in_vault || (in_fcorridor(grd, grd.mx, grd.my)
                 && !in_fcorridor(grd, state.u.ux, state.u.uy)))) {
-            rloc(grd, RLOC_MSG, { ...env, state });
+            await rloc(grd, RLOC_MSG, { ...env, state });
             await wallify_vault(grd, state, gdEnv);
             if (!in_fcorridor(grd, grd.mx, grd.my))
                 await clear_fcorr(grd, true, state, gdEnv);
@@ -989,7 +980,7 @@ async function gd_move_proceed(
         // We're stuck; try to find a new destination
         const dest = find_guard_dest(grd, state);
         if (!dest || (dest.x === ggx && dest.y === ggy)) {
-            env.message(
+            await env.message(
                 `${capitalizedMonsterName(grd, state)}, confused, disappears.`,
                 state, env,
             );
