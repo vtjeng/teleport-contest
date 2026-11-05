@@ -4961,6 +4961,10 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
             }
             if (state.disp?.botl) await bot();
         }
+        // C's done() does not return: when this square's effect killed the
+        // hero (zapyourself() or losehp()), the remaining squares, the wrap-up
+        // and discard_broken_wand()'s delobj() never run.
+        if (state.program_state?.gameover) return ECMD_TIME;
     }
 
     await zapwrapup(state, env);
