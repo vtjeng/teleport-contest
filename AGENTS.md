@@ -8,6 +8,9 @@ dispatch, and continuous-loop instructions below until Vincent changes it:
 - One Claude Code session leads the work. It may delegate investigation and
   implementation to subagents, each in its own worktree, and verifies their
   results itself before integrating them.
+- Run subagents on the lead session's own model. Use Fable only for a
+  subagent working a case where an Opus subagent has stopped making
+  progress, and record each such use in the work log with its reason.
 - Do not run the multi-agent queue, automated dispatch, or polling loops. The
   role and queue procedures below remain historical reference.
 - Keep the source-tracing, test, validation, and correctness gates. A passing
@@ -365,6 +368,9 @@ Create or update a note, report, or permanent record only when
 The lead session checks `git worktree list --porcelain` at task start
 and after integration or temporary validation work. Remove worktrees
 that are no longer needed without asking for routine cleanup approval.
+Several worktrees may be open at once while their work is in progress;
+remove each one as soon as its work is integrated or abandoned, so they
+do not accumulate.
 
 - Keep the current checkout and worktrees reserved for ongoing work.
   Confirm that no live agent or process uses a checkout before removal;
