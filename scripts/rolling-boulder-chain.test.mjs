@@ -460,3 +460,49 @@ for (const changesLevel of [false, true]) {
         }
     });
 }
+
+// trap.c launch_obj() -> mthrowu.c thitu() -> hack.c losehp(): in C a boulder
+// that kills the hero ends the game inside losehp(). A monster's step onto a
+// rolling boulder trap is dry-run first on the planning clone, where
+// losehp() must stop at its planning boundary (HeroDeathPlanningError) so the
+// live pass replays the death on the real state. thitu() hands losehp() its
+// planning flag through the losehp operation launch_obj() supplies.
+test('a planned rolling boulder that kills the hero stops at losehp()',
+    async () => {
+        const { runSegmentStrict } = await import('../js/jsmain.js');
+        const { HeroDeathPlanningError } = await import('../js/hack.js');
+        const gstate = await import('../js/gstate.js');
+        // Arbitrary seed and character; only an initialized hero matters.
+        await runSegmentStrict({
+            seed: 5520117,
+            datetime: '20261114093000',
+            nethackrc: 'OPTIONS=name:Pellucid,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!tutorial,pettype:none',
+            moves: '',
+        });
+        const state = gstate.game;
+        const { ux, uy } = state.u;
+        for (let x = ux - 2; x <= ux; x++) {
+            state.level.at(x, uy).typ = ROOM;
+            state.level.objects[x][uy] = null;
+            state.level.monsters[x][uy] = null;
+        }
+        const boulder = newObject({ otyp: BOULDER, quan: 1, o_id: 7001 });
+        const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+        place_object(boulder, ux - 2, uy, { state, hooks });
+        // One hit point: any boulder damage (dmgval() is at least 1) is fatal.
+        state.u.uhp = 1;
+
+        await assert.rejects(launch_obj(BOULDER, ux - 2, uy, ux, uy, ROLL,
+            state, {
+                hooks,
+                planning: true,
+                // rnd(20) = 1 makes thitu()'s to-hit roll land.
+                random: { rn2: () => 0, rnd: () => 1, d: (n) => n },
+                message: () => {},
+                redraw: () => {},
+                disturbBuriedZombies: () => {},
+            }), HeroDeathPlanningError);
+        assert.ok(!state.program_state?.gameover,
+            'the clone-side death must not run done()');
+    });
