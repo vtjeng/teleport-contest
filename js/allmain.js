@@ -1405,7 +1405,7 @@ const runElapsedTurnMonsterAction =
     adaptMonsterActionToDochugwSignature(runSimpleMonsterAction);
 
 async function moveElapsedTurnMonster(monster, env) {
-    return movemon_singlemon(monster, {
+    const stop = await movemon_singlemon(monster, {
         ...env,
         // C ref: mon.c movemon_singlemon():1233-1239, a guard parked at <0,0>.
         guardMove: (guard, guardEnv) => gd_move(guard, guardEnv),
@@ -1468,6 +1468,14 @@ async function moveElapsedTurnMonster(monster, env) {
         }),
         dochugwAction: runElapsedTurnMonsterAction,
     });
+    // display.c show_glyph() prints a glyph-update notice through pline_xy()
+    // while the monster is still moving, so its vpline() flush shows the
+    // status of that moment. Drain the notices this monster queued before
+    // the next monster or the turn's upkeep (regeneration, for one) changes
+    // what that flush would show.
+    if (!env.state.program_state?.gameover)
+        await emitGlyphUpdateNotices(env.state, { pline: ttyPline });
+    return stop;
 }
 
 // Validate a movement prefix without running a due unmul callback. Resuming
