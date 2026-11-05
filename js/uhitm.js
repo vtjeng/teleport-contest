@@ -4324,11 +4324,13 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             && !(await tele_restrict(magr, state, { ...env, message }))) {
             const couldspot = canspotmon(magr, state);
             mhm.hitflags = M_ATTK_AGR_DONE;
+            // rloc_to_core() redraws through rlocEnv.newsym, which a
+            // monster turn's planning pass silences.
             const rlocEnv = {
                 ...env,
                 state,
                 random,
-                newsym,
+                newsym: env.planning ? () => {} : newsym,
                 onscary: (x, y, mon, normalized) =>
                     onscary(x, y, mon, normalized.state),
                 setApparxy: set_apparxy,
