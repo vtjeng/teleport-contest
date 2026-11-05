@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent zap.c buzz() witness: a winter wolf cub breath hits a sleeping peaceful yeti, and wakeup() prints its wake message through mon.c wake_msg(). The hero sits on a long-named large box so that one more message cannot share the top line. The port dry-runs monster turns on a planning clone before the live pass; this recipe fails when that dry run prints the wake message and waits at --More--.",
+  "segments": [
+    {
+      "seed": 83306157,
+      "datetime": "20940719162000",
+      "nethackrc": "OPTIONS=name:Frost,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+      "moves": "\u0017large box named Hrothgarsbaneofthenorth\nde#wizgenesis\n8 sleeping peaceful yeti\n#wizgenesis\nwinter wolf cub\n#sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n #sit\n "
+    }
+  ]
+}
