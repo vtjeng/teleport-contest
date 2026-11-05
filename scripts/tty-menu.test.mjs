@@ -332,10 +332,18 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
     // cleared the row, so each occupied byte column remains a plain space.
     for (const offset of [2, 3, 6, 7, 8, 11, 12, 13, 14])
         assert.equal(boundary.row[start + offset], ' ');
-    // Recorder patch 006 strips the lead byte's high bit in g_putch(), ignores
-    // the signed continuation byte, and emits X at byte offset two.
-    assert.equal(boundary.leadingHighRow[start], 'C');
-    assert.equal(boundary.leadingHighRow[start + 1], ' ');
+    // process_text_window() sends the high-bit lead byte through g_putch().
+    // Recorder patch 006 strips its high bit there and, unlike its putchar()
+    // hooks, does not undo the loop's pre-increment of curx, so it stores 'C'
+    // one column right of the byte's own cell. That cell keeps the blank
+    // cl_end() left; the signed continuation byte is ignored, and X lands at
+    // byte offset two. The C recordings recordings/wintty.c/
+    // utf8-symset-text-window-first-byte.session.json (every first byte under
+    // H_UTF8) and recipes/topl.c/decgraphics-history-high-first-byte (a
+    // DECgraphics glyph opening a Message History line) both leave the first
+    // byte's own column blank.
+    assert.equal(boundary.leadingHighRow[start], ' ');
+    assert.equal(boundary.leadingHighRow[start + 1], 'C');
     assert.equal(boundary.leadingHighRow[start + 2], 'X');
 });
 

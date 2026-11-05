@@ -25,7 +25,9 @@ import {
     TOPLINE_NEED_MORE,
     xwaitforspace,
 } from './tty_message.js';
-import { BUFSZ, PICK_ANY, PICK_NONE, PICK_ONE } from './const.js';
+import {
+    BUFSZ, H_UTF8, PICK_ANY, PICK_NONE, PICK_ONE, PRIMARYSET,
+} from './const.js';
 import {
     ok_align,
     ok_gend,
@@ -96,8 +98,20 @@ export function menuTitleStyle(state = game) {
 // nomux_putch() as a signed char, which ignores everything below 32 and so
 // leaves the shadow cell of a high-bit byte holding whatever the preceding
 // clear left there.
+//
+// process_text_window() alone sends the first byte of a line through
+// g_putch() when SYMHANDLING(H_UTF8) holds or the byte's high bit is set.
+// Its callers pass `textWindowUtf8` (see textWindowUtf8()); menu callers
+// leave it undefined, since process_menu_window() has no g_putch() arm.
+// Both of patch 006's putchar hooks decrement curx around nomux_putch(), but
+// its g_putch() hook does not, and the loop has already pre-incremented curx.
+// The recorder therefore stores that first byte, high bit stripped, one
+// column to the right of where the terminal shows it, and the line's second
+// printable byte overwrites it there. The first byte's own column keeps what
+// the preceding clear left.
 function writeStyledText(
     display, column, row, text, color, attr, maxColumn = display.cols,
+    textWindowUtf8 = undefined,
 ) {
     const bytes = encodeUtf8ByteString(text);
     for (let index = 0;
@@ -107,18 +121,20 @@ function writeStyledText(
         while (end < bytes.length && (bytes[end] === 0x20) === spaces) ++end;
         const compressed = spaces && end - index >= 5;
         for (; index < end && column + index < maxColumn; ++index) {
-            // writeRecorderTtyWindowLine() below keeps both bytes this drops,
-            // and it is wrong to. It ports the same loop for a window that
-            // process_text_window() draws, where g_putch() takes a high-bit
-            // first byte, and it writes every byte below 0x80 rather than
-            // stopping at 0x20. Neither loop matches C: the deferral
-            // text-window-line-drops-its-g-putch-first-byte states what C
-            // records, and closes when the two become one.
-            if (bytes[index] < 0x20 || bytes[index] >= 0x80) continue;
+            let byte = bytes[index];
+            let cellColumn = column + index;
+            if (index === 0 && textWindowUtf8 !== undefined
+                && (textWindowUtf8 || byte >= 0x80)) {
+                // g_putch(): nomux_putch((ch & 0x80) ? (ch ^ 0x80) : ch)
+                // at the pre-incremented curx.
+                byte &= 0x7f;
+                ++cellColumn;
+            }
+            if (byte < 0x20 || byte >= 0x80) continue;
             display.setCell(
-                column + index,
+                cellColumn,
                 row,
-                String.fromCharCode(bytes[index]),
+                String.fromCharCode(byte),
                 compressed ? NO_COLOR : color,
                 compressed ? 0 : attr,
             );
@@ -126,37 +142,13 @@ function writeStyledText(
     }
 }
 
-// Recorder patch 006 receives each process_text_window() byte after C has
-// advanced ttyDisplay->curx. Printable ASCII replaces its shadow-grid cell.
-// A later high-bit byte promotes from signed char to a negative int, so
-// nomux_putch() ignores it and the prior cell survives at that byte column.
-// g_putch() treats the first byte specially and strips its high bit before
-// calling nomux_putch().
-function writeRecorderTtyWindowLine(
-    display,
-    column,
-    row,
-    line,
-) {
-    const text = typeof line === 'string' ? line : String(line?.text ?? '');
-    const color = line?.color ?? NO_COLOR;
-    const attr = line?.attr ?? 0;
-    const bytes = encodeUtf8ByteString(text);
-    for (let index = 0; index !== bytes.length; ++index) {
-        const byte = bytes[index];
-        let cell = null;
-        if (byte < 0x80) cell = String.fromCharCode(byte);
-        else if (index === 0) cell = String.fromCharCode(byte ^ 0x80);
-        if (cell !== null) {
-            display.setCell(
-                column + index,
-                row,
-                cell,
-                color,
-                attr,
-            );
-        }
-    }
+// C ref: wintty.c process_text_window() 1819-1820 and sym.h SYMHANDLING().
+// True when the active symbol set uses H_UTF8 handling, so every text-window
+// line's first byte goes through g_putch().
+function textWindowUtf8(state) {
+    return state.gs?.symset?.[
+        state.gc?.currentgraphics ?? PRIMARYSET
+    ]?.handling === H_UTF8;
 }
 
 function copyRegion(display, firstColumn, rowCount) {
@@ -498,11 +490,18 @@ export async function displayTtyMenuTextWindow(
         if (layout.clearsScreen || pageIndex > 0) display.clearScreen();
         for (let row = 0; row < pageLines.length; ++row) {
             clearRowFrom(display, layout.firstColumn, row);
-            writeRecorderTtyWindowLine(
+            const line = pageLines[row];
+            writeStyledText(
                 display,
                 layout.lineColumn,
                 row,
-                pageLines[row],
+                typeof line === 'string' ? line : String(line?.text ?? ''),
+                line?.color ?? NO_COLOR,
+                line?.attr ?? 0,
+                // process_text_window() pre-increments curx and tests
+                // curx < cols before each byte.
+                display.cols - 1,
+                textWindowUtf8(state),
             );
         }
         clearRowFrom(display, layout.firstColumn, promptRow);
@@ -956,13 +955,17 @@ export async function displayTtyTextWindow(state = game, lines) {
         const line = lines[i];
         const text = String(line.text ?? '');
         clearRow(display, n);
+        const utf8 = textWindowUtf8(state);
         writeStyledText(
             display, 0, n, text, line.color ?? NO_COLOR, line.attr ?? 0,
             // wintty.c process_text_window() increments curx before each
             // byte and tests curx < cols, so a column-zero NHW_TEXT row
             // writes at most cols - 1 bytes.
             display.cols - 1,
+            utf8,
         );
+        const firstByteGPutch = utf8
+            || encodeUtf8ByteString(text.slice(0, 1))[0] >= 0x80;
         // wintty.c process_text_window() sends putmixed() lines through
         // decode_mixed(). A decoded glyph can use a rendered DEC character
         // that writeStyledText() deliberately drops as a non-ASCII byte, so
@@ -971,6 +974,9 @@ export async function displayTtyTextWindow(state = game, lines) {
         // capture ignores, so it keeps the blank clearRow() wrote.
         for (const cell of line.glyphCells ?? []) {
             if (cell.column >= display.cols - 1) continue;
+            // writeStyledText() has already recorded a g_putch() first byte
+            // one column to the right; its own column stays cleared.
+            if (cell.column === 0 && firstByteGPutch) continue;
             if (cell.ch == null) {
                 display.setCell(cell.column, n, ' ', NO_COLOR, 0);
             } else {
