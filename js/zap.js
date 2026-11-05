@@ -6151,8 +6151,11 @@ export async function dobuzz(
                     );
                     if (Reflecting(state)) {
                         if (!heroIsBlind(state)) {
+                            // Printed through dobuzz()'s message operation,
+                            // which a planned breath silences.
                             await ureflects(
                                 'But %s reflects from your %s!', 'it', state,
+                                { message },
                             );
                         } else {
                             await message(
