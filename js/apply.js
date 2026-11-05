@@ -3689,9 +3689,6 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
 // only after every named case has failed to match.
 function figurineObjectEnv(state, env = {}) {
     const hooks = { ...(env.hooks ?? {}) };
-    hooks.stopFigurineTimer ??= (obj, hookEnv) => stop_timer(
-        FIG_TRANSFORM, obj, hookEnv.state ?? state, hookEnv,
-    );
     hooks.stopObjectTimers ??= (obj, hookEnv) => obj_stop_timers(
         obj, hookEnv.state ?? state, hookEnv,
     );

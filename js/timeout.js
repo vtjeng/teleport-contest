@@ -671,9 +671,6 @@ async function figTransformCallback(arg, timeout, env) {
     const { fig_transform } = await import('./apply.js');
     const hooks = {
         extractExternalObject: remove_object,
-        stopFigurineTimer: (obj, hookEnv) => stop_timer(
-            FIG_TRANSFORM, obj, hookEnv.state ?? env.state, hookEnv,
-        ),
         stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
             obj, hookEnv.state ?? env.state, hookEnv,
         ),

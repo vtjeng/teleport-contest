@@ -138,7 +138,6 @@ import {
     begin_burn,
     start_glob_timeout,
     start_timer,
-    stop_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
 import { game } from '../js/gstate.js';
@@ -2155,33 +2154,17 @@ test('a live cursed figurine timer follows inventory ownership', () => {
     assert.equal(timers[0].timeout, state.moves + FIGURINE_TIMER_DELAY);
     assert.equal(figurine.timed, 1);
 
-    let stopped = 0;
-    freeinv(figurine, {
-        state,
-        hooks: {
-            stopFigurineTimer(obj) {
-                ++stopped;
-                stop_timer(FIG_TRANSFORM, obj, state);
-            },
-        },
-    });
-    assert.equal(stopped, 1);
+    // invent.c freeinv_core() stops the FIG_TRANSFORM timer.
+    freeinv(figurine, { state });
+    assert.deepEqual(figTransformTimers(state, figurine), []);
     assert.equal(figurine.timed, 0);
     assert.equal(figurine.where, OBJ_FREE);
 
     addinv(figurine, { state, random: FIGURINE_TIMER_RANDOM });
     timers = figTransformTimers(state, figurine);
     assert.equal(timers.length, 1);
-    useupall(figurine, {
-        state,
-        hooks: {
-            stopFigurineTimer(obj) {
-                ++stopped;
-                stop_timer(FIG_TRANSFORM, obj, state);
-            },
-        },
-    });
-    assert.equal(stopped, 2);
+    useupall(figurine, { state });
+    assert.deepEqual(figTransformTimers(state, figurine), []);
     assert.equal(figurine.timed, 0);
     assert.equal(figurine.where, OBJ_DELETED);
 });

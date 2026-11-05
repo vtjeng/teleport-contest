@@ -2475,8 +2475,12 @@ test('in_container preserves C icebox and discarded-void call order', async () =
     const cFreeCore = inventSource.slice(cFreeCoreStart, cFreeCoreEnd);
     assert.match(cFreeCore,
         /obj->otyp == FIGURINE && obj->timed\)[\s\S]*?stop_timer\(FIG_TRANSFORM, obj_to_any\(obj\)\)/u);
-    assert.match(jsBody,
-        /stopFigurineTimer:\s*\(figurine, hookEnv\) => stop_timer\(\s*FIG_TRANSFORM, figurine, hookEnv\.state \?\? state, hookEnv,/u);
+    // in_container() leaves that stop to the ported freeinv_core().
+    const jsInvent = await readFile(
+        new URL('../js/invent.js', import.meta.url), 'utf8',
+    );
+    assert.match(jsInvent,
+        /obj\.otyp === FIGURINE && obj\.timed\) \{\s*stop_timer\(FIG_TRANSFORM, obj, state, env\);/u);
     assert.match(cBody,
         /obj->age = svm\.moves - obj->age;[\s\S]*?stop_timer\(ROT_CORPSE, obj_to_any\(obj\)\);[\s\S]*?stop_timer\(REVIVE_MON, obj_to_any\(obj\)\);/u);
     assert.match(jsBody,

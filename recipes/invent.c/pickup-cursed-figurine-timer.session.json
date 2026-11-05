@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c carry_obj_effects(): picking a cursed figurine of a living species up from the floor attaches its FIG_TRANSFORM timer (dead_species() then attach_fig_transform_timeout()'s rnd(9000)). A lawful human Priestess wishes for a cursed figurine of a newt, drops it, picks it up again with ',' and searches. Independent of batch 5.",
+  "segments": [
+    {
+      "seed": 7734021,
+      "datetime": "20310611093000",
+      "nethackrc": "OPTIONS=name:Figgy,role:Priest,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "#wizwish\ncursed figurine of a newt\ndi,ss"
+    }
+  ]
+}

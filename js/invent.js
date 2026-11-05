@@ -164,6 +164,7 @@ import {
     WIN_ERR,
     WC_PERM_INVENT,
     ALL_FINISHED,
+    FIG_TRANSFORM,
 } from './const.js';
 import {
     ART_MJOLLNIR, confers_luck, discover_artifact, set_artifact_intrinsic,
@@ -188,6 +189,7 @@ import {
     attach_fig_transform_timeout,
     learn_egg_type,
     obj_stop_timers,
+    stop_timer,
 } from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
@@ -2713,8 +2715,6 @@ function requiredHook(env, name, obj) {
 // Inventory effects: removeSpecialInventoryEffects(obj, env),
 // archeologistDeciphersScroll(obj, env), recordAchievement(id, env),
 // updateInventory(state).
-// stopFigurineTimer(obj, env) owns both the external timer queue and
-// obj.timed, as NetHack's timer subsystem does.
 // Ownership/lifetime: objectNoLongerHeld(obj, env), stopObjectTimers(obj, env),
 // deleteObjectLightSource(obj, env), unleashObject(obj, env),
 // resetPick(obj, env). obfreeShopBill(obj, merge, env) returns 'retained' when
@@ -3195,9 +3195,6 @@ function preflightFreeinvCore(obj, env) {
     // artifact.c:confers_luck() is pure; use its source implementation while
     // preflighting the later C freeinv_core() branch.
     const confersLuck = confers_luck(obj, env.state);
-    if (!confersLuck && obj.otyp === FIGURINE && obj.timed) {
-        requiredHook(env, 'stopFigurineTimer', obj);
-    }
     return { confersLuck };
 }
 
@@ -3249,9 +3246,7 @@ function* freeinv_core_steps(obj, env, facts) {
         state.disp ??= {};
         state.disp.botl = true;
     } else if (obj.otyp === FIGURINE && obj.timed) {
-        requiredHook(env, 'stopFigurineTimer', obj)(obj, env);
-        if (obj.timed)
-            throw new Error('stopFigurineTimer must clear obj.timed');
+        stop_timer(FIG_TRANSFORM, obj, state, env);
     }
 
     if (state.context?.tin?.tin === obj) {
