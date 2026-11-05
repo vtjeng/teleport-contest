@@ -26,6 +26,12 @@ import { AD_DGST, AT_ENGL, AT_HUGS } from '../js/monsters.js';
 import { stairway_add, stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { loadDescendRefusalRecipe } from './run-descend-refusal.mjs';
+import { readFileSync } from 'node:fs';
+
+const SAVE_C = readFileSync(
+    new URL('../nethack-c/upstream/src/save.c', import.meta.url), 'utf8');
+const RESTORE_C = readFileSync(
+    new URL('../nethack-c/upstream/src/restore.c', import.meta.url), 'utf8');
 
 // gt.toplines, which pline.c writes whether or not the row has been repainted.
 function toplines(state) {
@@ -219,6 +225,44 @@ test('doup() reports when the steed is immobile', async () => {
     assert.equal(await doup(state), ECMD_OK);
     assert.match(toplines(state), /won't move!/u);
 });
+
+// save.c savemonchn() (865-866) and save_adjust_levelflags() write a pet's
+// droptime and hungrytime and the level's stasis_until relative to the turn
+// the level is left; restore.c restmon() (355-356) and
+// rest_adjust_levelflags() add the turn it is read back. A pet left behind
+// therefore grows no hungrier while the hero is away.
+test('a level left and reloaded keeps pet and stasis times relative',
+    async () => {
+        const { savelev } = await import('../js/save.js');
+        const { getlev } = await import('../js/restore.js');
+        assert.match(SAVE_C, /moves_to_relative_time\(&EDOG\(mtmp\)->hungrytime\);/u);
+        assert.match(RESTORE_C, /relative_time_to_moves\(&EDOG\(mtmp\)->hungrytime\);/u);
+
+        const state = await ascendTo('');
+        quiet(state);
+        const ledger = ledger_no(state.u.uz, state);
+        const monster = state.level.monlist;
+        assert.ok(monster, 'the start level has a monster to carry an edog');
+        // Arbitrary times a little after the current turn, as a pet that
+        // just dropped something and ate would hold.
+        const leftAt = state.moves;
+        monster.mextra = {
+            ...(monster.mextra ?? {}),
+            edog: { droptime: leftAt - 3, hungrytime: leftAt + 900 },
+        };
+        state.level.flags.stasis_until = leftAt + 5;
+
+        savelev(ledger, state);
+        // 200 turns away; below every hunger and tameness threshold that
+        // mon_catchup_elapsed_time() checks, so only the shift is observed.
+        state.moves = leftAt + 200;
+        state.level = null;
+        await getlev(ledger, state);
+
+        assert.equal(monster.mextra.edog.droptime, leftAt - 3 + 200);
+        assert.equal(monster.mextra.edog.hungrytime, leftAt + 900 + 200);
+        assert.equal(state.level.flags.stasis_until, leftAt + 5 + 200);
+    });
 
 test('savelev() captures level state and getlev() restores it', async () => {
     // save.c savelev() and restore.c getlev(). Verify that the level snapshot
