@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mon.c unstuck() and display.c docrt_flags(): a dwarvish Valkyrie with mention_map and a timed warning intrinsic level-teleports to level 12, creates a fog cloud, lets it engulf her and destroys it from inside. unstuck() redraws the level with docrt(), whose program_state.in_docrt keeps show_glyph() from reporting the monsters see_monsters() paints onto unexplored squares, so the next message is the level-gain line rather than a mention_map notice. Independent of the c-diff-b4 examples.",
+  "segments": [
+    {
+      "seed": 304,
+      "datetime": "20260715193000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,mention_map\n",
+      "moves": "     #wizintrinsic\n>500v\n  #wizlevelport\n12\n   \u0007fog cloud\n  s s s s Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   Fh   s   s   s   s   s   s   s   s   s   s   "
+    }
+  ]
+}

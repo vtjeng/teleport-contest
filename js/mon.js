@@ -4550,6 +4550,12 @@ export function unstuck(mtmp, state = game, env = {}) {
             // display.c restores vision and only then overlays monsters. The
             // explicit redraw option is required for a planning clone because
             // see_monsters() otherwise paints the live game map.
+            // C runs both inside docrt_flags(), whose program_state.in_docrt
+            // keeps show_glyph() from reporting mention_map glyph changes.
+            // docrt() above has already cleared its own bracket, so restore it
+            // for this tail.
+            state.program_state ??= {};
+            const outerInDocrt = state.program_state.in_docrt;
             state.program_state.in_docrt = true;
             try {
                 await visionRecalc(0, visionEnv);
@@ -4558,7 +4564,7 @@ export function unstuck(mtmp, state = game, env = {}) {
                 };
                 await see_monsters(state, monsterOverlay);
             } finally {
-                state.program_state.in_docrt = false;
+                state.program_state.in_docrt = outerInDocrt;
             }
 
             /* "prevent holder/engulfer from immediately re-holding/re-engulfing
