@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 8812047,
+    "datetime": "20280226171819",
+    "nethackrc": "OPTIONS=name:Lister,role:Priest,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizwish\nSting\n#wizwish\nOgresmasher\n\u0009ij\n\\",
+    "comment": "Reaches artifact.c disp_artifact_discoveries() through dodiscovered(). Sting is chaotic; Ogresmasher is A_NONE, which the function prints as non-aligned. Each line puts the alignment and base type in square brackets."
+  }]
+}
