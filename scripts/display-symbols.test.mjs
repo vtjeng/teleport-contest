@@ -9438,7 +9438,12 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
     assert.notEqual(CLR_BLACK, NO_COLOR, 'black is distinct before capture');
 });
 
-test('three-line status clips the map around a bottom-row hero', async () => {
+// termcap.c tty_startup() clips only a terminal shorter than ROWNO + 3 rows,
+// and the rc 'statuslines:3' is read before the windows exist, so a 24-row
+// terminal never clips the map: recordings/display.c/
+// three-status-lines-bottom-row-unclipped.session.json shows a doorway's
+// corridor printed over the first status row.
+test('three-line status leaves a 24-row map unclipped', async () => {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
     state.level = new GameMap();
@@ -9466,18 +9471,19 @@ test('three-line status clips the map around a bottom-row hero', async () => {
         uprops: zeroHeroProperties(),
     };
     state.level.at(1, 0).disp_ch = 'A';
+    // Not newly flushed, so it is not printed over the status window.
     state.level.at(1, 20).disp_ch = 'Z';
 
     await flush_screen(1);
 
     const row = (index) => state.nhDisplay.grid[index]
         .map((cell) => cell.ch).join('').trimEnd();
-    assert.equal(row(1), '', 'map row zero is above the clipped viewport');
-    assert.equal(row(20), 'Z', 'map row twenty occupies the last map row');
+    assert.equal(row(1), 'A', 'map row zero stays on screen row one');
     assert.match(row(21), /^Hero the Digger/u);
+    // The hero's map row 20 is screen row 21, the first status row.
     assert.deepEqual(
         [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
-        [0, 20],
+        [0, 21],
     );
 });
 

@@ -6703,6 +6703,14 @@ function _statusStyleRows(layouts) {
 }
 
 function mapViewport(rows, statusRowCount, state = game) {
+    // termcap.c tty_startup() calls setclipped() only for a terminal shorter
+    // than ROWNO + 3 rows. unixmain.c reads the rc file (initoptions()) before
+    // init_nhwindows(), so an rc 'statuslines:3' reaches
+    // tty_preference_update() while iflags.window_inited is still FALSE and
+    // never calls newclipping(). On a 24-row terminal the map is therefore
+    // never clipped: row ROWNO-1 lands on the first of three status rows,
+    // which bot() then writes over.
+    if (rows >= ROWNO + 3) return { height: ROWNO, top: 0 };
     const height = Math.min(ROWNO, rows - 1 - statusRowCount);
     if (height >= ROWNO) return { height: ROWNO, top: 0 };
 
@@ -6757,9 +6765,16 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
         && state.gw?.wsettings?.map_frame_color !== undefined
         && state.gw.wsettings.map_frame_color !== NO_COLOR;
 
+    const firstStatusRow = display.rows - statusRowCount;
     for (let screenRow = 0; screenRow < lastRow; ++screenRow) {
         display.setCursor(Math.max(0, xmin - 1), screenRow);
         display.clearToEol();
+        const overStatus = screenRow >= firstStatusRow;
+        if (overStatus && game._statusMapOverlay) {
+            for (const [key, cell] of game._statusMapOverlay)
+                if (cell.row === screenRow && cell.column >= xmin - 1)
+                    game._statusMapOverlay.delete(key);
+        }
         const mapRow = screenRow - mapOffy;
         if (mapRow < 0 || mapRow >= viewport.height) continue;
         const mapY = viewport.top + mapRow;
@@ -6794,16 +6809,15 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
                 loc.tty_decgfx = Boolean(presentation.dec);
                 loc.tty_attr = presentation.attr ?? 0;
             }
-            display.setCell(
-                x - 1,
-                screenRow,
-                ch,
-                browserGlyphs
-                    ? presentation.displayColor ?? presentation.color
-                        ?? NO_COLOR
-                    : presentation.color ?? NO_COLOR,
-                presentation.attr ?? 0,
-            );
+            const color = browserGlyphs
+                ? presentation.displayColor ?? presentation.color ?? NO_COLOR
+                : presentation.color ?? NO_COLOR;
+            display.setCell(x - 1, screenRow, ch, color, presentation.attr ?? 0);
+            if (overStatus) {
+                recordStatusOverlay(
+                    x - 1, screenRow, ch, color, presentation.attr ?? 0,
+                );
+            }
         }
     }
 }
@@ -6812,14 +6826,25 @@ function writeStatusRows(
     display,
     layouts = statusLayouts(),
     styles = null,
+    { forced = false } = {},
 ) {
     if (!display?.grid) return;
     styles ??= layouts.map(({ owners }) => owners.map(
         () => ({ color: NO_COLOR, attr: ATR_NONE }),
     ));
     const firstRow = display.rows - layouts.length;
+    const previous = game._statusOverlayBasis;
     for (let index = 0; index < layouts.length; ++index) {
         const screenRow = firstRow + index;
+        _clearRedrawnStatusOverlay(
+            screenRow,
+            index,
+            previous?.layouts?.[index],
+            previous?.styles?.[index],
+            layouts[index],
+            styles[index],
+            forced || previous?.layouts?.length !== layouts.length,
+        );
         display.clearRow(screenRow);
         const { text } = layouts[index];
         for (let column = 0;
@@ -6833,6 +6858,91 @@ function writeStatusRows(
                 style?.color ?? NO_COLOR,
                 style?.attr ?? ATR_NONE,
             );
+        }
+    }
+    game._statusOverlayBasis = { layouts, styles };
+    _applyStatusOverlay(display);
+}
+
+// Map glyphs printed over the status window.
+//
+// On a 24-row terminal with three status lines the map is not clipped (see
+// mapViewport()), so wintty.c tty_print_glyph() prints map row ROWNO-1 on
+// the first status row. Nothing records that in the status window's
+// cw->data, so the glyph stays on the terminal until render_status()
+// rewrites the field covering its column: check_fields() marks a field for
+// redraw only when its own text, colour, attribute or position changes (or
+// every field, on a forced update), and tty_putstatusfield() then writes the
+// whole field. render_status() also erases the rest of a row that got
+// shorter. game._statusMapOverlay holds those glyphs by terminal cell;
+// cls() discards it with the rest of the screen.
+function _statusMapOverlay() {
+    game._statusMapOverlay ??= new Map();
+    return game._statusMapOverlay;
+}
+
+function recordStatusOverlay(column, row, ch, color, attr) {
+    _statusMapOverlay().set(`${row}:${column}`, { column, row, ch, color, attr });
+}
+
+function _applyStatusOverlay(display) {
+    const overlay = game._statusMapOverlay;
+    if (!overlay?.size) return;
+    for (const { column, row, ch, color, attr } of overlay.values())
+        display.setCell(column, row, ch, color, attr);
+}
+
+// The field each status column belongs to. botl.c formats every field after
+// the first with its leading separator (" Dx:%s"), so an unowned separator
+// column joins the field that follows it; hitpointbar's bracketed title is
+// one 32-column BL_TITLE field.
+function _statusFieldGroups(layout, rowIndex) {
+    const owners = layout?.owners ?? [];
+    const length = layout?.text?.length ?? 0;
+    const keys = new Array(length).fill(null);
+    let next = 'tail';
+    for (let column = length - 1; column >= 0; --column) {
+        const owner = owners[column];
+        if (owner) next = owner.field ?? owner.kind ?? 'owned';
+        keys[column] = next;
+    }
+    if (rowIndex === 0 && game.iflags?.wc2_hitpointbar) {
+        for (let column = 0; column < Math.min(length, STATUS_HP_BAR_WIDTH + 2);
+            ++column)
+            keys[column] = 'title';
+    }
+    return keys;
+}
+
+function _clearRedrawnStatusOverlay(
+    screenRow, rowIndex, oldLayout, oldStyles, newLayout, newStyles, forced,
+) {
+    const overlay = game._statusMapOverlay;
+    if (!overlay?.size) return;
+    const newText = newLayout?.text ?? '';
+    const oldText = oldLayout?.text ?? '';
+    const redraw = new Set();
+    const keys = _statusFieldGroups(newLayout, rowIndex);
+    if (!forced) {
+        const sameStyle = (a, b) => (a?.color ?? NO_COLOR)
+            === (b?.color ?? NO_COLOR)
+            && (a?.attr ?? ATR_NONE) === (b?.attr ?? ATR_NONE);
+        const oldKeys = _statusFieldGroups(oldLayout, rowIndex);
+        for (let column = 0; column < newText.length; ++column) {
+            if (newText[column] !== oldText[column]
+                || keys[column] !== oldKeys[column]
+                || !sameStyle(newStyles?.[column], oldStyles?.[column]))
+                redraw.add(keys[column]);
+        }
+    }
+    for (const [key, cell] of overlay) {
+        if (cell.row !== screenRow) continue;
+        const column = cell.column;
+        if (column < newText.length) {
+            if (forced || redraw.has(keys[column])) overlay.delete(key);
+        } else if (column < oldText.length) {
+            // render_status() erases what is left of a shortened row.
+            overlay.delete(key);
         }
     }
 }
@@ -6925,11 +7035,17 @@ function _buildScreenOutput(cursorOnHero = true) {
         // Map — write characters to grid (DEC → Unicode for browser display)
         const browserGlyphs = Boolean(display.spans);
         const decMap = browserGlyphs ? DEC_TO_UNICODE : SCORER_DEC_MAP;
+        const firstStatusRow = display.rows - statusRows.length;
         for (let offset = 0; offset < viewport.height; ++offset) {
             const y = viewport.top + offset;
+            // An unclipped map row that lands on the status window is
+            // printed there only when its glyph changes; see
+            // _statusMapOverlay().
+            const overStatus = offset + 1 >= firstStatusRow;
             for (let x = 1; x < COLNO; x++) {
                 const loc = game.level?.at(x, y);
                 if (!loc || (bufferedOnly && !loc.gnew)) continue;
+                if (overStatus && !loc.gnew) continue;
                 if (loc.gnew) commitFlushedGlyph(loc);
                 const ch = browserGlyphs && loc.disp_browser_ch
                     ? loc.disp_browser_ch
@@ -6939,6 +7055,23 @@ function _buildScreenOutput(cursorOnHero = true) {
                 // wintty.c tty_print_glyph() prints spaces too: detected
                 // ghosts carry inverse video on their otherwise blank glyph.
                 if (!ch) continue;
+                // display.c's nul_gbuf holds GLYPH_UNEXPLORED, so an
+                // unexplored square is never printed after cls().
+                if (overStatus
+                    && loc.disp_glyph?.glyph !== GLYPH_UNEXPLORED_OFF) {
+                    recordStatusOverlay(
+                        x - 1,
+                        offset + 1,
+                        ch,
+                        browserGlyphs
+                            ? loc.disp_browser_color ?? loc.disp_color
+                                ?? NO_COLOR
+                            : loc.disp_color ?? NO_COLOR,
+                        browserGlyphs && loc.disp_browser_ch
+                            ? loc.disp_browser_attr ?? 0
+                            : loc.disp_attr ?? 0,
+                    );
+                }
                 display.setCell(
                     x - 1,
                     offset + 1,
@@ -7132,6 +7265,7 @@ export async function cls() {
             }
         }
         game._pending_message = '';
+        game._statusMapOverlay = null;
     } finally {
         game._inCls = false;
     }
@@ -7216,7 +7350,8 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     // not modelled here.
     const forcedRedraw = Boolean(game.disp?.botlx);
     try {
-        writeStatusRows(game?.nhDisplay, layouts, styles);
+        writeStatusRows(game?.nhDisplay, layouts, styles,
+            { forced: forcedRedraw });
         const display = game?.nhDisplay;
         if (forcedRedraw && display?.grid && layouts.length) {
             display.setCursor(

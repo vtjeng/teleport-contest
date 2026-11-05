@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "termcap.c tty_startup() clips the map only below ROWNO+3 terminal rows, and an rc 'statuslines:3' is read before init_nhwindows(), so tty_preference_update() never calls newclipping(). With three status lines on a 24-row terminal the map stays unclipped when the hero steps into a doorway on map row 19.",
+  "segments": [
+    {
+      "seed": 9160,
+      "datetime": "20370604181500",
+      "nethackrc": "OPTIONS=name:Lowly,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,statuslines:3,time\n",
+      "moves": "hjk"
+    }
+  ]
+}
