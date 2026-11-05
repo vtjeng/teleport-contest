@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dig.c rot_organic() container entry reached from do.c goto_level()'s run_timers(). Stash a dagger in a wished sack, drop and #wizbury it (bury_an_obj() schedules ROT_ORGANIC at 250 + rnd(250)), level-teleport away, wait past the maximum delay, and return. On arrival the rotting sack releases the dagger through bury_an_obj(), which draws obj_resists() and extracts it from the container.",
+  "segments": [
+    {
+      "seed": 40817263,
+      "datetime": "20620922153000",
+      "nethackrc": "OPTIONS=name:SackRot,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0017uncursed sack\n  aesb  de  #wizbury\n  \u00162\n  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  20s  \u00161\n  s  "
+    }
+  ]
+}
