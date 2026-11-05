@@ -250,6 +250,9 @@ export async function demon_talk(mtmp, state = game, env = {}) {
     const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
     const message = env.message ?? ttyPline;
     const speak = env.verbalize ?? verbalize;
+    // newsym() paints the live game; a monster turn's planning pass
+    // (monmove.c dochug() on a planning copy) leaves that to the live pass.
+    const redraw = env.planning ? () => {} : newsym;
     const deaf = heroDeaf(state);
 
     if (is_art(state.uwep, ART_EXCALIBUR)
@@ -261,7 +264,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         mtmp.mpeaceful = 0;
         mtmp.mtame = 0;
         set_malign(mtmp, state);
-        newsym(mtmp.mx, mtmp.my, state);
+        redraw(mtmp.mx, mtmp.my, state);
         return 0;
     }
 
@@ -271,7 +274,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         await stop_occupation(state, { message });
         if ((state.multi ?? 0) > 0) {
             nomul(0, state);
-            await unmul(null, state);
+            await unmul(null, state, { ...env, message });
         }
     }
 
@@ -283,7 +286,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
             await message(`${Amonnam(mtmp, state)} appears before you.`, state);
             mtmp.mstrategy &= ~STRAT_APPEARMSG;
         }
-        newsym(mtmp.mx, mtmp.my, state);
+        redraw(mtmp.mx, mtmp.my, state);
     }
 
     if (state.youmonst?.data?.mlet === M.S_DEMON) {
