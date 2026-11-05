@@ -5549,7 +5549,7 @@ export async function zap_over_floor(
                         `The iron bars ${damgtype === ZT_ACID ? 'corrode away' : 'melt'}.`,
                         state, env,
                     );
-                await dissolve_bars(x, y, state);
+                await dissolve_bars(x, y, state, { newsym: redrawAt });
                 if (in_rooms(x, y, SHOPBASE, state).length) {
                     add_damage(x, y, type >= 0 ? SHOP_BARS_COST : 0, state);
                     if (type >= 0) {
