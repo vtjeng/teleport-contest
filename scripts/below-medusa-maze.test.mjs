@@ -9,6 +9,10 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 // These Wizard level-teleport recipes were recorded against the pinned C
 // build. Their complete RNG/screens/cursors outputs matched this digest in
 // a fresh C/JS comparison; seed 79 is the nearby zero-draw room control.
+// The digests cover GameDisplay.serialize() text, so they changed when it
+// began writing runs of five or more spaces as cursor movement, as
+// record-session.mjs does; both recipes still matched fresh C recordings
+// under diff-fresh after that change.
 const nethackrc = 'OPTIONS=name:MazeAudit,role:Tourist,race:human,'
     + 'gender:female,align:neutral,playmode:debug,pettype:none,'
     + '!legacy,!tutorial,!splash_screen,!autopickup\n';
@@ -16,11 +20,11 @@ const nethackrc = 'OPTIONS=name:MazeAudit,role:Tourist,race:human,'
 for (const { seed, level, medusa, maze, rngCount, outputHash } of [
     {
         seed: 79, level: 27, medusa: 26, maze: false, rngCount: 6043,
-        outputHash: 'cd7a94273a248964a96ac5e4ce86a479f51b9d43972d103e0b0f23b05e9f5250',
+        outputHash: 'fc4b482bbde4210eda8627f6f0c7f66b2a6b945b926dff72972b8f0b8f322ff4',
     },
     {
         seed: 81, level: 28, medusa: 27, maze: true, rngCount: 5002,
-        outputHash: '92712e0c53d60b89956c1c94eb550feaff182c254b9e859c625d72ed95897b5e',
+        outputHash: '09dbf18e4ea11dd63fcab771f67e30d844031e164223ef29733be132b04b563e',
     },
 ]) {
     test(`Wizard arrival below Medusa seed ${seed} uses ${maze ? 'maze' : 'rooms'}`, async () => {
