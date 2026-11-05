@@ -1675,9 +1675,10 @@ export async function selectTtyMenu(state = game, spec) {
         clearTtyMessageWindow(state);
     } else if (state._pending_message) {
         // The message was already acknowledged (toplin is NON_EMPTY or
-        // EMPTY), but _pending_message is still set. The overlay menu's
-        // renderTtyMenu clears row 0 physically; clear the message state
-        // here so it does not resurface after the menu is dismissed.
+        // EMPTY), but _pending_message is still set. A NON_EMPTY line is
+        // cleared here, as tty_clear_nhwindow(WIN_MESSAGE) does, so it does
+        // not resurface after the menu is dismissed; an EMPTY one stays on
+        // screen beside the menu.
         clearTtyMessageWindow(state);
     }
     const how = spec.how ?? PICK_ONE;
