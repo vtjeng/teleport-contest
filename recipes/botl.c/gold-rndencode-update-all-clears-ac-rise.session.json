@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent botl.c eval_notify_windowport_field() recipe. Seed, clock, name, Valkyrie role, rules and inputs were selected for this run. newgame()'s welcome bot() sees AC rise from 0 to the find_ac() value and picks the armor-class up rule; moveloop_preamble() then sets svc.context.rndencode, so the first moveloop bot() forces gu.update_all at BL_GOLD and AC, time and the later fields are drawn without their temporary highlights. The strength rule precedes BL_GOLD and is not affected.",
+  "segments": [
+    {
+      "seed": 6629015,
+      "datetime": "20390214174520",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,time,statushilites:4,showexp\nOPTIONS=hilite_status:armor-class/down/green/up/red\nOPTIONS=hilite_status:time/changed/yellow\nOPTIONS=hilite_status:strength/up/cyan\n",
+      "moves": "s5s.."
+    }
+  ]
+}

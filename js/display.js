@@ -6196,6 +6196,27 @@ function _beginStatusHilitePass(onlyField = null) {
     const chgBanks = _statusHiliteChangeBanks(game.gb, size);
     if (!onlyField) chgBanks[1] = [...chgBanks[0]];
     game._statusHiliteUpdateAll = !onlyField && Boolean(game.gu?.update_all);
+    // C ref: botl.c eval_notify_windowport_field() (1564-1569). On reaching
+    // BL_GOLD, a full pass forces gu.update_all when svc.context.rndencode
+    // or the coin symbol differs from the function-static copies, so BL_GOLD
+    // and every field after it in initblstats[] order is evaluated as an
+    // update_all pass (chg = 0, timers cleared). moveloop_preamble() sets
+    // rndencode for a new game after newgame()'s welcome bot(), so the first
+    // moveloop bot() drops a temporary highlight the welcome bot() gave to,
+    // say, AC rising from 0 to its find_ac() value. stat_update_time() never
+    // evaluates BL_GOLD. The two statics start at zero in each process and
+    // are not saved; resetGame() gives each runSegment() fresh ones.
+    game._statusGoldUpdateAll = false;
+    if (!onlyField) {
+        const rndencode = game.context?.rndencode ?? 0;
+        const goldsym = game.gs?.showsyms?.[SYM_OFF_O + COIN_CLASS] ?? 0;
+        if (rndencode !== (game.botl_oldrndencode ?? 0)
+            || goldsym !== (game.botl_oldgoldsym ?? 0)) {
+            game._statusGoldUpdateAll = true;
+            game.botl_oldrndencode = rndencode;
+            game.botl_oldgoldsym = goldsym;
+        }
+    }
     if (!onlyField) {
         game.gb.status_hilite_times[1] = [...game.gb.status_hilite_times[0]];
         if (game._statusHiliteUpdateAll) {
@@ -6266,7 +6287,9 @@ function _deliverStatusTime() {
     if (!_statusFieldEnabled(field, game)) return;
     const gb = game.gb;
     const data = _statusFieldData('time');
-    const updateAll = Boolean(game._statusHiliteUpdateAll);
+    // BL_TIME follows BL_GOLD, so the gold symbol/rndencode test applies.
+    const updateAll = Boolean(game._statusHiliteUpdateAll
+        || game._statusGoldUpdateAll);
     const { changed, expired } = _statusFieldNotice(gb, field.fld, data,
         updateAll);
     if (updateAll || changed || expired) game._statusTimeShown = data.value;
@@ -6320,7 +6343,13 @@ function _collectStatusHilites(layouts, onlyField = null) {
         gb[name][1] ??= Array(size).fill(null);
     }
     _statusHiliteChangeBanks(gb, size);
-    const updateAll = Boolean(game._statusHiliteUpdateAll && !onlyField);
+    const passUpdateAll = Boolean(game._statusHiliteUpdateAll && !onlyField);
+    // See _beginStatusHilitePass(): BL_GOLD and the fields after it in
+    // initblstats[] order see gu.update_all when the gold test forced it.
+    const goldIndex = STATUS_FIELDS.findIndex(row => row.key === 'gold');
+    const fieldUpdateAll = (field) => passUpdateAll
+        || (Boolean(game._statusGoldUpdateAll && !onlyField)
+            && STATUS_FIELDS.indexOf(field) >= goldIndex);
     const activeConditions = new Set();
     for (const layout of layouts) {
         for (const owner of layout.owners ?? []) {
@@ -6335,7 +6364,7 @@ function _collectStatusHilites(layouts, onlyField = null) {
         gb.status_hilite_type[0][fld] = conditionField.type;
         gb.status_hilite_type[1][fld] = conditionField.type;
         gb.status_hilite_text[0][fld] = current;
-        if (updateAll || previous !== current)
+        if (fieldUpdateAll(conditionField) || previous !== current)
             _setStatusHiliteChange(gb, fld, true);
     }
     for (const field of STATUS_FIELDS) {
@@ -6347,6 +6376,13 @@ function _collectStatusHilites(layouts, onlyField = null) {
         if (field.key === 'condition' || !_computeStatusFieldEnabled(field, game)
             || (onlyField && field.key !== onlyField)) continue;
         const fld = field.fld;
+        const updateAll = fieldUpdateAll(field);
+        // C ref: botl.c:1574-1576. gu.update_all clears the field's timers;
+        // _beginStatusHilitePass() has already done so for a whole pass.
+        if (updateAll && !passUpdateAll) {
+            gb.status_hilite_times[0][fld] = 0;
+            gb.status_hilite_times[1][fld] = 0;
+        }
         const data = _statusFieldData(field.key,
             field.key === 'carrying-capacity'
                 ? game._statusCapacitySnapshot : null);
