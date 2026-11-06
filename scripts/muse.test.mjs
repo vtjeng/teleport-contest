@@ -2160,6 +2160,64 @@ test('use_offensive keeps wand beam draws on the caller random stream',
     assert.equal(floorPotion.where, OBJ_FLOOR);
 });
 
+test('use_offensive gives up its zap when a cursed wand explodes',
+    async () => {
+    // muse.c precheck() (131-157): a cursed wand backfires on rn2(100) == 0
+    // (WAND_BACKFIRE_CHANCE), costs the monster d(spe + 2, 6) hit points and
+    // is used up. A monster that survives has gm.m.has_offense zeroed, so
+    // use_offensive()'s `case 0` returns 0 and the monster goes on with its
+    // turn instead of zapping. spe 1 makes the damage d(3, 6); the gnome's
+    // 20 hit points survive the 3 the stub returns.
+    const state = await offensiveHero();
+    state.nhDisplay.onEmptyQueue = () => 13;
+    state.context.mon_moving = true;
+    const wand = carried(state, WAN_STRIKING, { spe: 1, cursed: true });
+    const gnome = offensiveMonster(state, PM_GNOME, wand, {
+        mhp: 20,
+        mhpmax: 20,
+    });
+    wand.where = OBJ_MINVENT;
+    wand.ocarry = gnome;
+    state.m_offense = {
+        has_offense: 7 /* muse.c MUSE_WAN_STRIKING */,
+        offensive: wand,
+    };
+    const draws = [];
+    const random = {
+        rn1: (bound, base) => {
+            draws.push(['rn1', bound, base]);
+            return base;
+        },
+        rnd: (bound) => {
+            draws.push(['rnd', bound]);
+            return 1;
+        },
+        d: (count, sides) => {
+            draws.push(['d', count, sides]);
+            return count;
+        },
+        rn2: (bound) => {
+            draws.push(['rn2', bound]);
+            return 0;
+        },
+    };
+    const env = {
+        state,
+        random,
+        message: async () => {},
+        unsupported: (reason) => {
+            throw new UnsupportedSimpleMonsterActionError(reason);
+        },
+    };
+
+    assert.equal(await use_offensive(gnome, env), 0);
+    // Only the backfire roll and its damage: no beam range rn1(8, 6).
+    assert.deepEqual(draws, [['rn2', 100], ['d', 3, 6]]);
+    assert.equal(gnome.mhp, 17);
+    assert.equal(gnome.minvent, null);
+    assert.equal(state.m_offense.has_offense, 0);
+});
+
 test('mbhit records a monster-broken shop door without losing its global state',
     async () => {
     const state = await offensiveHero();
