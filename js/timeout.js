@@ -2250,7 +2250,7 @@ export function obj_is_local(obj, state = game) {
 }
 
 // C ref: timeout.c timer_is_local().
-function timer_is_local(timer, state) {
+export function timer_is_local(timer, state) {
     switch (timer.kind) {
     case TIMER_LEVEL:
         return true;
@@ -2289,11 +2289,12 @@ export function save_timers(range, state = game) {
     }
 }
 
-// C ref: timeout.c restore_timers() (2706-2728), for a level the port saved
-// itself. C reads the timers in the order save_timers() wrote them and passes
+// C ref: timeout.c restore_timers() (2706-2728), for a saved level or a bones
+// level. C reads the timers in the order save_timers() wrote them and passes
 // each to insert_timer(), so they rejoin the global queue in expiry order. A
-// level timer that expires before a global one must still run first. The
-// ghostly `adjust` applies only to a bones file, which keeps no timers here.
+// level timer that expires before a global one must still run first. For a
+// bones file, bones.js restoreBonesLevel() applies the ghostly `adjust` before
+// it hands the timers here.
 export function restore_timers(timers, state = game) {
     timerGlobals(state);
     for (const timer of timers) {
