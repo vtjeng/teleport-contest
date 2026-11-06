@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do_wear.c witness for the touch test before putting on an accessory: the debug Healer polymorphs into a vampire, which hates silver, wishes a silver ring and puts it on. do_wear.c accessory_or_armor_on() calls artifact.c retouch_object() for every object, and its Hate_silver arm refuses the ring, burns the hero for rnd(10) and exercises Constitution; the put-on costs the turn.",
+  "segments": [
+    {
+      "seed": 6640219,
+      "datetime": "20380611170000",
+      "nethackrc": "OPTIONS=name:SilverBurn,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#polyself\nvampire\n\u0017silver ring\nPkr:"
+    }
+  ]
+}
