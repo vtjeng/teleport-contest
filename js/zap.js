@@ -1626,7 +1626,7 @@ export async function resist(mtmp, oclass, damage, tell, state = game,
     const resisted = random.rn2(100 + alev - dlev) < (mtmp.data?.mr ?? 0);
     if (resisted) {
         if (tell) {
-            await shieldeff_mon(mtmp, { state });
+            await shieldeff_mon(mtmp, { ...rawEnv, state });
         }
         damage = Math.trunc((damage + 1) / 2);
     }
@@ -3684,7 +3684,7 @@ export async function bhitm(monster, wand, state = game,
             damage *= 2;
         damage = spell_damage_bonus(damage, state);
         if (resists_drli(monster, state)) {
-            await shieldeff_mon(monster, { state });
+            await shieldeff_mon(monster, { ...rawEnv, state });
         } else if (!await resist(
             monster, wand.oclass, damage, NOTELL, state, random, rawEnv,
         ) && monster.mhp >= 1) {
@@ -3847,7 +3847,7 @@ export async function bhitm(monster, wand, state = game,
             && has_mcorpsenm(monster)) {
             // A long worm changed by this same zap is not transformed again.
         } else if (resists_magm(monster, state)) {
-            await shieldeff_mon(monster, { state });
+            await shieldeff_mon(monster, { ...rawEnv, state });
         } else if (!await resist(
             monster,
             wand.oclass,

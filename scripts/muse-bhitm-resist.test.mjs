@@ -1,15 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { COULD_SEE, IN_SIGHT, OBJ_MINVENT, ROOM } from '../js/const.js';
+import { COULD_SEE, IN_SIGHT, OBJ_MINVENT, ROOM, TELL } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { PM_GNOME, PM_NEWT, NON_PM } from '../js/monsters.js';
+import { PM_GNOME, PM_GRAY_UNICORN, PM_NEWT, NON_PM } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
-import { WAN_STRIKING } from '../js/objects.js';
+import { WAN_STRIKING, WAND_CLASS } from '../js/objects.js';
 import { rn2, rne, rnz } from '../js/rng.js';
 import { use_offensive } from '../js/muse.js';
+import { resist } from '../js/zap.js';
 
 test('monster wand strikes give resist the active kill RNG and environment',
     async () => {
@@ -115,4 +116,57 @@ test('monster wand strikes give resist the active kill RNG and environment',
     assert.ok(lines.some(({ line, mUsing }) =>
         mUsing && /newt is killed/u.test(line)),
     'the death message runs before muse.c clears gm.m_using');
+});
+
+test('a told resistance prints "resists!" through the caller message operation',
+    async () => {
+    // A monster's planned wand zap reaches zap.c:resist() with a silent
+    // message operation; shieldeff_mon() must use it rather than the live
+    // top line. An independent Valkyrie game supplies the map and vision.
+    await runSegment({
+        seed: 90525311,
+        datetime: '20420602093000',
+        nethackrc: [
+            'OPTIONS=name:ToldResist,role:Valkyrie,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none',
+            '',
+        ].join('\n'),
+        moves: '',
+    });
+    // The square east of the hero, opened and made visible, holds a gray
+    // unicorn: its 70% magic resistance comes from mons[].mr alone, so
+    // resist() rather than resists_magm() decides.
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    const loc = game.level.at(x, y);
+    loc.typ = ROOM;
+    loc.flags = 0;
+    loc.doormask = 0;
+    loc.wall_info = 0;
+    game.viz_array[y][x] |= COULD_SEE | IN_SIGHT;
+    const target = newMonster({
+        cham: NON_PM,
+        data: game.mons[PM_GRAY_UNICORN],
+        mnum: PM_GRAY_UNICORN,
+        m_id: 9201,
+        mx: x,
+        my: y,
+        m_lev: game.mons[PM_GRAY_UNICORN].mlevel,
+        mhp: 30,
+        mhpmax: 30,
+        mcanmove: true,
+    });
+    place_monster(target, x, y, game);
+    target.nmon = game.level.monlist;
+    game.level.monlist = target;
+
+    const lines = [];
+    // rn2() returning 0 is below the unicorn's mr of 70, so it resists;
+    // 2 damage halves to 1 and leaves it alive.
+    assert.equal(await resist(target, WAND_CLASS, 2, TELL, game,
+        { rn2: () => 0 }, {
+            message: async (line) => { lines.push(String(line)); },
+        }), 1);
+    assert.deepEqual(lines, ['The gray unicorn resists!']);
+    assert.equal(target.mhp, 29);
 });
