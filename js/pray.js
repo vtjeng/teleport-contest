@@ -354,7 +354,7 @@ import {
 } from './startup_skills.js';
 import { add_weapon_skill } from './weapon.js';
 import {
-    an, ansimpleoname, actualoname, bare_artifactname, corpse_xname,
+    an, An, ansimpleoname, actualoname, bare_artifactname, corpse_xname,
     gloves_simple_name, otense, vtense, yname, Yobjnam2,
     simpleonames, xname,
 } from './objnam.js';
@@ -2347,7 +2347,7 @@ async function gcrownu(state) {
         book.bknown = 1;
         observe_object(book, state);
         await at_your_feet(upstart(ansimpleoname(book, state)), state);
-        await dropy(book, state);
+        await dropy(book, dropCommandEnv(state));
         u.ugifts = (u.ugifts ?? 0) + 1;
         livelog_printf(
             LL_DIVINEGIFT | LL_ARTIFACT | LL_SPOILER,
@@ -2398,7 +2398,7 @@ async function gcrownu(state) {
             );
             obj.spe = 1;
             await at_your_feet('A sword', state);
-            await dropy(obj, state);
+            await dropy(obj, dropCommandEnv(state));
             u.ugifts = (u.ugifts ?? 0) + 1;
             livelog_printf(
                 LL_DIVINEGIFT | LL_ARTIFACT,
@@ -2424,8 +2424,8 @@ async function gcrownu(state) {
                 { state },
             );
             obj.spe = 1;
-            await at_your_feet(an(swordName, state), state);
-            await dropy(obj, state);
+            await at_your_feet(An(swordName), state);
+            await dropy(obj, dropCommandEnv(state));
             u.ugifts = (u.ugifts ?? 0) + 1;
             livelog_printf(
                 LL_DIVINEGIFT | LL_ARTIFACT,
