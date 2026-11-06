@@ -63,6 +63,7 @@ import {
     SORTLOOT_INUSE,
     SORTLOOT_PETRIFY,
     W_ART,
+    W_BALL,
     WORN_AMUL,
     WORN_SHIRT,
     W_QUIVER,
@@ -3682,9 +3683,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['swap-wielded ball', /attached/u, ({ state, obj }) => {
                 state.uswapwep = obj;
             }],
-            ['attached ball', /attached/u, ({ state, obj }) => {
-                state.uball = obj;
-            }],
             ['unpaid ball', /unpaid/u, ({ obj }) => { obj.unpaid = true; }],
             ['unseen hole effects', /trap/u, ({ state }) => {
                 state.level.traps.push({ tx: 10, ty: 5, ttyp: HOLE, tseen: false });
@@ -3741,6 +3739,19 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             beforeLiquidAdmission.floor,
         );
         assert.deepEqual(lava.lines, []);
+
+        // do.c:833-834: dropz() places the carried iron ball and calls
+        // ball.c drop_ball(); its W_BALL mask stays set through freeinv().
+        const ball = ordinaryDropFixture();
+        ball.state.uball = ball.obj;
+        ball.obj.owornmask = W_BALL;
+        assert.doesNotThrow(
+            () => preflight_dropx(ball.obj, {
+                state: ball.state,
+                hooks: ball.hooks,
+            }),
+            'C do.c:dropz reaches drop_ball for the carried iron ball',
+        );
 
         const altar = ordinaryDropFixture();
         altar.state.level.at(10, 5).typ = ALTAR;

@@ -1383,11 +1383,11 @@ test('forced drop admits the sole primary mask and retains other worn refusals',
             error => error instanceof UnsupportedDropError
                 && /worn or attached/u.test(error.message));
     }
-    obj.owornmask = W_WEP;
+    // A wielded iron ball: do.c drop() clears uwep and dropz() calls
+    // ball.c drop_ball() (do.c:833-834), so its W_BALL mask is admitted.
+    obj.owornmask = W_WEP | W_BALL;
     game.uball = obj;
-    assert.throws(() => preflight_dropx(obj, dropCommandEnv(game)),
-        error => error instanceof UnsupportedDropError
-            && /worn or attached/u.test(error.message));
+    assert.doesNotThrow(() => preflight_dropx(obj, dropCommandEnv(game)));
 });
 
 // do.c:dropx -> dropz -> flooreffects has no THRONE branch. A dry throne

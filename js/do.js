@@ -128,6 +128,7 @@ import {
     RIGHT_SIDE,
     WOUNDED_LEGS,
     W_ACCESSORY,
+    W_BALL,
     W_ARMOR,
     W_SADDLE,
     W_QUIVER,
@@ -1975,17 +1976,20 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('special-level display');
     // dig.c:341 drops uwep directly; do.c:810 clears it in dropz after
     // extraction, shipping and altar handling. Admit only that primary mask.
-    const primaryWeapon = state.uwep === obj && obj.owornmask === W_WEP;
+    // The carried iron ball keeps its W_BALL mask through freeinv(); dropz()
+    // places it and calls ball.c drop_ball() (do.c:833-834).
+    const ballMask = state.uball === obj ? W_BALL : 0;
+    const primaryWeapon = state.uwep === obj
+        && (obj.owornmask & ~ballMask) === W_WEP;
     const secondaryWeapon = state.uswapwep === obj
         && Boolean(obj.owornmask & W_SWAPWEP);
     // worn.c:91-94 allows W_SWAPWEP and W_QUIVER on one object; do.c:814-818
     // clears both equipment pointers when that object is dropped.
-    const allowedWornMask = primaryWeapon ? W_WEP
-        : secondaryWeapon ? W_SWAPWEP | W_QUIVER : 0;
+    const allowedWornMask = (primaryWeapon ? W_WEP
+        : secondaryWeapon ? W_SWAPWEP | W_QUIVER : 0) | ballMask;
     if ((obj.owornmask & ~allowedWornMask) || (state.uwep === obj && !primaryWeapon)
         || (state.uquiver === obj && !secondaryWeapon)
-        || (state.uswapwep === obj && !secondaryWeapon)
-        || state.uball === obj) {
+        || (state.uswapwep === obj && !secondaryWeapon)) {
         throw new UnsupportedDropError('a worn or attached object');
     }
     // do.c:dropz() places a returned shop item before shk.c:sellobj()

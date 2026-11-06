@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "do.c drop() and dropz(): a wizard-mode Samurai reads a cursed scroll of punishment, picks up the heavy iron ball and drops it again. The carried ball keeps W_BALL in its owornmask, and dropz() places it and calls ball.c drop_ball().",
+  "segments": [
+    {
+      "seed": 4410283,
+      "datetime": "20461112093000",
+      "nethackrc": "OPTIONS=name:BallDrop,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017cursed scroll of punishment\nrf\n,\ndg\ns"
+    }
+  ]
+}
