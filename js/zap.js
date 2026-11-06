@@ -6107,10 +6107,14 @@ export async function dobuzz(
                     range -= 2;
             } else if (u_at(sx, sy, state) && range >= 0) {
                 nomul(0, state);
+                // C's `goto buzzmonst` for the steed leaves this arm, so the
+                // lightning flash and stop_occupation() below are skipped.
+                let steedTargeted = false;
                 if (state.u.usteed && !random.rn2(3)
                     && !(await mon_reflects(state.u.usteed, null, state, env))) {
                     // C jumps to buzzmonst for the steed. The helper preserves
                     // the exact shared reflection, death, and wakeup path.
+                    steedTargeted = true;
                     const steed = state.u.usteed;
                     const steedResult = await buzzmonst(
                         steed, type, nd, fltyp, damgtype, spellType,
@@ -6200,14 +6204,16 @@ export async function dobuzz(
                         state,
                     );
                 }
-                if (damgtype === ZT_LIGHTNING) {
-                    await flashburn(random.d(nd, 50), true, state,
-                        { ...env, message });
+                if (!steedTargeted) {
+                    if (damgtype === ZT_LIGHTNING) {
+                        await flashburn(random.d(nd, 50), true, state,
+                            { ...env, message });
+                    }
+                    // stop_occupation() prints through dobuzz()'s message
+                    // operation, which a planned breath silences.
+                    await stop_occupation(state, { message });
+                    nomul(0, state);
                 }
-                // stop_occupation() prints through dobuzz()'s message
-                // operation, which a planned breath silences.
-                await stop_occupation(state, { message });
-                nomul(0, state);
             }
             // C ref: zap.c:4995-4996. Gas that missed or was not reflected
             // leaves a 1x1 cloud via the deferred zap_over_floor(). C casts
