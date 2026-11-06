@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent zap.c witness for zap_map()'s downward striking arm: the debug Tourist wishes a wand of striking, writes Elbereth in the dust with her finger, zaps the wand down, and looks at the floor. zap_updown() reaches zap_map(), whose WAN_STRIKING/SPE_FORCE_BOLT case wipes the engraving through engrave.c wipe_engr_at(d(2,4)).",
+  "segments": [
+    {
+      "seed": 5530771,
+      "datetime": "20380117090000",
+      "nethackrc": "OPTIONS=name:Smudger,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "\u0017wand of striking\nE- Elbereth\nzp>:  "
+    }
+  ]
+}

@@ -3712,8 +3712,10 @@ async function accessory_or_armor_on(obj, state = game) {
         }
     }
 
-    // C ref: do_wear.c:2355-2356. Artifact touch precedes every slot write.
-    if (obj.oartifact) {
+    // C ref: do_wear.c:2355-2356. The touch test precedes every slot write,
+    // for any object: a silver one burns a silver-hating hero (artifact.c
+    // retouch_object()'s Hate_silver arm), not only an artifact.
+    {
         const selected = { obj };
         if (!await retouch_object(selected, false, state)) return ECMD_TIME;
         obj = selected.obj;

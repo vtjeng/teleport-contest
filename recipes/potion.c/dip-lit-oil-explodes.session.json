@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c witness for dip_potion_explosion() with a lit potion of oil: the debug Valkyrie wishes a potion of oil and one of fruit juice, lights the oil, and dips it into the juice. A lit oil always explodes, and useupall() frees it through shk.c obfree(), which stops its burn timer (timeout.c obj_stop_timers()) and deletes its light source (light.c del_light_source()).",
+  "segments": [
+    {
+      "seed": 8840217,
+      "datetime": "20360823193000",
+      "nethackrc": "OPTIONS=name:OilBoom,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed potion of oil\n\u0017uncursed potion of fruit juice\nae#dip\nef \u001b"
+    }
+  ]
+}

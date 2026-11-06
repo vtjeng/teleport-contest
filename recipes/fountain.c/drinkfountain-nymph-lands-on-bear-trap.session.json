@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent fountain.c witness for dowaternymph()'s trap.c:mintrap() call when the nymph comes from drinkfountain(): the debug Valkyrie sets a wished bear trap under herself, steps east, wishes a fountain there and quaffs; drinkfountain() fate 28 makes a water nymph that lands on the adjacent bear trap, so mintrap() draws rnl() from the random set that drinkfountain() passes down. I selected seed 6100254 with a JavaScript scan over 6100001-6100400 of the bear-trap recipe's inputs (one start reached the nymph's mintrap call).",
+  "segments": [
+    {
+      "seed": 6100254,
+      "datetime": "20340312103000",
+      "nethackrc": "OPTIONS=name:TrapFountain,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "l\u0017beartrap\nafl\u0017fountain\nqy"
+    }
+  ]
+}

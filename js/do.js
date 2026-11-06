@@ -1995,10 +1995,11 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('a worn or attached object');
     }
     // do.c:dropz() places a returned shop item before shk.c:sellobj()
-    // removes it from the bill. Admit that source path for a plain unpaid
-    // item on the resident keeper's costly square; retain the boundary for
-    // unpaid containers and drops outside the shop.
-    if (obj.unpaid && (obj.cobj || !costly_spot(u.ux, u.uy, state)))
+    // removes it from the bill. Admit that source path for an unpaid item,
+    // plain or a container (sellobj()'s dropped_container() and subfrombill()
+    // arms), on the resident keeper's costly square; retain the boundary for
+    // drops outside the shop.
+    if (obj.unpaid && !costly_spot(u.ux, u.uy, state))
         throw new UnsupportedDropError('an unpaid object');
 
     const { ux: x, uy: y } = u;

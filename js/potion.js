@@ -3238,6 +3238,15 @@ function drinkEnvironment(state, rawEnv = {}) {
                     'You learn more about your items by comparing them.',
                     state,
                 )),
+            // shk.c obfree() for a used-up potion: a lit potion of oil has a
+            // burn timer and a light source (timeout.c obj_stop_timers(),
+            // light.c del_light_source()).
+            stopObjectTimers: rawEnv.hooks?.stopObjectTimers
+                ?? ((obj, hookEnv) =>
+                    obj_stop_timers(obj, hookEnv.state, hookEnv)),
+            deleteObjectLightSource: rawEnv.hooks?.deleteObjectLightSource
+                ?? ((obj, hookEnv) =>
+                    del_light_source(LS_OBJECT, obj, hookEnv.state)),
         },
     };
 }

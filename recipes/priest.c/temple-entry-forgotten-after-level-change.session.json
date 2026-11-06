@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent save.c/priest.c witness for forget_temple_entry(): the debug Priest level-teleports to Minetown and arrives in its temple, so the priestess intones and greets him, which sets her intone and entry timers. He level-teleports to level 1 and back; savelev() writes the Minetown monster chain, and save.c savemonchn() makes every priest forget her temple entry. Back on Minetown he reads a wished scroll of magic mapping and teleports beside the altar, and the priestess intones again. I chose seed 4470130 with a JavaScript scan over 4470105-4470139 for a Minetown whose temple has a priest.",
+  "segments": [
+    {
+      "seed": 4470130,
+      "datetime": "20370923100000",
+      "nethackrc": "OPTIONS=name:Pilgrim,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " \u0016?\n>w\u001b\u00161\n\u0016?\n>w\u001b\u0017scroll of magic mapping\nri\u001b\u0014_l.   "
+    }
+  ]
+}

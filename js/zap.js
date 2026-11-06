@@ -4209,6 +4209,11 @@ export async function zap_map(
             );
         }
         break;
+    case WAN_STRIKING:
+    case SPE_FORCE_BOLT:
+        await wipe_engr_at(x, y, random.d(2, 4), true,
+            { ...rawEnv, state, random });
+        break;
     }
     if (trapLearn.value) learnwand(wand, state);
     return undefined;

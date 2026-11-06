@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent sit.c witness for throne_sit_effect() case 2: a debug gnomish Healer wishes a throne, sits, and picks effect 2 at the wizard-mode prompt; attrib.c adjattrib() raises Strength or Constitution and ends with pickup.c encumber_msg(). I selected seed 7340019 with a JavaScript scan over 7340001-7340080 (3 starts drew a throne effect and Strength or Constitution).",
+  "segments": [
+    {
+      "seed": 7340019,
+      "datetime": "20360105081000",
+      "nethackrc": "OPTIONS=name:ThroneGain,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017throne\n#sit\n 2\n\u001b"
+    }
+  ]
+}

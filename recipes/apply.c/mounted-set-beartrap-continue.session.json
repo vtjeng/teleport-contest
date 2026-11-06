@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent apply.c witness for use_trap()'s mounted confirmation: the debug Samurai, unskilled in riding, creates a tame saddled pony, forces the #ride, wishes a beartrap and applies it. use_trap() asks \"Continue your attempt to set the bear trap?\"; y_n() returns the key code, and answering y lets the rnl(10) chance pass, so she sets the trap. The pony's direction was read from the C screen for seed 9930001.",
+  "segments": [
+    {
+      "seed": 9930001,
+      "datetime": "20380302114500",
+      "nethackrc": "OPTIONS=name:TrapRider,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0007tame saddled pony\n#ride\nhy\u001b\u0017uncursed beartrap\nag y:"
+    }
+  ]
+}

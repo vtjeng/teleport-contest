@@ -2055,7 +2055,7 @@ export async function use_trap(obj, state = game, env = {}) {
             state,
         );
         const question = `Continue your attempt to set ${the(trapname(ttyp, false, state), state)}?`;
-        if (await y_n(question, state) === 'y') {
+        if (await y_n(question, state) === 'y'.charCodeAt(0)) {
             if (chance) {
                 if (ttyp === LANDMINE) {
                     currentTrapInfo.time_needed = 0;
@@ -2066,7 +2066,7 @@ export async function use_trap(obj, state = game, env = {}) {
                         `You drop ${the(trapname(ttyp, false, state), state)}!`,
                         state,
                     );
-                    await dropx(obj, { ...env, state });
+                    await dropx(obj, dropCommandEnv(state, { ...env, state }));
                     return;
                 }
             }

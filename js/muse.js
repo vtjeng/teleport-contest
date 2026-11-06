@@ -331,7 +331,7 @@ function activeHeroProperty(state, property) {
 // C ref: muse.c precheck() (59-161). Preliminary checks before a monster uses
 // an item: milky/smoky potion occupants and cursed-wand backfire. Returns 0 if
 // nothing happened, 1 if the monster died, 2 if it was incapacitated.
-async function precheck(mon, obj, state, env = {}) {
+async function precheck(mon, obj, state, env = {}, selection = null) {
     if (!obj) return 0;
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) };
     const vis = cansee(mon.mx, mon.my, state);
@@ -448,8 +448,13 @@ async function precheck(mon, obj, state, env = {}) {
             await monkilled(mon, '', M.AD_RBRE, state, env);
             return 1;
         }
-        // gm.m.has_defense = gm.m.has_offense = gm.m.has_misc = 0;
-        // Only one needed to be set to 0 but the others are harmless
+        // C zeroes gm.m.has_defense, has_offense and has_misc, so the
+        // caller's switch takes its `case 0` ("an exploded wand") and the
+        // monster goes on with its turn. The port keeps the offensive choice
+        // in state.m_offense and passes the defensive and miscellaneous
+        // choices as `selection`.
+        if (state.m_offense) state.m_offense.has_offense = 0;
+        if (selection) selection.kind = 0;
     }
     return 0;
 }
@@ -761,10 +766,10 @@ export async function mcureblindness(mon, verbos, state) {
 // gt.trapx/gt.trapy.
 export async function use_defensive(mtmp, selection, state, env = {}) {
     const otmp = selection.object;
-    const kind = selection.kind;
 
-    const i = await precheck(mtmp, otmp, state, env);
+    const i = await precheck(mtmp, otmp, state, env, selection);
     if (i !== 0) return i;
+    const kind = selection.kind;
 
     const vis = cansee(mtmp.mx, mtmp.my, state);
     const vismon = canseemon(mtmp, state);
@@ -1504,7 +1509,7 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
 //   mon.c m_useup       -- consumed object stays in monster inventory
 export async function use_misc(mtmp, selection, state, env = {}) {
     const otmp = selection.object;
-    const i = await precheck(mtmp, otmp, state, env);
+    const i = await precheck(mtmp, otmp, state, env, selection);
     if (i !== 0) return i;
     const vis = cansee(mtmp.mx, mtmp.my, state);
     const vismon = canseemon(mtmp, state);
@@ -1778,6 +1783,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         }
         return 1;
     }
+    case 0:
     case undefined:
         return 0; /* i.e. an exploded wand */
     default:
@@ -2930,6 +2936,8 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         }
         return mtmp.mhp < 1 ? 1 : 2;
     }
+    case 0:
+        return 0; /* i.e. an exploded wand */
     default: {
         const impossible = env.impossible;
         if (typeof impossible === 'function') {

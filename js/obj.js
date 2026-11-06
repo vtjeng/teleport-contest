@@ -1739,7 +1739,7 @@ export function blessorcurse(obj, chance, env = {}) {
 export function set_bknown(obj, onoff, env = {}) {
     if (Boolean(obj.bknown) !== Boolean(onoff)) {
         obj.bknown = onoff;
-        if (obj.where === OBJ_INVENT && (objectEnv(env).state.moves ?? 0) > 1)
+        if (obj.where === OBJ_INVENT && ((env.state ?? game).moves ?? 0) > 1)
             update_inventory(env);
     }
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent engrave.c witness for freehand() -> wield.c welded() -> mkobj.c set_bknown() on a wielded weapon whose curse the hero has not seen: the debug Barbarian wishes an uncursed quarterstaff and wields it, wishes a fountain underfoot and dips the staff, dipfountain() fate 16 curses it silently, then she steps off the fountain and engraves with her fingers. freehand() finds the staff welded and sets bknown. I selected seed 4410012 with a JavaScript scan over 4410001-4410150 (4 starts reached fate 16).",
+  "segments": [
+    {
+      "seed": 4410012,
+      "datetime": "20330716141500",
+      "nethackrc": "OPTIONS=name:WeldDip,role:Barbarian,race:orc,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017uncursed quarterstaff\nwg\u0017fountain\n#dip\ngy\u001blE-"
+    }
+  ]
+}

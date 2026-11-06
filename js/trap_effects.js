@@ -2849,7 +2849,6 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 placeObject: env.placeObject
                     ?? ((obj, ox, oy, actionEnv) =>
                         place_object(obj, ox, oy, actionEnv)),
-                passiveObject: env.passiveObject ?? (async () => {}),
                 shouldMulch: env.shouldMulch ?? (() => false),
                 stackObject: env.stackObject
                     ?? ((obj, actionEnv) => stackobj(obj, {

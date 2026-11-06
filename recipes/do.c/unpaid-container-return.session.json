@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c/shk.c witness for dropping an unpaid container on a costly square. On the D:5 general store of the unpaid-stock-return recipe's seed, the debug Healer wishes an unlocked large box, puts her apples in it, drops it and sells the contents, picks the now shop-owned box back up (unpaid, with the apples inside), and drops it again: do.c dropz() calls shk.c sellobj(), whose unpaid-container arm takes the box off the bill through dropped_container() and subfrombill().",
+  "segments": [
+    {
+      "seed": 8510310,
+      "datetime": "20350108141619",
+      "nethackrc": "OPTIONS=name:ReturnBox,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n   #wizwish\nunlocked large box\n akie\nj\n\u001bdk y\u001b,b\n  dk \u001b"
+    }
+  ]
+}

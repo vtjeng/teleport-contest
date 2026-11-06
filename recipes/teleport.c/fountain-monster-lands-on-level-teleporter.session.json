@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent teleport.c witness for mlevel_tele_trap() reached outside a monster's own turn: the debug Samurai steps east, wishes a level teleporter there, steps east again, wishes a fountain and quaffs. A monster that drinkfountain() summons (fountain.c dowatersnakes(), dowaterdemon() or dowaternymph()) lands on the level teleporter, so trap.c mintrap() -> trapeffect_level_telep() -> mlevel_tele_trap() sends it away through dog.c migrate_to_level(). I selected seed 6230040 with a JavaScript scan over 6230001-6230500 (5 or more starts reached the call).",
+  "segments": [
+    {
+      "seed": 6230040,
+      "datetime": "20350921154500",
+      "nethackrc": "OPTIONS=name:PortFount,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "l\u0017level teleporter\nl\u0017fountain\nqy\u001bs"
+    }
+  ]
+}

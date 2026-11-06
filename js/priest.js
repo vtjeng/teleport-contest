@@ -119,6 +119,7 @@ import { incr_itimeout } from './potion.js';
 import { livelog_printf, verbalize } from './pline.js';
 import { mpickobj } from './steal.js';
 import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
@@ -376,6 +377,20 @@ export function free_epri(monster) {
     if (monster.mextra && monster.mextra.epri)
         monster.mextra.epri = null;
     monster.ispriest = false;
+}
+
+// C ref: priest.c forget_temple_entry() (541-555). Resets the move counters
+// that limit temple entry feedback, so that leaving the level and returning
+// yields a fresh start. save.c savemonchn() calls it for every priest it
+// writes.
+export function forget_temple_entry(priest) {
+    const epri_p = priest.ispriest ? EPRI(priest) : null;
+    if (!epri_p) {
+        note_unported('pline.c impossible');
+        return;
+    }
+    epri_p.intone_time = epri_p.enter_time = epri_p.peaceful_time =
+        epri_p.hostile_time = 0;
 }
 
 // C ref: priest.c clearpriests() (917-929). Called from end.c really_done()

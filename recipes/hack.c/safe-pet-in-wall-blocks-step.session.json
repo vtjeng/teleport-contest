@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent hack.c witness for moving into a safe pet that is inside a wall: the debug dwarven Archeologist creates a tame xorn, which appears on an adjacent wall square, and steps into it. uhitm.c do_attack() draws its rn2(7) displacement roll and lets the step through, and test_move()'s obstacle arm returns FALSE for a hero who cannot pass walls, so domove_core() stops silently without spending the turn; she then searches once. I chose seed 9920010 from a scan of 9920001-9920059 that read the xorn's square from the C screens; 17 starts put it in a wall, and this one does not stop on the rn2(7) roll.",
+  "segments": [
+    {
+      "seed": 9920010,
+      "datetime": "20370715203000",
+      "nethackrc": "OPTIONS=name:WallPet,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0007tame xorn\nys"
+    }
+  ]
+}
