@@ -3850,6 +3850,18 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
     del_engr_at(x, y, state);
 
     if (seeit) redraw(x, y);
+    // block_point() rebuilds vision.c's module-wide transparency index. A
+    // planning clone borrows that index, so mark the borrow first; the
+    // planning wrapper restores it afterwards. Otherwise the dry run's
+    // repair blocks sight on the live map before the live repair runs.
+    if (env.planning) {
+        if (typeof env.admitPlannedVisionChange !== 'function') {
+            throw new TypeError(
+                'planned shop repair requires admitPlannedVisionChange',
+            );
+        }
+        env.admitPlannedVisionChange(x, y, state);
+    }
     block_point(x, y, state);
     if (catchup) return 1;
 
