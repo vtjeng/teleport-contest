@@ -3858,11 +3858,6 @@ export function newsym(x, y) {
         visible && monsterWarning
         && !(seeIt || (!wormTail && detectMonsters)),
     );
-    if (visible && !warningOnly) {
-        update_lastseentyp(x, y, game, {
-            canSeeMonster: (subject) => mon_visible(subject, game),
-        });
-    }
     if (region && (ACCESSIBLE(loc.typ)
         || (region.visible && is_pool_or_lava(x, y, game)))) {
         const adjacentVisibleMonster = monster
@@ -3914,8 +3909,8 @@ export function newsym(x, y) {
     // would then leave the hero undrawn on a square whose memory holds the
     // marker.
     //
-    // update_lastseentyp() above stays where the port already had it, one
-    // hoist further out than C's copy inside _map_location().
+    // Like the region arm above, it leaves lastseentyp alone: C's copy of
+    // update_lastseentyp() is inside _map_location(), which neither reaches.
     if (visible && !shouldDisplayMonster && !monsterWarning
         && !(game.u?.ux === x && game.u?.uy === y)
         && glyph_is_invisible(loc.remembered_glyph?.glyph)) {
@@ -3927,11 +3922,22 @@ export function newsym(x, y) {
     // display_warning(mon);`, the second arm of the same chain. It too skips
     // _map_location(): a square seen only under a warning glyph keeps its
     // old memory, its lastseentyp, and its objects' unobserved state, so the
-    // hero leaving and returning finds it as it was before. The lastseentyp
-    // write above is gated on this arm for the same reason.
+    // hero leaving and returning finds it as it was before.
     if (warningOnly) {
         display_warning(monster, game);
         return;
+    }
+
+    // dungeon.c update_lastseentyp(), which each of the visible square's
+    // remaining arms reaches through _map_location(): the hero's square, a
+    // seen or detected monster's, and an ordinary one. The region, invisible
+    // marker and warning arms above return without it, so a square only ever
+    // seen under a gas cloud or an 'I' keeps its last seen type, which
+    // #terrain shows (detect.c reveal_terrain_getglyph()).
+    if (visible) {
+        update_lastseentyp(x, y, game, {
+            canSeeMonster: (subject) => mon_visible(subject, game),
+        });
     }
 
     const covered = floorLayersCovered(loc, game);

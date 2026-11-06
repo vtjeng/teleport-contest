@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3307711,
+      "datetime": "20410505120000",
+      "nethackrc": "OPTIONS=name:Vale,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017blindfold\nPf\u0014Jjjll.R\u0007invisible newt\n...#terrain\n\n\u001b"
+    }
+  ],
+  "comment": "Variation of unseen-invisible-marker-keeps-last-seen-type that takes the blindfold off before the newt arrives, so the room is seen first and #terrain shows the marked square as floor."
+}
