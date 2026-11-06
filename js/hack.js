@@ -2564,7 +2564,7 @@ async function moverock_core(sx, sy, state, env) {
                 // 474-475. C names the steed when mounted; dopush() below
                 // carries the same distinction for a successful push.
                 const you_or_steed = state.u.usteed
-                    ? upstart(y_monnam(state.u.usteed, state)) : 'you';
+                    ? y_monnam(state.u.usteed, state) : 'you';
                 const who = deliver_part1
                     ? you_or_steed : upstart(you_or_steed);
                 const what = deliver_part1
