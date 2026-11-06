@@ -1351,13 +1351,17 @@ export function mk_artifact(
                 skillCompatibility = P_MAX_SKILL(Math.abs(skill), state);
             }
 
-            const alignmentEligible = art.alignment !== A_NONE
+            // artifact.c:230-232 joins the two tests with &&, so the skill
+            // test and its rn2(4) and rn2(2) run only after the alignment
+            // test passes.
+            const eligibleForGift = (art.alignment !== A_NONE
                 || state.u?.ugifts > 0
-                || !random(3);
-            const skillEligible = !random(4)
-                || skillCompatibility >= P_SKILLED
-                || (skillCompatibility >= P_BASIC && Boolean(random(2)));
-            if (alignmentEligible && skillEligible) {
+                || !random(3))
+                && (!random(4)
+                    || skillCompatibility >= P_SKILLED
+                    || (skillCompatibility >= P_BASIC && Boolean(random(2))));
+            if (eligibleForGift) {
+
                 eligible[candidateCount++] = index;
             } else if (!candidateCount) {
                 // C writes fallback entries at eligible[altn++] while n is
