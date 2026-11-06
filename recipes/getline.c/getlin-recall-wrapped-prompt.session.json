@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hooked_tty_getlin() Ctrl-P recall over a prompt longer than one row. An empty answer to an uncursed genocide scroll's first prompt makes do_genocide() ask again with the long cmdassist prompt. Ctrl-P under msg_window:single redraws gt.toplines, which getlin rebuilt with strcpy(), so redotoplin() wraps it at the terminal edge rather than at a space (topl.c topl_putsym()). The next key after a recall both redraws the prompt and is processed as input (getline.c doprev arm): 'c' is typed, Escape restarts the empty prompt, backspace rings the bell.",
+  "segments": [
+    {
+      "seed": 51907,
+      "datetime": "20380214093000",
+      "nethackrc": "OPTIONS=name:Genny,role:Priest,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017uncursed scroll of genocide\nrj  \n ab\u0010 c\u0010 \u001bn\u0010 \bnone\n"
+    }
+  ]
+}
