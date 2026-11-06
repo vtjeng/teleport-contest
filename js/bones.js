@@ -337,7 +337,7 @@ function give_to_nearby_mon(otmp, x, y, state) {
         }
     }
     if (selected && can_carry(selected, otmp)) {
-        add_to_minv(selected, otmp);
+        add_to_minv(selected, otmp, bonesObjectEnv(state));
     } else {
         place_object(otmp, x, y);
     }
@@ -346,7 +346,9 @@ function give_to_nearby_mon(otmp, x, y, state) {
 // Object hooks for the possessions savebones() moves. mkobj.c
 // add_to_container() calls obj_no_longer_held() again for a container outside
 // any inventory, such as the hero's statue, and a partly eaten food item in
-// its contents needs eat.c eaten_stat() for the statue's weight.
+// its contents needs eat.c eaten_stat() for the statue's weight. mkobj.c
+// add_to_minv() can merge a partly eaten item into a monster's stack, and the
+// merge's weight() needs the same eaten_stat().
 function bonesObjectEnv(state) {
     return objectGenerationEnv({ state, hooks: { eatenStat: eaten_stat } });
 }
@@ -378,7 +380,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
         // for non-coins; it does not set heavycurse.
         if (rn2(5)) await curse(otmp, { state });
         if (mtmp) {
-            add_to_minv(mtmp, otmp);
+            add_to_minv(mtmp, otmp, bonesObjectEnv(state));
         } else if (cont) {
             await add_to_container(cont, otmp, bonesObjectEnv(state));
         } else if (!rn2(8)) {

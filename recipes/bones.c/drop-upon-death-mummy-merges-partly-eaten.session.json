@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "bones.c drop_upon_death(): a human mummy kills the wizard-mode human Valkyrie, who rises as a human mummy (end.c done_in_by() sets u.ugrave_arise). savebones() hands her inventory to that monster through mkobj.c add_to_minv(); after the curse() rolls the blessed and the cursed partly eaten food rations are both cursed and merge, and the merge's weight() needs eat.c eaten_stat().",
+  "segments": [
+    {
+      "seed": 5520417,
+      "datetime": "20461112093000",
+      "nethackrc": "OPTIONS=name:MummyBones,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017blessed partly eaten food ration\n\u0017cursed partly eaten food ration\n\u0007human mummy\nmsmsms\n\nyqy"
+    }
+  ]
+}
