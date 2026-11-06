@@ -2066,7 +2066,7 @@ export async function use_trap(obj, state = game, env = {}) {
                         `You drop ${the(trapname(ttyp, false, state), state)}!`,
                         state,
                     );
-                    await dropx(obj, { ...env, state });
+                    await dropx(obj, dropCommandEnv(state, { ...env, state }));
                     return;
                 }
             }
