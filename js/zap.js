@@ -3050,7 +3050,7 @@ export async function cancel_item(obj, state = game, rawEnv = {}) {
                 obj.otyp = POT_FRUIT_JUICE;
             } else {
                 obj.otyp = POT_WATER;
-                obj.odiluted = false;
+                obj.odiluted = 0;
             }
             break;
         }
@@ -3340,7 +3340,7 @@ export async function bhito(obj, wand, state = game,
                 const ox = location?.x ?? obj.ox;
                 const oy = location?.y ?? obj.oy;
                 const saveNorevive = obj.norevive;
-                obj.norevive = false;
+                obj.norevive = 0;
                 const monster = await revive(obj, true, {
                     ...rawEnv, state, random,
                 });
