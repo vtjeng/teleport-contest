@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "_comment": "restore.c find_lev_obj() re-places each floor object with place_object(), which clears no_charge unless the spot is costly (mkobj.c place_object()). getlev() has just zeroed every room's resident in rest_rooms(), so no shopkeeper is found and no floor object keeps no_charge across a save. In debug mode a Valkyrie level-teleports into the Dlvl 4 general store of seed 4417313 (also used by repair-wall-muttering-more), wishes for a wand of light, drops it and declines to sell, so ':' lists it as (no charge). After save and restore, ':' lists the same wand for sale.",
+  "segments": [
+    {
+      "seed": 4417313,
+      "datetime": "20711114093015",
+      "nethackrc": "OPTIONS=name:Mender,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u00164\n  \u0017uncursed wand of light\nde n: Sy"
+    },
+    {
+      "seed": 9184423,
+      "datetime": "20711114100000",
+      "nethackrc": "OPTIONS=name:Mender,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " n: "
+    }
+  ]
+}
