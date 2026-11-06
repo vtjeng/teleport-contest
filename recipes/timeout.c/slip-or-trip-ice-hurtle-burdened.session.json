@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "timeout.c slip_or_trip(): a burdened Tourist (a heavy iron ball and rocks, so the elapsed-turn dry run plans nh_timeout()) walks along a wished ice strip. hack.c slippery_ice_fumbling() sets HFumbling, and the FUMBLING timeout's slip_or_trip() hurtles the hero one square (dothrow.c hurtle_step() and its vision_recalc()) on the second-to-last key, first on the planning clone and then live.",
+  "segments": [
+    {
+      "seed": 7310049,
+      "datetime": "20461112093000",
+      "nethackrc": "OPTIONS=name:IceSlip,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u0017heavy iron ball\n\u001b\u001710 rocks\n\u001b\u0017ice\nl\u0017ice\nl\u0017ice\nl\u0017ice\nl\u0017ice\nl\u0017ice\nhhhhhlllllhhhhhlllllhhh"
+    }
+  ]
+}

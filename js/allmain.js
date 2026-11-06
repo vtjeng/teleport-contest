@@ -181,6 +181,7 @@ import {
 } from './monmove.js';
 import {
     admitPlannedVisionChange,
+    isolatePlannedVision,
     preflightElapsedTurnTail,
     preflightSimpleMonsterActions,
     MonsterInputPlanningBoundaryError,
@@ -965,6 +966,9 @@ export async function finishElapsedTurn(
     await nh_timeout(state, {
         planning,
         random,
+        // timeout.c slip_or_trip() can hurtle a fumbling hero; the clone's
+        // dothrow.c hurtle_step() vision_recalc() needs its own buffers.
+        isolateVision: planning ? isolatePlannedVision : null,
         // Hallucinated level-timer callbacks may format a melted waterbody.
         // Keep that display draw on the same clone used by monster planning.
         displayRandom: planningDisplayRandom,
