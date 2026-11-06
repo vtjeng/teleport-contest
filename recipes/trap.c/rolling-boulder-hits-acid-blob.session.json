@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent trap.c witness for launch_obj()'s rolling boulder hitting a monster with a passive attack: the debug Archeologist steps east, wishes a rolling boulder trap there, steps back, creates an acid blob beside her and steps onto the trap. The boulder hits the acid blob first; mthrowu.c ohitmon() -> drop_throw() calls uhitm.c passive_obj(), whose AD_ACID arm draws rn2(6) to corrode the boulder. The boulder then kills her, and she declines to die. I chose seed 9940034 from a scan of 9940001-9940119 that read passive_obj() calls from the C RNG log.",
+  "segments": [
+    {
+      "seed": 9940034,
+      "datetime": "20380804140000",
+      "nethackrc": "OPTIONS=name:BoulderBlob,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " l\u0017rolling boulder trap\nh\u0007acid blob\nl   n"
+    }
+  ]
+}
