@@ -449,12 +449,13 @@ export async function dorestore(state = game) {
     // it from level.monsters.
     state.level.monlist = restmonchn(state.level.monlist, state);
 
-    // C ref: restore.c getlev():1158-1164 fobj = restobjchn(nhfp, FALSE),
-    // find_lev_obj(), then the buried chain. gb.billobjs (1165) is not in
-    // the snapshot.
+    // C ref: restore.c getlev():1158-1173 fobj = restobjchn(nhfp, FALSE),
+    // find_lev_obj(), then the buried chain and gb.billobjs.
     state.level.objlist = restobjchn(state.level.objlist, state);
     find_lev_obj(state.level.objlist);
     state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
+    state.gb ??= {};
+    state.gb.billobjs = restobjchn(snapshot.billobjs ?? null, state);
 
     // C ref: restore.c getlev():1226 rest_bubbles(), after the hero's
     // level's monsters and regions, rebuilds the Plane of Water's or Air's
@@ -544,9 +545,11 @@ function rest_other_levels(levels, state) {
         level.objlist = restobjchn(level.objlist, state);
         find_lev_obj(level.objlist);
         level.buriedobjlist = restobjchn(level.buriedobjlist, state);
+        saved.billobjs = restobjchn(saved.billobjs ?? null, state);
         savemonchn(level.monlist, state);
         saveobjchn(level.objlist, state);
         saveobjchn(level.buriedobjlist, state);
+        saveobjchn(saved.billobjs, state);
         rest_saved_level_regions(level, saved.omoves, state.moves);
         level_info(ledger, state).flags |= VISITED | LFILE_EXISTS;
         state._savedLevels[ledger] = { ...saved, omoves: state.moves };
@@ -831,13 +834,15 @@ export async function getlev(ledger, state = game) {
     // reads each monster's objects through restobjchn() (419-429), then 1166
     // and 1172 restobjchn() for fobj and the buried list. The snapshot keeps
     // the chains and the live monsters keep the fields restmonchn() would
-    // otherwise rebuild, so only restobjchn()'s per-object work runs here;
-    // gb.billobjs (1173) is not level-local in this port.
+    // otherwise rebuild, so only restobjchn()'s per-object work runs here.
+    // gb.billobjs (1173) comes back with the level savelev() wrote it with.
     for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon)
         if (mtmp.minvent) mtmp.minvent = restobjchn(mtmp.minvent, state);
     state.level.objlist = restobjchn(state.level.objlist, state);
     find_lev_obj(state.level.objlist);
     state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
+    state.gb ??= {};
+    state.gb.billobjs = restobjchn(snapshot.billobjs ?? null, state);
 
     for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
         // Skip dead monsters (C does the same by purging them first).

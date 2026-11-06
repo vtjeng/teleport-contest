@@ -242,12 +242,13 @@ export function savelev(ledger, state = game, options = {}) {
         : [];
 
     // C ref: save.c:542-547 savemonchn(fmon), then saveobjchn() for fobj and
-    // the buried list, in both the WRITING | FREEING and the FREEING mode.
-    // Only their svc.context pointer invalidation remains; see saveobjchn()
-    // above. gb.billobjs (547) is not level-local in this port.
+    // the buried list and gb.billobjs (547), in both the WRITING | FREEING
+    // and the FREEING mode. Only their svc.context pointer invalidation
+    // remains; see saveobjchn() above.
     savemonchn(state.level?.monlist, state);
     saveobjchn(state.level?.objlist, state);
     saveobjchn(state.level?.buriedobjlist, state);
+    saveobjchn(state.gb?.billobjs, state);
     const waterlevel = save_waterlevel(null, state, true);
 
     if (!freeing) {
@@ -259,6 +260,8 @@ export function savelev(ledger, state = game, options = {}) {
         state._savedLevels ??= {};
         state._savedLevels[ledger] = {
             level: state.level,
+            // save.c:547 saves the used-up unpaid objects with the level.
+            billobjs: state.gb?.billobjs ?? null,
             stairs: state.stairs,
             head_engr: state.head_engr,
             smeq: state.smeq ? [...state.smeq] : null,
@@ -292,9 +295,11 @@ export function savelev(ledger, state = game, options = {}) {
     // getlev() restores the saved ring when the hero returns.
     initrack(state);
 
-    // save.c:560-561. release_data() holds in both modes, and
-    // clear_level_structures() frees the departing level's exclusion zones.
+    // save.c:560-563. release_data() holds in both modes, and
+    // clear_level_structures() frees the departing level's exclusion zones;
+    // the level's used-up unpaid objects leave with it.
     free_exclusions(state);
+    if (state.gb) state.gb.billobjs = null;
 }
 
 // ── dosave / dosave0 — the #save command ──
@@ -490,6 +495,10 @@ function serializeGameState(state) {
         urace: state.urace,
         // Level and dungeon state
         level: state.level,
+        // C ref: save.c savelev_core():547 saveobjchn(&gb.billobjs) writes
+        // the hero's level's used-up unpaid objects; getlev() reads them
+        // back at restore.c:1173.
+        billobjs: state.gb?.billobjs ?? null,
         // C ref: save.c savelev_core():517 save_stairs() writes the current
         // level's gs.stairs list, head first, after the map. rest_stairs()
         // in js/restore.js reads it back.
