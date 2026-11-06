@@ -1739,7 +1739,13 @@ export async function ggetobj(
                         ailets += obj.invlet;
                 }
             }
-            const displayed = await display_inventory(ailets, true, state);
+            // display_pickinv() returns '\033' when select_menu() is
+            // cancelled and '\0' when nothing was picked (invent.c:3414);
+            // only the cancel ends ggetobj().
+            const displayed = await display_inventory(ailets, true, state, {
+                cancelValue: '\x1b',
+                emptyValue: null,
+            });
             if (displayed === '\x1b') return 0;
             continue;
         }
