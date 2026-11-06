@@ -1747,6 +1747,24 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
                 && !needspick(state.youmonst?.data)))) {
         return;
     }
+    // A safe monster inside a wall or other physical obstacle, such as a
+    // phasing elemental. test_move()'s obstacle arm (hack.c:1011-1072)
+    // returns FALSE for DO_MOVE unless the hero passes that wall, is
+    // underwater (also FALSE, with a message), or tunnels through it, so
+    // domove_core() stops before the swap and the turn costs no time.
+    // The tunnelling arm can fall through, and the autodig arm digs; both
+    // stay refused below.
+    if (destination && IS_OBSTRUCTED(destination.typ)
+        && !(propertyPresent(state, PASSES_WALLS)
+            && may_passwall(x, y, state))
+        && (state.u?.uinwater
+            || (!(tunnels(state.youmonst?.data)
+                && !needspick(state.youmonst?.data))
+                && !(state.flags?.autodig && !state.context?.run
+                    && !state.context?.nopick && state.uwep
+                    && is_pick(state.uwep, state))))) {
+        return;
+    }
     // C records a pony on wished ICE and CLOUD, a little dog in both an
     // intact open doorway and a kicked-broken doorway, and a tame water
     // elemental in a pool. test_move() admits those destinations and
