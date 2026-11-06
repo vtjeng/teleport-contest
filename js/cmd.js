@@ -5501,6 +5501,16 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             return;
         }
 
+        // C ref: rhack():3673-3674, "handle most movement commands". Every
+        // command reached from a key clears the travel flags, so a finished
+        // travel's context.travel no longer selects moveloop_core()'s
+        // turn-based seventh-step arm for the next counted command. The
+        // `goto do_cmdq_extcmd` for a queued extended command lands below
+        // this reset and skips it.
+        if (!cmdqCommand) {
+            state.context.travel = 0;
+            state.context.travel1 = 0;
+        }
         // C ref: rhack():3679-3685. A queued extended command supplies its own
         // table row, and the `goto do_cmdq_extcmd` that brings it here skips
         // the binding lookup entirely, leaving gc.cmd_bind as it was.
@@ -5559,7 +5569,12 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 resetCommandVars(state);
                 return;
             }
-            if (!commandAfterPrefix) setCommandBinding(key, state);
+            // got_prefix_input re-runs rhack():3673-3674 for a keyed command.
+            if (!commandAfterPrefix) {
+                state.context.travel = 0;
+                state.context.travel1 = 0;
+                setCommandBinding(key, state);
+            }
             command = commandAfterPrefix
                 ?? commandForKey(commandBindings(state), key);
             // C loops back to do_cmdq_extcmd for the prefixed command, so the

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5512034,
+      "datetime": "20410618093000",
+      "nethackrc": "OPTIONS=name:Odila,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,time,runmode:teleport\n",
+      "moves": "uul_\n\nb.8s"
+    }
+  ],
+  "comment": "Variation of counted-search-after-adjacent-travel with a count of 8, so the seventh-step arm in allmain.c moveloop_core() sees multi 7 after the first search."
+}

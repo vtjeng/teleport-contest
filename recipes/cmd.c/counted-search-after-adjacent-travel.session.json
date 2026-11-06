@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5512034,
+      "datetime": "20410618093000",
+      "nethackrc": "OPTIONS=name:Odila,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,time,runmode:teleport\n",
+      "moves": "uul_\n\nb.15s"
+    }
+  ],
+  "comment": "cmd.c rhack() clears context.travel and travel1 for every keyed command. The hero stands in an open doorway and travels to the diagonal square inside the room: findtravelpath()'s adjacent fast path calls end_running(FALSE), which zeroes multi but keeps context.travel, and the one ordinary step that follows leaves context.run at 8. The counted search then starts with travel cleared, so allmain.c moveloop_core()'s seventh-step arm tests multi (14) rather than moves, marks the status line dirty, and the turn counter is redrawn once. Options time and runmode:teleport admit that arm. Variation: counted-search-after-adjacent-travel-count-8."
+}
