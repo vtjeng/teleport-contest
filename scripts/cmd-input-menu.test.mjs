@@ -94,7 +94,7 @@ test('yn_function_menu covers each response family and C defaults', async () => 
         );
         assert.equal(
             result,
-            expected.charCodeAt(0),
+            expected,
             `menu response ${resp} selects ${expected}`,
         );
     }
@@ -106,7 +106,7 @@ test('yn_function_menu covers each response family and C defaults', async () => 
     // 'n' is the source default for this y/n prompt.
     assert.equal(
         await yn_function('Choose', 'yn', 'n', false, cancelled),
-        'n'.charCodeAt(0),
+        'n',
     );
 });
 

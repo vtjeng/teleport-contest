@@ -41,7 +41,7 @@ for (const resp of ['yn', null]) {
             atInput = { flag: state.vision_full_recalc, sight: state.viz_array[10][9] };
         };
         state.nhDisplay.pushKey('n'.charCodeAt(0));
-        try { assert.equal(await tty_yn_function('Continue?', resp, 'n', state), 'n'.charCodeAt(0)); }
+        try { assert.equal(await tty_yn_function('Continue?', resp, 'n', state), 'n'); }
         finally { delete state._preNhgetchHook; }
         assert.equal(atInput.flag, 0);
         assert.equal(atInput.sight & IN_SIGHT, 0);

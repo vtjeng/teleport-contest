@@ -592,7 +592,7 @@ export async function dryup(x, y, isyou, state = game, env = {}) {
         if (isyou && state.wizard) {
             const { y_n } = await import('./cmd.js');
             if (await y_n('Dry up fountain?', state)
-                === 'n'.charCodeAt(0)) return;
+                === 'n') return;
         }
 
         // C ref: fountain.c:223-228. "The fountain dries up!" if visible

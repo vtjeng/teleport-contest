@@ -637,7 +637,7 @@ export class NethackGame {
             // to retain the save. VFS needs no chmod or compression operation.
             if (g.discover || g.wizard) {
                 if (await yn_function('Do you want to keep the save file?',
-                    'yn', 'n', true, g) === 'n'.charCodeAt(0)) {
+                    'yn', 'n', true, g) === 'n') {
                     vfsDeleteFile(SAVE_FILE_PATH);
                 }
             }

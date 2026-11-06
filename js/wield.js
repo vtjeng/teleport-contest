@@ -775,11 +775,10 @@ function quiver_splittable(obj, state) {
         || (obj === state.uwep && welded(obj, state)));
 }
 
-// C ref: hack.h ynq() (1330). lock.js owns the same macro wrapper; loading it
-// here avoids introducing a static wield.c -> cmd.c -> wield.js cycle while
-// retaining its y/n/q normalization and prompt input behavior.
+// C ref: hack.h ynq() (1330). cmd.js owns the macro wrapper; loading it
+// here avoids introducing a static wield.c -> cmd.c -> wield.js cycle.
 async function quiver_ynq(query, state) {
-    const { ynq } = await import('./lock.js');
+    const { ynq } = await import('./cmd.js');
     return ynq(query, state);
 }
 

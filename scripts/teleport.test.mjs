@@ -326,7 +326,7 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
     assert.match(cScrolltele,
         /Teleport_control\s*\|\|\s*\(scroll\s*&&\s*scroll->blessed\)/u);
     assert.match(jsScrolltele,
-        /teleportInput\(env,\s*'y_n',\s*y_n\)[\s\S]*?askYesNo\('Override\?'[\s\S]*?'y'\.charCodeAt\(0\)/u);
+        /teleportInput\(env,\s*'y_n',\s*y_n\)[\s\S]*?askYesNo\('Override\?', state\) !== 'y'\)/u);
     assert.match(jsScrolltele,
         /Teleport_control_prop\(state\)\s*\|\|\s*Boolean\(scroll\?\.blessed\)/u);
 

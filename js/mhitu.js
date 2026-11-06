@@ -787,7 +787,7 @@ async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
         const endearment = !random.rn2(2) ? 'lover'
             : !random.rn2(2) ? 'dear' : 'sweetheart';
         const query = `"Shall I remove your ${str}, ${endearment}?"`;
-        if (await y_n(query, state) === 'n'.charCodeAt(0)) return;
+        if (await y_n(query, state) === 'n') return;
     } else {
         const hair = body_part(HAIR, state.youmonst);
         const hairText = `let me run my fingers through your ${hair}`;
@@ -910,7 +910,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 );
                 makeknown(RIN_ADORNMENT);
                 set_voice(mon, 0, 80, 0, state);
-                if (await y_n(query, state) === 'n'.charCodeAt(0)) {
+                if (await y_n(query, state) === 'n') {
                     ring = nextRing;
                     continue;
                 }
@@ -953,7 +953,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 );
                 makeknown(RIN_ADORNMENT);
                 set_voice(mon, 0, 80, 0, state);
-                if (await y_n(query, state) === 'n'.charCodeAt(0)) {
+                if (await y_n(query, state) === 'n') {
                     ring = nextRing;
                     continue;
                 }

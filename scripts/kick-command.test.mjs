@@ -886,9 +886,9 @@ test('wall-passing pit kick consumes direction then returns before wake and targ
     assert.deepEqual(game.gk.kickedloc,{x:game.u.ux-1,y:game.u.uy});
 });
 
-test('mounted yes/no answers use the canonical numeric prompt response',()=>{
+test('mounted yes/no answers compare the C answer character',()=>{
     const js=readFileSync(new URL('../js/dokick.js',import.meta.url),'utf8');
-    assert.match(js,/yn_function\('Kick your steed\?', 'yn', 'y', true, state\) === 'y'\.charCodeAt\(0\)/u);
+    assert.match(js,/yn_function\('Kick your steed\?', 'yn', 'y', true, state\) === 'y'\)/u);
     assert.match(js,/await kick_steed\(state\);\s*return ECMD_TIME;[\s\S]*return ECMD_OK;/u);
     assert.equal(lineOf(DOKICK_C,1272),'if (yn_function("Kick your steed?", ynchars, \'y\', TRUE) == \'y\') {');
 });

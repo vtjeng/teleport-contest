@@ -26,13 +26,14 @@ function flipFixture() {
 test('wizcmds.c whole flip command preserves query, cancellation and zero time', async () => {
     const calls = [];
     const result = await commands.wiz_flip_level({ wizard: true }, {
-        query: async (...args) => { calls.push(args); return 0; },
+        // wizcmds.c:426 passes def '\0', which Escape answers.
+        query: async (...args) => { calls.push(args); return '\0'; },
         message: async text => calls.push(text),
         redraw: () => assert.fail('cancellation must not redraw'),
     });
     assert.equal(result, ECMD_OK); // C always returns ECMD_OK, without a turn.
     assert.deepEqual(calls, [
-        ['Flip 0=randomly, 1=vertically, 2=horizontally, 3=both:', '0123', 0, true],
+        ['Flip 0=randomly, 1=vertically, 2=horizontally, 3=both:', '0123', '\0', true],
         'Never mind.',
     ]);
     assert.equal(await commands.wiz_flip_level({ wizard: false }, {
@@ -116,7 +117,7 @@ test('wizcmds.c waits for docrt before its ECMD_OK return', async () => {
     const held = new Promise(resolve => { release = resolve; });
     let redrawing = false, completed = false;
     const command = commands.wiz_flip_level(state, {
-        query: async () => '2'.charCodeAt(0), // yn_function's C key byte contract.
+        query: async () => '2', // yn_function's C answer character.
         redraw: async () => { redrawing = true; await held; },
     }).then(value => { completed = true; return value; });
     // Both source calls are awaited. Twenty event-loop turns give the direct

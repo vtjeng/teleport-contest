@@ -478,8 +478,9 @@ export async function savebones(how, when, corpse, state) {
         if (state.wizard) {
             if (await y_n(
                 'Bones file already exists.  Replace it?', state,
-            ) === 'y'.charCodeAt(0)) {
+            ) === 'y') {
                 if (!deleteBonesFile(state.u.uz)) {
+
                     await ttyPline('Cannot unlink old bones.', state);
                     return;
                 }

@@ -202,7 +202,7 @@ import {
     drawbridgeFlags, drawbridgeUnder, is_ice, is_lava, is_pool,
     is_waterwall,
 } from './dbridge.js';
-import { getdir, xytodir } from './cmd.js';
+import { getdir, xytodir, ynq } from './cmd.js';
 import {
     Monnam, capitalizedMonsterName, mon_nam, monsterCommonName, mon_pmname,
     noit_Monnam, y_monnam, YMonnam, rndcolor, hliquid, hcolor, rndmonnam,
@@ -267,7 +267,7 @@ import {
 } from './invent.js';
 import { get_obj_location } from './light.js';
 import { water_damage_chain } from './trap_water_damage.js';
-import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
+import { Is_box, stumble_on_door_mimic } from './lock.js';
 import { rndmonnum_adj, set_malign } from './makemon.js';
 import { makemon, makemon_runtime } from './makemon_create.js';
 import {

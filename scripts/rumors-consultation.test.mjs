@@ -34,8 +34,8 @@ async function consultation(gold = 0) {
     const windows = [];
     const env = {
         message: async (message) => messages.push(message),
-        ynq: async (prompt) => { prompts.push(prompt); return 'q'.charCodeAt(0); },
-        y_n: async (prompt) => { prompts.push(prompt); return 'n'.charCodeAt(0); },
+        ynq: async (prompt) => { prompts.push(prompt); return 'q'; },
+        y_n: async (prompt) => { prompts.push(prompt); return 'n'; },
         // Zero chooses the first true rumor, offhand wording and no positive
         // Wisdom exercise: deterministic branches from getrumor/outrumor.
         random: {
@@ -87,10 +87,10 @@ test('null, hostile and penniless guards reset multi before prompting', async ()
 test('quit, insufficient minor payment and major refusal spend no turn or gold', async () => {
     const c = await consultation(49); // One below the C minor cost.
     assert.equal(await doconsult(c.oracle, game, c.env), ECMD_OK);
-    c.env.ynq = async () => 'y'.charCodeAt(0);
+    c.env.ynq = async () => 'y';
     assert.equal(await doconsult(c.oracle, game, c.env), ECMD_OK);
     assert.equal(c.messages.at(-1), "You don't even have enough gold for that!");
-    c.env.ynq = async () => 'n'.charCodeAt(0);
+    c.env.ynq = async () => 'n';
     assert.equal(await doconsult(c.oracle, game, c.env), ECMD_OK);
     assert.equal(money_cnt(game.invent), 49);
     assert.equal(c.oracle.minvent, null);
@@ -99,7 +99,7 @@ test('quit, insufficient minor payment and major refusal spend no turn or gold',
 
 test('minor transfer uses canonical split and grants the first five experience points', async () => {
     const c = await consultation(100); // Twice the minor cost forces splitobj.
-    c.env.ynq = async () => 'y'.charCodeAt(0);
+    c.env.ynq = async () => 'y';
     assert.equal(await doconsult(c.oracle, game, c.env), ECMD_TIME);
     assert.equal(money_cnt(game.invent), 50);
     assert.equal(money_cnt(c.oracle.minvent), 50);
@@ -118,7 +118,7 @@ test('minor transfer uses canonical split and grants the first five experience p
 test('first minor after major grants two points without duplicate achievement', async () => {
     const c = await consultation(50); // Exact minor cost.
     game.u.uevent.major_oracle = true;
-    c.env.ynq = async () => 'y'.charCodeAt(0);
+    c.env.ynq = async () => 'y';
     assert.equal(await doconsult(c.oracle, game, c.env), ECMD_TIME);
     assert.equal(game.u.uexp, 2); // Previous major changes divisor to 25.
     assert.equal(game.u.uachieved.includes(ACH_ORCL), false);
@@ -126,7 +126,7 @@ test('first minor after major grants two points without duplicate achievement', 
 
 test('major prompt guards use the canonical saved Oracle count and flag', async () => {
     const c = await consultation(51); // Smallest amount permitting the major prompt.
-    c.env.ynq = async () => 'n'.charCodeAt(0);
+    c.env.ynq = async () => 'n';
     game.svo = { oracle_cnt: 1 }; // Only the special Oracle remains.
     assert.equal(await doconsult(c.oracle, game, c.env), ECMD_OK);
     game.svo.oracle_cnt = 0; // C's initial, not-yet-loaded Oracle count.
@@ -140,8 +140,8 @@ test('major prompt guards use the canonical saved Oracle count and flag', async 
 
 test('short major payment transfers all gold and displays special text before negative Wisdom exercise', async () => {
     const c = await consultation(51); // Above minor, below level-one major cost.
-    c.env.ynq = async () => 'n'.charCodeAt(0);
-    c.env.y_n = async () => 'y'.charCodeAt(0);
+    c.env.ynq = async () => 'n';
+    c.env.y_n = async () => 'y';
     const before = game.u.aexe[A_WIS];
     c.env.random.rn2 = (bound) => { c.draws.push(bound); return 1; };
     c.env.window = async (_state, lines) => {
@@ -164,8 +164,8 @@ test('short major payment transfers all gold and displays special text before ne
 
 test('full first major after minor grants 22 XP and invokes canonical level gain', async () => {
     const c = await consultation(550); // Level-one major: 500 + 50 * 1.
-    c.env.ynq = async () => 'n'.charCodeAt(0);
-    c.env.y_n = async () => 'y'.charCodeAt(0);
+    c.env.ynq = async () => 'n';
+    c.env.y_n = async () => 'y';
     // The previous minor changes major's divisor to 25; 550 / 25 = 22,
     // which reaches exper.c newexplevel's level-two threshold of 20.
     game.u.uevent.minor_oracle = true;
@@ -180,8 +180,8 @@ test('full first major after minor grants 22 XP and invokes canonical level gain
 
 test('first major earns 55 XP before level gain caps the surplus; repeats earn none', async () => {
     const c = await consultation(550); // Level-one major, without a prior minor.
-    c.env.ynq = async () => 'n'.charCodeAt(0);
-    c.env.y_n = async () => 'y'.charCodeAt(0);
+    c.env.ynq = async () => 'n';
+    c.env.y_n = async () => 'y';
     delete c.env.random;
     assert.equal(await doconsult(c.oracle, game, c.env), ECMD_TIME);
     assert.equal(game.u.uexp, 39); // 55 XP is capped below level-three's 40.
@@ -190,8 +190,8 @@ test('first major earns 55 XP before level gain caps the surplus; repeats earn n
 
     const repeat = await consultation(550); // Repeat at the same original level.
     game.u.uevent.major_oracle = true;
-    repeat.env.ynq = async () => 'n'.charCodeAt(0);
-    repeat.env.y_n = async () => 'y'.charCodeAt(0);
+    repeat.env.ynq = async () => 'n';
+    repeat.env.y_n = async () => 'y';
     assert.equal(await doconsult(repeat.oracle, game, repeat.env), ECMD_TIME);
     assert.equal(game.u.uexp, 0);
     assert.deepEqual(repeat.draws, [20, 19]); // Select a normal oracle, then exercise Wisdom.

@@ -322,7 +322,7 @@ test('enhance_weapon_skill advances selected skills in speedy wizard mode',
         const prompts = [];
         const selected = [P_LONG_SWORD + 1, P_POLEARMS + 1];
         const result = await enhance_weapon_skill(state, {
-            ask: async () => 'y'.charCodeAt(0),
+            ask: async () => 'y',
             menu: async (items, how, prompt) => {
                 prompts.push({ items, how, prompt });
                 return selected.shift() ?? null;

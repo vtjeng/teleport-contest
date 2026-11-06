@@ -3608,13 +3608,10 @@ async function accessory_or_armor_on(obj, state = game) {
                     // unported for this prompt, so FALSE omits an otherwise
                     // unobservable recording. The prompt and accepted
                     // characters are identical.
-                    // yn_function returns a character code (number), so
-                    // convert to a one-character string for the switch.
-                    const answer = String.fromCharCode(
-                        await yn_function(
-                            qbuf, 'rl', '\0', false, state,
-                        ),
+                    const answer = await yn_function(
+                        qbuf, 'rl', '\0', false, state,
                     );
+
                     switch (answer) {
                     case '\0':
                     case '\x1b': /* ESC */

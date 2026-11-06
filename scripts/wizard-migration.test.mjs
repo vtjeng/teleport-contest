@@ -30,7 +30,7 @@ function io(input = '', choice = 'q') {
         getlin: async () => input,
         yn: async (...args) => {
             calls.push(['yn', ...args.slice(0, 4)]);
-            return choice.charCodeAt(0); // Canonical yn_function returns a byte.
+            return choice; // yn_function answers C's character.
         },
         window: async (_state, rows) => calls.push(['window', rows.map(row => row.text)]),
     };

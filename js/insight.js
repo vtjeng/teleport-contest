@@ -2440,14 +2440,14 @@ export async function list_vanquished(
             );
         }
     } else {
-        answer = defquery.charCodeAt(0);
+        answer = defquery;
     }
-    if (answer === 'q'.charCodeAt(0)) {
+    if (answer === 'q') {
         disclosureStop(state);
         return;
     }
-    if (answer !== 'y'.charCodeAt(0) && answer !== 'a'.charCodeAt(0)) return;
-    if (answer === 'a'.charCodeAt(0) && entries.length > 1
+    if (answer !== 'y' && answer !== 'a') return;
+    if (answer === 'a' && entries.length > 1
         && await set_vanq_order(true, state, { menu }) < 0) return;
 
     const mode = state.flags?.vanq_sortmode ?? VANQ_MLVL_MNDX;
@@ -2604,18 +2604,16 @@ export async function list_genocided(
             ? queryFunction
                 ? await queryFunction(query, responses, defquery, true, state)
                 : await tty_yn_function(query, responses, defquery, state)
-            : defquery.charCodeAt(0);
-        const keyQ = 'q'.charCodeAt(0);
-        const keyY = 'y'.charCodeAt(0);
-        const keyA = 'a'.charCodeAt(0);
-        if (answer === keyQ) disclosureStop(state);
-        if (answer !== keyY && answer !== keyA) return;
+            : defquery;
+        if (answer === 'q') disclosureStop(state);
+        if (answer !== 'y' && answer !== 'a') return;
 
         let indexes = gone;
         let classHeader = false;
         if (gone.length > 1) {
-            if (answer === keyA
+            if (answer === 'a'
                 && await set_vanq_order(false, state, { menu }) < 0)
+
                 return;
             const savedSortmode = state.flags?.vanq_sortmode;
             if (state.flags

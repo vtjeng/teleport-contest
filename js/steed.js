@@ -500,7 +500,7 @@ export async function mount_steed(mtmp, force, state = game) {
         const plural = ((u.uprops[WOUNDED_LEGS].intrinsic & BOTH_SIDES)
             === BOTH_SIDES) ? 's' : '';
         if (force && state.wizard
-            && await y_n(`Heal your leg${plural}?`, state) === 'y'.charCodeAt(0)) {
+            && await y_n(`Heal your leg${plural}?`, state) === 'y') {
             await heal_legs(state);
         } else {
             return false;
@@ -1194,12 +1194,10 @@ export async function doride(state = game) {
         await dismount_steed(DISMOUNT_BYCHOICE, state);
     } else if (await getdir(null, state)
                && isok(u.ux + u.dx, u.uy + u.dy)) {
-        // yn_function() answers the raw keystroke byte, as C's char return
-        // does, so the comparison is against 'y'.charCodeAt(0) rather than a
-        // one-character string.
         if (state.wizard
+
             && await y_n('Force the mount to succeed?', state)
-                === 'y'.charCodeAt(0))
+                === 'y')
             forcemount = true;
         return await mount_steed(
             m_at(u.ux + u.dx, u.uy + u.dy, state), forcemount, state,

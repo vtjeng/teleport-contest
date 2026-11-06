@@ -1952,7 +1952,7 @@ test('list_vanquished q increments the disclosure stopprint state', async () => 
     };
     let displayed = false;
     await list_vanquished('y', true, state, {
-        queryFunction: () => 'q'.charCodeAt(0),
+        queryFunction: () => 'q',
         displayTextWindow: () => { displayed = true; },
     });
     assert.equal(state.program_state.stopprint, 3);
@@ -1985,7 +1985,7 @@ test('list_vanquished preserves C class-heading attributes', async () => {
 
     let finalLines;
     await list_vanquished('y', true, state, {
-        queryFunction: () => 'y'.charCodeAt(0),
+        queryFunction: () => 'y',
         displayTextWindow: (_state, values) => {
             finalLines = values;
         },
@@ -2357,7 +2357,7 @@ test('list_genocided preserves C class-heading attributes', async () => {
 
     let finalLines;
     await list_genocided('y', true, state, {
-        queryFunction: () => 'y'.charCodeAt(0),
+        queryFunction: () => 'y',
         displayTextWindow: (_state, values) => {
             finalLines = values;
         },

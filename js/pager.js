@@ -1946,7 +1946,7 @@ export async function checkfile(
             const answer = await tty_yn_function(
                 `More info about "${terms[pass]}"?`, 'yn', 'n', state,
             );
-            show = answer === 'y'.charCodeAt(0);
+            show = answer === 'y';
         }
         if (show) {
             result = true;
@@ -2203,8 +2203,7 @@ export async function do_supplemental_info(name, pm, withoutAsking, state = game
         const prefix = 'More info about "';
         const room = QBUFSZ - 1 - (prefix.length + 2);
         const question = `${prefix}${name.slice(0, room)}"?`;
-        if (await yn_function(question, 'yn', 'n', true, state)
-            === 'y'.charCodeAt(0))
+        if (await yn_function(question, 'yn', 'n', true, state) === 'y')
             yesToMoreinfo = true;
     }
     if (!yesToMoreinfo) return;
@@ -2357,9 +2356,12 @@ export async function dowhatdoes(state = game) {
     }
     // introff()/intron() only change the native terminal's signal handling.
     // The browser and replay input sources do not install that handler.
-    let q = await yn_function('What command?', null, '\0', true, state);
+    // dowhatdoes_core() and the message below take C's `char q` as the key
+    // code that the command tables use.
+    let q = (await yn_function('What command?', null, '\0', true, state))
+        .charCodeAt(0);
     if (q === 0x1b && state.iflags.altmeta) {
-        q = await yn_function(']', null, '\0', true, state);
+        q = (await yn_function(']', null, '\0', true, state)).charCodeAt(0);
         if (q !== 0x1b) q = (q | 0x80) & 0xff;
     }
     const result = dowhatdoes_core(q, state);

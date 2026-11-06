@@ -74,7 +74,7 @@ import { note_unported } from './unported.js';
 import { load_lua } from './nhlua.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
-    cmd_from_func, getdir, levltyp, makemap_prepost, paranoid_query, yn_function,
+    cmd_from_func, getdir, levltyp, makemap_prepost, paranoid_query, yn_function, ynq,
 } from './cmd.js';
 import { hurtle, mhurtle } from './dothrow.js';
 import { display_inventory } from './invent.js';
@@ -763,9 +763,9 @@ export async function wiz_flip_level(state = game, env = {}) {
         const choices = '0123';
         const c = await query(
             'Flip 0=randomly, 1=vertically, 2=horizontally, 3=both:',
-            choices, 0, true);
-        if (c && choices.includes(String.fromCharCode(c))) {
-            const mask = c - '0'.charCodeAt(0);
+            choices, '\0', true);
+        if (c !== '\0' && choices.includes(c)) {
+            const mask = Number(c); /* c - '0' */
             if (!mask) await flip_level_rnd(3, true, state, env);
             else await flip_level(mask, true, state);
             if (env.redraw) await env.redraw(state);
@@ -967,10 +967,9 @@ export async function wiz_kill(state = game, env = {}) {
         if (u_at(cc.x, cc.y, state)) {
             if (state.u.usteed) {
                 const qbuf = `Kill ${mon_nam(state.u.usteed, state, env).slice(0, 110)}?`;
-                // hack.h ynq() defaults to 'q' and adds the answer to cmdq.
-                const c = await yn_function(qbuf, 'ynq', 'q', true, state);
-                if (c === 'q'.charCodeAt(0)) break;
-                if (c === 'y'.charCodeAt(0)) mtmp = state.u.usteed;
+                const c = await ynq(qbuf, state);
+                if (c === 'q') break;
+                if (c === 'y') mtmp = state.u.usteed;
             }
             if (!mtmp) {
                 const qbuf = state.urole.mnum === PM_SAMURAI
@@ -1180,9 +1179,9 @@ export async function list_migrating_mons(nextlevl, state = game, env = {}) {
     }
     prompt += 'a q';
     if (extra) prompt += `\x1b${extra}`;
-    const choice = String.fromCharCode(await (env.yn ?? yn_function)(
+    const choice = await (env.yn ?? yn_function)(
         'List which?', prompt, 'q', true, state,
-    ));
+    );
     const count = choice === 'a' ? total : counts[choice] ?? 0;
     if (count > 0) {
         const title = choice === 'a' ? 'All migrating monsters:'

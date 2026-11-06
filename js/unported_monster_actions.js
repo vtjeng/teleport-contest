@@ -1693,7 +1693,7 @@ function simpleMonsterActionOperations(env, state) {
                     output: env.planning ? SILENT_QUEST_PAGER : undefined,
                     message: env.planning ? async () => {} : ttyPline,
                     yn: env.planning
-                        ? () => 'n'.charCodeAt(0)
+                        ? () => 'n'
                         : undefined,
                 }),
         monsterCanSeeHero: ordinaryMonsterCanSeeHero,

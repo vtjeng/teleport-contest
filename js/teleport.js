@@ -228,7 +228,7 @@ import { in_out_region } from './region.js';
 import { make_blinded, make_confused, make_stunned } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
 import { verbalize } from './pline.js';
-import { y_n } from './cmd.js';
+import { y_n, ynq } from './cmd.js';
 import { inhistemple } from './priest.js';
 import { set_voice, yelp } from './sounds.js';
 import {
@@ -1547,7 +1547,7 @@ export async function scrolltele(scroll, state = game, rawEnv = {}) {
         if (!state.wizard)
             return;
         const askYesNo = teleportInput(env, 'y_n', y_n);
-        if (await askYesNo('Override?', state) !== 'y'.charCodeAt(0))
+        if (await askYesNo('Override?', state) !== 'y')
             return;
     }
 
@@ -1712,7 +1712,7 @@ export async function dotele(breakTheRules = false, state = game, rawEnv = {}) {
         if (trap.ttyp === LEVEL_TELEP && trap.tseen) {
             if (await askYesNo(
                 'There is a level teleporter here. Trigger it?', state,
-            ) === 'y'.charCodeAt(0)) {
+            ) === 'y') {
                 // C discards level_tele_trap()'s void result and always spends
                 // this attempted jump, even when the level change is refused.
                 await level_tele_trap(trap, FORCETRAP, state, env);
@@ -1725,7 +1725,7 @@ export async function dotele(breakTheRules = false, state = game, rawEnv = {}) {
                 await message(
                     'This is a vault teleport, usable once only.', state, env,
                 );
-                if (await askYesNo('Jump in?', state) === 'n'.charCodeAt(0)) {
+                if (await askYesNo('Jump in?', state) === 'n') {
                     trap = null;
                 } else {
                     deltrap(trap, state);
@@ -2435,7 +2435,6 @@ export async function level_tele(state = game) {
             if (!force_dest && newlev === 0) {
                 // teleport.c:1253-1272. The C confirmation and death call are
                 // retained; end.c owns the final death decision.
-                const { ynq } = await import('./lock.js');
                 if (await ynq('Go to Nowhere.  Are you sure?', state) !== 'y')
                     return;
                 const silent = is_silent(state.youmonst?.data);

@@ -2139,13 +2139,14 @@ function readobjnam_typfnd(d, normalized) {
                     ));
                 if (answer && typeof answer.then === 'function') {
                     return answer.then((response) => {
-                        if (response !== 'y'.charCodeAt(0)) d.cnt = rn1cnt;
+                        if (response !== 'y') d.cnt = rn1cnt;
                         d.otmp.owt *= d.cnt;
                         d.cnt = 0;
                         return readobjnam_typfnd_finish(d, normalized);
                     });
                 }
-                if (answer !== 'y'.charCodeAt(0)) d.cnt = rn1cnt;
+                if (answer !== 'y') d.cnt = rn1cnt;
+
             } else if (d.cnt > rn1cnt) {
                 d.cnt = rn1cnt;
             }

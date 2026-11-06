@@ -2251,10 +2251,8 @@ export async function dodrink(state = game) {
             // potion.js. A static import would create a circular
             // dependency that changes module initialization order.
             const { y_n } = await import('./cmd.js');
-            // yn_function() returns the raw keystroke byte, so the
-            // comparison is against 'y'.charCodeAt(0), not 'y'.
-            if (await y_n('Drink from the fountain?', state)
-                === 'y'.charCodeAt(0)) {
+            if (await y_n('Drink from the fountain?', state) === 'y') {
+
                 await drinkfountain(state);
                 return ECMD_TIME;
             }
@@ -2264,7 +2262,7 @@ export async function dodrink(state = game) {
         if (IS_SINK(typ) && can_reach_floor(false, state)) {
             const { y_n } = await import('./cmd.js');
             if (await y_n('Drink from the sink?', state)
-                === 'y'.charCodeAt(0)) {
+                === 'y') {
                 await drinksink(state);
                 return ECMD_TIME;
             }
@@ -2274,7 +2272,7 @@ export async function dodrink(state = game) {
         if (hero.uinwater && !hero.uswallow) {
             const { y_n } = await import('./cmd.js');
             if (await y_n('Drink the water around you?', state)
-                === 'y'.charCodeAt(0)) {
+                === 'y') {
                 await ttyPline('Do you know what lives in this water?', state);
                 return ECMD_TIME;
             }
@@ -3369,7 +3367,7 @@ export async function dodip(state = game, rawEnv = {}) {
             const { y_n } = await import('./cmd.js');
             const prompt = 'Dip ' + (state.flags.verbose ? obuf : shortestName)
                 + ' into the fountain?';
-            if (await y_n(prompt, state) === 'y'.charCodeAt(0)) {
+            if (await y_n(prompt, state) === 'y') {
                 if (!isHands) obj.pickup_prev = 0;
                 await dipfountain(obj, state, env);
                 return ECMD_TIME;
@@ -3379,7 +3377,7 @@ export async function dodip(state = game, rawEnv = {}) {
             const { y_n } = await import('./cmd.js');
             const prompt = 'Dip ' + (state.flags.verbose ? obuf : shortestName)
                 + ' into the sink?';
-            if (await y_n(prompt, state) === 'y'.charCodeAt(0)) {
+            if (await y_n(prompt, state) === 'y') {
                 if (!isHands) obj.pickup_prev = 0;
                 await dipsink(obj, state, env);
                 return ECMD_TIME;
@@ -3390,7 +3388,7 @@ export async function dodip(state = game, rawEnv = {}) {
             const pooltype = waterbody_name(hero.ux, hero.uy, state);
             const prompt = 'Dip ' + (state.flags.verbose ? obuf : shortestName)
                 + ' into the ' + pooltype + '?';
-            if (await y_n(prompt, state) === 'y'.charCodeAt(0)) {
+            if (await y_n(prompt, state) === 'y') {
                 if (Levitation(state)) {
                     await floating_above(pooltype, state, env);
                 } else if (hero.usteed

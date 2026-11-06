@@ -579,7 +579,7 @@ test('tty_yn_function parses counts and preserves case when the response request
     assert.equal(
         await yn_function(
             'Force the mount to succeed?', 'yn#', 'n', false, game,
-        ), '#'.charCodeAt(0),
+        ), '#',
     );
     assert.equal(game.yn_number, 2);
 
@@ -588,7 +588,7 @@ test('tty_yn_function parses counts and preserves case when the response request
     game.nhDisplay.pushKey('N'.charCodeAt(0));
     assert.equal(
         await yn_function('Force the mount to succeed?', 'yN', 'n', false, game),
-        'N'.charCodeAt(0),
+        'N',
     );
     assert.notEqual(topLine(), row);
     // "yn" itself carries neither, so it gets past them and fails at
@@ -602,7 +602,7 @@ test('tty_yn_function parses counts and preserves case when the response request
     game.nhDisplay.pushKey('y'.charCodeAt(0));
     assert.equal(
         await y_n('Force the mount to succeed?', game),
-        'y'.charCodeAt(0),
+        'y',
     );
     assert.equal(cmdq_peek(CQ_REPEAT, game)?.key, 'y'.charCodeAt(0));
 });
@@ -684,20 +684,22 @@ test('yn_function returns its key and records an unrestricted repeat answer',
     display.readKey = async () => 'l'.charCodeAt(0);
     try {
         // getdir()'s own call: a null response set, addcmdq FALSE. The result
-        // is the raw keystroke, which is what movecmd() then resolves.
+        // is the keystroke as C's char, which getdir() converts to the key
+        // code that movecmd() then resolves.
         assert.equal(
             await yn_function('In what direction?', null, '\0', false, game),
-            'l'.charCodeAt(0),
+            'l',
         );
         // topl.c:533-548 leaves a one-line unrestricted prompt visible through
         // clean_up, so the renderer must retain its prompt for the next flush.
         assert.equal(game._pending_message, 'In what direction? ');
         assert.equal(game.nhDisplay.toplin, TOPLINE_NON_EMPTY);
         // pager.c dowhatdoes() uses this unrestricted, addcmdq-TRUE shape.
-        // cmd.c records the raw byte in CQ_REPEAT after the prompt answers.
+        // cmd.c records the key in CQ_REPEAT after the prompt answers; the
+        // port's queue holds it as the key code.
         assert.equal(
             await yn_function('What command?', null, '\0', true, game),
-            'l'.charCodeAt(0),
+            'l',
         );
         assert.equal(game._pending_message, 'What command? ');
         assert.equal(game.nhDisplay.toplin, TOPLINE_NON_EMPTY);
@@ -750,14 +752,14 @@ test('a pending --More-- is dismissed before the direction prompt paints',
     try {
         // The space dismisses the --More--, so 'l' is what answers the query.
         keys = [' ', 'l'];
-        assert.equal(await ask(false), 'l'.charCodeAt(0));
+        assert.equal(await ask(false), 'l');
         assert.equal(keys.length, 0);
 
         // WIN_STOP is the other half of the same condition: after Escape at an
         // earlier --More--, topl.c suppresses this one, so the first keystroke
         // answers the query instead of dismissing anything.
         keys = ['l', ' '];
-        assert.equal(await ask(true), 'l'.charCodeAt(0));
+        assert.equal(await ask(true), 'l');
         assert.equal(keys.length, 1);
     } finally {
         display.readKey = readKey;

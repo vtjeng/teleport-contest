@@ -2055,7 +2055,7 @@ export async function use_trap(obj, state = game, env = {}) {
             state,
         );
         const question = `Continue your attempt to set ${the(trapname(ttyp, false, state), state)}?`;
-        if (await y_n(question, state) === 'y'.charCodeAt(0)) {
+        if (await y_n(question, state) === 'y') {
             if (chance) {
                 if (ttyp === LANDMINE) {
                     currentTrapInfo.time_needed = 0;
@@ -3462,7 +3462,7 @@ export async function use_candle(obj, state = game, env = {}) {
     const attachQuery = safe_qbuf(
         query, '?', candelabrum, yname, thesimpleoname, 'it', state,
     );
-    if (await y_n(attachQuery, state) === 'n'.charCodeAt(0)) {
+    if (await y_n(attachQuery, state) === 'n') {
         await use_lamp(obj, state, env);
         return;
     }

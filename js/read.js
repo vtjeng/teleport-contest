@@ -1420,7 +1420,7 @@ export async function doread(state = game) {
                 'Reading mail will violate "illiterate" conduct.  Read anyway?',
                 state,
             );
-            if (answer !== 'y' && answer !== 'y'.charCodeAt(0))
+            if (answer !== 'y')
                 return ECMD_OK;
         }
     }
@@ -3572,10 +3572,8 @@ async function create_particular_creation(d, state = game) {
             const answer = await y_n(
                 `Creating ${replacement} instead; force ${original}?`, state,
             );
-            // cmd.c y_n() returns the accepted key byte, not a one-character
-            // JavaScript string.  Keep the affirmative force branch aligned
-            // with the numeric response contract used by yn_function().
-            if (answer === 'y'.charCodeAt(0)) d.which = firstchoice;
+            if (answer === 'y') d.which = firstchoice;
+
         }
         whichpm = state.mons[d.which];
     }

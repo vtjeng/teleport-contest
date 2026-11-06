@@ -14,7 +14,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { acurr, exercise } from './attrib.js';
-import { getdir, yn_function } from './cmd.js';
+import { getdir, ynq } from './cmd.js';
 import {
     close_drawbridge, find_drawbridge, is_drawbridge_wall, open_drawbridge,
 } from './dbridge.js';
@@ -665,8 +665,6 @@ export async function do_improvisation(instr, state = game, env = {}) {
 export async function do_play_instrument(instr, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? musicRandom;
-    const ynq = async query => String.fromCharCode(
-        await yn_function(query, 'ynq', 'q', true, state));
     let c = 'y';
     if (state.u.uinwater) {
         await message("You can't play music underwater!", state);
@@ -678,13 +676,13 @@ export async function do_play_instrument(instr, state = game, env = {}) {
     }
     if (instr.otyp !== LEATHER_DRUM && instr.otyp !== DRUM_OF_EARTHQUAKE
         && !(state.u.uprops[STUNNED]?.intrinsic || state.u.uprops[CONFUSION]?.intrinsic
-            || Hallucination(state))) c = await ynq('Improvise?');
+            || Hallucination(state))) c = await ynq('Improvise?', state);
     if (c === 'q') {
         await message('Never mind.', state);
         return ECMD_OK;
     }
     if (c !== 'n') return await do_improvisation(instr, state, env) ? ECMD_TIME : ECMD_OK;
-    if (state.u.uevent.uheard_tune === 2) c = await ynq('Play the passtune?');
+    if (state.u.uevent.uheard_tune === 2) c = await ynq('Play the passtune?', state);
     if (c === 'q') {
         await message('Never mind.', state);
         return ECMD_OK;

@@ -1001,25 +1001,22 @@ export async function doengrave(state = game, env = {}) {
     }
 
     if (de.oep) {
-        // C's `char c` holds the key byte yn_function() answers
-        // (js/cmd.js yn_function() returns that byte, not a string).
-        const KEY_N = 'n'.charCodeAt(0);
-        let choice = KEY_N;
-        if (de.type === HEADSTONE) choice = 'y'.charCodeAt(0);
+        let choice = 'n';
+        if (de.type === HEADSTONE) choice = 'y';
         else if (de.type === de.oep.engr_type
             && (!heroBlind(state) || [BURN, ENGRAVE].includes(de.oep.engr_type))) {
             choice = await env.yesNo(
                 'Do you want to add to the current engraving?', 'ynq', 'y',
                 true, state,
             );
-            if (choice === 'q'.charCodeAt(0)) {
+            if (choice === 'q') {
                 await say(Never_mind);
                 if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
                 return de.ret;
             }
         }
 
-        if (choice === KEY_N || heroBlind(state)) {
+        if (choice === 'n' || heroBlind(state)) {
             if ([DUST, ENGR_BLOOD, MARK].includes(de.oep.engr_type)) {
                 if (!heroBlind(state)) {
                     const description = de.oep.engr_type === DUST
@@ -1041,7 +1038,7 @@ export async function doengrave(state = game, env = {}) {
                 de.ret = env.ECMD_TIME ?? ECMD_TIME;
                 if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
                 return de.ret;
-            } else if (de.type !== de.oep.engr_type || choice === KEY_N) {
+            } else if (de.type !== de.oep.engr_type || choice === 'n') {
                 if (!heroBlind(state) || can_reach_floor(true, state))
                     await say('You will overwrite the current message.');
                 de.eow = true;

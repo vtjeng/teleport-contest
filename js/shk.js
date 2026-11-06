@@ -3381,9 +3381,7 @@ export async function sellobj(obj, x, y, state = game, env = {}) {
             record_price_quote(obj.otyp, Math.trunc(tmpcr / obj.quan), false, state);
             const query = safe_qbuf(prefix, '?', obj, donameFresh,
                 thesimpleoname, obj.quan === 1 ? 'that' : 'those', state);
-            answer = String.fromCharCode(
-                await yn_function(query, 'ynaq', 'y', true, state),
-            );
+            answer = await yn_function(query, 'ynaq', 'y', true, state);
             if (answer === 'a') {
                 answer = 'y';
                 state.ga.auto_credit = true;
@@ -3441,9 +3439,7 @@ export async function sellobj(obj, x, y, state = game, env = {}) {
     // both object naming and its observation side effects.
     const answer = hasSellResponse
         ? state.gs.sell_response
-        : String.fromCharCode(
-            await yn_function(query, 'ynaq', 'n', true, state),
-        );
+        : await yn_function(query, 'ynaq', 'n', true, state);
     if (answer === 'q') {
         state.gs.sell_response = 'n';
         if (container) dropped_container(obj, shkp, false, state);
@@ -5145,7 +5141,7 @@ export async function pay_for_damage(
     const query = `${!animal ? `${cad(true, state)}` : ''}`
         + `You did ${damageCost} ${currency(damageCost)} worth of damage!`
         + `${!animal ? '"' : ''}  Pay?`;
-    if (await y_n(query, state) !== 'n'.charCodeAt(0)) {
+    if (await y_n(query, state) !== 'n') {
         const wasSeen = canseemon(shopkeeper, state);
         const wasOutside = !inhishop(shopkeeper, state);
         const oldX = shopkeeper.mx;

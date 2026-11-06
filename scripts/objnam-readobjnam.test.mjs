@@ -735,7 +735,7 @@ function wish(state, text, makeRandom = recordingRandom) {
     const random = makeRandom(draws);
     return {
         obj: readobjnam(text, NO_WISH, {
-            state, random, askYesNo: () => 'n'.charCodeAt(0),
+            state, random, askYesNo: () => 'n',
         }),
         draws,
     };
@@ -893,8 +893,8 @@ test('readobjnam follows non-wizard substitutions and luck limits', () => {
 
 test('readobjnam asks before overriding the glob weight limit', async () => {
     for (const [response, expectedCount] of [
-        ['y'.charCodeAt(0), 10],
-        ['n'.charCodeAt(0), 2],
+        ['y', 10],
+        ['n', 2],
     ]) {
         const state = wishWorldState();
         const draws = [];

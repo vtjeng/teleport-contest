@@ -139,6 +139,7 @@ import {
     get_adjacent_loc,
     paranoid_ynq,
     yn_function,
+    ynq,
 } from './cmd.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
@@ -924,11 +925,11 @@ export async function query_category(
                 Boolean(state.flags?.paranoia_bits & PARANOID_CONFIRM),
                 'Really autoselect All?', true, state,
             );
-            if (answer === 'n'.charCodeAt(0)) {
+            if (answer === 'n') {
                 if (picks.length > 1) picks.splice(i, 1);
                 else if (qflags & ALL_TYPES) picks[0].value = ALL_TYPES_SELECTED;
                 else picks = [];
-            } else if (answer !== 'y'.charCodeAt(0)) picks = [];
+            } else if (answer !== 'y') picks = [];
         }
     } else if (picks.length === 1 && picks[0].value === 'A') {
         picks = [];
@@ -1754,8 +1755,8 @@ export async function pickup(what, state = game) {
                             state,
                         );
                         const responses = obj.quan < 2 ? 'ynaq' : 'yn#aq';
-                        const answer = String.fromCharCode(
-                            await yn_function(qbuf, responses, 'y', true, state),
+                        const answer = await yn_function(
+                            qbuf, responses, 'y', true, state,
                         );
                         if (answer === 'q') break;
                         if (answer === 'n') {
@@ -2396,10 +2397,9 @@ export async function use_container(obj, held, more_containers, state) {
             if (xbuf.length > 0)
                 pbuf += '\x1b' + xbuf.join('');
 
-            c = await yn_function(
+            ch = await yn_function(
                 qbuf, pbuf, more_containers ? 'n' : 'q', false, state,
             );
-            ch = String.fromCharCode(c);
         }
 
         if (ch === '?') {
@@ -3948,7 +3948,7 @@ export async function loot_mon(mtmp, passedInfo = null, prevLoot = null,
         if (passedInfo) passedInfo.value = 1;
         const query = `Do you want to remove the saddle from ${x_monnam(mtmp, ARTICLE_THE, null, SUPPRESS_SADDLE, false, state, env)}?`;
         const c = await yn_function(query, 'ynq', 'n', true, state);
-        if (c === 'y'.charCodeAt(0)) {
+        if (c === 'y') {
             if (nolimbs(state.youmonst.data)) {
                 await message("You can't do that without limbs.", state);
                 return 0;
@@ -3963,7 +3963,7 @@ export async function loot_mon(mtmp, passedInfo = null, prevLoot = null,
             await hold_another_object(saddle, 'You drop %s!', donameFresh(saddle, state), null, env);
             timepassed = (env.random?.rnd ?? rnd)(3);
             if (prevLoot) prevLoot.value = true;
-        } else if (c === 'q'.charCodeAt(0)) {
+        } else if (c === 'q') {
             return 0;
         }
     }
@@ -4317,19 +4317,6 @@ async function tipcontainer(box, state) {
     if (targetbox) targetbox.owt = weight(targetbox);
     if (srcheld || dstheld) await encumber_msg(state);
     if (srcheld || dstheld) update_inventory({ state });
-}
-
-// C ref: hack.h:1330.  ynq(query) = yn_function(query, ynqchars, 'q', TRUE).
-// addcmdq is TRUE in C: it consumes the queued 'y' used by cmd.c MCMD_TIP and
-// records interactive answers on CQ_REPEAT for repeated commands.
-const YNQCHARS = 'ynq';
-async function ynq(query, state) {
-    const KEY_Q = 'q'.charCodeAt(0);
-    const KEY_Y = 'y'.charCodeAt(0);
-    const c = await yn_function(query, YNQCHARS, 'q', true, state);
-    if (c === KEY_Y) return 'y';
-    if (c === KEY_Q) return 'q';
-    return 'n';
 }
 
 // C ref: pickup.c tip_ok() (3395-3410). getobj() excludes coins, suggests

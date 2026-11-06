@@ -336,7 +336,7 @@ export async function dosave(state = game) {
     clearTtyMessageWindow(state);
     // C y_n records its answer; declining save leaves it repeatable.
     if ((await yn_function('Really save?', 'yn', 'n', true, state))
-        === 'n'.charCodeAt(0)) {
+        === 'n') {
         clearTtyMessageWindow(state);
         if ((state.multi ?? 0) > 0) nomul(0, state);
     } else {

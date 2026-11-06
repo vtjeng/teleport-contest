@@ -30,7 +30,7 @@ async function setup() {
     const prompts = [];
     const env = {
         message: async text => { messages.push(text); },
-        ynq: async query => { prompts.push(query); return 'y'.charCodeAt(0); },
+        ynq: async query => { prompts.push(query); return 'y'; },
     };
     return { messages, prompts, env };
 }

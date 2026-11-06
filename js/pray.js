@@ -1846,7 +1846,8 @@ export async function dopray(state = game) {
         } else {
             answer = await y_n('Force the gods to be pleased?', state);
         }
-        const ok = answer === 'y'.charCodeAt(0);
+        const ok = answer === 'y';
+
         if (ok) {
             state.u.ublesscnt = 0;
             if (state.u.uluck < 0) state.u.uluck = 0;

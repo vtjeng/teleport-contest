@@ -7,7 +7,7 @@ import {
     ECMD_OK, ECMD_TIME, ENGRAVEFILE, EPITAPHFILE, ORACLEFILE, RUMORFILE,
 } from './const.js';
 import { exercise } from './attrib.js';
-import { yn_function, y_n } from './cmd.js';
+import { y_n, ynq } from './cmd.js';
 import { capitalizedMonsterName } from './do_name.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
@@ -320,29 +320,26 @@ export async function doconsult(oracl, state = game, env = {}) {
     }
 
     let qbuf = `"Wilt thou settle for a minor consultation?" (${minor_cost} ${currency(minor_cost, state, env)})`;
-    // hack.h ynq() records the answer for repeat, with 'q' as its default.
-    const answer = env.ynq
-        ? await env.ynq(qbuf, state)
-        : await yn_function(qbuf, 'ynq', 'q', true, state);
+    const answer = await (env.ynq ?? ynq)(qbuf, state);
     let u_pay;
     switch (answer) {
     default:
-    case 0x71: // C 'q'; yn_function returns a response byte.
+    case 'q':
         return ECMD_OK;
-    case 0x79: // C 'y'.
+    case 'y':
         if (umoney < minor_cost) {
             await message("You don't even have enough gold for that!", state);
             return ECMD_OK;
         }
         u_pay = minor_cost;
         break;
-    case 0x6e: // C 'n'.
+    case 'n':
         // C decl.c initializes go.oracle_flg and svo.oracle_cnt to zero.
         if (umoney <= minor_cost || state.svo?.oracle_cnt === 1
             || (state.go?.oracle_flg ?? 0) < 0)
             return ECMD_OK;
         qbuf = `"Then dost thou desire a major one?" (${major_cost} ${currency(major_cost, state, env)})`;
-        if (await (env.y_n ?? y_n)(qbuf, state) !== 0x79)
+        if (await (env.y_n ?? y_n)(qbuf, state) !== 'y')
             return ECMD_OK;
         u_pay = Math.min(umoney, major_cost);
         break;

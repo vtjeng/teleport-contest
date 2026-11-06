@@ -432,7 +432,7 @@ async function getbones() {
         const answer = await yn_function(
             'Get bones?', 'yn', 'n', false, state,
         );
-        if (answer === 'n'.charCodeAt(0)) return false;
+        if (answer === 'n') return false;
     }
 
     // getlev() suppresses map output while it rebuilds the level. The C TTY
@@ -451,7 +451,7 @@ async function getbones() {
             const answer = await yn_function(
                 'Unlink bones?', 'yn', 'n', false, state,
             );
-            if (answer === 'n'.charCodeAt(0)) {
+            if (answer === 'n') {
                 return ok;
             }
         }

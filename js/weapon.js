@@ -1851,7 +1851,7 @@ export async function enhance_weapon_skill(
     let speedy = false;
     if (state.wizard
         && await ask('Advance skills without practice?')
-            === 'y'.charCodeAt(0))
+            === 'y')
         speedy = true;
 
     do {

@@ -6,7 +6,7 @@ import test from 'node:test';
 
 const source = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 
-test('use_candle compares the numeric no answer before delegating to use_lamp', () => {
+test('use_candle compares the no answer before delegating to use_lamp', () => {
     const c = source('../nethack-c/upstream/src/apply.c');
     const js = source('../js/apply.js');
     // apply.c:1415-1419 compares the C char 'n', then returns before splitobj,
@@ -14,12 +14,11 @@ test('use_candle compares the numeric no answer before delegating to use_lamp', 
     assert.match(c, /if \(y_n\(safe_qbuf\([\s\S]*?== 'n'\) \{\s*use_lamp\(obj\);\s*return;/u);
     const start = js.indexOf('export async function use_candle(');
     const body = js.slice(start, js.indexOf('\n}\n', start));
-    assert.match(body, /if \(await y_n\(attachQuery, state\) === 'n'\.charCodeAt\(0\)\) \{\s*await use_lamp\(obj, state, env\);\s*return;/u);
-    const noBranch = body.indexOf("=== 'n'.charCodeAt(0)");
+    assert.match(body, /if \(await y_n\(attachQuery, state\) === 'n'\) \{\s*await use_lamp\(obj, state, env\);\s*return;/u);
+    const noBranch = body.indexOf("=== 'n')");
     assert.ok(noBranch < body.indexOf('splitobj('));
     assert.ok(noBranch < body.indexOf('await useupall('));
-    // hack.h:1329 supplies default n. topl.js maps quitchars to defByte
-    // and returns its numeric readchar value, so a string comparison fails.
+    // hack.h:1329 supplies default n, which topl.js answers for quitchars.
     assert.match(source('../nethack-c/upstream/include/hack.h'),
         /#define y_n\(query\) yn_function\(query, ynchars, 'n', TRUE\)/u);
     assert.match(source('../js/cmd.js'),

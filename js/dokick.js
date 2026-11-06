@@ -1322,7 +1322,7 @@ export async function dokick(state = game) {
         await ttyPline('You are too small to do any kicking.', state);
         no_kick = true;
     } else if (u.usteed) {
-        if (await yn_function('Kick your steed?', 'yn', 'y', true, state) === 'y'.charCodeAt(0)) {
+        if (await yn_function('Kick your steed?', 'yn', 'y', true, state) === 'y') {
             await ttyPline(`You kick ${mon_nam(u.usteed, state)}.`, state);
             await kick_steed(state);
             return ECMD_TIME;

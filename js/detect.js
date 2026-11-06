@@ -1539,11 +1539,10 @@ export async function use_crystal_ball(optr, state = game) {
 
     if (state.flags?.verbose)
         await ttyPline('You may look for an object, monster, or special map symbol.', state);
-    const answer = await yn_function(
+    let ch = await yn_function(
         'What do you look for?', null, '\0', true, state,
     );
-    let ch = typeof answer === 'number'
-        ? String.fromCharCode(answer) : String(answer ?? '');
+
     const ghostSymbol = String.fromCharCode(
         DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + S_GHOST],
     );

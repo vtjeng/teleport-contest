@@ -992,7 +992,7 @@ export async function study_book(spellbook, state = game, env = {}) {
             if (typeof prompt !== 'function')
                 throw new TypeError('study_book requires a prompt owner');
             const answer = await prompt('Refresh your memory anyway?', state);
-            if (answer === 'n' || answer === 'n'.charCodeAt(0)) return 0;
+            if (answer === 'n') return 0;
         }
 
         spellbook.in_use = true;
@@ -1011,7 +1011,7 @@ export async function study_book(spellbook, state = game, env = {}) {
                         `This spellbook is ${wording}difficult to comprehend.  Continue?`,
                         state,
                     );
-                    if (answer !== 'y' && answer !== 'y'.charCodeAt(0)) {
+                    if (answer !== 'y') {
                         spellbook.in_use = false;
                         return 1;
                     }
@@ -1529,9 +1529,8 @@ async function getspell(state, { message, menu }) {
                 await message("That's enough tries.", state);
                 return { ok: false, spell_no: -1 };
             }
-            const answer = await yn_function(prompt, null, '\0', true, state);
-            const key = typeof answer === 'number'
-                ? String.fromCharCode(answer) : answer;
+            const key = await yn_function(prompt, null, '\0', true, state);
+
             if (key === '*' || key === '?') break;
             if (quitchars.includes(key)) {
                 await message(Never_mind, state);

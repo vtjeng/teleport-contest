@@ -619,7 +619,7 @@ export async function done2(state = game) {
     if (In_tutorial(state.u?.uz)
         && await y_n(
             'Switch from the tutorial back to regular play?', state,
-        ) === KEY_Y) {
+        ) === 'y') {
         abandonTutorial = true;
     }
 
@@ -659,12 +659,12 @@ export async function done2(state = game) {
         const coreAnswer = await yn_function(
             'Dump core?', 'ynq', 'q', true, state,
         );
-        if (coreAnswer === KEY_Y) {
+        if (coreAnswer === 'y') {
             throw new UnsupportedEndOfGameError(
                 'done2() requested the unavailable core-dump path',
             );
         }
-        if (coreAnswer === KEY_Q) {
+        if (coreAnswer === 'q') {
             state.program_state ??= {};
             state.program_state.stopprint =
                 (state.program_state.stopprint ?? 0) + 1;
@@ -874,15 +874,10 @@ export async function done(how, state = game, source = {}) {
 }
 
 const DISCLOSURE_OPTIONS = 'iavgco';
-const KEY_Y = 'y'.charCodeAt(0);
-const KEY_Q = 'q'.charCodeAt(0);
-const KEY_A = 'a'.charCodeAt(0);
 
 // C ref: end.c should_query_disclose_option() (475-515). The returned
 // `defquery` is the answer used when the option suppresses the prompt and the
-// default passed to yn_function() when it does not. yn_function() returns a
-// key code, so a caller that skips the prompt converts `defquery` with
-// charCodeAt(0) before comparing it with KEY_Y or KEY_Q.
+// default passed to yn_function() when it does not.
 function should_query_disclose_option(category, state) {
     const index = DISCLOSURE_OPTIONS.indexOf(category);
     if (index < 0) {
@@ -930,8 +925,8 @@ async function disclose(how, taken, state) {
             defquery,
             true,
             state,
-        ) : defquery.charCodeAt(0);
-        if (c === KEY_Y) {
+        ) : defquery;
+        if (c === 'y') {
             state.iflags.force_invmenu = false;
             await display_inventory(null, true, state, {
                 menu: (items) => select_menu(state, {
@@ -943,7 +938,7 @@ async function disclose(how, taken, state) {
             });
             await container_contents(state.invent, true, true, false, state);
         }
-        if (c === KEY_Q) discloseStop(state);
+        if (c === 'q') discloseStop(state);
     }
 
     if (!disclosureStopprint(state)) {
@@ -954,8 +949,8 @@ async function disclose(how, taken, state) {
             defquery,
             true,
             state,
-        ) : defquery.charCodeAt(0);
-        if (c === KEY_Y) {
+        ) : defquery;
+        if (c === 'y') {
             const lines = await enlightenment(
                 BASICENLIGHTENMENT | MAGICENLIGHTENMENT,
                 how >= PANICKED ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD,
@@ -963,7 +958,7 @@ async function disclose(how, taken, state) {
             );
             await displayTtyMenuTextWindow(state, lines);
         }
-        if (c === KEY_Q) discloseStop(state);
+        if (c === 'q') discloseStop(state);
     }
 
     if (!disclosureStopprint(state)) {
@@ -985,15 +980,15 @@ async function disclose(how, taken, state) {
                 ? ' and achievements' : ''}?`;
             c = await yn_function(query, 'ynq', defquery, true, state);
         } else {
-            c = defquery.charCodeAt(0);
+            c = defquery;
         }
-        if (c === KEY_Y) {
+        if (c === 'y') {
             await show_conduct(
                 how >= PANICKED ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD,
                 state,
             );
         }
-        if (c === KEY_Q) discloseStop(state);
+        if (c === 'q') discloseStop(state);
     }
     if (!disclosureStopprint(state)) {
         const { ask, defquery } = should_query_disclose_option('o', state);
@@ -1003,14 +998,14 @@ async function disclose(how, taken, state) {
             defquery,
             true,
             state,
-        ) : defquery.charCodeAt(0);
-        if (c === KEY_Y) {
+        ) : defquery;
+        if (c === 'y') {
             // C ref: end.c disclose():696. Final disclosure passes 1 for a
             // living ending (escape, ascension, panic) and 2 for death;
             // `how` remains the death reason for the current level row.
             await show_overview(how >= PANICKED ? 1 : 2, how, state);
         }
-        if (c === KEY_Q) discloseStop(state);
+        if (c === 'q') discloseStop(state);
     }
 }
 

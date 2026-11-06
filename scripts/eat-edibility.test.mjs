@@ -25,7 +25,7 @@ async function prompt(object, answer = 'n') {
     const result = await edibility_prompts(object, game, {
         ynFunction: async (...args) => {
             queries.push(args.slice(0, 4));
-            return answer.charCodeAt(0);
+            return answer;
         },
     });
     assert.equal(getRngLog().length, draws, 'worst-case age uses no random divisor');

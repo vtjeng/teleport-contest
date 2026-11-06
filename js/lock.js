@@ -65,6 +65,7 @@ import {
     set_occupation,
     yn_function,
     y_n,
+    ynq,
 } from './cmd.js';
 import {
     feel_location,
@@ -573,7 +574,8 @@ async function picklock(state = game) {
 
     // lock.c:101-136. A suitably blessed/cursed Master Key of Thievery finds
     // a trap and improves the chance for the next occupation turn. The C
-    // y_n() prompt defaults to No; answer is its character byte.
+    // y_n() prompt defaults to No.
+
     if ((xlock.door
         ? (doorMask(xlock.door) & D_TRAPPED) !== 0
         : Boolean(xlock.box?.otrapped)) && xlock.magic_key) {
@@ -584,7 +586,7 @@ async function picklock(state = game) {
             xlock.box.tknown = 1;
         }
         if (await y_n('Do you want to try to disarm it?', state)
-            === 'y'.charCodeAt(0)) {
+            === 'y') {
             let what;
             let alreadyunlocked;
             if (xlock.door) {
@@ -693,21 +695,6 @@ export function autokey(opening, state = game) {
     return key ?? pick ?? card ?? null;
 }
 
-// C ref: hack.h:1330.  ynq(query) = yn_function(query, ynqchars, 'q', TRUE).
-// The addcmdq TRUE tells C to push the answer onto CQ_REPEAT so that a
-// repeated command replays it; the port's yn_function() throws on
-// addcmdq=true because CQ_REPEAT is not ported, but the autounlock path that
-// calls this is never repeated, so passing false is safe here.
-const YNQCHARS = 'ynq';
-export async function ynq(query, state = game) {
-    const KEY_Q = 'q'.charCodeAt(0);
-    const KEY_Y = 'y'.charCodeAt(0);
-    const c = await yn_function(query, YNQCHARS, 'q', false, state);
-    if (c === KEY_Y) return 'y';
-    if (c === KEY_Q) return 'q';
-    return 'n';
-}
-
 // struct rm's shared door mask has two spellings in this port; js/mklev.js
 // writes an ordinary dungeon door's to `flags` and the special-level paths
 // write it to `doormask`, so every reader accepts either.
@@ -739,12 +726,10 @@ export const PICKLOCK_DID_SOMETHING = 1;
 export async function pick_lock(pick, rx, ry, container, state = game, env = {}) {
     const u = state.u;
     const message = env.message ?? ttyPline;
-    // hack.h ynq() uses the command owner's repeat-recording prompt. Keep
-    // this local to pick_lock; other partial lock.c callers still use ynq().
-    const ask = env.ynq ?? ((query) => yn_function(query, 'ynq', 'q', true, state));
-    const yes = 'y'.charCodeAt(0);
-    const no = 'n'.charCodeAt(0);
-    const quit = 'q'.charCodeAt(0);
+    const ask = env.ynq ?? ((query) => ynq(query, state));
+    const yes = 'y';
+    const no = 'n';
+    const quit = 'q';
     const autounlock = rx !== 0 || container != null;
     const dummypick = pick ? null : newObject(); // C cg.zeroobj stack copy.
     if (!pick) pick = dummypick;
@@ -1216,7 +1201,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
             } else if ((autounlockFlags & AUTOUNLOCK_KICK) !== 0
                        && !u.usteed
                        && await yn_function('Kick it?', 'ynq', 'q', true, state)
-                          === 'y'.charCodeAt(0)) {
+                          === 'y') {
                 cmdq_add_ec(CQ_CANNED, ext_func_tab_from_func('dokick'), state);
                 cmdq_add_dir(CQ_CANNED,
                     Math.sign(cc.x - u.ux), Math.sign(cc.y - u.uy), 0, state);

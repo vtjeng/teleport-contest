@@ -2540,8 +2540,8 @@ export async function dogaze(state = game) {
                     const qbuf = `Really ${(adtyp === M.AD_CONF)
                         ? 'confuse' : 'attack'} `
                         + `${mon_nam(mtmp, state)}?`;
-                    // y_n() answers a key code.
-                    if (await y_n(qbuf, state) !== 'y'.charCodeAt(0))
+                    if (await y_n(qbuf, state) !== 'y')
+
                         continue;
                 }
                 await setmangry(mtmp, true, { state });

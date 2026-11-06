@@ -667,7 +667,8 @@ export async function tty_yn_function(query, resp, def, state = game) {
     state._ttyPreviousMessage = prompt;
 
     // Every key below is the byte readchar() returns, as on the unrestricted
-    // arm; `def` arrives as the one-character string its callers spell.
+    // arm; `def` arrives as the one-character string its callers spell, and
+    // clean_up converts the answer to the same form.
     const defByte = def ? def.charCodeAt(0) : 0;
     let q;
     let doprev = false;
@@ -806,7 +807,9 @@ export async function tty_yn_function(query, resp, def, state = game) {
     }
     display.inread = Math.max(0, display.inread - 1);
     if (display.intr) --display.intr;
-    return q;
+    // C returns `char q`; see js/cmd.js yn_function() for the rule on
+    // answer types.
+    return String.fromCharCode(q & 0xFF);
 }
 
 export function show_topl(text, state = game) {

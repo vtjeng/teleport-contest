@@ -2192,11 +2192,11 @@ test('tty_yn_function folds the answer only over A-Z', async () => {
     // hacklib.c lowc() sets bit 040 for 'A'-'Z' and for nothing else, so the
     // two ends of that range are what separate `>=` from `>` and `<=` from
     // `<`.
-    assert.equal(await ask('az', 'A'), 'a'.charCodeAt(0));
-    assert.equal(await ask('az', 'Z'), 'z'.charCodeAt(0));
+    assert.equal(await ask('az', 'A'), 'a');
+    assert.equal(await ask('az', 'Z'), 'z');
     // '@' is one below 'A' and would become '`' if the range test were an
     // `||` rather than an `&&`, which no response set holds.
-    assert.equal(await ask('a@', '@'), '@'.charCodeAt(0));
+    assert.equal(await ask('a@', '@'), '@');
 });
 
 // topl.c tty_yn_function()'s read loop has four exits. The Escape arm at
@@ -2215,12 +2215,12 @@ test('tty_yn_function rereads an invalid key and quits on quitchars',
         // which fails the `while (!q)` test and reads again. 'z' is outside
         // 'yn' and is not one of quitchars, so only the reread can reach the
         // 'y' queued behind it.
-        assert.equal(await ask('yn', 'z', 'y'), 'y'.charCodeAt(0));
+        assert.equal(await ask('yn', 'z', 'y'), 'y');
         // topl.c:471-473: decl.c quitchars[] is " \r\n\033", and each of the
         // three that are not Escape answers `def`, here 'n'. Nothing else is
         // queued, so a wrong exit would exhaust the input instead.
         for (const quitchar of [' ', '\r', '\n'])
-            assert.equal(await ask('yn', quitchar), 'n'.charCodeAt(0));
+            assert.equal(await ask('yn', quitchar), 'n');
     });
 
 test('tty_yn_function parses counts and preserves uppercase responses', async () => {
@@ -2231,14 +2231,14 @@ test('tty_yn_function parses counts and preserves uppercase responses', async ()
     game.nhDisplay.pushKey('2'.charCodeAt(0));
     game.nhDisplay.pushKey('y'.charCodeAt(0));
     assert.equal(
-        await tty_yn_function('Ring?', 'yn#', 'n', game), '#'.charCodeAt(0),
+        await tty_yn_function('Ring?', 'yn#', 'n', game), '#',
     );
     assert.equal(game.yn_number, 2);
 
     // topl.c:401-409 preserves uppercase if an allowed response is uppercase.
     game.nhDisplay.pushKey('N'.charCodeAt(0));
     assert.equal(
-        await tty_yn_function('Ring?', 'yN', 'n', game), 'N'.charCodeAt(0),
+        await tty_yn_function('Ring?', 'yN', 'n', game), 'N',
     );
 });
 

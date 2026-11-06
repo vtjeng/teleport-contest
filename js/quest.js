@@ -198,7 +198,7 @@ async function is_pure(talk, ops) {
                 state,
             );
             if (await ops.yn('adjust?', null, 'y', true, state)
-                === 'y'.charCodeAt(0))
+                === 'y')
                 u.ualign.record = MIN_QUEST_ALIGN;
         }
     }

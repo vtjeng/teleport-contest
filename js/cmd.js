@@ -778,8 +778,8 @@ function yn_func_menu_opt(win, key, text, def) {
 }
 
 // C ref: cmd.c yn_function_menu(). Returns null when the response set cannot
-// use a menu, otherwise the selected response byte. Escape and an empty
-// selection return the C default response.
+// use a menu, otherwise the selected response as a one-character string.
+// Escape and an empty selection return the C default response.
 async function yn_function_menu(query, resp, def, state = game) {
     if (!yn_menuable_resp(resp, state)) return null;
 
@@ -810,10 +810,20 @@ async function yn_function_menu(query, resp, def, state = game) {
         ? byteValue(def) : byteValue(selected);
     await ttyPline(`${query} ${key2txt(result)}`, state);
     clearTtyMessageWindow(state);
-    return result;
+    return String.fromCharCode(result);
 }
 
+// Answer type rule: yn_function(), y_n(), ynq(), paranoid_ynq() and
+// topl.js tty_yn_function() return what C returns, a `char`, as a
+// one-character string ('y', 'n', 'q', '#', '\x1b', '\0', or the key itself
+// for an unrestricted prompt). Compare an answer with a character literal,
+// as C does: `await y_n(query, state) === 'y'`. Never compare it with a key
+// code ('y'.charCodeAt(0), 0x79, a KEY_* constant); a caller that needs the
+// code, such as getdir(), converts the answer explicitly.
+// scripts/yn-answer-type.test.mjs enforces this rule.
+//
 // C ref: cmd.c yn_function() (5471-5578). The ordinary user-input arm reads
+
 // through tty_yn_function() and, when addcmdq is true, records the answer in
 // CQ_REPEAT. Both unrestricted whatdoes input and restricted y_n input reach
 // that write. The queued-answer arm also matters to canned commands and to
@@ -847,7 +857,7 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
     let res;
     if (queued?.typ === CMDQ_KEY) {
         cmdq_pop(state);
-        res = queued.key;
+        res = cmdq_key_char(queued);
         fromQueue = true;
     } else if (queued?.typ === CMDQ_USER_INPUT) {
         // CMDQ_USER_INPUT is an explicit prompt handoff; C consumes it and
@@ -858,7 +868,7 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
         // clears the canned queue, and returns Escape without prompting.
         cmdq_pop(state);
         cmdq_clear(CQ_CANNED, state);
-        res = ESC;
+        res = '\x1b';
         fromQueue = true;
     }
     if (!fromQueue && res === undefined) {
@@ -869,7 +879,8 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
             ? await tty_yn_function(query, resp, def, state)
             : menuResult;
     }
-    if (addcmdq && !fromQueue) cmdq_add_key(CQ_REPEAT, res, state);
+    // The queue keeps the key code that the port's other producers push.
+    if (addcmdq && !fromQueue) cmdq_add_key(CQ_REPEAT, res.charCodeAt(0), state);
     // "in case we're called via getdir() which sets input_state".
     state.program_state.input_state = 'other';
     return res;
@@ -879,6 +890,11 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
 // in CQ_REPEAT so a future #repeat implementation can replay the same answer.
 export async function y_n(query, state = game) {
     return yn_function(query, ynchars, 'n', true, state);
+}
+
+// C ref: hack.h:1330 ynq(), over decl.c ynqchars[].
+export async function ynq(query, state = game) {
+    return yn_function(query, ynqchars, 'q', true, state);
 }
 
 // C ref: cmd.c paranoid_ynq() (5587-5650). "for paranoid_confirm:quit,die,
@@ -893,16 +909,10 @@ export async function y_n(query, state = game) {
 // directly. The spelled-out arm uses a different prompt, reader, and history
 // entry from the single-key arm.
 //
-// C's `char c` is a key byte here, which is what yn_function() answers and
-// what readchar() below it produces, so the comparisons are against codes.
-//
 // query_category() passes accept_q TRUE for paranoid Auto-select All;
 // paranoid_query() and unsafe corpse confirmation pass FALSE.
-const KEY_N = 'n'.charCodeAt(0);
-const KEY_Q = 'q'.charCodeAt(0);
-const KEY_Y = 'y'.charCodeAt(0);
 export async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) {
-    let c = KEY_N; /* default result */
+    let c = 'n'; /* default result */
 
     if (be_paranoid) {
         // cmd.c:5587-5649.  Paranoid confirmation reads a line and accepts
@@ -937,13 +947,13 @@ export async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) 
             const answer = mungspaces(await getlin(
                 `${promptPrefix}${pbuf} ${responseType}`, state,
             )).toLowerCase();
-            if (answer === 'yes') return KEY_Y;
+            if (answer === 'yes') return 'y';
             if (answer === 'quit' || answer.startsWith('\x1b'))
-                return accept_q ? KEY_Q : KEY_N;
+                return accept_q ? 'q' : 'n';
             promptPrefix = '"Yes" or "No": ';
-            if (!paranoidConfirm || answer === 'no') return KEY_N;
+            if (!paranoidConfirm || answer === 'no') return 'n';
         } while (--tryLimit > 0);
-        return KEY_N;
+        return 'n';
     } else if (accept_q) {
         /* 'y', 'n', or 'q' */
         c = await yn_function(prompt, ynqchars, 'n', false, state);
@@ -951,14 +961,14 @@ export async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) 
         /* 'y' or 'n' */
         c = await yn_function(prompt, ynchars, 'n', false, state);
     }
-    if (c !== KEY_Y && (c !== KEY_Q || !accept_q)) c = KEY_N;
+    if (c !== 'y' && (c !== 'q' || !accept_q)) c = 'n';
     return c;
 }
 
 // C ref: cmd.c paranoid_query() (5652-5657). "result is True for yes; n|no and
 // ESC yield False".
 export async function paranoid_query(be_paranoid, prompt, state = game) {
-    return await paranoid_ynq(be_paranoid, prompt, false, state) === KEY_Y;
+    return await paranoid_ynq(be_paranoid, prompt, false, state) === 'y';
 }
 
 function externalCommandStarted(state) {
@@ -1617,13 +1627,15 @@ export async function getdir(s, state = game) {
             if (state.in_doagain || state.readchar_queue)
                 dirsym = await readchar(state);
             else
-                dirsym = await yn_function(
+                // getdir() keeps C's `char dirsym` as the key code that
+                // readchar() and the direction tables use.
+                dirsym = (await yn_function(
                     (s && s[0] !== '^') ? s : 'In what direction?',
                     null,
                     '\0',
                     false,
                     state,
-                );
+                )).charCodeAt(0);
             // "remove the prompt string so caller won't have to"
             clearTtyMessageWindow(state);
             fromPrompt = true;
@@ -3159,11 +3171,7 @@ async function runKnownClassCommand(key, state) {
                 }
                 : line)),
         ),
-        // doclassdisco() compares C's `char c` answers as characters;
-        // yn_function() returns the byte.
-        yesNo: async (...args) => String.fromCharCode(
-            await yn_function(...args),
-        ),
+        yesNo: yn_function,
     }));
 }
 
@@ -3611,11 +3619,10 @@ export async function domonability(state = game) {
     // lines 912 and 914.
     let c = null;
     if (might_hide && webmaker(uptr)) {
-        // decl.c:118 hidespinchars is "hsq". yn_function() answers a key
-        // code, so the answers are compared as codes.
+        // decl.c:118 hidespinchars is "hsq".
         c = await yn_function('Hide [h] or spin a web [s]?', 'hsq', 'q',
             true, state);
-        if (c === 'q'.charCodeAt(0) || c === 0x1b)
+        if (c === 'q' || c === '\x1b')
             return ECMD_OK;
     }
 
@@ -3630,11 +3637,12 @@ export async function domonability(state = game) {
         return dogaze(state);
     } else if (is_were(uptr)) {
         return dosummon(state);
-    } else if (c ? c === 'h'.charCodeAt(0) : might_hide) {
+    } else if (c ? c === 'h' : might_hide) {
         // cmd.c:912. When the prompt was not shown (c is null), this tests
         // might_hide alone; when it was shown, it tests the answer.
         return dohide(state);
-    } else if (c ? c === 's'.charCodeAt(0) : webmaker(uptr)) {
+    } else if (c ? c === 's' : webmaker(uptr)) {
+
         // cmd.c:914. Same ternary pattern as the hider branch above.
         return dospinweb(state);
     } else if (is_mind_flayer(uptr)) {

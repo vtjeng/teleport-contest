@@ -1833,7 +1833,7 @@ export async function doddrop(state = game) {
 export async function better_not_try_to_drop_that(obj, state = game) {
     if (obj.otyp === CORPSE && !u_safe_from_fatal_corpse(obj, st_all, state)) {
         const prompt = `Drop the ${obj_pmname(obj, state)} corpse without ${body_part(HAND, state.youmonst)} protection on?`;
-        return await paranoid_ynq(true, prompt, false, state) !== 'y'.charCodeAt(0);
+        return await paranoid_ynq(true, prompt, false, state) !== 'y';
     }
     return false;
 }
@@ -2534,8 +2534,7 @@ export async function dodown(state = game, env = {}) {
         && !u.uevent?.gehennom_entered) {
         await ttyPline('You are standing at the gate to Gehennom.', state);
         await ttyPline('Unspeakable cruelty and harm lurk down there.', state);
-        if (await y_n('Are you sure you want to enter?', state)
-            !== 'y'.charCodeAt(0))
+        if (await y_n('Are you sure you want to enter?', state) !== 'y')
             return ECMD_OK;
         await ttyPline('So be it.', state);
         u.uevent ??= {};
@@ -2554,8 +2553,7 @@ export async function dodown(state = game, env = {}) {
         let actn = u_locomotion('jump', state);
         if (state.youmonst.data.msize >= MZ_HUGE) {
             await ttyPline(`You don't fit ${down_or_thru} easily.`, state);
-            if (await y_n(`Try to squeeze ${down_or_thru}?`, state)
-                === 'y'.charCodeAt(0)) {
+            if (await y_n(`Try to squeeze ${down_or_thru}?`, state) === 'y') {
                 if (!rn2(3)) {
                     actn = 'manage to squeeze';
                     let damage = rnd(4);
@@ -2649,9 +2647,10 @@ export async function doup(state = game) {
         const answer = await y_n(
             'Beware, there will be no return!  Still climb?', state,
         );
-        if (answer !== 'y'.charCodeAt(0)) return ECMD_OK;
+        if (answer !== 'y') return ECMD_OK;
     }
     if (!(await next_to_u(state))) {
+
         await ttyPline('You are held back by your pet!', state);
         return ECMD_OK;
     }

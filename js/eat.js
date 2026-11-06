@@ -1062,7 +1062,7 @@ async function consume_tin(mesg, state = game, env = {}) {
 
         if (!alwaysEat) {
             await message(`It smells like ${what}.`, state);
-            if (await y_n('Eat it?', state) === 'n'.charCodeAt(0)) {
+            if (await y_n('Eat it?', state) === 'n') {
                 if (state.flags?.verbose)
                     await message('You discard the open tin.', state);
                 if (!Hallucination(state)) {
@@ -1128,7 +1128,7 @@ async function consume_tin(mesg, state = game, env = {}) {
             tin.known = true;
         }
 
-        if (!alwaysEat && await y_n('Eat it?', state) === 'n'.charCodeAt(0)) {
+        if (!alwaysEat && await y_n('Eat it?', state) === 'n') {
             if (state.flags?.verbose)
                 await message('You discard the open tin.', state);
             tin = await costly_tin(COST_OPEN, state);
@@ -1373,7 +1373,7 @@ export async function use_tin_opener(obj, state = game, env = {}) {
                 'that', state,
             );
             if (await yn_function(qbuf, 'ynq', 'n', true, state)
-                !== 'y'.charCodeAt(0)) {
+                !== 'y') {
                 return ECMD_OK;
             }
         }
@@ -3469,7 +3469,7 @@ export async function edibility_prompts(otmp, state = game, env = {}) {
     if (!text) return 0;
     const prompt = `${text}  Eat ${otmp.quan === 1 ? 'it' : 'one'} anyway?`;
     const query = env.ynFunction ?? yn_function;
-    return await query(prompt, 'yn', 'n', true, state) === 'n'.charCodeAt(0) ? 1 : 2;
+    return await query(prompt, 'yn', 'n', true, state) === 'n' ? 1 : 2;
 }
 
 // The operations eat.c's own code reaches through globals. doeat() and
@@ -3764,7 +3764,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
                 const qbuf = `There is a bear trap here (${uInBeartrap
                     ? 'holding you' : 'armed'}); eat it?`;
                 const c = await yn_function(qbuf, 'ynq', 'n', true, state);
-                if (c === 'y'.charCodeAt(0)) {
+                if (c === 'y') {
                     deltrap(trap, state);
                     if (uInBeartrap) await reset_utrap(true, state);
                     const objectEnv = objectGenerationEnv({ state });
@@ -3786,7 +3786,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
                         return null;
                     }
                     return beartrap;
-                } else if (c === 'q'.charCodeAt(0)) {
+                } else if (c === 'q') {
                     return null;
                 }
                 ++getobj_else;
@@ -3796,7 +3796,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
                 const nodig = Boolean(
                     state.level.at(u.ux, u.uy).wall_info & W_NONDIGGABLE,
                 );
-                let c = 'n'.charCodeAt(0);
+                let c = 'n';
                 const qbuf = 'There are iron bars here';
                 if (nodig || u.uhunger > 1500) {
                     await ttyPline(
@@ -3816,8 +3816,8 @@ export async function floorfood(verb, corpsecheck, state = game) {
                         'ynq', 'n', true, state,
                     );
                 }
-                if (c === 'y'.charCodeAt(0)) return hands_obj;
-                if (c === 'q'.charCodeAt(0)) return null;
+                if (c === 'y') return hands_obj;
+                if (c === 'q') return null;
                 ++getobj_else;
             }
 
@@ -3830,8 +3830,8 @@ export async function floorfood(verb, corpsecheck, state = game) {
                     const c = await yn_function(
                         qbuf, 'ynq', 'n', true, state,
                     );
-                    if (c === 'y'.charCodeAt(0)) return gold;
-                    if (c === 'q'.charCodeAt(0)) return null;
+                    if (c === 'y') return gold;
+                    if (c === 'q') return null;
                     ++getobj_else;
                 }
             }
@@ -3863,8 +3863,8 @@ export async function floorfood(verb, corpsecheck, state = game) {
                 const c = await yn_function(
                     qbuf, 'ynq', 'n', true, state,
                 );
-                if (c === 'y'.charCodeAt(0)) return otmp;
-                if (c === 'q'.charCodeAt(0)) return null;
+                if (c === 'y') return otmp;
+                if (c === 'q') return null;
                 ++getobj_else;
             }
         }
