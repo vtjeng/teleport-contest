@@ -2,6 +2,7 @@
 
 import { KEY_ESC } from './const.js';
 import { game } from './gstate.js';
+import { isTerminated, neverSettles, recordTerminationViolation } from './rng.js';
 import { TOPLINE_NEED_MORE, TOPLINE_NON_EMPTY } from './tty_message.js';
 import { KEY_BINDINGS } from './terminal.js';
 import { resize_tty } from './wintty.js';
@@ -10,6 +11,15 @@ import { resize_tty } from './wintty.js';
 // In replay mode, reads from the input queue.
 // In browser mode, waits for a real keypress.
 export async function nhgetch(state = game) {
+    // After nh_terminate() no key is read and no boundary is captured: a
+    // capture would duplicate the final screen and shift every later
+    // segment's screens. Only a chain some caller discarded can get here; it
+    // stops for good (js/rng.js, "Segment termination").
+    if (isTerminated()) {
+        recordTerminationViolation('nhgetch',
+            'nhgetch() called after the segment terminated');
+        await neverSettles();
+    }
     // Fire the capture hook before reading the next key
     const hook = state._preNhgetchHook;
     if (hook) await hook();

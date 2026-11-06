@@ -25,7 +25,11 @@ export function initRng(seed) {
 
 export function enableRngLog() { _rngLogEnabled = true; _rngLog = []; }
 export function getRngLog() { return _rngLog; }
-export function pushRngLogEntry(entry) { if (_rngLogEnabled) _rngLog.push(entry); }
+export function pushRngLogEntry(entry) {
+    if (!_rngLogEnabled) return;
+    if (dropAfterTermination(entry)) return;
+    _rngLog.push(entry);
+}
 
 function coreDraw(context, x) {
     const val = isaac64_next_uint64(context);
@@ -33,7 +37,141 @@ function coreDraw(context, x) {
 }
 
 function logResult(name, args, result) {
-    if (_rngLogEnabled) _rngLog.push(`${name}(${args})=${result}`);
+    if (!_rngLogEnabled) return;
+    const entry = `${name}(${args})=${result}`;
+    if (dropAfterTermination(entry)) return;
+    _rngLog.push(entry);
+}
+
+// ── Segment termination ──
+//
+// C's end.c nh_terminate() exits the process, so nothing runs after it. The
+// port's nh_terminate() (js/end.js) instead suspends the chain that called it
+// on a promise that never settles, and the entry points (NethackGame.start()
+// and moveloop_core()) race their bodies against this segment's termination
+// notice. The state lives here, not on `game`, because start() replaces
+// program_state partway through, unit tests often pass a state other than
+// `game`, and the RNG log writers above and nhgetch() (js/input.js) read it
+// directly. NethackGame.start() resets it on entry; tests reset it through
+// scripts/expect-terminated.mjs.
+//
+// A promise some caller discarded is not part of the suspended chain and can
+// keep running after the segment terminated. The judge scores only the RNG
+// log and the input-boundary captures, so those are guarded: an RNG log
+// append after termination is dropped, and nhgetch() suspends, and each is
+// recorded as a violation that runSegmentStrict() fails on and runSegment()
+// reports.
+let _termination = newTerminationState();
+
+function newTerminationState() {
+    let settle;
+    const notice = new Promise((resolve) => { settle = resolve; });
+    return {
+        terminated: false,
+        settled: false,
+        notice,
+        settle,
+        // One resolver per pending race, removed when its body settles, so a
+        // long game does not accumulate reactions on the notice.
+        waiters: new Set(),
+        violations: [],
+    };
+}
+
+function dropAfterTermination(entry) {
+    if (!_termination.terminated) return false;
+    recordTerminationViolation('rng', entry);
+    return true;
+}
+
+// Start a new segment's termination state: not terminated, a fresh pending
+// notice, and no violations.
+export function resetTermination() {
+    _termination = newTerminationState();
+}
+
+// nh_terminate() marks the segment before its final capture, so that a stray
+// chain that runs while the capture is awaited cannot add to the RNG log
+// after the captured slice.
+export function markTerminated() {
+    _termination.terminated = true;
+}
+
+export function isTerminated() {
+    return _termination.terminated;
+}
+
+// The promise nh_terminate() settles once the segment has terminated.
+export function terminationNotice() {
+    return _termination.notice;
+}
+
+export function settleTerminationNotice() {
+    const state = _termination;
+    if (state.settled) return;
+    state.settled = true;
+    state.settle();
+    const waiters = [...state.waiters];
+    state.waiters.clear();
+    for (const wake of waiters) wake();
+}
+
+export function recordTerminationViolation(kind, detail) {
+    _termination.violations.push({ kind, detail: String(detail) });
+}
+
+export function terminationViolations() {
+    return _termination.violations.map((violation) => ({ ...violation }));
+}
+
+// A promise that never settles. Each call creates its own, so a suspended
+// chain is unreachable once its segment is discarded and can be collected;
+// a shared promise would keep every suspended segment's state alive.
+export function neverSettles() {
+    return new Promise(() => {});
+}
+
+// One macrotask. Game code yields only to microtasks in Node, so a body that
+// a discarded chain left running has, after this, either finished or
+// suspended at nhgetch()'s guard.
+export function oneMacrotask() {
+    return new Promise((resolve) => { setTimeout(resolve, 0); });
+}
+
+// Await whichever settles first: `body` (a promise) or this segment's
+// termination notice. Resolves { terminated: false, value } with the body's
+// value, rejects with its error, or, when the notice wins, resolves
+// { terminated: true } after one macrotask. A body that rejects after the
+// notice won is recorded as a violation.
+export async function raceTermination(body) {
+    const state = _termination;
+    const outcome = await new Promise((resolve, reject) => {
+        let decided = false;
+        const wake = () => {
+            if (decided) return;
+            decided = true;
+            resolve({ terminated: true });
+        };
+        if (state.settled) wake();
+        else state.waiters.add(wake);
+        Promise.resolve(body).then((value) => {
+            state.waiters.delete(wake);
+            if (decided) return;
+            decided = true;
+            resolve({ terminated: false, value });
+        }, (error) => {
+            state.waiters.delete(wake);
+            if (decided) {
+                recordTerminationViolation('rejection',
+                    error instanceof Error ? `${error.name}: ${error.message}` : error);
+                return;
+            }
+            decided = true;
+            reject(error);
+        });
+    });
+    if (outcome.terminated) await oneMacrotask();
+    return outcome;
 }
 
 function rn2From(context, x, log) {
@@ -154,6 +292,12 @@ export async function withPlanningCoreContext(context, run) {
     } finally {
         _planningCtx = previous;
     }
+}
+
+// True while a planning clone's core context is installed. done() and
+// nh_terminate() (js/end.js) refuse to end the live game from a rehearsal.
+export function planningContextInstalled() {
+    return _planningCtx !== null;
 }
 
 function liveCtx() {
