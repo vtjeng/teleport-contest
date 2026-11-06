@@ -864,8 +864,9 @@ test('readobjnam applies the parsed fine-tuning fields', () => {
     assert.equal(wish(state, 'poisoned arrow').obj.opoisoned, true);
     assert.equal(wish(state, 'unlabeled scroll').obj.otyp,
                  SCR_BLANK_PAPER);
+    // objnam.c sets otmp->odiluted = (otmp->otyp != POT_WATER), a bitfield.
     assert.equal(wish(state, 'diluted potion of see invisible').obj.odiluted,
-                 true);
+                 1);
     assert.equal(wish(state, 'rusty long sword').obj.oeroded, 1);
     const charged = wish(state, 'wand of death (3:5)').obj;
     assert.equal(charged.spe, 5);

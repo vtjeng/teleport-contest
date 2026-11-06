@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "shk.c check_unpaid_usage() default arm: fmt \"%s%sUsage fee, %ld %s.\" takes arg1 (\"Hey!  \" on rn2(3)==0) and then arg2 (\"Ahem.  \" on a second rn2(3)==0). In debug mode a Valkyrie level-teleports into the Dlvl 4 general store of seed 4417313 (also used by repair-wall-muttering-more), wishes for a wand of light, sells it to the shopkeeper, picks it up again unpaid and zaps it eight times. The zaps give the plain fee, \"Hey!\", \"Ahem.\" alone and \"Hey!  Ahem.\".",
+  "segments": [
+    {
+      "seed": 4417313,
+      "datetime": "20711114093015",
+      "nethackrc": "OPTIONS=name:Mender,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u00164\n  \u0017uncursed wand of light\nde y ,b\n zezezezezezezeze"
+    }
+  ]
+}

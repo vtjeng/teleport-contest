@@ -432,7 +432,7 @@ test('mkcorpstat preserves an ordinary corpse timer while overriding species', (
 
     assert.equal(corpse.corpsenm, PM_KOBOLD);
     assert.equal(corpse.spe, 0);
-    assert.equal(corpse.norevive, false);
+    assert.equal(corpse.norevive, 0); // obj.h bitfield shared with oeroded2
     assert.equal(corpse.timed, 1);
     assert.equal(peek_timer(ROT_CORPSE, corpse, state), state.moves + ROT_AGE);
     assert.equal(state.level.objects[10][5], corpse);
@@ -574,7 +574,7 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
     assert.equal(corpse.oextra.omonst.mhpmax, 1, 'raised past the level');
     assert.equal(corpse.oextra.omonst.mhp, 1, 'and the hit point stands');
     assert.equal(corpse.spe, CORPSTAT_FEMALE);
-    assert.equal(corpse.norevive, true);
+    assert.equal(corpse.norevive, 1); // obj.h bitfield shared with oeroded2
     rng.assertExhausted();
 });
 
@@ -678,9 +678,9 @@ test('mkcorpstat suppresses cancelled trolls but exempts cancelled Riders', () =
     );
 
     assert.equal(troll.corpsenm, PM_TROLL);
-    assert.equal(troll.norevive, true);
+    assert.equal(troll.norevive, 1); // mkobj.c:2100 otmp->norevive = 1
     assert.equal(rider.corpsenm, PM_DEATH);
-    assert.equal(rider.norevive, false);
+    assert.equal(rider.norevive, 0); // mkobj.c:2087 copies the clear flag
     rng.assertExhausted();
 });
 

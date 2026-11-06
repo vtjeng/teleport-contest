@@ -562,7 +562,7 @@ test('an ordinary kill leaves the corpse revivable', async () => {
     for (let obj = game.level.objects[mon.mx][mon.my]; obj; obj = obj.nexthere)
         if (obj.otyp === CORPSE) corpse = obj;
     assert.ok(corpse, 'the kill left a corpse');
-    assert.equal(corpse.norevive, false, 'no Trollsbane, so it may revive');
+    assert.equal(corpse.norevive, 0, 'no Trollsbane, so it may revive');
     assert.equal(game.gm.mkcorpstat_norevive, false, 'cleared after the kill');
 });
 

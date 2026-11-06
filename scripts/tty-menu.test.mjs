@@ -1558,7 +1558,9 @@ test('getlin prompt flush writes a dirty blank glyph and preserves clean physica
 
 test('getlin handles Ctrl-P history navigation and releases inread', async () => {
     const state = await gameplaySearchState('\x10x\n');
-    assert.equal(await tty_getlin('Input:', state), '');
+    // getline.c's `else if (doprev)` arm redraws the prompt without a
+    // `continue`, so the 'x' after the recall is still typed into the line.
+    assert.equal(await tty_getlin('Input:', state), 'x');
     assert.equal(state.nhDisplay.inread, 0, 'Ctrl-P must not strand prompt rendering state');
 });
 

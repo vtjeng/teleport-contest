@@ -3112,7 +3112,7 @@ async function eatcorpse(otmp, state, env = {}) {
     if (!tp && !nonrotting_corpse(mnum, state)
         && (otmp.orotten || !rn2(7))) {
         if (await rottenfood(otmp, state)) {
-            otmp.orotten = true;
+            otmp.orotten = 1;
             otmp = await touchfood(otmp, eatOperations(state, env.statusRefresh, env.message));
             if (!otmp)
                 return 1;
@@ -4543,7 +4543,7 @@ export async function doeat(state = game, env = {}) {
                 && (state.moves - otmp.age) > (otmp.blessed ? 50 : 30)
                 && (otmp.orotten || !rn2(7))))) {
             if (await rottenfood(otmp, state)) {
-                otmp.orotten = true;
+                otmp.orotten = 1;
                 dont_start = true;
             }
             consume_oeaten(otmp, 1, state); /* oeaten >>= 1 */

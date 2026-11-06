@@ -3575,7 +3575,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
                 return ECMD_TIME;
             }
         }
-        obj.odiluted = obj.otyp !== POT_WATER;
+        obj.odiluted = obj.otyp !== POT_WATER ? 1 : 0;
         if (obj.otyp === POT_WATER && !Hallucination(state)) {
             await message('The mixture bubbles'
                 + (Blind(state) ? '.' : ', then clears.'), state);

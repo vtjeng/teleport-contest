@@ -178,13 +178,16 @@ export function mkcorpstat(
 
     obj.spe = corpstatflags & CORPSTAT_SPE_VAL;
     /* decl.h:625 gm.mkcorpstat_norevive. js/uhitm.js hmon_hitmon()'s
-       Trollsbane arm is its only writer, and state.gm is its one home. */
-    obj.norevive = Boolean(state.gm?.mkcorpstat_norevive);
+       Trollsbane arm is its only writer, and state.gm is its one home.
+       norevive shares oeroded2's 2-bit field, so store 0 or 1: mergable()
+       compares oeroded2 by value, and a boolean here would keep a statue
+       broken into rocks from stacking with other rocks. */
+    obj.norevive = state.gm?.mkcorpstat_norevive ? 1 : 0;
 
     if (monster) {
         save_mtraits(obj, monster);
         const record = state.mons[resolvedSpecies];
-        if (monster.mcan && !is_rider(record)) obj.norevive = true;
+        if (monster.mcan && !is_rider(record)) obj.norevive = 1;
     }
 
     if (resolvedSpecies != null) {

@@ -31,6 +31,7 @@ import {
     ttyPline,
 } from './tty_message.js';
 import {
+    addtopl,
     putsyms,
     remember_topl,
     show_topl,
@@ -78,6 +79,21 @@ function clearMessageWindow(state) {
     display.setCursor(0, 0);
 }
 
+// C ref: getline.c hooked_tty_getlin()'s redraw after Escape or a message
+// recall: tty_clear_nhwindow(WIN_MESSAGE), cw->maxcol = cw->maxrow, then
+// addtopl(query), addtopl(" ") and addtopl(obufp).  addtopl() wraps at the
+// terminal edge, leaves the cursor after the text, and sets
+// TOPLINE_NEED_MORE.
+function redrawPrompt(query, text, state) {
+    clearMessageWindow(state);
+    const cw = state.wintty?.wins?.[state.wintty.messageWindow];
+    if (cw) cw.maxcol = cw.maxrow;
+    addtopl(query, state);
+    addtopl(' ', state);
+    addtopl(text, state);
+    state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+}
+
 // C ref: win/tty/getline.c hooked_tty_getlin().  Returns the buffer as C
 // leaves it: the typed text, or "\x1b" when Escape cancels an empty line.
 //
@@ -118,6 +134,7 @@ async function hooked_tty_getlin(query, hook, state) {
         remember_topl(state);
         show_topl(`${query} `, state);
         state._ttyToplines = `${query} `;
+        state._ttyUnsplitToplines = state._ttyToplines;
         state._pending_message = '';
         // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
         display.toplin = TOPLINE_NEED_MORE;
@@ -128,6 +145,9 @@ async function hooked_tty_getlin(query, hook, state) {
             // recall copy of the prompt before every keystroke.
             state._ttyToplines = `${query} ${text}`;
             display.toplines = state._ttyToplines;
+            // That strcpy() leaves gt.toplines without update_topl()'s
+            // newlines; see topl.js toplineRows().
+            state._ttyUnsplitToplines = state._ttyToplines;
             const c = (await nhgetch(state)) & 0xFF;
 
             // pgetchar() reaches tty_nhgetch(), which maps NUL to Escape.
@@ -146,16 +166,16 @@ async function hooked_tty_getlin(query, hook, state) {
                 // NUL still restarts, because tty_nhgetch() has already turned it
                 // into Escape by the time this test runs.
                 if (c !== EOF_BYTE && text) {
-                    // Escape over existing text restarts the prompt and then falls
-                    // through the remaining tests, every one of which declines it.
+                    // Escape over existing text restarts the prompt and then
+                    // falls through the remaining tests. Only the doprev arm
+                    // below can take it, after a single-mode Ctrl-P recall.
                     text = '';
                     pos = 0;
-                    clearMessageWindow(state);
-                    putsyms(`${query} `, state);
-                    continue;
+                    redrawPrompt(query, text, state);
+                } else {
+                    text = '\x1B';
+                    break;
                 }
-                text = '\x1B';
-                break;
             }
             if (c === CTRL_P) {
                 const mode = state.iflags?.prevmsg_window ?? 's';
@@ -172,30 +192,20 @@ async function hooked_tty_getlin(query, hook, state) {
                 display.inread = 0;
                 await tty_doprev_message(state);
                 display.inread = savedInread;
-                clearMessageWindow(state);
-                state._ttyToplines = `${query} ${text}`;
-                display.toplines = state._ttyToplines;
-                show_topl(state._ttyToplines, state);
-                pos = Math.min(pos, text.length);
-                display.setCursor(
-                    Math.min(display.cols - 1, query.length + 1 + pos), 0,
-                );
-                text = text.slice(0, pos);
                 doprev = false;
+                // *bufp = 0 drops any completion past the insertion point.
+                text = text.slice(0, pos);
+                redrawPrompt(query, text, state);
                 continue;
             }
             if (doprev) {
-                clearMessageWindow(state);
-                state._ttyToplines = `${query} ${text}`;
-                display.toplines = state._ttyToplines;
-                show_topl(state._ttyToplines, state);
-                display.setCursor(
-                    Math.min(display.cols - 1, query.length + 1 + pos), 0,
-                );
-                text = text.slice(0, pos);
                 doprev = false;
-                continue;
+                text = text.slice(0, pos);
+                redrawPrompt(query, text, state);
             }
+            // Escape, whether it restarted the prompt or not, declines every
+            // remaining test.
+            if (c === 0 || c === ESC) continue;
             if (c === ERASE_CHAR || c === BACKSPACE) {
                 if (pos) {
                     --pos;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mkobj.c mkcorpstat() stores gm.mkcorpstat_norevive in obj->norevive, a bit that shares oeroded2's field, so a statue it makes has oeroded2 0 like any other object. A debug-mode Valkyrie wishes for a statue trap (mk_trap_statue() calls mkcorpstat()), carries the statue off the trap, drops it and zaps a wand of striking down at it. fracture_rock() keeps the field, so the 58 rocks merge with a wished rock in invent.c mergable() and the wish reports the existing letter f.",
+  "segments": [
+    {
+      "seed": 730115,
+      "datetime": "20390611141500",
+      "nethackrc": "OPTIONS=name:Stacker,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "h\u0017statue trap\n\u0017uncursed wand of striking\n,kdfze>,a\n\u0017uncursed rock\n"
+    }
+  ]
+}

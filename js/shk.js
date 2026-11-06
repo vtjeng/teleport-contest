@@ -2540,7 +2540,8 @@ export async function check_unpaid_usage(otmp, altusage, state = game, env = {})
     } else {
         if (!random.rn2(3)) first = 'Hey!  ';
         if (!random.rn2(3)) second = 'Ahem.  ';
-        line = `${first}Usage fee, ${price} ${currency(price, state, env)}.`;
+        // fmt "%s%sUsage fee, %ld %s." takes arg1 then arg2.
+        line = `${first}${second}Usage fee, ${price} ${currency(price, state, env)}.`;
     }
 
     if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {

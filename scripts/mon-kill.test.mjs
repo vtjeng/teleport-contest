@@ -1660,7 +1660,7 @@ test('a corpse that keeps its traits carries a copy of the monster',
     // mkobj.c clear_dknown():842 zeroes dknown for a mergeable object, which
     // is the value mksobj() already left.
     assert.equal(corpse.dknown, false);
-    assert.equal(corpse.norevive, false, 'no Trollsbane was wielded');
+    assert.equal(corpse.norevive, 0, 'no Trollsbane was wielded');
 });
 
 // mon.c make_corpse():576-579, whose flags mkobj.c mkcorpstat():2086 stores in

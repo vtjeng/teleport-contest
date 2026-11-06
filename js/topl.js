@@ -178,6 +178,28 @@ function rememberSuppressedMessage(state, message, columns) {
     if (state.nhDisplay) state.nhDisplay.toplines = toplines;
 }
 
+// C's gt.toplines holds the newlines update_topl() inserts at spaces
+// (topl.c:284-297) only when the line came through update_topl().
+// hooked_tty_getlin() rebuilds it with strcpy() and strcat() on every key
+// (getline.c:80), so redotoplin()'s putsyms() wraps that copy, and the
+// history entry remember_topl() later copies from it, at the terminal edge,
+// splitting words.  JavaScript keeps every top line unsplit and records the
+// last copy getline wrote in state._ttyUnsplitToplines; text equal to that
+// copy is laid out without the update_topl() split.  An entry from an
+// earlier getlin is laid out as an update_topl() line, which differs from C
+// only when it is at least CO bytes long.
+export function toplineRows(text, columns, state = game) {
+    const line = String(text ?? '');
+    if (!line || line !== state._ttyUnsplitToplines)
+        return wrapTtyTopline(line, columns);
+    // topl_putsym() wraps when curx reaches CO - 1.
+    const width = Math.max(1, columns - 1);
+    const rows = [];
+    for (let start = 0; start < line.length; start += width)
+        rows.push(line.slice(start, start + width));
+    return rows;
+}
+
 // C ref: topl.c redotoplin().  Wrapped text invokes more() after painting.
 export async function redotoplin(text, state = game) {
     const display = state.nhDisplay;
@@ -188,7 +210,7 @@ export async function redotoplin(text, state = game) {
     // the same bytes on its terminal.
     state._pending_message = text;
     display.topMessage = text;
-    const lines = wrapTtyTopline(text, display.cols);
+    const lines = toplineRows(text, display.cols, state);
     for (let row = 0; row < lines.length && row < display.rows; ++row) {
         display.setCursor(0, row);
         for (let col = 0; col < lines[row].length && col < display.cols; ++col)
