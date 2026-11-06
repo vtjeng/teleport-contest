@@ -4728,7 +4728,7 @@ export async function mhitm_ad_acid(
                 mhm.damage = 0;
             } else {
                 await message(
-                    `You're covered in ${hliquid('acid', effectEnv)}! It burns!`,
+                    `You're covered in ${hliquid('acid', effectEnv)}!  It burns!`,
                     state,
                 );
                 await exercise(A_STR, false, state, random, {
