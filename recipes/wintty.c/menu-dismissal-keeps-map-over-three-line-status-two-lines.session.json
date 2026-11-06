@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8801301,
+      "datetime": "20410922143000",
+      "nethackrc": "OPTIONS=name:Bryn,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,statuslines:2\n",
+      "moves": "\u0006Og\u001b\u001b"
+    }
+  ],
+  "comment": "Variation of menu-dismissal-keeps-map-over-three-line-status with statuslines:2, where map row 20 sits above the status window and the same dismissal repaints it as an ordinary map row."
+}

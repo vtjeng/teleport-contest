@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3307711,
+      "datetime": "20410505120000",
+      "nethackrc": "OPTIONS=name:Vale,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017blindfold\nPf\u0014Jjjll.\u0007invisible newt\n....R#terrain\n\n\u001b"
+    }
+  ],
+  "comment": "display.c newsym() takes its map_invisible() arm for a visible square remembered as an unseen monster, without _map_location(), so dungeon.c update_lastseentyp() does not run there. The blindfolded hero teleports into an unvisited room and an invisible newt attacks, leaving an 'I' on a square never seen; after the blindfold comes off, #terrain (detect.c reveal_terrain_getglyph()) draws that square from lastseentyp as stone. Variation: unseen-invisible-marker-keeps-last-seen-type-seen-first."
+}

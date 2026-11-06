@@ -3858,11 +3858,6 @@ export function newsym(x, y) {
         visible && monsterWarning
         && !(seeIt || (!wormTail && detectMonsters)),
     );
-    if (visible && !warningOnly) {
-        update_lastseentyp(x, y, game, {
-            canSeeMonster: (subject) => mon_visible(subject, game),
-        });
-    }
     if (region && (ACCESSIBLE(loc.typ)
         || (region.visible && is_pool_or_lava(x, y, game)))) {
         const adjacentVisibleMonster = monster
@@ -3914,8 +3909,8 @@ export function newsym(x, y) {
     // would then leave the hero undrawn on a square whose memory holds the
     // marker.
     //
-    // update_lastseentyp() above stays where the port already had it, one
-    // hoist further out than C's copy inside _map_location().
+    // Like the region arm above, it leaves lastseentyp alone: C's copy of
+    // update_lastseentyp() is inside _map_location(), which neither reaches.
     if (visible && !shouldDisplayMonster && !monsterWarning
         && !(game.u?.ux === x && game.u?.uy === y)
         && glyph_is_invisible(loc.remembered_glyph?.glyph)) {
@@ -3927,11 +3922,22 @@ export function newsym(x, y) {
     // display_warning(mon);`, the second arm of the same chain. It too skips
     // _map_location(): a square seen only under a warning glyph keeps its
     // old memory, its lastseentyp, and its objects' unobserved state, so the
-    // hero leaving and returning finds it as it was before. The lastseentyp
-    // write above is gated on this arm for the same reason.
+    // hero leaving and returning finds it as it was before.
     if (warningOnly) {
         display_warning(monster, game);
         return;
+    }
+
+    // dungeon.c update_lastseentyp(), which each of the visible square's
+    // remaining arms reaches through _map_location(): the hero's square, a
+    // seen or detected monster's, and an ordinary one. The region, invisible
+    // marker and warning arms above return without it, so a square only ever
+    // seen under a gas cloud or an 'I' keeps its last seen type, which
+    // #terrain shows (detect.c reveal_terrain_getglyph()).
+    if (visible) {
+        update_lastseentyp(x, y, game, {
+            canSeeMonster: (subject) => mon_visible(subject, game),
+        });
     }
 
     const covered = floorLayersCovered(loc, game);
@@ -7070,6 +7076,10 @@ function _buildScreenOutput(cursorOnHero = true) {
         const browserGlyphs = Boolean(display.spans);
         const decMap = browserGlyphs ? DEC_TO_UNICODE : SCORER_DEC_MAP;
         const firstStatusRow = display.rows - statusRows.length;
+        // Cells this flush prints over the status window. tty_print_glyph()
+        // writes them physically, so restoring the status cells kept while
+        // bot() is disabled must leave them in place.
+        const printedOverStatus = new Set();
         for (let offset = 0; offset < viewport.height; ++offset) {
             const y = viewport.top + offset;
             // An unclipped map row that lands on the status window is
@@ -7091,6 +7101,7 @@ function _buildScreenOutput(cursorOnHero = true) {
                 if (!ch) continue;
                 // display.c's nul_gbuf holds GLYPH_UNEXPLORED, so an
                 // unexplored square is never printed after cls().
+                if (overStatus) printedOverStatus.add(`${offset + 1}:${x - 1}`);
                 if (overStatus
                     && loc.disp_glyph?.glyph !== GLYPH_UNEXPLORED_OFF) {
                     recordStatusOverlay(
@@ -7129,6 +7140,8 @@ function _buildScreenOutput(cursorOnHero = true) {
             const firstRow = display.rows - savedStatusCells.length;
             for (let row = 0; row < savedStatusCells.length; ++row) {
                 for (let column = 0; column < display.cols; ++column) {
+                    if (printedOverStatus.has(`${firstRow + row}:${column}`))
+                        continue;
                     const cell = savedStatusCells[row][column];
                     display.setCell(
                         column,

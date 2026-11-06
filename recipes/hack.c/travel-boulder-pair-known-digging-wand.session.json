@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70411255,
+      "datetime": "20410312101500",
+      "nethackrc": "OPTIONS=name:Ferrum,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug,!autopickup\n",
+      "moves": "\u0017heavy iron ball\n\u0017wand of digging\nzflyhh\u0017boulder\nk\u0017boulder\nb\u0017boulder\nk\u0017boulder\n_\n\nd\u001b"
+    }
+  ],
+  "comment": "hack.c test_move() TEST_TRAV, \"don't pick two boulders in a row\": the hero stands on a boulder in a room corner whose three open neighbours also hold boulders, carries a heavy iron ball so could_move_onto_boulder() fails, and has identified a wand of digging by zapping it. C refuses the boulder-to-boulder step, so getpos.c auto_describe() appends \" (no travel path)\" to the door description. Variation: travel-boulder-pair-unknown-digging-wand."
+}
