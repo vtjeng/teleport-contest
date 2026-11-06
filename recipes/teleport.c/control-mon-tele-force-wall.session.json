@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "teleport.c control_mon_tele(): with montelecontrol in debug mode, a Wizard zaps a wished wand of teleportation at a newt, moves the destination cursor onto the room's top wall and answers 'y' to \"force anyway?\", so rloc() places the newt in the wall. Before yes/no answers were characters, the port compared that answer with 'y' and always picked a random destination.",
+  "segments": [
+    {
+      "seed": 61107221,
+      "datetime": "20600518113000",
+      "nethackrc": "OPTIONS=name:Telewizard,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none,!tips,montelecontrol\n",
+      "moves": " \u0017wand of teleportation\n\u0007newt\nzplk.y "
+    }
+  ]
+}

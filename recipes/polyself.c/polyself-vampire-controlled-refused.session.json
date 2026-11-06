@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of polyself-vampire-controlled-bat: a male elven Wizard answers 'n' to the same confirmation, so polyself() returns and the hero stays a vampire.",
+  "segments": [
+    {
+      "seed": 61107212,
+      "datetime": "20590213174500",
+      "nethackrc": "OPTIONS=name:Batrefuser,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017ring of polymorph control\nPpl#polyself\nvampire\n#polyself\nvampire bat\nn "
+    }
+  ]
+}

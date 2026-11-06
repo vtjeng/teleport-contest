@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61107201,
+      "datetime": "20581103141500",
+      "nethackrc": "OPTIONS=name:Giftasker,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " #levelchange\n5\n   \u0017lawful altar\n\u00173 mastodon corpses\n #offer\ny #offer\ny #offer\ny y "
+    }
+  ],
+  "comment": "pray.c bestow_artifact(): a level-5 lawful Samurai in debug mode wishes for a lawful altar and three mastodon corpses. The first two sacrifices clear the prayer timeout that wishing raised; the third reaches bestow_artifact(), whose debug-mode y_n(\"Gift an artifact?\") is answered 'y', so mk_artifact() gives Snickersnee. Before yes/no answers were characters, the port compared that answer with 'y' and never gave the gift."
+}

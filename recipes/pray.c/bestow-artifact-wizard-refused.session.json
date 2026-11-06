@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61107202,
+      "datetime": "20581104093000",
+      "nethackrc": "OPTIONS=name:Giftrefuser,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " #levelchange\n5\n   \u0017lawful altar\n\u00173 mastodon corpses\n #offer\ny #offer\ny #offer\ny n "
+    }
+  ],
+  "comment": "Variation of bestow-artifact-wizard-gift: the same route answers 'n' to \"Gift an artifact?\", so bestow_artifact() returns FALSE and the sacrifice continues to the Luck increase."
+}

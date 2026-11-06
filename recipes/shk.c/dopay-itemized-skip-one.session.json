@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c dopay(): a debug-mode Tourist level-teleports to Dlvl 3, arriving in a general store, picks up a food ration and a potion, and pays with the menu-request prefix so menustyle:full asks \"Itemized billing?\". 'y' itemizes; dopayobj() then asks \"Pay?\" for each item, and 'n' skips the potion while 'y' buys the ration. Before yes/no answers were characters, the port never matched 'y', 'm' or 'q' at the billing prompt nor 'n' at \"Pay?\", and paid for everything at once.",
+  "segments": [
+    {
+      "seed": 61107309,
+      "datetime": "20600601120000",
+      "nethackrc": "OPTIONS=name:Shopper,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none,!tips\n",
+      "moves": " \u00163\n  , h, mpyny "
+    }
+  ]
+}

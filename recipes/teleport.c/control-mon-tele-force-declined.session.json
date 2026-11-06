@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of control-mon-tele-force-wall: the same route answers 'n' to \"force anyway?\", so control_mon_tele() reports \"Picking random destination.\" and rloc() chooses the spot.",
+  "segments": [
+    {
+      "seed": 61107221,
+      "datetime": "20600519201500",
+      "nethackrc": "OPTIONS=name:Teledecliner,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none,!tips,montelecontrol\n",
+      "moves": " \u0017wand of teleportation\n\u0007newt\nzplk.n "
+    }
+  ]
+}

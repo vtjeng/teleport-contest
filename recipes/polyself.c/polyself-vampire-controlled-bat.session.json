@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c polyself(): a debug-mode Wizard puts on a wished ring of polymorph control, uses #polyself to become a vampire, then #polyself again and names a vampire bat. The vampire arm's y_n(\"Become a vampire bat?\") is answered 'y' and polymon() runs. Before yes/no answers were characters, the port compared that answer with 'y' and always returned unchanged.",
+  "segments": [
+    {
+      "seed": 61107211,
+      "datetime": "20590212081500",
+      "nethackrc": "OPTIONS=name:Batwisher,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017ring of polymorph control\nPol#polyself\nvampire\n#polyself\nvampire bat\ny   "
+    }
+  ]
+}

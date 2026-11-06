@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of dopay-itemized-skip-one: the same purchase answers 'q' to \"Itemized billing?\", so dopay() returns without paying.",
+  "segments": [
+    {
+      "seed": 61107309,
+      "datetime": "20600602183000",
+      "nethackrc": "OPTIONS=name:Shopquitter,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none,!tips\n",
+      "moves": " \u00163\n  , h, mpq "
+    }
+  ]
+}
