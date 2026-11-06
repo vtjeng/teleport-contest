@@ -5,6 +5,7 @@
 // description, sensing side channel, and optional permonst together for every
 // hero, swallowed, monster, object, trap, warning, invisible, and cmap arm.
 
+import { rm_doormask } from './game.js';
 import {
     BEAR_TRAP,
     BLINDED,
@@ -821,8 +822,7 @@ function look_at_object(glyph, x, y, state) {
         || location?.typ === SDOOR) {
         result += ' embedded in a wall';
     } else if (location?.typ === DOOR
-        && Boolean((location.doormask ?? location.flags ?? 0)
-            & (D_CLOSED | D_LOCKED))) {
+        && Boolean(rm_doormask(location) & (D_CLOSED | D_LOCKED))) {
         result += ' embedded in a door';
     } else if (is_pool(x, y, state)) {
         result += ' in water';

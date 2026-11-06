@@ -30,6 +30,7 @@
 // swallowed arms await insight.c mstatusline(); both reachability branches
 // call the corresponding engrave.c cant_reach_floor() helper.
 
+import { rm_doormask } from './game.js';
 import {
     ACCESSIBLE,
     ARTICLE_A,
@@ -2871,7 +2872,7 @@ export function check_jump(trajectory, x, y, state = game) {
     if (IS_STWALL(location.typ)) return false;
     if (IS_DOOR(location.typ)) {
         if (closed_door(x, y, state)) return false;
-        const mask = location.doormask ?? 0;
+        const mask = rm_doormask(location);
         if ((mask & D_ISOPEN) !== 0 && trajectory !== JUMP_ANY
             && (trajectory === JUMP_DIAG
                 || (((trajectory & JUMP_HORZ) !== 0)

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steal.c steal() charms a female hero out of her worn levitation boots: remove_worn_item() reaches do_wear.c Boots_off(), whose float_down() prints 'You float gently...', looks here and can trigger a trap. The hero drops everything else first so the boots are the only theft target, wears wished levitation boots, and wakes a created wood nymph by hitting it. The port's dry run of the nymph's turn must not print the landing messages; it hands the turn to the live pass.",
+  "segments": [
+    {
+      "seed": 4417203,
+      "datetime": "20260322104500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "TDAa\n\u001b\u0017uncursed levitation boots\nWf\u0007wood nymph\nFk Fk  ms ms ms ms ms ms ms ms ms ms "
+    }
+  ]
+}

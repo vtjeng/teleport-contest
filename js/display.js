@@ -6902,6 +6902,7 @@ function writeStatusRows(
             styles[index],
             forced || previous?.layouts?.length !== layouts.length,
             titleDirty,
+            display.cols,
         );
         display.clearRow(screenRow);
         const { text } = layouts[index];
@@ -6974,7 +6975,7 @@ function _statusFieldGroups(layout, rowIndex) {
 
 function _clearRedrawnStatusOverlay(
     screenRow, rowIndex, oldLayout, oldStyles, newLayout, newStyles, forced,
-    titleDirty = false,
+    titleDirty = false, columns = 80,
 ) {
     const overlay = game._statusMapOverlay;
     if (!overlay?.size) return;
@@ -7020,13 +7021,21 @@ function _clearRedrawnStatusOverlay(
                 redraw.add(key);
         }
     }
+    // render_status() ends each row with
+    //   if ((x < finalx[row][BEFORE] || !finalx[row][BEFORE])
+    //       && x + 1 < cw->cols) { tty_curs(WIN_STATUS, x + 1, y); cl_end(); }
+    // where x, finalx[row][NOW], is the row's text length. cl_end() erases
+    // the whole rest of the terminal row, so a map glyph beyond the old
+    // row's end goes too. finalx[row][BEFORE] is 0 only before the row's
+    // first render.
+    const erasesTail = (!oldLayout || newText.length < oldText.length)
+        && newText.length + 1 < columns;
     for (const [key, cell] of overlay) {
         if (cell.row !== screenRow) continue;
         const column = cell.column;
         if (column < newText.length) {
             if (forced || redraw.has(keys[column])) overlay.delete(key);
-        } else if (column < oldText.length) {
-            // render_status() erases what is left of a shortened row.
+        } else if (erasesTail) {
             overlay.delete(key);
         }
     }

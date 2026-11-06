@@ -14,6 +14,7 @@
 // monkilled(), killed(), xkilled() and adj_erinys(); mthrowu.c m_carrying();
 // do_name.c safe_oname().
 
+import { rm_doormask } from './game.js';
 import {
     ACH_MEDU,
     A_CHAOTIC,
@@ -5207,7 +5208,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
 
     if (closed_door(x, y, state)) {
         const door = state.level.at(x, y);
-        const trapped = Boolean((door.doormask ?? door.flags ?? 0) & D_TRAPPED);
+        const trapped = Boolean(rm_doormask(door) & D_TRAPPED);
         const seen = cansee(x, y, state);
         state.msg_xy = { x, y };
         if (!seen) {

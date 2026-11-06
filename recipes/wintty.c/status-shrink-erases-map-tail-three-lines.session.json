@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wintty.c render_status() ends a row that got shorter with cl_end(), which erases the rest of the terminal row, not just the columns the old text covered. With statuslines:3 the bottom map row prints over the first status row; on the castle level ^F maps its full-width bottom wall there. Polymorphing into a newt turns St:18/05 into St:18, and the erase removes the wall beyond the old row's end too.",
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "20260214133000",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,color,statuslines:3\n",
+      "moves": "\u0016castle\n\u0006#polyself\nnewt\n  "
+    }
+  ]
+}
