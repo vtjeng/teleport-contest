@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent bones.c witness for restore.c restobjchn()/restmonchn() back pointers on a loaded bones level. A debug dwarven Valkyrie goes to a new level 3, is killed by a kobold mummy, rises as a dwarf mummy that wears her possessions, and saves bones. A second game on another seed and clock goes to level 3 and loads the bones (bones.c getbones()), then reads a wished scroll of genocide on dwarf mummies; mondead() drops the mummy's pack through steal.c relobj() -> mdrop_obj() -> obj_extract_self(), which needs each restored object's ocarry. The second seed was chosen as the first of three tried whose level 3 takes bones; the seeds, clocks and inputs are otherwise independent.",
+  "segments": [
+    {
+      "seed": 5180331,
+      "datetime": "20350214091500",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\n\u0007kobold mummy\nmsmsmsmsmsmsmsmsmsmsmsmsmsmsms  yqy"
+    },
+    {
+      "seed": 5180351,
+      "datetime": "20350216101500",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": " \u00163\nyy\u001b\u0017uncursed scroll of genocide\nre  dwarf mummy\n\u001bss"
+    }
+  ]
+}
