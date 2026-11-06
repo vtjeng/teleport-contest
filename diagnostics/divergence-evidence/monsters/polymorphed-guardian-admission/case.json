@@ -1,0 +1,52 @@
+{
+  "caseId": "polymorphed-guardian-admission",
+  "shard": "monsters",
+  "outcome": "unresolved",
+  "ready": false,
+  "binding": "manual/unbound JS-only admission guard",
+  "jsBase": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "discoveredAt": "2026-10-28T20:48:13.570249+00:00",
+  "reviewedAt": "2026-10-28T20:58:52.109951+00:00",
+  "hypothesis": "Species-only Angel admission rejects genuine polymorphed guardian",
+  "expectedC": "Hypothesis: retained tame minion enters dog_move; full C transition not verified",
+  "observedJS": "Actual newcham Angel->ogre retains mtame/isminion/emin/no-edog; next normal action refuses",
+  "control": "Same genuine guardian without polymorph completes normal action",
+  "missingStep": "Full supported C guardian polymorph and subsequent admission target/control",
+  "nextExperiment": "Ordinary polymorph zaps are blocked by native Angel magic resistance; do not repeat or bypass them. If pursuing the explicit newcham API contract, execute full pinned C transition and movement with actual guardian metadata; otherwise retain unresolved.",
+  "sources": [
+    "src/mon.c:newcham",
+    "src/monmove.c:m_move",
+    "src/dogmove.c:dog_move",
+    "js/unported_monster_actions.js:assertSimpleActionState"
+  ],
+  "sourceSha256": {
+    "js/mon.js": "8df046bda3602822e5443eea8f98a1e6f82a094e0a1d342224fcea951b9b6f0f",
+    "js/dogmove.js": "3aac796d86b1897cd4245c1f8f147184e8ce2734bebc2dcbed8fdf019db682c0",
+    "js/unported_monster_actions.js": "a565927374822e6ed3f73cda17f65b0d7ded527aac5910bdbb9b1ee3319c9902",
+    "nethack-c/upstream/src/mon.c": "0ab56f908ac2147a5e57970250b99f90d47f2ec32fbdfb1a6fab04c33167bd01",
+    "nethack-c/upstream/src/monmove.c": "a7dae4554a30b51e0971ae32086c7494da8e3b8c18ee0e6d4a875f4a8baaf613",
+    "nethack-c/upstream/src/dogmove.c": "d6b80a15c36009ea34974179033fff53475400c39910ff74da4eac2b64e8cb40",
+    "recipes/monmove.c/guardian-angel-movement-cat.session.json": "37fca1e13763fb42f2b45bcaed33e3eaf28a1f4bd46841ac46756c124dc23734",
+    "recordings/monmove.c/guardian-angel-movement-cat.session.json": "1b39b4913a798c0d431ffd5d1fa3c0a639a2fe95ab5219ee1bf38864782a8014",
+    "nethack-c/upstream/include/monsters.h": "c63db922770c96a9956d221f364ba4368a9f81f81c8d64ed28251a0506d4a906",
+    "nethack-c/upstream/src/mondata.c": "c7a19d003c169fed7dde555ecad9069627f059309142b7d8104314572f90a685",
+    "nethack-c/upstream/src/zap.c": "8ee02bd7aa29b026d6b5a2e0017ddf402fcfc6fc81037e35ceda2d86467547cb",
+    "js/mondata.js": "6b60849ed63e0252a943c474eb31d1841dd2cfd3b7f93dc2742d7298a5ca3989",
+    "scripts/diff-fresh.mjs": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e"
+  },
+  "evidence": [
+    "README.md",
+    "probe.mjs",
+    "source-check.mjs",
+    "observations.txt",
+    "wand-route-observations.json",
+    "wand-route.recipe.json",
+    "record-wand-route.mjs"
+  ],
+  "tools": {
+    "node": "v24.19.0",
+    "recorder": "Follow-up uses isolated runDifferential recorder, SHA-256 d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13; original API probe used no recorder"
+  },
+  "validation": "Clean detached stated base: 3 characterization/source checks pass; suite guard 6 pass. No C transition oracle."
+}

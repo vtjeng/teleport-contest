@@ -1,0 +1,2 @@
+{"polymorph":false,"species":"Angel","mtame":10,"isminion":true,"emin":true,"edog":false,"result":0}
+{"polymorph":true,"species":"ogre","mtame":10,"isminion":true,"emin":true,"edog":false,"error":"simple monster action requires tame minion movement"}

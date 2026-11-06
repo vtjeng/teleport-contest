@@ -1,0 +1,73 @@
+{
+  "reviewedAt": "2026-10-28T20:58:52.109572+00:00",
+  "jsBase": "52d1911e5e9e8ad6a185e2561caaf5fd92edc703",
+  "cBase": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "attempts": [
+    {
+      "attempt": 1,
+      "recordingSha256": "1a254a591243414e1dc7f7d6f2d21b97c229c9c08f1735a821404860028db7d7",
+      "recordingBytes": 242084,
+      "localDurablePath": "/workspace/monsters-private/guardian-s-wand1/recorded.session.json",
+      "outcome": "coverage miss: startup form prompt consumes target inputs",
+      "comparison": {
+        "passed": true,
+        "rng": 4405,
+        "screens": 140,
+        "cursors": 140,
+        "animFrames": 0
+      },
+      "focusedRawScreens": [
+        {
+          "step": 20,
+          "firstLine": "Change the vampire lord @ <27,15> into what?"
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "recordingSha256": "63583e13c496f966902add029b77afed6fb142dcb2c096bea15727f8f1e03da7",
+      "recordingBytes": 347564,
+      "localDurablePath": "/workspace/monsters-private/guardian-s-wand2/recorded.session.json",
+      "outcome": "coverage miss: native Angel resists polymorph",
+      "comparison": {
+        "passed": true,
+        "rng": 6976,
+        "screens": 154,
+        "cursors": 154,
+        "animFrames": 21
+      },
+      "focusedRawScreens": [
+        {
+          "step": 145,
+          "firstLine": "The guardian Angel of Lugh resists!"
+        }
+      ]
+    },
+    {
+      "attempt": 3,
+      "recordingSha256": "4388b5213c46d65d1c20ba9d24c0df7ae5ba1e0745797e9f007f544ab3cf9fb6",
+      "recordingBytes": 390942,
+      "localDurablePath": "/workspace/monsters-private/guardian-s-wand3/recorded.session.json",
+      "outcome": "coverage miss: native Angel resists polymorph",
+      "comparison": {
+        "passed": true,
+        "rng": 7515,
+        "screens": 165,
+        "cursors": 165,
+        "animFrames": 85
+      },
+      "focusedRawScreens": [
+        {
+          "step": 145,
+          "firstLine": "The guardian Angel of Lugh resists!"
+        },
+        {
+          "step": 156,
+          "firstLine": "The guardian Angel of Lugh resists!  The wand hits you!  Boing!--More--"
+        }
+      ]
+    }
+  ],
+  "scope": "Failed supported wizard-wand routes only; matching records do not establish guardian-polymorph equivalence",
+  "explanation": "src/mondata.c resists_magm immediately returns TRUE for dmgtype(ptr, AD_MAGM); native Angel has that attack. src/zap.c polymorph checks resists_magm before resist or newcham. JS has the same guard. Do not retry ordinary polymorph zaps or remove this resistance to force a witness."
+}
