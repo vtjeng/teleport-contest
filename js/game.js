@@ -4,6 +4,16 @@
 import { COLNO, MAX_NUM_WORMS, ROWNO, STONE } from './const.js';
 import { NO_COLOR } from './terminal.js';
 
+// C ref: rm.h `#define doormask flags`. C keeps one door mask per square;
+// these locations carry both spellings, because ordinary generated doors
+// write `flags` while some special-level and fixture paths write only
+// `doormask`. Read a door's mask through here, `flags` first, as
+// monmove.js closed_door() does: `doormask ?? flags` would read a stale 0
+// and miss the bits a generated door keeps in `flags`.
+export function rm_doormask(location) {
+    return location?.flags || location?.doormask || 0;
+}
+
 // A single map cell. Mirrors C's struct rm.
 export function makeLocation() {
     return {

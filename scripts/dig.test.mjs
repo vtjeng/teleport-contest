@@ -40,6 +40,7 @@ import {
     DIGTYP_UNDIGGABLE,
     DOOR,
     D_BROKEN,
+    D_TRAPPED,
     D_CLOSED,
     D_LOCKED,
     D_NODOOR,
@@ -96,7 +97,7 @@ import {
     mdig_tunnel, pick_can_reach,
     rot_corpse, unportedRotCorpseReason,
 } from '../js/dig.js';
-import { GameMap } from '../js/game.js';
+import { GameMap, rm_doormask } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -1332,6 +1333,61 @@ test('mdig_tunnel supplies object hooks for a boulder on stone', async () => {
     const boulder = sobj_at(BOULDER, x, y, game);
     assert.ok(boulder, 'digging stone should place the rolled boulder');
 });
+
+// rm.h `#define doormask flags`: C keeps one door mask per square. A
+// location here carries both spellings; generated doors write `flags` and
+// leave `doormask` 0, while some special-level and fixture paths write only
+// `doormask`. rm_doormask() reads `flags` first, as closed_door() does.
+test('rm_doormask reads the door mask from either spelling, flags first', () => {
+    // flags only: an ordinary generated door (mklev.c dosdoor()).
+    assert.equal(rm_doormask({ flags: D_CLOSED | D_TRAPPED, doormask: 0 }),
+        D_CLOSED | D_TRAPPED);
+    // doormask only: a path that writes just the `doormask` spelling.
+    assert.equal(rm_doormask({ flags: 0, doormask: D_LOCKED }), D_LOCKED);
+    // Both set: `flags` wins, the canonical C member.
+    assert.equal(rm_doormask({ flags: D_BROKEN, doormask: D_LOCKED }), D_BROKEN);
+    // Neither: D_NODOOR (0), also for a missing location.
+    assert.equal(rm_doormask({ flags: 0, doormask: 0 }), D_NODOOR);
+    assert.equal(rm_doormask(undefined), D_NODOOR);
+});
+
+// dig.c mdig_tunnel() (1425-1439). A closed door whose mask has D_TRAPPED
+// becomes D_NODOOR and sends the tunneler into monmove.c mb_trapped(); an
+// untrapped one becomes D_BROKEN and spends rn2(3) on the draft message.
+// The mask is in `flags` with `doormask` 0, as on a generated door: reading
+// `doormask ?? flags` saw 0 and took the untrapped arm.
+test('mdig_tunnel explodes a generated trapped door whose mask is in flags',
+    async () => {
+        await tunnelGame('');
+        const { x, y } = firstWall();
+        const door = game.level.at(x, y);
+        door.typ = DOOR;
+        door.flags = D_CLOSED | D_TRAPPED;
+        door.doormask = 0;
+        const dwarf = newMonster({ data: game.mons[PM_DWARF], mx: x, my: y });
+        const drawn = [];
+        const exploded = [];
+        const random = {
+            // rnd(12) is the pile roll, spent before the terrain test.
+            rnd: (bound) => { drawn.push(['rnd', bound]); return 6; },
+            // The untrapped arm's draft roll must not be reached.
+            rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+        };
+
+        const died = await mdig_tunnel(dwarf, {
+            state: game,
+            random,
+            message: async () => {},
+            redraw: () => {},
+            // false: the dwarf survives the explosion.
+            mbTrapped: async (monster) => { exploded.push(monster); return false; },
+        });
+
+        assert.equal(died, false);
+        assert.deepEqual(exploded, [dwarf]);
+        assert.deepEqual(drawn, [['rnd', 12]]);
+        assert.equal(rm_doormask(door), D_NODOOR);
+    });
 
 test('digcheck_result values match the C enum and failure alias', () => {
     const header = readFileSync('nethack-c/upstream/include/hack.h', 'utf8');
