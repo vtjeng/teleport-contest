@@ -3230,6 +3230,14 @@ function drinkEnvironment(state, rawEnv = {}) {
             message: rawEnv.hooks?.message ?? message,
             encumberMessage: rawEnv.hooks?.encumberMessage
                 ?? ((subject) => encumber_msg(subject, { message })),
+            // invent.c:941, reached when hold_potion()'s addinv() merges a
+            // mixture into a stack whose known flags it settles.
+            inventoryComparisonDiscovered:
+                rawEnv.hooks?.inventoryComparisonDiscovered
+                ?? (() => message(
+                    'You learn more about your items by comparing them.',
+                    state,
+                )),
         },
     };
 }
