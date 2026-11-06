@@ -3493,7 +3493,7 @@ function joust(mon, obj, state, random, env) {
 
     const joustDieroll = random.rn2(5);
     if (joustDieroll < skillRating) {
-        if (joustDieroll === 0 && random.rnl(50) === 49
+        if (joustDieroll === 0 && (random.rnl ?? rnl)(50) === 49
             && !unsolid(mon.data, state)
             && !obj_resists(obj, 0, 100, { ...env, state, random }))
             return -1;
