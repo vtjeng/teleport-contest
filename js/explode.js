@@ -1179,8 +1179,12 @@ export async function scatter(
             state.gb.bhitpos.y = y;
             if (!isok(x, y) || !ZAP_POS(terrainAt(x, y))
                 || isClosedDoor(x, y)) {
+                // C steps the global gb.bhitpos back too; a bhit() whose
+                // zap_map() scattered debris resumes from that square.
                 x -= chain.dx;
                 y -= chain.dy;
+                state.gb.bhitpos.x = x;
+                state.gb.bhitpos.y = y;
                 chain.stopped = true;
             } else {
                 const monster = getMonster(x, y);

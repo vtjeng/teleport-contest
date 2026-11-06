@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wizard-mode level teleport (^V, ? menu, first page's castle entry) to the Castle, #wizmap, then wizard-mode ^T to the map square west of the drawbridge's row (getpos: '{' finds the courtyard fountain, H and hh move the cursor back to the first map column outside the teleport exclusion). A force bolt east passes the raised drawbridge span and destroys the portcullis through zap.c zap_map and dbridge.c destroy_drawbridge. The last iron chain of debris starts on the span and explode.c scatter stops it against the wall to the southeast; C steps the global gb.bhitpos back to the span, so bhit() resumes along the original row and the bolt reaches the lieutenant in the entry hall. The seed was chosen by scanning seeds 7302215-7302260 for a last chain that stops.",
+  "segments": [
+    {
+      "seed": 7302245,
+      "datetime": "20450822143012",
+      "nethackrc": "OPTIONS=name:Debris,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0016?\nj#wizmap\n\u0014  {Hhh.Zal  "
+    }
+  ]
+}
