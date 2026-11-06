@@ -13,6 +13,7 @@ const root = new URL('../', import.meta.url);
 
 const JUDGE_CALLERS = new Map([
     ['scripts/run-segment-errors.test.mjs', 'tests the judge-facing behaviour itself'],
+    ['scripts/segment-termination.test.mjs', 'tests how the judge-facing entry point reports termination violations'],
     ['tools/session-viewer/viz.mjs', 'shows what the judge scores, and reports game.segmentError'],
     ['scripts/run-segment-imports.test.mjs', "holds the detector's sample imports"],
     ['scripts/replay-coverage.test.mjs', 'writes a stand-in frozen/ps_test_runner.mjs, which imports what the judge does'],

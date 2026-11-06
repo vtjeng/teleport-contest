@@ -236,6 +236,7 @@ import {
 import { roles } from '../js/roles.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
 const OBJ_HEADER_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8');
@@ -1273,11 +1274,11 @@ test('a blind object pile uses the source tactile heading before petrification',
         const events = [];
         // Two objects enter look_here()'s pile branch, and no flag requests a
         // different object-list behavior.
-        await look_here(2, LOOKHERE_NOFLAGS, state, {
+        await expectTerminated(() => look_here(2, LOOKHERE_NOFLAGS, state, {
             message: (text) => events.push(['message', text]),
             displayObjectPile: (lines) => events.push(['display', lines]),
             readEngraving: () => events.push(['engraving']),
-        });
+        }));
 
         // invent.c:look_here() emits the tactile heading before the corpse;
         // invent.c:feel_cockatrice() then warns before instapetrify() ends play.

@@ -63,6 +63,7 @@ import {
     WATER_WALKING_BOOTS,
     WEAPON_CLASS,
 } from '../js/objects.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/polyself.c', 'utf8');
 const JS_SOURCE = readFileSync('js/polyself.js', 'utf8');
@@ -512,7 +513,7 @@ test('polymon stops after fatal lava during water-walking boot removal',
     game.u.uprops[LIFESAVED].extrinsic = 0;
     game.nhDisplay.readKey = async () => 32;
 
-    await polymon(PM_GIANT_ANT, game);
+    await expectTerminated(() => polymon(PM_GIANT_ANT, game));
 
     assert.equal(game.program_state.gameover, true,
         'fatal lava reaches the non-returning done(BURNING) boundary');

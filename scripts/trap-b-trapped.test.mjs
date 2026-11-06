@@ -6,6 +6,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { b_trapped } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 async function hero(depth = 1) {
     // Independent Wizard setup; the helper reads dungeon depth for damage.
@@ -89,14 +90,14 @@ test('a fatal b_trapped explosion stops before exercise and stun', async () => {
     clearTtyMessageWindow(state);
     const draws = [];
     const messages = [];
-    await b_trapped('door', FINGER, state, {
+    await expectTerminated(() => b_trapped('door', FINGER, state, {
         random: {
             rnd(bound) { draws.push(['rnd', bound]); return 6; }, // trap.c:6697, level 1.
             rn2(bound) { draws.push(['rn2', bound]); return 1; },
         },
         message: async text => { messages.push(text); },
         encumberMessage: async () => {},
-    });
+    }));
     // trap.c:6702 losehp() does not return after a death, so neither
     // exercise() call draws and make_stunned() never says "You stagger...".
     assert.equal(state.program_state.gameover, true);

@@ -8,6 +8,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import { float_down } from '../js/trap.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const C_TRAP = readFileSync(
     new URL('../nethack-c/upstream/src/trap.c', import.meta.url), 'utf8',
@@ -40,7 +41,7 @@ test('Sokoban levitation fall touches the wielded cockatrice corpse', async () =
         /float_down\(\n    long hmask,[\s\S]*?Sokoban && trap[\s\S]*?losehp\(rnd\(2\), "dangerous winds", KILLED_BY\);[\s\S]*?selftouch\("As you fall, you"\);/u);
     await setupSokobanLevitationFall();
 
-    await float_down(1, 0, game);
+    await expectTerminated(() => float_down(1, 0, game));
     assert.equal(game.program_state.gameover, true);
     assert.equal(game.killer.name, 'a cockatrice corpse');
     assert.ok(!game.unported.has('polyself.c selftouch'));
@@ -50,7 +51,7 @@ test('fatal Sokoban fall damage ends before corpse contact', async () => {
     await setupSokobanLevitationFall();
     game.u.uhp = 1;
 
-    await float_down(1, 0, game);
+    await expectTerminated(() => float_down(1, 0, game));
     assert.equal(game.program_state.gameover, true);
     assert.equal(game.killer.name, 'dangerous winds');
 });

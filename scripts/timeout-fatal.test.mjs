@@ -14,6 +14,7 @@ import { mksobj } from '../js/obj.js';
 import { AMULET_OF_LIFE_SAVING } from '../js/objects.js';
 import { _doWearInternals } from '../js/do_wear.js';
 import * as timeout from '../js/timeout.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const source = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
 const jsSource = readFileSync('js/timeout.js', 'utf8');
@@ -73,7 +74,7 @@ test('done_timeout retains I_SPECIAL on the actual final-death boundary', async 
     state.flags.bones = false;
     state.killer = { name: 'fatal clock', format: KILLED_BY };
     more();
-    await timeout.done_timeout(POISONING, SICK, state);
+    await expectTerminated(() => timeout.done_timeout(POISONING, SICK, state));
     assert.equal(state.program_state.gameover, true);
     assert.equal(state.u.uprops[SICK].intrinsic & I_SPECIAL, I_SPECIAL,
         'C never reaches the life-saved epilogue after actual death');

@@ -156,13 +156,14 @@ test('stops at the first failing chunk and keeps prior passing totals', async ()
 // it with the hooks it takes instead of the real process, so the tests neither
 // set process.exitCode nor depend on the test runner's own argv.
 function cliHooks(argv) {
-    const calls = { written: '', exitCode: undefined };
+    const calls = { written: '', exitCode: undefined, unsettled: [] };
     return {
         calls,
         hooks: {
             argv,
             write: (text) => { calls.written += text; },
             setExitCode: (status) => { calls.exitCode = status; },
+            onUnsettled: (report) => { calls.unsettled.push(report); },
         },
     };
 }
@@ -205,6 +206,33 @@ test('runMatrixCli maps the matrix result to status 0 or 1', async () => {
         assert.equal(calls.exitCode, expected);
         assert.equal(calls.written, '');
     }
+});
+
+test('runMatrixCli leaves status 2 and reports a matrix that never settles', async () => {
+    // A matrix whose awaited game call ended the game: js/end.js
+    // nh_terminate() never settles it, so run() never settles either.
+    const { calls, hooks } = cliHooks(CLI_ENTRY_ARGV);
+    const status = runMatrixCli(
+        CLI_MODULE_URL, () => new Promise(() => {}), 'example', hooks,
+    );
+    let settled = false;
+    status.then(() => { settled = true; });
+    await new Promise((resolve) => { setTimeout(resolve, 0); });
+    assert.equal(settled, false);
+    assert.equal(calls.exitCode, 2);
+    // What process 'beforeExit' would run once nothing is left to do.
+    assert.equal(calls.unsettled.length, 1);
+    calls.unsettled[0]();
+    assert.equal(calls.written,
+        'example: the matrix never finished; a call it awaited ended the game\n');
+
+    // A matrix that settles makes the same report a no-op.
+    const settledRun = cliHooks(CLI_ENTRY_ARGV);
+    assert.equal(await runMatrixCli(
+        CLI_MODULE_URL, async () => ({ passed: true }), 'example', settledRun.hooks,
+    ), 0);
+    settledRun.calls.unsettled[0]();
+    assert.equal(settledRun.calls.written, '');
 });
 
 test('runMatrixCli reports a thrown error under the label with status 2', async () => {

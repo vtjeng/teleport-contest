@@ -71,6 +71,7 @@ import {
     W_ARMU,
     W_SADDLE,
     STRAT_WAITMASK,
+    KILLED_BY_AN,
 } from '../js/const.js';
 import { S_altar } from '../js/symbols.js';
 import { GameMap } from '../js/game.js';
@@ -335,6 +336,7 @@ import { extra_pref, update_mon_extrinsics } from '../js/worn.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 import { loadMonsterPickupRecipe } from './run-monster-pickup.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const MAKEMON_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/makemon.c', 'utf8',
@@ -1880,9 +1882,13 @@ test('saddle removal calls the steed FELL dismount', async () => {
     for (let i = 0; i < 12; ++i)
         state.nhDisplay.pushKey(' '.charCodeAt(0));
 
-    await update_mon_extrinsics(steed, saddle, false, { state, silent: true });
+    // The fall's damage kills this 16-HP hero, and done() does not return,
+    // so dismount_steed() never reaches its u.usteed = 0 (steed.c); the
+    // killer shows that its DISMOUNT_FELL losehp() ran.
+    await expectTerminated(() => update_mon_extrinsics(steed, saddle, false, { state, silent: true }));
 
-    assert.equal(state.u.usteed, null);
+    assert.deepEqual(state.killer, { format: KILLED_BY_AN, name: 'riding accident' });
+    assert.equal(state.program_state.gameover, true);
     assert.equal(game.unported.size, 0);
 });
 

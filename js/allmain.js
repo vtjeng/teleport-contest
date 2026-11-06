@@ -160,6 +160,8 @@ import {
     rne,
     rnl,
     rnz,
+    isTerminated,
+    raceTermination,
 } from './rng.js';
 import { dosounds } from './sounds.js';
 import {
@@ -1826,8 +1828,25 @@ async function advanceElapsedTurn(state) {
     await see_nearby_monsters(state);
 }
 
-// C ref: allmain.c moveloop_core()
+// The entry point every driver calls once per input: playSegment() in
+// js/jsmain.js, js/nethack.js, the test drivers and the judge's frozen
+// drivers. Once the segment has terminated (js/end.js nh_terminate()) it runs
+// no game code; it reads one raw key from the display's queue, outside
+// nhgetch() and its capture hook, so a driver that stops only when its keys
+// run out drains them and stops, and the browser page idles on the final
+// screen. Otherwise it races the C function's body against the segment's
+// termination notice and returns once either settles.
 export async function moveloop_core() {
+    if (isTerminated()) {
+        const display = game.nhDisplay;
+        if (display?.readKey) await display.readKey();
+        return;
+    }
+    await raceTermination(moveloop_core_body());
+}
+
+// C ref: allmain.c moveloop_core()
+async function moveloop_core_body() {
     const g = game;
 
     maybe_shuffle_customizations(g);
@@ -2078,11 +2097,9 @@ export async function moveloop(resuming) {
     await docrt();
     await flush_screen(1);
 
-    // C ref: allmain.c moveloop() runs until program_state.gameover. The only
-    // writer in the port is js/jsmain.js's player-selection abort, which
-    // returns before this loop starts, so every game-ending path currently
-    // leaves through a thrown boundary instead. done() will restore the
-    // in-play writer.
+    // C ref: allmain.c moveloop() loops until nh_terminate() exits the
+    // process. The port's moveloop_core() returns once the segment has
+    // terminated, so this stops on the gameover that nh_terminate() sets.
     for (;;) {
         await moveloop_core();
         if (game.program_state?.gameover) break;

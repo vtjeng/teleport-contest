@@ -18,6 +18,7 @@ import { CMDQ_DIR, CQ_CANNED, ROOM } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import { commands_init } from '../js/cmd.js';
+import { expectTerminated } from './expect-terminated.mjs';
 import { game, resetGame } from '../js/gstate.js';
 
 function menuState() {
@@ -89,19 +90,21 @@ test('click_to_cmd uses the internal clicklook handler as C mouse button two doe
     assert.equal(state.command_queue[0][0].ec_entry.ef_funct, 'doclicklook');
 });
 
-test('hangup defers a save during the move loop and end_of_input marks exit', () => {
+test('hangup defers a save during the move loop and end_of_input terminates', async () => {
     const deferred = {
         program_state: {
             in_moveloop: 1,
             something_worth_saving: 1,
         },
     };
-    assert.equal(hangup(1, deferred), undefined);
+    assert.equal(await hangup(1, deferred), undefined);
     assert.equal(deferred.program_state.done_hup, 1);
     assert.equal(deferred.program_state.gameover, undefined);
 
+    // cmd.c:5206 nh_terminate(EXIT_SUCCESS) does not return.
     const ending = { program_state: { something_worth_saving: 0 } };
-    assert.equal(end_of_input(ending), 0);
+    await expectTerminated(() => end_of_input(ending));
     assert.equal(ending.program_state.gameover, true);
     assert.equal(ending.program_state.exiting, 1);
+    assert.equal(ending.program_state.in_moveloop, 0);
 });

@@ -87,6 +87,7 @@ import {
     loadSitEggLayingRecipes,
 } from './run-sit-command.mjs';
 import { canspotmon } from '..//js/display.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const C_SIT = readFileSync(
     new URL('../nethack-c/upstream/src/sit.c', import.meta.url), 'utf8',
@@ -439,10 +440,11 @@ test('a lethal electric throne stops exercise and throne-removal draws', async (
         },
     };
 
-    assert.equal(await dosit(game, {
+    // The fatal losehp() does not return, so neither does dosit().
+    await expectTerminated(() => dosit(game, {
         random,
         message: async () => {},
-    }), ECMD_TIME);
+    }));
     assert.equal(game.program_state.gameover, true);
     assert.deepEqual(calls, ['rnd(6)', 'rnd(13)', 'rnd(30)']);
 });

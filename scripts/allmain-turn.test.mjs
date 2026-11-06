@@ -168,6 +168,7 @@ import {
     loadDelayedActionRecipes,
     verifyDelayedActionSegment,
 } from './run-delayed-actions.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const C_ALLMAIN = readFileSync('nethack-c/upstream/src/allmain.c', 'utf8');
 const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
@@ -1586,11 +1587,11 @@ test('fatal gas skips poison-belief updates after final gameover',
         for (let index = 0; index < 30; ++index)
             game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        await inside_gas_cloud(region, null, {
+        await expectTerminated(() => inside_gas_cloud(region, null, {
             state: game,
             random: { rn2, rnd },
             message: (text) => ttyPline(text, game),
-        });
+        }));
 
         assert.equal(game.program_state.gameover, true);
         assert.equal(watcher.seen_resistance & M_SEEN_POISON,
@@ -4110,20 +4111,19 @@ test('a hero the monster scan kills reaches no once-per-turn upkeep',
         // --More-- and the "You die..." that win/tty/topl.c update_topl()
         // refuses to share a row with it; q at the possessions prompt declines
         // every disclosure; the last two dismiss the tombstone and farewell
-        // windows, after which really_done() returns. advanceElapsedTurn()
-        // then returns to moveloop_core(), which checks gameover and returns
-        // early — matching C's NORETURN done_in_by(). Without the early
-        // return the live movement gate runs against a preflight that planned
-        // no upkeep, and the disagreement rejects with a different error.
+        // windows, after which really_done() reaches nh_terminate(), which
+        // never returns -- matching C's NORETURN done_in_by(). moveloop_core()
+        // returns once the termination notice settles, so the live movement
+        // gate never runs against a preflight that planned no upkeep.
         for (const key of 'm.  q  ') game.nhDisplay.pushKey(key.charCodeAt(0));
         await moveloop_core();
-        await moveloop_core();
+        await expectTerminated(() => moveloop_core());
 
         assert.deepEqual(game.killer, { name: 'jackal', format: KILLED_BY_AN });
-        // really_done()'s last two statements: `true` replaces the 1 done()
-        // wrote, and in_really_done is cleared for the post-loop capture.
+        // nh_terminate() replaces the 1 really_done() wrote with `true` and
+        // sets exiting after its final capture.
         assert.equal(game.program_state.gameover, true);
-        assert.equal(game.program_state.in_really_done, false);
+        assert.equal(game.program_state.exiting, 1);
         // finishElapsedTurn() would have advanced moves past the death turn.
         assert.equal(game.moves, deathTurn);
     });

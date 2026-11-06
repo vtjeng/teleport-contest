@@ -16,6 +16,7 @@ import { resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { get_saved_games } from '../js/restore.js';
 import { parseCFunctions } from './c-functions.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 import {
     bail,
     new_status_window,
@@ -291,16 +292,15 @@ test('tty_preference_update preserves the common no-op and statuslines branch', 
     assert.equal(state.wintty.clipping, false);
 });
 
-test('bail records unavailable cleanup and exposes C termination state', () => {
-    // The zero-valued status is EXIT_SUCCESS in wintty.c:348 and is not a
-    // game result; gameover is the runner's observable nh_terminate result.
+test('bail records unavailable cleanup and ends in nh_terminate', async () => {
+    // wintty.c:348 nh_terminate(EXIT_SUCCESS) does not return; gameover is
+    // the runner's observable nh_terminate result.
     const state = resetGame();
     initUnported();
-    bail('stop here', state);
+    await expectTerminated(() => bail('stop here', state));
 
     assert.deepEqual([...state.unported], [
         'files.c clearlocks',
-        'end.c nh_terminate',
     ]);
     assert.deepEqual(state.program_state, {
         in_moveloop: 0,

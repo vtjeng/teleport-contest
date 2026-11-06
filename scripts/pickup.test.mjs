@@ -144,6 +144,7 @@ import {
 } from '../js/objects.js';
 import { regex_compile, regex_init } from '../js/posixregex.js';
 import { polymon } from '../js/polyself.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 function inventoryOfSize(state, count, { withCoins = false } = {}) {
     const template = state.invent;
@@ -1854,7 +1855,9 @@ test('pickup handles fatal and reviving Rider corpses',
         petrifying.invent.pickup_prev = true;
         petrifying.nhDisplay.readKey = async () => 32;
         quiet(petrifying);
-        assert.equal(await pickup(0, petrifying), 1);
+        // instapetrify()'s done(STONING) does not return, so neither does
+        // pickup().
+        await expectTerminated(() => pickup(0, petrifying));
         assert.equal(cockatrice.where, OBJ_FLOOR);
         assert.equal(petrifying.invent.pickup_prev, false);
         assert.equal(cockatrice.dknown, true);
@@ -2021,14 +2024,15 @@ test('query_objlist delegates petrifying corpse discovery to look_here',
     for (let i = 0; i < 24; ++i)
         state.nhDisplay.pushKey(' '.charCodeAt(0));
 
-    const result = await query_objlist(
+    // The fatal touch's done(STONING) does not return, so neither does
+    // query_objlist().
+    await expectTerminated(() => query_objlist(
         corpse,
         BY_NEXTHERE | FEEL_COCKATRICE,
         () => true,
         state,
-    );
+    ));
 
-    assert.deepEqual(result, { n: 0, pick_list: [] });
     assert.match(state.killer.name, /^touching .*cockatrice corpse bare-handed$/u);
     assert.equal(state.program_state.gameover, true);
     });

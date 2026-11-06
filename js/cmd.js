@@ -353,7 +353,7 @@ import {
 } from './hack.js';
 import { nhgetch } from './input.js';
 import { doride, Punished } from './steed.js';
-import { done2, UnsupportedEndOfGameError } from './end.js';
+import { done2, nh_terminate, UnsupportedEndOfGameError } from './end.js';
 import {
     exercise_nonphysical,
     UnsupportedAbilityChangeError,
@@ -1878,19 +1878,21 @@ export async function parse(state = game) {
 
 // C ref: cmd.c hangup() (5159-5185). The terminal hangup swap has no browser
 // equivalent; the saved flags and deferred-save decision remain observable.
-export function hangup(_sig = 0, state = game) {
+// Nothing calls it: the recorder sends no SIGHUP.
+export async function hangup(_sig = 0, state = game) {
     state.program_state ??= {};
     if (state.program_state.exiting) state.program_state.in_moveloop = 0;
     state.program_state.done_hup = (state.program_state.done_hup ?? 0) + 1;
     if (state.program_state.in_moveloop
         && state.program_state.something_worth_saving) return;
-    return end_of_input(state);
+    await end_of_input(state);
 }
 
-// C ref: cmd.c end_of_input() (5188-5212). The JavaScript runner observes
-// `gameover` as nh_terminate(EXIT_SUCCESS); clearlocks and sound shutdown have
-// no stateful browser implementation.
-export function end_of_input(state = game) {
+// C ref: cmd.c end_of_input() (5188-5212), which ends in nh_terminate() and
+// does not return. Sound shutdown, exit_nhwindows() and clearlocks() have no
+// stateful browser implementation. Nothing calls it: replay input that runs
+// out ends the segment without it (js/jsmain.js playSegment()).
+export async function end_of_input(state = game) {
     state.program_state ??= {};
     if (In_tutorial(state.u?.uz))
         state.program_state.something_worth_saving = 0;
@@ -1899,10 +1901,7 @@ export function end_of_input(state = game) {
         dosave0(state);
         state.program_state.done_hup_saved = true;
     }
-    state.program_state.in_moveloop = 0;
-    state.program_state.exiting = 1;
-    state.program_state.gameover = true;
-    return ECMD_OK;
+    await nh_terminate(state);
 }
 
 const EMPTY_KEY_BOUNDARY = 'cmd.c rhack():3660-3671 answers a NUL or 0377 '
@@ -6484,9 +6483,8 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         if (command === 'save') {
             // C ref: save.c dosave():43-70. dosave() always returns ECMD_OK;
             // on the success path C never returns at all (it calls
-            // nh_terminate), so only reset_cmd_vars() runs here. On the
-            // success path dosave() sets program_state.gameover, so the
-            // moveloop breaks after this rhack() returns. cmd.c:1846's "save"
+            // nh_terminate), so only reset_cmd_vars() runs here, after a
+            // declined save. cmd.c:1846's "save"
             // row carries IFBURIED | GENERALCMD | NOFUZZERCMD, no movement
             // flag, so the MOVEMENTCMD and domove_attempting tests at
             // 3773-3800 cannot divert it.

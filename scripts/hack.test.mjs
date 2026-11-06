@@ -140,6 +140,7 @@ import {
 } from '../js/timeout.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { _doWearInternals } from '../js/do_wear.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
 const HACK_JS_SOURCE = readFileSync('js/hack.js', 'utf8');
@@ -763,7 +764,7 @@ test('sink levitation fall touches a wielded cockatrice corpse', async () => {
     state.nhDisplay.onEmptyQueue = () => 32;
     assert.equal(state.unported.has('polyself.c selftouch'), false);
 
-    await spoteffects(false, state);
+    await expectTerminated(() => spoteffects(false, state));
 
     assert.ok(state.u.uhp < 100, 'the sink fall reached its damage branch');
     assert.equal(state.unported.has('polyself.c selftouch'), false,

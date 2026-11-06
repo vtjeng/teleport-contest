@@ -11,6 +11,7 @@ import assert from 'node:assert/strict';
 import { KILLED_BY_AN } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { isTerminated } from '../js/rng.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
@@ -81,8 +82,10 @@ export async function verifyMonsterDeathPlanningSegment(segment) {
         moves: `${segment.moves}${MORE}`,
     });
 
+    // really_done() set gameover at entry and the replay ran out at its first
+    // prompt, before nh_terminate() ended the segment.
     assert.equal(game.program_state?.gameover, 1);
-    assert.equal(game.program_state?.in_really_done, true);
+    assert.equal(isTerminated(), false);
     assert.equal(game.u.uhp, 0, 'done_in_by() must leave HP at zero');
     assert.equal(game.u.umortality, 1,
                  'done() must increment mortality exactly once');

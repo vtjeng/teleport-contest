@@ -4,8 +4,11 @@ import test from 'node:test';
 
 import { STATUS_FIELDS } from '../js/status_field_data.js';
 import { init_blstats, status_eval_next_unhilite, status_initialize } from '../js/display.js';
-import { finishTerminatedSegment, runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { nh_terminate } from '../js/end.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
+import { isTerminated } from '../js/rng.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const xpField = STATUS_FIELDS.find(row => row.key === 'experience-level').fld;
 const banks = values => [Array(27).fill(values), Array(27).fill(values)];
@@ -120,7 +123,7 @@ test('status initialization creates both typed banks and reassessment preserves 
     assert.equal(state.gb.status_hilite_enabled[time.fld], true);
 });
 
-test('terminal final capture precedes status cleanup; panic and live boundaries retain state', async () => {
+test('nh_terminate takes the final capture before status cleanup; panic retains state', async () => {
     const state = {
         program_state: { gameover: true },
         iflags: { status_hilites: [{ field: 'time' }] },
@@ -133,7 +136,7 @@ test('terminal final capture precedes status cleanup; panic and live boundaries 
         events.push('capture');
         assert.equal(state.gb.status_hilite_rule[0][0].style, 'red');
     };
-    assert.equal(await finishTerminatedSegment(state), true);
+    await expectTerminated(() => nh_terminate(state));
     events.push('finished');
     assert.deepEqual(events, ['capture', 'finished']);
     assert.equal(state.gb.status_hilite_rule[0][0], null);
@@ -148,26 +151,27 @@ test('terminal final capture precedes status cleanup; panic and live boundaries 
         program_state: { gameover: true, panicking: true },
         gb: { status_hilite_rule: banks({ style: 'blue' }) },
     };
-    assert.equal(await finishTerminatedSegment(panicState), true);
+    await expectTerminated(() => nh_terminate(panicState));
     assert.equal(panicState.gb.status_hilite_rule[0][0].style, 'blue');
-    const liveState = { program_state: { gameover: false } };
-    assert.equal(await finishTerminatedSegment(liveState), false);
+});
 
-    const disclosureState = {
-        program_state: { gameover: 1, in_really_done: true },
-        iflags: { status_hilites: [{ field: 'time' }] },
-        gb: { status_hilite_rule: banks({ style: 'green' }),
-            status_hilite_times: banks(21) },
-        _renderedStatusLayouts: [{ text: 'disclosure' }],
-    };
-    let disclosureCaptures = 0;
-    disclosureState._preNhgetchHook = async () => { disclosureCaptures++; };
-    assert.equal(await finishTerminatedSegment(disclosureState), false);
-    assert.equal(disclosureCaptures, 0);
-    assert.equal(disclosureState.gb.status_hilite_rule[0][0].style, 'green');
-    assert.equal(disclosureState.gb.status_hilite_times[0][0], 21);
-    assert.equal(disclosureState.iflags.status_hilites.length, 1);
-    assert.equal(disclosureState._renderedStatusLayouts[0].text, 'disclosure');
+test('a live segment that runs out of input takes no final capture and retains status state',
+    async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../recordings/end.c/really-done-wait-synch.session.json', import.meta.url,
+    ), 'utf8'));
+    // Three keys (the recording's '.#r') end the replay at a live command
+    // prompt, long before its death: one capture per key read, plus the
+    // first wait at start-up, and no final capture after exhaustion.
+    const result = await runSegment({ ...recording.segments[0], moves: '.#r' });
+    assert.equal(result.getInputExhausted(), true);
+    assert.equal(isTerminated(), false);
+    assert.equal(game.program_state?.gameover, undefined);
+    assert.equal(result.getRngSlices().length, 4);
+    assert.ok((game.gb?.status_hilite_rule ?? []).length > 0,
+        'status_finish() did not run');
+    assert.ok(game._renderedStatusLayouts.length > 0,
+        'the rendered status lines are kept');
 });
 
 test('really-done wait-synch boundary retains status state before termination', async () => {
@@ -176,7 +180,7 @@ test('really-done wait-synch boundary retains status state before termination', 
     ), 'utf8'));
     const result = await runSegment(recording.segments[0]);
     assert.equal(Boolean(game.program_state?.gameover), true);
-    assert.equal(Boolean(game.program_state?.in_really_done), true,
+    assert.equal(isTerminated(), false,
         'replay exhaustion stopped inside really_done rather than nh_terminate');
     assert.ok(result.getScreens().length > 0, 'the wait boundary was captured');
     assert.ok((game.gb?.status_hilite_rule ?? []).length > 0);

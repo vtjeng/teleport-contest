@@ -62,6 +62,7 @@ import {
     DOWN_COMMAND,
     loadDescendRefusalRecipe,
 } from './run-descend-refusal.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
 const JS_SOURCE = readFileSync('js/do.js', 'utf8');
@@ -869,7 +870,7 @@ test('goto_level stops when the destination leaves the dungeon', async () => {
     state.program_state.stopprint = 1;
     downStairsUnderHero(state, false, { dnum: state.u.uz.dnum, dlevel: 0 });
 
-    await dodown(state);
+    await expectTerminated(() => dodown(state));
     assert.equal(state.program_state.gameover, true);
 });
 
@@ -1133,13 +1134,13 @@ test('goto_level stops a terminal stair fall before pickup', async () => {
     // source TTY More prompts while keeping the game fully initialized.
     state.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
 
-    await goto_level(
+    await expectTerminated(() => goto_level(
         { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 },
         true,
         false,
         false,
         state,
-    );
+    ));
 
     assert.equal(state.program_state.gameover, true,
         'terminal fall calls done() before the arrival tail');

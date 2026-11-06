@@ -15,6 +15,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { resetGame } from '../js/gstate.js';
 import { make_stoned } from '../js/potion.js';
 import { wiz_detect, wiz_intrinsic } from '../js/wizcmds.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 test('wiz_load_splua preserves raw filenames and awaits reset/load/finalize', async () => {
     const { wiz_load_splua } = await import('../js/wizcmds.js');
@@ -484,7 +485,8 @@ test('wiz_kill stops at accepted suicide before dead-monster cleanup', async () 
     state.iflags.purge_monsters = 1;
     queueSmellKeys(state, '.yes\n');
 
-    assert.equal(await wiz_kill(state), undefined);
+    // done(DIED) does not return, so neither does wiz_kill().
+    await expectTerminated(() => wiz_kill(state));
     assert.equal(state.program_state.gameover, true);
     assert.equal(state.iflags.purge_monsters, 1);
 });
@@ -525,17 +527,17 @@ test('wiz_kill does not prompt again after a fatal gas-spore explosion',
         queueSmellKeys(state, `${key}.`);
         state.nhDisplay.onEmptyQueue = () => '\x1b'.charCodeAt(0);
 
-        const result = await wiz_kill(state, {
+        // The fatal explosion's done() does not return, so neither does
+        // wiz_kill(), and it never prompts for the next monster.
+        await expectTerminated(() => wiz_kill(state, {
             message: async text => messages.push(text),
-        });
+        }));
         assert.equal(state.program_state.gameover, true, JSON.stringify({
-            result,
             messages,
             hp: state.u.uhp,
             killer: state.killer,
             sporeHp: spore.mhp,
         }));
-        assert.equal(result, undefined);
         assert.ok(!messages.includes('Next monster:'));
     });
 

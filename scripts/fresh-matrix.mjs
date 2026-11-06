@@ -144,10 +144,17 @@ export async function runFreshMatrix({
 // imported rather than executed. Exit status 0 is a passing matrix, 1 a
 // failing one, and 2 an argument or a thrown error, the same statuses as
 // scripts/diff-fresh.mjs.
+//
+// A matrix that drives game code directly, outside NethackGame.start() and
+// moveloop_core(), can reach js/end.js nh_terminate(), which never settles
+// the call that reached it. Node then exits with nothing left to run. The
+// status is therefore 2 until the matrix settles, and `onUnsettled` (by
+// default, process 'beforeExit') reports a matrix that never did.
 export function runMatrixCli(moduleUrl, run, label, {
     argv = process.argv,
     write = (text) => process.stderr.write(text),
     setExitCode = (status) => { process.exitCode = status; },
+    onUnsettled = (report) => { process.once('beforeExit', report); },
 } = {}) {
     if (!argv[1] || resolve(argv[1]) !== fileURLToPath(moduleUrl)) {
         return Promise.resolve(null);
@@ -157,11 +164,19 @@ export function runMatrixCli(moduleUrl, run, label, {
         setExitCode(2);
         return Promise.resolve(2);
     }
+    let settled = false;
+    setExitCode(2);
+    onUnsettled(() => {
+        if (!settled)
+            write(`${label}: the matrix never finished; a call it awaited ended the game\n`);
+    });
     return run().then((result) => {
+        settled = true;
         const status = result.passed ? 0 : 1;
         setExitCode(status);
         return status;
     }, (error) => {
+        settled = true;
         write(`${label}: ${error?.message || error}\n`);
         setExitCode(2);
         return 2;

@@ -169,6 +169,7 @@ import {
     movesFor,
     movesThroughWish,
 } from './run-ray-zap.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
 
 test('melt_ice uses objnam An() for its settled boulder message', () => {
     const cSource = readFileSync(new URL(
@@ -2751,7 +2752,7 @@ test('fatal drawbridge destruction returns from zap_map before wand learning', a
         return 32;
     };
     try {
-        await zap_map(x, y, wand, game);
+        await expectTerminated(() => zap_map(x, y, wand, game));
     } finally {
         display.onEmptyQueue = previousOnEmptyQueue;
     }

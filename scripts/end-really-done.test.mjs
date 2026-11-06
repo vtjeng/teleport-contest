@@ -23,6 +23,7 @@ import { AMULET_OF_LIFE_SAVING, BELL_OF_OPENING, LARGE_BOX }
     from '../js/objects.js';
 import { observe_quantum_cat } from '../js/pickup.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
@@ -161,14 +162,15 @@ test('observe_quantum_cat keeps the live coin flip on the box', async () => {
     assert.deepEqual(draws, [2]);
 });
 
-test('really_done maps burning to the no-corpse grave arise and returns',
+test('really_done maps burning to the no-corpse grave arise and terminates',
      async () => {
     const state = await freshGame();
     quietFinalization(state);
-    await done(BURNING, state);
+    await expectTerminated(() => done(BURNING, state));
     assert.equal(state.u.ugrave_arise, NON_PM - 2);
     assert.equal(state.program_state.gameover, true);
-    assert.equal(state.program_state.in_really_done, false);
+    // really_done() ran to its end: nh_terminate() set exiting.
+    assert.equal(state.program_state.exiting, 1);
 });
 
 test('source finalizer keeps the stopprint tail after top-ten output', () => {

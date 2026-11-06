@@ -109,7 +109,7 @@ import {
     LL_LIFESAVE,
 } from './const.js';
 import { mk_named_object } from './corpstat.js';
-import { bot } from './display.js';
+import { bot, status_finish } from './display.js';
 import { schedule_goto } from './do.js';
 import { m_monnam, mon_nam, Monnam, pmname } from './do_name.js';
 import { adj_lev } from './makemon.js';
@@ -213,6 +213,14 @@ import { keepdogs } from './dog.js';
 import { make_sick, set_itimeout } from './potion.js';
 import { rn2 } from './rng.js';
 import { d } from './rng.js';
+import {
+    isTerminated,
+    markTerminated,
+    neverSettles,
+    planningContextInstalled,
+    recordTerminationViolation,
+    settleTerminationNotice,
+} from './rng.js';
 import { timet_delta } from './allmain.js';
 import { canspotmon } from './display.js';
 import { tty_exit_nhwindows } from './wintty.js';
@@ -704,6 +712,7 @@ function lifeSavingInventoryEnv(state, source = {}) {
 // done() continues into really_done(), preserving the source call for every
 // killer format and end reason.
 export async function done(how, state = game, source = {}) {
+    refuseTerminationWhilePlanning('done()');
     state.killer ??= { name: '', format: KILLED_BY_AN };
     const killer = state.killer;
     const programState = state.program_state;
@@ -1210,10 +1219,6 @@ async function really_done(how, state) {
     const programState = state.program_state;
     const haveWindows = state.iflags?.window_inited !== false;
     programState.gameover = 1;
-    // JS can unwind an exhausted replay queue out of this still-running C
-    // function. jsmain uses the marker to avoid treating that suspension as
-    // nh_terminate(), whose final recorder capture has not happened yet.
-    programState.in_really_done = true;
     programState.something_worth_saving = 0;
     // HANGUPHANDLING sets done_stopprint in C and carries on through the
     // final bookkeeping without trying to read another terminal key.
@@ -1613,14 +1618,54 @@ async function really_done(how, state) {
         tty_raw_print(state, '');
     }
 
-    // C ref: end.c:1589 nh_terminate(EXIT_SUCCESS).
-    // The JS port signals end of segment via gameover. The post-moveloop
-    // capture hook is gated on !in_really_done, so the final screen capture
-    // happens at the next _preNhgetchHook call (triggered by the moveloop
-    // break + the explicit hook call in jsmain.js for really_done).
+    // C ref: end.c:1589 nh_terminate(EXIT_SUCCESS), which does not return.
+    await nh_terminate(state);
+}
+
+// done() and nh_terminate() end the live game. A planning clone rehearsing
+// a monster turn (js/rng.js withPlanningCoreContext()) must stop before
+// either; reaching one is a port defect, reported as an ordinary crash
+// rather than ending a game the live pass may not end.
+function refuseTerminationWhilePlanning(name) {
+    if (planningContextInstalled())
+        throw new Error(`${name} reached while a planning context is installed`);
+}
+
+// C ref: end.c nh_terminate() (1672-1702) with recorder patch 006, which
+// makes the final input-boundary capture right after in_moveloop = 0. C exits
+// the process; the port cannot, because the judge's runSegment() must return.
+// So this marks the segment terminated in js/rng.js, takes the final capture,
+// releases what freedynamicdata() releases that the port models, settles the
+// segment's termination notice, and then suspends its caller on a promise
+// that never settles: no caller resumes, and no catch or finally on the way
+// up runs, as in C. NethackGame.start() and moveloop_core() race their bodies
+// against the notice and return once it settles.
+//
+// l_nhcore_call(NHCORE_GAME_EXIT), dlb_cleanup() and l_nhcore_done() follow
+// the capture in C and change nothing the next segment reads; they are not
+// called. Setting gameover after the capture stands in for the process
+// exiting; playSegment() reads it as its stop signal.
+export async function nh_terminate(state = game) {
+    refuseTerminationWhilePlanning('nh_terminate()');
+    if (isTerminated()) {
+        // A second call can come only from a chain some caller discarded,
+        // which kept running after the first. It takes no second capture.
+        recordTerminationViolation('nh_terminate',
+            'nh_terminate() called after the segment terminated');
+        await neverSettles();
+    }
+    state.program_state ??= {};
+    state.program_state.in_moveloop = 0;
+    markTerminated();
+    if (state._preNhgetchHook)
+        await state._preNhgetchHook();
+    // save.c freedynamicdata() reaches botl.c status_finish(); panic skips it.
+    if (!state.program_state.panicking)
+        status_finish(state);
+    state.program_state.exiting = 1;
     state.program_state.gameover = true;
-    // Clear in_really_done so the post-loop capture hook runs.
-    state.program_state.in_really_done = false;
+    settleTerminationNotice();
+    await neverSettles();
 }
 
 // C ref: rip.c genl_outrip() (86-163). Builds the tombstone as text lines

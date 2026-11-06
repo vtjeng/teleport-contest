@@ -61,6 +61,7 @@ import {
     destroyable,
     destroy_strings,
 } from '../js/zap_destroy_items.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const ZAP_C = readFileSync(
     new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
@@ -173,12 +174,13 @@ async function assertKilledBy(call, name, format, label = name) {
     game.flags.bones = false;
     game.moves = Math.max(game.moves, 2);
     const mortality = game.u.umortality;
-    await call();
+    await expectTerminated(call, label);
     assert.equal(game.killer.name, name, label);
     assert.equal(game.killer.format, format, label);
     assert.equal(game.u.umortality, mortality + 1, label);
     assert.equal(game.program_state.gameover, true, label);
-    assert.equal(game.program_state.in_really_done, false, label);
+    // really_done() ran to its end: nh_terminate() set exiting.
+    assert.equal(game.program_state.exiting, 1, label);
 }
 
 function clearTopline() {

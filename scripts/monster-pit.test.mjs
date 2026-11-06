@@ -36,6 +36,7 @@ import { CORPSE, EGG } from '../js/objects.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
 import { loadMonsterPitRecipe } from './run-monster-pit.mjs';
 import { canseemon } from '..//js/display.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 // The same Valkyrie scripts/trap-thitm.test.mjs and scripts/mon-kill.test.mjs
 // use, so all three read the same hero, the same lit starting room and the
@@ -513,10 +514,8 @@ test('fatal ordinary pit damage stops before later pit draws', async () => {
     game.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
     const env = pitEnv([2, 4]);
 
-    assert.equal(
-        await trapeffect_selector(game.youmonst, trap, 0, env),
-        Trap_Effect_Finished,
-    );
+    // The fatal losehp() does not return, so neither does the trap effect.
+    await expectTerminated(() => trapeffect_selector(game.youmonst, trap, 0, env));
     assert.equal(game.program_state.gameover, true);
     assert.deepEqual(env.bounds, [
         'rn1(6,2)', 'rnd(6)',

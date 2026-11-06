@@ -87,6 +87,8 @@ import {
     loadMountedDeathRecipe,
     verifyMountedDeathSegment,
 } from './run-mounted-death.mjs';
+import { expectTerminated } from './expect-terminated.mjs';
+import { isTerminated } from '../js/rng.js';
 
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
@@ -169,13 +171,28 @@ function dismissLifeSavingMessages(count = 40) {
         game.nhDisplay.pushKey(' '.charCodeAt(0));
 }
 
+// game._renderedStatusLayouts as nh_terminate()'s final capture saw it, which
+// is before freedynamicdata()'s status_finish() empties it.
+let statusAtFinalCapture;
+
 async function completeFinalization(how) {
     // The end.c really_done() span is now implemented. These focused tests
     // isolate its state prefix and avoid unrelated disclosure input by using
     // the source's no-window path and an empty inventory.
     prepareFinalization();
-    await done(how, game);
+    const capture = game._preNhgetchHook;
+    statusAtFinalCapture = undefined;
+    let finalCaptures = 0;
+    game._preNhgetchHook = async () => {
+        if (isTerminated()) {
+            finalCaptures++;
+            statusAtFinalCapture = game._renderedStatusLayouts;
+        }
+        await capture?.();
+    };
+    await expectTerminated(() => done(how, game));
     assert.equal(game.program_state.gameover, true);
+    assert.equal(finalCaptures, 1, 'nh_terminate() took one final capture');
 }
 
 function prepareFinalization() {
@@ -224,8 +241,8 @@ test('fatal returning boomerang stops before endmultishot', async () => {
             cmdq_add_dir(CQ_CANNED, 1, 0, 0, game);
         }
         dismissLifeSavingMessages();
-        if (throughCommand) await throw_obj(boomerang, 0, game);
-        else await throwit(boomerang, 0, false, null, game);
+        if (throughCommand) await expectTerminated(() => throw_obj(boomerang, 0, game));
+        else await expectTerminated(() => throwit(boomerang, 0, false, null, game));
         assert.equal(game.program_state.gameover, true);
         assert.equal(game.u.umortality, 1);
         assert.equal(game.m_shot.n, throughCommand ? 1 : 3,
@@ -315,7 +332,7 @@ test('the status arm forces a full repaint outside the three skip cases',
     await completeFinalization(DIED);
     // end.c:1045-1046. bot() ran before really_done() cleared the terminal;
     // its status layout assignment is the observable repaint boundary.
-    assert.notEqual(game._renderedStatusLayouts, 'before-death-repaint');
+    assert.notEqual(statusAtFinalCapture, 'before-death-repaint');
 });
 
 test('a panicking game skips the status update and clears every flag',
@@ -334,7 +351,7 @@ test('a panicking game skips the status update and clears every flag',
     assert.equal(game.disp.botlx, false);
     assert.equal(game.disp.time_botl, false);
     assert.equal(game.iflags.perm_invent, false);
-    assert.equal(game._renderedStatusLayouts, 'panic-no-repaint');
+    assert.equal(statusAtFinalCapture, 'panic-no-repaint');
 });
 
 test('a hung-up game skips the status update too', async () => {
@@ -354,7 +371,7 @@ test('a hung-up game skips the status update too', async () => {
     assert.equal(game.disp.botl, false);
     assert.equal(game.disp.botlx, false);
     assert.equal(game.disp.time_botl, false);
-    assert.equal(game._renderedStatusLayouts, 'hangup-no-repaint');
+    assert.equal(statusAtFinalCapture, 'hangup-no-repaint');
 });
 
 test('program_state.stopprint skips the status update only for a quit',
@@ -366,7 +383,7 @@ test('program_state.stopprint skips the status update only for a quit',
     game.program_state.stopprint = true;
     game._renderedStatusLayouts = 'stopprint-died-repaint';
     await completeFinalization(DIED);
-    assert.notEqual(game._renderedStatusLayouts, 'stopprint-died-repaint');
+    assert.notEqual(statusAtFinalCapture, 'stopprint-died-repaint');
 
     await dyingGame();
     game.u.uhp = 0;
@@ -380,7 +397,7 @@ test('program_state.stopprint skips the status update only for a quit',
     assert.equal(game.disp.botl, false);
     assert.equal(game.disp.botlx, false);
     assert.equal(game.disp.time_botl, false);
-    assert.equal(game._renderedStatusLayouts, 'stopprint-quit-no-repaint');
+    assert.equal(statusAtFinalCapture, 'stopprint-quit-no-repaint');
 });
 
 test('the forced status update raises disp.botlx before bot() reads it',
@@ -683,7 +700,7 @@ test('the query covers every how through GENOCIDED and accepts the death',
     await completeFinalization(DIED);
 });
 
-test('losehp() waits for done() before it returns', async () => {
+test('losehp() does not return once done() ends the game', async () => {
     await dyingGame();
     game.u.uhp = 1;
     // The pending welcome line is what urgent_pline("You die...") displaces:
@@ -691,18 +708,20 @@ test('losehp() waits for done() before it returns', async () => {
     // die" share a row, so this key answers the --More-- it raises over the
     // line already there. A real death raises the same one.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
-    // hack.c losehp():4288. The await carries the completed really_done()
-    // continuation back to the command that called losehp().
+    // hack.c losehp():4288. done() reaches really_done() and nh_terminate(),
+    // which does not return, so neither does losehp(), as in C.
     prepareFinalization();
     let resolved = false;
     const completion = losehp(5, 'a bolt of fire', KILLED_BY_AN, game)
         .then(() => { resolved = true; });
     await Promise.resolve();
     assert.equal(resolved, false, 'losehp remains pending through finalization');
-    await completion;
+    await expectTerminated(() => completion);
+    assert.equal(resolved, false, 'losehp never returns after the game ended');
     assert.equal(game.killer.name, 'a bolt of fire');
     assert.equal(game.u.umortality, 1);
-    assert.equal(game.program_state.in_really_done, false);
+    // really_done() ran to its end: nh_terminate() set exiting.
+    assert.equal(game.program_state.exiting, 1);
 });
 
 test('a stopped top line is replaced by death without a second More wait', async () => {
@@ -1172,7 +1191,7 @@ test('done_in_by sets the killer for a plain monster', async () => {
     const bat = killerMonster(PM_GIANT_BAT);
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     prepareFinalization();
-    await done_in_by(bat, DIED, game);
+    await expectTerminated(() => done_in_by(bat, DIED, game));
     assert.equal(game.killer.name, 'giant bat');
     assert.equal(game.killer.format, KILLED_BY_AN);
 });
@@ -1196,7 +1215,7 @@ test('done_in_by names a shopkeeper with C honorific and format rules',
         });
         game.nhDisplay.pushKey(' '.charCodeAt(0));
         prepareFinalization();
-        await done_in_by(shopkeeper, DIED, game);
+        await expectTerminated(() => done_in_by(shopkeeper, DIED, game));
         assert.equal(game.killer.name, expected);
         assert.equal(game.killer.format, KILLED_BY);
     }
@@ -1224,7 +1243,7 @@ test('a monster death with KILLED_BY reaches really_done()', async () => {
     // done_in_by() prints "You die..." over the pending welcome line.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     prepareFinalization();
-    await done_in_by(shopkeeper, DIED, game);
+    await expectTerminated(() => done_in_by(shopkeeper, DIED, game));
     assert.equal(game.killer.name, 'Ms. Adjama, the shopkeeper');
     assert.equal(game.killer.format, KILLED_BY);
     assert.equal(game.program_state.gameover, true);
@@ -1235,7 +1254,7 @@ test('a monster death with KILLED_BY reaches really_done()', async () => {
     // A direct done() call follows the same source path once its killer has
     // been named; the same really_done() continuation completes.
     prepareFinalization();
-    await done(DIED, game);
+    await expectTerminated(() => done(DIED, game));
     assert.equal(game.program_state.gameover, true);
 });
 
@@ -1246,7 +1265,7 @@ test('done_in_by sets ugrave_arise for a wraith', async () => {
     const wraith = killerMonster(PM_WRAITH);
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     prepareFinalization();
-    await done_in_by(wraith, DIED, game);
+    await expectTerminated(() => done_in_by(wraith, DIED, game));
     assert.equal(game.killer.name, 'wraith');
     assert.equal(game.killer.format, KILLED_BY_AN);
     assert.equal(game.u.ugrave_arise, PM_WRAITH);
@@ -1258,7 +1277,7 @@ test('done_in_by sets ugrave_arise for a ghoul', async () => {
     const ghoul = killerMonster(PM_GHOUL);
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     prepareFinalization();
-    await done_in_by(ghoul, DIED, game);
+    await expectTerminated(() => done_in_by(ghoul, DIED, game));
     assert.equal(game.killer.name, 'ghoul');
     assert.equal(game.killer.format, KILLED_BY_AN);
     assert.equal(game.u.ugrave_arise, PM_GHOUL);
@@ -1272,7 +1291,7 @@ test('done_in_by shortens helplessness caused by the killing ghoul', async () =>
     game.multireasonbuf = `${ghoul.m_id}:paralyzed by a ghoul`;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     prepareFinalization();
-    await done_in_by(ghoul, DIED, game);
+    await expectTerminated(() => done_in_by(ghoul, DIED, game));
     assert.equal(game.multi_reason, 'paralyzed');
     assert.equal(game.multireasonbuf, `${ghoul.m_id}:paralyzed`);
 });
@@ -1285,7 +1304,7 @@ test('done_in_by preserves helplessness caused by another monster', async () => 
     game.multireasonbuf = `${ghoul.m_id + 1}:paralyzed by a ghoul`;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     prepareFinalization();
-    await done_in_by(ghoul, DIED, game);
+    await expectTerminated(() => done_in_by(ghoul, DIED, game));
     assert.equal(game.multi_reason, 'paralyzed by a ghoul');
 });
 
@@ -1298,7 +1317,7 @@ test('done_in_by uses STONING message and killer for a stoning death',
     const bug = killerMonster(PM_GRID_BUG);
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     prepareFinalization();
-    await done_in_by(bug, STONING, game);
+    await expectTerminated(() => done_in_by(bug, STONING, game));
     assert.equal(game.killer.name, 'grid bug');
     assert.equal(game.killer.format, KILLED_BY_AN);
 });

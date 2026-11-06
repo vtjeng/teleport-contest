@@ -218,6 +218,7 @@ import {
     UnsupportedSimpleMonsterActionError,
 } from '../js/unported_monster_actions.js';
 import { tp_sensemon } from '../js/display.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const UHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
@@ -4782,10 +4783,8 @@ test('lethal elemental explmu stops every continuation after final death', async
     );
     const result = meleeEnv(state, []);
 
-    assert.equal(
-        await explmu(sphere, sphere.data.mattk[0], true, result.env),
-        M_ATTK_AGR_DIED,
-    );
+    // The final death does not return, so neither does explmu().
+    await expectTerminated(() => explmu(sphere, sphere.data.mattk[0], true, result.env));
     assert.equal(state.program_state.gameover, true);
     assert.equal(state.killer.name, "flaming sphere's explosion");
     assert.equal(sleeper.msleeping, true,

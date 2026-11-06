@@ -91,11 +91,9 @@ export async function ttyAsknameImpl(state = game) {
     for (;;) {
         tryct++;
         if (tryct > 10) {
-            // wintty.c:673-674 bail() does not return; callers stop on the
-            // gameover state it sets.
+            // wintty.c:673-674 bail() does not return.
             const { bail } = await import('./wintty.js');
-            bail('Giving up after 10 tries.\n', state);
-            return null;
+            await bail('Giving up after 10 tries.\n', state);
         }
 
         if (tryct > 1) {

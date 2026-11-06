@@ -12,6 +12,7 @@ import {
 } from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { expectTerminated } from './expect-terminated.mjs';
 import {
     loadQuitCommandRecipe,
     NO,
@@ -110,7 +111,7 @@ test('accepted ordinary quit reaches really_done() finalization',
         state.nhDisplay.pushKey(' '.charCodeAt(0));
         state.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        await done2(state);
+        await expectTerminated(() => done2(state));
         // end.c really_done():1221-1227 changes QUIT to NO_KILLER_PREFIX;
         // this ordinary case keeps positive HP, so it remains QUIT and does
         // not increment the mortality counter or spend a turn.
@@ -119,7 +120,8 @@ test('accepted ordinary quit reaches really_done() finalization',
             format: NO_KILLER_PREFIX,
         });
         assert.equal(state.program_state.gameover, true);
-        assert.equal(state.program_state.in_really_done, false);
+        // really_done() ran to its end: nh_terminate() set exiting.
+        assert.equal(state.program_state.exiting, 1);
         assert.equal(state.u.umortality, 0);
         assert.equal(state.moves, movesBefore);
     });

@@ -27,6 +27,7 @@ import {
 import { place_monster } from '../js/monst.js';
 import { initRng } from '../js/rng.js';
 import { mpickobj } from '../js/steal.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const { Amulet_on } = _doWearInternals;
 
@@ -184,7 +185,7 @@ test('snatching a wielded cockatrice corpse petrifies an unprotected hero',
             /You\("snatch %s!"[\s\S]*?touch_petrifies\(&mons\[otmp->corpsenm\]\)[\s\S]*?place_object\(otmp, u\.ux, u\.uy\)[\s\S]*?instapetrify\(kbuf\)/u);
         await setupWieldedCockatriceCorpse();
 
-        await use_whip(game.uwep, game);
+        await expectTerminated(() => use_whip(game.uwep, game));
         assert.equal(game.program_state.gameover, true);
         assert.equal(game.killer.name, 'a cockatrice corpse');
         assert.ok(!game.unported.has('trap.c instapetrify'));

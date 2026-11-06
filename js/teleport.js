@@ -2015,8 +2015,15 @@ function Antimagic_prop(state) {
 // fixed-destination trap can drop the hero onto a second teleport trap, and
 // the guard stops the recursive call spoteffects() would make there. The
 // try/finally below restores it on a refusal too, so a bounded stop cannot
-// leave the flag set for the next segment.
+// leave the flag set for the next segment. A game that terminates inside
+// tele_trap() never runs that finally (js/end.js nh_terminate()), so
+// NethackGame.start() also clears it through reset_in_tele_trap(); C starts
+// each process with it FALSE.
 let in_tele_trap = false;
+
+export function reset_in_tele_trap() {
+    in_tele_trap = false;
+}
 
 // C ref: teleport.c domagicportal() (1444-1489). The hero's portal trap
 // schedules its level transition after the current command finishes.

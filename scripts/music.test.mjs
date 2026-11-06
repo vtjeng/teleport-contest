@@ -27,6 +27,7 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import { setuwep } from '../js/wield.js';
 import { maketrap, set_utrap } from '../js/trap.js';
 import { teleds } from '../js/teleport.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 test('music.c do_improvisation matches the admitted self-directed frost-horn recording', async () => {
     const recording = JSON.parse(readFileSync(new URL(
@@ -329,9 +330,9 @@ test('earthquake chasm fall touches a wielded cockatrice corpse', async () => {
     // C music.c:do_pit -> trap.c:selftouch, after survivable fall damage.
     const state = await chasmCorpseHero();
     assert.equal(state.unported.has('trap.c selftouch'), false);
-    await do_pit(state.u.ux, state.u.uy, false, state, {
+    await expectTerminated(() => do_pit(state.u.ux, state.u.uy, false, state, {
         message: async () => {},
-    });
+    }));
     assert.ok(state.u.uhp < 100, 'the chasm fall dealt damage first');
     assert.equal(state.unported.has('trap.c selftouch'), false);
     assert.equal(state.program_state.gameover, true);
@@ -351,10 +352,10 @@ test('earthquake chasm jostle touches a wielded cockatrice corpse',
             rnd: () => 1,
         };
         assert.equal(state.unported.has('trap.c selftouch'), false);
-        await do_pit(state.u.ux, state.u.uy, true, state, {
+        await expectTerminated(() => do_pit(state.u.ux, state.u.uy, true, state, {
             random,
             message: async () => {},
-        });
+        }));
         assert.ok(state.u.uhp < 100, 'the jostle dealt damage first');
         assert.equal(state.unported.has('trap.c selftouch'), false);
         assert.equal(state.program_state.gameover, true);
@@ -378,7 +379,7 @@ test('earthquake reaches hero chasm contact through do_pit', async () => {
         rn1: () => 2,
         rnd: () => 1,
     };
-    await do_earthquake(1, state, { random, message: async () => {} });
+    await expectTerminated(() => do_earthquake(1, state, { random, message: async () => {} }));
     assert.ok(draw > heroDraw, 'the earthquake reached the hero square');
     assert.equal(state.unported.has('trap.c selftouch'), false);
     assert.equal(state.program_state.gameover, true);

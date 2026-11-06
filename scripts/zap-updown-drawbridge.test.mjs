@@ -10,6 +10,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mksobj } from '../js/obj.js';
 import { WAN_STRIKING } from '../js/objects.js';
 import { zap_updown } from '../js/zap.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 const C_ZAP = readFileSync(
     new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
@@ -48,7 +49,7 @@ test('downward striking destroys the lowered drawbridge under the hero',
         const wand = mksobj(WAN_STRIKING, false, false, { state: game });
         addinv(wand, { state: game });
 
-        await zap_updown(wand, game);
+        await expectTerminated(() => zap_updown(wand, game));
         assert.equal(bridge.typ, MOAT);
         assert.equal(wall.typ, DOOR);
         assert.equal(game.program_state.gameover, true);

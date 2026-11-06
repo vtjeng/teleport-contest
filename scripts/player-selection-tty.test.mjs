@@ -25,6 +25,7 @@ import {
 import { ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { renderTtyMenu } from '../js/tty_menu.js';
 import { renderTtyStartupBanner } from '../js/tty_startup.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 function selectionState(keys = '') {
     resetGame();
@@ -283,7 +284,8 @@ test('uppercase facet accelerators select their unique PICK_ONE entries', async 
     // Uppercase race/gender/alignment group accelerators each identify one
     // entry, so PICK_ONE accepts them just like the visible lowercase key.
     const state = selectionState('nwHMNq');
-    assert.equal(await ttyPlayerSelection(state, noRandom), false);
+    // q at the confirmation quits: wintty.c tty_player_selection() bails.
+    await expectTerminated(() => ttyPlayerSelection(state, noRandom));
     assert.deepEqual(
         [state.flags.initrole, state.flags.initrace,
             state.flags.initgend, state.flags.initalign],
@@ -363,9 +365,12 @@ test('incompatible automatic fallback pauses at the source More boundary', async
     // sole compatible race and alignment; the latter rn2(1) calls matter.
     const random = scriptedRandom([3, 0, 0]);
 
-    assert.equal(await ttyPlayerSelection(state, random), false);
+    // The final q bails, and bail() -> nh_terminate() takes the recorder's
+    // final capture of the screen tty_exit_nhwindows() cleared.
+    await expectTerminated(() => ttyPlayerSelection(state, random));
     assert.deepEqual(random.bounds, [13, 1, 1]);
-    assert.equal(captures.length, 4);
+    assert.equal(captures.length, 5);
+    assert.deepEqual(captures[4].rows.filter((row) => row.trim()), []);
     assert.equal(captures[1].rows[0], 'Incompatible role!--More--');
     assert.deepEqual(captures[1].cursor, [26, 0]);
     assert.equal(captures[2].rows[0], captures[1].rows[0]);

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+
+import { expectTerminated } from './expect-terminated.mjs';
 import { A_STR, DEAF, FAINTED, FAINTING, WEAK, TIMEOUT, LAST_PROP, NOT_HUNGRY, W_ARMG } from '../js/const.js';
 import { gethungry, newuhs, unfaint } from '../js/eat.js';
 
@@ -236,14 +238,15 @@ test('gethungry faint runs real corpse selftouch and stops the fatal status tail
     assert.equal(initial.stoneResistance, false);
     assert.equal(initial.levitation, false);
 
-    const nutritionLoss = await gethungry(game, {
+    // gethungry() does not return: the faint's selftouch() stones the hero,
+    // and done() ends the game, as in C.
+    await expectTerminated(() => gethungry(game, {
         nearCapacity: () => near_capacity(game),
         message: (line) => ttyPline(line, game),
         endRunning: (state) => endRunning(state),
         statusRefresh: () => bot(),
-    });
+    }));
     const observed = {
-        nutritionLoss,
         hunger: game.u.uhunger,
         hungerStatus: game.u.uhs,
         multi: game.multi,
@@ -261,7 +264,8 @@ test('gethungry faint runs real corpse selftouch and stops the fatal status tail
     };
     console.log(JSON.stringify({ input, initial, observed }, null, 2));
 
-    assert.equal(observed.nutritionLoss, 1);
+    // The one point of nutrition gethungry() charged before the faint.
+    assert.equal(observed.hunger, initial.hunger - 1);
     assert.equal(observed.hunger, 0);
     assert.equal(observed.gameover, true, 'the actual cockatrice corpse must cause terminal stoning');
     assert.equal(observed.killer, 'a cockatrice corpse');

@@ -134,6 +134,7 @@ import {
     stuck_in_wall,
     worst_cursed_item,
 } from '../js/pray.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 // A hero the port can start and stop at the first command boundary: seed and
 // clock chosen for this file, and unrelated to any recorded session. The role
@@ -1794,9 +1795,11 @@ test('prayer_done() runs pleased() and its water caller branches', async () => {
     await prayer_done(game);
     assert.match(game._pending_message, /^You feel that .* is /u);
 
-    for (const [typ, aligntyp] of [
-        [ALTAR, game.u.ualign.type],
-        [wasTyp, A_CHAOTIC],
+    for (const [typ, aligntyp, fatal] of [
+        [ALTAR, game.u.ualign.type, false],
+        // Off the altar, this second anger response kills the hero, and
+        // done() does not return.
+        [wasTyp, A_CHAOTIC, true],
     ]) {
         here.typ = typ;
         game.gp = { p_type: 0, p_aligntyp: aligntyp };
@@ -1804,7 +1807,12 @@ test('prayer_done() runs pleased() and its water caller branches', async () => {
         // message stops for a --More-- no key answers.
         clearTtyMessageWindow(game);
         for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
-        await prayer_done(game);
+        if (fatal) {
+            await expectTerminated(() => prayer_done(game));
+            assert.equal(game.program_state.gameover, true);
+        } else {
+            await prayer_done(game);
+        }
     }
     here.typ = wasTyp;
     here.flags = wasMask;

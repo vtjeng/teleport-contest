@@ -17,7 +17,16 @@ import {
 import {
     activate_chosen_soundlib,
 } from './sounds.js';
-import { initRng, enableRngLog, getRngLog } from './rng.js';
+import {
+    initRng,
+    enableRngLog,
+    getRngLog,
+    isTerminated,
+    oneMacrotask,
+    raceTermination,
+    resetTermination,
+    terminationViolations,
+} from './rng.js';
 import {
     newgame,
     moveloop_core,
@@ -48,6 +57,7 @@ import {
     ttyPlayerNameAndSuffix,
 } from './tty_startup.js';
 import { maybe_do_tutorial } from './tutorial_startup.js';
+import { reset_in_tele_trap } from './teleport.js';
 import {
     runMoveloopPreambleAtStartupBoundary,
 } from './moveloop_preamble.js';
@@ -70,7 +80,6 @@ import {
     docrt,
     bot,
     flush_screen,
-    status_finish,
     status_initialize,
     reglyph_darkroom,
 } from './display.js';
@@ -310,7 +319,23 @@ export class NethackGame {
         }
     }
 
+    // Returns true once the game is ready for moveloop_core(), false when the
+    // segment terminated during start-up (a bail() or death there).
     async start() {
+        // Let any chain an earlier segment discarded finish or reach
+        // nhgetch()'s guard before this segment resets the termination
+        // state and the RNG log (js/rng.js, "Segment termination").
+        await oneMacrotask();
+        resetTermination();
+        // teleport.c tele_trap()'s static guard is restored by a finally
+        // block, which does not run when the game terminates inside it.
+        reset_in_tele_trap();
+        const outcome = await raceTermination(this._startGame());
+        return outcome.terminated ? false : outcome.value;
+    }
+
+    // C ref: unixmain.c nethack_main() from early_init() to moveloop().
+    async _startGame() {
         const g = resetGame();
         initUnported();
         // C ref: allmain.c early_init() — clone both mutable source catalogs
@@ -512,9 +537,6 @@ export class NethackGame {
         // C filters generic Unix usernames, prompts when necessary, then
         // strips any role/race/gender/alignment suffix before selection.
         await ttyPlayerNameAndSuffix(g);
-        // wintty.c tty_askname() bails out of the program after ten empty
-        // answers, or on the saved-game menu's quit choice.
-        if (g.program_state?.gameover) return false;
 
         // C ref: unixmain.c nethack_main() calls
         // init_sound_disp_gamewindows() after plnamesuffix() and before
@@ -629,10 +651,7 @@ export class NethackGame {
             return true;
         }
 
-        if (!await tty_player_selection(g)) {
-            g.program_state.gameover = true;
-            return false;
-        }
+        await tty_player_selection(g);
 
         // Run game startup
         await newgame();
@@ -789,14 +808,17 @@ export function segmentIterationLimit(movesLength) {
 //   crash here ends the segment the way a refusal does: the returned game
 //   keeps every screen, cursor, animation frame and RNG call captured before
 //   the crash, records the error as game.segmentError, and passes it to
-//   options.onError.  It skips finishTerminatedSegment(): that capture mirrors
-//   nh_terminate() after moveloop() returns, and a crashed segment never
-//   reached that point, so its state says nothing about what C would show
-//   there.
+//   options.onError.
 // - runSegmentStrict() rethrows the error. Every local test and tool uses it,
 //   so a crash fails them instead of passing as a short replay;
 //   scripts/run-segment-imports.test.mjs fails when a file imports the
 //   judge's entry point instead.
+//
+// Both record and drop the same way after the segment terminates: an RNG log
+// append or a key read by a chain some caller discarded (js/rng.js, "Segment
+// termination"). runSegment() keeps the scores the judge computes and passes
+// the violations to the reporter below; runSegmentStrict() throws after the
+// segment, with the game attached as `segmentGame` for diagnosis.
 export async function runSegment(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
     try {
@@ -810,12 +832,24 @@ export async function runSegment(input, options = {}) {
         options.onError?.(error);
         segmentErrorReporter?.(nhGame.segmentError);
     }
+    nhGame.terminationViolations = terminationViolations();
+    if (nhGame.terminationViolations.length)
+        terminationViolationReporter?.(nhGame.terminationViolations);
     return nhGame;
 }
 
 export async function runSegmentStrict(input, options = {}) {
     const nhGame = createSegmentGame(input, options);
     await playSegment(nhGame, input, options);
+    nhGame.terminationViolations = terminationViolations();
+    if (nhGame.terminationViolations.length) {
+        const error = new Error('the segment terminated, then '
+            + nhGame.terminationViolations
+                .map(({ kind, detail }) => `${kind}: ${detail}`).join('; '));
+        error.name = 'TerminationViolationError';
+        error.segmentGame = nhGame;
+        throw error;
+    }
     return nhGame;
 }
 
@@ -826,6 +860,14 @@ export async function runSegmentStrict(input, options = {}) {
 let segmentErrorReporter = null;
 export function setSegmentErrorReporter(reporter) {
     segmentErrorReporter = reporter;
+}
+
+// The same, for the termination violations runSegment() recorded in a
+// segment: one call per segment that has any, with an array of
+// { kind, detail }. The judge never registers one.
+let terminationViolationReporter = null;
+export function setTerminationViolationReporter(reporter) {
+    terminationViolationReporter = reporter;
 }
 
 function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {
@@ -872,10 +914,8 @@ async function playSegment(nhGame, input, { onBoundary = null } = {}) {
         }
         throw error;
     }
-    if (!started) {
-        await finishTerminatedSegment(game);
-        return;
-    }
+    // start() returns false when the segment terminated during start-up.
+    if (!started) return;
 
     // Drive the game loop until input is exhausted. The judge looks
     // at game.getScreens() afterwards; whatever the contestant
@@ -885,6 +925,9 @@ async function playSegment(nhGame, input, { onBoundary = null } = {}) {
     // the portable source limit rather than truncating valid counted commands.
     const maxIter = segmentIterationLimit(moves.length);
     for (let iter = 0; iter < maxIter; iter++) {
+        // Once terminated, moveloop_core() would only read a raw key, and an
+        // empty queue here would be misread as input exhaustion below.
+        if (isTerminated()) break;
         try {
             await moveloop_core();
         } catch (e) {
@@ -898,34 +941,9 @@ async function playSegment(nhGame, input, { onBoundary = null } = {}) {
             }
             throw e;
         }
-        // C ref: allmain.c moveloop() runs until program_state.gameover.
-        // dosave() sets gameover and returns normally from moveloop_core().
-        // Without this guard the next iteration's display updates (vision,
-        // bot, emitGlyphUpdateNotices) overwrite the farewell screen that
-        // tty_raw_print wrote. Matches the break in moveloop() at the
-        // same position.
+        // C's moveloop() never returns: nh_terminate() exits the process.
+        // Here nh_terminate() takes the final capture, sets gameover, and
+        // moveloop_core() returns once its termination notice settles.
         if (game.program_state?.gameover) break;
     }
-
-    // C ref: recorder patch 006, nh_terminate() in end.c. C's nh_terminate
-    // calls nomux_capture_write_input_boundary() once after the game loop
-    // exits, capturing the final screen (e.g. the "Be seeing you..." farewell
-    // after a save, or the topten display after death). The JS port's
-    // capture hook is _preNhgetchHook; during normal gameplay it fires at
-    // each nhgetch call, but after gameover no more keys are read. This
-    // explicit call after the loop mirrors nh_terminate's capture position.
-    await finishTerminatedSegment(game);
-}
-
-// C ref: end.c nh_terminate() calls the patched final input-boundary capture
-// before save.c freedynamicdata() reaches status_finish(). A nonterminal input
-// boundary never releases these banks; panic preserves C's cleanup bypass.
-export async function finishTerminatedSegment(state = game) {
-    if (!state.program_state?.gameover || state.program_state?.in_really_done)
-        return false;
-    if (state._preNhgetchHook)
-        await state._preNhgetchHook();
-    if (!state.program_state?.panicking)
-        status_finish(state);
-    return true;
 }

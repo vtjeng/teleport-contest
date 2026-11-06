@@ -40,6 +40,7 @@ import {
     BUFSZ, ECMD_OK, FULL_MOON, LFILE_EXISTS, RANGE_LEVEL, VISITED,
 } from './const.js';
 import { game } from './gstate.js';
+import { nh_terminate } from './end.js';
 import { nomul } from './hack.js';
 import { save_light_sources } from './light.js';
 import { dmonsfree } from './makemon_create.js';
@@ -339,14 +340,9 @@ export async function dosave(state = game) {
             await displayPendingTtyMessageWindow(state);
             tty_raw_print(state, 'Be seeing you...');
 
-            // C calls nh_terminate(EXIT_SUCCESS) to exit the process. The JS
-            // port signals the end of the segment by setting gameover, which
-            // breaks the moveloop in allmain.js. The recorder patch's
-            // nh_terminate() captures the final farewell screen; the JS
-            // equivalent lives in jsmain.js runSegment(), which calls
-            // _preNhgetchHook after the gameover break, matching the C
-            // recorder's capture position.
-            state.program_state.gameover = true;
+            // C ref: save.c:65 nh_terminate(EXIT_SUCCESS), which captures
+            // the farewell screen and does not return.
+            await nh_terminate(state);
         }
         // C's else arm calls docrt() for a failed save. dosave0() below
         // always succeeds in the JS port (VFS writes do not fail in the

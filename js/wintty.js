@@ -13,6 +13,7 @@ import {
     ROWNO,
     WIN_ERR,
 } from './const.js';
+import { nh_terminate } from './end.js';
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
 import {
@@ -250,12 +251,10 @@ export function tty_exit_nhwindows(str, state = game) {
     state.iflags.window_inited = false;
 }
 
-// wintty.c:344-360.  The C path removes lock files, tears down tty windows,
-// and exits the process.  The browser runner has no files or process to
-// release; record those calls and expose nh_terminate()'s observable result
-// through the existing gameover state.  bail() does not return in C, so each
-// JavaScript caller stops once gameover is set.
-export function bail(mesg, state = game, env = {}) {
+// wintty.c:342-349.  The C path removes lock files, tears down tty windows,
+// and exits the process through nh_terminate(), which does not return here
+// either.  The browser runner has no lock files to release; record that call.
+export async function bail(mesg, state = game, env = {}) {
     callTerminalOperation(
         state,
         env.clearlocks,
@@ -263,17 +262,7 @@ export function bail(mesg, state = game, env = {}) {
         [state],
     );
     tty_exit_nhwindows(mesg, state);
-    callTerminalOperation(
-        state,
-        env.nh_terminate,
-        'end.c nh_terminate',
-        [0, state],
-    );
-
-    state.program_state ??= {};
-    state.program_state.in_moveloop = 0;
-    state.program_state.exiting = 1;
-    state.program_state.gameover = true;
+    await nh_terminate(state);
 }
 
 // wintty.c:361-391.  WINCHAIN is disabled in config.h, so the compiled
@@ -586,15 +575,13 @@ export function tty_preference_update(pref, state = game) {
 }
 
 // C ref: win/tty/wintty.c tty_player_selection() (633-641). The role.c
-// implementation is already owned by player_selection_tty.js; this wrapper
-// preserves its boolean result so the JavaScript caller can observe C's
-// non-returning bail path when selection is cancelled.
+// implementation is already owned by player_selection_tty.js; it returns true
+// once a character is chosen, and a cancelled selection bails, which does not
+// return.
 export async function tty_player_selection(state = game, random) {
     const { ttyPlayerSelectionImpl } = await import('./player_selection_tty.js');
     if (await ttyPlayerSelectionImpl(state, random)) return true;
-    // A rename's tty_askname() may already have bailed.
-    if (!state.program_state?.gameover) bail(null, state);
-    return false;
+    await bail(null, state);
 }
 
 // C ref: win/tty/wintty.c tty_askname() (643-755). The source-shaped entry
@@ -607,10 +594,8 @@ export async function tty_askname(state = game) {
             state.wintty?.BASE_WINDOW ?? WIN_ERR,
             state,
         );
-        if (choice === -1) {
-            bail('Until next time then...', state);
-            return null;
-        }
+        if (choice === -1)
+            await bail('Until next time then...', state);
         if (choice === 1) return state.plname;
     }
     return ttyAsknameImpl(state);
