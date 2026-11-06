@@ -170,7 +170,7 @@ import {
 import { paranoid_query, y_n, yn_function } from './cmd.js';
 import { eaten_stat, floorfood } from './eat.js';
 import { newsym, shieldeff, xlev_to_rank } from './display.js';
-import { dropy, heal_legs } from './do.js';
+import { dropCommandEnv, dropy, heal_legs } from './do.js';
 import {
     disintegrate_arm,
     Amulet_off,
@@ -722,7 +722,9 @@ async function bestow_artifact(maxGiftValue, state) {
             : ansimpleoname(otmp, state);
     if (!blind) name += ` named ${bare_artifactname(otmp, state)}`;
     await at_your_feet(upstart(name), state);
-    await dropy(otmp, state);
+    // do.c dropy() reaches newsym() and encumber_msg() through the drop
+    // command's operations.
+    await dropy(otmp, dropCommandEnv(state));
     await godvoice(u.ualign.type, 'Use my gift wisely!', state);
     u.ugifts++;
     u.ublesscnt = rnz(300 + (50 * nartifacts));
