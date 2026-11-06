@@ -2622,7 +2622,7 @@ function normalizedDistressEnv(rawEnv = {}) {
 }
 
 function locationDoorMask(location) {
-    return location?.flags || location?.doormask || 0;
+    return location?.flags ?? 0;
 }
 
 function closedDoorAt(x, y, state) {
@@ -5242,7 +5242,6 @@ export async function vamprises(mtmp, state = game, env = {}) {
             );
         }
         state.msg_xy = null;
-        door.doormask = D_NODOOR;
         door.flags = D_NODOOR;
         recalc_block_point(x, y, state);
         if (trapped) {

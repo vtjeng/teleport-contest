@@ -1433,9 +1433,9 @@ function heroIsDeaf(state) {
 //
 // It used to carry a `loc.doormask & (D_CLOSED | D_LOCKED)` term as well. The
 // term was dead rather than wrong in general: js/mklev.js dosdoor() (2545)
-// writes only `loc.flags` for an ordinary dungeon door, so it answered FALSE
+// wrote only `loc.flags` for an ordinary dungeon door, so it answered FALSE
 // for those, though create_door() (2731) and the special-level door path (951)
-// do write `doormask` and would have satisfied it. Either way it is
+// wrote a separate `doormask` field and would have satisfied it. Either way it is
 // unreachable now for the one caller there is. blocksMove() is called only
 // from preflightDomoveDestination(), whose else-if chain claims every closed
 // or locked door in its closed_door() arm before reaching here, so the deleted
@@ -1666,7 +1666,7 @@ export function requireSimpleHeroDestination(
 }
 
 function doorMask(location) {
-    return location?.flags || location?.doormask || 0;
+    return location?.flags ?? 0;
 }
 
 // C ref: hack.c doorless_door(). A doorway lacks its door when no mask bit
@@ -2162,7 +2162,6 @@ export async function still_chewing(x, y, state = game) {
             && !in_town(x, y, state)) lev.typ = CORR;
         else {
             lev.typ = DOOR;
-            lev.doormask = D_NODOOR;
             lev.flags = D_NODOOR;
         }
     } else if (IS_TREE(lev.typ)) {
@@ -2178,12 +2177,10 @@ export async function still_chewing(x, y, state = game) {
         await dissolve_bars(x, y, state);
     } else if (lev.typ === SDOOR) {
         if (rm_doormask(lev) & D_TRAPPED) {
-            lev.doormask = D_NODOOR;
             lev.flags = D_NODOOR;
             await b_trapped('secret door', NO_PART, state);
         } else {
             digtxt = 'You chew through the secret door.';
-            lev.doormask = D_BROKEN;
             lev.flags = D_BROKEN;
         }
         lev.typ = DOOR;
@@ -2193,12 +2190,10 @@ export async function still_chewing(x, y, state = game) {
             dmgtxt = 'break';
         }
         if (rm_doormask(lev) & D_TRAPPED) {
-            lev.doormask = D_NODOOR;
             lev.flags = D_NODOOR;
             await b_trapped('door', NO_PART, state);
         } else {
             digtxt = 'You chew through the door.';
-            lev.doormask = D_BROKEN;
             lev.flags = D_BROKEN;
         }
     } else {
@@ -4845,8 +4840,8 @@ export async function pickup_checks(state = game, env = {}) {
         const typ = lev?.typ;
 
         if (IS_THRONE(typ)) {
-            // rm.h:218 aliases `looted` onto the same field `doormask` names,
-            // which is what doorMask() reads. Nothing ported loots a throne,
+            // rm.h:218 aliases `looted` onto `flags`, which is what
+            // doorMask() reads. Nothing ported loots a throne,
             // so the shorter line is the only one a game reaches.
             await message(
                 `It must weigh${doorMask(lev) ? ' almost' : ''} a ton!`,

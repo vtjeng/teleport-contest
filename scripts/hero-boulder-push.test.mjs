@@ -432,7 +432,7 @@ test('a mounted push into a closed destination door names the steed',
         assert.ok(boulder, 'the boulder stands north of the hero');
         const destination = game.level.at(sx, sy - 1);
         destination.typ = DOOR;
-        destination.flags = destination.doormask = D_CLOSED;
+        destination.flags = D_CLOSED;
         const originalSteed = game.u.usteed;
         game.u.usteed = newMonster({ data: game.mons[PM_PONY], mnum: PM_PONY });
         const messages = [];

@@ -44,7 +44,7 @@ const DIRECTIONS = {
 };
 
 function doorMask(location) {
-    return location?.flags || location?.doormask || 0;
+    return location?.flags ?? 0;
 }
 
 // hack.c doorless_door(), restated here so a mutation of the production
@@ -203,7 +203,7 @@ test('Rogue-level doorways retain their diagonal restriction', async () => {
     for (const mask of [D_NODOOR, D_BROKEN]) {
         const diagonal = game.level.at(ux + 1, uy + 1);
         diagonal.typ = DOOR;
-        diagonal.flags = diagonal.doormask = mask;
+        diagonal.flags = mask;
         assert.equal(doorless_door(diagonal, game), false);
         assert.equal(
             await test_move(ux, uy, 1, 1, DO_MOVE, game),
@@ -213,7 +213,7 @@ test('Rogue-level doorways retain their diagonal restriction', async () => {
 
         const orthogonal = game.level.at(ux + 1, uy);
         orthogonal.typ = DOOR;
-        orthogonal.flags = orthogonal.doormask = mask;
+        orthogonal.flags = mask;
         assert.equal(
             await test_move(ux, uy, 1, 0, DO_MOVE, game),
             true,
@@ -374,7 +374,7 @@ test('an obstructed destination outranks the diagonal doorway rules',
         const { ux, uy } = game.u;
         const here = game.level.at(ux, uy);
         here.typ = DOOR;
-        here.flags = here.doormask = D_ISOPEN;
+        here.flags = D_ISOPEN;
         for (const column of game.level.monsters) column.fill(null);
 
         // An ordinary destination takes the exit rule and its message.
@@ -465,7 +465,7 @@ test('the seam consults its destination checks only where the rules allow',
         // consequences spoteffects() owns.
         here.typ = ROOM;
         destination.typ = DOOR;
-        destination.flags = destination.doormask = D_ISOPEN;
+        destination.flags = D_ISOPEN;
         // The portal is admitted for hero arrival, but the diagonal doorway
         // rule refuses this step before arrival consequences are reached.
         game.level.traps = [{
@@ -491,7 +491,7 @@ test('the seam consults its destination checks only where the rules allow',
         // TREE is handled by blocksMove() and returns silently.
         for (const source of [ROOM, DOOR]) {
             here.typ = source;
-            here.flags = here.doormask = source === DOOR ? D_ISOPEN : 0;
+            here.flags = source === DOOR ? D_ISOPEN : 0;
             destination.typ = IRONBARS;
             preflightDomoveDestination(ux + 1, uy + 1, game);
             destination.typ = TREE;

@@ -543,7 +543,6 @@ function clearRow(state, fromX, toX, y) {
         const location = state.level.at(x, y);
         location.typ = ROOM;
         location.flags = 0;
-        location.doormask = 0;
         location.wall_info = 0;
     }
 }
@@ -1783,9 +1782,9 @@ test('blocking_terrain answers for each terrain mthrowu.c names', async () => {
     state.level.at(x, y).typ = STONE;
     assert.equal(blocking_terrain(x, y, state), true);
     state.level.at(x, y).typ = DOOR;
-    state.level.at(x, y).doormask = D_CLOSED;
+    state.level.at(x, y).flags = D_CLOSED;
     assert.equal(blocking_terrain(x, y, state), true);
-    state.level.at(x, y).doormask = 0;
+    state.level.at(x, y).flags = 0;
     state.level.at(x, y).typ = MOAT;
     // A moat is water but not a waterwall, so it does not block; lava wall
     // is the terrain C names separately and does.
@@ -2292,7 +2291,7 @@ test('linedup_callback walks toward the target and stops when fnc matches',
         const farX = bx + 9;
         for (let x = ax + 1; x <= farX; x++) {
             const loc = state.level.at(x, y);
-            loc.typ = ROOM; loc.flags = 0; loc.doormask = 0; loc.wall_info = 0;
+            loc.typ = ROOM; loc.flags = 0; loc.wall_info = 0;
         }
         assert.equal(
             linedup_callback(farX, y, bx, y, () => true, { state }),

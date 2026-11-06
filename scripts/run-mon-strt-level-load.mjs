@@ -42,9 +42,9 @@ export async function verifyMonStrtSegment(segment) {
     assert.equal(objects.some(object => object.otyp === FOOD_RATION && object.quan === 4), true);
 
     const lockedDoors = game.level.locations.flat().filter(location =>
-        location.typ === DOOR && (location.doormask & D_LOCKED));
+        location.typ === DOOR && (location.flags & D_LOCKED));
     const closedDoors = game.level.locations.flat().filter(location =>
-        location.typ === DOOR && (location.doormask & D_CLOSED));
+        location.typ === DOOR && (location.flags & D_CLOSED));
     assert.equal(lockedDoors.length, 4);
     assert.equal(closedDoors.length, 14);
     assert.equal(lockedDoors.length + closedDoors.length, 18);

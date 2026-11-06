@@ -183,9 +183,8 @@ function blocksVisionAt(x, y, state) {
     const typ = loc.typ ?? 0;
     if (typ < POOL) return true;  // STONE, walls, SDOOR, SCORR
     if (typ === DOOR) {
-        // rm.doormask aliases the shared flags field in C.  Generated levels
-        // use flags while some focused callers still populate doormask.
-        const mask = loc.flags || loc.doormask || 0;
+        // rm.h's doormask is struct rm's `flags`.
+        const mask = loc.flags;
         if (mask & (D_CLOSED | D_LOCKED | D_TRAPPED)) return true;
     }
     const drawbridgeMask = loc.flags ?? 0;

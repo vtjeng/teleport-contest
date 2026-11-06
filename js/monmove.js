@@ -501,9 +501,8 @@ function propertyActive(state, property, blockedMatters = false) {
 }
 
 function doorMask(location) {
-    // rm.doormask aliases flags in C. doormask remains a compatibility input
-    // for focused fixtures and older persisted state.
-    return location?.flags || location?.doormask || 0;
+    // rm.h's doormask is struct rm's `flags`.
+    return location?.flags ?? 0;
 }
 
 function drawbridgeMask(location) {
@@ -3294,10 +3293,8 @@ export async function postmov(
     // C ref: monmove.c:1526-1536, the UnblockDoor macro.  canseeit is the
     // caller's local there, so this returns the value the macro recomputes.
     const unblockDoor = (where, who, what) => {
-        // detect.c cvt_sdoor_to_door() sets both spellings of struct rm's
-        // shared mask field; every reader in the port accepts either.
+        // where->doormask = what; rm.h's doormask is `flags`.
         where.flags = what;
-        where.doormask = what;
         redraw(who.mx, who.my);
         recalcBlockPoint(who.mx, who.my, state);
         visionRecalc(0);
@@ -3373,7 +3370,6 @@ export async function postmov(
             if (btrapped && has_magic_key(monster, state)) {
                 const untrapped = doorMask(here) & ~D_TRAPPED;
                 here.flags = untrapped;
-                here.doormask = untrapped;
                 btrapped = false;
             }
             const currentMask = () => doorMask(here);
@@ -4398,7 +4394,6 @@ export async function dissolve_bars(x, y, state = game, rawEnv = {}) {
             ? ROOM
             : CORR;
     loc.flags = 0; /* doormask = D_NODOOR */
-    loc.doormask = 0;
     redraw(x, y, state);
     if (x === state.u.ux && y === state.u.uy) /* u_at(x, y) */
         await switch_terrain(state);

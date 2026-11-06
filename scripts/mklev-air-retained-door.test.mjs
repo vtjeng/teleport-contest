@@ -26,7 +26,7 @@ for (const mode of ['terrain-air', 'replace-air', 'terrain-secret']) {
         lspo_door([{ x: 10, y: 10, state: 'locked' }], env);
         lspo_terrain([{ x: 9, y: 10, typ: '-' }], env);
         const door = state.level.at(11, 10);
-        assert.deepEqual([door.typ, door.doormask, Number(door.horizontal)],
+        assert.deepEqual([door.typ, door.flags, Number(door.horizontal)],
             [SDOOR, D_LOCKED, 0]);
         if (mode === 'replace-air') {
             lspo_replace_terrain([{
@@ -38,7 +38,7 @@ for (const mode of ['terrain-air', 'replace-air', 'terrain-secret']) {
                 typ: mode === 'terrain-secret' ? 'S' : 'A' }], env);
         }
         assert.deepEqual([
-            door.typ, door.doormask, Number(door.horizontal),
+            door.typ, door.flags, Number(door.horizontal),
             Number(Boolean(door.candig)),
         ], mode === 'terrain-air' ? [SDOOR, D_CLOSED, 1, 1]
             : mode === 'replace-air' ? [SDOOR, D_LOCKED, 0, 1]

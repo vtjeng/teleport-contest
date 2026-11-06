@@ -236,7 +236,6 @@ function searchState() {
                     locations.set(coordinate, {
                         typ: ROOM,
                         flags: 0,
-                        doormask: 0,
                         candig: false,
                     });
                 }
@@ -692,7 +691,7 @@ async function globalSearchState(extraRc = '', { blind = true } = {}) {
             if (x === game.u.ux && y === game.u.uy) continue;
             const location = game.level.at(x, y);
             location.typ = ROOM;
-            location.flags = location.doormask = 0;
+            location.flags = 0;
             location.remembered_glyph = undefined;
             location.seenv = 0;
             game.level.objects[x][y] = null;
@@ -833,7 +832,6 @@ test('automatic search reveals a secret door in source operation order', async (
     const location = state.level.at(9, 9);
     location.typ = SDOOR;
     location.flags = D_LOCKED | D_TRAPPED | 0x03;
-    location.doormask = location.flags;
     location.candig = true;
     const events = [];
     const random = scriptedRandom(events, [0], [18]);
@@ -854,7 +852,6 @@ test('automatic search reveals a secret door in source operation order', async (
     ]);
     assert.equal(location.typ, DOOR);
     assert.equal(location.flags, D_LOCKED | D_TRAPPED);
-    assert.equal(location.doormask, D_LOCKED | D_TRAPPED);
     assert.equal(location.candig, false);
     assert.equal(state.u.aexe[2], 1);
     assert.equal(state.multi, 0);
@@ -906,7 +903,6 @@ test('secret-door conversion closes unlocked doors and opens rogue doors', () =>
     cvt_sdoor_to_door(ordinaryDoor, ordinary);
     assert.equal(ordinaryDoor.typ, DOOR);
     assert.equal(ordinaryDoor.flags, D_TRAPPED | D_CLOSED);
-    assert.equal(ordinaryDoor.doormask, D_TRAPPED | D_CLOSED);
     assert.equal(ordinaryDoor.candig, false);
 
     const rogue = searchState();
@@ -917,7 +913,6 @@ test('secret-door conversion closes unlocked doors and opens rogue doors', () =>
     cvt_sdoor_to_door(rogueDoor, rogue);
     assert.equal(rogueDoor.typ, DOOR);
     assert.equal(rogueDoor.flags, 0);
-    assert.equal(rogueDoor.doormask, 0);
 });
 
 test('automatic search reveals a secret corridor before exercise and display', async () => {
@@ -2695,14 +2690,13 @@ test('trapped chest checks floor then hero, steed and monster direct inventory c
     assert.equal(trapped_chest_at(TRAPPED_CHEST, 10, 10, state), true);
 });
 
-test('findone reveals a wished trapped door with its canonical doormask', async () => {
+test('findone reveals a wished trapped door from its doormask', async () => {
     const { x, y } = await globalSearchState();
     const cell = game.level.at(x, y);
     cell.typ = DOOR;
-    // readobjnam's wizard terrain wish sets doormask; zero flags is the
-    // untouched alternate representation, not a reason to hide the trap.
-    cell.flags = 0;
-    cell.doormask = D_LOCKED | D_TRAPPED;
+    // A locked, trapped door, as readobjnam's wizard terrain wish makes one;
+    // rm.h's doormask is struct rm's `flags`.
+    cell.flags = D_LOCKED | D_TRAPPED;
     const found = { ft_cc: { x: 0, y: 0 }, num_sdoors: 0, num_scorrs: 0, num_traps: 0, num_mons: 0, num_invis: 0, num_kept_invis: 0, num_cleared_invis: 0 };
     await findone(x, y, found, game);
     assert.equal(found.num_traps, 1);

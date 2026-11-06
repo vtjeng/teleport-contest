@@ -1269,7 +1269,7 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
         if (is_drawbridge_wall(x, y, state) >= 0)
             return 'open drawbridge portcullis';
         const location = state.level?.at(x, y);
-        const mask = location?.flags || location?.doormask || 0;
+        const mask = location?.flags ?? 0;
         return (mask & ~D_TRAPPED) === D_BROKEN ? 'broken door' : 'doorway';
     }
     if (index === S_cloud)

@@ -538,12 +538,9 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
 
         const firstDoor = state.level.doors[sroom.fdoor];
         const doorLoc = state.level.at(firstDoor.x, firstDoor.y);
-        // C rm.doormask is rm.flags. mklev.c dosdoor() writes the door
-        // state to flags, so read it there, as display.js does, and keep
-        // both fields equal on every write.
-        const doorMask = () => doorLoc.flags || doorLoc.doormask || 0;
+        // rm.h's doormask is `flags`.
+        const doorMask = () => doorLoc.flags;
         if (doorMask() === D_NODOOR) {
-            doorLoc.doormask = D_ISOPEN;
             doorLoc.flags = D_ISOPEN;
             redrawDoor(firstDoor.x, firstDoor.y, normalized);
         }
@@ -554,7 +551,6 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
             redrawDoor(firstDoor.x, firstDoor.y, normalized);
         }
         if (doorMask() & D_TRAPPED) {
-            doorLoc.doormask = D_LOCKED;
             doorLoc.flags = D_LOCKED;
         }
 

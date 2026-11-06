@@ -955,7 +955,7 @@ async function kick_ouch(x, y, kickobjnam, state) {
 // vision recalculation, shop billing and town-watch callbacks.
 export async function kick_door(x, y, avrg_attrib, state = game) {
     const maploc = state.level.at(x, y);
-    const mask = maploc.flags || maploc.doormask || 0;
+    const mask = maploc.flags;
     if (mask === D_ISOPEN || mask === D_BROKEN || mask === D_NODOOR) {
         await kick_dumb(x, y, state);
         return;
@@ -973,18 +973,18 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
             if (state.flags.verbose) await ttyPline('You kick the door.', state);
             await exercise(A_STR, false, state, { rn2 },
                 { encumberMessage: encumber_msg });
-            maploc.flags = maploc.doormask = D_NODOOR;
+            maploc.flags = D_NODOOR;
             await b_trapped('door', FOOT, state);
         } else if (acurr(state, A_STR) > 18 && !rn2(5) && !shopdoor) {
             await ttyPline('As you kick the door, it shatters to pieces!', state);
             await exercise(A_STR, true, state, { rn2 },
                 { encumberMessage: encumber_msg });
-            maploc.flags = maploc.doormask = D_NODOOR;
+            maploc.flags = D_NODOOR;
         } else {
             await ttyPline('As you kick the door, it crashes open!', state);
             await exercise(A_STR, true, state, { rn2 },
                 { encumberMessage: encumber_msg });
-            maploc.flags = maploc.doormask = D_BROKEN;
+            maploc.flags = D_BROKEN;
         }
         feel_newsym(x, y, state);
         recalc_block_point(x, y, state);
@@ -1011,7 +1011,7 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
             await get_iter_mons_async(async (mon) => {
                 if (!is_watch(mon.data) || !mon.mpeaceful
                     || !couldsee(mon.mx, mon.my, state)) return false;
-                if ((maploc.looted ?? maploc.doormask ?? maploc.flags)
+                if (maploc.flags
                     & D_WARNED) {
                     await mon_yells(mon,
                         "Halt, vandal!  You're under arrest!", { state });
@@ -1022,7 +1022,7 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
                     // C's looted and doormask alias the same map byte.
                     const warnedMask = mask | D_WARNED;
                     maploc.looted = warnedMask;
-                    maploc.flags = maploc.doormask = warnedMask;
+                    maploc.flags = warnedMask;
                 }
                 return true;
             }, state);
@@ -1044,10 +1044,10 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
                 === D_LOCKED ? 'Your kick uncovers' : 'You kick open'} a secret door!`, state);
             await exercise(A_DEX, true, state, random);
             if (mask & D_TRAPPED) {
-                maploc.flags = maploc.doormask = D_NODOOR;
+                maploc.flags = D_NODOOR;
                 await b_trapped('door', FOOT, state);
             } else if (mask !== D_NODOOR && !(mask & D_LOCKED)) {
-                maploc.flags = maploc.doormask = D_ISOPEN;
+                maploc.flags = D_ISOPEN;
             }
             feel_newsym(x, y, state);
             if (maploc.flags === D_ISOPEN || maploc.flags === D_NODOOR)

@@ -442,9 +442,8 @@ export function dfeature_at(x, y, state = game) {
     let dfeature = null;
 
     if (IS_DOOR(ltyp)) {
-        // Every other reader in the port takes flags first; both fields
-        // stand for C's single doormask, and this one had them reversed.
-        switch (lev.flags || lev.doormask || 0) {
+        // rm.h's doormask is `flags`.
+        switch (lev.flags) {
         case D_NODOOR:
             cmap = S_ndoor;
             break;

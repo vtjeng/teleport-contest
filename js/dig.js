@@ -407,7 +407,6 @@ export async function mkcavepos(
     unblockPoint(x, y, state);
     location.seenv = 0;
     location.flags = 0;
-    if ('doormask' in location) location.doormask = 0;
     if (dist < 3) location.lit = !rockit;
     if (waslit) location.waslit = !rockit;
     location.horizontal = false;
@@ -589,12 +588,10 @@ function resetDigging(digging) {
 // the caller's Boolean decides whether allmain.c keeps running this callback.
 // C ref: dig.c dig() (460-470), "if (!(lev->doormask & D_TRAPPED))
 // lev->doormask = D_BROKEN;" for a dug secret door and a dug closed door.
-// struct rm aliases doormask and flags; this port stores both spellings, and
-// display.c back_to_glyph() reads `flags` first, so both are written.
+// rm.h's doormask is `flags`.
 function breakDugDoor(location) {
-    if ((location.flags || location.doormask || 0) & D_TRAPPED) return;
+    if (location.flags & D_TRAPPED) return;
     location.flags = D_BROKEN;
-    location.doormask = D_BROKEN;
 }
 
 export async function dig(state = game, rawEnv = {}) {
@@ -899,8 +896,7 @@ export async function dig(state = game, rawEnv = {}) {
             if (monster)
                 await message('The debris from your digging comes to life!', state, rawEnv);
         }
-        if (IS_DOOR(location.typ, state) && ((location.flags || location.doormask || 0) & D_TRAPPED)) {
-            location.doormask = D_NODOOR;
+        if (IS_DOOR(location.typ, state) && (location.flags & D_TRAPPED)) {
             location.flags = D_NODOOR;
             await b_trapped('door', NO_PART, state, { ...rawEnv, random, message });
             recalc_block_point(x, y, state);
@@ -2088,7 +2084,6 @@ export async function zap_dig(
                 await ttyPline('The door is razed!', state);
             }
             await watch_dig(null, zx, zy, true, { state });
-            room.doormask = D_NODOOR;
             room.flags = D_NODOOR;
             recalc_block_point(zx, zy, state);
             digdepth -= 2;
@@ -2102,7 +2097,6 @@ export async function zap_dig(
                     }
                     room.typ = ROOM;
                     room.flags = 0;
-                    room.doormask = 0;
                     unblock_point(zx, zy, state);
                 } else if (!heroIsBlind(state)) {
                     await ttyPline('The wall glows then fades.', state);
@@ -2112,7 +2106,6 @@ export async function zap_dig(
                 if (!(room.wall_info & W_NONDIGGABLE)) {
                     room.typ = ROOM;
                     room.flags = 0;
-                    room.doormask = 0;
                     unblock_point(zx, zy, state);
                 } else if (!heroIsBlind(state)) {
                     await ttyPline('The tree shudders but is unharmed.', state);
@@ -2122,7 +2115,6 @@ export async function zap_dig(
                 if (!(room.wall_info & W_NONDIGGABLE)) {
                     room.typ = CORR;
                     room.flags = 0;
-                    room.doormask = 0;
                     unblock_point(zx, zy, state);
                 } else if (!heroIsBlind(state)) {
                     await ttyPline('The rock glows then fades.', state);
@@ -2141,22 +2133,18 @@ export async function zap_dig(
                     && !in_town(zx, zy, state)) {
                     room.typ = CORR;
                     room.flags = 0;
-                    room.doormask = 0;
                 } else {
                     room.typ = DOOR;
-                    room.doormask = D_NODOOR;
                     room.flags = D_NODOOR;
                 }
                 digdepth -= 2;
             } else if (IS_TREE(room.typ)) {
                 room.typ = ROOM;
                 room.flags = 0;
-                room.doormask = 0;
                 digdepth -= 2;
             } else {
                 room.typ = CORR;
                 room.flags = 0;
-                room.doormask = 0;
                 digdepth--;
             }
             unblock_point(zx, zy, state);
@@ -2181,9 +2169,7 @@ export async function zap_dig(
 
 // C ref: dig.c adj_pit_checks() (1763-1838). The caller supplies the mutable
 // coordinate and receives both the boolean permission and the exact refusal
-// message. C clears the struct-rm flags before inspecting the surface; the
-// JS location keeps doormask as a compatibility mirror, so clear that mirror
-// too or monmove.c closed_door() would observe stale door state.
+// message. C clears the struct-rm flags before inspecting the surface.
 export function adj_pit_checks(coordinate, state = game) {
     if (!coordinate || !isok(coordinate.x, coordinate.y))
         return { allowed: false, message: '' };
@@ -2191,7 +2177,6 @@ export function adj_pit_checks(coordinate, state = game) {
     const { x, y } = coordinate;
     const room = state.level.at(x, y);
     room.flags = 0;
-    room.doormask = 0;
     const foundation = 'The foundation is too hard to dig through from this angle.';
     let message = '';
 
@@ -2231,7 +2216,6 @@ export function adj_pit_checks(coordinate, state = game) {
 function setTerrain(location, typ, flags = 0) {
     location.typ = typ;
     location.flags = flags;
-    location.doormask = flags;
 }
 
 export async function draft_message(unexpected, env) {

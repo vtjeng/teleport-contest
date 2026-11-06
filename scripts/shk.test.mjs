@@ -1691,7 +1691,6 @@ test('pay_for_damage outside first-slot buffer relocates keeper to its owned doo
             gridAtHome: e?.shk ? game.level?.monsters?.[e.shk.x]?.[e.shk.y]?.m_id ?? null : null,
             gridAtDoor: door ? game.level?.monsters?.[door.x]?.[door.y]?.m_id ?? null : null,
             door: door ? { ...door, typ: game.level?.at(door.x,door.y)?.typ ?? null,
-                doormask: game.level?.at(door.x,door.y)?.doormask ?? null,
                 flags: game.level?.at(door.x,door.y)?.flags ?? null,
                 isDoor: Boolean(game.level?.at(door.x,door.y) && IS_DOOR(game.level.at(door.x,door.y).typ)),
                 ownerRooms: in_rooms(door.x,door.y,SHOPBASE,game),
@@ -1775,7 +1774,7 @@ test('pay_for_damage outside first-slot buffer relocates keeper to its owned doo
         assert.deepEqual(door, { x: 6, y: 10 }, 'fixed retained canonical entrance');
         const doorLoc = game.level.at(door.x, door.y);
         assert.ok(IS_DOOR(doorLoc.typ));
-        assert.equal(doorLoc.doormask, D_ISOPEN, 'the retained entrance is already open');
+        assert.equal(doorLoc.flags, D_ISOPEN, 'the retained entrance is already open');
         assert.deepEqual(in_rooms(door.x, door.y, SHOPBASE, game), [shoproom]);
         assert.equal(game.level.monsters?.[door.x]?.[door.y] ?? null, null);
         assert.equal(game.level.objects?.[door.x]?.[door.y] ?? null, null);
@@ -1980,7 +1979,7 @@ test('pay_for_damage default near-door getcad completes the source pursuit', asy
         assert.deepEqual(door, { x: 6, y: 10 });
         const doorLoc = game.level.at(door.x, door.y);
         assert.ok(IS_DOOR(doorLoc.typ));
-        assert.equal(doorLoc.doormask, D_ISOPEN);
+        assert.equal(doorLoc.flags, D_ISOPEN);
         assert.deepEqual(in_rooms(door.x, door.y, SHOPBASE, game), [roomno]);
         assert.equal(game.level.monsters?.[door.x]?.[door.y] ?? null, null);
         assert.equal(t_at(door.x, door.y, game), null);

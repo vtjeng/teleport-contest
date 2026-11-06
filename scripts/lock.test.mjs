@@ -152,7 +152,6 @@ test('a winning pull opens the door for every reader of the mask', async () => {
     // struct rm's mask has two spellings in this port; both readers have to
     // see the open door.
     assert.equal(door.flags, D_ISOPEN);
-    assert.equal(door.doormask, D_ISOPEN);
     // lock.c:914's feel_newsym() is what repaints the square, and the repaint
     // is the whole visible result of the pull: S_vodoor, the open door in a
     // vertical wall, is '-'. Without it the square keeps drawing '+' while the
@@ -173,12 +172,11 @@ test('door magic preserves the trapped bit while locking and unlocking', async (
         dknown: true,
     };
     door.flags = D_ISOPEN | D_TRAPPED;
-    door.doormask = D_ISOPEN | D_TRAPPED;
 
     assert.equal(await doorlock(wand, x, y, game, {
         message(text) { events.push(text); },
     }), true);
-    assert.equal(door.doormask, D_LOCKED | D_TRAPPED);
+    assert.equal(door.flags, D_LOCKED | D_TRAPPED);
     assert.deepEqual(events, ['The door swings shut, and locks!']);
 
     events.length = 0;
@@ -188,7 +186,7 @@ test('door magic preserves the trapped bit while locking and unlocking', async (
     }, x, y, game, {
         message(text) { events.push(text); },
     }), true);
-    assert.equal(door.doormask, D_CLOSED | D_TRAPPED);
+    assert.equal(door.flags, D_CLOSED | D_TRAPPED);
     assert.deepEqual(events, ['The door unlocks!']);
 
     assert.equal(await doorlock({
@@ -215,7 +213,6 @@ test('striking a trapped door applies mb_trapped to its resident monster',
         monster.nmon = game.level.monlist;
         game.level.monlist = monster;
         door.flags = D_CLOSED | D_TRAPPED;
-        door.doormask = D_CLOSED | D_TRAPPED;
         const events = [];
         const randomCalls = [];
 
@@ -310,7 +307,6 @@ test('a door that is not closed is named instead of pulled at', async () => {
     for (const [mask, line] of cases) {
         const { x, y, door } = await closedDoorBesideHero();
         door.flags = mask;
-        door.doormask = mask;
         const events = [];
 
         // rnl() would return 0 and open the door if the roll were reached, so
@@ -345,7 +341,7 @@ test('doopen_indir rejects a substitution it would never read', async () => {
 test('the complete default mask takes autounlock without mounted kicking', async () => {
     for (const mask of [D_BROKEN | D_TRAPPED, D_ISOPEN | D_TRAPPED]) {
         const { x, y, door } = await closedDoorBesideHero();
-        door.flags = door.doormask = mask;
+        door.flags = mask;
         game.flags.autounlock = AUTOUNLOCK_KICK;
         game.u.usteed = {};
         game.u.dz = 1;
@@ -353,7 +349,7 @@ test('the complete default mask takes autounlock without mounted kicking', async
         await doopen_indir(x, y, game, scriptedPull(events, 0));
         assert.deepEqual(events, ['message(This door is locked.)']);
         assert.equal(game.u.dz, 0, 'C resets dz before the mounted guard');
-        assert.equal(door.doormask, mask);
+        assert.equal(door.flags, mask);
         assert.equal(game.command_queue[CQ_CANNED].length, 0);
     }
 });
@@ -422,7 +418,6 @@ test('doopen toward a locked door prints the locked message', async () => {
     // doormask switch runs and prints "This door is locked."
     const { door } = await closedDoorBesideHero();
     door.flags = D_LOCKED;
-    door.doormask = D_LOCKED;
     clearPendingMessages();
     answer('h');
 
@@ -570,7 +565,6 @@ test('doopen_indir with empty inventory skips pick_lock for a locked door',
     // printing "This door is locked.". This avoids the ynq terminal prompt.
     const { x, y, door } = await closedDoorBesideHero();
     door.flags = D_LOCKED;
-    door.doormask = D_LOCKED;
     // No unlocking tool in inventory, so autokey(true) returns null and the
     // autounlock path falls through without calling pick_lock.
     const savedInvent = game.invent;
@@ -614,7 +608,6 @@ function answer(...keys) {
 async function openDoorBesideHero({ foldedStrength = true } = {}) {
     const result = await closedDoorBesideHero({ foldedStrength });
     result.door.flags = D_ISOPEN;
-    result.door.doormask = D_ISOPEN;
     game._pending_message = '';
     return result;
 }
@@ -650,7 +643,6 @@ test('doclose leaves an open door unchanged when an object blocks it', async () 
 
     assert.equal(await doclose(game), ECMD_OK);
     assert.equal(door.flags, D_ISOPEN);
-    assert.equal(door.doormask, D_ISOPEN);
 });
 
 test('doclose mounted hero always closes the door', async () => {
@@ -741,7 +733,6 @@ test('doclose on a no-door doorway reports it', async () => {
     const { door } = await closedDoorBesideHero();
     clearPendingMessages();
     door.flags = D_NODOOR;
-    door.doormask = D_NODOOR;
     answer('h');
 
     const result = await doclose(game);
@@ -755,7 +746,6 @@ test('doclose on a broken door reports it', async () => {
     const { door } = await closedDoorBesideHero();
     clearPendingMessages();
     door.flags = D_BROKEN;
-    door.doormask = D_BROKEN;
     answer('h');
 
     const result = await doclose(game);
@@ -807,7 +797,6 @@ test('picking_at follows the canonical gx.xlock door pointer without mutation',
     // way for this pure query to observe an active occupation.
     const { x, y, door } = await closedDoorBesideHero();
     door.flags = D_LOCKED;
-    door.doormask = D_LOCKED;
     clearPendingMessages();
     answer('h', 'y'); // west toward the adjacent locked door, then confirm
     assert.equal(

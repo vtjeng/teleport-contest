@@ -44,7 +44,6 @@ async function punishedMovementFixture() {
         const location = game.level.at(column, y);
         location.typ = ROOM;
         location.roomno = 0;
-        location.doormask = 0;
         location.flags = 0;
         location.seenv = 0;
         game.level.monsters[column][y] = null;

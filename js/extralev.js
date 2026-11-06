@@ -98,7 +98,7 @@ function roguecorr(x, y, dir, state = game) {
             if (!IS_WALL(state.level.at(fromx, fromy).typ))
                 throw new Error(`down: no wall at ${fromx},${fromy}?`);
             dodoor(fromx, fromy, state.level.rooms[here.nroom], state);
-            state.level.at(fromx, fromy).doormask = D_NODOOR;
+            state.level.at(fromx, fromy).flags = D_NODOOR;
             ++fromy;
         }
         if (y >= 2)
@@ -119,7 +119,7 @@ function roguecorr(x, y, dir, state = game) {
             if (!IS_WALL(state.level.at(tox, toy).typ))
                 throw new Error(`up: no wall at ${tox},${toy}?`);
             dodoor(tox, toy, state.level.rooms[next.nroom], state);
-            state.level.at(tox, toy).doormask = D_NODOOR;
+            state.level.at(tox, toy).flags = D_NODOOR;
             --toy;
         }
         roguejoin(fromx, fromy, tox, toy, false, state);
@@ -141,7 +141,7 @@ function roguecorr(x, y, dir, state = game) {
             if (!IS_WALL(state.level.at(fromx, fromy).typ))
                 throw new Error(`down: no wall at ${fromx},${fromy}?`);
             dodoor(fromx, fromy, state.level.rooms[here.nroom], state);
-            state.level.at(fromx, fromy).doormask = D_NODOOR;
+            state.level.at(fromx, fromy).flags = D_NODOOR;
             ++fromx;
         }
         if (x >= 2)
@@ -162,7 +162,7 @@ function roguecorr(x, y, dir, state = game) {
             if (!IS_WALL(state.level.at(tox, toy).typ))
                 throw new Error(`left: no wall at ${tox},${toy}?`);
             dodoor(tox, toy, state.level.rooms[next.nroom], state);
-            state.level.at(tox, toy).doormask = D_NODOOR;
+            state.level.at(tox, toy).flags = D_NODOOR;
             --tox;
         }
         roguejoin(fromx, fromy, tox, toy, true, state);

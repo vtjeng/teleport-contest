@@ -52,12 +52,12 @@ export async function runPickLockMatrix() {
                 assert.equal(game.xlock.usedtime, 0);
             } else if (name === 'door-auto') {
                 assert.ok(game.xlock.door);
-                assert.equal(game.xlock.door.doormask & D_LOCKED, 0);
+                assert.equal(game.xlock.door.flags & D_LOCKED, 0);
                 assert.equal(game.xlock.box, null);
                 assert.equal(game.xlock.usedtime, 0);
             } else if (name === 'door-untrap') {
                 // Same C-observed door coordinates, one square south of hero.
-                assert.ok(game.level.at(game.u.ux, game.u.uy + 1).doormask & D_LOCKED);
+                assert.ok(game.level.at(game.u.ux, game.u.uy + 1).flags & D_LOCKED);
                 assert.equal(game.xlock?.door ?? null, null, 'untrap does not install a picking occupation');
             } else {
                 assert.equal(game.xlock?.door ?? null, null, 'visible monster rejection precedes door selection');

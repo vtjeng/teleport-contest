@@ -293,7 +293,6 @@ function resetAirLocation(location, typ = AIR) {
     location.typ = typ;
     location.lit = typ === AIR;
     location.flags = 0;
-    location.doormask = 0;
     location.seenv = 0;
     location.horizontal = false;
     location.edge = false;

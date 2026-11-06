@@ -19,7 +19,7 @@ const DIRECTIONS = {
 const SEARCH = 's';
 
 function doorMask(location) {
-    return location?.flags || location?.doormask || 0;
+    return location?.flags ?? 0;
 }
 
 // Compare the final key's random-number slice with the calls do_attack() owes.

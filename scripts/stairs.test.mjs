@@ -283,7 +283,6 @@ test('dfeature_at names the features invent.c reads from a square',
     ];
     for (const [typ, expected] of cases) {
         square.typ = typ;
-        square.doormask = 0;
         square.flags = 0;
         assert.equal(
             dfeature_at(x, y, state),
@@ -302,7 +301,7 @@ test('dfeature_at names the features invent.c reads from a square',
         [4, 'closed door'],
         [8, 'closed door'],
     ]) {
-        square.doormask = mask;
+        square.flags = mask;
         assert.equal(
             dfeature_at(x, y, state),
             expected,
@@ -333,7 +332,7 @@ test('dfeature_at names the features invent.c reads from a square',
     bridge.flags = 0;
 
     square.typ = originalTyp;
-    square.doormask = 0;
+    square.flags = 0;
 });
 
 test('the generated cmap explanations match defsym.h', () => {

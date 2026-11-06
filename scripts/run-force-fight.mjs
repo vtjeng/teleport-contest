@@ -194,7 +194,7 @@ export const FORCE_FIGHT_CASES = [
         command: 'Fl',
         target: [1, 0],
         typ: DOOR,
-        doormask: D_CLOSED,
+        flags: D_CLOSED,
         message: 'You harmlessly attack the closed door.',
         movesAfter: 2,
     },
@@ -226,7 +226,7 @@ export const FORCE_FIGHT_CASES = [
         command: 'Fk',
         target: [0, -1],
         typ: DOOR,
-        doormask: D_NODOOR,
+        flags: D_NODOOR,
         message: 'You attack thin air.',
         movesAfter: 4,
     },
@@ -407,10 +407,10 @@ function verifyTargetTerrain(entry) {
     // door state decides which message arm answers. rm.h:213-218 aliases
     // doormask onto the field js/game.js calls `flags`, which is where a
     // generated level's door state lands.
-    if (entry.doormask !== undefined && location.flags !== entry.doormask) {
+    if (entry.flags !== undefined && location.flags !== entry.flags) {
         throw new Error(
             `${entry.label}: the target door state is ${location.flags}, `
-            + `not ${entry.doormask}`,
+            + `not ${entry.flags}`,
         );
     }
 }

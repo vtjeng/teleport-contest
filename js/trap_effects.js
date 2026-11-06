@@ -3052,13 +3052,12 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
         if (otyp === BOULDER) {
             const loc = state.level?.at(x, y);
             if (loc && loc.typ === DOOR
-                && ((loc.flags || loc.doormask || 0)
+                && (loc.flags
                     & (D_LOCKED | D_CLOSED))) {
                 if (cansee(x, y, state))
                     await message(messageAt(
                         'The boulder crashes through a door.', x, y, state,
                     ), state, env);
-                loc.doormask = D_BROKEN;
                 loc.flags = D_BROKEN;
                 if (dist)
                     objectHooks.recalcBlockPoint(x, y, objectEnv);
@@ -3681,10 +3680,8 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
     del_engr_at(x, y, state);
     await wake_nearto(x, y, 400, env);
 
-    // struct rm's doormask is its flags byte; the port stores both fields
-    // and display and look-here read flags first, so write both.
+    // rm.h's doormask is struct rm's `flags`.
     if (IS_DOOR(location.typ)) {
-        location.doormask = D_BROKEN;
         location.flags = D_BROKEN;
     }
 

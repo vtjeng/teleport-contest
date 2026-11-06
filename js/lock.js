@@ -632,10 +632,8 @@ async function picklock(state = game) {
             newsym(u.ux + u.dx, u.uy + u.dy, state);
         } else if (doorMask(xlock.door) & D_LOCKED) {
             xlock.door.flags = D_CLOSED;
-            xlock.door.doormask = D_CLOSED;
         } else {
             xlock.door.flags = D_LOCKED;
-            xlock.door.doormask = D_LOCKED;
         }
     } else {
         // lock.c:148-153. C toggles first, then calls chest_trap() if this
@@ -695,17 +693,13 @@ export function autokey(opening, state = game) {
     return key ?? pick ?? card ?? null;
 }
 
-// struct rm's shared door mask has two spellings in this port; js/mklev.js
-// writes an ordinary dungeon door's to `flags` and the special-level paths
-// write it to `doormask`, so every reader accepts either.
+// rm.h's doormask is struct rm's `flags`.
 function doorMask(location) {
-    return location?.flags || location?.doormask || 0;
+    return location?.flags ?? 0;
 }
 
 function setDoorMask(location, mask) {
-    // C rm.doormask aliases flags; generated JS levels store both fields.
     location.flags = mask;
-    location.doormask = mask;
 }
 
 // C ref: lock.c:352-354, pick_lock()'s three return values. The caller reads
@@ -1667,7 +1661,6 @@ export async function doclose(state = game) {
         if (u.usteed || rn2(25) < threshold) {
             await ttyPline('The door closes.', state);
             door.flags = D_CLOSED;
-            door.doormask = D_CLOSED;
             feel_newsym(x, y, state);
             block_point(x, y, state);
         } else {

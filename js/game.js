@@ -4,14 +4,12 @@
 import { COLNO, MAX_NUM_WORMS, ROWNO, STONE } from './const.js';
 import { NO_COLOR } from './terminal.js';
 
-// C ref: rm.h `#define doormask flags`. C keeps one door mask per square;
-// these locations carry both spellings, because ordinary generated doors
-// write `flags` while some special-level and fixture paths write only
-// `doormask`. Read a door's mask through here, `flags` first, as
-// monmove.js closed_door() does: `doormask ?? flags` would read a stale 0
-// and miss the bits a generated door keeps in `flags`.
+// C ref: rm.h `#define doormask flags`. C keeps one door mask per square,
+// in struct rm's `flags`, and so does makeLocation(): there is no separate
+// `doormask` field, and scripts/door-mask-field.test.mjs rejects one. A
+// missing location reads as D_NODOOR.
 export function rm_doormask(location) {
-    return location?.flags || location?.doormask || 0;
+    return location?.flags ?? 0;
 }
 
 // A single map cell. Mirrors C's struct rm.
@@ -21,8 +19,12 @@ export function makeLocation() {
         roomno: 0,        // room number (0 = not in a room)
         lit: false,        // is this cell lit?
         waslit: false,     // was this cell lit last time we checked?
-        flags: 0,          // door flags, wall flags, etc.
-        doormask: 0,       // door state (D_NODOOR, D_CLOSED, etc.)
+        // C ref: rm.h struct rm `flags`. rm.h's doormask, altarmask, ladder,
+        // drawbridgemask, looted, icedpool and emptygrave are macros over
+        // this field, so a door's state (D_NODOOR, D_CLOSED, ...) lives
+        // here and nowhere else; scripts/door-mask-field.test.mjs rejects
+        // a separate `doormask` property.
+        flags: 0,
         seenv: 0,          // which angles the hero has seen this wall from
         horizontal: false, // is this a horizontal wall?
         edge: false,       // is this at the edge of the map?

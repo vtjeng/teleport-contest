@@ -160,7 +160,7 @@ export async function verifyUntrapSegment(input, owner, name) {
         assert.ok(box.tknown);
     } else if (name === 'untrap-door-autounlock') {
         const door = game.level.at(game.u.ux - 1, game.u.uy);
-        assert.equal((door.flags || door.doormask) & D_TRAPPED, 0);
+        assert.equal((door.flags || door.flags) & D_TRAPPED, 0);
     } else if (name === 'untrap-trap-conversion-digging') {
         assert.equal(game.u.uz.dlevel, 2, 'the downward wand reaches the shaft arrival');
         // Digging unearths the converted bear trap before changing level.

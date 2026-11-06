@@ -101,7 +101,7 @@ test('repeated-simple-command cases retain their source branch markers',
             doorwayMonster.my,
         );
         assert.equal(doorway.typ, DOOR);
-        assert.equal(doorway.doormask || doorway.flags, 0);
+        assert.equal(doorway.flags || doorway.flags, 0);
 
         const runtime = await runSegment(segments[0]);
         const runtimeSlices = runtime.getRngSlices();

@@ -111,7 +111,6 @@ for (const originalMask of [D_CLOSED, D_LOCKED]) {
         for (let x = 10; x <= 12; x++) state.level.at(x, 10).typ = ROOM;
         const door = state.level.at(11, 10);
         door.typ = DOOR;
-        door.doormask = originalMask;
         door.flags = originalMask;
         if (originalMask === D_CLOSED) {
             state.viz_array = Array.from({ length: ROWNO }, () => []);
@@ -122,7 +121,7 @@ for (const originalMask of [D_CLOSED, D_LOCKED]) {
         const recalcMasks = [];
         const hooks = {
             blockPoint: () => {},
-            recalcBlockPoint: () => { recalcMasks.push(door.doormask); },
+            recalcBlockPoint: () => { recalcMasks.push(door.flags); },
         };
         place_object(boulder, 10, 10, { state, hooks });
 
@@ -135,7 +134,6 @@ for (const originalMask of [D_CLOSED, D_LOCKED]) {
             });
 
         assert.equal(result, 1);
-        assert.equal(door.doormask, D_BROKEN);
         assert.equal(door.flags, D_BROKEN);
         assert.deepEqual(recalcMasks, [originalMask, D_BROKEN]);
         assert.equal(sobj_at(BOULDER, 12, 10, state), boulder);

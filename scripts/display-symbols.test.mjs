@@ -764,7 +764,7 @@ test('room floors and empty doorways follow the selected cmap', () => {
     const cases = [
         // D_NODOOR is represented by a zero doormask in rm.h.
         { loc: { typ: ROOM }, ascii: '.', dec: '~' },
-        { loc: { typ: DOOR, doormask: 0 }, ascii: '.', dec: '~' },
+        { loc: { typ: DOOR, flags: 0 }, ascii: '.', dec: '~' },
     ];
     const asciiState = {};
     const decState = {};
@@ -797,10 +797,7 @@ test('generated doors read the struct-rm flags alias', () => {
     assert.deepEqual(
         displaySymbol({
             typ: DOOR,
-            // mklev.c:dosdoor() writes this canonical struct-rm alias while
-            // makeLocation's legacy compatibility field remains zero.
             flags: D_CLOSED,
-            doormask: 0,
             horizontal: false,
         }, state),
         { ch: '+', dec: false },
@@ -10317,32 +10314,26 @@ test('back_to_glyph fixes a wall\'s branch where the square is recorded', () => 
     );
     assert.equal(back_to_glyph(9, 4, state), GLYPH_ALTAR_OFF + altar_other);
 
-    // display.c:2325-2334 reads the doormask three ways, and struct rm aliases
-    // it with `flags`. All three arms have to see the value, not only the
-    // closed-door default at the bottom, and each has to see it through
-    // whichever of the two aliased fields the writer filled: js/mklev.js and
-    // js/lock.js write doormask, level generation writes flags.
-    for (const [field, mask, horizontal, expected] of [
-        ['flags', D_BROKEN, false, S_ndoor],
-        ['doormask', D_BROKEN, false, S_ndoor],
-        ['flags', D_ISOPEN, false, S_vodoor],
-        ['doormask', D_ISOPEN, false, S_vodoor],
-        ['flags', D_ISOPEN, true, S_hodoor],
-        ['flags', D_CLOSED, false, S_vcdoor],
-        ['doormask', D_CLOSED, false, S_vcdoor],
-        ['flags', D_CLOSED, true, S_hcdoor],
-        ['doormask', D_CLOSED, true, S_hcdoor],
-        // Neither field set is the no-door default.
-        ['flags', 0, false, S_ndoor],
+    // display.c:2325-2334 reads the doormask three ways; rm.h's doormask is
+    // struct rm's `flags`. All three arms have to see the value, not only the
+    // closed-door default at the bottom.
+    for (const [mask, horizontal, expected] of [
+        [D_BROKEN, false, S_ndoor],
+        [D_ISOPEN, false, S_vodoor],
+        [D_ISOPEN, true, S_hodoor],
+        [D_CLOSED, false, S_vcdoor],
+        [D_CLOSED, true, S_hcdoor],
+        // A zero mask is the no-door default.
+        [0, false, S_ndoor],
     ]) {
         Object.assign(
             state.level.at(10, 4),
-            makeLocation(), { typ: DOOR, [field]: mask, horizontal },
+            makeLocation(), { typ: DOOR, flags: mask, horizontal },
         );
         assert.equal(
             back_to_glyph(10, 4, state),
             cmap_to_glyph(expected, state),
-            `${field} ${mask} horizontal ${horizontal}`,
+            `flags ${mask} horizontal ${horizontal}`,
         );
     }
 });

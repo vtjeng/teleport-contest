@@ -464,7 +464,7 @@ function capability(env, name) {
 }
 
 function closedDoor(location) {
-    const mask = location.flags || location.doormask || 0;
+    const mask = location.flags;
     return location.typ === DOOR
         && Boolean(mask & (D_CLOSED | D_LOCKED));
 }
@@ -901,12 +901,11 @@ function pitTerrain(x, y, env) {
     }
 
     // C's `lev->flags = 0`. rm.h makes doormask and wall_info aliases of
-    // flags, which this port stores as separate fields, so clear them with
-    // it: a hole dug in an open doorway leaves D_NODOOR, which lets monsters
+    // flags; the port keeps wall_info as a separate field, so clear it with
+    // flags: a hole dug in an open doorway leaves D_NODOOR, which lets monsters
     // and the hero move diagonally through it.
     if (clearFlags) {
         location.flags = 0;
-        location.doormask = 0;
         location.wall_info = 0;
     }
     const exposed = capability(env, 'unearthObjects')(x, y, env);
@@ -3189,7 +3188,7 @@ export async function untrap(force, rx, ry, container, state = game) {
         return 0;
     }
 
-    const doormask = loc?.flags || loc?.doormask || 0;
+    const doormask = loc?.flags ?? 0;
     switch (doormask) {
     case D_NODOOR:
         await ttyPline(`You ${Blind(state) ? 'feel' : 'see'} no door there.`, state);
@@ -3220,7 +3219,6 @@ export async function untrap(force, rx, ry, container, state = game) {
                 await b_trapped('door', FINGER, state);
                 if (state.program_state?.gameover) return 1;
                 loc.flags = D_NODOOR;
-                loc.doormask = D_NODOOR;
                 unblock_point(x, y, state);
                 newsym(x, y);
                 if (in_rooms(x, y, SHOPBASE, state).length > 0) {
@@ -3229,7 +3227,6 @@ export async function untrap(force, rx, ry, container, state = game) {
             } else {
                 await ttyPline('You disarm it!', state);
                 loc.flags = doormask & ~D_TRAPPED;
-                loc.doormask = doormask & ~D_TRAPPED;
                 more_experienced(8, 0, state);
                 await newexplevel(state, { message: ttyPline });
             }

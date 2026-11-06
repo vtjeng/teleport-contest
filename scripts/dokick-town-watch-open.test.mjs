@@ -28,7 +28,7 @@ test('breaking a generated Minetown door makes the watch arrest the hero', async
     assert.equal(boundary, null);
     assert.deepEqual([game.u.ux, game.u.uy], [27, 7]);
     assert.equal(in_town(27, 6, game), true);
-    assert.equal(game.level.at(27, 6).doormask, D_BROKEN);
+    assert.equal(game.level.at(27, 6).flags, D_BROKEN);
     assert.ok(!game.unported.has('mon.c get_iter_mons watchman_thief_arrest'));
     const guards = [];
     for (let mon = game.level.monlist; mon; mon = mon.nmon)

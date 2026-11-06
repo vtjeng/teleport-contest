@@ -15,7 +15,6 @@ function caveState() {
         Array.from({ length: ROWNO }, () => ({
             typ: STONE,
             flags: 0x7f,
-            doormask: 0x7f,
             seenv: 0x7f,
             lit: false,
             waslit: false,
@@ -70,7 +69,6 @@ test('mkcavepos updates terrain and visibility in source order', async () => {
     assert.deepEqual({
         typ: state.level.at(x, y).typ,
         flags: state.level.at(x, y).flags,
-        doormask: state.level.at(x, y).doormask,
         seenv: state.level.at(x, y).seenv,
         lit: state.level.at(x, y).lit,
         waslit: state.level.at(x, y).waslit,
@@ -79,7 +77,6 @@ test('mkcavepos updates terrain and visibility in source order', async () => {
     }, {
         typ: ROOM,
         flags: 0,
-        doormask: 0,
         seenv: 0,
         lit: true,
         waslit: true,

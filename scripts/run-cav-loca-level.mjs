@@ -35,7 +35,7 @@ async function verifyCavLoca(segment) {
     let lockedDoors = 0;
     for (let x = 0; x < game.level.locations.length; ++x)
         for (let y = 0; y < game.level.locations[x].length; ++y)
-            if (game.level.at(x, y).doormask & D_LOCKED) ++lockedDoors;
+            if (game.level.at(x, y).flags & D_LOCKED) ++lockedDoors;
     assert.equal(lockedDoors, 1); // Lua36 one locked secret door, preserved through flips.
 }
 export function runCavLocaMatrix() {

@@ -207,18 +207,18 @@ const DIG_TYP_CASES = [
 
     // 177-180, the axe arm. A door first, whatever the terrain under it.
     {
-        why: 'an axe at a shut door', otyp: AXE, typ: DOOR, doormask: D_CLOSED,
+        why: 'an axe at a shut door', otyp: AXE, typ: DOOR, flags: D_CLOSED,
         expected: DIGTYP_DOOR,
     },
     {
         why: 'an axe at a locked door', otyp: AXE, typ: DOOR,
-        doormask: D_LOCKED, expected: DIGTYP_DOOR,
+        flags: D_LOCKED, expected: DIGTYP_DOOR,
     },
     {
         // monmove.c closed_door() answers FALSE for a doorway with no door,
         // and DOOR terrain is not IS_TREE(), so the arm falls to its else.
         why: 'an axe at an empty doorway', otyp: AXE, typ: DOOR,
-        doormask: D_NODOOR, expected: DIGTYP_UNDIGGABLE,
+        flags: D_NODOOR, expected: DIGTYP_UNDIGGABLE,
     },
     { why: 'an axe at a tree', otyp: AXE, typ: TREE, expected: DIGTYP_TREE },
     {
@@ -245,7 +245,7 @@ const DIG_TYP_CASES = [
     // 186-191, the pick arm.
     {
         why: 'a pick at a shut door', otyp: PICK_AXE, typ: DOOR,
-        doormask: D_CLOSED, expected: DIGTYP_DOOR,
+        flags: D_CLOSED, expected: DIGTYP_DOOR,
     },
     {
         // 187. A pick cannot fell a tree, and the tree test sits above the
@@ -312,7 +312,7 @@ test('dig_typ answers what each tool would break', () => {
         location.typ = row.typ;
         // rm.h:213-218 aliases doormask onto the field js/game.js calls
         // `flags`; js/hack.js doorMask() reads that one first.
-        location.flags = row.doormask ?? 0;
+        location.flags = row.flags ?? 0;
         assert.equal(
             dig_typ(row.otyp === null ? null : tool(row.otyp, state),
                 X, Y, state),
@@ -566,7 +566,7 @@ function drawbridgeTestCell(state, x, y) {
     const trap = t_at(x, y, state);
     const engraving = engr_at(x, y, state);
     return { x, y, typ: cell?.typ ?? null, flags: cell?.flags ?? null,
-        horizontal: cell?.horizontal ?? null, doormask: cell?.doormask ?? null,
+        horizontal: cell?.horizontal ?? null,
         wallInfo: cell?.wall_info ?? null,
         actor: actor ? { id: actor.m_id ?? null, species: actor.data?.pmidx ?? null,
             hp: actor.mhp ?? null } : null,
@@ -665,7 +665,7 @@ async function withCanonicalDrawbridgeFixture(name, exercise) {
             underIsLava: drawbridgeUnder(bridge) === DB_LAVA };
         assert.equal(bridge.typ, DRAWBRIDGE_DOWN);
         assert.equal(wall.typ, DOOR);
-        assert.equal(wall.doormask, D_NODOOR);
+        assert.equal(wall.flags, D_NODOOR);
         assert.equal(normalizedFound, true);
         assert.deepEqual(normalizedBridge, { x, y });
         assert.deepEqual(normalizedWall, { x: wallX, y: wallY });
@@ -740,7 +740,7 @@ test('drawbridge source parity: real dighole destroys the fixed lowered bridge',
             'the production call no longer leaves the drawbridge destroy marker');
         assert.equal(drawbridgeFlags(bridge) & DB_UNDER, DB_MOAT);
         assert.equal(wall.typ, DOOR);
-        assert.equal(wall.doormask, D_NODOOR);
+        assert.equal(wall.flags, D_NODOOR);
         assert.equal(receipt.target.after.sameLevelReference, true);
         assert.deepEqual(receipt.target.after.uz, fixture.originalUz);
         assert.equal(state.u.uhp > 0, true, 'hero remains alive after fixed target');
@@ -1334,28 +1334,23 @@ test('mdig_tunnel supplies object hooks for a boulder on stone', async () => {
     assert.ok(boulder, 'digging stone should place the rolled boulder');
 });
 
-// rm.h `#define doormask flags`: C keeps one door mask per square. A
-// location here carries both spellings; generated doors write `flags` and
-// leave `doormask` 0, while some special-level and fixture paths write only
-// `doormask`. rm_doormask() reads `flags` first, as closed_door() does.
-test('rm_doormask reads the door mask from either spelling, flags first', () => {
-    // flags only: an ordinary generated door (mklev.c dosdoor()).
-    assert.equal(rm_doormask({ flags: D_CLOSED | D_TRAPPED, doormask: 0 }),
+// rm.h `#define doormask flags`: C keeps one door mask per square, in struct
+// rm's `flags`, and rm_doormask() reads it there.
+test('rm_doormask reads the door mask from flags', () => {
+    // An ordinary generated door (mklev.c dosdoor()) keeps its mask in flags.
+    assert.equal(rm_doormask({ flags: D_CLOSED | D_TRAPPED }),
         D_CLOSED | D_TRAPPED);
-    // doormask only: a path that writes just the `doormask` spelling.
-    assert.equal(rm_doormask({ flags: 0, doormask: D_LOCKED }), D_LOCKED);
-    // Both set: `flags` wins, the canonical C member.
-    assert.equal(rm_doormask({ flags: D_BROKEN, doormask: D_LOCKED }), D_BROKEN);
-    // Neither: D_NODOOR (0), also for a missing location.
-    assert.equal(rm_doormask({ flags: 0, doormask: 0 }), D_NODOOR);
+    assert.equal(rm_doormask({ flags: D_BROKEN }), D_BROKEN);
+    // A zero mask is D_NODOOR, as is a missing location.
+    assert.equal(rm_doormask({ flags: 0 }), D_NODOOR);
     assert.equal(rm_doormask(undefined), D_NODOOR);
 });
 
 // dig.c mdig_tunnel() (1425-1439). A closed door whose mask has D_TRAPPED
 // becomes D_NODOOR and sends the tunneler into monmove.c mb_trapped(); an
 // untrapped one becomes D_BROKEN and spends rn2(3) on the draft message.
-// The mask is in `flags` with `doormask` 0, as on a generated door: reading
-// `doormask ?? flags` saw 0 and took the untrapped arm.
+// The mask is in `flags`, as on a generated door; a reader of a separate,
+// zero `doormask` field once took the untrapped arm.
 test('mdig_tunnel explodes a generated trapped door whose mask is in flags',
     async () => {
         await tunnelGame('');
@@ -1363,7 +1358,6 @@ test('mdig_tunnel explodes a generated trapped door whose mask is in flags',
         const door = game.level.at(x, y);
         door.typ = DOOR;
         door.flags = D_CLOSED | D_TRAPPED;
-        door.doormask = 0;
         const dwarf = newMonster({ data: game.mons[PM_DWARF], mx: x, my: y });
         const drawn = [];
         const exploded = [];
@@ -1536,7 +1530,7 @@ test('lateral digging breaks a secret door and finishes the occupation', async (
 
     assert.equal(result, 0);
     assert.equal(state.level.at(x, y).typ, DOOR);
-    assert.equal(state.level.at(x, y).doormask, D_BROKEN);
+    assert.equal(state.level.at(x, y).flags, D_BROKEN);
     assert.equal(state.context.digging.level.dlevel, -1);
     assert.equal(state.context.digging.quiet, false);
     assert.ok(messages.includes('You break through a secret door!'));

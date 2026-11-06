@@ -2785,7 +2785,6 @@ async function use_stethoscope(obj, state = game) {
         if (heard) await ttyPline(heard, state);
         lev.typ = CORR;
         lev.flags = 0;
-        lev.doormask = 0;
         unblock_point(rx, ry, state);
         feel_newsym(rx, ry, state);
         return res;
@@ -2922,7 +2921,7 @@ export async function is_valid_jump_pos(x, y, magic, showmsg, state = game) {
 
     const source = state.level.at(state.u.ux, state.u.uy);
     if (diagonal === JUMP_DIAG && IS_DOOR(source.typ)
-        && (source.doormask & D_ISOPEN) !== 0
+        && (source.flags & D_ISOPEN) !== 0
         && (trajectory === JUMP_DIAG
             || (((trajectory & JUMP_HORZ) !== 0)
                 === Boolean(source.horizontal)))) {

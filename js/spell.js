@@ -2090,7 +2090,7 @@ export function spell_aim_step(arg, x, y, state = game) {
     if (!isok(x, y)) return false;
     const cell = state.level.at(x, y);
     if (!ZAP_POS(cell.typ)
-        && !(IS_DOOR(cell.typ) && (cell.doormask & D_ISOPEN))) return false;
+        && !(IS_DOOR(cell.typ) && (cell.flags & D_ISOPEN))) return false;
     return true;
 }
 

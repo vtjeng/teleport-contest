@@ -27,7 +27,7 @@ for (const door of [true, false]) for (const hallucinating of [true, false]) {
             for (const [property, active] of [[BLINDED, true], [HALLUC, hallucinating], [DETECT_MONSTERS, true]])
                 game.u.uprops[property].intrinsic = active ? 1000 : 0;
             const location = game.level.at(7, 7);
-            if (door) { location.typ = DOOR; location.flags = D_CLOSED; location.doormask = D_CLOSED; }
+            if (door) { location.typ = DOOR; location.flags = D_CLOSED; }
             const monster = newMonster({ data: game.mons[PM_FOG_CLOUD], mnum: PM_FOG_CLOUD,
                 cham: PM_VAMPIRE_LEADER, m_id: 9700, mhp: 1, mhpmax: 30, m_lev: 3,
                 mcansee: true, mcanmove: true, mux: 5, muy: 7 });

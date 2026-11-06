@@ -42,12 +42,12 @@ async function verifySegment(segment) {
         assert.ok(steps.some(step => step.screen.includes('Kick it? [ynq] (q)')));
         assert.ok(steps.some(step => step.rng?.some(call => call.includes('kick_door(dokick.c:930)'))),
             'the canned command reaches the production kick rather than just its prompt');
-        assert.equal(door.doormask, D_BROKEN);
+        assert.equal(door.flags, D_BROKEN);
         assert.equal(game.command_queue[CQ_CANNED].length, 0);
     } else {
         assert.ok(steps.some(step => step.rng?.some(call => call.includes('doopen_indir(lock.c:904)'))));
         const trapped = name.endsWith('trap');
-        assert.equal(door.doormask, trapped ? D_NODOOR : D_ISOPEN);
+        assert.equal(door.flags, trapped ? D_NODOOR : D_ISOPEN);
         assert.equal(steps.some(step => step.rng?.some(call => call.includes('b_trapped(trap.c:6697)'))), trapped);
     }
     assert.equal(game.unported.has('shk.c add_damage'), false,

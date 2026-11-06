@@ -127,13 +127,12 @@ function target(state) {
     return state.level.at(state.u.ux + WEST[0], state.u.uy + WEST[1]);
 }
 
-// rm.h:213-218 aliases doormask, altarmask and looted onto one field, which
-// js/game.js splits into `flags` and `doormask`.
+// rm.h:213-218 aliases doormask, altarmask and looted onto struct rm's
+// `flags`.
 function targetTerrain(state, typ, { flags = 0, seenv = 1 } = {}) {
     const location = target(state);
     location.typ = typ;
     location.flags = flags;
-    location.doormask = 0;
     location.seenv = seenv;
     return location;
 }

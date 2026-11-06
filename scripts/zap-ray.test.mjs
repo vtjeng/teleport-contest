@@ -632,12 +632,12 @@ test('bounce_dir picks a side from the two squares beside the obstacle',
     for (const [dx, dy] of [[0, 0], [0, -1], [1, -1], [-1, 0], [-1, 1]])
         saved.push([
             x + dx, y + dy,
-            at(x + dx, y + dy).typ, at(x + dx, y + dy).doormask,
+            at(x + dx, y + dy).typ, at(x + dx, y + dy).flags,
         ]);
     const restore = () => {
         for (const [sx, sy, typ, doormask] of saved) {
             setTyp(sx, sy, typ);
-            at(sx, sy).doormask = doormask;
+            at(sx, sy).flags = doormask;
         }
     };
     // `bounce` stays 0 when neither side is open, and case 0 falls through
@@ -698,13 +698,13 @@ test('bounce_dir picks a side from the two squares beside the obstacle',
     // A closed door on a side square is not an opening, even though its
     // terrain passes ZAP_POS: the `!closed_door()` term is what rejects it.
     setTyp(x, y - 1, DOOR);
-    at(x, y - 1).doormask = D_CLOSED;
+    at(x, y - 1).flags = D_CLOSED;
     setTyp(x - 1, y, STONE);
     assert.deepEqual(
         bounce_dir(x, y, 1, 1, 75, game, { rn2: () => 1 }),
         { dx: -1, dy: -1 },
     );
-    at(x, y - 1).doormask = 0;
+    at(x, y - 1).flags = 0;
     // A corridor passes ZAP_POS and fails IS_ROOM, so the side is open only
     // if the square beyond it, in the direction the bolt was travelling, is
     // open too. With stone beyond it, neither side counts.
@@ -1806,14 +1806,13 @@ test('zap_dig mutates normal and maze walls after the source beam walk',
         const location = game.level.at(x, y + offset);
         location.typ = ROOM;
         location.flags = 0;
-        location.doormask = 0;
     }
     game.level.at(x, y + 1).typ = VWALL;
     let frames = 0;
     game._animationFrameHook = () => { frames += 1; };
     await zap_dig(game, { rn1: () => 8 });
     assert.equal(game.level.at(x, y + 1).typ, DOOR);
-    assert.equal(game.level.at(x, y + 1).doormask, 0);
+    assert.equal(game.level.at(x, y + 1).flags, 0);
     assert.equal(game.level.at(x, y + 2).typ, ROOM);
     // C subtracts two from digdepth when the beam pierces a wall, so the
     // eight-position roll animates only six visited squares on this branch.
@@ -1824,7 +1823,6 @@ test('zap_dig mutates normal and maze walls after the source beam walk',
         const location = game.level.at(x, y - offset);
         location.typ = ROOM;
         location.flags = 0;
-        location.doormask = 0;
     }
     game.level.at(x, y - 1).typ = VWALL;
     u.dx = 0;
@@ -2629,15 +2627,13 @@ test('zap_map destroys a canonical lowered drawbridge through the real striking 
         location.typ = ROOM;
         location.flags = 0;
         location.icedpool = 0;
-        location.doormask = 0;
     }
     const wall = game.level.at(x + 1, y);
     wall.typ = VWALL;
     wall.flags = 0;
-    wall.doormask = 0;
     assert.equal(create_drawbridge(x, y, DB_EAST, true, game), true);
     assert.equal(game.level.at(x, y).typ, DRAWBRIDGE_DOWN);
-    assert.equal(game.level.at(x + 1, y).doormask, D_NODOOR);
+    assert.equal(game.level.at(x + 1, y).flags, D_NODOOR);
     vision_recalc(0, { state: game });
     assert.equal(cansee(x, y, game), true,
         'the ordinary crash message takes the visible branch');
@@ -2674,7 +2670,7 @@ test('zap_map destroys a canonical lowered drawbridge through the real striking 
     assert.equal(game.level.at(x, y).flags, 0,
         'the moat destruction branch clears the source drawbridgemask');
     assert.equal(game.level.at(x + 1, y).typ, DOOR);
-    assert.equal(game.level.at(x + 1, y).doormask, D_NODOOR);
+    assert.equal(game.level.at(x + 1, y).flags, D_NODOOR);
     assert.ok(acknowledgements.length > 0,
         'actual TTY display consumed its bounded More acknowledgements');
 });
@@ -2686,11 +2682,9 @@ async function createDrawbridgeAt(x, y) {
     bridgeSquare.typ = ROOM;
     bridgeSquare.flags = 0;
     bridgeSquare.icedpool = 0;
-    bridgeSquare.doormask = 0;
     const wall = game.level.at(x + 1, y);
     wall.typ = VWALL;
     wall.flags = 0;
-    wall.doormask = 0;
     assert.equal(create_drawbridge(x, y, DB_EAST, true, game), true);
     return game.level.at(x, y);
 }
@@ -2817,13 +2811,11 @@ test('dobuzz reveals a secret door and drafts on the initialized Rogue level',
                 'the frozen ray corridor has no actor preemption');
             floor.typ = ROOM;
             floor.flags = 0;
-            floor.doormask = 0;
         }
         const secretDoor = game.level.at(x, y);
         assert.ok(secretDoor);
         secretDoor.typ = SDOOR;
         secretDoor.flags = 0;
-        secretDoor.doormask = 0;
 
         await dobuzz(2, 6, game.u.ux, game.u.uy, -1, 0,
             true, false, false, game);
@@ -2851,7 +2843,6 @@ test('dobuzz reveals a secret door and drafts on the initialized Rogue level',
         const visibleY = game.u.uy;
         game.level.at(visibleX, visibleY).typ = SDOOR;
         game.level.at(visibleX, visibleY).flags = 0;
-        game.level.at(visibleX, visibleY).doormask = 0;
         await dobuzz(2, 6, game.u.ux, game.u.uy, -1, 0,
             true, false, false, game);
         assert.equal(game.level.at(visibleX, visibleY).typ, DOOR);
@@ -2876,7 +2867,6 @@ test('dobuzz reveals a secret door and drafts on the initialized Rogue level',
         const ordinaryY = game.u.uy;
         game.level.at(ordinaryX, ordinaryY).typ = SDOOR;
         game.level.at(ordinaryX, ordinaryY).flags = 0;
-        game.level.at(ordinaryX, ordinaryY).doormask = 0;
         await dobuzz(2, 6, game.u.ux, game.u.uy, -1, 0,
             true, false, false, game);
         assert.equal(game.level.at(ordinaryX, ordinaryY).typ, DOOR);
@@ -2900,7 +2890,6 @@ test('dobuzz reveals a secret door and drafts on the initialized Rogue level',
         const hallucY = game.u.uy;
         game.level.at(hallucX, hallucY).typ = SDOOR;
         game.level.at(hallucX, hallucY).flags = 0;
-        game.level.at(hallucX, hallucY).doormask = 0;
         await zap_over_floor(
             hallucX, hallucY, 2, { value: false }, true, 0,
             game, { rn2, rnd },

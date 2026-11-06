@@ -16,7 +16,7 @@ function doorwayOccupants() {
         const location = game.level.at(monster.mx, monster.my);
         if (location?.typ !== DOOR) continue;
         occupants.push({
-            mask: location.flags || location.doormask || 0,
+            mask: location.flags,
             tame: Boolean(monster.mtame),
         });
     }

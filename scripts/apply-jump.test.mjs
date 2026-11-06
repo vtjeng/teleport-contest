@@ -54,7 +54,7 @@ test('check_jump rejects solid walls and closed doors', () => {
     assert.equal(check_jump(0, 11, 10, state), false);
 
     state.level.at(11, 10).typ = DOOR;
-    state.level.at(11, 10).doormask = D_CLOSED;
+    state.level.at(11, 10).flags = D_CLOSED;
     assert.equal(check_jump(0, 11, 10, state), false);
 });
 
@@ -65,7 +65,7 @@ test('get_valid_jump_position keeps the Knight distance and accessibility rules'
     assert.equal(await get_valid_jump_position(12, 11, state), false);
 
     state.level.at(11, 10).typ = DOOR;
-    state.level.at(11, 10).doormask = D_ISOPEN;
+    state.level.at(11, 10).flags = D_ISOPEN;
     state.level.at(11, 10).horizontal = true;
     assert.equal(await get_valid_jump_position(11, 10, state), false);
 });

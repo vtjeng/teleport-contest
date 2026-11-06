@@ -27,7 +27,7 @@ async function target(typ, flags = 0) {
     const y = game.u.uy;
     const location = game.level.at(x, y);
     location.typ = typ;
-    location.flags = location.doormask = flags;
+    location.flags = flags;
     for (let i = 0; i < 20; i++) game.nhDisplay.pushKey(32); // Dismiss source More boundaries.
     return { x, y, location };
 }

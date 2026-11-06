@@ -1229,7 +1229,6 @@ function themeroom_map_fits(definition, xstart, ystart, state) {
 function set_themeroom_map_terrain(x, y, typ, state, lit = 0, frame = null) {
     const loc = state.level.at(x, y);
     loc.flags = 0;
-    loc.doormask = 0;
     // sp_lev.c lspo_map() clears rm.flags before calling sel_set_ter();
     // C wall_info aliases that storage, while this port stores it apart.
     loc.wall_info = 0;
@@ -1239,7 +1238,7 @@ function set_themeroom_map_terrain(x, y, typ, state, lit = 0, frame = null) {
     if (!set_levltyp_lit(x, y, typ, lit, state)) return;
 
     if (typ === SDOOR || IS_DOOR(typ)) {
-        if (typ === SDOOR) loc.doormask = D_CLOSED;
+        if (typ === SDOOR) loc.flags = D_CLOSED;
         const left = x ? state.level.at(x - 1, y) : null;
         if (left && (IS_WALL(left.typ) || left.horizontal))
             loc.horizontal = true;
@@ -1393,7 +1392,7 @@ async function mkinvpos(x, y, dist, state = game, rawEnv = {}) {
 
     const location = state.level.at(x, y);
     location.seenv = 0;
-    location.doormask = 0;
+    location.flags = 0;
     if (dist < 6) location.lit = true;
     location.waslit = true;
     location.horizontal = false;
@@ -1461,8 +1460,8 @@ function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
     if (actualType === SDOOR || IS_DOOR(actualType)) {
         // C retains the shared wall flags as the new ordinary door mask.
         if (actualType === DOOR && wallFlags !== null)
-            location.doormask = wallFlags;
-        if (actualType === SDOOR) location.doormask = D_CLOSED;
+            location.flags = wallFlags;
+        if (actualType === SDOOR) location.flags = D_CLOSED;
         const left = x > 0 ? state.level.at(x - 1, y) : null;
         if (left && (IS_WALL(left.typ) || left.horizontal))
             location.horizontal = true;
@@ -1803,7 +1802,6 @@ function lvlfill_solid(filling, lit, frame, state) {
             const loc = state.level.at(x, y);
             loc.flags = 0;
             loc.wall_info = 0;
-            loc.doormask = 0;
             loc.icedpool = 0;
             loc.horizontal = false;
             loc.roomno = 0;
@@ -3484,7 +3482,7 @@ function sel_set_door(dx, dy, typ, frame, state = game) {
             typ = D_CLOSED;
     }
     set_door_orientation(x, y, state); /* set/clear levl[x][y].horizontal */
-    loc.doormask = typ;
+    loc.flags = typ;
     frame.splevMap[x][y] = 1;
 }
 
@@ -7417,7 +7415,6 @@ export function create_door(dd, broom, random = rn2) {
     const mask = dd.mask & 0x1f;
     const loc = game.level.at(x, y);
     loc.flags = mask;
-    loc.doormask = mask;
     return true;
 }
 

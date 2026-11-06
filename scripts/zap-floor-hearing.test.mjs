@@ -54,7 +54,6 @@ test('unseen door destruction sounds respect acoustics', async () => {
         const door = game.level.at(x, y);
         door.typ = DOOR;
         door.flags = D_CLOSED;
-        door.doormask = D_CLOSED;
         game.viz_array[y][x] = 0;
         const messages = [];
         const rangemod = await zap_over_floor(
@@ -63,7 +62,7 @@ test('unseen door destruction sounds respect acoustics', async () => {
             { message: async (line) => messages.push(line) },
         );
         assert.equal(rangemod, -1000);
-        assert.equal(door.doormask, doorMask);
+        assert.equal(door.flags, doorMask);
         assert.deepEqual(messages, acoustics ? [`You hear ${sound}`] : []);
     }
 });

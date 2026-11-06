@@ -18,7 +18,7 @@ function visibleState(typ = VWALL) {
     const level = new GameMap();
     level.flags.has_town = true;
     level.at(10, 10).typ = typ;
-    if (typ === DOOR) level.at(10, 10).doormask = D_CLOSED;
+    if (typ === DOOR) level.at(10, 10).flags = D_CLOSED;
     const viz = Array.from({ length: 21 }, () => []);
     viz[10][9] = COULD_SEE;
     return {

@@ -519,7 +519,7 @@ async function prepareSelectedAction({
         for (let y = heroY - 1; y <= heroY + 1; ++y) {
             const location = game.level.at(x, y);
             location.typ = STONE;
-            location.flags = location.doormask = 0;
+            location.flags = 0;
             location.wall_info = W_NONDIGGABLE | W_NONPASSWALL;
         }
     }
@@ -528,7 +528,7 @@ async function prepareSelectedAction({
     for (let x = monsterX; x <= heroX; ++x) {
         const location = game.level.at(x, heroY);
         location.typ = ROOM;
-        location.flags = location.doormask = 0;
+        location.flags = 0;
         location.wall_info = 0;
     }
 
@@ -2173,7 +2173,7 @@ test('planned fog upkeep skips closed doors and existing visible regions',
             (target) => {
                 const square = game.level.at(target.monsterX, target.heroY);
                 square.typ = DOOR;
-                square.flags = square.doormask = D_CLOSED;
+                square.flags = D_CLOSED;
             },
             (target) => {
                 game.level.regions = [Object.assign(
@@ -3020,7 +3020,7 @@ test('simple movement admits a passwall wall candidate', async () => {
 // untouched. Locked and trapped masks enter their source branches and are
 // planned without refusing the turn.
 test('simple movement admits inert and trapped doorway masks', async () => {
-    for (const representation of ['flags', 'doormask']) {
+    for (const representation of ['flags']) {
         for (const mask of [D_NODOOR, D_BROKEN, D_ISOPEN]) {
             const doorway = await prepareSelectedAction();
             const location = game.level.at(
@@ -3029,7 +3029,6 @@ test('simple movement admits inert and trapped doorway masks', async () => {
             );
             location.typ = DOOR;
             location.flags = 0;
-            location.doormask = 0;
             location[representation] = mask;
             const label = `${representation} mask ${mask}`;
             const before = preflightSnapshot();
@@ -3060,7 +3059,6 @@ test('simple movement admits inert and trapped doorway masks', async () => {
             );
             activeLocation.typ = DOOR;
             activeLocation.flags = 0;
-            activeLocation.doormask = 0;
             activeLocation[representation] = mask;
             const activeBefore = completeSecondTurnSnapshot(
                 game,
@@ -3098,7 +3096,6 @@ async function prepareClosedDoorArrival() {
     const location = game.level.at(target.destinationX, target.heroY);
     location.typ = DOOR;
     location.flags = D_CLOSED;
-    location.doormask = D_CLOSED;
     recalc_block_point(target.destinationX, target.heroY, game);
     return { ...target, location };
 }
@@ -3158,7 +3155,6 @@ test('simple movement opens a closed door and names the opener', async () => {
         [target.destinationX, target.heroY],
     );
     assert.equal(target.location.flags, D_ISOPEN);
-    assert.equal(target.location.doormask, D_ISOPEN);
     assert.equal(doorLetsLightThrough(target), 1);
     assert.deepEqual(messages, ['The gnome opens a door.']);
 });
@@ -3168,7 +3164,7 @@ for (const mask of [D_CLOSED, D_LOCKED]) {
         const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
         const location = game.level.at(target.destinationX, target.heroY);
         location.typ = DOOR;
-        location.flags = location.doormask = mask;
+        location.flags = mask;
         recalc_block_point(target.destinationX, target.heroY, game);
         const before = preflightSnapshot();
         const vision = visionSnapshot();
@@ -3179,7 +3175,6 @@ for (const mask of [D_CLOSED, D_LOCKED]) {
         assert.deepEqual([target.monster.mx, target.monster.my],
             [target.destinationX, target.heroY]);
         assert.equal(location.flags, mask);
-        assert.equal(location.doormask, mask);
         assert.equal(doorLetsLightThrough(target), 0);
     });
 }
@@ -3194,7 +3189,7 @@ async function prepareUnlockingArrival(pmidx, carriesKey) {
     }
     const location = game.level.at(target.destinationX, target.heroY);
     location.typ = DOOR;
-    location.flags = location.doormask = D_LOCKED;
+    location.flags = D_LOCKED;
     recalc_block_point(target.destinationX, target.heroY, game);
     return { ...target, location };
 }
@@ -3222,7 +3217,6 @@ for (const [label, pmidx, carriesKey, message] of [
         assert.deepEqual([target.monster.mx, target.monster.my],
             [target.destinationX, target.heroY]);
         assert.equal(target.location.flags, D_ISOPEN);
-        assert.equal(target.location.doormask, D_ISOPEN);
         assert.equal(doorLetsLightThrough(target), 1);
         assert.deepEqual(messages, [message]);
     });
@@ -3242,7 +3236,7 @@ async function prepareVampireDoorArrival() {
     target.monster.cham = PM_VAMPIRE;
     const location = game.level.at(target.destinationX, target.heroY);
     location.typ = DOOR;
-    location.flags = location.doormask = D_LOCKED;
+    location.flags = D_LOCKED;
     recalc_block_point(target.destinationX, target.heroY, game);
     return { ...target, location };
 }
@@ -3268,7 +3262,6 @@ test('vampire door passage changes form only in the live action', async () => {
     assert.equal(target.monster.data, game.mons[PM_FOG_CLOUD]);
     assert.equal(target.monster.cham, PM_VAMPIRE);
     assert.equal(target.location.flags, D_LOCKED);
-    assert.equal(target.location.doormask, D_LOCKED);
     assert.equal(doorLetsLightThrough(target), 0);
 });
 
@@ -3288,7 +3281,7 @@ test('giant locked-door planning preserves live terrain and vision before smashi
     vision_reset(game);
     const location = game.level.at(target.destinationX, target.heroY);
     location.typ = DOOR;
-    location.flags = location.doormask = D_LOCKED;
+    location.flags = D_LOCKED;
     recalc_block_point(target.destinationX, target.heroY, game);
     const before = preflightSnapshot();
     const vision = visionSnapshot();
@@ -3307,7 +3300,7 @@ test('giant locked-door planning preserves live terrain and vision before smashi
     assert.deepEqual([target.monster.mx, target.monster.my],
         [target.destinationX, target.heroY]);
     assert.ok([D_NODOOR, D_BROKEN].includes(location.flags));
-    assert.equal(location.doormask, location.flags);
+    assert.equal(location.flags, location.flags);
     assert.equal(doorLetsLightThrough(target), 1);
     assert.deepEqual(messages, ['The hill giant smashes down a door.']);
 });
@@ -4141,7 +4134,7 @@ test('planned pony rolling trap uses clone RNG for real hero collision', async (
         for (let y = 8; y <= 12; ++y) {
             const cell = game.level.at(x, y);
             cell.typ = STONE;
-            cell.flags = cell.doormask = 0;
+            cell.flags = 0;
             cell.wall_info = W_NONDIGGABLE | W_NONPASSWALL;
         }
         const lane = game.level.at(x, 10);
@@ -5501,7 +5494,7 @@ test('an in-range gazing monster reaches gazemu through the planned scan', async
     // dochug() reaches the standard attack gate at range two.
     const step = game.level.at(target.destinationX, target.heroY);
     step.typ = STONE;
-    step.flags = step.doormask = 0;
+    step.flags = 0;
     // NATTK comes from permonst.h:48; fill all six slots because mattacku()
     // calls getmattk() for each slot after the first synthetic gaze.
     const mattk = Array.from({ length: NATTK }, () => (
@@ -5972,7 +5965,7 @@ test('a planned door opening writes nothing to frozen live state',
         await preflightSimpleMonsterActions(game);
 
         guard.assertNoLeak(assert);
-        assert.equal(target.location.doormask, D_CLOSED);
+        assert.equal(target.location.flags, D_CLOSED);
         assert.equal(doorLetsLightThrough(target), 0);
     });
 

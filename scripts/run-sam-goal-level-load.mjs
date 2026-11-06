@@ -43,7 +43,7 @@ export async function verifySamGoalLevel(segment) {
     for (let x = 1; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y) {
             const cell = game.level.at(x, y);
-            if (cell.typ === DOOR && (cell.doormask & D_CLOSED)) ++closed;
+            if (cell.typ === DOOR && (cell.flags & D_CLOSED)) ++closed;
             protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
         }
     }

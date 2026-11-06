@@ -4544,9 +4544,9 @@ function terrainAt(x, y, state) {
 
 function doorMaskAt(x, y, state) {
     const tile = tileAt(x, y, state);
-    // C rm.doormask aliases flags; ordinary generated doors populate flags.
+    // rm.h's doormask is struct rm's `flags`.
     return typeof tile === 'object'
-        ? tile?.flags || tile?.doormask || 0 : 0;
+        ? tile?.flags ?? 0 : 0;
 }
 
 function objectAt(x, y, state) {

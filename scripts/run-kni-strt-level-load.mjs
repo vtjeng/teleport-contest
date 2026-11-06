@@ -62,8 +62,8 @@ export async function verifyKniStrtSegment(segment) {
     for (let y = 0; y < 16; ++y) {
         for (let x = 0; x < 50; ++x) {
             const cell = game.level.at(x, y);
-            if (cell.typ === DOOR && (cell.doormask & D_CLOSED)) ++closed;
-            if (cell.typ === DOOR && (cell.doormask & D_LOCKED)) ++locked;
+            if (cell.typ === DOOR && (cell.flags & D_CLOSED)) ++closed;
+            if (cell.typ === DOOR && (cell.flags & D_LOCKED)) ++locked;
             protectedCell ||= Boolean(cell.wall_info & W_NONDIGGABLE);
         }
     }

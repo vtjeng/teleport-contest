@@ -2781,9 +2781,9 @@ export function back_to_glyph(x, y, state = game) {
         idx = S_water;
         break;
     case DOOR:
-        // struct rm aliases flags and doormask, as it does for altarmask.
-        if (ptr.flags || ptr.doormask) {
-            const doormask = ptr.flags || ptr.doormask;
+        // rm.h's doormask is `flags`, as altarmask is.
+        if (ptr.flags) {
+            const doormask = ptr.flags;
             if (doormask & D_BROKEN) idx = S_ndoor;
             else if (doormask & D_ISOPEN) {
                 idx = ptr.horizontal ? S_hodoor : S_vodoor;
@@ -3250,7 +3250,7 @@ export function feel_location(x, y, state = game) {
         // corridors in that order. Boulders are checked before an open door.
         if (IS_OBSTRUCTED(location.typ)
             || (IS_DOOR(location.typ)
-                && ((location.flags || location.doormask || 0)
+                && (location.flags
                     & (D_LOCKED | D_CLOSED)))) {
             map_background(x, y, 1, state);
         } else {
@@ -4723,7 +4723,7 @@ export function classify_terrain(state = game) {
             typ = sameLevel(u?.uz, state.earth_level) ? 40 : 39;
             break;
         case DOOR: {
-            const mask = loc?.flags || loc?.doormask || 0;
+            const mask = loc?.flags ?? 0;
             if (mask & D_ISOPEN) typ = 41;
             else if (mask & (D_CLOSED | D_LOCKED | D_TRAPPED)) typ = 42;
             break;

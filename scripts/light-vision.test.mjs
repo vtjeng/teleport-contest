@@ -984,7 +984,6 @@ test('generated closed doors block sight through their shared flags field', () =
     const interveningDoor = state.level.at(12, 10);
     interveningDoor.typ = DOOR;
     interveningDoor.flags = D_CLOSED;
-    interveningDoor.doormask = 0;
     vision_reset();
     assert.equal(clear_path(10, 10, 14, 10), 0);
     interveningDoor.typ = ROOM;
@@ -993,13 +992,12 @@ test('generated closed doors block sight through their shared flags field', () =
     // A one-cell opening between two opaque wall runs exercises Algorithm C's
     // shallow-angle boundary handling.  Treating this closed door as clear
     // makes the gap disappear from COULD_SEE even though either wall face is
-    // visible.  mklev stores rm.doormask in the shared rm.flags field.
+    // visible.  rm.h's doormask is struct rm's `flags`.
     for (let x = 2; x <= 20; ++x)
         state.level.at(x, 9).typ = HWALL;
     const door = state.level.at(18, 9);
     door.typ = DOOR;
     door.flags = D_CLOSED;
-    door.doormask = 0;
 
     vision_reset();
     vision_recalc(0);
@@ -1040,8 +1038,8 @@ test('becoming blind redraws cells which were previously in sight', () => {
 
 test('opaque walls and doors require light on their hero-facing side', () => {
     for (const blocker of [
-        { typ: HWALL, doormask: 0 },
-        { typ: DOOR, doormask: D_CLOSED },
+        { typ: HWALL, flags: 0 },
+        { typ: DOOR, flags: D_CLOSED },
     ]) {
         const farState = darkRoomState();
         Object.assign(farState.level.at(8, 7), blocker);
