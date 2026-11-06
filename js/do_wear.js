@@ -3604,12 +3604,10 @@ async function accessory_or_armor_on(obj, state = game) {
                     const qbuf = `Which ${humanoid(state.youmonst.data)
                         ? 'ring-' : ''}${body_part(FINGER, state.youmonst)}`
                         + ', Right or Left?';
-                    // C passes addcmdq TRUE for the repeat queue. #repeat is
-                    // unported for this prompt, so FALSE omits an otherwise
-                    // unobservable recording. The prompt and accepted
-                    // characters are identical.
+                    // addcmdq TRUE records the answer for #repeat, which
+                    // then replays it without asking again.
                     const answer = await yn_function(
-                        qbuf, 'rl', '\0', false, state,
+                        qbuf, 'rl', '\0', true, state,
                     );
 
                     switch (answer) {
