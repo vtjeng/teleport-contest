@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "end.c done() and really_done(): debug mode's \"Die?\" is answered y and disclose:+i lists the inventory without asking. tty_yn_function() leaves the answered prompt as TOPLINE_NON_EMPTY, so wait_synch() and display_nhwindow(WIN_MESSAGE, FALSE) add no --More-- to the \"Die? [yn] (n)\" line before the inventory menu covers the map. An elven Priestess searches three turns, so that the first-move consolation stays silent, then wishes for a blessed cockatrice corpse and eats it. Inputs chosen independently of batch 6.",
+  "segments": [
+    {
+      "seed": 7702423,
+      "datetime": "20390821093000",
+      "nethackrc": "OPTIONS=name:Ilsabet,role:Priest,race:elf,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=disclose:+i -a -v -g -c -o\n",
+      "moves": " sss\u0017blessed cockatrice corpse\ney y n  "
+    }
+  ]
+}
