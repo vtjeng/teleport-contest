@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7123402,
+      "datetime": "20280922143000",
+      "nethackrc": "OPTIONS=name:Analyst,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "h#wizwish\nthrone\n#sit\n y:#sit\n",
+      "comment": "A debug-mode hero sits on a wished throne and answers yes to sit.c's \"Analyze throne?\" confirmation, so the throne vanishes, the look shows bare floor, and a second sit finds no throne."
+    }
+  ]
+}

@@ -625,12 +625,12 @@ async function throne_sit_effect(state, rawEnv = {}) {
     }
 
     if (!specialThrone && !random.rn2(3)) {
+        // y_n() answers with the key byte, as C's yn_function() does.
         let removeThrone = !state.wizard;
         if (state.wizard) {
-            const { tty_yn_function } = await import('./topl.js');
-            removeThrone = await tty_yn_function(
-                'Analyze throne?', 'yn', 'n', state,
-            ) === 'y';
+            const { y_n } = await import('./cmd.js');
+            removeThrone = await y_n('Analyze throne?', state)
+                === 'y'.charCodeAt(0);
         }
         if (removeThrone) {
             const location = state.level?.at(tx, ty);
