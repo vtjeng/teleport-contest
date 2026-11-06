@@ -2067,6 +2067,27 @@ export const MG_MALE = 0x01000;
 export const MG_FEMALE = 0x02000;
 export const MG_FLAG_NOOVERRIDE = 0x01;
 
+// C ref: display.c get_bkglyph_and_framecolor() (2574-2578). A map cell
+// gets getpos's background frame colour while 'bgcolors' is on, getpos_sethilite()
+// has set map_frame_color, and mapxy_valid() accepts the cell;
+// getpos_sethilite() records the accepted cells in getpos_valid_cells.
+export function map_framecolor(x, y, state = game) {
+    const color = state.gw?.wsettings?.map_frame_color;
+    if (!state.iflags?.bgcolors || color === undefined || color === NO_COLOR)
+        return NO_COLOR;
+    return state.getpos_getvalid
+        && state.getpos_valid_cells?.has(x * ROWNO + y) ? color : NO_COLOR;
+}
+
+// C ref: win/tty/wintty.c tty_print_glyph() (3923-3926). A frame colour is
+// the first arm of the attribute chain: with colour on, the cell gets the
+// background colour, which recorder patch 006 does not capture, instead of
+// any attribute print_glyph_attr() chose.
+function framed_print_attr(attr, x, y, state = game) {
+    return state.iflags?.wc_color !== false
+        && map_framecolor(x, y, state) !== NO_COLOR ? 0 : attr;
+}
+
 /**
  * C ref: win/tty/wintty.c tty_print_glyph() (3923-3937), the ordered chain
  * that picks at most one attribute for a printed map cell. C runs it on every
@@ -2075,8 +2096,9 @@ export const MG_FLAG_NOOVERRIDE = 0x01;
  * touched since.
  *
  * C's chain has three arms and this holds the last two, in C's order. The
- * `bkglyphinfo->framecolor` arm above them needs iflags.bgcolors, which no
- * ported path sets, so it has no term here. Order is the whole point of the
+ * `bkglyphinfo->framecolor` arm above them depends on the cell being printed,
+ * not on the glyph; framed_print_attr() applies it where a cell is printed.
+ * Order is the whole point of the
  * function: a female pet under 'hilite_pet' takes iflags.wc2_petattr, and the
  * same pet with 'hilite_pet' off falls through to the inverse arm and takes
  * ATR_INVERSE from 'wizmgender'.
@@ -3404,6 +3426,14 @@ export function map_location(x, y, show, state) {
     }
 }
 
+// C ref: display.c _map_location() (470-471), its closing arm: unless the
+// hero is blind, a visible region is drawn over the location just mapped.
+function showVisibleRegionAt(x, y, state = game) {
+    if (_propertyActiveUnblocked(state.u, BLINDED)) return;
+    const region = visible_region_at(x, y, state);
+    if (region) show_region(region, x, y, state);
+}
+
 // C ref: display.c unset_seenv() (3384-3393). Called by vault.c blackout() when
 // the vault guard removes a temporary corridor; it clears the bit in
 // location.seenv that records that <x1,y1> was seen from <x0,y0>.
@@ -3988,8 +4018,13 @@ export function newsym(x, y) {
         // puts a visible steed's glyph on the hero's square. C's newsym()
         // first maps the underlying location when canspotself() is false,
         // which is what an invisible hero needs after HInvis changes.
-        if (heroCanSpotSelf(game)) display_self();
-        else show_glyph_cell(x, y, underlying);
+        if (heroCanSpotSelf(game)) {
+            display_self();
+        } else {
+            show_glyph_cell(x, y, underlying);
+            // _map_location(x, y, !see_self) ends with its region arm.
+            if (visible) showVisibleRegionAt(x, y);
+        }
         if (game.level?.flags?.hero_memory)
             loc.remembered_glyph
                 = remembered_glyph_from_presentation(rememberedUnderlying);
@@ -4042,6 +4077,11 @@ export function newsym(x, y) {
             );
         } else {
             show_glyph_cell(x, y, underlying);
+            // display.c:1035 _map_location(x, y, 1) ends by showing a
+            // visible region over any terrain, not only the accessible
+            // squares the region arm above covers: a fog cloud's vapor over
+            // iron bars shows once the cloud moves on.
+            showVisibleRegionAt(x, y);
         }
     } else if (outOfSightSensed) {
         // display.c:1046-1054, not-visible path: the hero senses or detects
@@ -6259,6 +6299,9 @@ function _statusFieldEnabled(field, state) {
 // them. The timer is compared with gb.bl_hilite_moves, the svm.moves value
 // status_eval_next_unhilite() last recorded, not with the current turn: a
 // bot() during the monsters' part of a turn still sees the previous one.
+// C tests the timer only for an unchanged field (botl.c:1577), so a change
+// leaves an old timer in place until status_eval_next_unhilite() replaces
+// it; a second bot() before then finds it expired and drops the highlight.
 function _statusFieldNotice(gb, fld, data, updateAll) {
     const value = data.value ?? null;
     const compareValue = data.compareValue ?? value;
@@ -6266,7 +6309,7 @@ function _statusFieldNotice(gb, fld, data, updateAll) {
         || gb.status_hilite_percent[1][fld] !== (data.percent ?? null)
         || gb.status_hilite_text[1][fld] !== (data.text ?? null);
     const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
-    const expired = !updateAll && !game.multi && until > 0
+    const expired = !updateAll && !changed && !game.multi && until > 0
         && until < (gb.bl_hilite_moves ?? 0)
         && gb.status_hilite_rule[1][fld]?.behavior === 'changed';
     return { changed, expired };
@@ -6409,12 +6452,9 @@ function _collectStatusHilites(layouts, onlyField = null) {
         const compareValue = data.compareValue ?? value;
         const percent = data.percent ?? null;
         const text = data.text ?? null;
-        const previousValue = gb.status_hilite_value[1][fld];
         const previousCompareValue = gb.status_hilite_compare_value[1][fld];
         const previousPercent = gb.status_hilite_percent[1][fld];
         const previousText = gb.status_hilite_text[1][fld];
-        const previousRule = gb.status_hilite_rule[1][fld];
-        const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
         const { changed, expired } = _statusFieldNotice(gb, fld, data,
             updateAll);
         if (expired) {
@@ -6440,21 +6480,11 @@ function _collectStatusHilites(layouts, onlyField = null) {
             // percentage while the raw BL_XP direction is still downward.
             change = Math.sign(compareValue - previousCompareValue);
         if (updateAll) change = 0;
-        const unchanged = previousValue === value
-            && previousCompareValue === compareValue
-            && previousPercent === percent && previousText === text;
-        const pendingChanged = Boolean(gb.status_hilite_chg_banks[0][fld]);
-        const holdTemporary = !updateAll && unchanged
-            && previousRule?.behavior === 'changed'
-            && (pendingChanged || game.multi
-                || (until > 0 && (game.moves ?? 0) <= until));
         if (notification) {
             // botl.c get_hilite() picks the rule whatever 'statushilites'
             // says; the tty applies iflags.hilite_delta when it draws the
             // field (wintty.c render_status()), in _statusFieldStyle().
-            const selected = holdTemporary
-                ? previousRule
-                : _selectStatusHilite(field.key, data, change);
+            const selected = _selectStatusHilite(field.key, data, change);
             gb.status_hilite_rule[0][fld] = selected;
             // eval_notify_windowport_field() writes the selected rule into
             // both banks only when it notifies the field, including on
@@ -6792,9 +6822,6 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
         && (unexplored.ttychar !== ' '.charCodeAt(0)
             || unexplored.color !== NO_COLOR
             || unexplored.rgb !== undefined);
-    const frameColorActive = Boolean(state.iflags?.bgcolors)
-        && state.gw?.wsettings?.map_frame_color !== undefined
-        && state.gw.wsettings.map_frame_color !== NO_COLOR;
 
     const firstStatusRow = display.rows - statusRowCount;
     for (let screenRow = 0; screenRow < lastRow; ++screenRow) {
@@ -6817,8 +6844,7 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             // C row_refresh reads gg.gbuf's current glyph number, never
             // levl[x][y].glyph. Remembered terrain is a separate C value.
             const glyph = loc.disp_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF;
-            const frameColor = frameColorActive
-                && x > 0 && x < COLNO && mapY >= 0 && mapY < ROWNO;
+            const frameColor = map_framecolor(x, mapY, state) !== NO_COLOR;
             // cl_end() above blanked the terminal cell. A cell whose gbuf
             // glyph prints through g_pututf8() keeps that blank.
             if (loc.disp_glyph?.ch === null) clearTtyCell(loc, true);
@@ -6834,20 +6860,20 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             // tty_print_glyph()'s UTF-8 path does not update the recorder
             // shadow cell, which is represented by a null character here.
             if (ch === null || ch === undefined) continue;
+            const attr = framed_print_attr(presentation.attr ?? 0, x, mapY,
+                state);
             if (presentation.ch !== null && presentation.ch !== undefined) {
                 loc.tty_ch = presentation.ch;
                 loc.tty_color = presentation.color ?? NO_COLOR;
                 loc.tty_decgfx = Boolean(presentation.dec);
-                loc.tty_attr = presentation.attr ?? 0;
+                loc.tty_attr = attr;
             }
             const color = browserGlyphs
                 ? presentation.displayColor ?? presentation.color ?? NO_COLOR
                 : presentation.color ?? NO_COLOR;
-            display.setCell(x - 1, screenRow, ch, color, presentation.attr ?? 0);
+            display.setCell(x - 1, screenRow, ch, color, attr);
             if (overStatus) {
-                recordStatusOverlay(
-                    x - 1, screenRow, ch, color, presentation.attr ?? 0,
-                );
+                recordStatusOverlay(x - 1, screenRow, ch, color, attr);
             }
         }
     }
@@ -6974,6 +7000,25 @@ function _clearRedrawnStatusOverlay(
                 || !sameStyle(newStyles?.[column], oldStyles?.[column]))
                 redraw.add(keys[column]);
         }
+        // check_fields() redraws a whole field whose position or length
+        // changed, even where its leading columns still match: "St:18/01"
+        // becoming "St:18" rewrites the "St:18" cells too.
+        const extents = (fieldKeys) => {
+            const result = new Map();
+            fieldKeys.forEach((key, column) => {
+                const extent = result.get(key);
+                if (extent) extent.end = column + 1;
+                else result.set(key, { start: column, end: column + 1 });
+            });
+            return result;
+        };
+        const oldExtents = extents(oldKeys);
+        for (const [key, extent] of extents(keys)) {
+            const before = oldExtents.get(key);
+            if (!before || before.start !== extent.start
+                || before.end !== extent.end)
+                redraw.add(key);
+        }
     }
     for (const [key, cell] of overlay) {
         if (cell.row !== screenRow) continue;
@@ -7097,7 +7142,17 @@ function _buildScreenOutput(cursorOnHero = true) {
                 const loc = game.level?.at(x, y);
                 if (!loc || (bufferedOnly && !loc.gnew)) continue;
                 if (overStatus && !loc.gnew) continue;
-                if (loc.gnew) commitFlushedGlyph(loc);
+                if (loc.gnew) {
+                    // tty_print_glyph() decides the attribute as it prints;
+                    // the printed cell keeps it until it is printed again.
+                    loc.disp_attr = framed_print_attr(loc.disp_attr ?? 0,
+                        x, y);
+                    if (loc.disp_browser_attr !== null
+                        && loc.disp_browser_attr !== undefined)
+                        loc.disp_browser_attr = framed_print_attr(
+                            loc.disp_browser_attr, x, y);
+                    commitFlushedGlyph(loc);
+                }
                 const ch = browserGlyphs && loc.disp_browser_ch
                     ? loc.disp_browser_ch
                     : (loc.disp_decgfx
@@ -7131,9 +7186,9 @@ function _buildScreenOutput(cursorOnHero = true) {
                     browserGlyphs
                         ? loc.disp_browser_color ?? loc.disp_color ?? NO_COLOR
                         : loc.disp_color ?? NO_COLOR,
-                    browserGlyphs && loc.disp_browser_ch
+                    framed_print_attr(browserGlyphs && loc.disp_browser_ch
                         ? loc.disp_browser_attr ?? 0
-                        : loc.disp_attr ?? 0,
+                        : loc.disp_attr ?? 0, x, y),
                 );
             }
         }

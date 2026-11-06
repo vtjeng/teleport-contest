@@ -595,6 +595,9 @@ export function revive_egg(obj, state = game, env = {}) {
 export async function revive(corpse, byHero = false, rawEnv = {}) {
     const env = revivalEnv(rawEnv);
     const { state } = env;
+    // A planned monster action passes a silent message operation; the live
+    // pass prints through the same one.
+    const message = env.message ?? ttyPline;
     if (corpse?.otyp !== CORPSE) return null;
 
     const originalType = corpse.corpsenm;
@@ -646,7 +649,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
     if (corpse.norevive
         || (originalSpecies.mlet === S_EEL && !is_pool(x, y, state))) {
         if (cansee(x, y, state)) {
-            await ttyPline(
+            await message(
                 `${upstart(corpse_xname(corpse, null, CXN_PFX_THE, state))} `
                     + 'twitches feebly.',
                 state,
@@ -724,7 +727,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             if (oneOf) corpse.quan++;
             const corpseName = corpse_xname(corpse, null, CXN_NO_PFX, state);
             if (oneOf) corpse.quan--;
-            await ttyPline(
+            await message(
                 upstart(owner + corpseName) + ' glows iridescently.',
                 state,
                 env,
@@ -732,7 +735,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             state.iflags ??= {};
             state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
         } else if (shopkeeper) {
-            await ttyPline('A corpse is resuscitated.', state, env);
+            await message('A corpse is resuscitated.', state, env);
         }
         if (shopkeeper && monster !== shopkeeper) {
             await stolen_value(
@@ -745,7 +748,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         const ghost = find_mid(corpse.oextra.omid, FM_FMON, state);
         if (ghost && ghost.data === state.mons?.[PM_GHOST]) {
             if (canseemon(ghost, state)) {
-                await ttyPline(
+                await message(
                     Monnam(ghost, state, env)
                         + ' is suddenly drawn into its former body!',
                     state,
@@ -1623,7 +1626,7 @@ export async function resist(mtmp, oclass, damage, tell, state = game,
     const resisted = random.rn2(100 + alev - dlev) < (mtmp.data?.mr ?? 0);
     if (resisted) {
         if (tell) {
-            await shieldeff_mon(mtmp, { state });
+            await shieldeff_mon(mtmp, { ...rawEnv, state });
         }
         damage = Math.trunc((damage + 1) / 2);
     }
@@ -3681,7 +3684,7 @@ export async function bhitm(monster, wand, state = game,
             damage *= 2;
         damage = spell_damage_bonus(damage, state);
         if (resists_drli(monster, state)) {
-            await shieldeff_mon(monster, { state });
+            await shieldeff_mon(monster, { ...rawEnv, state });
         } else if (!await resist(
             monster, wand.oclass, damage, NOTELL, state, random, rawEnv,
         ) && monster.mhp >= 1) {
@@ -3844,7 +3847,7 @@ export async function bhitm(monster, wand, state = game,
             && has_mcorpsenm(monster)) {
             // A long worm changed by this same zap is not transformed again.
         } else if (resists_magm(monster, state)) {
-            await shieldeff_mon(monster, { state });
+            await shieldeff_mon(monster, { ...rawEnv, state });
         } else if (!await resist(
             monster,
             wand.oclass,

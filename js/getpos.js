@@ -220,7 +220,12 @@ export async function getpos_sethilite(gp_hilitef, gp_getvalidf, state = game) {
     const selected = await getpos_getvalids_selection(old_getvalid, state);
     state.getpos_hilitefunc = gp_hilitef;
     state.getpos_getvalid = gp_getvalidf;
-    selected.push(...await getpos_getvalids_selection(gp_getvalidf, state));
+    const valid = await getpos_getvalids_selection(gp_getvalidf, state);
+    // C's mapxy_valid() calls getpos_getvalid when a cell is printed. The
+    // callbacks are async here and a getpos prompt passes no game time, so
+    // display.js map_framecolor() reads this set, taken when they change.
+    state.getpos_valid_cells = new Set(valid.map(({ x, y }) => x * ROWNO + y));
+    selected.push(...valid);
     state.gw.wsettings.map_frame_color = state.getpos_hilite_state === 2
         ? HI_ZAP : NO_COLOR;
     if (state.getpos_getvalid !== old_getvalid

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "An rc error raw-prints at startup, so the recorder's raw mode is already active when #save says farewell. exit_nhwindows()'s settty() still clears the screen before 'Be seeing you...' prints on the next raw row.",
+  "segments": [
+    {
+      "seed": 5583012,
+      "datetime": "20360119143000",
+      "nethackrc": "OPTIONS=name:Twice,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,verbose,!verbose\n",
+      "moves": "\n Sy"
+    }
+  ]
+}

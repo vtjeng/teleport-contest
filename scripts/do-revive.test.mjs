@@ -238,6 +238,25 @@ test('monster-held corpse reports its saved carrier after m_useup removes it',
         assert.match(lines[0], /Startled, the water nymph drops a troll corpse as it revives!/u);
     });
 
+test('hero-caused revival prints its glow through the caller message operation',
+    async () => {
+        // bhito() reaches zap.c:revive(obj, TRUE) from a monster's
+        // undead-turning zap too; its planned pass passes a silent message
+        // operation, so the glow line must go through that operation.
+        const body = await lockedCorpse();
+        const carrier = carrierAt(visibleFloor());
+        body.where = OBJ_MINVENT;
+        body.ocarry = carrier;
+        carrier.minvent = body;
+        const lines = [];
+        assert.ok(await revive(body, true, {
+            state: game,
+            message: line => lines.push(line),
+            statusRefresh: async () => {},
+        }));
+        assert.match(lines[0], /troll corpse glows iridescently\.$/u);
+    });
+
 test('contained corpse resolves the outer monster carrier before extraction',
     async () => {
         const body = await lockedCorpse();

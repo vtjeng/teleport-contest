@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4410008,
+      "datetime": "20260518094000",
+      "nethackrc": "OPTIONS=name:Drip,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #levelchange\n14\n\u001b\u0007ochre jelly\nms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms ms "
+    }
+  ]
+}

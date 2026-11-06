@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { STATUS_FIELDS } from '../js/status_field_data.js';
-import { init_blstats, status_eval_next_unhilite, status_initialize } from '../js/display.js';
+import {
+    bot, init_blstats, status_eval_next_unhilite, status_initialize,
+} from '../js/display.js';
 import { nh_terminate } from '../js/end.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
@@ -186,4 +188,80 @@ test('really-done wait-synch boundary retains status state before termination', 
     assert.ok((game.gb?.status_hilite_rule ?? []).length > 0);
     assert.ok(game._renderedStatusLayouts.length > 0,
         'partial disclosure preserves rendered status state');
+});
+
+// botl.c eval_notify_windowport_field() (1574-1581) tests a temporary
+// highlight's timer only when the field is unchanged (`!chg && curr->time`),
+// and get_hilite() picks the rule from the change direction alone. A change
+// therefore leaves an expired timer in place until
+// status_eval_next_unhilite() restamps it at the end of the turn, and a
+// second bot() before then finds the timer expired and drops the highlight.
+// moveloop()'s haze decay (timeout.c nh_timeout()) followed by a hunger or
+// "full of energy" message reaches this order in play.
+async function acHiliteGame() {
+    // An independent debug-mode Priest whose only status rule is a temporary
+    // AC highlight; statushilites:1 makes a stamped timer expire one turn on.
+    // The single space dismisses the welcome message and leaves the game at
+    // a live command prompt.
+    await runSegment({
+        seed: 6620417,
+        datetime: '20260903120000',
+        nethackrc: 'OPTIONS=name:Ac,role:Priest,race:human,gender:male,'
+            + 'align:lawful,playmode:debug\n'
+            + 'OPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,statushilites:1\n'
+            + 'OPTIONS=hilite_status:armor-class/changed/red\n',
+        moves: ' ',
+    });
+    const fld = STATUS_FIELDS.find(row => row.key === 'armor-class').fld;
+    // First change: stamp the AC timer at the current turn (moves + 1).
+    game.u.uac -= 1;
+    game.disp.botl = true;
+    await bot();
+    assert.equal(game.gb.status_hilite_rule[0][fld]?.behavior, 'changed');
+    status_eval_next_unhilite(game);
+    const stamped = game.gb.status_hilite_times[0][fld];
+    assert.equal(stamped, game.moves + 1);
+    // Five turns pass inside a multi-turn command: multi keeps
+    // hilite_reset_needed() false, so the expired timer stays in place.
+    game.multi = 5;
+    game.moves += 5;
+    status_eval_next_unhilite(game);
+    assert.equal(game.gb.status_hilite_times[0][fld], stamped);
+    return { fld, stamped };
+}
+
+test('a second bot() after a change drops a temporary highlight whose timer expired',
+    async () => {
+    const { fld, stamped } = await acHiliteGame();
+    // The count ran out before the change, as in a counted search that
+    // ends on the turn the haze decays.
+    game.multi = 0;
+    game.u.uac += 2;
+    game.disp.botl = true;
+    await bot();
+    assert.equal(game.gb.status_hilite_rule[0][fld]?.behavior, 'changed',
+        'the change itself selects the temporary rule');
+    assert.equal(game.gb.status_hilite_times[0][fld], stamped,
+        'a changed field keeps its old timer');
+    game.disp.botl = true;
+    await bot();
+    assert.equal(game.gb.status_hilite_rule[0][fld], null,
+        'the unchanged field with an expired timer loses its highlight');
+    assert.equal(game.gb.status_hilite_times[0][fld], 0);
+});
+
+test('a change during multi keeps no highlight past a later bot() with multi clear',
+    async () => {
+    const { fld } = await acHiliteGame();
+    // The change comes while the command still repeats; the interruption
+    // (interrupt_multi()'s nomul(0)) precedes the second bot().
+    game.u.uac += 2;
+    game.disp.botl = true;
+    await bot();
+    assert.equal(game.gb.status_hilite_rule[0][fld]?.behavior, 'changed');
+    game.multi = 0;
+    game.disp.botl = true;
+    await bot();
+    assert.equal(game.gb.status_hilite_rule[0][fld], null);
 });
