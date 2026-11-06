@@ -630,7 +630,7 @@ const F_WARNED = 2;
 // the hero is standing on a fountain and answers 'y' to the prompt.
 export async function drinkfountain(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
     const liquidEnv = { state, displayRandom: env.displayRandom };
 
     // C rm.h overlays blessedftn on horizontal for fountain terrain. The
