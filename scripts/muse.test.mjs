@@ -161,6 +161,7 @@ import {
     WAN_TELEPORTATION,
     WAN_UNDEAD_TURNING,
     SHIELD_OF_REFLECTION,
+    BULLWHIP,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -865,6 +866,31 @@ test('find_misc preserves trap precedence and inert-container RNG', () => {
         null,
     );
     assert.deepEqual(bounds, [5]);
+});
+
+test('the bullwhip disarm announces its wrap as an urgent message', async () => {
+    // muse.c:2578 urgent_pline("%s wraps around %s you're wielding!"): the
+    // tty shows it even after Escape at an earlier --More-- suppressed the
+    // turn's ordinary messages. The surrounding lines stay ordinary pline().
+    const state = await offensiveHero();
+    assert.ok(state.uwep, 'the Valkyrie starts wielding her long sword');
+    const whip = carried(state, BULLWHIP, {
+        where: OBJ_MINVENT, owornmask: W_WEP, // Wielded: MON_WEP(mtmp).
+    });
+    const monster = offensiveMonster(state, PM_GOBLIN, whip, {
+        mhp: 10, mhpmax: 10, mpeaceful: false,
+    });
+    whip.ocarry = monster;
+    monster.mw = whip;
+    const urgent = [];
+    const ordinary = [];
+    await use_misc(monster, { kind: 'bullwhip', object: whip }, state, {
+        message: async (text) => ordinary.push(text),
+        urgentMessage: async (text) => urgent.push(text),
+    });
+    assert.equal(urgent.length, 1);
+    assert.match(urgent[0], / wraps around the .* you're wielding!$/u);
+    assert.ok(!ordinary.some((text) => / wraps around /u.test(text)));
 });
 
 test('use_misc supplies seetrap redraw and preserves injected redraw owners',
