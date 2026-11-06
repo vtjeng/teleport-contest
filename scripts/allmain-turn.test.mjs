@@ -4360,3 +4360,37 @@ test('controlled delayed lycanthropy planning preserves live state before input'
     assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
         'planning must not read confirmation, spend live RNG, or change the live form');
 });
+
+// allmain.c:233-234 adds mcalcmove() to struct monst's `short movement`
+// (monst.h:102), so the sum wraps at 16 bits. movemon_singlemon() skips a
+// monster that is not MON_FLOOR before spending its ration; dog.c
+// mon_arrive() leaves MON_STILL_ARRIVING on a steed that changed levels with
+// the hero, so its ration grows every turn until it overflows.
+test('a skipped monster movement ration wraps as a C short', async () => {
+    // A fresh Healer start initializes a valid game; the seed and date are
+    // not part of the assertion.
+    await runSegment(firstTurnInput({
+        seed: 2026110601,
+        datetime: '20261106120000',
+        name: 'ShortRation',
+        role: 'Healer',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        command: '',
+    }));
+    clearTtyMessageWindow(game);
+    const [monster] = liveMonsters();
+    assert.ok(monster, 'the start leaves a monster on the level');
+    // A jackal's speed is exactly NORMAL_SPEED with no MSLOW or MFAST, so
+    // mon.c mcalcmove() returns 12 without its random rounding draw.
+    monster.data = game.mons[PM_JACKAL];
+    monster.mnum = PM_JACKAL;
+    monster.mspeed = 0;
+    // Eight below SHRT_MAX: adding 12 passes 32767 and wraps to -32764.
+    monster.movement = 32759;
+
+    await finishElapsedTurn(game, { rn1, rn2, rnd });
+
+    assert.equal(monster.movement, 32759 + NORMAL_SPEED - 65536);
+});
