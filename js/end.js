@@ -314,7 +314,7 @@ async function savelife(how, state = game) {
         u.mh = Math.min(u.mhmax, givehp);
 
     if (u.uhunger < 500 || how === CHOKING)
-        init_uhunger(state);
+        await init_uhunger(state);
 
     // cure impending doom of sickness hero won't have time to fix
     // C ref: Sick is u.uprops[SICK].intrinsic; TIMEOUT is 0x00FFFFFF.

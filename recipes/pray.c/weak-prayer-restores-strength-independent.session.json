@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8250011,
+      "datetime": "20290305101500",
+      "nethackrc": "OPTIONS=name:Leaper,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "#wizwish\niron chain\n#wizwish\ncursed two-handed sword\n#wizwish\n6 rocks\n\u0014 .\u0014 .\u0014 .\u0014 .\u0014 .\u0014 .\u0014 .\u0014 .60s wh#pray\ny y   :",
+      "comment": "A debug-mode Samurai carries just under her weight limit, burns nutrition with wizard-mode teleports until Weak costs a point of strength and burdens her, welds a cursed two-handed sword, then forces a prayer that fixes both troubles. eat.c init_uhunger() restores the strength and encumber_msg() reports the lighter load before the sword glows."
+    }
+  ]
+}

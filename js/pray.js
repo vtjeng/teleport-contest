@@ -1510,7 +1510,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         // FALLTHROUGH
     case TROUBLE_HUNGRY:
         await ttyPline(`Your ${body_part(STOMACH, state.youmonst)} feels content.`, state);
-        init_uhunger(state);
+        await init_uhunger(state);
         state.disp ??= {};
         state.disp.botl = true;
         break;
@@ -2657,7 +2657,7 @@ export async function pleased(g_align, state = game) {
                 state.disp.botl = true;
                 await encumber_msg(state);
             }
-            if (u.uhunger < 900) init_uhunger(state);
+            if (u.uhunger < 900) await init_uhunger(state);
             if (u.uluck < 0) u.uluck = 0;
             u.ucreamed = 0;
             await make_blinded(0, true, state);

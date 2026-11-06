@@ -185,7 +185,7 @@ async function restore_gamestate(state, modules) {
     }
     state.u.uz = cur_uz;
     state.u.uz0 = cur_uz0;
-    init_uhunger(state);
+    await init_uhunger(state);
     free_tutorial(state);
     state.gmst_stored = false;
     copyInto(state.svs?.spl_book, state.gmst_spl_book);

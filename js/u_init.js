@@ -302,15 +302,21 @@ function setInitialUasmon(state) {
 }
 
 // C ref: eat.c init_uhunger(). Sets hunger to 900 and the hunger-state fields
-// to their NOT_HUNGRY defaults. Exported for savelife() in end.js, which
-// restores hunger when it falls below 500 or the hero is choking.
-export function init_uhunger(state) {
+// to their NOT_HUNGRY defaults, and gives back the strength point that Weak
+// took, reporting any lighter load. Exported for prayer, savelife() in end.js
+// and the tutorial's game-state restore in nhlua.js.
+export async function init_uhunger(state) {
     const { u } = state;
     state.disp ??= {};
     state.disp.botl = u.uhs !== NOT_HUNGRY || u.atemp[0] < 0;
     u.uhunger = 900;
     u.uhs = NOT_HUNGRY;
-    if (u.atemp[0] < 0) u.atemp[0] = 0;
+    if (u.atemp[0] < 0) {
+        u.atemp[0] = 0;
+        // Restored strength can lighten the hero's burden.
+        const { encumber_msg } = await import('./pickup.js');
+        await encumber_msg(state);
+    }
 }
 
 function clearSpellIds(state) {
@@ -383,7 +389,7 @@ export async function u_init_misc(
     await adjabil(0, 1, state);
     u.ulevel = u.ulevelmax = 1;
 
-    init_uhunger(state);
+    await init_uhunger(state);
     clearSpellIds(state);
     u.ublesscnt = 300;
     const alignment = aligns[state.flags.initalign]?.value;
