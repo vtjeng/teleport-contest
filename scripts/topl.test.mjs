@@ -13,6 +13,7 @@ import {
     SUPPRESS_HISTORY,
     WIN_LOCKHISTORY,
 } from '../js/const.js';
+import { ROWNO } from '../js/const.js';
 import { GLYPH_CMAP_STONE_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
@@ -380,8 +381,12 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
         assert.equal(state.nhDisplay.grid[1][26].ch, ' ');
         // C row_refresh() still prints an unexplored glyph when its valid map
         // cell has an active frame colour; this records that exceptional draw.
+        // get_bkglyph_and_framecolor() gives the colour only to a cell that
+        // mapxy_valid() accepts, so a getpos callback accepts 27,0 here.
         state.iflags.bgcolors = true;
         state.gw = { wsettings: { map_frame_color: CLR_RED } };
+        state.getpos_getvalid = () => true;
+        state.getpos_valid_cells = new Set([27 * ROWNO + 0]);
         const setCell = state.nhDisplay.setCell.bind(state.nhDisplay);
         const painted = [];
         state.nhDisplay.setCell = (column, row, ...cell) => {
