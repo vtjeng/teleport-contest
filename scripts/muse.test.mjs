@@ -746,6 +746,53 @@ test('defensive undead-turning wand revives a wielded corpse', async () => {
     assert.equal(corpse.owornmask, 0);
 });
 
+test('a monster\'s undead-turning zap reports revival through its message seam',
+    async () => {
+        // zap.c unturn_dead() prints through pline(); a monster-turn planning
+        // pass supplies a silent message operation for that pline, so the
+        // revival line must reach the caller's seam rather than the terminal.
+        const state = await offensiveHero();
+        state.nhDisplay.onEmptyQueue = () => 32;
+        const corpse = mksobj(CORPSE, false, false, { state });
+        set_corpsenm(corpse, PM_COCKATRICE, { state });
+        await setuwep(addinv(corpse, { state }), { state });
+
+        let lane = null;
+        for (let x = 3; x < COLNO - 3 && !lane; ++x) {
+            for (let y = 3; y < ROWNO - 3 && !lane; ++y) {
+                if (state.level.at(x, y).typ !== ROOM
+                    || state.level.at(x + 1, y).typ !== ROOM
+                    || state.level.monsters[x][y]
+                    || state.level.monsters[x + 1][y]) continue;
+                lane = { x, y };
+            }
+        }
+        assert.ok(lane);
+        await teleds(lane.x, lane.y, TELEDS_TELEPORT, state);
+
+        const wand = carried(state, WAN_UNDEAD_TURNING, {
+            where: OBJ_MINVENT, spe: 2, // Two charges: one zap leaves one.
+        });
+        const monster = offensiveMonster(state, PM_GOBLIN, wand, {
+            mx: lane.x + 1, my: lane.y,
+            mhp: 10, mhpmax: 10, mpeaceful: false,
+        });
+        wand.ocarry = monster;
+        wand.v = monster;
+        monster.nmon = state.level.monlist;
+        state.level.monlist = monster;
+        place_monster(monster, monster.mx, monster.my, state);
+
+        const choice = find_defensive(monster, false, { state });
+        assert.equal(choice?.kind, 'undead turning wand');
+        const messages = [];
+        assert.equal(await use_defensive(monster, choice, state, {
+            message: async (text) => messages.push(text),
+        }), 2);
+        assert.ok(messages.some((text) => /suddenly comes alive!$/u.test(text)),
+            messages.join(' | '));
+    });
+
 test('defensive undead-turning wand reaches a floor corpse through bhito',
     async () => {
         // C muse.c:use_defensive -> mbhit -> fhito_loc -> zap.c:bhito.
