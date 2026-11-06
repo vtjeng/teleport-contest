@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3190275,
+      "datetime": "20260611204500",
+      "nethackrc": "OPTIONS=name:Frame,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:cat,hilite_pet\n",
+      "moves": " \u0017scroll of stinking cloud\nrf   \u001bll\u001b"
+    }
+  ]
+}

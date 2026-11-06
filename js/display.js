@@ -2067,6 +2067,27 @@ export const MG_MALE = 0x01000;
 export const MG_FEMALE = 0x02000;
 export const MG_FLAG_NOOVERRIDE = 0x01;
 
+// C ref: display.c get_bkglyph_and_framecolor() (2574-2578). A map cell
+// gets getpos's background frame colour while 'bgcolors' is on, getpos_sethilite()
+// has set map_frame_color, and mapxy_valid() accepts the cell;
+// getpos_sethilite() records the accepted cells in getpos_valid_cells.
+export function map_framecolor(x, y, state = game) {
+    const color = state.gw?.wsettings?.map_frame_color;
+    if (!state.iflags?.bgcolors || color === undefined || color === NO_COLOR)
+        return NO_COLOR;
+    return state.getpos_getvalid
+        && state.getpos_valid_cells?.has(x * ROWNO + y) ? color : NO_COLOR;
+}
+
+// C ref: win/tty/wintty.c tty_print_glyph() (3923-3926). A frame colour is
+// the first arm of the attribute chain: with colour on, the cell gets the
+// background colour, which recorder patch 006 does not capture, instead of
+// any attribute print_glyph_attr() chose.
+function framed_print_attr(attr, x, y, state = game) {
+    return state.iflags?.wc_color !== false
+        && map_framecolor(x, y, state) !== NO_COLOR ? 0 : attr;
+}
+
 /**
  * C ref: win/tty/wintty.c tty_print_glyph() (3923-3937), the ordered chain
  * that picks at most one attribute for a printed map cell. C runs it on every
@@ -2075,8 +2096,9 @@ export const MG_FLAG_NOOVERRIDE = 0x01;
  * touched since.
  *
  * C's chain has three arms and this holds the last two, in C's order. The
- * `bkglyphinfo->framecolor` arm above them needs iflags.bgcolors, which no
- * ported path sets, so it has no term here. Order is the whole point of the
+ * `bkglyphinfo->framecolor` arm above them depends on the cell being printed,
+ * not on the glyph; framed_print_attr() applies it where a cell is printed.
+ * Order is the whole point of the
  * function: a female pet under 'hilite_pet' takes iflags.wc2_petattr, and the
  * same pet with 'hilite_pet' off falls through to the inverse arm and takes
  * ATR_INVERSE from 'wizmgender'.
@@ -6782,9 +6804,6 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
         && (unexplored.ttychar !== ' '.charCodeAt(0)
             || unexplored.color !== NO_COLOR
             || unexplored.rgb !== undefined);
-    const frameColorActive = Boolean(state.iflags?.bgcolors)
-        && state.gw?.wsettings?.map_frame_color !== undefined
-        && state.gw.wsettings.map_frame_color !== NO_COLOR;
 
     const firstStatusRow = display.rows - statusRowCount;
     for (let screenRow = 0; screenRow < lastRow; ++screenRow) {
@@ -6807,8 +6826,7 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             // C row_refresh reads gg.gbuf's current glyph number, never
             // levl[x][y].glyph. Remembered terrain is a separate C value.
             const glyph = loc.disp_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF;
-            const frameColor = frameColorActive
-                && x > 0 && x < COLNO && mapY >= 0 && mapY < ROWNO;
+            const frameColor = map_framecolor(x, mapY, state) !== NO_COLOR;
             // cl_end() above blanked the terminal cell. A cell whose gbuf
             // glyph prints through g_pututf8() keeps that blank.
             if (loc.disp_glyph?.ch === null) clearTtyCell(loc, true);
@@ -6824,20 +6842,20 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             // tty_print_glyph()'s UTF-8 path does not update the recorder
             // shadow cell, which is represented by a null character here.
             if (ch === null || ch === undefined) continue;
+            const attr = framed_print_attr(presentation.attr ?? 0, x, mapY,
+                state);
             if (presentation.ch !== null && presentation.ch !== undefined) {
                 loc.tty_ch = presentation.ch;
                 loc.tty_color = presentation.color ?? NO_COLOR;
                 loc.tty_decgfx = Boolean(presentation.dec);
-                loc.tty_attr = presentation.attr ?? 0;
+                loc.tty_attr = attr;
             }
             const color = browserGlyphs
                 ? presentation.displayColor ?? presentation.color ?? NO_COLOR
                 : presentation.color ?? NO_COLOR;
-            display.setCell(x - 1, screenRow, ch, color, presentation.attr ?? 0);
+            display.setCell(x - 1, screenRow, ch, color, attr);
             if (overStatus) {
-                recordStatusOverlay(
-                    x - 1, screenRow, ch, color, presentation.attr ?? 0,
-                );
+                recordStatusOverlay(x - 1, screenRow, ch, color, attr);
             }
         }
     }
@@ -7080,7 +7098,17 @@ function _buildScreenOutput(cursorOnHero = true) {
                 const loc = game.level?.at(x, y);
                 if (!loc || (bufferedOnly && !loc.gnew)) continue;
                 if (overStatus && !loc.gnew) continue;
-                if (loc.gnew) commitFlushedGlyph(loc);
+                if (loc.gnew) {
+                    // tty_print_glyph() decides the attribute as it prints;
+                    // the printed cell keeps it until it is printed again.
+                    loc.disp_attr = framed_print_attr(loc.disp_attr ?? 0,
+                        x, y);
+                    if (loc.disp_browser_attr !== null
+                        && loc.disp_browser_attr !== undefined)
+                        loc.disp_browser_attr = framed_print_attr(
+                            loc.disp_browser_attr, x, y);
+                    commitFlushedGlyph(loc);
+                }
                 const ch = browserGlyphs && loc.disp_browser_ch
                     ? loc.disp_browser_ch
                     : (loc.disp_decgfx
@@ -7114,9 +7142,9 @@ function _buildScreenOutput(cursorOnHero = true) {
                     browserGlyphs
                         ? loc.disp_browser_color ?? loc.disp_color ?? NO_COLOR
                         : loc.disp_color ?? NO_COLOR,
-                    browserGlyphs && loc.disp_browser_ch
+                    framed_print_attr(browserGlyphs && loc.disp_browser_ch
                         ? loc.disp_browser_attr ?? 0
-                        : loc.disp_attr ?? 0,
+                        : loc.disp_attr ?? 0, x, y),
                 );
             }
         }
