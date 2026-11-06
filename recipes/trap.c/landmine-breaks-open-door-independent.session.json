@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7123402,
+      "datetime": "20280922143000",
+      "nethackrc": "OPTIONS=name:Sapper,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "hhhhhh:#wizwish\nland mine trap\nlh:",
+      "comment": "A debug-mode hero wishes a land mine onto an open door, steps off and back on; trap.c blow_up_landmine() breaks the door, so the look reports a broken door under the new pit."
+    }
+  ]
+}
