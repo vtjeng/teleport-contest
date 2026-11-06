@@ -9,6 +9,7 @@ import { encodeUtf8ByteString } from './hacklib.js';
 import { ATR_BOLD, NO_COLOR } from './terminal.js';
 import {
     showPendingTtyMessage,
+    TOPLINE_NEED_MORE,
     xwaitforspace,
 } from './tty_message.js';
 
@@ -124,7 +125,12 @@ async function getret(state) {
 
 // C ref: win/tty/wintty.c tty_wait_synch() (3623-3647). The startup/raw-print
 // arm waits for a space. Once a map is live, the window arm repaints it and
-// leaves any pending message's --More-- marker for the next reader.  The
+// leaves any pending message's --More-- marker for the next reader.  Only a
+// message still awaiting acknowledgement (TOPLINE_NEED_MORE) has one: C
+// writes no marker here, and the next more() or
+// tty_display_nhwindow(WIN_MESSAGE) draws it, so drawing it early is
+// invisible.  An answered tty_yn_function() prompt such as debug mode's
+// "Die?" leaves TOPLINE_NON_EMPTY, and its line gets no marker.  The
 // recorder's sticky `active` mode does not select this arm; only the
 // resettable ttyDisplay->rawprint state does.
 export async function tty_wait_synch(state = game) {
@@ -150,7 +156,8 @@ export async function tty_wait_synch(state = game) {
         // older focused fixtures that did not initialize the field.
         if (state.nhDisplay.nomuxRaw)
             state.nhDisplay.nomuxRaw.rawprint = 0;
-        showPendingTtyMessage(state);
+        if (state.nhDisplay.toplin === TOPLINE_NEED_MORE)
+            showPendingTtyMessage(state);
         // wintty.c tty_wait_synch(): when an interrupted read is still live,
         // recall twice so the first single-mode redraw does not consume the
         // prompt transition as the displayed history item.

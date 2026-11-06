@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "explode.c explode() 656-660: burning oil (type ZT_SPELL(ZT_FIRE), olet BURNING_OIL) that kills the hero is recorded as \"caught herself in her own burning oil\" without a killer prefix, as for any blast with a nonnegative type that is not a scroll. A gnomish Healer in debug mode wishes for a lit potion of oil and throws it at the ceiling, where it shatters on her. Inputs chosen independently of batch 6.",
+  "segments": [
+    {
+      "seed": 5172093,
+      "datetime": "20431030201500",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": " \u0017lit potion of oil\ntk<      y n  "
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "_comment": "save.c savelev_core():547 saves gb.billobjs, the unpaid objects the hero used up, with the level, and restore.c getlev():1173 reads them back. A human Healer in debug mode reaches the Dlvl 5 general store that shk.c/pay-boots-menu found (seed 8510304, same route), picks up buckled boots and a candy bar, eats the candy bar and saves. After the restore, the itemized pay menu still lists the eaten candy bar under \"Used up item:\".",
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:PayCase,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l, l, el   Sy"
+    },
+    {
+      "seed": 8510305,
+      "datetime": "20350108152000",
+      "nethackrc": "OPTIONS=name:PayCase,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " np\u001b"
+    }
+  ]
+}

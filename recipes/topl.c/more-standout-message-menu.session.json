@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "topl.c more() with the standout option: standoutbeg() writes the terminal's standout sequence, which recorder patch 006 does not copy into its capture buffer, so the --More-- that wintty.c tty_message_menu() forces after a one-item '?' list carries no attribute. A human Priest asks to quaff, lists his one potion stack with '?', dismisses it with space and cancels. Inputs chosen independently of batch 6.",
+  "segments": [
+    {
+      "seed": 3307719,
+      "datetime": "20350118074500",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:lawful,standout,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "q? \u001bs"
+    }
+  ]
+}

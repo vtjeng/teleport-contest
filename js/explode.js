@@ -431,6 +431,9 @@ export async function explode(
     const shopdamage = { value: false };
     let generic = false;
     let doHallu = false;
+    // C compares str with its hallu_buf by address; this marks that str
+    // holds the hallucinatory text rather than the killer-name copy.
+    let strIsHallu = false;
     let insideEngulfer;
     let grabbed = false;
     let grabbing = false;
@@ -608,7 +611,10 @@ export async function explode(
                 const monster = targetAt(xx, yy, state);
                 if (!monster) continue;
 
-                if (doHallu) str = hallucinatoryExplosion(state, env);
+                if (doHallu) {
+                    str = hallucinatoryExplosion(state, env);
+                    strIsHallu = true;
+                }
                 if (engulfing_u(monster, state)) {
                     await engulfer_explosion_msg(adtyp, olet, state, env);
                 } else if (cansee(xx, yy, state)) {
@@ -686,7 +692,10 @@ export async function explode(
 
     if (uhurt) {
         if (state.flags?.verbose && (type < 0 || olet !== SCROLL_CLASS)) {
-            if (doHallu) str = hallucinatoryExplosion(state, env);
+            if (doHallu) {
+                str = hallucinatoryExplosion(state, env);
+                strIsHallu = true;
+            }
             await messageLine(`You are caught in the ${str}!`, state, env);
             state.iflags ??= {};
             state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
@@ -723,23 +732,31 @@ export async function explode(
             if (Upolyd(state.u)) await rehumanize(state, env);
             else {
                 state.killer ??= { name: '', format: KILLED_BY };
-                if (olet === TRAP_EXPLODE) {
+                if (olet === MON_EXPLODE) {
+                    // C explode.c:645-650. An unseen blast keeps the
+                    // caller's killer name ("gas spore's explosion") while
+                    // str says only "explosion"; otherwise the name is
+                    // restored from str unless str is the hallucinatory text.
+                    if (!generic && !strIsHallu) state.killer.name = str;
+                    state.killer.format = KILLED_BY_AN;
+                } else if (olet === TRAP_EXPLODE) {
                     // C explode.c:651-655 attributes a magical trap's fatal
                     // blast to the hero without a prefixed "killed by".
                     state.killer.name = `caught ${uhim(state)}self in a ${str}`;
                     state.killer.format = NO_KILLER_PREFIX;
-                } else if (olet === WAND_CLASS && type >= 0) {
+                } else if (type >= 0 && olet !== SCROLL_CLASS) {
                     // C explode.c:656-660 attributes a fatal self-inflicted
-                    // wand blast to the original hero gender, without a
-                    // prefixed "killed by" on the tombstone.
+                    // blast (a cast fireball, burning oil) to the original
+                    // hero gender, without a prefixed "killed by" on the
+                    // tombstone.
                     state.killer.name = `caught ${uhim(state)}self in ${state.flags?.female ? 'her' : 'his'} own ${str}`;
                     state.killer.format = NO_KILLER_PREFIX;
                 } else {
-                    state.killer.name = generic ? 'explosion' : str;
+                    state.killer.name = str;
                     // C explode.c:662-667 uses an article for a fireball or
                     // tower of flame, even when the source is a scroll.
-                    state.killer.format = olet === MON_EXPLODE
-                        || ['tower of flame', 'fireball'].includes(str.toLowerCase())
+                    state.killer.format = ['tower of flame', 'fireball']
+                        .includes(str.toLowerCase())
                         ? KILLED_BY_AN : KILLED_BY;
                 }
                 // explode.c:668-673 checks the last pline after item effects:

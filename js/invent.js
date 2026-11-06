@@ -192,6 +192,7 @@ import {
     stop_timer,
 } from './timeout.js';
 import {
+    clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
     ttyPline,
     tty_message_menu,
@@ -1739,7 +1740,13 @@ export async function ggetobj(
                         ailets += obj.invlet;
                 }
             }
-            const displayed = await display_inventory(ailets, true, state);
+            // display_pickinv() returns '\033' when select_menu() is
+            // cancelled and '\0' when nothing was picked (invent.c:3414);
+            // only the cancel ends ggetobj().
+            const displayed = await display_inventory(ailets, true, state, {
+                cancelValue: '\x1b',
+                emptyValue: null,
+            });
             if (displayed === '\x1b') return 0;
             continue;
         }
@@ -5470,6 +5477,9 @@ export async function dotypeinv(state = game, hooks = {}) {
             );
             selectedType = answer ? String.fromCharCode(answer) : '\0';
             if (selectedType === '\0') {
+                // invent.c:3933: Escape answers the default '\0', and
+                // clear_nhwindow(WIN_MESSAGE) takes the prompt off.
+                clearTtyMessageWindow(state);
                 return resetDotypeContext(state);
             }
         } else if (anyUnpaid) selectedType = 'u';

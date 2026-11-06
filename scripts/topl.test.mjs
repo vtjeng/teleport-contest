@@ -16,11 +16,12 @@ import {
 import { GLYPH_CMAP_STONE_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
-import { ATR_INVERSE, CLR_RED, NO_COLOR } from '../js/terminal.js';
+import { ATR_NONE, CLR_RED, NO_COLOR } from '../js/terminal.js';
 import { tty_create_nhwindow } from '../js/wintty.js';
 import { docorner } from '../js/display.js';
 import {
     addtopl,
+    addtoplRows,
     free_msghistory_snapshot,
     msghistory_snapshot,
     more,
@@ -301,7 +302,7 @@ test('non-single history is a no-op while the TTY is in a read', async () => {
     assert.equal(state.nhDisplay.inputQueueLength, 1);
 });
 
-test('more always writes its marker and honors standout on a blank topline',
+test('more always writes its marker, without a standout attribute, on a blank topline',
     async () => {
         const state = historyState();
         state.flags = { standout: true };
@@ -315,7 +316,10 @@ test('more always writes its marker and honors standout on a blank topline',
         await more(state);
 
         assert.deepEqual(markerFrame.map((cell) => cell.ch), [...'--More--']);
-        assert.ok(markerFrame.every((cell) => cell.attr === ATR_INVERSE));
+        // topl.c more() calls standoutbeg(), but recorder patch 006 does not
+        // capture its xputs(SO); recordings/topl.c/
+        // more-standout-message-menu.session.json shows attr 0 here.
+        assert.ok(markerFrame.every((cell) => cell.attr === ATR_NONE));
         assert.equal(state.nhDisplay.inmore, 0);
         assert.equal(state.nhDisplay.toplin, 0);
     });
@@ -449,4 +453,15 @@ test('wrapped startup topline reproduces the committed C recording', async () =>
         replay.getRngLog().map(normalizeRng),
         segment.steps.flatMap(({ rng }) => rng).map(normalizeRng),
     );
+});
+
+test('addtoplRows wraps at column CO-1 as topl_putsym() does', () => {
+    // topl.c topl_putsym() starts a new row when curx reaches CO - 1, so an
+    // 80-column terminal holds 79 characters a row, split mid-word.
+    const text = 'a'.repeat(78) + ' bc';
+    assert.deepEqual(addtoplRows(text, 80), ['a'.repeat(78) + ' ', 'bc']);
+    // Exactly 79 characters still fit on the first row.
+    assert.deepEqual(addtoplRows('x'.repeat(79), 80), ['x'.repeat(79)]);
+    // An empty message is one empty row, as show_topl() clears row 0.
+    assert.deepEqual(addtoplRows('', 80), ['']);
 });

@@ -10,7 +10,7 @@ import {
     quitchars,
 } from './const.js';
 import { game } from './gstate.js';
-import { ATR_INVERSE, ATR_NONE, NO_COLOR } from './terminal.js';
+import { ATR_NONE, NO_COLOR } from './terminal.js';
 import {
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
@@ -89,6 +89,18 @@ export function addtopl(text, state = game) {
     }
     display.setCursor(column, display.cursorRow ?? 0);
     display.clearToEol();
+}
+
+// The physical rows addtopl() above leaves when it writes `text` from column
+// 0: topl_putsym() moves to a new row before column CO-1, so each row holds
+// CO-1 characters.
+export function addtoplRows(text, columns) {
+    const chars = [...String(text)];
+    const width = Math.max(1, columns - 1);
+    const rows = [];
+    for (let start = 0; start < chars.length || !rows.length; start += width)
+        rows.push(chars.slice(start, start + width).join(''));
+    return rows;
 }
 
 // C ref: topl.c update_topl()'s line splitting and byte cursor rules.
@@ -233,7 +245,11 @@ export async function more(state = game) {
         await dismissPendingTtyMessage(state, {
             alwaysPrompt: true,
             dismissMore: display.dismiss_more ?? 0,
-            promptAttr: state.flags?.standout ? ATR_INVERSE : ATR_NONE,
+            // more() brackets the marker with standoutbeg()/standoutend()
+            // when flags.standout is set. Those write the terminal's SO/SE
+            // strings through xputs(), which recorder patch 006 does not copy
+            // into its capture buffer, so the judged marker has no attribute.
+            promptAttr: ATR_NONE,
             returnResponse: true,
         });
     } finally {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c ggetobj() 2260-2280 under menustyle:combination: answering the class prompt with 'i' shows display_inventory(), whose menu returns '\\033' when cancelled, so Escape there ends the take-off and drop commands with a blank top line instead of asking for classes again. A dwarvish Valkyrie tries A and then D. Inputs chosen independently of batch 6.",
+  "segments": [
+    {
+      "seed": 5530817,
+      "datetime": "20360314111500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful,menustyle:combination,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " Ai\n\u001bsDi\n\u001bs"
+    }
+  ]
+}
