@@ -6259,6 +6259,9 @@ function _statusFieldEnabled(field, state) {
 // them. The timer is compared with gb.bl_hilite_moves, the svm.moves value
 // status_eval_next_unhilite() last recorded, not with the current turn: a
 // bot() during the monsters' part of a turn still sees the previous one.
+// C tests the timer only for an unchanged field (botl.c:1577), so a change
+// leaves an old timer in place until status_eval_next_unhilite() replaces
+// it; a second bot() before then finds it expired and drops the highlight.
 function _statusFieldNotice(gb, fld, data, updateAll) {
     const value = data.value ?? null;
     const compareValue = data.compareValue ?? value;
@@ -6266,7 +6269,7 @@ function _statusFieldNotice(gb, fld, data, updateAll) {
         || gb.status_hilite_percent[1][fld] !== (data.percent ?? null)
         || gb.status_hilite_text[1][fld] !== (data.text ?? null);
     const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
-    const expired = !updateAll && !game.multi && until > 0
+    const expired = !updateAll && !changed && !game.multi && until > 0
         && until < (gb.bl_hilite_moves ?? 0)
         && gb.status_hilite_rule[1][fld]?.behavior === 'changed';
     return { changed, expired };
@@ -6409,12 +6412,9 @@ function _collectStatusHilites(layouts, onlyField = null) {
         const compareValue = data.compareValue ?? value;
         const percent = data.percent ?? null;
         const text = data.text ?? null;
-        const previousValue = gb.status_hilite_value[1][fld];
         const previousCompareValue = gb.status_hilite_compare_value[1][fld];
         const previousPercent = gb.status_hilite_percent[1][fld];
         const previousText = gb.status_hilite_text[1][fld];
-        const previousRule = gb.status_hilite_rule[1][fld];
-        const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
         const { changed, expired } = _statusFieldNotice(gb, fld, data,
             updateAll);
         if (expired) {
@@ -6440,21 +6440,11 @@ function _collectStatusHilites(layouts, onlyField = null) {
             // percentage while the raw BL_XP direction is still downward.
             change = Math.sign(compareValue - previousCompareValue);
         if (updateAll) change = 0;
-        const unchanged = previousValue === value
-            && previousCompareValue === compareValue
-            && previousPercent === percent && previousText === text;
-        const pendingChanged = Boolean(gb.status_hilite_chg_banks[0][fld]);
-        const holdTemporary = !updateAll && unchanged
-            && previousRule?.behavior === 'changed'
-            && (pendingChanged || game.multi
-                || (until > 0 && (game.moves ?? 0) <= until));
         if (notification) {
             // botl.c get_hilite() picks the rule whatever 'statushilites'
             // says; the tty applies iflags.hilite_delta when it draws the
             // field (wintty.c render_status()), in _statusFieldStyle().
-            const selected = holdTemporary
-                ? previousRule
-                : _selectStatusHilite(field.key, data, change);
+            const selected = _selectStatusHilite(field.key, data, change);
             gb.status_hilite_rule[0][fld] = selected;
             // eval_notify_windowport_field() writes the selected rule into
             // both banks only when it notifies the field, including on
