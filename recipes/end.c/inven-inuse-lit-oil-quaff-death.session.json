@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "end.c done_object_cleanup() and restore.c inven_inuse(): a wizard-mode elven Wizard lights single potions of oil from a stack and quaffs them; potion.c peffect_oil()'s burn kills him on the second. The quaffed potion is still in use, so inven_inuse() finishes it off through invent.c useup(), whose obfree() stops its burn timer and light source.",
+  "segments": [
+    {
+      "seed": 6630412,
+      "datetime": "20461112093000",
+      "nethackrc": "OPTIONS=name:OilQuaff,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u00174 uncursed potions of oil\naq\nqraq\nqs\n\nyqn"
+    }
+  ]
+}

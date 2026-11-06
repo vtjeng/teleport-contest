@@ -206,6 +206,7 @@ import {
 import { tty_raw_print, tty_wait_synch } from './tty_rawprint.js';
 import { init_uhunger } from './u_init.js';
 import { hidden_gold } from './u_init_inventory_attrs.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { shkname, shkname_is_pname } from './shknam.js';
 import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
@@ -1019,11 +1020,16 @@ async function disclose(how, taken, state) {
 function finishInUseInventory(state) {
     // The recorder's TTY window hook is a no-op, but useup() still checks that
     // an update hook exists while the permanent inventory option is enabled.
-    const hooks = { updateInventory() {} };
+    // useup()'s obfree() stops the timers and light source of an item still
+    // in use, such as a lit potion of oil whose quaff killed the hero.
+    const env = objectGenerationEnv({
+        state,
+        hooks: { updateInventory() {} },
+    });
     for (let obj = state.invent; obj;) {
         const next = obj.nobj;
         if (obj.in_use)
-            useup(obj, { state, hooks });
+            useup(obj, env);
         obj = next;
     }
 }
