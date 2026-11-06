@@ -36,8 +36,8 @@ import {
     more,
     remember_topl,
     show_topl,
+    toplineRows,
     update_topl,
-    wrapTtyTopline,
     writeRecorderTtyLine,
 } from './topl.js';
 
@@ -87,7 +87,7 @@ function normalizeVplineMessage(value) {
 
 function pendingTtyMessageLayout(state) {
     const display = state.nhDisplay;
-    const lines = wrapTtyTopline(state._pending_message, display.cols);
+    const lines = toplineRows(state._pending_message, display.cols, state);
     let promptRow = lines.length - 1;
     let promptColumn = lines.at(-1).length;
     if (promptColumn >= display.cols - MORE_PROMPT.length) {

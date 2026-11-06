@@ -118,6 +118,7 @@ async function hooked_tty_getlin(query, hook, state) {
         remember_topl(state);
         show_topl(`${query} `, state);
         state._ttyToplines = `${query} `;
+        state._ttyUnsplitToplines = state._ttyToplines;
         state._pending_message = '';
         // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
         display.toplin = TOPLINE_NEED_MORE;
@@ -128,6 +129,9 @@ async function hooked_tty_getlin(query, hook, state) {
             // recall copy of the prompt before every keystroke.
             state._ttyToplines = `${query} ${text}`;
             display.toplines = state._ttyToplines;
+            // That strcpy() leaves gt.toplines without update_topl()'s
+            // newlines; see topl.js toplineRows().
+            state._ttyUnsplitToplines = state._ttyToplines;
             const c = (await nhgetch(state)) & 0xFF;
 
             // pgetchar() reaches tty_nhgetch(), which maps NUL to Escape.
