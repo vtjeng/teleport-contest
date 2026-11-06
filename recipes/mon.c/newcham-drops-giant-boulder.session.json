@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent mon.c witness for newcham() dropping a boulder: the debug Priestess wishes a wand of polymorph, creates a hill giant beside her, and zaps it; the giant was generated carrying a boulder, becomes a horned devil that cannot throw rocks, and newcham() drops the boulder through do.c flooreffects() and mkobj.c place_object(), whose boulder arm calls vision.c block_point(). I chose seed 9910005 from a scan of 9910001-9910011, reading the giant's direction from each C screen; two of the eleven giants carried a boulder.",
+  "segments": [
+    {
+      "seed": 9910005,
+      "datetime": "20370402110000",
+      "nethackrc": "OPTIONS=name:GiantPoly,role:Priest,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of polymorph\n\u0007hill giant\nzij\u001b"
+    }
+  ]
+}
