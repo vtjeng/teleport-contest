@@ -2898,7 +2898,7 @@ export async function test_move(
                         if (state.u.usteed) {
                             await message(
                                 "You can't lead "
-                                + upstart(y_monnam(state.u.usteed, state))
+                                + y_monnam(state.u.usteed, state)
                                 + ' through that closed door.',
                                 state,
                             );
