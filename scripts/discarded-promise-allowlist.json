@@ -1,0 +1,1156 @@
+{
+  "entries": {
+    "js/apply.js | check_leash | m_unleash": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/apply.js | fig_transform | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/apply.js | light_cocktail | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/apply.js | maybe_dunk_boulders | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/apply.js | use_cream_pie | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/apply.js | use_royal_jelly | addinv_nomerge": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/apply.js | whipattack | obj_extract_self": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/artifacts.js | dispose_of_orig_obj | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/ball.js | ballrelease | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/ball.js | ballrelease | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/ball.js | move_bc | place_object": {
+      "count": 4,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/ball.js | moveObject | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/ball.js | placebc_core | place_object": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/ball.js | set_bc | place_object": {
+      "count": 6,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/bones.js | drop_upon_death | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/bones.js | drop_upon_death | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/bones.js | fixuporacle | rloc_to": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/bones.js | give_to_nearby_mon | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/bones.js | purgeDefunctBonesMonsters | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/bones.js | resetobjs | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/bury.js | bury_an_obj | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dbridge.js | destroy_drawbridge | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/detect.js | food_detect | exercise": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/detect.js | gold_detect | exercise": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | buried_ball_to_freedom | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | buried_ball_to_freedom | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | buried_ball_to_punishment | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | dig | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | dig | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | dig | rnd_treefruit_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | expose | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | mdig_tunnel | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | mdig_tunnel | rnd_treefruit_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | rot_corpse | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | rot_corpse | rot_organic": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dig.js | rot_organic | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do_wear.js | glibr | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do_wear.js | Ring_on | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do_wear.js | Ring_on | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do_wear.js | Shield_off | setworn": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do_wear.js | Shirt_off | setworn": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do.js | clearDropSlots | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do.js | clearDropSlots | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do.js | drop | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/do.js | drop | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dog.js | keepdogs | m_unleash": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dog.js | mon_catchup_elapsed_time | m_unleash": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dogmove.js | dog_invent | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dogmove.js | dog_move | m_unleash": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dogmove.js | quickmimic | m_unleash": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | container_impact_dmg | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | deliver_obj_to_mon | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | impact_drop | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | kick_nondoor | mksobj_at": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | obj_delivery | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | obj_delivery | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | really_kick_object | obj_extract_self": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | ship_object | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dokick.js | ship_object | remove_worn_item": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dothrow.js | autoquiver | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dothrow.js | gem_accept | rloc": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dothrow.js | return_throw_to_inv | setuqwep": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dothrow.js | return_throw_to_inv | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dothrow.js | throw_gold | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dothrow.js | throw_obj | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dothrow.js | throwit | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/dothrow.js | throwit | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/eat.js | floorfood | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/end.js | finishInUseInventory | useup": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/end.js | fuzzer_savelife | bless": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/end.js | placeFreeTransitObject | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/engrave.js | engrave | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/explode.js | scatter | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/extralev.js | makerogueghost | curse": {
+      "count": 6,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/fountain.js | dofindgem | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/fountain.js | drinksink | mkobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/fountain.js | sink_backs_up | mkobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/hack.js | domove_core | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/hack.js | moverock_core | obj_extract_self": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/hack.js | moverock_core | place_object": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/hack.js | movobj | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | beginMerged | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | delete_contents | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | delobj_core | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | freeinv_core_steps | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | hold_another_object | obj_extract_self": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | hold_another_object | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | obfree | setnotworn": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | replace_inventory_core | freeinv_core": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | resetInventory | useupall": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/invent.js | useupf | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/lock.js | breakchestlock | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | discard_minvent | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | discard_minvent | update_mon_extrinsics": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | m_initinv | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | m_initinv | curse": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | m_initweap | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | makemon | hideunder": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | makemon | mkobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | makemon | mon_adjust_speed": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon_create.js | mongets | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/makemon.js | unmakemon | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mhitm.js | passivemm | drain_item": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mineralize.js | mineralize | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mineralize.js | mineralize | place_object": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/minion.js | demon_talk | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/minion.js | gain_guardian_angel | bless": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/minion.js | lose_guardian_angel | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | create_trap | maketrap": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | dig_corridor | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | fake_delphi | run_room_descriptor": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | fill_empty_maze | makemon": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | fill_empty_maze | mkobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | fill_empty_maze | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | finishMonster | maketrap": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | finishMonster | mkobj_at": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | finishMonster | mksobj_at": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | generate_way_out_method | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | huge_room_with_another_room_inside | run_room_descriptor": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | lspo_gas_cloud | create_gas_cloud": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | makemaz | maketrap": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | makeniche | mkobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | makeniche | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | map_cleanup | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | mkinvpos | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | nesting_rooms | run_room_descriptor": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | populateSupplyChest | add_to_container": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | room_in_a_room | run_room_descriptor": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | twin_businesses | run_room_descriptor": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | water_surrounded_vault_contents | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | water_surrounded_vault_contents | lspo_monster": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mklev.js | water_surrounded_vault_contents | lspo_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkmaze.js | finishContents | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkmaze.js | mk_bubble | mv_bubble": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkmaze.js | populate_maze | makemon": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkmaze.js | populate_maze | mkobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkmaze.js | populate_maze | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkmaze.js | restore_waterlevel | mv_bubble": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkobj_hornoplenty.js | hornoplenty | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkroom.js | finishCell | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkroom.js | finishCell | mkobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkroom.js | finishCell | mksobj_at": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkroom.js | finishZoo | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mkroom.js | mkswamp | makemon": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mktrap.js | mktrap_victim | curse": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mktrap.js | mktrap_victim | place_object": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | apply_newcham_steps | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | apply_newcham_steps | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | m_detach | m_unleash": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | make_corpse | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | maybe_unhide_at | hideunder": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | meatbox | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | meatmetal | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | meatobj | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | monstone | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | mpickgold | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mon.js | mpickstuff | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/monmove.js | m_move | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/monster_object.js | initializeStatue | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mplayer.js | mk_mplayer_armor | bless": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mplayer.js | mk_mplayer_armor | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mthrowu.js | ohitmon | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/mthrowu.js | spitmm | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/muse.js | mloot_container | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/muse.js | mon_escape | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/muse.js | precheck | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/music.js | do_pit | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/obj.js | initializeTin | blessorcurse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/obj.js | mkbox_cnts | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/obj.js | mksobj_init | blessorcurse": {
+      "count": 13,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/obj.js | mksobj_init | curse": {
+      "count": 6,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/obj.js | obj_absorb | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/obj.js | shrinking_glob_gone | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/obj.js | shrinking_glob_gone | remove_worn_item": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/objnam_readobjnam.js | readobjnam_typfnd_finish | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/objnam_readobjnam.js | readobjnam_typfnd_finish | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/options.js | applyOption | optfn_fruit": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/options.js | applyOption | optfn_menu_headings": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/options.js | applyOption | optfn_msg_window": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/options.js | applyOption | optfn_number_pad": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/options.js | applyOption | optfn_petattr": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/options.js | applyOption | optfn_pickup_types": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/options.js | defaultResult | optfn_pickup_types": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | boh_loss | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | do_boh_explosion | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | in_container | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | in_container | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | observe_quantum_cat | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | observe_quantum_cat | oname": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | out_container | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | pick_obj | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | pickup | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pickup.js | tipcontainer | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/polyself.js | break_armor | consume": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/polyself.js | polymon | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/potion.js | hold_potion | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/potion.js | impact_arti_light | bless": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/potion.js | impact_arti_light | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pray.js | gcrownu | add_weapon_skill": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pray.js | gcrownu | bless": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pray.js | give_spell | bless": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pray.js | give_spell | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/pray.js | offer_real_amulet | useup": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/priest.js | mk_roamer | rloc": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/priest.js | priestini | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/priest.js | priestini | rloc": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/read.js | drop_boulder_on_monster | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/read.js | drop_boulder_on_player | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/read.js | recharge | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/read.js | unpunish | setworn": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/restore.js | hide_monst | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/room_features.js | mkgrave | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/room_features.js | mkgrave | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | inherits | rouse_shk": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | litter_scatter | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | money2mon | freeinv": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | money2mon | remove_worn_item": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | money2u | addinv": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | money2u | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | paybill | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | setpaid | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shk.js | update_bill | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shknam.js | finishStockRoom | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shknam.js | mkshobj_at | mkobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shknam.js | mkshobj_at | mksobj_at": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/shknam.js | shkinit | rloc": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/sp_lev_object.js | applyBuc | curseSpecialObject": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/sp_lev_object.js | blessorcurseSpecialObject | curseSpecialObject": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/sp_lev_object.js | finishAccepted | add_to_container": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/sp_lev_object.js | finishAccepted | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/sp_lev_object.js | finishAccepted | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/sp_lev_object.js | finishMonster | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/steal.js | relobj | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/steal.js | stealgold | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/steed.js | mount_steed | m_unleash": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/steed.js | put_saddle_on_mon | update_mon_extrinsics": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/steed.js | use_saddle | freeinv": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/teleport.js | rloco | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/teleport.js | teleport_pet | m_unleash": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/timeout.js | burn_object | obj_extract_self": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/timeout.js | hatch_egg | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap_effects.js | force_launch_placement | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap_effects.js | keep_saddle_with_steedcorpse | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap_effects.js | keep_saddle_with_steedcorpse | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap_effects.js | launch_obj | obj_extract_self": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap_water_damage.js | fire_damage | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap_water_damage.js | fire_damage | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap.js | animate_statue | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap.js | cnv_trap_obj | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap.js | fill_pit | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap.js | makeRollingBoulderLaunch | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap.js | transfer | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/trap.js | transfer | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/u_init_inventory_use.js | initialArmor | setworn": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/u_init_inventory_use.js | initialWeapon | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/u_init_inventory_use.js | initialWeapon | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/uhitm.js | hmon_hitmon_misc_obj | place_object": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/uhitm.js | mhitm_ad_sgld | obj_extract_self": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/uhitm.js | steal_it | obj_extract_self": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/vault.js | gd_move | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/vault.js | restfakecorr | mongone": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/vault.js | wallify_vault | obj_extract_self": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/weapon.js | possibly_unwield | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | doquiver_core | setuqwep": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | doquiver_core | setuswapwep": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | doswapweapon | setuswapwep": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | dowield | setuqwep": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | dowield | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | finish_splitting | addinv_nomerge": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | finish_splitting | freeinv": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | uqwepgone | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | uswapwepgone | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | wield_tool | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/wield.js | wield_tool | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/worn.js | extract_from_minvent | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/worn.js | m_dowear | m_dowear_type": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/worn.js | m_dowear_type | curse": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/worn.js | m_dowear_type | update_mon_extrinsics": {
+      "count": 2,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | bhito | exercise": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | bhito | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | break_statue | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | fracture_rock | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | melt_ice | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | poly_obj | setuqwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | poly_obj | setuswapwep": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | revive | obj_extract_self": {
+      "count": 3,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | stone_to_flesh_obj | obj_extract_self": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    },
+    "js/zap.js | zap_updown | hideunder": {
+      "count": 1,
+      "reason": "Present when the check was added at b24326ad6; not yet audited."
+    }
+  }
+}
