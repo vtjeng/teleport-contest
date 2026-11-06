@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "explode.c explode() 436-442 and 645-650: a gas spore killed by a blindfolded hero explodes unseen, so the blast is described only as \"explosion\" while the killer name stays \"gas spore's explosion\" on the tombstone. A gnomish Healer in debug mode creates a gas spore, wishes for a blindfold, puts it on and kills the spore, declines bones and dies. Inputs chosen independently of batch 6.",
+  "segments": [
+    {
+      "seed": 2209457,
+      "datetime": "20400709183000",
+      "nethackrc": "OPTIONS=name:Wendel,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": " \u0007gas spore\n\u0017blindfold\nPmFk  yn  "
+    }
+  ]
+}
