@@ -45,6 +45,9 @@ test('aggregates metrics separately from per-session diagnostics', () => {
                 session: 'case-alpha.session.json',
                 passed: true,
                 error: null,
+                // A passing session can still report what ran after its game
+                // ended; it is counted apart from replay errors.
+                terminationViolations: [{ kind: 'rng', detail: 'rn2(2)=1' }],
                 metrics: {
                     screens: { matched: 3, total: 5 },
                     rngCalls: { matched: 7, total: 11 },
@@ -66,7 +69,7 @@ test('aggregates metrics separately from per-session diagnostics', () => {
 
     const summary = summarizeBundle(bundle);
     assert.deepEqual(summary, {
-        sessions: { passed: 1, total: 2, errored: 1 },
+        sessions: { passed: 1, total: 2, errored: 1, violating: 1 },
         screens: { matched: 5, total: 11 },
         rngCalls: { matched: 8, total: 24 },
         cursors: { matched: 6, total: 11 },
@@ -74,7 +77,8 @@ test('aggregates metrics separately from per-session diagnostics', () => {
 
     const output = formatSummary(summary);
     assert.doesNotMatch(output, /case-alpha|case-beta|per-session failure/);
-    assert.match(output, /Sessions: 1\/2 passing; 1 replay errors/);
+    assert.match(output,
+        /Sessions: 1\/2 passing; 1 replay errors; 1 with termination violations/);
     assert.match(output, /Screens: 5\/11 \(45\.5%\)/);
     assert.match(output, /PRNG: 8\/24 \(33\.3%\)/);
     assert.match(output, /Cursors: 6\/11 \(54\.5%\)/);

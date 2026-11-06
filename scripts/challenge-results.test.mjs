@@ -308,6 +308,14 @@ test('worker infrastructure failure cannot masquerade as a measured zero', t => 
         metrics: { screens: { matched: 0, total: 2 }, rngCalls: { matched: 0, total: 2 },
             cursors: { matched: 0, total: 2 } }, error: 'game refused input' }] };
     assert.equal(measuredCases(root, input, complete)[0].error, 'game refused input');
+    // runScorer() attaches a termination violation beside segmentErrors; the
+    // evaluation keeps it and leaves `passed` as the judge computed it.
+    const violating = { results: [{ ...complete.results[0], passed: true, error: null,
+        terminationViolations: [{ kind: 'rng', detail: 'rn2(4)=2' }] }] };
+    const [measured] = measuredCases(root, input, violating);
+    assert.equal(measured.passed, true);
+    assert.deepEqual(measured.terminationViolations, [{ kind: 'rng', detail: 'rn2(4)=2' }]);
+    assert.equal(Object.hasOwn(measuredCases(root, input, complete)[0], 'terminationViolations'), false);
 });
 
 test('removing a previously measured case cannot improve the expanding set by omission', t => {

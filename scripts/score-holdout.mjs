@@ -45,7 +45,7 @@ export function parseEvaluationArgs(args) {
 
 export function summarizeBundle(bundle) {
     const summary = {
-        sessions: { passed: 0, total: bundle.results.length, errored: 0 },
+        sessions: { passed: 0, total: bundle.results.length, errored: 0, violating: 0 },
         screens: { matched: 0, total: 0 },
         rngCalls: { matched: 0, total: 0 },
         cursors: { matched: 0, total: 0 },
@@ -56,6 +56,8 @@ export function summarizeBundle(bundle) {
         // runScorer() attaches segmentErrors for a crash that the judge's
         // runSegment() ended the segment on without an `error`.
         if (result.error || result.segmentErrors?.length) summary.sessions.errored++;
+        // And termination violations: what ran after a segment ended.
+        if (result.terminationViolations?.length) summary.sessions.violating++;
         summary.screens.matched += result.metrics?.screens?.matched || 0;
         summary.screens.total += result.metrics?.screens?.total || 0;
         summary.rngCalls.matched += result.metrics?.rngCalls?.matched || 0;
@@ -75,7 +77,8 @@ export function formatSummary(summary) {
     return [
         'Local holdout (opened; aggregate scores)',
         `Sessions: ${summary.sessions.passed}/${summary.sessions.total} passing; `
-            + `${summary.sessions.errored} replay errors`,
+            + `${summary.sessions.errored} replay errors; `
+            + `${summary.sessions.violating} with termination violations`,
         `Screens: ${summary.screens.matched}/${summary.screens.total} `
             + `(${percentage(summary.screens)})`,
         `PRNG: ${summary.rngCalls.matched}/${summary.rngCalls.total} `

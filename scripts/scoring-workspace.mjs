@@ -83,7 +83,9 @@ function batchCount(sizes) {
 // therefore loads SEGMENT_ERROR_PRELOAD, which records each crash under
 // <workspace>/segment-errors/; runScorer() attaches them to the runner's
 // results as `segmentErrors` and names them on stderr, leaving every score
-// and `error` field as the judge reports it.
+// and `error` field as the judge reports it. It records the termination
+// violations runSegment() reports the same way, attached as
+// `terminationViolations`.
 const SEGMENT_ERROR_PRELOAD = join(dirname(SCRIPT_PATH), 'segment-error-preload.mjs');
 
 export function runScorer(targetRoot) {
@@ -111,20 +113,29 @@ export function runScorer(targetRoot) {
     return withSegmentErrors(child, errorDir);
 }
 
-// Attach each session's recorded crashes to its runner result, and add one
-// stderr line per crashed session in the runner's PASS/FAIL style.
+// Attach each session's recorded crashes and termination violations to its
+// runner result, and add one stderr line per such session in the runner's
+// PASS/FAIL style.
 export function withSegmentErrors(child, errorDir) {
     const markerIndex = child.stdout.lastIndexOf(RESULT_MARKER);
     if (markerIndex < 0) return child;
     const bundle = parseRunnerBundle(child.stdout);
     const lines = [];
+    const readLog = (log) => readFileSync(log, 'utf8').trim().split('\n')
+        .map(line => JSON.parse(line));
     for (const result of bundle.results) {
         const log = join(errorDir, `${result.session}.jsonl`);
-        if (!existsSync(log)) continue;
-        result.segmentErrors = readFileSync(log, 'utf8').trim().split('\n')
-            .map(line => JSON.parse(line));
-        const named = result.segmentErrors.map(({ name, message }) => `${name}: ${message}`);
-        lines.push(`  CRASH: ${result.session} (${named.join('; ')})\n`);
+        if (existsSync(log)) {
+            result.segmentErrors = readLog(log);
+            const named = result.segmentErrors.map(({ name, message }) => `${name}: ${message}`);
+            lines.push(`  CRASH: ${result.session} (${named.join('; ')})\n`);
+        }
+        const violationLog = join(errorDir, `${result.session}.violations.jsonl`);
+        if (existsSync(violationLog)) {
+            result.terminationViolations = readLog(violationLog);
+            const named = result.terminationViolations.map(({ kind, detail }) => `${kind}: ${detail}`);
+            lines.push(`  VIOLATION: ${result.session} (${named.join('; ')})\n`);
+        }
     }
     if (!lines.length) return child;
     return {

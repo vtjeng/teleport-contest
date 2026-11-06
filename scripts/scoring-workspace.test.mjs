@@ -30,20 +30,25 @@ test('runner speed fits startup plus a per-move cost like the frozen runner', ()
     assert.equal(runnerSpeed([{ time: { ms: 5, moves: 1 } }]).label, '?');
 });
 
-test('runScorer() names a crash that the judge entry point ended a segment on', (t) => {
+test('runScorer() names a crash and a termination violation the judge entry point reported', (t) => {
     // A stand-in workspace: its runner starts one worker per session, as
     // frozen/ps_test_runner.mjs does, and its runSegment() reports a crash for
-    // crash.session.json only, as js/jsmain.js runSegment() reports one to a
-    // registered reporter. Two sessions show that only the crashed one gains
-    // segmentErrors.
+    // crash.session.json only and a termination violation for
+    // stray.session.json only, as js/jsmain.js runSegment() reports each to a
+    // registered reporter. Three sessions show that only the crashed one
+    // gains segmentErrors and only the stray one terminationViolations.
     const root = mkdtempSync(join(tmpdir(), 'scoring-workspace-crash-'));
     t.after(() => rmSync(root, { recursive: true, force: true }));
     const files = {
         'js/jsmain.js': `let reporter = null;
+let violationReporter = null;
 export function setSegmentErrorReporter(next) { reporter = next; }
+export function setTerminationViolationReporter(next) { violationReporter = next; }
 export function runSegment(file) {
     if (file.endsWith('crash.session.json'))
         reporter?.({ name: 'TypeError', message: 'stand-in crash', stack: '' });
+    if (file.endsWith('stray.session.json'))
+        violationReporter?.([{ kind: 'rng', detail: 'rn2(3)=0' }, { kind: 'nhgetch', detail: 'late read' }]);
 }
 `,
         'frozen/ps_test_runner.mjs': `import { spawnSync } from 'node:child_process';
@@ -66,6 +71,7 @@ if (worker) {
 `,
         'sessions/crash.session.json': '{}',
         'sessions/clean.session.json': '{}',
+        'sessions/stray.session.json': '{}',
     };
     for (const [path, body] of Object.entries(files)) {
         mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -74,9 +80,13 @@ if (worker) {
     const child = runScorer(root);
     assert.equal(child.status, 0, child.stderr);
     const results = parseRunnerBundle(child.stdout).results;
-    assert.deepEqual(results.map(r => [r.session, r.error, r.segmentErrors]), [
-        ['clean.session.json', null, undefined],
-        ['crash.session.json', null, [{ name: 'TypeError', message: 'stand-in crash' }]],
+    assert.deepEqual(results.map(r => [r.session, r.error, r.segmentErrors, r.terminationViolations]), [
+        ['clean.session.json', null, undefined, undefined],
+        ['crash.session.json', null, [{ name: 'TypeError', message: 'stand-in crash' }], undefined],
+        ['stray.session.json', null, undefined,
+            [{ kind: 'rng', detail: 'rn2(3)=0' }, { kind: 'nhgetch', detail: 'late read' }]],
     ]);
     assert.match(child.stderr, /^ {2}CRASH: crash\.session\.json \(TypeError: stand-in crash\)$/mu);
+    assert.match(child.stderr,
+        /^ {2}VIOLATION: stray\.session\.json \(rng: rn2\(3\)=0; nhgetch: late read\)$/mu);
 });

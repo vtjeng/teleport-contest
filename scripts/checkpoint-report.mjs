@@ -96,7 +96,7 @@ export function summarizeSynthetic(evaluations, invalidReferences = []) {
     for (const evaluation of evaluations) {
         for (const c of evaluation.cases) {
             const result = { batch: evaluation.batch, id: c.id, metrics: c.metrics, error: c.error,
-                segmentErrors: c.segmentErrors };
+                segmentErrors: c.segmentErrors, terminationViolations: c.terminationViolations };
             const key = `${evaluation.batch}/${c.id}`;
             const entry = listed.get(key);
             let excluded = false;
@@ -145,7 +145,10 @@ const caseMetrics = (metrics) => METRICS.map((k) => `${k} ${metrics?.[k]?.matche
 // scripts/scoring-workspace.mjs runScorer() names each crash the judge's
 // runSegment() ended a segment on.
 const crashText = (c) => (c.segmentErrors?.length
-    ? `; crashed: ${c.segmentErrors.map(({ name, message }) => `${name}: ${message}`).join('; ')}` : '');
+    ? `; crashed: ${c.segmentErrors.map(({ name, message }) => `${name}: ${message}`).join('; ')}` : '')
+    + (c.terminationViolations?.length
+        ? `; ran after termination: ${c.terminationViolations
+            .map(({ kind, detail }) => `${kind}: ${detail}`).join('; ')}` : '');
 const LIST_PROBLEMS = {
     matches: () => 'listed as an invalid reference but now matches; remove its entry',
     changed: (c) => `listed as an invalid reference but its result changed; expected ${caseMetrics(c.expected)}, `

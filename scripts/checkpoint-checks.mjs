@@ -343,9 +343,18 @@ export function compareScoreToBaseline(stdout) {
     }
     const comparison = compareToBaseline(
         currentFromResults(results ?? []), readBaseline());
+    // scripts/scoring-workspace.mjs runScorer() attaches what ran after a
+    // segment terminated; the judge's scores do not show it.
+    const violating = (results ?? [])
+        .filter(({ terminationViolations }) => terminationViolations?.length)
+        .map(({ session }) => session);
     const failed = comparison.drops.length > 0 || comparison.missing.length > 0;
-    if (!failed) return { passed: true };
-    return { passed: false, detail: describeDrops(comparison) };
+    if (!failed && !violating.length) return { passed: true };
+    const details = [];
+    if (failed) details.push(describeDrops(comparison));
+    if (violating.length)
+        details.push(`termination violations: ${violating.join(', ')}`);
+    return { passed: false, detail: details.join('; ') };
 }
 
 export function developmentTotals(stdout) {

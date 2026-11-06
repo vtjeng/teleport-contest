@@ -231,8 +231,9 @@ function scorerOutput(sessions) {
         'human-readable scorer output',
         `__RESULTS_JSON__${JSON.stringify({
             results: Object.entries(sessions).map(
-                ([session, { screens, rngCalls, cursors }]) => ({
+                ([session, { screens, rngCalls, cursors, terminationViolations }]) => ({
                     session,
+                    ...(terminationViolations ? { terminationViolations } : {}),
                     metrics: {
                         screens: { matched: screens },
                         rngCalls: { matched: rngCalls },
@@ -271,6 +272,20 @@ test('the score check passes a run that meets the ratchet', () => {
     assert.deepEqual(
         compareScoreToBaseline(scorerOutput(raised)), { passed: true },
     );
+});
+
+test('the score check fails a session that reports a termination violation', () => {
+    // Every score meets the ratchet, so only the violation that
+    // scoring-workspace.mjs runScorer() attached can fail the check; the
+    // stand-in violation is an RNG append that came after the final capture.
+    const baseline = readBaseline();
+    const [first] = Object.keys(baseline);
+    const run = baselineRun(baseline);
+    run[first].terminationViolations = [{ kind: 'rng', detail: 'rn2(5)=3' }];
+    assert.deepEqual(compareScoreToBaseline(scorerOutput(run)), {
+        passed: false,
+        detail: `termination violations: ${first}`,
+    });
 });
 
 test('the score check fails on a one-screen drop in a single session', () => {

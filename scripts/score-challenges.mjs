@@ -48,8 +48,11 @@ export function measuredCases(root, manifest, bundle) {
         return { id: entry.id, recordingSha256: entry.recordingSha256, passed: result.passed,
             metrics: { screens: result.metrics.screens, rng: result.metrics.rngCalls, cursors: result.metrics.cursors },
             error: result.error ?? null,
-            // A crash the judge's runSegment() ended the segment on; runScorer() attaches it.
-            ...(result.segmentErrors ? { segmentErrors: result.segmentErrors } : {}) };
+            // A crash the judge's runSegment() ended the segment on, and what
+            // ran after a segment terminated; runScorer() attaches both.
+            ...(result.segmentErrors ? { segmentErrors: result.segmentErrors } : {}),
+            ...(result.terminationViolations
+                ? { terminationViolations: result.terminationViolations } : {}) };
     });
 }
 

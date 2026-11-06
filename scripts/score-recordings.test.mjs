@@ -63,3 +63,20 @@ test('summarizeRecordings totals the runner bundle and names failures', () => {
     assert.equal(formatSummary(totals),
         'recordings: 1/2 passing, screens 42/50, rng 490/550');
 });
+
+test('summarizeRecordings fails a matching recording that reports a termination violation', () => {
+    // The judge's comparison passed (every screen and RNG call matched), but
+    // something ran after the game ended, which scoring-workspace.mjs
+    // runScorer() attaches as terminationViolations; the stand-in is an
+    // nhgetch() call after nh_terminate().
+    const bundle = { results: [
+        { session: 'end.c__quit.session.json', passed: true,
+            terminationViolations: [{ kind: 'nhgetch', detail: 'after termination' }],
+            metrics: { screens: { matched: 7, total: 7 },
+                rngCalls: { matched: 40, total: 40 } } },
+    ] };
+    const totals = summarizeRecordings(bundle);
+    assert.deepEqual(totals, { recordings: 1, passing: 0, screens: 7,
+        screensTotal: 7, rng: 40, rngTotal: 40,
+        failing: ['end.c__quit.session.json'] });
+});
